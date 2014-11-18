@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html class='ui-mobile'><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+	<base href='.'>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no'>
+	<title>EDGE bioinformatics</title>
+	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="stylesheet" href="css/edge-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
+	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/edge.css"/>
+	<link rel='stylesheet' href='css/edge-output.css'/>
+	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
+	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/edge-output.js"></script>
+	<script src="javascript/raphael-min.js" ></script>
+	<script src="javascript/jsphylosvg-min.js"></script>    
+	<script src="javascript/jquery.tooltipster.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
+</head>
+
+<body class='ui-mobile-viewport'>
+
+<div data-role='page' class='edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active' tabindex='0' style='padding-bottom: 82px;'>
+
+	<div data-role='header' class='edge-header ui-header ui-bar-inherit'>
+		<div class='edge-logo'>
+			<img src='images/edge_logo.svg'>
+			<h2 class='ui-title' role='heading' aria-level='1'>EDGE bioinformatics</h2>
+		</div>
+	</div><!-- /header -->
+
+	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>
+		<h2>Summary</h2>
+		<p>Project Name: Ecoli_10x<br/>
+			Description: -<br/>
+			Submission Time: 2014 Oct 22 17:56:49<br/>
+			Number of CPUs: 8<br/>
+			Total Running Time: 02h 05m 39s</p>
+
+		<div class='edge-right'>expand |<a data-ajax='false' href='#' id='edge-out-expand-all'> all </a>|<a data-ajax='false' href='#' id='edge-out-expand-none'> none </a>| sections</div>
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>General</h4>
+
+			<table data-role='table' data-mode='reflow' class='output-table ui-responsive'>
+			  <thead>
+				<tr>
+				  <th data-priority='1'>Analysis</th>
+				  <th data-priority='2'>Run</th>
+				  <th data-priority='2'>Status</th>
+				  <th data-priority='3'>Running Time</th>
+				</tr>
+			  </thead>
+			  <tbody>
+			  	
+				<tr>
+				  <td>Quality Trim and Filter</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:02:46</td>
+				</tr>
+				
+				<tr>
+				  <td>Host Removal</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:05:58</td>
+				</tr>
+				
+				<tr>
+				  <td>IDBA Assembly</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:02:15</td>
+				</tr>
+				
+				<tr>
+				  <td>Reads Mapping To Contigs</td>
+				  <td>Auto</td>
+				  <td>Complete</td>
+				  <td>00:00:46</td>
+				</tr>
+				
+				<tr>
+				  <td>Reads Mapping To Reference</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:04:20</td>
+				</tr>
+				
+				<tr>
+				  <td>Reads Taxonomy Classification</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:22:15</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>bwa</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:04:13</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-speDB-b</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:02:10</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-strDB-v</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:23</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-genDB-v</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:20</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>kraken_mini</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:32</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-speDB-v</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:20</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-strDB-b</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:02:08</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>gottcha-genDB-b</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:01:55</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>metaphyler-srv</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:45</td>
+				</tr>
+				
+				<tr>
+				  <td><span style='margin-left:4em'>metaphlan</span></td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:09</td>
+				</tr>
+				
+				<tr>
+				  <td>Contigs Mapping To Reference</td>
+				  <td>Auto</td>
+				  <td>Complete</td>
+				  <td>00:00:36</td>
+				</tr>
+				
+				<tr>
+				  <td>Variant Analysis</td>
+				  <td>Auto</td>
+				  <td>Complete</td>
+				  <td>00:01:11</td>
+				</tr>
+				
+				<tr>
+				  <td>Contigs Annotation</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:03:25</td>
+				</tr>
+				
+				<tr>
+				  <td>ProPhage Detection</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:01:53</td>
+				</tr>
+				
+				<tr>
+				  <td>SNP Phylogeny</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>01:06:13</td>
+				</tr>
+				
+				<tr>
+				  <td>Primer Validation</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:00:08</td>
+				</tr>
+				
+				<tr>
+				  <td>Primer Adjudication</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:10:06</td>
+				</tr>
+				
+				<tr>
+				  <td>Generate JBrowse Tracks</td>
+				  <td>On</td>
+				  <td>Complete</td>
+				  <td>00:01:44</td>
+				</tr>
+				
+				<tr>
+				  <td>HTML Report</td>
+				  <td>On</td>
+				  <td><span>Complete</span></td>
+				  <td>-</td>
+				</tr>
+				
+			  </tbody>
+			</table>
+
+			<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+			  <thead>
+				<tr>
+				  <th data-priority='1'>Report/Info</th>
+				  <th data-priority='2'>Location</th>
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr>
+				  <td>Input Reads</td>
+				  <td>/opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.1.fastq, /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.2.fastq</td>
+				</tr>
+				<tr>
+				  <td>Output Directory</td>
+				  <td><a data-ajax='false' href='..'>Ecoli_10x</a></td>
+				</tr>
+				<tr>
+				  <td>PDF Report</td>
+				  <td><a data-ajax='false' href='../final_report.pdf'>final_report.pdf</a></td>
+				</tr>
+				<tr>
+				  <td>Process log</td>
+				  <td><a data-ajax='false' href='../process.log'>process.log</a></td>
+				</tr>
+				<tr>
+				  <td>Error log</td>
+				  <td><a data-ajax='false' href='../error.log'>error.log</a></td>
+				</tr>
+			  </tbody>
+			</table>
+		</div>
+		
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Quality Trim and Filter</h4>
+			<ol>
+				<li><span class="li-report-content-title">Before Trimming</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Before</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Reads</td><td>331,126</td></tr>
+						<tr><td>Total Bases</td><td>50,000,026 bp</td></tr>
+						<tr><td>Mean Read Length</td><td>151.00 bp</td></tr>
+					  </tbody>
+					</table>
+				</div></li>
+				<li><span class="li-report-content-title">After Trimming</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>After</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Reads</td><td>331,026 (99.97 %) </td></tr>
+						<tr><td>Total Bases</td><td>49,984,926 (99.97 %) bp</td></tr>
+						<tr><td>Mean Read Length</td><td>151.00 bp</td></tr>
+						<tr><td>Paired Reads</td><td>330,930 (99.97 %)</td></tr>
+						<tr><td>Paired Total Bases</td><td>49,970,430 (99.97 %)</td></tr>
+						<tr><td>Unpaired Reads</td><td>96 (0.03 %)</td></tr>
+						<tr><td>Unpaired Total Bases</td><td>14,496 (0.03 %)</td></tr>
+					  </tbody>
+					</table>
+					
+					<div class="ui-grid-c ui-responsive">
+						<div class="ui-block-a">
+							<span class="iframe_label">Quality Report <a data-ajax='false' href='images/QC_quality_report.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="images/QC_quality_report.png" alt="QC_quality_report">
+							</a>
+						</div>
+						<div class="ui-block-b">
+							<span class="iframe_label">Read Length <a data-ajax='false' href='images/QC_read_length.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="images/QC_read_length.png" alt="QC_quality_report"></a>
+						</div>
+						<div class="ui-block-c">
+							<span class="iframe_label">Nucleotide Cont <a data-ajax='false' href='images/QC_nucleotide_content.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="images/QC_nucleotide_content.png" alt="QC_quality_report"></a>
+						</div>
+						<div class="ui-block-d">
+							<span class="iframe_label">GC Content <a data-ajax='false' href='images/QC_GC_content.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="images/QC_GC_content.png" alt="QC_quality_report"></a>
+						</div>
+					</div>
+					
+				</div></li>
+			</ol>
+			
+			<p class='extra-text-link'>Link to
+				|<a data-ajax='false' href='../QcReads/QC_qc_report.pdf'> QC Report PDF </a>
+				|<a data-ajax='false' href='../QcReads'> Directory </a>
+			</p>
+		</div>
+		
+
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Host Removal</h4>
+			
+			<p>Host file: /opt/apps/edge/edge_ui/EDGE_input/Host/Human_ref_GRCh38_all/human_ref_GRCh38_all.fa,/opt/apps/edge/edge_ui/EDGE_input/Host/Inverterbrate_Vectors_of_Human_Pathogens/all_vector.fa.</p>
+
+			<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+			  <thead>
+				<tr>
+				  <th data-priority='1'>After Removal</th>
+				  <th data-priority='2'>Stats</th>
+				</tr>
+			  </thead>
+			  <tbody>
+			  	
+				<tr><td>Total reads</td><td>331,026</td></tr>
+				
+				<tr><td>Total non-host reads</td><td>288,505 (87.15 %)</td></tr>
+				
+				<tr><td>"human_ref_GRCh38_all" reads</td><td>34 (0.01 %)</td></tr>
+				
+				<tr><td>"all_vector" reads</td><td>42,487 (12.83 %)</td></tr>
+				
+			  </tbody>
+			</table>
+
+			
+			<div class="ui-grid-c ui-responsive">
+				<div class="ui-block-a">
+					<span class="iframe_label">Host Removal Stats <a data-ajax='false' href='images/HostRemovalStats.png'>[full]</a></span>
+					<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+					<img class="preview_img" data-src="images/HostRemovalStats.png" alt="Host Removal Stats">
+					</a>
+				</div>
+			</div>
+			
+
+			<p class='extra-text-link'>Link to |<a data-ajax='false' href='../HostRemoval/HostRemovalStats.pdf'> Report PDF </a>|<a data-ajax='false' href='../HostRemoval'> Directory </a></p>
+		</div>
+		
+
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>De Novo Assembly</h4>
+			<ol>
+				<li><span class="li-report-content-title">General</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Assembly</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Number of contigs</td><td>1,367</td></tr>
+						<tr><td>N50</td><td>6,128 bp</td></tr>
+						<tr><td>Max contig size</td><td>36,181 bp</td></tr>
+						<tr><td>Min contig size</td><td>267 bp</td></tr>
+						<tr><td>total assembly size</td><td>4,228,447 bp</td></tr>
+					  </tbody>
+					</table>
+
+					
+					<div class="ui-grid-c ui-responsive">
+						<div class="ui-block-a">
+							<span class="iframe_label">Contig Length <a data-ajax='false' href='images/Assembly_length.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="images/Assembly_length.png" alt="Assembly length">
+							</a>
+						</div>
+						<div class="ui-block-b">
+							<span class="iframe_label">GC Content <a data-ajax='false' href='images/Assembly_GC_content.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="images/Assembly_GC_content.png" alt="Assembly_GC_content">
+							</a>
+						</div>
+					</div>
+					
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/contigs_stats.pdf'> Report PDF </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/contigs.fa'> Contigs Fasta </a>
+						|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA'> JBrowse </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis'> Directory </a></p>
+				</div></li>
+				<li><span class="li-report-content-title">Assembly validation by read mapping</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Mapped</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Number of Mapped Reads</td><td>279,127</td></tr>
+						<tr><td>% of Total Reads</td><td>96.75 %</td></tr>
+						<tr><td>Number of Unmapped Reads</td><td>9,378</td></tr>
+						<tr><td>% of Total Reads</td><td>3.25 %</td></tr>
+						<tr><td>Average Fold Coverage</td><td>7.77 X</td></tr>
+					  </tbody>
+					</table>
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_plots.pdf'> Mapping Plot </a>
+						|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM'> JBrowse </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/readsMappingToContig'> Directory </a></p>
+				</div></li>
+				
+				<li><span class="li-report-content-title">Annotation</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Annotation</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>CDS</td><td>4,031</td></tr>
+						<tr><td>rRNA</td><td>4</td></tr>
+						<tr><td>tRNA</td><td>49</td></tr>
+					  </tbody>
+					</table>
+					
+					<p class="iframe_label jbrowse_iframe">Show annotation result using JBrowse in <a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a></p>
+					
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/Annotation/Ecoli_10x.gff'> GFF3 </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/Annotation/Ecoli_10x.gbk'> GenBank </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/Annotation'> Directory </a>
+					</p>
+				</div></li> 
+				
+			</ol>
+		</div>
+						  
+
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Reference-based Analysis</h4>
+			
+			<p>Reference file: /opt/apps/edge/edge_ui/EDGE_input/Reference/Escherichia_coli_str._K-12_substr._MG1655/NC_000913.gbk</p>
+			<ol>
+				
+				<li><span class="li-report-content-title">Contigs mapped to reference</span><div class="li-report-content">
+					<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Analysis</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Number of Mapped Contigs</td><td>1,367</td></tr>
+						<tr><td>% of Total Contigs</td><td>100.00 %</td></tr>
+						<tr><td>Average Fold Coverage</td><td>0.96 X</td></tr>
+						<tr><td>Linear Coverage</td><td>92.2247%</td></tr>
+						<tr><td>SNPs</td><td>251</td></tr>
+						<tr><td>InDels</td><td>17</td></tr>
+					  </tbody>
+					</table>
+					
+					<table data-role='table' id='table-contigs-mapped-ref' data-mode='columntoggle' class='output-table ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Reference</th>
+						  <th data-priority='6'>Name</th>
+						  <th data-priority='2'>Length</th>
+						  <th data-priority='3'>GC(%)</th>
+						  <th data-priority='2'>Avg Fold(X)</th>
+						  <th data-priority='2'>Base Coverage(%)</th>
+						</tr>
+					  </thead>
+					  <tbody>
+					  	
+						<tr>
+							<td title="Escherichia coli str_ K-12 substr_ MG1655 chromosome, complete genome">NC_000913</td>
+							<td>Escherichia coli str_ K-12 substr_ MG1655 chromosome, complete genome</td>
+							<td>4,639,675</td>
+							<td>50.79</td>
+							<td>0.96</td>
+							<td>92.22</td>
+						</tr>
+					  	
+					  </tbody>
+					</table>
+
+					<p class="iframe_label jbrowse_iframe">Show contigs mapping to the reference using JBrowse in <a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CCTG2REF'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
+					</p>
+						
+					<p class='extra-text-link'>Link to
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_plot.pdf'> Plot </a>
+						|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CCTG2REF'> JBrowse </a>
+						|<a data-ajax='false' href='../AssemblyBasedAnalysis/contigMappingToRef'> Directory </a></p>
+				</div></li>
+				
+
+				<li><span class="li-report-content-title">Reads mapped to reference</span><div class="li-report-content">
+					<ol>
+						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
+							<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+							  <thead>
+								<tr>
+								  <th data-priority='1'>Analysis</th>
+								  <th data-priority='2'>Stats</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<tr><td>Number of Mapped Reads</td><td>285,649</td></tr>
+								<tr><td>% of Total Post-QC Reads</td><td>99.01 %</td></tr>
+							  </tbody>
+							</table>
+
+							<table data-role='table' data-mode='columntoggle' data-mode='reflow' class='output-table ui-responsive'>
+							  <thead>
+								<tr>
+								  <th data-priority='1'>Reference</th>
+								  <th data-priority='6'>Name</th>
+								  <th data-priority='2'>Ref len</th>
+								  <th data-priority='5'>Ref GC%</th>
+								  <th data-priority='1'>Mapped reads</th>
+								  <th data-priority='2'>Ref recovery%</th>
+								  <th data-priority='2'>Avg fold(x)</th>
+								  <th data-priority='3'>Fold std</th>
+								  <th data-priority='4'># of Gap</th>
+								  <th data-priority='5'>Total Gap bases</th>
+								  <th data-priority='4'># of SNPs</th>
+								  <th data-priority='4'># of INDELs</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								
+								<tr>
+									<td title="Escherichia coli str_ K-12 substr_ MG1655 chromosome, complete genome">NC_000913</td>
+									<td>Escherichia coli str_ K-12 substr_ MG1655 chromosome, complete genome</td>
+									<td>4,639,675</td>
+									<td>50.79</td>
+									<td>285,649</td>
+									<td>94.46%</td>
+									<td>7.32</td>
+									<td>4.60</td>
+									<td>2,494</td>
+									<td>256,943</td>
+									<td>63</td>
+									<td>0
+</td>							
+								</tr>
+								
+							  </tbody>
+							</table>
+
+							
+							<div class="ui-grid-c ui-responsive">
+								<div class="ui-block-a">
+									<span class="iframe_label">Coverage <a data-ajax='false' href='images/readsMappingToRef_coverage.png'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="images/readsMappingToRef_coverage.png" alt="Coverage">
+									</a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">Fold histogram <a data-ajax='false' href='images/readsMappingToRef_fold_histogram.png'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="images/readsMappingToRef_fold_histogram.png" alt="Fold histogram">
+									</a>
+								</div>
+							</div>
+
+							<p class="iframe_label jbrowse_iframe">Show reads mapping to the reference using JBrowse in  <a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CBAM'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
+							</p>
+							
+
+							<p class='extra-text-link'>Link to 
+								|<a data-ajax='false' href='../AssemblyBasedAnalysis/ReadsBasedAnalysis/readsToRef_plots.pdf'> Plot </a>
+								|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM'> JBrowse </a>
+								|<a data-ajax='false' href='../ReadsBasedAnalysis'> Directory </a></p>
+						</div></li>
+						<li><span class="li-report-content-title">Unmapped Reads</span><div class="li-report-content">
+							<table data-role='table' data-mode='reflow' class='output-table output-table-twocol ui-responsive'>
+							  <thead>
+								<tr>
+								  <th data-priority='1'>Unmapped</th>
+								  <th data-priority='2'>Stats</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<tr><td>Number of Unmapped Reads</td><td>2,856</td></tr>
+								<tr><td>% of total reads</td><td>0.99 %</td></tr>
+							  </tbody>
+							</table>
+							
+							
+							<div class="ui-grid-a ui-responsive">
+								<div class="ui-block-a" style="width:32%; height:550px;">
+										<span class="iframe_label">Heatmap (species) <a data-ajax='false' href='images/heatmap_DATASET-UnmappedReads.species.png'>[full]</a></span>
+										
+										<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+										<img class="preview_img" data-src="images/heatmap_DATASET-UnmappedReads.species.png" alt="Coverage">
+										</a>
+										
+								</div>
+								<div class="ui-block-b" style="width:64%; padding: 0.7em 0 0 0;">
+										<span class="iframe_label">Radar map at species level <a data-ajax='false' href='report/radarchart_DATASET_UnmappedReads.species.html'>[fullwindow]</a></span>
+										
+										<iframe style='height:510px;' data-src='report/radarchart_DATASET_UnmappedReads.species.html'>Your browser does not support iframes</iframe>
+										
+								</div>
+							</div>
+							
+											
+							<p class='extra-text-link'>Link to 
+								|<a data-ajax='false' href='report/report_summary.xlsx'> Summary table </a>
+								|<a data-ajax='false' href='report/report_SEQ1_UnmappedReads.xlsx'> Abundance </a>
+								|<a data-ajax='false' href='report'> Directory </a></p>
+
+						</div></li>
+					</ol>
+				</div></li>
+			</ol>
+		</div>
+		
+
+		
+		<div id='edge-output-community-profiling' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Community Profiling</h4>
+			<p>Profiling results of unmapped reads to the reference.</p>
+			<ol>
+				<li><span class="li-report-content-title">General</span><div class="li-report-content">
+					<table data-role='table' data-mode='columntoggle' data-mode='reflow' class='output-table ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Tool</th>
+						  <th data-priority='2'>Rank</th>
+						  <th data-priority='3'>Top1</th>
+						  <th data-priority='3'>Top2</th>
+						  <th data-priority='4'>Top3</th>
+						  <th data-priority='5'>Top4</th>
+						  <th data-priority='6'>Top5</th>
+						</tr>
+					  </thead>
+					  <tbody>
+					  	
+						<tr>
+							<td>bwa</td>
+							<td>species</td>
+							<td>Escherichia coli</td>
+							<td>Achromobacter xylosoxidans</td>
+							<td>Alteromonas macleodii</td>
+							<td>Shigella flexneri</td>
+							<td>Shigella sonnei</td>
+						</tr>
+						
+						<tr>
+							<td>gottcha-speDB-b</td>
+							<td>species</td>
+							<td>Escherichia coli</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+						</tr>
+						
+						<tr>
+							<td>gottcha-speDB-v</td>
+							<td>species</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+						</tr>
+						
+						<tr>
+							<td>metaphlan</td>
+							<td>species</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+						</tr>
+						
+						<tr>
+							<td>metaphyler-srv</td>
+							<td>species</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+							<td>N/A</td>
+						</tr>
+						
+						<tr>
+							<td>kraken_mini</td>
+							<td>species</td>
+							<td>Escherichia coli</td>
+							<td>Achromobacter xylosoxidans</td>
+							<td>Shigella sonnei</td>
+							<td>Delftia acidovorans</td>
+							<td>Streptococcus suis</td>
+						</tr>
+						
+					  </tbody>
+					</table>
+
+					
+					<div class="ui-grid-a ui-responsive">
+						<div class="ui-block-a" style="width:32%; height:550px !important;">
+							<span class="iframe_label">Heatmap (species) <a data-ajax='false' href='report/heatmap_DATASET-UnmappedReads.species.pdf'>[full]</a></span>
+							
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="images/heatmap_DATASET-UnmappedReads.species.png" alt="Coverage">
+							</a>
+							
+						</div>
+						<div class="ui-block-b" style="width:64%; padding: 0.7em 0 0 0; height:550px !important;">
+							<span class="iframe_label">Radar map at species level <a data-ajax='false' href='report/radarchart_DATASET_UnmappedReads.species.html'>[fullwindow]</a></span>
+							
+							<iframe style='height:510px;' data-src='report/radarchart_DATASET_UnmappedReads.species.html'>Your browser does not support iframes</iframe>
+							
+						</div>
+					</div>
+					
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='report/report_summary.xlsx'> Summary table </a>
+						|<a data-ajax='false' href='report/report_SEQ1_UnmappedReads.xlsx'> Abundance </a>
+						|<a data-ajax='false' href='report'> Directory </a></p>
+				</div></li>
+
+			  	
+				<li><span class="li-report-content-title">BWA (reads mapping)</span><div class="li-report-content">
+
+				
+				<div class="ui-grid-a ui-responsive edge-taxa-report">
+					<div class="ui-block-a">
+ 						<span class="iframe_label">Tree plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/bwa/UnmappedReads-bwa.tree.svg'>[fullwindow]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+						<img class="preview_img" data-src="images/UnmappedReads-bwa.tree.png" alt="Tree plot">
+						</a>
+					</div>
+					<div class="ui-block-b">
+						<span class="iframe_label">Krona plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/bwa/UnmappedReads-bwa.krona.html'>[fullwindow]</a></span>
+						<iframe data-src='report/1_UnmappedReads/bwa/UnmappedReads-bwa.krona.html'>Your browser does not support iframes</iframe>
+					</div>
+				</div>
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='report/1_UnmappedReads/bwa/UnmappedReads-bwa.list.txt'> Abundance </a>
+						|<a data-ajax='false' href='report/1_UnmappedReads/bwa'> Directory </a>
+						</p>
+				</div></li>
+				
+				
+				<li><span class="li-report-content-title">GOTTCHA (bacterial database)</span><div class="li-report-content">
+
+				
+				<div class="ui-grid-a ui-responsive edge-taxa-report">
+					<div class="ui-block-a">
+ 						<span class="iframe_label">Tree plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/gottcha-speDB-b/UnmappedReads-gottcha-speDB-b.tree.svg'>[fullwindow]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+						<img class="preview_img" data-src="images/UnmappedReads-gottcha-speDB-b.tree.png" alt="Tree plot">
+						</a>
+					</div>
+					<div class="ui-block-b">
+						<span class="iframe_label">Krona plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/gottcha-speDB-b/UnmappedReads-gottcha-speDB-b.krona.html'>[fullwindow]</a></span>
+						<iframe data-src='report/1_UnmappedReads/gottcha-speDB-b/UnmappedReads-gottcha-speDB-b.krona.html'>Your browser does not support iframes</iframe>
+					</div>
+				</div>
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='report/1_UnmappedReads/gottcha-speDB-b/UnmappedReads-gottcha-speDB-b.list.txt'> Abundance </a>
+						|<a data-ajax='false' href='report/1_UnmappedReads/gottcha-speDB-b'> Directory </a>
+						</p>
+				</div></li>
+				
+				
+				<li><span class="li-report-content-title">GOTTCHA (viral database)</span><div class="li-report-content">
+
+				
+				[Not available]
+				
+				
+				<li><span class="li-report-content-title">Metaphlan</span><div class="li-report-content">
+
+				
+				[Not available]
+				
+				
+				<li><span class="li-report-content-title">Metaphyler-Srv</span><div class="li-report-content">
+
+				
+				[Not available]
+				
+				
+				<li><span class="li-report-content-title">Kraken (mini database)</span><div class="li-report-content">
+
+				
+				<div class="ui-grid-a ui-responsive edge-taxa-report">
+					<div class="ui-block-a">
+ 						<span class="iframe_label">Tree plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/kraken_mini/UnmappedReads-kraken_mini.tree.svg'>[fullwindow]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+						<img class="preview_img" data-src="images/UnmappedReads-kraken_mini.tree.png" alt="Tree plot">
+						</a>
+					</div>
+					<div class="ui-block-b">
+						<span class="iframe_label">Krona plot at species level
+						<a data-ajax='false' href='report/1_UnmappedReads/kraken_mini/UnmappedReads-kraken_mini.krona.html'>[fullwindow]</a></span>
+						<iframe data-src='report/1_UnmappedReads/kraken_mini/UnmappedReads-kraken_mini.krona.html'>Your browser does not support iframes</iframe>
+					</div>
+				</div>
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='report/1_UnmappedReads/kraken_mini/UnmappedReads-kraken_mini.list.txt'> Abundance </a>
+						|<a data-ajax='false' href='report/1_UnmappedReads/kraken_mini'> Directory </a>
+						</p>
+				</div></li>
+				
+				
+
+			</ol>
+		</div>
+		
+
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>SNP Phylogeny</h4>
+			
+			<p>Selected database: Ecoli</p>
+				
+				<div class="ui-grid-a ui-responsive snp_phylogeny">
+					<div class="ui-block-a">
+						<span class="iframe_label">Tree (ALL)
+							<a data-ajax='false' href='SNP_Phylogeny/Ecoli/RAxML_bestTree.all.xml'>[phyloXML]</a>
+							<a data-ajax='false' class='sp-circ-btn'>[circular]</a>
+							<a data-ajax='false' class='sp-rect-btn'>[rectangular]</a>
+							<a data-ajax='false' class='sp-full-btn'>[full]</a>
+						</span>
+						<div id="output-phylo-all" class="output-phylo"></div>
+					</div>
+					<div class="ui-block-b">
+						<span class="iframe_label">Tree (CDS)
+							<a data-ajax='false' href='SNP_Phylogeny/Ecoli/RAxML_bestTree.cds.xml'>[phyloXML]</a>
+							<a data-ajax='false' class='sp-circ-btn'>[circular]</a>
+							<a data-ajax='false' class='sp-rect-btn'>[rectangular]</a>
+							<a data-ajax='false' class='sp-full-btn'>[full]</a>
+						</span>
+						<div id="output-phylo-cds" class="output-phylo"></div>
+					</div>
+				</div>
+				
+								
+				<p class='extra-text-link'>Link to
+					|<a data-ajax='false' href='SNP_Phylogeny/Ecoli/snp_stats_all.txt'> SNP </a>
+					|<a data-ajax='false' href='SNP_Phylogeny/Ecoli/snp_alignment_all.aln.fasta'> Alignment (all) </a>
+					|<a data-ajax='false' href='SNP_Phylogeny/Ecoli/snp_alignment_cds.aln.fasta'> Alignment (cds) </a>
+					|<a data-ajax='false' href='SNP_Phylogeny/'> Directory </a></p>
+		</div>
+		
+
+		
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>PCR Assay Analysis</h4>
+			<ol>
+				
+				<li><span class="li-report-content-title">Primer Validation</span><div class="li-report-content">
+					<p>Validate primers binding to contigs - SUCCESS!</p>
+					<p>Validate primers binding to reference - SUCCESS!</p>
+					<table data-role='table' data-mode='reflow' class='output-table ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Contig</th>
+						  <th data-priority='2'>Location</th>
+						  <th data-priority='3'>Product Size</th>
+						</tr>
+					  </thead>
+					  <tbody>
+			  			
+						<tr><td>Ecoli_10x_221</td><td>4336..4958</td><td>623</td></tr>
+			  			
+						<tr><td>NC_000913</td><td>3957949..3958571</td><td>623</td></tr>
+			  			
+					  </tbody>
+					</table>
+
+					
+					<div class="ui-grid-c ui-responsive">
+						<div class="ui-block-a">
+							<span class="iframe_label">PCR Validation <a data-ajax='false' href='images/pcrValidation.png'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="images/pcrValidation.png" alt="PCR Validation">
+							</a>
+						</div>
+					</div>
+					
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR'> JBrowse </a>
+						|<a data-ajax='false' href='../AssayCheck/pcrValidation.pdf'> Report PDF </a>
+						|<a data-ajax='false' href='../AssayCheck/'> Directory </a></p>
+				</div></li>
+				
+				
+				<li><span class="li-report-content-title">Primer Design</span><div class="li-report-content">
+					
+					<table data-role='table' data-mode='columntoggle' data-mode='reflow' class='output-table ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Primer Name</th>
+						  <th data-priority='2'>Location</th>
+						  <th data-priority='2'>Forward Primer</th>
+						  <th data-priority='6'>Forward Tm</th>
+						  <th data-priority='2'>Reverse Primer</th>
+						  <th data-priority='6'>Reverse Tm</th>
+						  <th data-priority='3'>Size</th>
+						  <th data-priority='6'>Background</th>
+						</tr>
+					  </thead>
+					  <tbody>
+					  	
+						<tr>
+							<td>Ecoli_10x_186-1</td>
+							<td>2519..2855</td>
+							<td>TGCACGACGCCGAACTAC</td>
+							<td>60.4 C</td>
+							<td>GTGCCGGGTAAGTGCACC</td>
+							<td>61.1 C</td>
+							<td>337 bp</td>
+							<td>[44.33 C] Escherichia coli str. K-12 substr. W3110</td>
+						</tr>
+						
+						<tr>
+							<td>Ecoli_10x_213-1</td>
+							<td>5157..5359</td>
+							<td>CTGGTGGCGTTCAACAATGA</td>
+							<td>59.0 C</td>
+							<td>TTACGGAAGCCCTCCATCAG</td>
+							<td>59.2 C</td>
+							<td>203 bp</td>
+							<td>[50.58 C] Escherichia coli UM146 chromosome</td>
+						</tr>
+						
+						<tr>
+							<td>Ecoli_10x_400-1</td>
+							<td>3100..3319</td>
+							<td>GCGCAACAGCTGAATATCGA</td>
+							<td>59.1 C</td>
+							<td>TCAGGTTATGCCGTTTCGTG</td>
+							<td>58.6 C</td>
+							<td>220 bp</td>
+							<td>[42.38 C] Escherichia coli ETEC H10407</td>
+						</tr>
+						
+						<tr>
+							<td>Ecoli_10x_444-1</td>
+							<td>2730..2941</td>
+							<td>TCGCAATTTGTTGAATTTGCAGA</td>
+							<td>58.6 C</td>
+							<td>TGTCGCCCTTTGTTGAGAAC</td>
+							<td>58.7 C</td>
+							<td>212 bp</td>
+							<td>[46.19 C] Escherichia coli W chromosome</td>
+						</tr>
+						
+						<tr>
+							<td>Ecoli_10x_559-1</td>
+							<td>1946..2146</td>
+							<td>TACCGGCTGGCTGGCAAA</td>
+							<td>62.0 C</td>
+							<td>TTGGCTGGCGGGGAGTTATT</td>
+							<td>61.9 C</td>
+							<td>201 bp</td>
+							<td>[52.90 C] Escherichia coli PMV-1 main chromosome</td>
+						</tr>
+						
+					  </tbody>
+					</table>
+
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR'> JBrowse </a>
+						|<a data-ajax='false' href='../AssayCheck/PCR.Adjudication.primers.txt'> Result </a>
+						|<a data-ajax='false' href='../AssayCheck/'> Directory </a></p>
+				</div></li>
+				
+			</ol>
+
+			<p class="iframe_label jbrowse_iframe">Show primer validation/design result using JBrowse in <a data-ajax='false' class='jb_link' href='JBrowse/?data=data%2FEcoli_10x%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
+			</p>
+			
+		</div>
+		
+
+		<div data-role="popup" id="popup-general" data-overlay-theme="b" data-theme="b" data-corners="false">
+		  <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+		  <a href="#" data-rel="back"><img id="popup-general-img" src=""></a>
+		</div>
+
+	</div><!-- /content -->
+
+
+	<div data-role='footer' data-position='fixed' data-tap-toggle='false' class='edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup' role='contentinfo'>
+		<div class='edge-footer-logo'>
+			<img src='images/logo_DTRA.png'/>
+			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+<script>
+	var jblink = $("a.jb_link");
+	$("a.jb_link").bind('click', function(e){
+        e.preventDefault();
+    });
+	$("a.jb_link").attr('title', 'Please use EDGE ui to open JBrowse.');
+</script>
+</body></html>
