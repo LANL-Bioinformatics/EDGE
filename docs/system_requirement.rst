@@ -1,3 +1,5 @@
+.. _sys_requirement:
+
 System requirements
 ###################
 
@@ -47,10 +49,11 @@ CentOS 6
     
 1. Install dependancies using yum::
 
-    sudo yum -y install perl-CPAN expat-devel gcc gcc-c++ kernel-devel readline-devel.x86_64 libX11-devel.x86_64 
-    sudo yum -y install libXt-devel.x86_64 gcc-gfortran.x86_64 inkscape perl-JSON perl-libwww-perl unzip wget 
-    sudo yum -y install git zip zlib-devel perl-ExtUtils-Embed perl-CGI firefox curl fuse-exfat exfat–utils 
-    sudo yum -y install perl-App-cpanminus
+    sudo yum -y install perl-CPAN expat-devel gcc gcc-c++ kernel-devel inkscape perl-JSON 
+    sudo yum -y install libXt-devel.x86_64 gcc-gfortran.x86_64 readline-devel.x86_64
+    sudo yum -y install git zip zlib-devel perl-ExtUtils-Embed perl-CGI firefox curl wget 
+    sudo yum -y install perl-App-cpanminus libX11-devel.x86_64 unzip 
+    sudo yum -y install perl-libwww-perl fuse-exfat exfat–utils
 
 2. Install Bioperl using CPAN::
 
@@ -75,10 +78,11 @@ EPEL Repo
 
 1. Install libraries and dependancies by yum::
 
-    sudo yum -y install libX11-devel readline-devel libXt-devel ncurses-devel inkscape scipy expat expat-devel 
-    sudo yum -y install freetype freetype-devel zlib zlib-devel perl-App-cpanminus perl-Test-Most python-pip 
-    sudo yum -y install blas-devel atlas-devel lapack-devel numpy numpy-f2py libpng12 libpng12-devel
-    sudo yum -y install perl-XML-Simple perl-JSON git
+    sudo yum -y install libX11-devel readline-devel libXt-devel ncurses-devel inkscape 
+    sudo yum -y install freetype freetype-devel zlib zlib-devel perl-App-cpanminus git 
+    sudo yum -y install blas-devel atlas-devel lapack-devel  libpng12 libpng12-devel
+    sudo yum -y install perl-XML-Simple perl-JSON expat expat-devel perl-Test-Most
+    sudo yum -y install python-pip numpy numpy-f2py scipy  
  
 2. Upgrade python packages by pip::
    
@@ -93,8 +97,9 @@ EPEL Repo
 
 4. Install perl modules by cpanm::
     
-    cpanm Algorithm::Munkres Archive::Tar Array::Compare Clone CGI Convert::Binary::C GD Graph 
+    cpanm Algorithm::Munkres Archive::Tar Array::Compare Clone CGI Convert::Binary::C GD 
     cpanm GraphViz HTML::Template HTML::TableExtract List::MoreUtils PostScript::TextBlock 
-    cpanm SOAP::Lite SVG SVG::Graph Set::Scalar Sort::Naturally Spreadsheet::ParseExcel Time::Piece
-    cpanm XML::Parser::PerlSAX XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer BioPerl
+    cpanm SOAP::Lite SVG SVG::Graph Set::Scalar Sort::Naturally Spreadsheet::ParseExcel 
+    cpanm XML::Parser::PerlSAX XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 
+    cpanm Graph Time::Piece BioPerl
 
