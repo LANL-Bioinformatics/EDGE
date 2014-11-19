@@ -8,8 +8,6 @@ EDGE: **E**\mpowering the **D**\evelopment of **G**\enomics **E**\xpertise
 ##########################################################################
 .. image:: img/Banner.png
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
    
