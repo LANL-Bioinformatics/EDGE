@@ -3,7 +3,7 @@ Installation
 
 1. Please assure that your system has the :doc:`essential software building packages <system_requirement>`. installed properly before proceeding following installation.
 
-2. Downloading main codes (72M), databases (7.9G , 13G, 40G, 101M for databases and GOTTCHA_db and bwa_index and SNPdb) and third party tools (~2G) from our SFTP server. The password per request. Be patient, the database files are huge. ::
+2. Downloading main codes (72M), databases (7.9G , 13G, 40G, 101M for databases and GOTTCHA_db and bwa_index and SNPdb) and third party tools (~2G) from our SFTP server. The password per request. ::
     
     sftp -o "Port 33001" edge@img-gp.lanl.gov:/data/edge/edge_main_v1.0.tgz  ./  
     sftp -o "Port 33001" edge@img-gp.lanl.gov:/data/edge/edge_v1.0_thirdParty_softwares.tgz  ./  
@@ -11,12 +11,14 @@ Installation
     sftp -o "Port 33001" edge@img-gp.lanl.gov:/data/edge/GOTTCHA_db.tgz   ./  
     sftp -o "Port 33001" edge@img-gp.lanl.gov:/data/edge/bwa_index.tgz   ./  
     sftp -o "Port 33001" edge@img-gp.lanl.gov:/data/edge/SNPdb.tgz   ./   
- 
+    
+.. warning:: Be patient, the database files are huge.
+
 3. Unpack main archive::
 
     tar -xvzf edge_main_v1.0.tgz
 
-  The main directory, edge_v1.0, will be created. 
+.. note:: The main directory, edge_v1.0, will be created. 
 
 4. Move the database and third party archives into main directory (edge_v1.0)::
 
@@ -35,7 +37,7 @@ Installation
     tar -xzvf bwa_index.tgz
     tar -xvzf SNPdb.tgz
         
-  To this point, you should see a database directory and a thirdParty directory in the main directory
+.. note:: To this point, you should see a database directory and a thirdParty directory in the main directory
 
 6. Installing pipeline::
 
@@ -107,8 +109,8 @@ Installation
     * perl_bio_phylo
     * perl_xml_twig
 
-7. Please restart the Terminal Session allow $EDGE_HOME to be exported.  
+7. Restart the Terminal Session to allow $EDGE_HOME to be exported.  
 
-After running INSTALL.sh successfully, the binaries and related scripts will be stored in the ./bin and ./scripts directory. It also writes EDGE_HOME environment vairable into .bashrc or .bash_profile. 
+.. note:: After running INSTALL.sh successfully, the binaries and related scripts will be stored in the ./bin and ./scripts directory. It also writes EDGE_HOME environment vairable into .bashrc or .bash_profile. 
     
      
