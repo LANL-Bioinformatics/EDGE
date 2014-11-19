@@ -43,69 +43,69 @@ Installation
 
   It will install the following depended tools.  
     
-  Assembly
+  * Assembly
   
-  * idba
-  * RATT
+    * idba
+    * RATT
 
-  Annotation
+  * Annotation
   
-  * prokka
-  * tRNAscan
-  * barrnap
-  * BLAST+
-  * blastall
-  * phageFinder
-  * glimmer
-  * aragorn
-  * prodigal
-  * tbl2asn
+    * prokka
+    * tRNAscan
+    * barrnap
+    * BLAST+
+    * blastall
+    * phageFinder
+    * glimmer
+    * aragorn
+    * prodigal
+    * tbl2asn
 
-  Alignment
-  
-  * hmmer
-  * infernal
-  * bowtie2
-  * bwa
-  * mummer
+  * Alignment
+    
+    * hmmer
+    * infernal
+    * bowtie2
+    * bwa
+    * mummer
 
-  Taxonomy
+  * Taxonomy
   
-  * kraken
-  * metaphlan
-  * Metaphyler
-  * kronatools
-  * gottcha
-  * metascope_plus
+    * kraken
+    * metaphlan
+    * Metaphyler
+    * kronatools
+    * gottcha
+    * metascope_plus
 
-  Phylogeny
+  * Phylogeny
   
-  * FastTree
-  * RAxML
+    * FastTree
+    * RAxML
 
-  Utility
+  * Utility
   
-  * bedtools
-  * R
-  * GNU_parallel
-  * tabix
-  * JBrowse
-  * primer3
-  * samtools
+    * bedtools
+    * R
+    * GNU_parallel
+    * tabix
+    * JBrowse
+    * primer3
+    * samtools
 
-  Perl_Modules
+  * Perl_Modules
   
-  * perl_parallel_forkmanager
-  * perl_excel_writer
-  * perl_archive_zip
-  * perl_string_approx 
-  * perl_pdf_api2
-  * perl_tk
-  * perl_html_template
-  * perl_html_parser
-  * perl_JSON
-  * perl_bio_phylo
-  * perl_xml_twig
+    * perl_parallel_forkmanager
+    * perl_excel_writer
+    * perl_archive_zip
+    * perl_string_approx 
+    * perl_pdf_api2
+    * perl_tk
+    * perl_html_template
+    * perl_html_parser
+    * perl_JSON
+    * perl_bio_phylo
+    * perl_xml_twig
 
 7. Please restart the Terminal Session allow $EDGE_HOME to be exported.  
 
