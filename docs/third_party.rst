@@ -155,13 +155,6 @@ Taxonomy Classification
   * Version: 0.115
   * License: 
   
-* KronaTools
-
-  * Citation: Ondov, B.D., Bergman, N.H. and Phillippy, A.M. (2011) `Interactive metagenomic visualization in a Web browser, BMC bioinformatics, 12, 385. <http://www.ncbi.nlm.nih.gov/pubmed/21961884>`_
-  * Site: `http://sourceforge.net/projects/krona/ <http://sourceforge.net/projects/krona/>`_
-  * Version: 2.4
-  * License: BSD
-  
 * GOTTCHA
 
   * Citation: Tracey Allen K. Freitas, Po-E Li, Matthew B. Scholz, Patrick S. G. Chain: Accurate Metagenome characterization using a hierarchical suite of unique signatures. (in submission)
@@ -222,7 +215,14 @@ Visualization and Graphic User Interface
   * Site: `http://jbrowse.org <http://jbrowse.org>`_
   * Version: 1.11.5
   * License: Artistic License 2.0/LGPLv.1
-    
+  
+* KronaTools
+
+  * Citation: Ondov, B.D., Bergman, N.H. and Phillippy, A.M. (2011) `Interactive metagenomic visualization in a Web browser, BMC bioinformatics, 12, 385. <http://www.ncbi.nlm.nih.gov/pubmed/21961884>`_
+  * Site: `http://sourceforge.net/projects/krona/ <http://sourceforge.net/projects/krona/>`_
+  * Version: 2.4
+  * License: BSD
+  
 Utility
 =======
 
