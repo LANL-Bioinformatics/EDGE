@@ -43,7 +43,7 @@ Installation
 
     ./INSTALL.sh
 
-  It will install the following depended tools.  
+  It will install the following depended :doc:`tools <third_party>`.  
     
   * Assembly
   

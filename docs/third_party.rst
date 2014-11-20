@@ -1,3 +1,5 @@
+.. _third_party_tools:
+
 Third Party Tools
 #################
 

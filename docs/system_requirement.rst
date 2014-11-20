@@ -101,5 +101,5 @@ EPEL Repo
     cpanm GraphViz HTML::Template HTML::TableExtract List::MoreUtils PostScript::TextBlock 
     cpanm SOAP::Lite SVG SVG::Graph Set::Scalar Sort::Naturally Spreadsheet::ParseExcel 
     cpanm XML::Parser::PerlSAX XML::SAX XML::SAX::Writer XML::Simple XML::Twig XML::Writer 
-    cpanm Graph Time::Piece BioPerl
+    cpanm Graph Time::Piece Tk BioPerl
 

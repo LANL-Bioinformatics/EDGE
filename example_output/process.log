@@ -1,0 +1,267 @@
+
+*** EDGE_UI: This project is queued. ***
+/opt/apps/edge/edge_ui/cgi-bin/../../runPipeline -c /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/config.txt -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x -cpu 8 -noColorLog  -p /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.1.fastq /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.2.fastq  > /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/process_current.log &
+
+*** EDGE_UI: Project unstarted ***
+
+Project Start: 2014 Oct 22 17:56:49
+COMMAND
+perl /opt/apps/edge/edge_ui/cgi-bin/../../runPipeline -c /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/config.txt -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x -cpu 8 -noColorLog -p /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.1.fastq /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.2.fastq
+Version: 1.0
+[system]
+##edge_ui environmental vars
+edgeui_wwwroot=/opt/apps/edge/edge_ui
+edgeui_input=/opt/apps/edge/edge_ui/EDGE_input
+edgeui_output=/opt/apps/edge/edge_ui/EDGE_output
+edgeui_archive=
+edgeui_tol_cpu=12
+edgeui_auto_queue=1
+edgeui_auto_run=1
+debug=0
+##number of cpu
+cpu=8
+##store output to [outpath]/[projname] 
+outpath=
+projname=Ecoli_10x
+projdesc=
+
+[Count Fastq]
+DoCountFastq=auto
+
+[Quality Trim and Filter]
+## boolean, 1=yes, 0=no
+DoQC=1
+##Targets quality level for trimming
+q=5
+##Trimmed sequence length will have at least minimum length 
+min_L=50
+##Average quality cutoff
+avg_q=0
+##"N" base cutoff.  Trimmed read has more than this number of continuous base "N" will be discarded. 
+n=0
+##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence
+lc=0.85
+## Trim reads with adapters or contamination sequences
+adapter=
+## phiX filter, boolean, 1=yes, 0=no
+## phiX=0
+## Cut # bp from 5 end before quality trimming/filtering 
+5end=0
+## Cut # bp from 3 end before quality trimming/filtering 
+3end=0
+
+[Host Removal]
+## boolean, 1=yes, 0=no
+DoHostRemoval=1
+## Use more Host=  to remove multiple host reads
+Host=/opt/apps/edge/edge_ui/EDGE_input/Host/Human_ref_GRCh38_all/human_ref_GRCh38_all.fa,/opt/apps/edge/edge_ui/EDGE_input/Host/Inverterbrate_Vectors_of_Human_Pathogens/all_vector.fa
+
+bwaMemOptions="-T 90"
+similarity=90
+
+[IDBA Assembly]
+## boolean, 1=yes, 0=no
+DoAssembly=1
+idbaOptions="--pre_correction --mink 31 --maxk 124 --step 20 --min_contig 200"
+
+[Reads Mapping To Contigs]
+# Reads mapping to contigs
+DoReadsMappingContigs=auto
+
+[Reads Mapping To Reference]
+# Reads mapping to reference
+DoReadsMappingReference=1
+bowtieOptions=
+window_size=1000
+step_size=200
+reference=/opt/apps/edge/edge_ui/EDGE_input/Reference/Escherichia_coli_str._K-12_substr._MG1655/NC_000913.gbk
+
+[Reads Taxonomy Classification]
+## boolean, 1=yes, 0=no
+DoTaxonomy=1
+## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
+AllReads=0
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa,,metaphlan,kraken_mini,metaphyler-srv
+
+[Contigs Mapping To Reference]
+# Contig mapping to reference
+DoContigMapping=auto
+## identity cutoff
+identity=85
+
+[Variant Analysis]
+DoVariantAnalysis=auto
+
+[Contigs Annotation]
+## boolean, 1=yes, 0=no
+DoAnnotation=1
+## kingdom: Archaea Bacteria Mitochondria Viruses
+kingdom=Bacteria
+
+[ProPhage Detection]
+DoProPhageDetection=1
+
+[SNP Phylogeny]
+DoSNPtree=1
+## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
+SNPdbName=Ecoli
+
+[Primer Validation]
+DoPrimerValidation=1
+maxMismatch=1
+primer=/opt/apps/edge/edge_ui/EDGE_input/testData/primers.fa
+
+[Primer Adjudication]
+## boolean, 1=yes, 0=no
+DoPrimerDesign=1
+## desired primer tm
+tm=59
+## reject primer having Tm < tm_diff difference with background Tm
+tm_diff=5
+## display # top results for each target
+top=5
+
+[Contig Blast]
+DoBlast=0
+BLAST_nr_DB=0
+BLAST_nt_DB=0
+
+[Generate JBrowse Tracks]
+DoJBrowse=1
+
+[HTML Report]
+DoHTMLReport=1
+The Output Directory path exists
+ If you use different input, it may mess up the result with existing files.
+[Quality Trim and Filter]
+  Running 
+  perl /opt/apps/edge/scripts/illumina_fastq_QC.pl  -p /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.1.fastq /opt/apps/edge/edge_ui/EDGE_input/testData/Ecoli_10x.2.fastq  -q 5 -min_L 50 -avg_q 0 -n 2 -lc 0.85 -5end 0 -3end 0 -split_size 100000 -d /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/QcReads -t 8 
+ Running time: 00:02:46
+
+[Host Removal]
+ human_ref_GRCh38_all
+  Running 
+  perl /opt/apps/edge/scripts/host_reads_removal_by_mapping.pl  -p /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/QcReads/QC.1.trimmed.fastq /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/QcReads/QC.2.trimmed.fastq -u /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/QcReads/QC.unpaired.trimmed.fastq -ref /opt/apps/edge/edge_ui/EDGE_input/Host/Human_ref_GRCh38_all/human_ref_GRCh38_all.fa -bwaMemOptions "-T 90" -s 90 -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/human_ref_GRCh38_all -cpu 8 -host -prefix human_ref_GRCh38_all.clean   
+ Running time: 00:01:03
+
+[Host Removal]
+ all_vector
+  Running 
+  perl /opt/apps/edge/scripts/host_reads_removal_by_mapping.pl  -p /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/human_ref_GRCh38_all/human_ref_GRCh38_all.clean.1.fastq /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/human_ref_GRCh38_all/human_ref_GRCh38_all.clean.2.fastq -u /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/human_ref_GRCh38_all/human_ref_GRCh38_all.clean.unpaired.fastq -ref /opt/apps/edge/edge_ui/EDGE_input/Host/Inverterbrate_Vectors_of_Human_Pathogens/all_vector.fa -bwaMemOptions "-T 90" -s 90 -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/all_vector -cpu 8 -host -prefix all_vector.clean   
+ Running time: 00:05:58
+
+  Host Removal Stat and plot
+[IDBA Assembly]
+  Running
+  ulimit -v 65438988;idba_ud  -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/idba --pre_correction --mink 31 --maxk 124 --step 20 --min_contig 200 --num_threads 8  -r /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/short_single.fa --read_level_2 /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/short_paired.fa   2>/dev/null
+ Running time: 00:02:15
+
+[Reads Mapping To Contigs]
+  Running 
+  perl /opt/apps/edge/scripts/runReadsToContig.pl  -p '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.1.fastq /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.2.fastq' -u /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.unpaired.fastq -bowtie_options '-p 8 ' -d /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/readsMappingToContig -pre readsToContigs -aligner bowtie -ref /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa 
+ Running time: 00:00:46
+
+  Checking Reference genome
+Converting NC_000913 Genbank to Fasta and GFF
+[Reads Mapping To Reference]
+  Running 
+  perl /opt/apps/edge/scripts/runReadsToGenome.pl  -p '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.1.fastq /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.2.fastq' -u /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.unpaired.fastq -bowtie_options '-p 8  ' -d /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/ReadsBasedAnalysis -pre readsToRef -aligner bowtie -ref /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.fasta 
+ Running time: 00:04:20
+
+  Retrieveing unmapped reads  Unmapped reads:
+    Paired End: 1186
+    Single End: 1670
+[Reads Taxonomy Classification]
+ Running 
+ /opt/apps/edge/scripts/microbial_profiling/microbial_profiling.pl  -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/ReadsBasedAnalysis/UnmappedReads/Taxonomy -s /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/ReadsBasedAnalysis/UnmappedReads/Taxonomy/microbial_profiling.settings.ini -c 8 /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/ReadsBasedAnalysis/UnmappedReads/Taxonomy/UnmappedReads.fastq 2>/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/ReadsBasedAnalysis/UnmappedReads/Taxonomy/error.log
+ Running time: 00:22:15
+
+[Contigs Mapping To Reference]
+  Running 
+  perl /opt/apps/edge/scripts/nucmer_genome_coverage.pl  -e 1 -i 85 -p /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef  /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.fasta /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa 
+ Running time: 00:00:36
+
+[Variant Analysis]
+ Running 
+ /opt/apps/edge/scripts/SNP_analysis.pl -genbank /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.gbk -SNP /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.snps -format nucmer -output /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Indels
+ Running 
+ /opt/apps/edge/scripts/gap_analysis.pl -genbank /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.gbk -gap /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_ref_zero_cov_coord.txt > /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Indels/GapVSReference.report.txt
+ Running time: 00:01:11
+
+[Contigs Annotation]
+ Running 
+ prokka --quiet --force --prefix Ecoli_10x --cpus 8 --outdir /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Annotation --kingdom Bacteria /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa 
+ Running time: 00:03:25
+
+[ProPhage Detection]
+ Running 
+ /opt/apps/edge/scripts/phageFinder_prepare.pl -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/ProphageTmp /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Annotation/Ecoli_10x.gff
+ Running 
+ /opt/apps/edge/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh Assembly 8 1>/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Prophage/log.txt 2>&1
+ Numaber of prophage hit found: 0
+ Running time: 00:01:53
+
+[SNP Phylogeny]
+ Prepare SNPdb
+ Running 
+ /opt/apps/edge/scripts/prepare_SNP_phylogeny.pl -o /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/SNP_Phylogeny/Ecoli  -map /opt/apps/edge/database/SNPdb/reference.txt -db Ecoli -n Ecoli_10x -cpu 8 -p /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.1.fastq /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.2.fastq -c /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa -s /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HostRemoval/hostclean.unpaired.fastq   >> /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/SNP_Phylogeny/Ecoli/log.txt
+ Compute SNP tree
+ Running 
+ /opt/apps/edge/scripts/SNPphy/runSNPphylogeny.pl /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/SNP_Phylogeny/Ecoli/SNPphy.ctrl  >> /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/SNP_Phylogeny/Ecoli/log.txt
+ Running time: 01:06:13
+
+[Primer Validation]
+ Running 
+ perl /opt/apps/edge/scripts/pcrValidation/validate_primers.pl -prefix pcrContigValidation -ref /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa -primer /opt/apps/edge/edge_ui/EDGE_input/testData/primers.fa -mismatch 1 -threads 8 -output /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck 
+  Validate primers binding to Contigs 
+Primer Pair Forward and Reverse
+PCR success! 
+Primer Forward Alignment to (Ecoli_10x_221)
+ r    TGAGGGACCTGCGAAGCCCGGAT
+      |||||||||||||| ||||||||
+ p    TGAGGGACCTGCGAGGCCCGGAT
+Primer Reverse Alignment to (Ecoli_10x_221)
+ r    TTCATCGTGAATCCATTAGACTT
+      |||||||||||||||||||||||
+ p    TTCATCGTGAATCCATTAGACTT
+The primers amplify Ecoli_10x_221 from 4336 to 4958, with size 623
+----------
+ Running 
+ perl /opt/apps/edge/scripts/pcrValidation/validate_primers.pl -prefix pcrRefValidation -ref /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.fasta -primer /opt/apps/edge/edge_ui/EDGE_input/testData/primers.fa -mismatch 1 -threads 8 -output /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck 
+  Validate primers binding to Reference  
+Primer Pair Forward and Reverse
+PCR success! 
+Primer Forward Alignment to (NC_000913)
+ r    ATCCGGGCCTCGCAGGTCCCTCA
+      |||||||||||||||||||||||
+ p    ATCCGGGCCTCGCAGGTCCCTCA
+Primer Reverse Alignment to (NC_000913)
+ r    AAGTCTAATGGATTCACGATGAA
+      |||||||||||||||||||||||
+ p    AAGTCTAATGGATTCACGATGAA
+The primers amplify NC_000913 from 3957949 to 3958571, with size 623
+----------
+ Running time: 00:00:08
+
+[Primer Adjudication]
+ Running 
+ perl /opt/apps/edge/scripts/pcrAdjudication/pcrUniquePrimer.pl --input /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/contigs.fa --tm 59 --tm_diff 5 --threads 8 --top 5 --gff3 /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck/PCR.Adjudication.primers.gff3 1>/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck/PCR.Adjudication.primers.txt 2>/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck/PCR.Adjudication.log
+ See primer adjudication results at /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssayCheck/PCR.Adjudication.primers.txt and PCR.Adjudication.primers.gff3
+ Running time: 00:10:06
+
+[Generate JBrowse Tracks]
+ Running 
+ /opt/apps/edge/scripts/edge2jbrowse_converter.pl --in-ref-fa '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.fasta' --in-ctg-anno-gff3 '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/AssemblyBasedAnalysis/Annotation/Ecoli_10x.gff' --in-ref-gff3 '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/Reference//reference.gff' --proj_outdir '/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x' 2>&1 1>/opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/JBrowse/log.txt
+ Running time: 00:01:44
+
+Produce Final PDF Report
+Total Running time: 02:05:39
+
+[HTML Report]
+ Converting pdf to png ...
+ Running 
+ /opt/apps/edge/scripts/munger/outputMunger_w_temp.pl /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x > /opt/apps/edge/edge_ui/EDGE_output/Ecoli_10x/HTML_Report/log.txt
+ Running time: 00:00:14
+
+All Done. 
+
