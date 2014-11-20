@@ -199,7 +199,30 @@ Phylogeny
   * Site: `http://search.cpan.org/~rvosa/Bio-Phylo/ <http://search.cpan.org/~rvosa/Bio-Phylo/>`_
   * Version: 0.58
   * License: GPLv3
+
+Visualization and Graphic User Interface
+========================================
+
+* JQuery Mobile
+
+  * Site: `http://jquerymobile.com <http://jquerymobile.com>`_
+  * Version :1.4.3
+  * License: CC0
+
+* jsPhyloSVG
+
+  * Citation: Smits SA, Ouverney CC, (2010) `jsPhyloSVG: A Javascript Library for Visualizing Interactive and Vector-Based Phylogenetic Trees on the Web. PLoS ONE 5(8): e12267. <http://www.ncbi.nlm.nih.gov/pubmed/20805892>`_ 
+  * Site: `http://www.jsphylosvg.com <http://www.jsphylosvg.com>`_
+  * Version: 1.55
+  * License: GPL
   
+* JBrowse
+
+  * Citation: Skinner, M.E., et al. (2009) `JBrowse: a next-generation genome browser, Genome research, 19, 1630-1638. <http://www.ncbi.nlm.nih.gov/pubmed/19570905>`_
+  * Site: `http://jbrowse.org <http://jbrowse.org>`_
+  * Version: 1.11.5
+  * License: Artistic License 2.0/LGPLv.1
+    
 Utility
 =======
 
@@ -231,13 +254,6 @@ Utility
   * Version: 0.2.6
   * License: 
   
-* JBrowse
-
-  * Citation: Skinner, M.E., et al. (2009) `JBrowse: a next-generation genome browser, Genome research, 19, 1630-1638. <http://www.ncbi.nlm.nih.gov/pubmed/19570905>`_
-  * Site: `http://jbrowse.org <http://jbrowse.org>`_
-  * Version: 1.11.5
-  * License: Artistic License 2.0/LGPLv.1
-  
 * Primer3
 
   * Citation: Untergasser, A., et al. (2012) `Primer3--new capabilities and interfaces, Nucleic acids research, 40, e115. <http://www.ncbi.nlm.nih.gov/pubmed/22730293>`_
@@ -252,13 +268,6 @@ Utility
   * Version: 0.1.19
   * License: MIT
   
-* jsPhyloSVG
-
-  * Citation: Smits SA, Ouverney CC, (2010) `jsPhyloSVG: A Javascript Library for Visualizing Interactive and Vector-Based Phylogenetic Trees on the Web. PLoS ONE 5(8): e12267. <http://www.ncbi.nlm.nih.gov/pubmed/20805892>`_ 
-  * Site: `http://www.jsphylosvg.com <http://www.jsphylosvg.com>`_
-  * Version: 1.55
-  * License: GPL
-  
 * FaQCs
 
   * Citation: Chienchi Lo, PatrickS.G. Chain (2014) Rapid evaluation and Quality Control of Next Generation Sequencing Data with FaQCs. (in print)
@@ -272,12 +281,3 @@ Utility
   * Site: `https://genome.ucsc.edu/goldenPath/help/bigWig.html#Ex3 <https://genome.ucsc.edu/goldenPath/help/bigWig.html#Ex3>`_
   * Version: 4
   * License: 
-  
-Graphic User interfaces
-=======================
-
-* JQuery Mobile
-
-  * Site: `http://jquerymobile.com <http://jquerymobile.com>`_
-  * Version :1.4.3
-  * License: CC0
