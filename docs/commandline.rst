@@ -375,6 +375,7 @@ Usually each module comes with default parameters and user can see the optional 
       blastx –db nr –query contigsToRef_query_unUsed.fasta -out ContigFasta.nr.blast.out -num_threads 10 -evalue 1e-10 -outfmt '6 std staxids' 
 
   * What it does
+  
      * Blast against nr/nt/virulence databases for taxonomy and functional annotations.
   
   * Expected input
