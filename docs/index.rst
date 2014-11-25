@@ -14,7 +14,8 @@ EDGE: **E**\mpowering the **D**\evelopment of **G**\enomics **E**\xpertise
    introduction
    system_requirement
    installation
-   user_guide
+   commandline
+   gui
    output
    database
    third_party

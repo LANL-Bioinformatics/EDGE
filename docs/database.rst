@@ -101,6 +101,7 @@ Not in the EDGE but you can download.
 
 * NCBI nr/nt blastDB: `ftp://ftp.ncbi.nih.gov/blast/db/ <ftp://ftp.ncbi.nih.gov/blast/db/>`_
 
+.. _build-host-index:
 
 Build bwa index
 ===============
