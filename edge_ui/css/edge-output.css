@@ -1,0 +1,142 @@
+.edge-output a {
+	text-decoration: none;
+	font-weight: 400;
+}
+
+#edge-content-report .extra-text-link {
+	font-size: 0.85em;
+	text-align: right;
+}
+
+#edge-content-report ol > li {
+	list-style-type: lower-alpha;
+	margin-top: 1em;
+	color: #003567;
+}
+
+#edge-content-report p {
+    color: #333333
+}
+
+#edge-content-report .iframe_label {
+    font-size: 0.85em;
+}
+
+#edge-content-report span.iframe_label {
+	display: block;
+    font-size: 0.85em;
+}
+
+#edge-content-report ol > li > ol > li {
+	list-style-type: lower-roman;
+	color: #333333;
+}
+
+#edge-content-report img.preview_img {
+    max-width:97%;
+    max-height:97%;
+	min-width:160px;
+	min-width:120px;
+    width: auto;
+    height: auto;
+}
+
+/* 
+#edge-output-community-profiling .ui-grid-a object,
+#edge-output-community-profiling .ui-grid-a img {
+	width: 100%;
+	border: none;
+}
+*/
+#edge-content-report iframe {
+	width: 100%;
+	height: 95%;
+	border: none;
+}
+
+#edge-content-report .output-table {
+	width: 98%;
+	margin: 1em;
+	font-size: 0.85em;
+}
+
+#edge-content-report li > .li-report-content-title {
+	cursor: pointer;
+}
+
+table.output-table-twocol thead tr th:first-child {
+	width: 50% !important;
+}
+
+.output-table thead th,
+.output-table tbody tr:last-child {
+    border-bottom: 1px solid #d6d6d6; /* non-RGBA fallback */
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    color: #333333
+}
+
+.output-table tbody th,
+.output-table tbody td {
+    border-bottom: 1px solid #e6e6e6; /* non-RGBA fallback  */
+    border-bottom: 1px solid rgba(0,0,0,.05);
+	color: #333333
+}
+.output-table tbody tr:last-child th,
+.output-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.output-table tbody tr:nth-child(odd) td,
+.output-table tbody tr:nth-child(odd) th {
+    background-color: #eeeeee; /* non-RGBA fallback  */
+    background-color: rgba(0,0,0,.04);
+}
+
+/* Grid */
+#edge-output-community-profiling .ui-block-a,
+#edge-output-community-profiling .ui-block-b {
+	height: 300px !important;
+}
+
+#edge-content-report .ui-grid-c {
+	margin-top: 1em;
+}
+
+#edge-content-report .ui-grid-a > .ui-block-a,
+#edge-content-report .ui-grid-a > .ui-block-b{
+	padding: 0.7em;
+	border: 1px solid #ddd;
+	margin-right: 0.7em;
+	width: 100%;
+}
+
+#edge-content-report .ui-grid-c > .ui-block-a,
+#edge-content-report .ui-grid-c > .ui-block-b,
+#edge-content-report .ui-grid-c > .ui-block-c,
+#edge-content-report .ui-grid-c > .ui-block-d {
+	padding: 0.3em !important;
+	border: 1px solid #ddd;
+	margin-right: 0.3em;
+	width: 100%;
+}
+
+#edge-content-report a {cursor: pointer;}
+
+@media (min-width: 36em) {
+	#edge-content-report .ui-grid-a > .ui-block-a,
+	#edge-content-report .ui-grid-a > .ui-block-b{
+		width: 46%;
+	}
+	
+	#edge-content-report .ui-grid-c > .ui-block-a,
+	#edge-content-report .ui-grid-c > .ui-block-b,
+	#edge-content-report .ui-grid-c > .ui-block-c,
+	#edge-content-report .ui-grid-c > .ui-block-d {
+		width: 23%;
+	}
+}
+
+#edge-content-report .snp_phylogeny > .ui-block-a,
+#edge-content-report .snp_phylogeny > .ui-block-b{
+	height: 550px;
+	overflow: auto;
+}

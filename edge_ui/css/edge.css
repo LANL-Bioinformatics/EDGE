@@ -1,0 +1,771 @@
+/* Header */
+.edge-home .edge-header {
+	#background: #74b042 url(../images/bg_blue.png) no-repeat 30% center;
+	background-size: auto 60px;
+	border-bottom-color: #ddd;
+	background: linear-gradient(to bottom,#50a253 0,#4c954d 100%);
+	background: -webkit-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
+	background: -o-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
+	background: -moz-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
+	/* background-image: linear-gradient(#74b042, #56A00E); */
+	left: 0;
+	right: 0;
+	width: 100%;
+	position: fixed;
+	z-index: 1001;
+    box-shadow: 0 0 20px #FFF;            /* outer white */
+
+}
+.edge-home .edge-header h2 {
+	padding: 0.7em 0;
+	margin-left: 2.5em;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 700;
+	font-size: 1.2em;
+	color: #FFF;
+	display: inline-block;
+	text-shadow: 0 2px 0 #387f38 !important;
+}
+.edge-home .edge-header h2 a {
+	display: inline-block;
+	text-decoration: none;
+	min-height: 40px;
+}
+.edge-home .edge-header p {
+	position: absolute;
+	bottom: -2em;
+	left: 1em;
+	margin: 0;
+	color: #666;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+	text-transform: uppercase;
+}
+.edge-home .edge-header .ui-btn {
+	width: 2em;
+	height: 2em;
+	background: none;
+	border: 0;
+	top: 50%;
+	margin-top: -1em;
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
+.edge-home p.edge_tool_note {
+	font-size: 0.8em;
+}
+
+.ui-field-contain > div,
+.ui-field-contain > input,
+.ui-field-contain > label {
+	display: inline-block;
+}
+/* logo */
+.edge-logo {
+	width: 50%;
+    margin: 0 auto;
+	position: relative;
+}
+.edge-logo img {
+	width:36px;
+	position: absolute;
+	top:10px;
+}
+
+/* dialog */
+#edge-input-toggle {
+	color: #777;
+	font-size: 0.9em;
+	font-weight: 300;
+	text-decoration: none;
+}
+.edge-dialog{
+	width:90%;
+}
+
+#edge_file_tree {
+	display: block;
+	height: 300px;
+	padding: 0 3em 0 0;
+	background-color: #FFF;
+	overflow-y: auto;
+}
+
+pre {
+	height: 375px;
+	padding: 1em;
+	background-color: rgba(0,0,0,.8) !important;
+	overflow-y: auto;
+	min-width: 20em;
+}
+pre code {
+	white-space: pre-wrap;
+}
+.mono {
+	font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;
+}
+
+/* highlight */
+.highlight {
+	/* background-color: #FFFB00 !important; */
+	/* background-color: #84BDEE !important; */
+    box-shadow:
+        inset 0 0 5px #fff,      /* inner white */
+        0 0 20px #FFBC00;            /* outer white */
+}
+
+/* Footer */
+.edge-home .edge-footer.ui-footer {
+	position: absolute;
+	bottom: 0;
+	padding-bottom: 0;
+}
+.edge-home .edge-footer {
+	border-top: 1px solid #ccc;
+}
+.edge-home .edge-footer .edge-footer-logo {
+	margin: 10px 15px;
+	float: right;
+}
+.edge-home .edge-footer .edge-footer-logo img {
+	height: 50px;
+	width: auto;
+}
+
+.edge-home .edge-footer p {
+	font-size: .8em;
+	color: #999;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+	margin: 0 1.25em 1.25em;
+	
+}
+.edge-home .edge-footer p:first-child {
+	font-size: 1em;
+	color: #666;
+	font-weight: 400;
+	margin: 1em 1em .75em;
+	float:left;
+}
+.ui-field-contain {
+	border-bottom-width: 0px;
+}
+
+.ui-icon-load:after {
+	opacity: 1;
+    background-image: url("../images/icon_running.gif");
+    background-size: 24px 24px;
+}
+
+.edge-navmenu-panel .ui-btn:hover::after {
+	opacity: .4;
+}
+
+/* Content */
+.edge-home .edge-content {
+	padding-top: 5em;
+}
+
+.edge-home .edge-content > h1,
+.edge-home .edge-content > h2 {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;	
+}
+
+.edge-home .edge-content > h3,
+.edge-home .edge-content > p,
+.edge-home .edge-content > ul li,
+.edge-home .edge-content > a {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+}
+
+.edge-home .edge-content > p > ul > li {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+}
+
+.edge-home .edge-content > h1 {
+	font-size: 2.4em;
+	margin: 0 0 .625em;
+}
+.edge-home .edge-content > h2 {
+	/* color: #3eb249; */
+	color: #4985b8;
+	background-color: transparent;
+	border-bottom: 1px solid #ddd;
+	font-size: 1.2em;
+	padding-bottom: .2em;
+	margin: 0 0 .7375em;
+}
+.edge-home .edge-content > h3 {
+	color: #3eb249;
+	background-color: transparent;
+	font-size: 1.2em;
+	margin: 0 0 1em;
+}
+.edge-home .edge-content > p {
+	font-size: 1em;
+	line-height: 1.5;
+}
+.edge-home .edge-content > ul:not(.edge-list) li {
+	font-size: 1em;
+	line-height: 1.5;
+}
+.edge-home .edge-content > p {
+	margin: 0 0 1.25em;
+}
+.edge-home .edge-content > ul,
+.edge-home .edge-content > ol {
+	padding-left: 1.3em;
+}
+.edge-home .edge-content > .ui-listview {
+	padding-left: 0;
+}
+.edge-home .edge-content > a,
+.edge-home .edge-content > p a,
+.edge-home .edge-content > ul:not(.edge-list) li a {
+	font-weight: 400;
+	text-decoration: none;
+}
+.edge-home .edge-content strong {
+	font-weight: 700;
+}
+.edge-home .edge-content > p strong {
+	font-weight: 400;
+}
+.ui-field-contain>label,
+.ui-field-contain .ui-controlgroup-label,
+.ui-field-contain>.ui-rangeslider>label {
+	width: 30%;
+}
+.ui-field-contain>label~[class*=ui-],
+.ui-field-contain .ui-controlgroup-controls {
+	width: 68%;
+}
+
+.ui-collapsible-content input:disabled{
+	color: #7f7f7f;
+	background:#f6f6f6;
+}
+
+#edge-submit-info > li
+{
+	line-height: 1em;
+	font-size: 0.9em;
+	font-weight: 700;
+}
+
+#edge-submit-info > li > a
+{
+	line-height: 1em;
+	font-size: 0.9em;
+}
+
+#edge-submit-info > li.list-info > a {
+	background-color: #5cb85c;
+	color: #fff;
+	text-shadow: 0 2px 0 #387f38 !important;
+}
+
+/* cpu usage */
+#resource-usage .res-type {
+	width: 2em;
+	display: inline-block;
+}
+#resource-usage div.ui-slider {
+	width: 11em;
+	height: inherit;
+	margin: inherit;
+	display: inline-block;
+}
+#resource-usage div.ui-btn-active.active-normal {
+	background-color: #3388CC;
+}
+#resource-usage div.ui-btn-active.active-warning {
+	background-color: #F79317;
+}
+#resource-usage div.ui-btn-active.active-critical {
+	background-color: #D80000;
+}
+#resource-usage div.ui-slider-track {
+	background-color: #ddd;
+}
+
+/* Homepage */
+.edge-home > .edge-content > img {
+	width: 400px;
+	max-width: 100%;
+	display: block;
+	margin: 2.5em 0;
+}
+.edge-home .ui-grid-a {
+	margin: 2.5em -.5em -.5em;
+}
+.edge-block-content {
+	margin: .5em;
+	padding: 1em;
+	background: #fff;
+	border: 1px solid #eee;
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+	font-family: 'Open Sans', sans-serif;
+}
+.edge-block-content h3 {
+	font-size: 1.5em;
+	font-weight: 300;
+	color: #3eb249;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: .25em;
+	margin: 0 0 .5em;
+}
+.edge-block-content p {
+	font-size: 1.1em;
+	font-weight: 300;
+	line-height: 1.4;
+	margin: .7em 0;
+}
+.edge-block-content p:last-child {
+	margin-bottom: 0;
+}
+.edge-block-content a:link {
+	font-weight: 300;
+	text-decoration: none;
+}
+
+.edge-collapsible-options {
+	margin: 0px;
+}
+
+.edge-collapsible-options label {
+	float: left;
+	font-weight: 700;
+}
+
+.edge-collapsible-options > div {
+	float: right;
+}
+
+div.edge-collapsible-options .ui-btn {
+	padding: 0.5em auto;
+}
+
+/* file selector */
+.ui-field-contain.input-type-file > label~[class*=ui-],
+.ui-field-contain.input-type-file .ui-controlgroup-controls {
+	width: 60%;
+}
+
+.edge-file-selector {
+	width: 5em;
+	margin-left: 2px;
+	position: absolute;
+}
+.edge-file-selector > a {
+ 	display: inline-block;
+	margin: 0px;
+}
+
+.ui-popup img {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	/*max-height: 100%;*/
+	vertical-align: top;
+}
+
+/* buttons for adding/removing inputs */
+.btnDel-edge-input-se {
+	visibility: hidden;
+}
+
+.btnDel-edge-input-pe {
+	visibility: hidden;
+}
+
+.btnAdd-edge-input {
+	float: right;
+}
+
+/* searchable select menu */
+.ui-selectmenu.ui-popup .ui-input-search {
+	margin-left: .5em;
+	margin-right: .5em;
+}
+.ui-selectmenu.ui-dialog .ui-content {
+	padding-top: 0;
+}
+.ui-selectmenu.ui-dialog .ui-selectmenu-list {
+	margin-top: 0;
+}
+.ui-selectmenu.ui-popup .ui-selectmenu-list .ui-btn {
+	font-size: small;
+}
+.ui-selectmenu.ui-popup .ui-selectmenu-list li.ui-first-child .ui-btn {
+	border-top-width: 1px;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+}
+.ui-selectmenu.ui-dialog .ui-header {
+	border-bottom-width: 1px;
+}
+
+#edge-taxa-tool-select .ui-select {
+	width: 100%;
+}
+
+/* Lists */
+.edge-home .edge-search .edge-list {
+	margin: 0 -1em 1em;
+}
+.edge-home .edge-list .ui-btn,
+.edge-home .edge-list .ui-btn:visited,
+.edge-home .edge-list .ui-li-divider {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 300;
+	/*text-shadow: none !important;*/
+}
+.edge-home .edge-list .ui-btn:hover,
+.edge-home .edge-list .ui-btn:active {
+	color: #3388cc;
+}
+.edge-home .edge-list .ui-btn.ui-btn-active {
+	color: #fff;
+}
+.edge-home .edge-list .ui-li-divider {
+	color: #3eb249;
+}
+
+/* Navmenu */
+.edge-navmenu-panel .ui-listview > li .ui-collapsible-heading {
+	margin: 0;
+}
+.edge-navmenu-panel .ui-collapsible.ui-li-static {
+	padding: 0;
+	border: none !important;
+}
+.edge-navmenu-panel .ui-collapsible + li > .ui-btn,
+.edge-navmenu-panel .ui-collapsible + .ui-collapsible > .ui-collapsible-heading > .ui-btn,
+.edge-navmenu-panel .ui-panel-inner > .ui-listview > li.ui-first-child .ui-btn {
+	border-top: none !important;
+}
+.edge-navmenu-panel .ui-listview .ui-listview .ui-btn {
+	padding-left: 1.5em;
+	color: #999;
+}
+.edge-navmenu-panel .ui-listview .ui-listview .ui-btn.ui-btn-active {
+	color: #fff;
+}
+.edge-navmenu-panel .ui-btn:after {
+	opacity: .4;
+	filter: Alpha(Opacity=40);
+}
+.edge-home .edge-navmenu-panel.edge-panel-page-nav {
+	display: none;
+	position: absolute;
+	top: 178px;
+	left: 12px;	
+}
+.edge-home .edge-navmenu-panel.edge-panel-page-nav ul li:first-child a{
+	border-top: none;
+}
+
+.edge-navmenu-panel .ui-panel-inner .ui-listview .ui-listview > li > .edge-project-list {
+	background: #4d4d4d !important;
+	color: #fff;
+	text-shadow: 0 2px 0 #000 !important;
+	opacity: 1 !important;
+	text-align: right;
+	line-height: 1em;
+	padding-top: 1.5em;
+}
+
+.edge-proj-last-check {
+	font-weight: 300 !important;
+	font-size: 0.8em !important;
+}
+
+.edge-navmenu-panel .edge-project-time {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	border-bottom-right-radius: 1em 1em;
+	height: 1em;
+	font-size: 0.7em;
+	color: #fff;
+	z-index: 1000;
+	text-shadow: 0 1px 0 #000 !important;
+	opacity: 1;
+	padding: .3em 1em .4em 1em;
+	box-shadow: 1px 1px 10px 0px rgba(255,255,255,.25);
+}
+
+.edge-time-bg-green {
+    background-color: #3eb249;
+}
+.edge-time-bg-orange {
+    background-color: #f7931e;
+}
+.edge-time-bg-red {
+    background-color: #d72a30;
+}
+.edge-time-bg-grey {
+    background-color: #aaa;
+}
+
+.edge-fg-green {
+    color: #3eb249;
+}
+.edge-fg-orange {
+    color: #f7931e;
+}
+.edge-fg-red {
+    color: #d72a30;
+}
+.edge-fg-grey {
+    color: #aaa;
+}
+
+/* action */
+.edge-action-panel .ui-panel-inner {
+	padding-top: 0;
+}
+
+.edge-action-panel .ui-input-action.ui-focus {
+	-webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
+	-moz-box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
+	box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
+}
+
+.edge-action-panel .ui-listview .ui-btn{
+    font-size: .8em;
+    font-weight: 300;
+}
+
+.edge-icon-bg-green:after {
+    background-color: #3eb249;
+}
+.edge-icon-bg-orange:after {
+    background-color: #f7931e;
+}
+.edge-icon-bg-red:after {
+    background-color: #d72a30;
+}
+.edge-icon-bg-grey:after {
+    background-color: #4d4d4d;
+}
+.edge-icon-bg-grey:after {
+    background-color: #4d4d4d;
+}
+
+.edge-navmenu-panel .ui-icon-recycle:after,
+.edge-navmenu-panel .ui-icon-delete:after,
+.edge-navmenu-panel .ui-icon-check:after {
+	opacity: 0.9;
+	background-color: #fff;
+}
+
+.edge-list .edge-action-results-keywords {
+    padding: .46857em 0 0;
+    font-size: .8em;
+    font-weight: 300;
+    color: #999;
+    display: block;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.ui-btn-active .edge-action-results-keywords {
+    color: #fff;
+}
+.edge-action-results-highlight {
+    color: #3388cc;
+    font-weight: 400;
+}
+.ui-btn-action .edge-action-results-highlight {
+    color: #fff;
+    font-weight: 300;
+}
+
+#custom-border-radius .ui-btn-icon-notext.ui-corner-all {
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
+@media (min-width: 60em) {
+	.edge-logo {
+		text-align: left;
+		margin-left: 4em;
+	}
+	.edge-logo img {
+		left:1%;
+	}
+	
+	.edge-home .edge-header h2 {
+		padding: 1em 0 .7em;
+		font-family: 'Open Sans', sans-serif;
+		font-weight: 700;
+		text-align: left;
+	}
+	.edge-home .edge-navmenu-link {
+		display: none;
+	}
+	.edge-home .edge-action-link {
+		right: 3%;
+	}
+	.edge-home .edge-footer p {
+		float: right;
+		margin: 1.5em 3% 1.5em 1.5em;
+	}
+	.edge-home .edge-footer p:first-child {
+		float: left;
+		margin: 1.25em 1.25em 1.25em 3%;
+	}
+	.edge-home .edge-navmenu-panel {
+		visibility: visible;
+		position: relative;
+		left: 0;
+		float: left;
+		width: 25%;
+		background: none;
+		-webkit-transition: none !important;
+		-moz-transition: none !important;
+		transition: none !important;
+		-webkit-transform: none !important;
+		-moz-transform: none !important;
+		transform: none !important;
+		-webkit-box-shadow: none;
+		-moz-box-shadow: none;
+		box-shadow: none;
+		z-index: 1000;
+	}
+	.edge-home.edge-panel-page .edge-navmenu-panel {
+		display: none;
+	}
+	html .edge-home.edge-panel-page .edge-navmenu-panel.edge-panel-page-nav {
+		display: block;
+	}
+	.edge-home .edge-navmenu-panel .ui-panel-inner {
+		margin-top: 5em;
+		margin-bottom: 5em;
+	}
+	.edge-home .edge-content {
+		width: 67%;
+		padding-left: 5%;
+		padding-right: 3%;
+		float: right;
+	}
+    .edge-home .edge-content.edge-fullwidth {
+		width: auto;
+		padding-left: 15%;
+		padding-right: 15%;
+		float: none;
+	}
+	.edge-navmenu-panel .ui-listview .ui-btn {
+		padding-left: 12.5%;
+	}
+	.edge-navmenu-panel .ui-listview .ui-listview .ui-btn {
+		padding-left: 15%;
+	}
+	.edge-navmenu-panel .ui-collapsible,
+	.edge-navmenu-panel .ui-collapsible-content,
+	.edge-navmenu-panel .ui-btn {
+		background: none !important;
+		border-color: #ddd !important;
+	}
+		
+	.edge-navmenu-panel .ui-btn.ui-btn-active {
+		color: #3388cc !important;
+	}
+	.edge-navmenu-panel .ui-btn::after {
+		opacity: 0;
+		-webkit-transition: opacity 500ms ease;
+		-moz-transition: opacity 500ms ease;
+		transition: opacity 500ms ease;
+	}
+	
+	.edge-navmenu-panel .ui-icon-load:after,
+	.edge-navmenu-panel .ui-icon-check:after,
+	.edge-navmenu-panel .ui-icon-recycle:after
+	{
+		opacity: 0.9;
+	}
+	
+	.edge-search-panel {
+		width: 26em;
+		right: -26em;
+		z-index: 1003; /* Puts the panel on top of the dismiss modal which is not adjusted to custom width */
+	}
+	.edge-search-panel.ui-panel-animate.ui-panel-position-right {
+		-webkit-transform: translate3d(26em,0,0);
+		-moz-transform: translate3d(26em,0,0);
+		transform: translate3d(26em,0,0);
+	}
+	.ui-panel-dismiss-open.ui-panel-dismiss-position-right {
+		left: -17em;
+		right: 17em;
+	}
+}
+
+@media (min-width: 35em) {
+	.edge-block-content {
+		min-height: 18em;
+	}
+}
+
+/* View source popup */
+#edge-view-source-popup.ui-popup-container {
+	width: 90%;
+	max-width: 1500px;
+}
+.edge-view-source .ui-collapsible-set {
+	margin: 0;
+}
+.edge-view-source .ui-collapsible-heading .ui-btn {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+}
+.edge-view-source .ui-collapsible-heading .ui-btn-inner {
+	padding: .4em;
+}
+.edge-view-source .ui-collapsible-content {
+	padding: 0;
+	overflow: auto;
+}
+.edge-view-source .ui-collapsible-content .phpStatus {
+	padding: 1em;
+}
+.edge-view-source .ui-collapsible-content > div,
+.edge-view-source .ui-collapsible-content .syntaxhighlighter {
+	border-bottom-right-radius: inherit;
+	border-bottom-left-radius: inherit;
+}
+.edge-view-source .ui-collapsible-content::-webkit-scrollbar {
+    width: 5px;
+}
+.edge-view-source .ui-collapsible-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.edge-view-source .ui-collapsible-content::-webkit-scrollbar-thumb {
+	background: #435A5F;
+	border: solid #222;
+	border-width: 12px 2px 12px 0;
+	border-bottom-right-radius: 5px;
+}
+.edge-view-source .ui-collapsible-content td.code .container > textarea {
+	resize: none;
+}
+
+.edge-center{
+	margin: 0 auto;
+	text-align: center;
+}
+.edge-right{
+	margin: 0 auto;
+	text-align: right;
+}
+.edge-left{
+	margin: 0 auto;
+	text-align: left;
+}

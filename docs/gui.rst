@@ -28,3 +28,67 @@ A Terminal window will display messages and errors as you run EDGE. Under normal
 The Browser window is the window in which you will interact with EDGE.
 
 The UI composed with Home page, Run EDGE, and Project list in the Left navigation widget, Input and Analyses modules in the Run EDGE page, Job progress widget (right navigation), Action Widget, and Report page.
+
+
+
+Initiating an analysis job
+==========================
+
+
+Output path
+-----------
+
+Number of CPUs
+--------------
+
+
+Config file
+-----------
+
+Batch project submit
+--------------------
+
+
+Choose processes/analyses
+=========================
+
+Quality trim and filter
+-----------------------
+
+Host removal
+------------
+
+Assembly
+--------
+
+Community profiling
+-------------------
+
+
+Reference-based Analysis
+------------------------
+
+SNP Phylogeny
+-------------
+
+Primer validation
+-----------------
+
+
+Primer design
+-------------
+
+Blast Contigs
+-------------
+
+Job submission
+==============
+
+Checking the status of an analysis job
+======================================
+
+Monitoring the Resource Usage
+=============================
+
+Job Management
+==============
