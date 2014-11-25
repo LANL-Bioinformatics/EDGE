@@ -1,7 +1,7 @@
 Graphic User Interface
 ######################
 
-The User Interface was mainly implemented in `JQuery Mobile <http://jquerymobile.com>`_ CSS, javascript and perl CGI. It is a HTML5-based user interface system designed to make responsive web sites and apps that are accessible on all smartphone, tablet and desktop devices.
+The User Interface was mainly implemented in `JQuery Mobile <http://jquerymobile.com>`_, CSS, javascript and perl CGI. It is a HTML5-based user interface system designed to make responsive web sites and apps that are accessible on all smartphone, tablet and desktop devices.
 
 Start GUI
 =========
