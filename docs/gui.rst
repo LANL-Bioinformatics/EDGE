@@ -31,7 +31,7 @@ The Browser window is the window in which you will interact with EDGE.
 
 The UI composed with Home page, Run EDGE, and Project list in the Left navigation widget, Input and Analyses modules in the Run EDGE page, Job progress widget (right navigation), Action Widget, and Report page.
 
-
+See  `Dummy GUI page <http://lanl-bioinformatics.github.io/edge/edge_ui/index.html>`_
 
 Initiating an analysis job
 ==========================
