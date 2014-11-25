@@ -3,8 +3,15 @@ Contact
 
 Questions? Please feel free to contact us.
 
-Chien-chi Lo `chienchi@lanl.gov <chienchi@lanl.gov>`_
+EDGE development team
 
-Po-E Li `po-e@lanl.gov <po-e@lanl.gov>`_
-
-Anderson, Joseph J. CIV `Joseph.Anderson@dtra.mil <Joseph.Anderson@dtra.mil>`_
+================ =============================
+Name             Email
+================ =============================
+Patrick Chain	 pchain@lanl.gov
+Chien-Chi Lo	 chienchi@lanl.gov
+Paul Li		     po-e@lanl.gov
+Joe Anderson	 joseph.anderson4@med.navy.mil
+Kim Bishop-Lilly kim.bishop-lilly@med.navy.mil
+Regina Cer       regina.cer@med.navy.mil
+================ =============================
