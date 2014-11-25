@@ -269,6 +269,8 @@ Utility
   * Site: `http://samtools.sourceforge.net/ <http://samtools.sourceforge.net/>`_
   * Version: 0.1.19
   * License: MIT
+
+.. _FaQCs-ref:
   
 * FaQCs
 

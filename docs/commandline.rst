@@ -44,6 +44,8 @@ A config file (example in the below section, the :doc:`Graphic User Interface (G
 16. HTML report 
 
 
+.. _config_example:
+
 Config File 
 ===========
 
@@ -376,7 +378,7 @@ Usually each module comes with default parameters and user can see the optional 
 
   * What it does
   
-     * Blast against nr/nt/virulence databases for taxonomy and functional annotations.
+    * Blast against nr/nt/virulence databases for taxonomy and functional annotations.
   
   * Expected input
     
@@ -407,6 +409,7 @@ Usually each module comes with default parameters and user can see the optional 
     * SNPs/INDELs/Gaps files from “Map Contigs To Reference Genomes“ 
 
   * Expected output
+  
     * contigsToRef.SNPs_report.txt
     * contigsToRef.Indels_report.txt
     * GapVSReference.report.txt
