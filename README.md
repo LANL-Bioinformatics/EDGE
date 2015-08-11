@@ -1,6 +1,6 @@
-edge
-====
+EDGE Bioinformatics
+===================
 
-edge bioinformatics
+EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-![Alt text](http://lafund.org/sites/default/files/comingsoon_stamp.png "Coming Soon")
+You can find our documentation at https://edge.readthedocs.org/en/latest/introduction.html
