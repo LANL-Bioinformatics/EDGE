@@ -1,26 +1,46 @@
 # EDGE Bioinformatics
 
-This is version 1.1 of EDGE Bioinformatics, a product of collaboration between Los Alamos National Laboratory and the Naval Medical Research Center sponsored by the Defense Threat Reduction Agency.
+This is docker image documentation for version 1.1 of EDGE Bioinformatics, a product of collaboration between Los Alamos National Laboratory and the Naval Medical Research Center sponsored by the Defense Threat Reduction Agency.
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-The EDGE package is available for demonstration and limited use at https://bioedge.lanl.gov/edge_ui/. Follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html.
+The EDGE docker image is available at https://hub.docker.com/r/chienchilo/bioedge/ 
 
-## Documentation
+# How to use this image
 
-[ReadTheDocs](http://edge.readthedocs.org)
+## Install Docker
 
-[PDF](https://readthedocs.org/projects/edge/downloads/pdf/latest/)
+See Docker at https://www.docker.com/
+
+## Obtain the docker image
+
+    $ docker pull chienchilo/bioedge
+
+## Obtain inital mysql database
+
+    $ git clone -b docker https://github.com/LANL-Bioinformatics/EDGE.git
+
+## Download EDGE databse 
+
+    $ wget -c ...
+
+## Start EDGE bioinformatics instance
+
+    $ docker run -d --cap-add SYS_PTRACE -v /my/own/mysql:/var/lib/mysql -v /path/to/database:/opt/apps/edge/database -v /path/to/EDGE_output:/opt/apps/edge/edge_ui/EDGE_output -p 8000:80 -p 8081:8080 --name edge chienchilo/bioedge
+    
+Wait for few seconds for the docker image to start EDGE service and Open http://localhost:8000/ on the browser to start experience EDGE.
+
+* The -v /my/own/mysql:/var/lib/mysql part of the command mounts the /my/own/mysql (obtain from the git clone above) directory from the underlying host system as /var/lib/mysql inside the container, where MySQL by default will write its data files. Using this to persist the database data in the host.
+* The -v /path/to/database:/opt/apps/edge/database mounts the databse obtained from the above download step. 
+* The -v /path/to/EDGE_output://opt/apps/edge/edge_ui/EDGE_output mounts the EDGE output directory to persist the output files in the host. 
+* The -p bind the port 8000 and 8081 to 80 and 8080 inside the container. You can change the 8000 and 8081 to fit your system requirements.
+
+## Note
+
+This image is built on top of offical Ubuntu 14.04.3 LTS and is officially supported on Docker version 1.8.2.
 
 ## Contact Info
 Chien-Chi Lo: <chienchi@lanl.gov>  
 Paul Li: <po-e@lanl.gov>  
 Anderson, Joseph J. CIV: <Joseph.Anderson@dtra.mil>
 
-## Citation
-
-Coming soon...
-
-## Copyright
-
-Los Alamos National Security, LLC (LANS) owns the copyright to EDGE, which it identifies internally as LA-CC-14-007.  The license is GPLv3.  See [LICENSE](https://github.com/losalamos/edge/blob/master/LICENSE) for the full text.
