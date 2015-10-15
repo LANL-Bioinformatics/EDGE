@@ -1,0 +1,175 @@
+[system]
+##edge_ui environmental vars
+edgeui_wwwroot=%EDGE_HOME%/edge_ui
+edgeui_input=%EDGE_HOME%/edge_ui/EDGE_input
+edgeui_output=%EDGE_HOME%/edge_ui/EDGE_output
+edgeui_archive=
+edgeui_tol_cpu=%TOTAL_NUM_CPU%
+edgeui_auto_queue=1
+edgeui_auto_run=1
+debug=0
+##number of cpu
+cpu=<TMPL_VAR NAME=edge-proj-cpu>
+##store output to [outpath]/[projname] 
+outpath=<TMPL_VAR NAME=edge-proj-outpath>
+projname=<TMPL_VAR NAME=edge-proj-name>
+projdesc=<TMPL_VAR NAME=edge-proj-desc>
+## configure user management system  1: with 0: without
+user_management=0
+## if user management system is not in the same domain with edge
+## ex: http://www.someother.com/userManagement
+edge_user_management_url=
+## configure user upload function  1: able 0: disable
+user_upload=1
+## max file size for user upload
+user_upload_maxFileSize='5gb'
+user_social_login=0
+
+[Download Fastq]
+DoFastqDownload=auto
+
+[Download SRA]
+DoSRADownload=<TMPL_VAR NAME=edge-sra-sw DEFAULT=0>
+## SRA accessions ByrRun, ByExp, BySample, ByStudy
+SRA_id=<TMPL_VAR NAME=edge-sra-acc DEFAULT=>
+
+[Count Fastq]
+DoCountFastq=auto
+
+[Quality Trim and Filter]
+## boolean, 1=yes, 0=no
+DoQC=<TMPL_VAR NAME=edge-qc-sw DEFAULT=0>
+##Targets quality level for trimming
+q=<TMPL_VAR NAME=edge-qc-q DEFAULT=5>
+##Trimmed sequence length will have at least minimum length 
+min_L=<TMPL_VAR NAME=edge-qc-minl DEFAULT=50>
+##Average quality cutoff
+avg_q=<TMPL_VAR NAME=edge-qc-avgq DEFAULT=0>
+##"N" base cutoff.  Trimmed read has more than this number of continuous base "N" will be discarded. 
+n=<TMPL_VAR NAME=edge-qc-n DEFAULT=0>
+##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence
+lc=<TMPL_VAR NAME=edge-qc-lc DEFAULT=0.85>
+## Trim reads with adapters or contamination sequences
+adapter=<TMPL_VAR NAME=edge-qc-adapter DEFAULT=>
+## phiX filter, boolean, 1=yes, 0=no
+## phiX=<TMPL_VAR NAME=edge-qc-phix DEFAULT=0>
+## Cut # bp from 5 end before quality trimming/filtering 
+5end=<TMPL_VAR NAME=edge-qc-5end DEFAULT=0>
+## Cut # bp from 3 end before quality trimming/filtering 
+3end=<TMPL_VAR NAME=edge-qc-3end DEFAULT=0>
+
+[Host Removal]
+## boolean, 1=yes, 0=no
+DoHostRemoval=<TMPL_VAR NAME=edge-hostrm-sw DEFAULT=0>
+## Use more Host=  to remove multiple host reads
+Host=<TMPL_VAR NAME=edge-hostrm-file DEFAULT=>
+<TMPL_VAR NAME=edge-hostrm-file-multihost DEFAULT=>
+bwaMemOptions="-T <TMPL_VAR NAME=edge-hostrm-minlen DEFAULT=50>"
+similarity=<TMPL_VAR NAME=edge-hostrm-similarity DEFAULT=90>
+
+[Assembly]
+## boolean, 1=yes, 0=no
+DoAssembly=<TMPL_VAR NAME=edge-assembly-sw DEFAULT=1>
+assembledContigs=<TMPL_VAR NAME=edge-assembled-contig-file>
+minContigSize=<TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>
+## spades or idba_ud
+assembler=<TMPL_VAR NAME=edge-assembler DEFAULT="idba_ud">
+idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=124> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
+## for spades
+singleCellMode=<TMPL_VAR NAME=edge-spades-sc-sw DEFAULT=0>
+pacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
+nanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
+
+[Reads Mapping To Contigs]
+# Reads mapping to contigs
+DoReadsMappingContigs=auto
+
+[Reads Mapping To Reference]
+# Reads mapping to reference
+DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
+bowtieOptions=
+window_size=1000
+step_size=200
+reference=<TMPL_VAR NAME=edge-ref-file>
+MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
+
+[Reads Taxonomy Classification]
+## boolean, 1=yes, 0=no
+DoTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
+## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
+AllReads=<TMPL_VAR NAME=edge-taxa-allreads DEFAULT=0>
+enabledTools=<TMPL_VAR NAME=edge-taxa-enabled-tools DEFAULT="bwa">
+
+[Contigs Mapping To Reference]
+# Contig mapping to reference
+DoContigMapping=auto
+## identity cutoff
+identity=85
+MapUnmappedContigs=<TMPL_VAR NAME=edge-ref-unmapped-contig-class DEFAULT=0>
+
+[Variant Analysis]
+DoVariantAnalysis=auto
+
+[Contigs Taxonomy Classification]
+DoContigsTaxonomy=<TMPL_VAR NAME=edge-contig-taxa-sw DEFAULT=0>
+
+[Contigs Blast]
+DoBlast=<TMPL_VAR NAME=edge-blast-sw DEFAULT=0>
+BLAST_nr_DB=<TMPL_VAR NAME=edge-blast-nr DEFAULT=0>
+BLAST_nt_DB=<TMPL_VAR NAME=edge-blast-nt DEFAULT=0>
+
+[Contigs Annotation]
+## boolean, 1=yes, 0=no
+DoAnnotation=<TMPL_VAR NAME=edge-anno-sw DEFAULT=0>
+## kingdom: Archaea Bacteria Mitochondria Viruses
+kingdom=<TMPL_VAR NAME=edge-anno-kingdom DEFAULT="Bacteria">
+contig_size_cut_for_annotation=<TMPL_VAR NAME=edge-anno-size-cut DEFAULT=700>
+## support tools: Prokka or RATT
+annotateProgram=<TMPL_VAR NAME=edge-anno-tool DEFAULT=prokka>
+## provide SourceGBK for RATT to transfer annotation
+annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
+
+[ProPhage Detection]
+DoProPhageDetection=<TMPL_VAR NAME=edge-anno-sw DEFAULT=0>
+
+[Phylogenetic Analysis]
+DoSNPtree=<TMPL_VAR NAME=edge-phylo-sw DEFAULT=0>
+## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
+SNPdbName=<TMPL_VAR NAME=edge-phylo-patho>
+## Use selected genomes instead of precomputed SNPdb above
+## List of genome name from NCBI genomes see $EDGE/edge_ui/data/Ref_list.json
+SNPGenomes=<TMPL_VAR NAME=edge-phylo-ref-list>
+SNPGenomesFiles=<TMPL_VAR NAME=edge-phylo-ref-list-file>
+## A refrence genoem from above two options for reads/contigs mapping
+SNPrefGenome=<TMPL_VAR NAME=edge-phylo-ref-select-ref>
+## FastTree or RAxML
+treeMaker=<TMPL_VAR NAME=edge-phylo-tree DEFAULT=FastTree>
+## SRA accessions ByrRun, ByExp, BySample, ByStudy
+SNP_SRA_ids=<TMPL_VAR NAME=edge-phylo-sra-acc DEFAULT=>
+
+[Primer Validation]
+DoPrimerValidation=<TMPL_VAR NAME=edge-primer-valid-sw DEFAULT=0>
+maxMismatch=<TMPL_VAR NAME=edge-primer-valid-mm DEFAULT=1>
+primer=<TMPL_VAR NAME=edge-primer-valid-file>
+
+[Primer Design]
+## boolean, 1=yes, 0=no
+DoPrimerDesign=<TMPL_VAR NAME=edge-primer-adj-sw DEFAULT=0>
+## desired primer tm
+tm_opt=<TMPL_VAR NAME=edge-primer-adj-tm-opt DEFAULT=59>
+tm_min=<TMPL_VAR NAME=edge-primer-adj-tm-min DEFAULT=57>
+tm_max=<TMPL_VAR NAME=edge-primer-adj-tm-max DEFAULT=63>
+## desired primer length
+len_opt=<TMPL_VAR NAME=edge-primer-adj-len-opt DEFAULT=18>
+len_min=<TMPL_VAR NAME=edge-primer-adj-len-min DEFAULT=20>
+len_max=<TMPL_VAR NAME=edge-primer-adj-len-max DEFAULT=27>
+## reject primer having Tm < tm_diff difference with background Tm
+tm_diff=<TMPL_VAR NAME=edge-primer-adj-df DEFAULT=5>
+## display # top results for each target
+top=<TMPL_VAR NAME=edge-primer-adj-num DEFAULT=5>
+
+[Generate JBrowse Tracks]
+DoJBrowse=1
+
+[HTML Report]
+DoHTMLReport=1

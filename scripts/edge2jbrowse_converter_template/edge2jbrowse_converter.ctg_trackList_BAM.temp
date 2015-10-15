@@ -1,0 +1,13 @@
+    {
+       "track": "BAM",
+       "key" : "Mapping Reads to Contigs",
+       "category" : "Reads Based Analysis",
+       "chunkSizeLimit" : 8000000,
+       "label" : "BAM",
+       "urlTemplate" : "readsToContigs.mapped.sort.bam",
+       "style" : {
+          "height" : 7
+       },
+       "storeClass" : "JBrowse/Store/SeqFeature/BAM",
+       "type" : "JBrowse/View/Track/Alignments2"
+    }

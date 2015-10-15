@@ -1,0 +1,33 @@
+1. Install apache2 
+
+    For Ubuntu
+    > sudo apt-get install apache2
+
+    For CentOS
+    > sudo yum -y install httpd
+
+2. Enable apache cgid, proxy  modules
+
+    For Ubuntu
+    > sudo a2enmod cgid
+    > sudo a2enmod proxy proxy_http
+
+3. Modify sample apache configuration file: $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf alias directories to match install
+
+4. Copy edge_apache.conf to the apache or Insert content into httpd.conf
+
+    For Ubuntu
+    > cp $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf /etc/apache2/conf-available/
+    > ln -s /etc/apache2/conf-available/edge_apache.conf /etc/apache2/conf-enabled/
+    For CentOS
+    /etc/httpd/conf/httpd.conf
+
+
+4. Modify permissions:  mod permissions on installed directory to match apache user (ex: change from www-data to edge)
+
+5. Restart the apache2 to active the new configuration
+
+    For Ubuntu
+    > service apache2 restart
+    For CentOS
+    > service http restart

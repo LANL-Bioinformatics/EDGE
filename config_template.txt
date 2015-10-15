@@ -1,0 +1,142 @@
+[Download SRA]
+DoSRADownload=0
+## SRA accessions ByrRun, ByExp, BySample, ByStudy 
+SRA_id=SRX674271
+
+[Count Fastq]
+DoCountFastq=auto
+
+[Quality Trim and Filter]
+## boolean, 1=yes, 0=no
+DoQC=1
+##Targets quality level for trimming
+q=5
+##Trimmed sequence length will have at least minimum length 
+min_L=50
+##Average quality cutoff
+avg_q=0
+##"N" base cutoff.  Trimmed read has more than this number of continuous base "N" will be discarded. 
+n=1
+##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence
+lc=0.85
+## Trim reads with adapters or contamination sequences
+adapter=/PATH/adapter.fasta
+## phiX filter, boolean, 1=yes, 0=no
+phiX=0
+## Cut # bp from 5 end before quality trimming/filtering 
+5end=0
+## Cut # bp from 3 end before quality trimming/filtering 
+3end=0
+
+[Host Removal]
+## boolean, 1=yes, 0=no
+DoHostRemoval=1
+## Use more Host=  to remove multiple host reads
+Host=/PATH/all_chromosome.fasta
+similarity=90
+
+[Assembly]
+## boolean, 1=yes, 0=no
+DoAssembly=1
+#Bypass assembly and use pre-assembled contigs
+assembledContigs=
+minContigSize=200
+## spades or idba_ud
+assembler=idba_ud
+idbaOptions="--pre_correction  --mink 31"
+## for spades
+singleCellMode=
+pacbioFile=
+nanoporeFile=
+
+[Reads Mapping To Contigs]
+# Reads mapping to contigs
+DoReadsMappingContigs=auto
+
+[Reads Mapping To Reference]
+# Reads mapping to reference
+DoReadsMappingReference=0
+bowtieOptions=
+# reference genbank or fasta file
+reference=
+MapUnmappedReads=0
+
+[Reads Taxonomy Classification]
+## boolean, 1=yes, 0=no
+DoReadsTaxonomy=1
+## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
+AllReads=0
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,metaphyler-srv,bwa,kraken_mini,metascope
+
+[Contigs Mapping To Reference]
+# Contig mapping to reference
+DoContigMapping=auto
+## identity cutoff
+identity=85
+MapUnmappedContigs=0
+
+[Variant Analysis]
+DoVariantAnalysis=auto
+
+[Contigs Taxonomy Classification]
+DoContigsTaxonomy=1
+
+[Contigs Blast]
+DoBlast=0
+BLAST_nr_DB=/PATH/nr/
+BLAST_nt_DB=/PATH/nt/
+
+[Contigs Annotation]
+## boolean, 1=yes, 0=no
+DoAnnotation=1
+# kingdom: Archaea Bacteria Mitochondria Viruses
+kingdom=Bacteria
+contig_size_cut_for_annotation=700
+## support tools: Prokka or RATT
+annotateProgram=Prokka
+annotateSourceGBK=
+
+[ProPhage Detection]
+DoProPhageDetection=1
+
+[SNP Phylogeny]
+DoSNPtree=1
+## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
+SNPdbName=Ecoli
+## List of genome name from NCBI genomes see $EDGE/edge_ui/data/Ref_list.json
+SNPGenomes=
+SNPGenomesFiles=
+## A refrence genoem from above two options for reads/contigs mapping
+SNPrefGenome=<TMPL_VAR NAME=edge-phylo-ref-select-ref>
+## FastTree or RAxML
+treeMaker=FastTree
+## SRA accessions ByrRun, ByExp, BySample, ByStudy
+SNP_SRA_ids=
+
+[Primer Validation]
+DoPrimerValidation=1
+maxMismatch=1
+# primer fasta file
+primer=
+
+[Primer Adjudication]
+## boolean, 1=yes, 0=no
+DoPrimerDesign=0
+## desired primer tm
+tm_opt=59
+tm_min=57
+tm_max=63
+## desired primer length
+len_opt=18
+len_min=20
+len_max=27
+## reject primer having Tm < tm_diff difference with background Tm
+tm_diff=5
+## display # top results for each target
+top=5
+
+[Generate JBrowse Tracks]
+DoJBrowse=1
+
+[HTML Report]
+DoHTMLReport=1

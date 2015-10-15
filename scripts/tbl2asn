@@ -1,0 +1,91 @@
+#!/usr/bin/env perl
+# tbl2asn
+# ver 0.1
+# 2015/02/04
+#
+# Po-E (Paul) Li
+# B-11
+# Los Alamos National Lab.
+
+use strict;
+use Getopt::Long qw(:config pass_through);
+use FindBin qw($RealBin);
+use lib "$RealBin/lib";
+
+$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$ENV{PATH}";
+$ENV{EDGE_HOME} = $RealBin if ! defined $ENV{EDGE_HOME};
+
+# unbuffer
+$|=1;
+my $contig_split_at=10000;
+my $num_per_split=1000;
+
+GetOptions("use-parallel|up=s" => \$contig_split_at,
+           "split-size|ss=s"   => \$num_per_split,
+           "help|?"           => sub{Usage()} );
+
+my @temp = map { s/ /\\ /g } @ARGV;
+my $tbl2asn_arg = join(" ", @ARGV);
+my ($path,$f,$fn) = $tbl2asn_arg =~ /-i (\S+)\/((\S+)\.\w+)/;
+$path ||= ".";
+
+my $tol_num_contig = 0;
+$tol_num_contig = `grep -c ">" $path/$fn.fna` if -e $f;
+chomp $tol_num_contig;
+
+if( $tol_num_contig > $contig_split_at ){
+	print STDERR "Total of $tol_num_contig contigs found! Enalbe parallel function...\n";
+
+	$tbl2asn_arg =~ s/-i \S+//;
+	$tbl2asn_arg =~ s/-y [^-]+-/-/;
+	$tbl2asn_arg =~ s/-Z [^-]+-/-/;
+	`rm -rf temp_tbl2asn`;
+	mkdir("$path/temp_tbl2asn");
+	
+	print STDERR "Spliting $path/$fn.fna...\n";
+	`awk 'BEGIN {n_seq=0;} /^>/ {if(n_seq%$num_per_split==0){file=sprintf("$path/temp_tbl2asn/split%d.fa",n_seq);} print >> file; n_seq++; next;} { print >> file; }' < $path/$f`;
+	
+	print STDERR "Spliting $path/$fn.tbl...\n";
+	`awk 'BEGIN {n_seq=0;} /^>/ {if(n_seq%$num_per_split==0){file=sprintf("$path/temp_tbl2asn/split%d.tbl",n_seq);} print >> file; n_seq++; next;} { print >> file; }' < $path/$fn.tbl`;
+	
+	print STDERR "Running NCBI tbl2asn...\n";
+	`parallel 'tbl2asn.orig $tbl2asn_arg -i {} > /dev/null 2>&1' ::: $path/temp_tbl2asn/*.fa`;
+	
+	print STDERR "Combining genbank file...\n";
+	`cat $path/temp_tbl2asn/*.gbf > $path/$fn.gbf`;
+	#`cat $path/temp_tbl2asn/*.sqn > $path/$fn.sqn`;
+	
+	print STDERR "Cleaning temp_tbl2asn directory...\n";
+	`rm -rf $path/temp_tbl2asn`;
+}
+else{
+	my $cmd = "tbl2asn.orig $tbl2asn_arg";
+	print STDERR $cmd,"\n";
+	system($cmd);
+}
+
+sub Usage(){
+
+print STDERR "
+DESCRIPTION:
+
+    This is a perl wrapper to split the input FASTA file for NCBI tbl2asn when 
+the number of contigs excessing a certain number (default is 10,000). Otherwise
+it will bypass the arguments to the original NCBI tbl2asn. This script requires
+GNU parallel and original NCBI tbl2asn binary renamed/symlinked to 'tbl2asn.orig'.
+
+USAGE:
+    
+    tbl2asn [original NCBI tbl2asn options] [options]
+
+OPTIONS:
+
+    --use-parallel|up <INT>   Specify a number to split input file if the total 
+                              contig number is excess (default: 10000).
+
+    --split-size|ss <INT>     Split the number of contigs to a file.
+                              (default: 1000)
+
+";
+
+}

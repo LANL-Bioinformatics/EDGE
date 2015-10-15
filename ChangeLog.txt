@@ -1,0 +1,140 @@
+-- Version 1.1
+2015/08/19
+1. Add size limit to contig for annotation ( default 700bp)
+2. Display heatmap at community profiling section
+3. Add script to 1. convert newick tree to phyloxml 2. midpoint reroot 3. add annotation for url and descriptions
+4. Updated JBrowse to 1.11.6. 
+5. Improved tree and tooltip visulization.
+6. Testing/documentate installation on CentOS 6, CentOS 7 and Ubuntu 14.04
+7. Support fastq.gz input
+8. Added project managment functions/widget, resource monitor widget
+9. Added queuing function, auto start queued projects
+10. Update GOTTCHA module to 1.0b
+11. Update host removal script to output host fastq file and using similarity cutoff instead alignment score.
+12. Add selectmenu for choosing host, reference genomes ( Support multiple selection )
+13. Update Virus Database of GOTTCHA
+14. Add paired reads check. If failed, will use them as single end reads
+15. Add buttons to add paired-end/single-end fasta input field in Advanced option
+16. Add Batch submit 
+17. Reorganized output directory structure.
+18. Add RAxML tree builder
+19. Remove 0% coverd contigs
+20. Add Select (ref)  genomes, SRA input function for SNP phylogeny
+21. Add input from NCBI SRA function and sratoolkit
+22. Add Contig classifictaion function by BWA. Remove Blast section of EDGE Gui
+23. Add LCA function to contig classifier
+24. Check duplicate input error
+25. Add rank switch to the summary of taxonomy classification.
+26. Add User Management System
+27. Replace GOTTCHA databases to xHUMAN3x databases.
+28. Update bwa version from 0.7.9 to 0.7.12. 
+29. Add RATT annotation option on EDGE GUI
+30. Allow user to add other genomes in Phylogenomic analysis
+31. Correct INDEL count number in contigMapToRef
+32. Add all NCBI RefSeq to reference selecting menu.
+33. Server-side session implemented. Session expiration detection and deletion.
+34. Reference selection includes annotations. (NCBI_genomes.tar.gz)
+35. Add social network login function (Facebook, google, windows live, Linkedin)
+36. Add SPAdes 3.5 assembler (can input Pacbio/Nanoport for gap closure) and user provided contigs options to skip asssmebly
+37. Update prokka to 1.11
+38. Add tooltip and Mission popup
+39. Add NextSeq platform check and automatically adjust opt_q to 15 if opt_q < 15 for QC module
+40. Add Upload Files Function. Max file size is '5gb'. Allowed File types are fastq, fasta and genbank and can be in gzip format. Files will be kept for 7 days.
+41. GOTTCHA with plasmid and read count
+42. Remove metaphyler-srv 
+43. Multiple improvements and bugfixes
+
+-- Version 1.0
+2014/08/26
+1. * Jquery edge_ui implementation for input and output html
+2. Allow multiple host removal
+3. Several bugs fixs.
+4. Add SNP phylogeny 
+5. Add primer Tm and length range to primer design
+6. Add lazyload to improve result page loading performance
+7. Manual created online at edge.rtfd.org
+8. Add Contig Blast result
+9. Remove Perl Tk GUI and package
+10. Bugs fixed.
+
+-- Version 0.5
+2014/04/10
+1. Add GOTTCHA profiling to
+2. Add JBrowse
+3. Add function to generate radar chart
+4. Add a python script for starting a local web host
+5. Update main script and gui to start the http localhost when job processed.
+   and Auto lauch result html page when job finishd.
+6. Add script generating JBrowse tracks.
+7. Add "debug" option to microbial_profiling.pl. 
+8. Allow most of modules to on/off switch
+9. Update bwa from 0.7.5a to 0.7.9
+10. Update parallel version
+11. Update prokka from 1.7 to 1.9
+12. Add barrnap for rRNA prediction
+13. Add adapter trimming and phiX filtering options for QC step
+14. Remove File::Tee dependency and fix program call path issue
+15. Update INSTALL script to more control options
+16. add Metascope, FastTree and RAxML tools
+17. add output HTML munger in runPipeline
+
+-- Version 0.4
+2014/2/10
+1. Update bwa from 0.7.5a to 0.7.7
+2. Add Version into process log and bug fix on annotation flag
+3. Fix a major bug on gui when output directory is not existed3.
+4. Comment out MEGAN 
+5. Remove redundant ktImportBWA script 
+
+-- Version 0.32
+2013/12/18
+1. Replace MEGAN tree plot script with custom Perl scrips/modules.
+2. Add krona_portable.pl script to generate portable krona html and fix runReadsToGenome.pl when input non-alphanumeric reference name
+3. Add process log and error log into project output directory
+4. Fix bugs on phageFinder and pdf cat when there is no protein annotation result.
+5. Add annotation check box and function
+6. Add bwa mapping reads id to Taxonomy lookup text file (.classification)
+7. Add contig id to Taxonomy lookup text file (.classification)
+
+-- Version 0.31
+2013/12/11
+1. Improve primer Adjudication module with Tm calculation and sorting.
+2. Add kraken-0.10.2-beta thirdParty software for taxonomy classification
+3. Update the Perl GUI interface
+4. Add Annotation stats output
+5. Add existing output directory detection and warning.
+6. Add README.pdf documentation
+7. use bitbucket (git) for version control
+
+
+-- Version 0.3 --
+2013/11/10
+1.Improve primer Adjudication module for Novel pathgen
+2.Improve primer Validation module to allow checking multiple primer pairs in fasta 
+  and IUPAC degenerate base check 
+3. Update the Perl GUI interface
+
+-- Version 0.2 --  
+2013/09/10
+For EDGE use case 2:  Extreme Symptom
+Adding modules
+1. Annotation: Prokka or RATT
+2. Phage finder
+3. Taxonomy analysis
+4. novel contigs/regions Analysis
+5. SNP/INDEL analysis
+
+-- Version 0.1 --   
+2013/06/01
+For EDGE use case I: Assay Failure detection
+Have modules:
+1. Data QC
+2. Host Removal QC 
+3. IDBA Assembling
+4. Map Reads To Contig
+5. Map Reads To Reference Genomes
+6. Map Contigs To Reference Genomes 
+7. PCR Assay Validation and Adjudication
+
+
+

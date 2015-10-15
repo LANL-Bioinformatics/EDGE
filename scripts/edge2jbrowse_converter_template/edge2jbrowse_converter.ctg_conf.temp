@@ -1,0 +1,73 @@
+{
+   "description" : "LANL",
+   "db_adaptor" : "Bio::DB::SeqFeature::Store",
+   "db_args" : {
+      "-adaptor" : "memory",
+      "-dir" : "%%GFF3DIR%%"
+   },
+   "refSeqSelectorMaxSize":10000,
+   "TRACK DEFAULTS" : {
+      "autocomplete" : "all",
+	  "class" : "feature2",
+      "refSeqSelectorMaxSize":10000,
+      "refSeqOrder": "length"
+   },
+   "tracks": [
+    {
+      "track": "CDS",
+      "key": "CDS",
+      "feature": ["CDS"],
+      "category" : "Annotation",
+      "arrowheadClass": "arrowhead",
+      "class": "feature2",
+      "menuTemplate" : [
+             {
+               "label" : "search in Uniprot",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "function( track, f, fdiv ) { var name_src = f.get('inference'); name_src = name_src.replace( /^.*UniProtKB:/, '');  return 'http://www.uniprot.org/uniprot/?query='+name_src+'&sort=score';}"
+             },
+             {
+               "label" : "search in NCBI",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={description}"
+             },
+             {
+               "label" : "search in KEGG",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "http://www.kegg.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&dbkey=kegg&keywords={ec_number}"
+             }
+      ]
+    },
+    {
+      "track": "TRNA",
+      "key": "tRNA",
+      "category" : "Annotation",
+      "feature": ["tRNA"],
+      "arrowheadClass": "arrowhead",
+      "class": "feature3"
+    },
+    {
+      "track": "RRNA",
+      "key": "rRNA",
+      "category" : "Annotation",
+      "feature": ["rRNA"],
+      "arrowheadClass": "arrowhead",
+      "class": "est"
+    },
+    {
+      "track": "PCR",
+      "key": "PCR Design primers",
+      "category" : "Assay Check",
+      "feature": ["pcr_amplicon"],
+      "arrowheadClass": null,
+      "subfeatures": true,
+      "subfeature_classes": {
+          "pcr_primer": "est"
+      },
+      "class": "generic_parent"
+    }
+  ]
+}

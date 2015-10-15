@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html class="ui-mobile"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+	<title>EDGE bioinformatics</title>
+	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="stylesheet" href="css/edge_fonts/edge_fonts.css" />
+	<link rel="stylesheet" href="css/edge-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
+	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/edge.css"/>
+	<link rel='stylesheet' href='css/edge-output.css'/>
+	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<link rel="stylesheet" href="css/jquery.lazyloadxt.spinner.min.css">
+        <link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
+	<link rel="stylesheet" type="text/css" href="css/zocial.css" />
+
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/edge.js"></script>
+	<script src="javascript/jqueryFileTree.js"></script>
+	<script src="javascript/raphael-min.js" ></script>
+	<script src="javascript/jsphylosvg-min.js"></script>
+	<script src="javascript/jquery.tooltipster.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.autoload.min.js"></script>
+        <script type="text/javascript" src="javascript/plupload/plupload.full.min.js"></script>
+        <script type="text/javascript" src="javascript/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+	<script src="javascript/edge_dynamic_selection.js"></script>
+	<script src="javascript/hello.all.min.js"></script>
+
+</head>
+
+<body class="ui-mobile-viewport ui-push-a">
+<script>
+//	$(window).bind("load", function() {
+//		$.getScript('javascript/social.js', function() {});
+//	});
+</script>
+
+<div data-role="page" class="edge-demos edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active" data-url="" tabindex="0" style="padding-bottom: 82px;">
+
+	<div data-role="header" class="edge-header ui-header ui-bar-inherit">
+		<div class="edge-logo">
+			<a href=''><img src="images/edge_logo.svg">
+			<h2 class="ui-title" role="heading" aria-level="1">EDGE bioinformatics</h2>
+			<h5></h5>
+			</a>
+		</div>
+		<a href="" class="edge-navmenu-link ui-nodisc-icon ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">Menu</a>
+		<a href="" id="edge-user-btn" class="edge-user-btn ui-btn ui-nodisc-icon ui-btn-icon-left ui-icon-user ui-btn-icon-notext ui-corner-all ui-btn-right">User</a>
+		<a href="" class="edge-action-link ui-nodisc-icon ui-btn-right ui-btn ui-icon-action ui-btn-icon-notext ui-corner-all no-show-logout " data-role="button" role="button">Action</a>
+	</div><!-- /header -->
+	<div id="panel-folder" class="panel-folder" style="top: 2.7em; left: -2px; z-index:100000">
+		<a id="panel-folder-btn" href="#" class="ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all">No text</a>
+	</div>
+	<div data-role="panel" id="edge-navmenu-panel" class="edge-navmenu-panel ui-panel ui-panel-position-left ui-panel-animate ui-panel-closed" data-position="left" data-display="overlay" data-theme="a">
+		<div class="ui-panel-inner"><ul class="edge-list ui-alt-icon ui-nodisc-icon ui-listview">
+			<li class="ui-first-child"><a href="#edge-content-home" class="ui-btn ui-btn-icon-right ui-icon-home">Home</a></li>
+                        <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
+			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE</a></li>
+			<li id="edge-projet-list-li" data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed ui-li-static ui-body-inherit">
+				<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+				<a href="" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+					Projects<span class="ui-collapsible-heading-status">click to expand contents</span>
+				</a>
+				</h3>
+				<div class="ui-collapsible-content ui-body-inherit ui-collapsible-content-collapsed" aria-hidden="true">
+				<div id="edge-filterProjectList-form" class="ui-filterable">
+					<input id="filterProjectList-input" data-type="search" placeholder="Find project by name/time">
+					<a id="edge-project-page-li" style="opacity: 1!important" href="#" data-mini="true"  data-role="button" data-icon='bars' data-iconpos="right">Project List</a>
+
+				</div>
+				<ul class="ui-listview" id="edge-project-list-ul" data-role="listview" data-filter="true" data-input="#filterProjectList-input">
+					<li class='edge-proj-list-li'><a href='#' class='edge-project-list ui-btn ui-btn-icon-right ui-icon-check'>No project found</a></li>
+				</ul>
+				</div>
+			</li>
+		</ul></div>
+	</div><!-- /nav panel -->
+
+	<div data-role="panel" class="edge-action-panel ui-panel ui-panel-position-right ui-panel-animate" data-position="right" data-display="overlay" data-theme="b">
+		<div class="ui-panel-inner">
+			<p>Job Progress
+			<ul data-role="listview" data-inset="true" id="edge-progress-ul">
+				<li data-role='list-divider'>No project loaded</li>
+				<li data-role='list-divider' class='edge-proj-last-check'>Last check: Not available</li>
+			</ul>
+			</p>
+
+			<ul data-role="listview" id="resource-usage" data-inset="true">
+				<li data-role='list-divider'>EDGE Server Usage</li>
+				<li class="ui-btn"><span class="res-type">CPU</span><input type="range"  id="cpu-usage-bar" data-highlight="true" min="0" max="100" value="0"><span id="cpu-usage-val"></span></li>
+				<li class="ui-btn"><span class="res-type">MEM</span><input type="range"  id="mem-usage-bar" data-highlight="true" min="0" max="100" value="0"><span id="mem-usage-val"></span></li>
+				<li class="ui-btn"><span class="res-type">DISK</span><input type="range" id="disk-usage-bar" data-highlight="true" min="0" max="100" value="0"><span id="disk-usage-val"></span></li>
+			</ul>
+
+			<ul data-role="listview" data-inset="true">
+				<li data-role='list-divider'>Action</li>
+				<li data-icon='bars'>     <a href='#edge_log_dialog' id='edge-view-log-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey'>View live log</a>
+				<li data-icon='refresh'>  <a href='#edge_confirm_dialog' id='action-rerun-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='rerun'>Force to rerun this project</a>
+				<li data-icon='forbidden'><a href='#edge_confirm_dialog' id='action-interrupt-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='interrupt'>Interrupt running project</a>
+				<li data-icon='delete'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='delete'>Delete entire project</a>
+				<!-- <li data-icon='minus'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='remove'>Remove from project list</a> -->
+				<li data-icon='recycle'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='empty'>Empty project outputs</a>
+				<li data-icon='arrow-u-r'><a href='#edge_confirm_dialog' id='action-archive-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='archive'>Move to the archive storage</a>
+				<li data-icon='forward' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-share-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='share'>Share project</a>
+				<li data-icon='back' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-unshare-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='unshare'>Unshare project</a>
+                                <li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
+			</ul>
+		</div>
+	</div><!-- /progress panel -->
+
+	<div role="main" id="edge-content-home" class="ui-content edge-content edge-main-page">
+		<h2><u>E</u>mpowering the <u>D</u>evelopment of <u>G</u>enomics <u>E</u>xpertise</h2>
+		 <!-- Social buttons 
+                <div id="social-butoons">
+                        <div id="fb-root"></div>
+                        <div class="fb-share-button" data-href="https://edgeset.lanl.gov/" data-width="150" data-layout="button_count" data-show-faces="false" data-send="false" style="vertical-align:top;zoom:1;*display:inline"></div> 
+                        <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="EDGEbioinfo"></a>
+                        <div class="g-plusone" data-size="medium"></div>
+                </div>      -->
+		<div class="edge-sponsor-logo tooltip">
+			<img src="images/mission-logo.png" alt='mission' />
+		</div>
+	
+		<p>
+			<ul>
+			<li>No need for high-level bioinformaticists at the site of sequencing.</li>
+			<li>No need to move large datasets.</li>
+			<li>Edge Bioinformatics enables sequencing as a solution in the biological facilities where human-resources, space, bandwidth, and time are limited</li>
+			<li>A highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data.</li>
+			<li>Allow users to address a wide range of use cases including assay validataion and the characterization of novel biological threats, clinical samples, and complex environmental samples.</li>
+			</ul>
+			<div class="edge-center"><a href="#popup-workflow" data-transition="fade" data-rel="popup" data-position-to="window"><img style="max-width:100%; height:auto;" src="images/workflow_small.jpg"/></a></div>
+			<div data-role="popup" data-history="false" id="popup-workflow" class="photopopup" data-overlay-theme="a" data-corners="false" data-tolerance="30,15">
+				<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+				<a href="#" data-rel="back">
+				<img style="" src="images/workflow.jpg" alt="workflow">
+				</a>
+			</div>
+		</p>
+		<h2>Implementation</h2>
+		<p>
+			<ul>
+			<li>EDGE pipeline was implemented in Perl and wraps up several existing tools within the package including a cutting-edge assembler and sequencing reads aligners.</li>
+			<li>The User Interface was mainly implemented in <a href="https://jquerymobile.com">JQuery Mobile</a>, which is a HTML5-based user interface system designed to make responsive web sites and apps that are accessible on all smartphone, tablet and desktop devices.</li> 
+			<li>The current version of EDGE pipeline has been extensively tested on a Linux Server with Ubuntu 13.04 operation system and will only work on 64bit Linux environments.</li>
+			<li>Due to the involvement of several memory/time consuming steps, it requires at least 16Gb memory and at least 8 computing CPUs. A higher computer spec is recommended: 128Gb memory and 16 computing CPUs.</li>
+			</ul>
+		</p>
+		<h2>Download & Updates</h2>
+		<p>
+			Please check our GitHub site <a href="https://lanl-bioinformatics.github.io/edge/" target="_blank">LANL-Bioinformatics</a>.
+		</p>
+		<h2>Tutorial & Help</h2>
+		<p>
+			The tutorial and guide are hosted in readthedocs.org in <a href="https://edge.readthedocs.org/en/latest/" target="_blank">online</a> or <a href="https://media.readthedocs.org/pdf/edge/latest/edge.pdf" target="_blank">PDF</a> version. User discussion group will be online soon.
+		</p>
+	</div><!-- /home -->
+
+	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output edge-main-page'>
+	</div><!-- /output -->
+
+	<div role='main' id='edge-project-page' class='ui-content edge-content edge-output edge-main-page'>
+	</div><!-- /project_page -->
+
+<form id="edge-run-pipeline-form">
+	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
+		<h2>Input Your Sample</h2>
+		<p>EDGE requires sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences.</p>
+		<div data-role="collapsible-set">
+			<div data-role="collapsible" id="edge-input-sequence" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+				<h4>Input Raw Reads</h4>
+
+				<div class="ui-body-d ui-content">
+					<div class="ui-field-contain">
+						<label for="edge-proj-name">Project name</label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-name" id="edge-proj-name" maxlength="30" placeholder="(required, at 3 but less than 30 characters)"></div>
+					<div class="ui-field-contain">
+						<label for="edge-proj-desc">Description</label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-desc" id="edge-proj-desc" placeholder="(optional)"></div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Input from NCBI Short Reads Archive(SRA)</legend>
+							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
+							<label for="edge-sra-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
+							<label for="edge-sra-sw2">No</label>
+						</fieldset>
+					</div>
+					<div id="edge-file-input-block">
+						<p class="edge-center">Paired-end reads:</p>
+						<div id="edge-input-pe-block1" class="edge-input-pe-block"> 
+							<div class="ui-field-contain input-type-file">
+								<label for="edge-input-pe1-1">Pair-1 FASTQ file</label>
+								<input type="text" data-mini="true" name="edge-input-pe1[]" id="edge-input-pe1-1" placeholder="absolute file path/select file">
+								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+							</div>
+							<div class="ui-field-contain input-type-file">
+								<label for="edge-input-pe2-1">Pair-2 FASTQ file</label>
+								<input type="text" data-mini="true" name="edge-input-pe2[]" id="edge-input-pe2-1" placeholder="absolute file path/select file">
+								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+								<a href="#" class="btnDel-edge-input-pe" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
+								</div>
+							</div>
+						</div>
+						<p class="edge-center">and/or</p>
+				
+						<div id="edge-input-se-block1" class="ui-field-contain input-type-file edge-input-se-block">
+							<label for="edge-input-se1">Single-end FASTQ file</label>
+							<input data-mini="true" type="text" name="edge-input-se[]" id="edge-input-se1" placeholder="absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+							<a href="#" class="btnDel-edge-input-se" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
+							</div>	
+						</div>
+					</div> 
+					<div id="edge-sra-input-block">
+						<div class="ui-field-contain">
+							<label for=edge-sra-acc">SRA Accession</label>
+							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
+						</div>
+						<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
+					</div>
+					<div class="edge-right">|<a href="#" id="edge-input-toggle"> additional options </a>|</div>
+
+					<div id="edge-input-options">
+						<div class="ui-field-contain btnAdd-edge-input">
+							<a href="#" id="btnAdd-edge-input-pe" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Paired-end Input</a>
+							<a href="#" id="btnAdd-edge-input-se" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Single-end Input</a>
+						</div>
+						<div class="ui-field-contain">
+							<label for="edge-proj-outpath">Specify Output Path</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-outpath" id="edge-proj-outpath" placeholder="(optional)"></div>
+						<!--<p class="edge-center">or</p>
+						<div class="ui-field-contain">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend>Store to Input Directory</legend>
+								<label for="edge-proj-outpath-input">Store to Input Directory</label>
+								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input1" value="1" checked="checked">
+								<label for="edge-proj-outpath-input1">Yes</label>
+								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input2" value="0">
+								<label for="edge-proj-outpath-input2">No</label>
+							</fieldset>
+						</div>-->
+
+						<div class="ui-field-contain">
+							<label for="edge-proj-desc">Use # of CPUs</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
+
+						<div class="ui-field-contain input-type-file">
+							<label for="edge-input-config">Config file</label>
+							<input data-mini="true" type="text" name="edge-input-config" id="edge-input-config" placeholder="(optional) absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+						</div>
+						<p class="edge_tool_note">Your customized parameters can be used again. You can utilize the file selector above to upload a standard config file generated by EDGE bioinformatics.</p>
+					</div>
+				</div>
+			</div>
+			<div id="edge-batch-input" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
+				<h4>Batch Project Submission</h4>
+				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="#" id="edge-batch-sample-input">[Sample Input]</a> to see the example. </p>
+					<div class="ui-field-contain input-type-file">
+						<label for="edge-batch-file-input">Batch text file</label>
+						<input type="file" id="edge-batch-file-input" name="edge-batch-file-input">
+					</div>
+					<p class="edge-center">or enter your batch sample descriptions here</p>
+					<div data-role="fieldcontain" >
+						<label for="edge-batch-text-input">Batch sample input:</label>
+						<textarea name="edge-batch-text-input" id="edge-batch-text-input"></textarea>
+						<!--<a href="#" id="edge-batch-sample-input">[Sample Input]</a>  --!>
+					</div>
+			</div>
+		</div>
+		<p></p>
+		<h2>Choose Processes / Analyses</h2>
+		<p>EDGE provides many modules to do various analyses. You can choose to run or skip a specific process. Parameters/options are provided for most of the analyses.
+		   You can click here to
+		   <a href="#" id="edge-all-on-btn">turn all on</a>,
+		   <a href="#" id="edge-all-exp-btn">expand all sections</a> or
+		   <a href="#" id="edge-all-close-btn">close all sections</a>.
+		</p>
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-pp-sw" name="edge-pp-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+					</select>
+					<label for="edge-pp-sw">Pre-processing</label>
+				</div>
+			</h4>
+
+			<ol type="a">
+			<li>Quality Trim and Filter
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Run Quality Trim and Filter</legend>
+					<input type="radio" data-mini="true" name="edge-qc-sw" id="edge-qc-sw1" value="1" checked="checked">
+					<label for="edge-qc-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-qc-sw" id="edge-qc-sw2" value="0">
+					<label for="edge-qc-sw2">No</label>
+				</fieldset>
+			</div>
+
+			<div class="ui-field-contain">
+				<label for="edge-qc-q" class='tooltip' id="qc-q-tooltip">Trim Quality Level</label>
+				<input type="number" name="edge-qc-q" id="edge-qc-q" data-mini="true" data-clear-btn="true" value="5">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-qc-avgq">Average Quality Cutoff</label>
+				<input type="number" name="edge-qc-avgq" id="edge-qc-avgq" data-mini="true" data-clear-btn="true" value="0">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-qc-minl">Minimum Read Length</label>
+				<input type="number" name="edge-qc-minl" id="edge-qc-minl" data-mini="true" data-clear-btn="true" value="50">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-qc-n" class='tooltip' title="Trimmed read has more than this number of continuous base 'N' will be discarded." >"N" Base Cutoff</label>
+				<input type="number" name="edge-qc-n" id="edge-qc-n" data-mini="true" data-clear-btn="true" value="0">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-qc-lc" class='tooltip' title="Maximum fraction of mono-/di-nucleotide sequence" >Low Complexity Filter Ratio</label>
+				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
+			</div>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-qc-adapter">Adapter FASTA</label>
+				<input data-mini="true" name="edge-qc-adapter" id="edge-qc-adapter" type="text" placeholder="(optional) absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<!--<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>phiX Filter</legend>
+					<input type="radio" data-mini="true" name="edge-qc-phix" id="edge-qc-phix1" value="1">
+					<label for="edge-qc-phix1">On</label>
+					<input type="radio" data-mini="true" name="edge-qc-phix" id="edge-qc-phix2" value="0" checked="checked">
+					<label for="edge-qc-phix2">Off</label>
+				</fieldset>
+			</diav>-->
+			<div class="ui-field-contain">
+				<label for="edge-qc-5end">Cut #bp from 5'-end</label>
+				<input type="number" name="edge-qc-5end" id="edge-qc-5end" data-mini="true" data-clear-btn="true" value="0">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-qc-3end">Cut #bp from 3'-end</label>
+				<input type="number" name="edge-qc-3end" id="edge-qc-3end" data-mini="true" data-clear-btn="true" value="0">
+			</div>
+			</li>
+			<li>Host Removal
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Run Host Removal</legend>
+					<input type="radio" data-mini="true" name="edge-hostrm-sw" id="edge-hostrm-sw1" value="1">
+					<label for="edge-hostrm-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-hostrm-sw" id="edge-hostrm-sw2" value="0" checked="checked">
+					<label for="edge-hostrm-sw2">No</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-hostrm-file-fromlist">Select Genome(s)</label>
+				<select id="edge-hostrm-file-fromlist" data-mini="true" name="edge-hostrm-file-fromlist" data-native-menu="false" multiple="multiple">
+					<option disabled>Select host genome(s)...</option>
+				</select>
+			</div>
+			<p class="edge-center">and/or</p>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-hostrm-file">Host FASTA file</label>
+				<input type="text" name="edge-hostrm-file" id="edge-hostrm-file" data-mini="true" placeholder="absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-hostrm-similarity" class='tooltip' title='(Reads aligned bases) / (Reads length) x 100' >Similarity (%)</label>
+				<input type="number" name="edge-hostrm-similarity" id="edge-hostrm-similarity" data-mini="true" data-clear-btn="true" value="90">
+			</div>
+			<!--
+			<div class="ui-field-contain">
+				<label for="edge-hostrm-minlen">Minimum Alignment Length</label>
+				<input type="number" name="edge-hostrm-minlen" id="edge-hostrm-minlen" data-mini="true" data-clear-btn="true" value="50">
+			</div>
+			-->
+			</li>
+			</ol>
+
+		</div>
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-assembly-sw" name="edge-assembly-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+					</select>
+					<label for="edge-assembly-sw">Assembly and Annotation</label>
+				</div>
+			</h4>
+			<div class="ui-field-contain">
+                        	<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Bypass assembly and use pre-assembled contigs</legend>
+					<input type="radio" name="edge-assembled-contig-sw" id="edge-assembled-contig1" value="1">
+					<label for="edge-assembled-contig1">Yes</label>
+					<input type="radio" name="edge-assembled-contig-sw" id="edge-assembled-contig2" value="0" checked="checked">
+					<label for="edge-assembled-contig2">No</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain input-type-file" id="edge-assembled-conti-file-div">
+				<label for="edge-assembled-contig-file">Contig Fasta File</label>
+				<input type="text" data-mini="true" name="edge-assembled-contig-file" id="edge-assembled-contig-file" placeholder="absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+
+			<div class="ui-field-contain" id="edge-assembler-sw">
+                        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<legend>Assembler</legend>
+				<input type="radio" name="edge-assembler" id="edge-assembler1" value="idba_ud" checked="checked">
+				<label for="edge-assembler1">IDBA_UD</label>
+				<input type="radio" name="edge-assembler" id="edge-assembler2" value="spades">
+				<label for="edge-assembler2">SPAdes</label>
+			</fieldset>
+			</div>
+			<div id="edge-idba-parameters">
+				<p class="edge_tool_note">IDBA_UD performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>
+				<div class="ui-field-contain"><label for="edge-assembly-mink">Minimum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-mink" id="edge-assembly-mink" value="31"></div>
+				<div class="ui-field-contain"><label for="edge-assembly-maxk">Maximum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-maxk" id="edge-assembly-maxk" value="121"></div>
+				<div class="ui-field-contain"><label for="edge-assembly-step">Step Size</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-step" id="edge-assembly-step" value="20"></div>
+			</div>
+			<div id="edge-spades-parameters">
+				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genome, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
+				<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Single Cell Data</legend>
+					<input type="radio" data-mini="true" name="edge-spades-sc-sw" id="edge-spades-sc-sw1" value="1">
+					<label for="edge-spades-sc-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-spades-sc-sw" id="edge-spades-sc-sw2" value="0" checked>
+					<label for="edge-spades-sc-sw2">No</label>
+				</fieldset>
+				</div>
+				<div class="ui-field-contain input-type-file">
+					<label for="edge-spades-pacbio-file">Pacbio Subreads Fasta/q</label>
+					<input type="text" data-mini="true" name="edge-spades-pacbio-file" id="edge-spades-pacbio-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+				</div>
+				<div class="ui-field-contain input-type-file">
+					<label for="edge-spades-nanopore-file">Nanopore Reads Fasta/q</label>
+					<input type="text" data-mini="true" name="edge-spades-nanopore-file" id="edge-spades-nanopore-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+				</div>
+			</div>
+			<div class="ui-field-contain"><label for="edge-assembly-minc">Minimum Contig Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-minc" id="edge-assembly-minc" value="200"></div>
+			
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Annotation</legend>
+					<input type="radio" data-mini="true" name="edge-anno-sw" id="edge-anno-sw1" value="1" checked="checked">
+					<label for="edge-anno-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-anno-sw" id="edge-anno-sw2" value="0">
+					<label for="edge-anno-sw2">No</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain"><label for="edge-anno-size-cut">Minimum Contig Length for Annotation</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-anno-size-cut" id="edge-anno-size-cut" value="700"></div>
+			<div class="ui-field-contain">
+                        <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+                                <legend>Annotation Tool</legend>
+                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool1" value="prokka" checked="checked">
+                                <label for="edge-anno-tool1">Prokka</label>
+                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool2" value="RATT">
+                                <label for="edge-anno-tool2">RATT</label>
+                        </fieldset>
+                        </div>
+			<div id="edge-anno-kingdom" class="ui-field-contain">
+			<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<legend>Specify Kingdom</legend>
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom1" value="Archaea">
+				<label for="edge-anno-kingdom1">Archaea</label>
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom2" value="Bacteria" checked="checked">
+				<label for="edge-anno-kingdom2">Bacteria</label>
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom3" value="Mitochondria">
+				<label for="edge-anno-kingdom3">Mitochondria</label>
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom4" value="Viruses">
+				<label for="edge-anno-kingdom4">Viruses</label>
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom5" value="Others">
+				<label for="edge-anno-kingdom5">Others</label>
+			</fieldset>
+			<p class="edge_tool_note">Please choose the genome type you would like to annotate for Prokka to do genome annotation.</p>
+			</div>
+			<div id="edge-anno-source">
+				<div class="ui-field-contain input-type-file">
+                                	<label for="edge-anno-source-file">Annotation Source Genbank</label>
+                                	<input type="text" data-mini="true" name="edge-anno-source-file" id="edge-anno-source-file" placeholder="absolute file path/select file">
+                                	<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+                        	</div>
+			<p class="edge_tool_note">Please provide the reference/source annotation (Genbank file), EDGE will use RATT to transfer the annotation from the reference genome. The reference genome must be close relative to the sample.</p>
+                        </div>
+		</div>
+
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-ref-sw" name="edge-ref-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1">On</option>
+					</select>
+					<label for="edge-ref-sw">Reference-Based Analysis</label>
+				</div>
+			</h4>
+			<p class="edge_tool_note">Given one or multiple reference genome FASTA files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given a reference genome genbank file, EDGE will also turn on variant analysis.</p>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-ref-file-fromlist">Select Genome(s)</label>
+				<select id="edge-ref-file-fromlist" data-mini="true" name="edge-ref-file-fromlist" data-native-menu="false" multiple="multiple">
+					<option disabled>Select reference genome(s)...</option>
+				</select>
+			</div>
+			<p class="edge-center">and/or</p>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-ref-file">Reference genome</label>
+				<input type="text" data-mini="true" name="edge-ref-file" id="edge-ref-file" placeholder="absolute FASTA/GenBank file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Identify Unmapped Reads</legend>
+					<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read1" value="1" checked="checked">
+					<label for="edge-ref-unmapped-read1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read2" value="0">
+					<label for="edge-ref-unmapped-read2">No</label>
+				</fieldset>
+			</div>
+
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Identify Unmapped Contigs</legend>
+					<input type="radio" data-mini="true" name="edge-ref-unmapped-contig-class" id="edge-ref-unmapped-contig1" value="1">
+					<label for="edge-ref-unmapped-contig1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-ref-unmapped-contig-class" id="edge-ref-unmapped-contig2" value="0" checked="checked">
+					<label for="edge-ref-unmapped-contig2">No</label>
+				</fieldset>
+			</div>
+			<p class="edge_tool_note">EDGE will try to classify reads and contigs that are unmapped to references by mapping them to NCBI RefSeq database.</p>
+
+			<!--
+			<li>Unmapped-read Classification</li>
+			<div class="ui-field-contain" id="edge-taxa-tool-select-unmapped">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Classification Tool</legend>
+					<label for="edge-taxa-enabled-tools" class="select">Run with following databases</label>
+					<select name="edge-taxa-enabled-tool-unmapped" id="edge-taxa-enabled-tool-unmapped" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
+						<option>Choose Profiling Tools:</option>
+						<optgroup label="GOTTCHA Bacterial Databases">
+							<option value="gottcha-genDB-b"> GOTTCHA Genus</option>
+							<option value="gottcha-speDB-b"> GOTTCHA Species </option>
+							<option value="gottcha-strDB-b"> GOTTCHA Strain</option>
+						</optgroup>
+						<optgroup label="GOTTCHA Viral Databases">
+							<option value="gottcha-genDB-v"> GOTTCHA Genus</option>
+							<option value="gottcha-speDB-v"> GOTTCHA Species</option>
+							<option value="gottcha-strDB-v"> GOTTCHA Strain</option>
+						</optgroup>
+						<optgroup label="Reads Mapping">
+							<option value="bwa," selected="">Reads Mapping (BWA against RefSeq)</option>
+						</optgroup>
+						<optgroup label="Other Tools">
+							<option value="metaphlan">MetaPhlAn</option>
+							<option value="kraken_mini">Kraken (mini database)</option>
+							<option value="metaphyler-srv">Metaphyler (Short Read Version)</option>
+						</optgroup>
+					</select>
+				</fieldset>
+			</div> -->
+
+		</div>
+
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-taxa-sw" name="edge-taxa-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+					</select>
+					<label for="edge-taxa-sw">Taxonomy Classification</label>
+				</div>
+			</h4>
+			<ol type="a">
+			<li>Read-based Taxonomy Classification</li>
+			<p class="edge_tool_note">EDGE will use all reads by default. You can change the behavior to use reads that are unmapped to the reference if Reference-based Analysis is on.</p>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Always use all reads</legend>
+					<input type="radio" data-mini="true" name="edge-taxa-allreads" id="edge-taxa-allreads1" value="1" checked="checked">
+					<label for="edge-taxa-allreads1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-taxa-allreads" id="edge-taxa-allreads2" value="0">
+					<label for="edge-taxa-allreads2">No</label>
+				</fieldset>
+			</div>
+			<p class="edge_tool_note">EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, MetaPhyler (short read version), Kraken, MetaScope and reads mapping to NCBI RefSeq using BWA.</p>
+			<div class="ui-field-contain" id="edge-taxa-tool-select">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Classification Tools</legend>
+					<label for="edge-taxa-enabled-tools" class="select">Run with following databases</label>
+					<select name="edge-taxa-enabled-tools" id="edge-taxa-enabled-tools" multiple="multiple" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
+						<option>Choose Classification Tools:</option>
+						<optgroup label="GOTTCHA Bacterial Databases">
+							<option value="gottcha-genDB-b" selected=""> GOTTCHA Genus</option>
+							<option value="gottcha-speDB-b" selected=""> GOTTCHA Species </option>
+							<option value="gottcha-strDB-b" selected=""> GOTTCHA Strain</option>
+						</optgroup>
+						<optgroup label="GOTTCHA Viral Databases">
+							<option value="gottcha-genDB-v" selected=""> GOTTCHA Genus</option>
+							<option value="gottcha-speDB-v" selected=""> GOTTCHA Species</option>
+							<option value="gottcha-strDB-v" selected=""> GOTTCHA Strain</option>
+						</optgroup>
+						<optgroup label="Reads Mapping">
+							<option value="bwa," selected="">Reads Mapping (BWA against RefSeq)</option>
+						</optgroup>
+						<optgroup label="Other Tools">
+							<option value="metaphlan" selected="">MetaPhlAn</option>
+							<option value="kraken_mini" selected="">Kraken (mini database)</option>
+						</optgroup>
+					</select>
+				</fieldset>
+			</div>
+			<li>Contig-based Taxonomy Classification</li>
+			<p class="edge_tool_note">EDGE will map contigs to NCBI genomes and make taxonomy inference to each contigs.</p>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Contigs Classification</legend>
+					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw1" value="1" checked="checked">
+					<label for="edge-contig-taxa-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw2" value="0">
+					<label for="edge-contig-taxa-sw2">No</label>
+				</fieldset>
+			</div>
+	
+			</ol>
+		</div>
+
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+				<select id="edge-phylo-sw" name="edge-phylo-sw" data-role="slider" data-mini="true">
+					<option value="0" selected="TRUE">Off</option><option value="1">On</option>
+				</select>
+				<label for="edge-phylo-sw">Phylogenetic Analysis</label>
+				</div>
+			</h4>
+			<p class="edge_tool_note">EDGE supports 5 pre-computed databases for SNP phylogeny analsysis and two tree builders. FastTree is faster and RAxML is slower but more accurate.</p>
+			<div class="ui-field-contain">
+			<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<legend>Tree Build Method</legend>
+				<input type="radio" name="edge-phylo-tree" id="edge-phylo-tree1" value="FastTree" checked="checked">
+				<label for="edge-phylo-tree1">FastTree</label>
+				<input type="radio" name="edge-phylo-tree" id="edge-phylo-tree2" value="RAxML">
+				<label for="edge-phylo-tree2">RAxML</label>
+			</fieldset>
+			</div>
+			<div class="ui-field-contain input-type-file">
+			<label for="edge-phylo-patho">Pathogen SNP DB</label>
+			<select id="edge-phylo-patho" data-mini="true" name="edge-phylo-patho" data-native-menu="true">
+				<option value="">Select a Pathogen...</option>
+				<option value="Ecoli">Ecoli</option>
+				<option value="Yersinia">Yersinia</option>
+				<option value="Francisella">Francisella</option>
+				<option value="Brucella">Brucella</option>
+				<option value="Bacillus">Bacillus</option>
+			</select>
+			<!--<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<legend>Specify Pathogen</legend>
+				<input type="radio" name="edge-phylo-patho" id="edge-phylo-patho1" value="Ecoli" check="checked">
+				<label for="edge-phylo-patho1">Ecoli</label>
+				<input type="radio" name="edge-phylo-patho" id="edge-phylo-patho2" value="Yersinia">
+				<label for="edge-phylo-patho2">Yersinia</label>
+				<input type="radio" name="edge-phylo-patho" id="edge-phylo-patho3" value="Francisella">
+				<label for="edge-phylo-patho3">Francisella</label>
+				<input type="radio" name="edge-phylo-patho" id="edge-phylo-patho4" value="Brucella">
+				<label for="edge-phylo-patho4">Brucella</label>
+				<input type="radio" name="edge-phylo-patho" id="edge-phylo-patho5" value="Bacillus">
+				<label for="edge-phylo-patho5">Bacillus</label>
+			</fieldset>-->
+			</div>
+			<p class="edge-center">or</p>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-phylo-ref-select">Select Genome(s)</label>
+				<select id="edge-phylo-ref-select" data-mini="true" name="edge-phylo-ref-select" data-native-menu="false" multiple="multiple">
+					<option disabled>Search genomes...</option>
+				</select>
+			</div>
+			<div id="edge-phylo-ref-select-ref-div" class="ui-field-contain input-type-file">
+				<label for="edge-phylo-ref-select-ref">Select A Reference Genome from Selected Genomes</label>
+				<select id="edge-phylo-ref-select-ref" data-mini="true" name="edge-phylo-ref-select-ref" data-native-menu="true">
+					<option value="0" select="selected">Random</option>
+				</select>
+			</div>
+			<div id="edge-phylo-ref-file-block1" class="ui-field-contain input-type-file edge-phylo-ref-file-block">
+				<label for="edge-phylo-ref-file-1">Add Genome(s) </label>
+				<input type="text" data-mini="true" name="edge-phylo-ref-file" id="edge-phylo-ref-file-1" placeholder="absolute FASTA file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+				<a href="#" class="btnAdd-edge-phylo-ref-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
+				</div>
+				
+			</div>
+			<div class="ui-field-contain">
+				<label for=edge-phylo-sra-acc" class="tooltip" id="edge-phylo-sra-acc-tooltip">SRA Accessions</label>
+				<input data-mini="true" type="text" name="edge-phylo-sra-acc" id="edge-phylo-sra-acc" placeholder="ex:SRR2133399,SRR576632">
+			</div>
+
+		</div>
+	
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-primer-sw" name="edge-primer-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1">On</option>
+					</select>
+					<label for="edge-primer-sw">PCR Primer Analysis</label>
+				</div>
+			</h4>
+
+			<ol type="a">
+			<li>Primer Validation
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Run Primer Validation</legend>
+					<input type="radio" data-mini="true" name="edge-primer-valid-sw" id="edge-primer-valid-sw1" value="1">
+					<label for="edge-primer-valid-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-primer-valid-sw" id="edge-primer-valid-sw2" value="0" checked="checked">
+					<label for="edge-primer-valid-sw2">No</label>
+				</fieldset>
+			</div>
+			<p class="edge_tool_note">Given a primer file, EDGE will run validation of the primer pair to the reference and/or assembled contigs, as available.</p>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-primer-valid-file">Primer Fasta Sequences</label>
+				<input type="text" data-mini="true" name="edge-primer-valid-file" id="edge-primer-valid-file" placeholder="absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain">
+			<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<legend>Maximum Mismatch</legend>
+				<input type="radio" name="edge-primer-valid-mm" id="edge-primer-valid-mm0" value="0">
+				<label for="edge-primer-valid-mm0">0</label>
+				<input type="radio" name="edge-primer-valid-mm" id="edge-primer-valid-mm1" value="1" checked="checked">
+				<label for="edge-primer-valid-mm1">1</label>
+				<input type="radio" name="edge-primer-valid-mm" id="edge-primer-valid-mm2" value="2">
+				<label for="edge-primer-valid-mm2">2</label>
+				<input type="radio" name="edge-primer-valid-mm" id="edge-primer-valid-mm3" value="3">
+				<label for="edge-primer-valid-mm3">3</label>
+				<input type="radio" name="edge-primer-valid-mm" id="edge-primer-valid-mm4" value="4">
+				<label for="edge-primer-valid-mm4">4</label>
+			</fieldset>
+			</div>
+			</li>
+			<li>Primer Design
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Run Primer Design</legend>
+					<input type="radio" data-mini="true" name="edge-primer-adj-sw" id="edge-primer-adj-sw1" value="1">
+					<label for="edge-primer-adj-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-primer-adj-sw" id="edge-primer-adj-sw2" value="0" checked="checked">
+					<label for="edge-primer-adj-sw2">No</label>
+				</fieldset>
+			</div>
+			<p class="edge_tool_note">EDGE will design primers based on the assembled contigs.</p>
+			<div class="ui-field-contain">
+				<label for="edge-primer-adj-tm-opt">Tm Optimum (C)</label>
+				<input type="number" data-mini="true" data-clear-btn="true" name="edge-primer-adj-tm-opt" id="edge-primer-adj-tm-opt" value="59">
+			</div>
+			<div class="ui-field-contain">
+				<div data-role="rangeslider" data-mini="true">
+					<label for="edge-primer-adj-tm-min">Tm Range (C)</label>
+					<input type="range" name="edge-primer-adj-tm-min" id="edge-primer-adj-tm-min" min="40" max="80" value="57">
+					<input type="range" name="edge-primer-adj-tm-max" id="edge-primer-adj-tm-max" min="40" max="80" value="63">
+				</div>
+			</div>
+
+			<div class="ui-field-contain">
+				<label for="edge-primer-adj-len-opt">Length Optimum (bp)</label>
+				<input type="number" data-mini="true" data-clear-btn="true" name="edge-primer-adj-len-opt" id="edge-primer-adj-len-opt" min="10" max="40" value="20">
+			</div>
+			<div class="ui-field-contain">
+				<div data-role="rangeslider" data-mini="true">
+					<label for="edge-primer-adj-len-min">Length Range (bp)</label>
+					<input type="range" name="edge-primer-adj-len-min" id="edge-primer-adj-len-min" min="10" max="40" value="18">
+					<input type="range" name="edge-primer-adj-len-max" id="edge-primer-adj-len-max" min="10" max="40" value="27">
+				</div>
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-primer-adj-df">Background Tm Differential (C)</label>
+				<input type="number" data-mini="true" data-clear-btn="true" name="edge-primer-adj-df" id="edge-primer-adj-df" min="0" max="10" value="5">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-primer-adj-num">Number of Primer Pairs</label>
+				<input type="number" data-mini="true" data-clear-btn="true" name="edge-primer-adj-num" id="edge-primer-adj-num" min="1" max="10" value="5">
+			</div>
+			</li>
+			</ol>
+
+		</div>
+
+		<div class="edge-center">
+			<input data-mini="true" type="button" id="edge-form-submit" data-inline="true" class="edge-center" value="Submit">
+			<input data-mini="true" type="button" id="edge-form-reset" data-inline="true" class="edge-center" value="Reset">
+		</div>
+
+		<ul data-role="listview" data-inset="true" id="edge-submit-info">
+			<!-- <li data-role="list-divider">Information</li> -->
+		</ul>
+	</div><!-- /content -->
+
+	<div data-role="popup" data-history="false" id="edge_integrity_dialog" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
+		<div data-role="header" data-theme="a">
+		<h4 id="edge_integrity_dialog_header">Warning</h4>
+		</div>
+		<div role="main" class="ui-content">
+			<p id="edge_integrity_dialog_content"></p>
+			<div class="edge-center"><a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Ok</a></div>
+		</div>
+	</div><!-- /integrity check dialog -->
+
+	<div data-role="popup" data-history="false" id="edge_file_dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog">
+		<div data-role="header" data-theme="a" style="width:100%">
+		<h4>Select a file</h4>
+		</div>
+		<div role="main" class="ui-content">
+			<div id="edge_file_tree"></div>
+		</div>
+	</div><!-- /file viewer -->
+
+	<div data-role="popup" data-history="false" id="edge_confirm_dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog" style="min-width:25em;";>
+		<div data-role="header" data-theme="a" style="width:100%;">
+		<h4>Proceeding action</h4>
+		</div>
+		<div role="main" class="ui-content">
+			<p id="edge_confirm_dialog_content"></p>
+			<div class="edge-center">
+				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+				<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Confirm</a>
+			</div>
+		</div>
+	</div><!-- /proceed action -->
+
+
+	<div data-role="popup" data-history="false" id="edge_log_dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog">
+		<div data-role="header" data-theme="a">
+			<h4 style="display:inline-block;">Live log</h4>
+			<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="float:right;margin:5px;">
+				<input type="checkbox" name="log-auto-scroll" id="log-auto-scroll" checked="checked" value="1"><label for="log-auto-scroll">Auto-scroll</label>
+			</fieldset>
+		</div>
+		<div role="main" class="ui-content">
+			<pre><code id="edge-log-view" class="mono">The log is not available at this moment.</code></pre>
+		</div>
+	</div><!-- /log viewer -->
+	
+	<!-- User Management -->
+	<div data-role="popup" data-history="false" id="popupUser">
+		<ul data-role="listview" data-inset="true" data-icon="false">
+			<li><a href="#" id="signOutBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Log Out</a></li>
+			<li><a href="#UpdateProfileForm" id="UpdateProfileBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Update Profile</a></li>
+		</ul>
+	</div>
+
+	<div data-role="popup" data-history="false" id="signInForm" class="ui-content" data-overlay-theme="b">
+		<h3>Login to EDGE</h3>
+		<div id="edge-social-login">
+			<a href="#" class="zocial icon facebook" style="font-size: 1.2em;margin-right: 3%;" title="Sign in with Facebook">facebook</a>
+			<a href="#" class="zocial icon googleplus" style="font-size: 1.2em;margin-right: 3%;" title="Sign in with Google+">google</a>
+	<!--		<a href="#" class="zocial icon twitter" style="font-size: 1.2em;margin-right: 10%;" title="Sign in with Twitter">twitter</a> -->
+			<a href="#" class="zocial icon windows" style="font-size: 1.2em;margin-right: 3%;" title="Sign in with Windows">windows</a>
+			<a href="#" class="zocial icon linkedin" style="font-size: 1.2em;margin-right: 3%;" title="Sign in with Linkedin">linkedin</a>
+ 			<center> -- Or -- </center>
+		</div>
+		<label for="signIn-email" class="ui-hidden-accessible">Email Address</label>
+		<input type="text" name="signIn-email" id="signIn-email" placeholder="Email Address" value="">
+		<label for="signIn-password" class="ui-hidden-accessible">Password</label>
+		<input type="password" name="signIn-password" id="signIn-password" placeholder="password" autocomplete="off" value="">
+		<a href="#dlg-invalid-credentials" data-rel="popup"  data-position-to="window" id="signIn-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active" data-overlay-theme="b">Submit</a>
+		<label class="inline-small"><input type="checkbox" data-role="none" name="chck-rememberme" id="chck-rememberme">Remember my email</label>
+		<div class="sign-option-block">
+			<p>Forgot your password?<a href="#begin-password-reset" id="resetPasswd-link"> Reset it here!</a></p>
+			<p>New to EDGE? <a href="#signUpForm" id="signUpBtn" data-rel="popup" data-position-to="window">Sign up now!</a></p>
+		</div>
+		<div data-role="popup" data-history="false" id="begin-password-reset" data-overlay-theme="b">
+			<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right edge-popup-close">Close</a>
+			<iframe src="" width="360" height="300" seamless=""></iframe>
+		</div>
+		<div data-role="popup" data-history="false" id="dlg-invalid-credentials" data-dismissible="false" data-overlay-theme="b">
+			<div role="main" class="ui-content">
+				<h3 class="error">Login Failed</h3>
+				<p>Did you enter the right credentials?</p>
+				<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow">Try again</a>
+			</div>
+		</div>
+	</div> <!-- SignIn dialog -->
+ 
+	<div data-role="popup" data-history="false" id="signUpForm" data-overlay-theme="b">
+		<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right edge-popup-close">Close</a>
+		<iframe src="" width="480" height="480" seamless=""></iframe>
+		<!--<h3>Sign Up</h3>
+        	<label for="signUp-first-name">First Name</label>
+        	<input type="text" name="signUp-first-name" id="signUp-first-name" value="">
+        	<label for="signUp-last-name">Last Name</label>
+        	<input type="text" name="signUp-last-name" id="signUp-last-name" value="">
+        	<label for="signUp-email">Email Address</label>
+        	<input type="text" name="signUp-email" id="signUp-email" value="">
+        	<label for="signUp-password">Password</label>
+        	<input type="password" name="signUp-password" id="signUp-password" value="">
+        	<label for="signUp-password-confirm">Confirm Password</label>
+        	<input type="password" name="signUp-password-confirm" id="signUp-password-confirm" value="">
+        	<a href="#dlg-sign-up-sent" data-rel="popup" data-position-to="window" id="signUp-submit-btn" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-check">Submit</a>
+			<div data-role="popup" id="dlg-sign-up-sent" data-dismissible="false" data-overlay-theme="b">
+				<div data-role="header">
+					<h1>Almost done...</h1>
+				</div>
+				<div role="main" class="ui-content">
+					<h3>Confirm Your Email Address</h3>
+					<p>We sent you an email with instructions on how to confirm your email address. Please check your inbox and follow the instructions in the email.</p>
+                			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow">OK</a>
+        	    		</div>
+        		</div>-->
+		
+	</div> <!-- signUpForm dialog -->
+
+	<div data-role="popup" data-history="false" id="UpdateProfileForm" class="ui-content" data-overlay-theme="b">
+		<!--<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right edge-popup-close">Close</a>-->
+		<!--<iframe id="iframe-UpdateProfileForm" src="" width="480" height="400" seamless=""></iframe>-->
+		<h3>User Profile</h3>
+		<label for="UpdateProfile-fn">First Name</label>
+		<input type="text" name="UpdateProfile-fn" id="UpdateProfile-fn" value="">
+		<label for="UpdateProfile-ln">Last Name</label>
+		<input type="text" name="UpdateProfile-ln" id="UpdateProfile-ln" value="">
+		<!--<label for="UpdateProfile-email">Email</label>
+		<input type="text" name="UpdateProfile-email" id="UpdateProfile-email" value="" disabled >-->
+        	<label for="UpdateProfile-password" class="ui-hidden-accessible">New Password</label>
+        	<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="off">
+        	<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="off">
+        	<center><a href="#" id="updateProfile-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active">Update</a>
+        	<a href="#" id="updateProfile-cancel-btn" class="ui-btn ui-btn-inline ui-corner-all ">Cancel</a></center>
+	</div> <!--  updateProfile dialog -->
+</form>
+
+<form id="edge-uploadfile-form" data-ajax="false" enctype="multipart/form-data">
+        <div role="main" id="edge-content-uploadfile" class="ui-content edge-content edge-main-page">
+                <h2>Upload files</h2>
+		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">5gb</span>. Allowed File types are fastq, fasta and genbank and can be in gzip format. Files will be kept for 7 days.</p>
+        	<div id="uploader">
+                    <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
+            	</div>
+            	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        </div> <!--  uploadfile-form -->
+</form>
+
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
+		<p>EDGE version 1.1</p>	
+		<div class="edge-footer-logo">
+            <a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
+			<a target="_new" href="http://www.med.navy.mil"><img src="images/logo_NMRC.png"/></a>
+			<a target="_new" href="http://www.dtra.mil"><img src="images/logo_JSTO.png"/></a>
+			<a target="_new" href="http://www.dtra.mil"><img src="images/logo_DTRA.png"/></a>
+			<a target="_new" href="http://nnsa.energy.gov/"><img src="images/logo_NNSA.png"/></a></div>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+</body></html>

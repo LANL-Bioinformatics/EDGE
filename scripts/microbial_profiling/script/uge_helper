@@ -1,0 +1,335 @@
+#! /usr/bin/perl -w
+use strict;
+
+use Getopt::Long;
+use IO::File;
+use IO::Pipe;
+use POSIX qw( strftime );
+use XML::Simple;
+use Time::Local;
+
+use Data::Dumper;
+
+my ( @MONTHS ) =qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+my ( %MONTHS ) = map( ( $MONTHS[$_] => $_ + 1 ), 0 .. $#MONTHS );
+my ( $MONTHPAT ) = join('|',@MONTHS );
+
+my $CLASSAD;
+my $QSTAT;
+my $QACCT;
+my $ALL;
+my $GETWORKERNODE;
+my $CELL = $ENV{'SGE_CELL'} || 'default';
+my $SGEROOT;
+my $PRINTENV;
+my $LIST;
+
+GetOptions(
+    'list|l=s'        => \$LIST,
+    'status'          => sub { $QSTAT = 1; $QACCT = 1; },
+    'qstat'           => sub { $QSTAT = 1; },
+    'qacct'           => sub { $QACCT = 1; $GETWORKERNODE = 1; },
+    'getworkernodes'  => \$GETWORKERNODE,
+    'all'             => \$ALL,
+    'cell=s'          => \$CELL,
+    'sgeroot=s'       => \$SGEROOT,
+    'printenv' 	      => \$PRINTENV,
+) or die "$0: USAGE: sge_helper (jobid|jobid,jobid,...) [-l <jobid_list>] [--qstat|--qacct]\n";
+
+if( !$QSTAT && !$QACCT ){
+	($QSTAT, $QACCT) = (1, 1);
+}
+
+if ( $PRINTENV ) {
+	if ( my $file = &run_sge_command( $CELL, undef, '/usr/bin/printenv' ) ) {
+		while ( $_ = $file->getline ) {
+			print;
+		}
+		$file->close;
+	}
+	exit( 0 );
+}
+
+# TODO: Eventual plan is to use a more efficient XML parser that doesn't
+#       involve loading all of the jobstate into a file
+#
+#       Also,  accounting file to be read directly rather than via qstat
+#       so that we only need to read through the accounting file once
+
+my ( $index ) = 0;
+my ( %joblist );
+
+foreach ( @ARGV ) {
+    die "Unparsable job id\n" 
+	unless m~^((\d+)/)?((\d+)\.?(.*))$~;
+
+    my $sge_cell = $5 ? $5 : $CELL;
+    $joblist{$sge_cell}->{$4} = [ $index++, $2, $4, $sge_cell ];
+}
+
+if( defined $LIST && -e $LIST ){
+	open LIST, "$LIST" || die "Can't open list: $!\n";
+	while(<LIST>){
+		chomp;
+		my @temp = split /\s+/, $_;
+		my $qid = $temp[0];
+		next unless defined $qid;
+		next unless $qid =~ /^\d+$/;
+		die "can't parse job id\n" unless $qid =~ m~^((\d+)/)?((\d+)\.?(.*))$~;
+		my $sge_cell = $5 ? $5 : $CELL;
+		$joblist{$sge_cell}->{$4} = [ $index++, $2, $4, $sge_cell ];
+	}
+	close LIST;
+}
+
+my @results;
+
+if ( $QSTAT ) {
+    my ( @cells) = ( $ALL ? ( $CELL ) : keys %joblist );
+
+    foreach my $cell ( @cells ) {
+	my $qstatdata = &run_sge_command( $cell, undef, 'qstat', '-xml', '-u', '*' );
+	
+	my $xmlref = XMLin( $qstatdata,
+			    KeyAttr => {
+				'job_list' => 'JB_job_number'
+			    },
+			    ForceArray => [
+				'job_list',
+			    ] );
+	
+	my @jobs = ( $ALL ? ( keys %{$xmlref->{'job_info'}->{'job_list'}},
+			      keys %{$xmlref->{'queue_info'}->{'job_list'}} )
+		     : ( keys %{$joblist{$cell}} ) );
+	
+	foreach my $jobid ( @jobs ) {
+	    if ( my $job_info = ( $xmlref->{'job_info'}->{'job_list'}->{$jobid}
+				  || $xmlref->{'queue_info'}->{'job_list'}->{$jobid} ) ) {
+		my $exitstatus;
+		
+		my ( %jobinfo );
+		
+		my $jl = $joblist{$cell}->{$jobid};
+
+		my $status = ( $job_info->{'state'}->[1] || '' );
+		
+		$jobinfo{'BatchJobId'} = $jobid;
+		$jobinfo{'JobStatus'} = $status;
+		$jobinfo{'ExitCode'} = 255 if $status =~ /[dE]/;
+		$jobinfo{'jobname'} = $job_info->{'JB_name'};
+		$jobinfo{'slots'} = $job_info->{'slots'};
+		
+		my $submittime = $job_info->{'JB_submission_time'} || ( defined( $jl ) ? $jl->[1] : undef );
+		my $starttime = $job_info->{'JAT_start_time'};
+
+		if ( $CLASSAD ) {
+		    #ASG
+		    $jobinfo{'LRMSSubmissionTime'} = '"'.&convert_date( $submittime ).'"' if $submittime;
+		    $jobinfo{'LRMSStartRunningTime'} = '"'.( $starttime ? &convert_date( $starttime ) : '' ).'"';
+		} else {
+		    $jobinfo{'statechange'} = &convert_date( $starttime || $submittime );
+		}
+
+		$jobinfo{'WorkerNode'} = '"'.$1.'"' if $GETWORKERNODE && defined( $job_info->{'queue_name'} ) && $job_info->{'queue_name'} =~ /\@(.+)$/;
+		$results[ ( defined( $jl ) ? $jl->[0] : $index++ ) ] = \%jobinfo;
+	    }
+	}
+    }
+}
+
+if ( $QACCT ) {
+    # For --qacct,   we are only concerned with requested jobs
+
+    foreach my $cell ( keys %joblist ) {
+	foreach my $jobid ( keys %{$joblist{$cell}} ) {
+	    my $jl = $joblist{$cell}->{$jobid};
+
+	    next unless $jl;
+	    next if $results[ $jl->[0] ];
+	    
+	    my %jobinfo;
+
+	    my $qacct = &run_sge_command( $cell, '2>&1', 'qacct', '-j', $jobid )
+		or die;
+
+	    while ( defined( $_ = $qacct->getline ) ) {
+		if ( /^exit_status\s+(\d+)/ ) {
+		    $jobinfo{'BatchJobId'} = $jobid;
+		    $jobinfo{'ExitCode'} = $1;
+		    if ( $jobinfo{'ExitCode'} == 137 ){
+			$jobinfo{'JobStatus'} = 'd';
+		    } else {
+			$jobinfo{'JobStatus'} = 'E';
+		    }
+		}
+		elsif ( /^ru_wallclock\s+(\S+)/ ) {
+			$jobinfo{'wallclock'} = &sec2human($1);
+		}
+		elsif ( /^cpu\s+(\S+)/ ) {
+			$jobinfo{'cpu'} = &sec2human($1);
+		}
+		elsif ( /^maxvmem\s+(\S+)/ ) {
+			$jobinfo{'maxvmem'} = $1;
+		}
+		elsif ( /^jobname\s+(\S+)/ ) {
+			$jobinfo{'jobname'} = $1;
+		}
+		elsif ( /^slots\s+(\S+)/ ) {
+			$jobinfo{'slots'} = $1;
+		}
+		elsif ( /^granted_pe\s+(\S+)/ ) {
+			$jobinfo{'pe'} = $1;
+		}
+	    }
+	    
+	    $qacct->close();
+	    
+	    $results[$jl->[0]] = \%jobinfo;
+	}
+    }
+}
+
+unless ( $CLASSAD ) {
+	print "\nJOB_NAME\tJOBID\tSTATUS\tEXIT\tMAX_RAM\tWALLCLOCK\tCPU_TIME\tCPU_NUM\tP_ENV\n";
+	print "----------------------------------------------------------------------------------------------\n";
+}
+
+foreach my $i ( 0 .. $#results ) {
+    my $jobstatus = $results[$i]->{'JobStatus'};
+
+    if ( $CLASSAD ) {
+		if ( $jobstatus ) {
+			print "[ ", map( "$_ = $results[$i]->{$_}; ", keys %{$results[$i]} ), "]\n";
+		} else {
+	    	print "Error\n";
+		}
+    }
+	elsif ( $jobstatus )
+	{
+		printf( "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			$results[$i]->{'jobname'},
+			$results[$i]->{'BatchJobId'},
+			$results[$i]->{'JobStatus'},
+			$results[$i]->{'ExitCode'} ||"",
+			$results[$i]->{'maxvmem'} ||"",
+			$results[$i]->{'wallclock'} ||"",
+			$results[$i]->{'cpu'} ||"",
+			$results[$i]->{'slots'} ||"",
+			$results[$i]->{'pe'} ||""
+	    );
+    }
+}
+
+print "\n";
+
+#####################################################################################
+
+sub convert_date {
+    my ( $date ) = @_;
+    my ( $year, $month, $day, $hour, $min, $sec );
+
+    if ( ! $date ) {
+	$year  = undef;
+    } elsif ( $date =~ m~^(\d{4})\-(\d{2})\-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})$~ ) {
+	$year  = $1;
+	$month = $2;
+	$day   = $3;
+	$hour  = $4;
+	$min   = $5;
+	$sec   = $6;
+    } elsif ( $date =~ m~^(\d{2})/(\d{2})/(\d{4})\s+(\d{2})\:(\d{2})\:(\d{2})$~ ) {
+	$year  = $3;
+	$month = $1;
+	$day   = $2;
+	$hour  = $4;
+	$min   = $5;
+	$sec   = $6;
+    } elsif ( $date =~ m~(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$~ ) {
+	$year  = $1;
+	$month = $2;
+	$day   = $3;
+	$hour  = $4;
+	$min   = $5;
+	$sec   = $6;
+    } elsif ( $date =~ m~(\d{4})(\d{2})(\d{2})$~ ) {
+	$year  = $1;
+	$month = $2;
+	$day   = $3;
+	$hour  = 0;
+	$min   = 0;
+	$sec   = 0;
+    } elsif ( $date =~ m~(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+($MONTHPAT)\s+(\d{1,2})\s+(\d{2})\:(\d{2})\:(\d{2})\s+(\d{4})~ ) {
+	$year  = $7;
+	$month = $MONTHS{$2};
+	$day   = $3;
+	$hour  = $4;
+	$min   = $5;
+	$sec   = $6;
+    } elsif ( $date =~ /^(\d+)$/ ) {
+	( $sec, $min, $hour, $day, $month, $year ) = localtime( $1 );
+	$month++; $year += 1900;
+    } elsif ( defined( $date ) && $date ne '' ) {
+	print "cannot convert date: \"$date\"\n";
+	die "cannot convert date: \"$date\"\n";
+    }
+
+    if ( $CLASSAD ) {
+	$year = $year % 100;
+	defined( $year ) ? sprintf( '%02u-%02u-%02u %02u:%02u:%02u', int($year), int($month), int($day), $hour, $min, $sec ) : '';
+    } else {
+	defined( $year ) ? timelocal( $sec, $min, $hour, $day, $month - 1, $year - 1900 ) : 0;
+    }
+}
+
+sub sec2human {
+	my $secs = shift;
+	my $time = "";
+
+	if ($secs >=     24*60*60) { $time .= sprintf '%d:'  , $secs/(24*60*60) }
+	$time .= sprintf '%01d:', $secs/(60*60)%24;
+	$time .= sprintf '%02d:', $secs/60%60;
+        $time .= sprintf '%02d' , $secs%60;
+
+	return $time;
+}
+
+# Populate the environment then run the command
+
+sub run_sge_command {
+    my ( $cell, $stderr, $command, @args ) = @_;
+
+    my $pipe = new IO::Pipe;
+    my $pid  = fork;
+
+    die "unable to fork: $!\n" unless defined( $pid );
+
+    if ( $pid == 0 ) {
+	# child process
+
+	$pipe->writer();
+
+	open( STDIN, '/dev/null' )
+	    or die "cannot setup stdin: $!\n";
+	POSIX::dup2( $pipe->fileno, 1 )
+	    or die "cannot setup stdout: $!\n";
+
+	$pipe->close;
+
+	if ( defined( $stderr ) ) {
+	    open( STDERR, ( $stderr eq '2>&1' ? '>& STDOUT' : "> $stderr" ) )
+		or die "cannot setup stderr: $!\n";
+	}
+
+	if ( $SGEROOT ) {
+	    exec( '/bin/sh', '-c', '. '.$SGEROOT.'/'.$cell.'/common/settings.sh ; exec $0 "$@"', $command, @args );
+	} else {
+	    $ENV{'SGE_CELL'} = $cell;
+	    exec( $command, @args );
+	}
+	die "cannot exec $command: $!\n";
+    }
+    
+    $pipe->reader();
+    $pipe;
+}
+

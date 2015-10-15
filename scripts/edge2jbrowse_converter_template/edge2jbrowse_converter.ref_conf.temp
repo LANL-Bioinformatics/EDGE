@@ -1,0 +1,90 @@
+{
+   "description" : "LANL",
+   "db_adaptor" : "Bio::DB::SeqFeature::Store",
+   "db_args" : {
+      "-adaptor" : "memory",
+      "-dir" : "%%GFF3DIR%%"
+   },
+   "TRACK DEFAULTS" : {
+      "autocomplete" : "all",
+	  "class" : "feature2"
+   },
+   "tracks": [
+    {
+      "track": "CDS",
+      "key": "CDS",
+      "feature": ["CDS"],
+      "category" : "Annotation",
+      "arrowheadClass": "arrowhead",
+      "class": "feature2",
+      "menuTemplate" : [
+             {
+               "label" : "search in Uniprot",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "function( track, f, fdiv ) { var name_src = f.get('product'); name_src = name_src.replace(/\\.\\d+$/, '');  return 'http://www.uniprot.org/uniprot/?query='+name_src+'&sort=score';}"
+             },
+             {
+               "label" : "search in NCBI",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "http://www.ncbi.nlm.nih.gov/gquery/?term={description}"
+             },
+             {
+               "label" : "search in KEGG",
+               "iconClass" : "dijitIconDatabase",
+               "action": "iframeDialog",
+               "url" : "http://www.kegg.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&dbkey=kegg&keywords={ec_number}"
+             }
+      ]
+    },
+    {
+      "track": "TRNA",
+      "key": "tRNA",
+      "feature": ["tRNA"],
+      "category" : "Annotation",
+      "arrowheadClass": "arrowhead",
+      "class": "feature3"
+    },
+    {
+      "track": "RRNA",
+      "key": "rRNA",
+      "category" : "Annotation",
+      "feature": ["rRNA"],
+	  "arrowheadClass": "arrowhead",
+      "class": "est"
+    },
+    {
+      "track": "CTG2REF",
+      "category" : "Assembly Based Analysis",
+      "key": "Mapping Contigs to Reference",
+      "feature": ["Ctg2Ref_coords"],
+      "arrowheadClass": "arrowhead",
+      "class": "match_part"
+    },
+    {
+      "track": "DEL",
+      "category" : "Assembly Based Analysis",
+      "key": "Deletion (Assembly)",
+      "feature": ["Deletion"],
+      "class": "generic_part_a",
+      "arrowheadClass": null
+    },
+    {
+      "track": "SNP",
+      "category" : "Assembly Based Analysis",
+      "key": "SNP (Assembly)",
+      "feature": ["SNPs"],
+      "class": "triangle hgred",
+      "arrowheadClass": null
+    },
+    {
+      "track": "INSERTION",
+      "category" : "Assembly Based Analysis",
+      "key": "Insertion (Assembly)",
+      "feature": ["Insertion"],
+      "class": "triangle hgblue",
+      "arrowheadClass": null
+    }
+  ]
+}

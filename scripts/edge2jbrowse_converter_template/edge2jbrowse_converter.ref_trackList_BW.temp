@@ -1,0 +1,17 @@
+      {
+         "label"         : "DOC",
+         "key"           : "Depth of Coverage",
+         "category" : "Reads Based Analysis",
+         "storeClass"    : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate"   : "readsToRef.mapped.sort.bam.bw",
+         "type"          : "JBrowse/View/Track/Wiggle/XYPlot",
+         "variance_band" : true,
+         "autoscale"     : "local",
+         "scale"         : "linear",
+         "style": {
+           "pos_color": "#E2AEAB",
+           "neg_color": "#555",
+           "origin_color": "#888",
+           "variance_band_color": "rgba(0,0,0,0.1)"
+         }
+      }

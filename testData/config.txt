@@ -1,0 +1,100 @@
+[Count Fastq]
+DoCountFastq=auto
+
+[Quality Trim and Filter]
+DoQC=1
+q=5
+min_L=50
+avg_q=5
+n=0
+lc=0.85
+
+[Host Removal]
+# boolean, 1=yes, 0=no
+DoHostRemoval=0
+Host=
+simiarlity=90
+
+[Assembly]
+DoAssembly=1
+assembledContigs=
+minContigSize=200
+idbaOptions="--pre_correction --mink 31 --maxk 124 --step 20"
+## spades or idba_ud
+assembler=idba_ud
+## for spades
+singleCellMode=
+
+[Reads Mapping To Contigs]
+# Reads mapping to contigs
+DoReadsMappingContigs=auto
+
+[Reads Mapping To Reference]
+# Reads mapping to reference
+DoReadsMappingReference=auto
+bowtieOptions=
+
+[Reads Taxonomy Classification]
+## boolean, 1=yes, 0=no
+DoTaxonomy=1
+AllReads=0
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,metaphyler-srv,bwa,kraken_mini
+
+[Contigs Mapping To Reference]
+# Contig mapping to reference
+DoContigMapping=auto
+identity=85
+MapUnmappedContigs=0
+
+[Variant Analysis]
+DoVariantAnalysis=auto
+
+[Contigs Taxonomy Classification]
+DoContigsTaxonomy=1
+
+[Contigs Annotation]
+## boolean, 1=yes, 0=no
+DoAnnotation=1
+# kingdom: Archaea Bacteria Mitochondria Viruses
+kingdom=Bacteria
+contig_size_cut_for_annotation=700
+## support tools: Prokka or RATT
+annotateProgram=prokka
+## provide SourceGBK for RATT to transfer annotation
+annotateSourceGBK=
+
+[ProPhage Detection]
+DoProPhageDetection=1
+
+[SNP Phylogeny]
+DoSNPtree=1
+## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
+SNPdbName=Ecoli
+## FastTree or RAxML
+treeMaker=FastTree
+
+[Primer Validation]
+DoPrimerValidation=1
+maxMismatch=1
+
+[Primer Adjudication]
+# boolean, 1=yes, 0=no
+DoPrimerDesign=0
+## desired primer tm
+tm_opt=59
+tm_min=57
+tm_max=63
+## desired primer length
+len_opt=18
+len_min=20
+len_max=27
+# reject primer having Tm < tm_diff difference with background Tm
+tm_diff=5
+# display # top results for each target
+top=5
+
+[Generate JBrowse Tracks]
+DoJBrowse=1
+
+[HTML Report]
+DoHTMLReport=1

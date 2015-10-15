@@ -1,0 +1,116 @@
+[system]
+;; number of threads
+;; THREADS=16
+
+;; settings for STEP1:
+;; extract reads from FASTA file
+EXTRACT_NUM=10000
+
+;; settings for STEP2:
+;; get sequence statistics
+RUN_SEQ_STATS=0
+MAX_PROCESS_NUM=
+
+;; settings for STEP3:
+;; run profiling tools
+RUN_TOOLS=1
+RUN_TOOL_AS_JOB=0
+QSUB_COMMAND=qsub -pe smp %THREADS% -j y -m abe -cwd -N %TOOL%-%PREFIX% -o %OUTDIR%/%LOGDIR%/%TOOL%-%PREFIX%.log
+
+;; settings for STEP4:
+;; The reports, heatmaps and MEGAN-plots will be generated after all tools are done. Unless the wrapper will
+;; run locally (RUN_TOOL_AS_JOB=0), this option should keep at 0. When the profiling tools are done, you can
+;; run post processing steps manually by >sh [OUTDIR]/script/run_post_process.sh
+RUN_POST_PROCESS=1
+
+;; directory name of output
+OUTDIR=example_output
+REPDIR=report
+LOGDIR=log
+SEQDIR=sequence_processed
+
+;; file names of text outputs
+LOGFILE=sample_contamination.log
+FILEINFO_OUT=sequence_info.txt
+RESUSAGE_OUT=resource_usage.txt
+SUMMARY_OUT=summary.txt
+
+;; excel report settings 
+REPORT_TOP=5
+HIGHLIGHT_LIST=
+HEATMAP_DISPLAY_TOP=60
+
+;; Tool section:
+;; Create a section for each tool 
+
+<TMPL_IF NAME="gottcha-genDB-b">
+[gottcha-genDB-b]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.genus
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha-genDB-v">
+[gottcha-genDB-v]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.genus
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha-speDB-b">
+[gottcha-speDB-b]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.species 
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha-speDB-v">
+[gottcha-speDB-v]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.species
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha-strDB-b">
+[gottcha-strDB-b]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.strain
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha-strDB-v">
+[gottcha-strDB-v]
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.strain
+TRIM_MINQ=20
+TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="metaphlan">
+[metaphlan]
+COMMAND=uge-metaphlan.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS%
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="bwa">
+[bwa]
+COMMAND=uge-bwa.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -b <TMPL_VAR NAME=BWASCORECUT DEFAULT=30>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="kraken_mini">
+[kraken_mini]
+COMMAND=uge-kraken.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -n "--preload"
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="metascope">
+[metascope]
+COMMAND=uge-metascope.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR%
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>

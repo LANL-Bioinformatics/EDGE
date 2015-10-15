@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for i in $@; do
+  inkscape --without-gui --export-png="$(dirname $i)/$(basename $i .svg).png" $i
+done

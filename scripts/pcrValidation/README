@@ -1,0 +1,19 @@
+# PCR Primer Validation - Enrique Herrera (NMRC)
+# Input:
+#	FASTA file, contigs from assembly
+#	Primers, listed in strict FASTA format:
+#	>forward
+#	ATGCGCGCTACTTCGATCGAT
+#	>reverse
+#	GGCTCTGGGCTATAGGCTCCA
+#
+# Output:
+#	To STDOUT, either an alignment location on the contig, or 'PCR Failure'
+#
+# Usage:
+#	perl validate_primers.pl <reference.fasta>  <primers.fa> <num_MAX_MISMATCHES> <num_of_CPU>
+## 1. the assembled genome i.e. a set of contigs
+## 2. the primers file in strict fasta format
+## 3. the max number of Mismatch between assembled genome and primer (default: 1)
+## 4. num_of_CPU:  blast cpu usage
+

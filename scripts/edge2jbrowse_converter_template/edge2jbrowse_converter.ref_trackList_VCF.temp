@@ -1,0 +1,9 @@
+      {
+         "label"         : "VCF",
+         "key"           : "Variant/SNP (Read)",
+         "category" : "Reads Based Analysis",
+         "storeClass"    : "JBrowse/Store/SeqFeature/VCFTabix",
+         "urlTemplate"   : "readsToRef.vcf.gz",
+         "tbiUrlTemplate": "readsToRef.vcf.gz.tbi",
+         "type"          : "JBrowse/View/Track/HTMLVariants"
+      }
