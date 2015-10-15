@@ -20,25 +20,28 @@ See Docker at https://www.docker.com/
 
     $ git clone -b docker https://github.com/LANL-Bioinformatics/EDGE.git
 
-## Download EDGE databse 
+## Download EDGE database from ftp server
 
-    $ wget -c ...
+    $ ftp://ftp.lanl.gov/public/genome/EDGE/1.1/
 
 ## Start EDGE bioinformatics instance
 
-    $ docker run -d --cap-add SYS_PTRACE -v /path/to/mysql:/var/lib/mysql -v /path/to/database:/opt/apps/edge/database -v /path/to/EDGE_output:/opt/apps/edge/edge_ui/EDGE_output -v /path/to/EDGE_input:/opt/apps/edge/edge_ui/EDGE_input -p 8000:80 -p 8081:8080 --name edge chienchilo/bioedge
+    $ docker run -d --cap-add SYS_PTRACE -v /path/to/mysql:/var/lib/mysql -v /path/to/database:/opt/apps/edge/database -v /path/to/EDGE_output:/opt/apps/edge/edge_ui/EDGE_output -v /path/to/EDGE_input:/opt/apps/edge/edge_ui/EDGE_input -p 80:80 -p 8080:8080 --name edge chienchilo/bioedge
     
-Wait for few seconds for the docker image to start EDGE service and Open http://localhost:8000/ on the browser to start experience EDGE.
+Wait for few seconds for the docker image to start EDGE service and Open http://localhost/ on the browser to start experience EDGE.
 
 * The -v /path/to/mysql:/var/lib/mysql part of the command mounts the /my/own/mysql (obtain from the git clone above) directory from the underlying host system as /var/lib/mysql inside the container, where MySQL by default will write its data files. Using this to persist the database data in the host.
 * The -v /path/to/database:/opt/apps/edge/database mounts the databse obtained from the above download step. 
 * The -v /path/to/EDGE_input://opt/apps/edge/edge_ui/EDGE_input mounts the EDGE input directory structure (obtain from the git clone above) to persist the input/upload files/user projects in the host. 
 * The -v /path/to/EDGE_output://opt/apps/edge/edge_ui/EDGE_output mounts the EDGE output directory to persist the output files in the host. 
-* The -p bind the port 8000 and 8081 to 80 and 8080 inside the container. You can change the 8000 and 8081 to fit your system requirements.
+* The -p host:container bind the host port 80 and 8080 to container port 80 and 8080 inside the container. You can change the 80 and 8080 to fit your host system requirements.
 
 ## Note
 
-This image is built on top of offical Ubuntu 14.04.3 LTS and is officially supported on Docker version 1.8.2.
+* This image is built on top of offical Ubuntu 14.04.3 LTS and is officially supported on Docker version 1.8.2.
+* A local web service (e.g. Apache) is required for viewing http://localhost/
+* There is an issue to mount host volume using MAC OSX. https://github.com/boot2docker/boot2docker/issues/581.
+
 
 ## Contact Info
 Chien-Chi Lo: <chienchi@lanl.gov>  
