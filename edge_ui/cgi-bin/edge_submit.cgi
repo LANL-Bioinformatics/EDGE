@@ -81,7 +81,7 @@ if( $sys->{user_management} ){
 my $projlist;
 my @pnames;
 if ($opt{"edge-batch-text-input"}){
-	&readBatchInput();
+	$projlist=&readBatchInput();
 	@pnames = keys %{$projlist};
 }else{
 	push @pnames, $pname ;
@@ -267,8 +267,8 @@ sub createConfig {
 			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g if $opt{"edge-taxa-sw"};
 			$opt{'edge-sra-acc'} = uc $opt{'edge-sra-acc'};
 			$opt{'edge-phylo-sra-acc'} = uc $opt{'edge-phylo-sra-acc'};
-
-      		       $opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-text-input"});
+			$opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-text-input"});
+			$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"} if ($opt{"edge-batch-text-input"});
 
 			eval {
 				my $template = HTML::Template->new(filename => $config_tmpl, die_on_bad_params => 0 );
