@@ -309,8 +309,8 @@ sub runPipeline {
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
  	   	if ($opt{"edge-batch-text-input"}){
-    			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}|; 
-    			$single_files = $projlist->{$pname}->{"s"};
+    			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if (-f $projlist->{$pname}->{"q1"});
+    			$single_files = $projlist->{$pname}->{"s"} if (-f $projlist->{$pname}->{"s"});
     	}else{
 			for (0..$#edge_input_pe1)
 			{
@@ -362,7 +362,7 @@ sub addProjToDB{
 		}else{
 			$desc = $opt{"edge-proj-desc"};
 		}
-
+		$desc =~ s/(['"])/\\$1/g;
 		my %data = (
 			email => $username,
    			password => $password,
@@ -477,16 +477,16 @@ sub checkParams {
 	if ($num_cpu > $edge_total_cpu){
 		&addMessage("PARAMS","edge-proj-cpu","The max number of CPU for the EDGE Server is $edge_total_cpu.");
 	}
-	if ( ($opt{"edge-batch-text-input"}) and ($opt{"edge-proj-desc"} or $opt{"edge-input-pe1[]"} or $opt{"edge-input-pe2[]"} or $opt{"edge-input-se[]"})){
+	if ( ($opt{"edge-batch-text-input"}) and ($opt{"edge-proj-desc"} or $opt{"edge-input-pe1[]"} or $opt{"edge-input-pe2[]"} or $opt{"edge-input-se[]"} or $opt{"edge-sra-acc"})){
 		&addMessage("PARAMS","edge-input-sequence","Input error. You have both single project input and batch input.");
     	}
       
 	if (  $opt{"edge-batch-text-input"} ){ ## batch input
     		my %namesUsed;
 		foreach my $pname (keys %{$projlist}){
-			$projlist->{$pname}->{"q1"} =~ s/edgeui_input/$edge_input\/public\/data/;
-    			$projlist->{$pname}->{"q2"} =~ s/edgeui_input/$edge_input\/public\/data/;
-    			$projlist->{$pname}->{"s"} =~ s/edgeui_input/$edge_input\/public\/data/;
+			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}";
+			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}";
+			$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}";
     			my $pe1=$projlist->{$pname}->{"q1"};
     			my $pe2=$projlist->{$pname}->{"q2"};
     			my $se=$projlist->{$pname}->{"s"};
@@ -498,14 +498,14 @@ sub checkParams {
     			}
     			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
     			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Please input at least 3 characters.") if (length($pname) < 3);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe1 of $pname.") if ($pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ($pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ($se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q1 file path of $pname.") if ($pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q2 file path of $pname.") if ($pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. q1 and q2 are identical of $pname.") if ($pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the s file path of $pname.") if ($se && $se !~ /^[http|ftp]/i && ! -e $se);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the input file path of $pname.") if (!$se && ! $pe1 && ! $pe2);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe1 of $pname.") if ( -f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ( -f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ( -f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q1 file path of $pname.") if ( -f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q2 file path of $pname.") if ( -f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^[http|ftp]/i && ! -e $se);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
     		}
 	}else{  ## Single project input
 		my %files;		

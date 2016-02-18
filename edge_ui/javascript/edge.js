@@ -559,9 +559,10 @@ $( document ).ready(function()
     	// batch input 
     	$('#edge-batch-sample-input').click( function(e) {
     		e.preventDefault();
-    		var sampleInput = "#each unique project name in the bracket []\n" + "[Project1]\n" + "#q1=/path/to/paired_end_file_1\n" + "q1=edgeui_input/testData/Ecoli_10x.1.fastq\n" + 
-    	                  "#q2=/path/to/paired_end_file_2\n" + "q2=edgeui_input/testData/Ecoli_10x.2.fastq\n" + "description=\"test batch input project 1\"\n";
-    		sampleInput = sampleInput + "[Project2]\n" + "#s=/path/to/single_end_file\n" + "s=edgeui_input/testData/Ecoli_10x.1.fastq\n" + "description=\"test batch input project 2\"\n";
+		var path = (umSystemStatus)? 'PublicData':'data';
+		var sampleInput = "#each unique project name in the bracket []\n" + "[Project1]\n" + "#q1=path/to/paired_end_file_1\n" + "q1=" + path + "/testData/Ecoli_10x.1.fastq\n" + 
+			"#q2=path/to/paired_end_file_2\n" + "q2=" + path + "/testData/Ecoli_10x.2.fastq\n" + "description=\"test batch input project 1\"\n";
+		sampleInput = sampleInput + "[Project2]\n" + "#s=path/to/single_end_file\n" + "s=" + path + "/testData/Ecoli_10x.1.fastq\n" + "description=\"test batch input project 2\"\n";
     		$('#edge-batch-text-input').val(sampleInput);
     		$('#edge-batch-text-input').textinput( "refresh" );
     		//$('#edge-batch-sample-input').hide();
