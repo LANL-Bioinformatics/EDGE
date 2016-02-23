@@ -304,7 +304,7 @@ sub runUnmappedContigToRefSeq
     my $file=shift;
     my $db="$RealBin/database/bwa_index/NCBI-Bacteria-Virus.fna";
     my $time=time();
-    my $outputDir="$outDir/ReferenceBasedAnalysis/UnmappedContigs";
+    my $outputDir="$abs_outDir/ReferenceBasedAnalysis/UnmappedContigs";
     my $prefix="UnmappedContigs";
     my $log="$outputDir/log.txt";
     if ( -s "$outputDir/UnmappedContigs.ctg_class.csv" )
@@ -365,9 +365,9 @@ sub Contigs_taxonomyAssignment
     my $file=shift;
     my $db="$RealBin/database/bwa_index/NCBI-Bacteria-Virus.fna";
     my $time=time();
-    my $outputDir="$outDir/AssemblyBasedAnalysis/Taxonomy";
+    my $outputDir="$abs_outDir/AssemblyBasedAnalysis/Taxonomy";
     my $prefix="$project_name";
-    my $cov_table="$outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
+    my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
     my $tax_assignments_result="$outputDir/$prefix.ctg_class.csv";
     my $log="$outputDir/log.txt";
     if ($noColorLog)
@@ -466,7 +466,7 @@ sub check_reference_genome
     my $referenceGenome_r = shift;
     my $time=time();
     my %format;
-    my $outputDir = "$outDir/Reference/";
+    my $outputDir = "$abs_outDir/Reference/";
     my $referenceGenome = "$outputDir/reference.fasta";
     my $referenceGBK = "$outputDir/reference.gbk";
     my $gff3File="$outputDir/reference.gff";
@@ -1820,7 +1820,7 @@ sub runReadsToContig
     &executeCommand($command);
     &executeCommand("awk \'{print \$1\"\\t\"\$4}\' $outputDir/readsToContigs_coverage.table > $outputDir/magnitudes.txt");
     &executeCommand("mv $outputDir/Final_contigs.fasta $contigFile");
-    chdir "$outDir/AssemblyBasedAnalysis/";
+    chdir "$abs_outDir/AssemblyBasedAnalysis/";
     &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contigFile > contigs_stats.txt");  
     chdir $workingDir;
     &printRunTime($time);
@@ -1877,7 +1877,7 @@ sub runContigToGenome
     my $contigFile = shift;
     my $referenceFile = shift;
     my $time=time();
-    my $outputDir= "$outDir/AssemblyBasedAnalysis/contigMappingToRef";
+    my $outputDir= "$abs_outDir/AssemblyBasedAnalysis/contigMappingToRef";
     my $outPrefix = "$outputDir/contigsToRef";
     my $identity_cutoff = $configuration->{identity}||85;
     `mkdir -p $outputDir`;
@@ -1952,7 +1952,7 @@ sub runSpadesAssembly
     my $pairFile=shift;
     my $unpairFile=shift;
     my $time=time();
-    my $outputDir="$outDir/AssemblyBasedAnalysis";
+    my $outputDir="$abs_outDir/AssemblyBasedAnalysis";
     my $SPAdesOutDir="$outputDir/SPAdes";
     my $contig_file= "$outputDir/contigs.fa";
     my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
@@ -2036,7 +2036,7 @@ sub runIdbaAssembly
     my $QCoutDir="$outDir/QcReads";;
     my $QCstatsFile="$QCoutDir/QC.stats.txt";
     my $FastqCountFile="$QCoutDir/fastqCount.txt";
-    my $outputDir="$outDir/AssemblyBasedAnalysis";
+    my $outputDir="$abs_outDir/AssemblyBasedAnalysis";
     my $pairFastaFile="$outputDir/pairedForAssembly.fasta";
     my $unpairFastaFile="$outputDir/unpairedForAssembly.fasta";
     my $contig_file= "$outputDir/contigs.fa";
@@ -2516,7 +2516,7 @@ sub download_reads
     my @urls = @_;
     my $size_limit="3125000000"; # 25G
     my $time=time();
-    my $outputDir = "$outDir/DownloadedReads";
+    my $outputDir = "$abs_outDir/DownloadedReads";
     if ($noColorLog)
     {
         &lprint ("[Download Fastq]\n");
