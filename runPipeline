@@ -170,7 +170,7 @@ my $referenceGenome;
 my $genbankFile;
 my $gff3File;
 
-my $annotateProgram=$configuration->{annotateProgram}||"prokka";
+my $annotateProgram=lc($configuration->{annotateProgram})||"prokka";
 
 ($referenceGenome,$genbankFile,$gff3File)=&check_reference_genome(\@referenceGenome) if (@referenceGenome);
 
