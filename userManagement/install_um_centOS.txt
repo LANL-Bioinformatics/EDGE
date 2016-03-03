@@ -1,0 +1,73 @@
+#install mysql
+For CentOS6
+sudo yum install mysql-server
+sudo service mysqld start
+sudo /sbin/chkconfig --levels 235 mysqld on
+For CentOS7: 
+sudo yum install mariadb-server mariadb
+sudo systemctl start mariadb.service && sudo systemctl enable mariadb.service
+##set root password
+sudo mysql_secure_installation
+
+1. create database: userManagement
+%mysql -p -u root
+mysql> create database userManagement;
+mysql> use userManagement;
+
+2. load userManagement_schema.sql
+    
+3. load userManagement_constrains.sql
+
+4. create an user account: 
+              username: yourDBUsername 
+              password: yourDBPassword 
+   and grant all privileges on database "userManagement" to user yourDBUsername 
+(also modify the username/password in userManagementWS.xml file)
+   
+mysql> CREATE USER 'yourDBUsername'@'localhost' IDENTIFIED BY 'yourDBPassword';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT ALL PRIVILEGES ON userManagement.* to 'yourDBUsername'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+#install php
+sudo yum install php php-pear
+sudo yum install php-mysql
+sudo service httpd restart
+
+#install tomcat
+sudo yum install tomcat
+
+#Configure tomcat
+1. copy mysql-connector-java-5.1.34-bin.jar to /usr/share/tomcat/lib
+2. configure tomcat basic auth to secure /user/admin/register web service:
+add lines below to tomcat-users.xml
+    <role rolename="admin"/>
+    <user username="yourAdminName" password="yourAdminPassword" roles="admin"/>
+(also modify the username and password in createAdminAccount.pl)
+3. inactive timeout in web.xml (default is 30mins)
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+4. add the line below to tomcat /usr/share/tomcat7/conf/tomcat.conf to increase PermSize:
+JAVA_OPTS="$JAVA_OPTS -Xms256m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
+5. restart tomcat server
+%sudo service tomcat restart
+
+#Deploy userManagementWS to tomcat server
+copy userManagementWS.war to /usr/share/tomcat/webapps
+the tomcat server will decompress the userManagementWS.war
+#userManagementWS configurations
+copy userManagementWS.xml to /usr/share/tomcat/conf/Catalina/localhost/  
+(for CentOS7. The userManagementWS.xml needs to modify the sql connector where driverClassName="org.mariadb.jdbc.Driver") 
+
+#Deploy userManagement to tomcat server
+copy userManagement.war to /usr/share/tomcat/webapps
+the tomcat server will decompress the userManagement.war
+
+#change settings in /usr/share/tomcat/webapps/userManagement/WEB-INF/classes/sys.properties
+
+#setup admin user
+#run script createAdminAccount.pl to add admin account with encrypted password to database
+%perl createAdminAccount.pl -e admin@my.com -p admin
+

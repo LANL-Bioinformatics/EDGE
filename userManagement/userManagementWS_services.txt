@@ -1,0 +1,31 @@
+#Web Services 
+HTTP POST requests:
+http://<hostname>:<port>/userManagementWS/user/register
+http://<hostname>:<port>/userManagementWS/user/admin/register
+http://<hostname>:<port>/userManagementWS/project/add
+
+HTTP PUT requests:
+http://<hostname>:<port>/userManagementWS/user/activate
+http://<hostname>:<port>/userManagementWS/user/getInfo
+http://<hostname>:<port>/userManagementWS/user/getProjects
+http://<hostname>:<port>/userManagementWS/user/login
+http://<hostname>:<port>/userManagementWS/user/publishedProjects
+http://<hostname>:<port>/userManagementWS/user/resetPasswd
+http://<hostname>:<port>/userManagementWS/user/setPasswd
+http://<hostname>:<port>/userManagementWS/user/uniqueEmail
+http://<hostname>:<port>/userManagementWS/user/update
+http://<hostname>:<port>/userManagementWS/user/validateToken
+
+http://<hostname>:<port>/userManagementWS/user/admin/getProjects
+http://<hostname>:<port>/userManagementWS/user/admin/getUsers
+http://<hostname>:<port>/userManagementWS/user/admin/update
+
+http://<hostname>:<port>/userManagementWS/project/delete
+http://<hostname>:<port>/userManagementWS/project/getInfo
+http://<hostname>:<port>/userManagementWS/project/getGuests
+http://<hostname>:<port>/userManagementWS/project/publish
+http://<hostname>:<port>/userManagementWS/project/share_user
+http://<hostname>:<port>/userManagementWS/project/unpublish
+http://<hostname>:<port>/userManagementWS/project/unshare_user
+http://<hostname>:<port>/userManagementWS/project/update
+

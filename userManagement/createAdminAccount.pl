@@ -7,8 +7,8 @@ use HTTP::Request::Common;
 use JSON;
 
 my $url = 'http://localhost:8080/userManagementWS/user/admin/register';
-my $http_auth_username="userManagementadmin";
-my $http_auth_password="userManagementWSadmin";
+my $http_auth_username="yourAdminName";
+my $http_auth_password="yourAdminPassword";
 my ($admin_password, $admin_email, $admin_firstname, $admin_lastname);
 GetOptions(
        'p=s', \$admin_password,
