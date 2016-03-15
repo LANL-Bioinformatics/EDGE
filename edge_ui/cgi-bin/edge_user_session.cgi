@@ -14,7 +14,7 @@ sub createSession {
 	$session->param('password',$pass);
 	$session->param('type',$type);
 
-	print STDERR "IP: $ENV{REMOTE_ADDR}\nUsername: $user\nPassword: $pass\nSid: $sid\n" if $DEBUG;
+	#print STDERR "IP: $ENV{REMOTE_ADDR}\nUsername: $user\nPassword: $pass\nSid: $sid\n" if $DEBUG;
 
 	return $sid;
 }
