@@ -179,7 +179,7 @@ sub createProjDir {
 	foreach my $pname (@pnames){
 		my $proj_dir = "$out_dir/$pname";
 		#init output directory
-		$excode = system("mkdir -m 777 -p $proj_dir");
+		$excode = system("mkdir -m 755 -p $proj_dir");
 
 		if( $excode || ! -d $proj_dir ){
 			&addMessage("CREATE_OUTPUT","failure","FAILED to create output directory.");
