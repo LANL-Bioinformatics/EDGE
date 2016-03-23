@@ -236,10 +236,10 @@ sub createConfig {
 		else{
 			if ( $opt{"edge-hostrm-sw"} )
 			{
-				my @hosts;
-				map { push @hosts, @{$hostlist->{$_}} } split /[\x0]/, $opt{"edge-hostrm-file-fromlist"} if defined $opt{"edge-hostrm-file-fromlist"};
-				push @hosts, $opt{"edge-hostrm-file"} if (defined $opt{"edge-hostrm-file"} && -e $opt{"edge-hostrm-file"});
-				$opt{"edge-hostrm-file"} = join ",", @hosts;
+				my %hosts;
+				map { foreach my $h (@{$hostlist->{$_}}){$hosts{$h}=1;} } split /[\x0]/, $opt{"edge-hostrm-file-fromlist"} if defined $opt{"edge-hostrm-file-fromlist"};
+				push $hosts{$opt{"edge-hostrm-file"}}=1 if (defined $opt{"edge-hostrm-file"} && -e $opt{"edge-hostrm-file"});
+				$opt{"edge-hostrm-file"} = join ",", keys %hosts;
 			} 
 
 			if ( $opt{"edge-ref-sw"} )
