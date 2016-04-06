@@ -405,6 +405,7 @@ sub addProjToDB{
 sub availableToRun {
 	my $num_cpu = shift;
 	my $cpu_been_used = 0;
+	return 0 if ($num_cpu > $sys->{edgeui_tol_cpu});
 	if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
 		foreach my $pid ( keys %$vital ){
 			$cpu_been_used += $vital->{$pid}->{CPU};

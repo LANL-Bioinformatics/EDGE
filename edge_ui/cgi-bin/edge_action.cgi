@@ -239,7 +239,16 @@ elsif( $action eq 'rerun' ){
 			}
 		}
 		close LOG;
-		
+		my ($numcpu) = $cmd =~ /-cpu (\d+)/;
+		my $run = &availableToRun($numcpu);
+		if (!$run){
+			my $time = strftime "%F %X", localtime;
+			`echo "\n*** [$time] EDGE_UI: This project is queued. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+			`echo "$cmd" >> $proj_dir/process.log`;
+			`echo "\n*** [$time] EDGE_UI: Project unstarted ***" >> $proj_dir/process.log`;
+			$info->{INFO} = "The server does not have enough CPU available to run this job. The job is queued";
+			 &returnStatus();
+		}
 		if( $cmd ){
 			chdir($proj_dir);
 			my $newpid = open RUNPIPLINE, "-|", "$cmd > $proj_dir/process_current.log 2>&1 &" or die $!;
@@ -368,6 +377,19 @@ sub checkProjVital {
 	return ($vital,$name2pid);
 }
 
+sub availableToRun {
+	my $num_cpu = shift;
+	my $cpu_been_used = 0;
+	return 0 if ($num_cpu > $sys->{edgeui_tol_cpu});
+	if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
+		foreach my $pid ( keys %$vital ){
+			$cpu_been_used += $vital->{$pid}->{CPU};
+			return 0 if (($cpu_been_used + $num_cpu) > $sys->{edgeui_tol_cpu});
+		}       
+	}       
+	return 1;
+}
+
 sub returnStatus {
 	my $json = "{}";
 	$json = to_json($info) if $info;
@@ -398,7 +420,7 @@ sub getProjNameFromDB{
 
         my $response = $browser->request($req);
         my $result_json = $response->decoded_content;
-	print $result_json if (@ARGV);
+	#print $result_json if (@ARGV);
         my $result =  from_json($result_json);
 	if ($result->{error_msg})
 	{
@@ -566,7 +588,7 @@ sub getUserProjFromDB{
             return;
     }
     my $array_ref =  from_json($result_json);
-	print Dumper($array_ref) if @ARGV;
+	#print Dumper($array_ref) if @ARGV;
 	foreach my $hash_ref (@$array_ref)
 	{
 		my $id = $hash_ref->{id};
