@@ -461,6 +461,7 @@ for my $file ( @files ) {
 
     while ( my $seq = $in->next_seq() ) {
         my $seq_name = $seq->accession_number;
+	$seq_name = $seq->id if $seq_name eq "unknown";
         my $end = $seq->length;
         my @to_print;
 
