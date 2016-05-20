@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 # required: 1. R
-#           2. samtools 0.1.18 mt 
+#           2. samtools 0.1.19
 #           3. bwa 0.6 
 #           4. bowtie2
 #           5. bcftools  (from samtools package)
@@ -69,6 +69,8 @@ GetOptions(
             'help|?',  sub {Usage()}
 );
 
+my $tmp = $outDir;
+
 ## input check ##
 unless ( -e $ref_file && $outDir) { &Usage;}
 unless ( $paired_files or -e $file_long or -e $singleton) { &Usage; }
@@ -96,7 +98,6 @@ if (! -e $outDir)
 {
      mkdir $outDir;
 }
-
 my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
 my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
 my ($snap_threads)= $snap_options =~ /-t (\d+)/;
@@ -130,7 +131,7 @@ elsif ($aligner =~ /snap/i )
 {
     # fold sequence in 100 bp per line (samtools cannot accept > 65535 bp one line sequence)
     $ref_file=&fold($ref_file);
-    `snap index $ref_file $ref_file.snap `;
+    `snap-aligner index $ref_file $ref_file.snap -bSpace `;
 }
 
 if ($file_long)
@@ -143,59 +144,73 @@ if ($file_long)
    {
      if ($pacbio)
      {
-     `bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
+    # `bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
+     `bwa mem -x pacbio $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - | samtools sort -m 1G -@ $samtools_threads  - $outDir/LongReads$$ `;
      }
      else
      {
-     `bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
+     #`bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
+     `bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -m 1G -@ $samtools_threads - $outDir/LongReads$$`;
      }
-  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' /tmp/LongReads$$.sam | uniq - | wc -l`;
+  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
   #`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
    }
    elsif ($aligner =~ /snap/i)
    {
-     `snap single $ref_file.snap $file_long -o $outDir/LongReads$$.sam $snap_options`;
+     `snap-aligner single $ref_file.snap $file_long -o $outDir/LongReads$$.sam $snap_options`;
    }
-   `samtools view -@ $samtools_threads -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$`;
+   `samtools view -@ $samtools_threads -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$` if ( -s "$outDir/LongReads$$.sam");
 }
 if ($paired_files){
    print "Mapping paired end reads\n";
    $offset = fastq_utility::checkQualityFormat($file1);
-   if ($offset==64) {$bowtie_options=$bowtie_options." --phred64 ";$bwa_options=$bwa_options." -I ";}
+   my $quality_options="";
    if ($aligner =~ /bowtie/i){
-     `bowtie2 $bowtie_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam`;
+     $quality_options = " --phred64 " if ($offset==64);
+     `bowtie2 $bowtie_options $quality_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam`;
+   }
+   elsif ($aligner =~ /bwa_short/i)
+   {
+     $quality_options = " -I " if ($offset==64);
+     `bwa aln $bwa_options $quality_options $ref_file $file1 > $tmp/reads_1_$$.sai`;
+     `bwa aln $bwa_options $quality_options $ref_file $file2 > $tmp/reads_2_$$.sai`;
+     `bwa sampe -a 100000 $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
    }
    elsif ($aligner =~ /bwa/i)
    {
-     `bwa aln $bwa_options $ref_file $file1 > /tmp/reads_1_$$.sai`;
-     `bwa aln $bwa_options $ref_file $file2 > /tmp/reads_2_$$.sai`;
-     `bwa sampe -a 100000 $ref_file /tmp/reads_1_$$.sai /tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
+     `bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS -| samtools sort -m 1G -@ $samtools_threads - $outDir/paired$$ `;
    }
    elsif ($aligner =~ /snap/i)
    {
-     `snap paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
+     `snap-aligner paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
    }
-   `samtools view -@ $samtools_threads -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$`;
+   `samtools view -@ $samtools_threads -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$` if (-s "$outDir/paired$$.sam");
 }
 
 if ($singleton)
 {
     print "Mapping single end reads\n";
-   $offset = fastq_utility::checkQualityFormat($singleton);
-   if ($offset==64) {$bowtie_options=$bowtie_options."--phred64 ";$bwa_options=$bwa_options."-I ";}
+    $offset = fastq_utility::checkQualityFormat($singleton);
+    my $quality_options="";
     if ($aligner =~ /bowtie/i){
-       `bowtie2 $bowtie_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam`;
+       $quality_options = " --phred64 " if ($offset==64);
+       `bowtie2 $bowtie_options $quality_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam`;
     }
-    elsif($aligner =~ /bwa/i)
+    elsif($aligner =~ /bwa_short/i)
     {
-      `bwa aln $bwa_options $ref_file $singleton > /tmp/singleton$$.sai`;
-      `bwa samse -n 50 $ref_file /tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
+      $quality_options = " -I " if ($offset==64);
+      `bwa aln $bwa_options $quality_options $ref_file $singleton > $tmp/singleton$$.sai`;
+      `bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
+    }
+    elsif ($aligner =~ /bwa/i)
+    {
+      `bwa mem $bwa_options $ref_file $singleton |samtools view -@ $samtools_threads -ubS - | samtools sort -m 1G -@ $samtools_threads  - $outDir/singleton$$ `;
     }
     elsif($aligner =~ /snap/i)
     {
-      `snap single $ref_file.snap $file_long -o $outDir/singleton$$.sam $snap_options`;
+      `snap-aligner single $ref_file.snap $file_long -o $outDir/singleton$$.sam $snap_options`;
     }
-    `samtools view -@ $samtools_threads -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$`;
+    `samtools view -@ $samtools_threads -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$` if (-s "$outDir/singleton$$.sam");
 }
 
 # merge bam files if there are different file type, paired, single end, long..
@@ -230,7 +245,10 @@ elsif($file_long)
 } # unless ($skip_aln);
 
 ## index reference sequence 
-`samtools faidx $ref_file`; 
+if (! -e "$ref_file.fai")
+{
+	`samtools faidx $ref_file`; 
+}
 
 ## index BAM file 
 `samtools index $bam_output $bam_index_output`; 
@@ -384,12 +402,12 @@ foreach my $ref_name (sort {$ref_hash->{$b}->{reads} <=> $ref_hash->{$a}->{reads
 # clean up
   # unlink $pileup_output;
    unlink "Rplots.pdf" if ( -e "Rplots.pdf");
-   `rm -rf /tmp/*$$*`;
+   `rm -rf $tmp/*$$*`;
    unless ($debug)
    {
   #  unlink $Rscript;
     unlink $ref_window_gc;
-    `rm -f $outDir/*$$* $outDir/*window_size_coverage`;
+    `rm -rf $outDir/*$$* $outDir/*window_size_coverage`;
    };
 
 sub plot_coverage
@@ -737,7 +755,7 @@ sub fold {
     my $len_cutoff=0;
     my $seq_num;
     open (IN,$file);
-    open (OUT,">/tmp/Contig$$.fold");
+    open (OUT,">$tmp/Contig$$.fold");
     while(<IN>){
       chomp;
       if(/>(\S+)\s*(.*)/)
@@ -770,7 +788,7 @@ sub fold {
     close IN;
     close OUT;
     if ($seq_num<1){die "No seqeucne in your reference file\n";}
-    return ("/tmp/Contig$$.fold");
+    return ("$tmp/Contig$$.fold");
 }
 
 sub SNP_INDEL_COUNT

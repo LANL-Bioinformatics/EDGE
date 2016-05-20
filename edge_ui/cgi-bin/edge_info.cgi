@@ -17,7 +17,9 @@ use POSIX qw(strftime);
 use Data::Dumper;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use Digest::MD5 qw(md5_hex);
 require "edge_user_session.cgi";
+require "../cluster/clusterWrapper.pl";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -34,6 +36,8 @@ require "edge_user_session.cgi";
 #                       ->{STATUS}  // [unfinished|skip|already|running|done|failed]
 #                  ->{2}...          
 #
+#     $info->{INFO}->{CPUU} ...
+#
 ######################################################################################
 
 my $cgi   = CGI->new;
@@ -49,16 +53,22 @@ my $sid         = $opt{'sid'}|| $ARGV[4];
 my $ip          = $ARGV[5];
 $ENV{REMOTE_ADDR} = $ip if $ip;
 
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
-my $sys         = &getSysParamFromConfig($config_tmpl);
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
+my $www_root    = $sys->{edgeui_wwwroot};
+my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
 my $domain      = $ENV{'HTTP_HOST'};
 my $hideProjFromList = 0;
 $domain ||= "edgeset.lanl.gov";
 $um_url ||= "$protocol//$domain/userManagement";
 
+#cluster
+my $cluster 	= $sys->{cluster};
+my $cluster_job_prefix = $sys->{cluster_job_prefix};
+my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $list; # ref for project list
 my $prog; # progress for latest job
 my $info; # info to return
@@ -68,7 +78,21 @@ $info->{INFO}->{CPUU} = $cpuUsage;
 $info->{INFO}->{MEMU} = $memUsage;
 $info->{INFO}->{DISKU} = $diskUsage;
 
-$info->{INFO}->{UPLOAD} = "true" if  ( $sys->{user_upload} );
+my $runcpu = ($cluster)? int($cluster_job_max_cpu/8): int($edge_total_cpu/8);
+$info->{INFO}->{RUNCPU} = ($runcpu>1)? $runcpu :1;
+
+# module on/off
+$info->{INFO}->{UMSYSTEM}= ( $sys->{user_management} )? "true":"false";
+$info->{INFO}->{UPLOAD}  = ( $sys->{user_upload} )?"true":"false";
+$info->{INFO}->{ARCHIVE} = ( -w $sys->{edgeui_archive} ) ? "true":"false";
+$info->{INFO}->{MQC}     = ( $sys->{m_qc} )?"true":"false";
+$info->{INFO}->{MAA}     = ( $sys->{m_assembly_annotation} )?"true":"false";
+$info->{INFO}->{MRBA}    = ( $sys->{m_reference_based_analysis} )?"true":"false";
+$info->{INFO}->{MTC}     = ( $sys->{m_taxonomy_classfication} )?"true":"false";
+$info->{INFO}->{MPA}     = ( $sys->{m_phylogenetic_analysis} )?"true":"false";
+$info->{INFO}->{MSGP}    = ( $sys->{m_specialty_genes_profiling} )?"true":"false";
+$info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
+$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
 
 #($umSystemStatus =~ /true/i)? &getUserProjFromDB():&scanNewProjToList();
 
@@ -77,8 +101,9 @@ if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
 	if($valid){
 		($username,$password,$viewType) = getCredentialsFromSession($sid);
+		my $user_config = $sys->{edgeui_input}."/". md5_hex($username)."/user.properties";
 		&getUserProjFromDB();
-		&getProjInfoFromDB($pname) if ! defined $list->{$pname};
+		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
 		$info->{INFO}->{SESSION_STATUS} = "valid";
 	}
 	else{
@@ -92,7 +117,15 @@ else{
 
 
 #check projects vital
-my ($vital, $name2pid) = &checkProjVital();
+my ($vital, $name2pid, $error);
+if($cluster) {
+	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	if($error) {
+		$info->{INFO}->{ERROR}= "CLUSTER ERROR: $error";
+	}
+} else {
+	($vital, $name2pid) = &checkProjVital();
+}
 
 my $time = strftime "%F %X", localtime;
 
@@ -102,15 +135,17 @@ if( scalar keys %$list ){
 
 	foreach my $i ( keys %$list ) {
 		my $lproj    = $list->{$i}->{NAME};
+		my $lprojc   = $list->{$i}->{PROJCODE};
 		my $lcpu     = $list->{$i}->{CPU};
 		my $lstatus  = $list->{$i}->{STATUS};
 		my $lpid     = $list->{$i}->{PID};
 		my $realpid  = $name2pid->{$lproj}; 
 		my $proj_dir = "$out_dir/$lproj";
+		$proj_dir = "$out_dir/$lprojc" if ( $lprojc && -d "$out_dir/$lprojc");
 		my $log      = "$proj_dir/process.log";
+		my $current_log      = "$proj_dir/process_current.log";
 		my $config   = "$proj_dir/config.txt";
-		$idx         = $i if $lproj eq $pname;
-
+		$idx         = $i if ($lproj eq $pname || $lprojc eq $pname);
 		#remove project from list if output directory has been removed
 		unless( -e $log ){
 			delete $list->{$i};
@@ -119,19 +154,20 @@ if( scalar keys %$list ){
 		
 		# update current project status
 		if( -r $log ){
-			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name) = &parseProcessLog($log);
+			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($log);
 			$list->{$i}->{TIME} = $proj_start;
 			$list->{$i}->{TIME} ||= strftime "%F %X", localtime;
 			$list->{$i}->{PID} = $realpid;
 			$list->{$i}->{CPU} = $numcpu;
 			$list->{$i}->{DESC} = $proj_desc;
+			($list->{$i}->{PROJLOG} = $current_log) =~ s/$www_root//;
 
 			#for unstarted project, read steps from config file
-			(my $tmp,$prog,$proj_start,$numcpu,$proj_desc,$proj_name) = &parseProcessLog($config) if $p_status eq "unstarted";
+			(my $tmp,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($config) if $p_status eq "unstarted";
 			$list->{$i}->{CPU} = $numcpu;
 			$list->{$i}->{PROJNAME} = $proj_name;
 
-			if( defined $name2pid->{$lproj} ){ #running
+			if( defined $name2pid->{$lproj} || defined $name2pid->{$lprojc} ){ #running
 				$list->{$i}->{STATUS} = "running";
 			}
 			elsif( $p_status =~ /running/ ){
@@ -166,6 +202,8 @@ if( scalar keys %$list ){
 	# with user management, NAME becomes unique project id
 	$info->{INFO}->{NAME}   = $list->{$idx}->{NAME};
 	$info->{INFO}->{PROJNAME}   = $list->{$idx}->{PROJNAME}; 
+	$info->{INFO}->{PROJCODE}   = $list->{$idx}->{PROJCODE};
+	$info->{INFO}->{PROJLOG} = $list->{$idx}->{PROJLOG};;
 	$info->{INFO}->{STATUS} = $list->{$idx}->{STATUS};
 	$info->{INFO}->{TIME}   = strftime "%F %X", localtime;
 	$info->{INFO}->{PROJTYPE} = $list->{$idx}->{PROJTYPE} if ($list->{$idx}->{PROJTYPE});
@@ -173,18 +211,19 @@ if( scalar keys %$list ){
 
 #autorun
 if( scalar keys %$list && $sys->{edgeui_auto_run} ){
-	my ( $progs, $proj, $p_status, $proj_start, $proj_dir, $log, $config );
+	my ( $progs, $proj, $projCode, $p_status, $proj_start, $proj_dir, $log, $config );
 	my $num_cpu_used = 0;
 	foreach my $i ( sort {$list->{$a}->{TIME} cmp $list->{$b}->{TIME}} keys %$list ) {
 		$proj     = $list->{$i}->{NAME};
-		$proj_dir = "$out_dir/$proj";
+		$projCode = $list->{$i}->{PROJCODE};
+		$proj_dir = "$out_dir/$projCode";
 		my $run=0;
 		$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
 		if($run){
 			my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" $sid $domain 2>> $proj_dir/error.log`;
 			#print STDERR "$json";
 			my $info = decode_json($json);
-			$list->{$i}->{STATUS} = "running" if $info->{STATUS} == "SUCCESS";
+			$list->{$i}->{STATUS} = "running" if $info->{STATUS} eq "SUCCESS";
 			$num_cpu_used += $list->{$i}->{CPU};
 		}
 	}
@@ -225,6 +264,7 @@ sub parseProcessLog {
 	my $proj_start;
 	my $proj_desc;
 	my $proj_name;
+	my $proj_id;
 	my $numcpu;
 	my ($step,$ord,$do,$status);
 	my %map;
@@ -256,9 +296,12 @@ sub parseProcessLog {
 		elsif( /^projname=(.*)/){
 			$proj_name=$1;
 		}
+		elsif( /^projid=(.*)/){
+			$proj_id=$1;
+		}
 		elsif( /^\[(.*)\]/ ){
 			my $step = $1;
-			next if $step eq "system";
+			next if $step eq "system" or $step eq "project";
 
 			if( defined $map{"$step"} ){
 				$ord = $map{"$step"};
@@ -305,6 +348,7 @@ sub parseProcessLog {
 	#unstarted project
 	$proj_status            = "unstarted"   if $lastline =~ /EDGE_UI.*unstarted/;
 	$proj_status            = "interrupted" if $lastline =~ /EDGE_UI.*interrupted/;
+	$proj_status            = "archived" if $lastline =~ /EDGE_UI.*archived/;
 	$proj_start             = $1            if $lastline =~ /\[(\S+ \S+)\] EDGE_UI/;
 	$prog->{$ord}->{STATUS} = "unfinished"  if $proj_status eq "interrupted"; #turn last step to unfinished
 
@@ -319,7 +363,7 @@ sub parseProcessLog {
 		}
 	}
 
-	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name);
+	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id);
 }
 
 sub scanNewProjToList {
@@ -361,14 +405,16 @@ sub availableToRun {
 }
 
 sub getSystemUsage {
-	my $mem = `free -m | awk 'NR==3{printf "%.1f", \$3*100/(\$4+\$3)}'`;
+	my $mem = `free -m | awk 'NR==2{printf "%.1f", \$3*100/(\$4+\$3)}'`;
 	my $cpu = `top -bn1 | grep load | awk '{printf "%.1f", \$(NF-2)}'`;
-	my $disk = `df -h $out_dir | tail -1 | awk '{printf "%.1f", \$5}'`;
+	my $disk = `df -h $out_dir | tail -1 | awk '{print \$5}'`;
+	$disk= `df -h $out_dir | tail -1 | awk '{print \$4}'` if ($disk !~ /\%/);
 	$cpu = $cpu/$sys->{edgeui_tol_cpu}*100;
 	$disk =~ s/\%//;
 	if( $mem || $cpu || $disk ){
 		$mem = sprintf "%.1f", $mem;
 		$cpu = sprintf "%.1f", $cpu;
+		$disk = sprintf "%.1f", $disk;
 		return ($mem,$cpu,$disk);
 	}
 	else{
@@ -464,12 +510,14 @@ sub getUserProjFromDB{
 	foreach my $hash_ref (@$array_ref)
 	{
 		my $id = $hash_ref->{id};
+		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
-		next if (! -r "$out_dir/$id/process.log");
+		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
 		next if ( $status =~ /delete/i);
 		$list->{$id}->{NAME} = $id;
 		$list->{$id}->{PROJNAME} = $project_name;
+		$list->{$id}->{PROJCODE} = $projCode;
 		$list->{$id}->{DBSTATUS} = $status;
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{OWNER_FisrtN} = $hash_ref->{owner_firstname};
@@ -479,7 +527,8 @@ sub getUserProjFromDB{
 }
 
 sub getProjInfoFromDB{
-	my $project=shift;
+    my $project=shift;
+    $project = &getProjID($project);
     my %data = (
        email => $username,
        password => $password,
@@ -504,20 +553,37 @@ sub getProjInfoFromDB{
 
 	my $id = $hash_ref->{id};
 	my $project_name = $hash_ref->{name};
+	my $projCode = $hash_ref->{code};
 	my $status = $hash_ref->{status};
 	my $projtype = ($hash_ref->{isPublished})?"publish":"false";
 	#next if (! -r "$out_dir/$id/process.log");
 	#next if ( $status =~ /delete/i);
 	$list->{$id}->{NAME} = $id;
 	$list->{$id}->{PROJNAME} = $project_name;
+	$list->{$id}->{PROJCODE} = $projCode;
 	$list->{$id}->{DBSTATUS} = $status;
 	$list->{$id}->{PROJTYPE} = $projtype;
+}
+
+sub getProjID {
+  my $project=shift;
+  my $projID = $project;
+  if ( -d "$out_dir/$project"){ # use ProjCode as dir
+    open (my $fh, "$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
+    while(<$fh>){
+      if (/^projid=(\S+)/){
+        $projID = $1;
+        last;
+      }
+    }
+  }
+  return $projID;
 }
 
 sub returnStatus {
 	my $json;
 	$json = to_json( $info ) if $info;
-	$json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
+	$json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[1];
 	print $cgi->header('application/json'), $json;
 	exit;
 }

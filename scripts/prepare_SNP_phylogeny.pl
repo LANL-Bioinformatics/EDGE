@@ -21,9 +21,14 @@ my $reference;
 my $ref_json_file;
 my $bwa_index_id_map;
 my $treeMaker="FastTree";
+my $kingdom = "Bacteria";
+my $bootstrap=0;
+my $bootstrap_n=100;
+my $PosSelect;
 my $NCBI_bwa_genome_index;
+my $modeltest=0;
 my $numCPU = 4;
-my $version = "0.2";
+my $version = "0.3";
 
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
@@ -40,8 +45,13 @@ GetOptions(
    'bwa_id_map=s' => \$bwa_index_id_map,
    'bwa_genome_index=s' =>\$NCBI_bwa_genome_index,
    'tree=s'	=>\$treeMaker,
+   'kingdom=s' => \$kingdom,
    'genomesList=s'	=> \$genomes,
    'genomesFiles=s' => \$genomesFiles,
+   'modeltest',  => \$modeltest,
+   'bootstrap'	=>\$bootstrap,
+   'bootstrap_n=i' =>\$bootstrap_n,
+   'PosSelect=s'  => \$PosSelect,
    'reference=s'  => \$reference,
    'cpu=i'    => \$numCPU,
    'help|h'   => sub{usage()},
@@ -64,8 +74,11 @@ my $reffile;
 my $gff_file;
 my $updateSNP=2;
 my $data_type;
+my $read_type;
 my $cdsSNPS=0;
 my $treeMethod = ($treeMaker =~ /FastTree/i)? 1:2;
+my $molecular_analysis=0;
+my $kingdom_code=0; #Bacteria
 my %ref_id;
 my $refdir;
 my $annotation="$outputDir/annotation.txt";
@@ -129,7 +142,9 @@ if ($genomes || $genomesFiles)
 		} split /,/,$genomesFiles;
 	}
 	if($reference){
-		system("$RealBin/genbank2gff3.pl --outdir stdout $EDGE_HOME/database/NCBI_genomes/$reference*/*gbk > $refdir/$reference.gff");
+		my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$reference*`;
+		chomp @tmpl;
+		system("$RealBin/genbank2gff3.pl --outdir stdout $tmpl[0]/*gbk > $refdir/$reference.gff");
 		$reffile = "$reference.fna";
 		$gff_file = "$reference.gff";
 		$cdsSNPS=1;
@@ -165,10 +180,11 @@ else{
 
 ## Prepare contig and reads fastq
 
-my $control_file= "$outputDir_abs_path/SNPphy.ctrl";
+my $control_file= "$outputDir_abs_path/phame.ctrl";
 
 if (@pair_read)
 {
+	$read_type += 2;
     my $R1_abs_path = Cwd::abs_path("$pair_read[0]");
     my $R2_abs_path = Cwd::abs_path("$pair_read[1]");
     system("ln -sf $R1_abs_path $outputDir_abs_path/${project_name}_R1.fastq");
@@ -176,8 +192,9 @@ if (@pair_read)
 }
 if ($single_end_read)
 {
+    $read_type += 1;
     my $S_abs_path = Cwd::abs_path("$single_end_read");
-    system("ln -sf $S_abs_path $outputDir_abs_path/${project_name}_SE.fastq");
+    system("ln -sf $S_abs_path $outputDir_abs_path/${project_name}.fastq");
 }
 if ($contig)
 {
@@ -190,6 +207,12 @@ $data_type = 3 if ( !(@pair_read || $single_end_read) && $contig && ($genomes||$
 $data_type = 4 if ((@pair_read || $single_end_read) && !$contig && ($genomes||$genomesFiles)) ;
 $data_type = 5 if ((@pair_read || $single_end_read) && $contig && (!$genomes||!$genomesFiles)) ;
 $data_type = 6 if ((@pair_read || $single_end_read) && $contig && ($genomes||$genomesFiles)) ;
+$modeltest = 0 if ($treeMaker =~ /FastTree/i);
+$molecular_analysis = 1 if ($PosSelect =~ /PAML/i);
+$molecular_analysis = 2 if ($PosSelect =~ /HyPhy/i);
+$kingdom_code = 1 if ($kingdom =~ /Virus/i);
+$kingdom_code = 2 if ($kingdom =~ /Eukaryote/i);
+
 
 ## Prepare Reference and control file
     system("cp -R $RealBin/../database/SNPdb/${SNPdbName}/* $outputDir_abs_path/.") if (! $genomes);
@@ -200,15 +223,20 @@ $data_type = 6 if ((@pair_read || $single_end_read) && $contig && ($genomes||$ge
       workdir = $outputDir_abs_path  # directory where contigs/reads files are located and output is stored
     reference = $random_ref  # 0:pick a random reference; 1:use given reference
       reffile = $reffile  # reference species to use
-      outfile = snp_alignment  # main alignment file name
+      project = $project_name
       cdsSNPS = $cdsSNPS  # 0:no cds SNPS; 1:cds SNPs
-       gbfile = $gff_file # GFF filename of reference
     FirstTime = $updateSNP  # 1:yes; 2:update existing SNP alignment
          data = $data_type  # *See below 0:only complete(F); 1:only contig(C); 2:only reads(R); 
                    # 3:combination F+C; 4:combination F+R; 5:combination C+R; 
                    # 6:combination F+C+R; 7:realignment  *See below 
+        reads = $read_type  # 1: single reads; 2: paired reads; 3: both types present;
          tree = $treeMethod  # 0:no tree; 1:use FastTree; 2:use RAxML; 3:use both;
-    modelTest = 0  # 0:no; 1:yes; # Only used when building a tree using RAxML
+    modelTest = $modeltest  # 0:no; 1:yes; # Only used when building a tree using RAxML
+    bootstrap = $bootstrap  # 0:no; 1:yes;  # Run bootstrapping  *See below
+            N = $bootstrap_n  # Number of bootstraps to run *See below   
+            
+    PosSelect = $molecular_analysis  # 0:No; 1:use PAML; 2:use HyPhy; 3:use both *See below
+         code = $kingdom_code  # 0:Bacteria; 1:Virus; 2:Eukaryote
         clean = 1  # 0:no clean; 1:clean
       threads = $numCPU  # Number of threads to use
        cutoff = 0  # Mismatch cutoff - ignore SNPs within cutoff length of each other.
@@ -284,7 +312,17 @@ sub usage {
             
             -bwa_genome_index  (default: $RealBin/../database/bwa_index/NCBI-Bacteria-Virus.fna)
             
-            -tree         Tree Maker: FastTree or RAxML
+            -kingdom      Bacteria or Virus or Eukaryote (default: Bacteria). This option will affect SNP calling
+            
+            -tree         Tree Maker: FastTree or RAxML  (default: FastTree)
+
+	    -modeltest    [bool] perform modeltest when building a tree using RAxML
+            
+            -bootstrap    [bool] Run bootstrapping
+            
+            -bootstrap_n  Number of bootstraps to run (default 100)
+            
+            -PosSelect    Molecular evolutionary analysis: PAML or HyPhy (default: no ME analysis)
             
             -n            Name of the project
 

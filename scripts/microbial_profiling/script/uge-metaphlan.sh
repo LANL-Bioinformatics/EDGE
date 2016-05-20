@@ -58,7 +58,7 @@ time metaphlan.py --bowtie2db $EDGE_HOME/database/metaphlan/mpa --bowtie2out ${O
 convert_metaphlan2tabTree.pl < $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.tab_tree
 mpln2krona.pl -l s -i $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.krona
 
-ktImportText -a $OUTPATH/$PREFIX.out.krona -o $OUTPATH/$PREFIX.krona.html
+ktImportText $OUTPATH/$PREFIX.out.krona -o $OUTPATH/$PREFIX.krona.html
 
 mpln2list.pl  -l s -i $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.list
 mpln2megan.pl -l s -i $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.megan

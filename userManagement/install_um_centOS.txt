@@ -33,33 +33,33 @@ Query OK, 0 rows affected (0.00 sec)
 #install php
 sudo yum install php php-pear
 sudo yum install php-mysql
-sudo service httpd restart
+sudo httpd -k restart
 
 #install tomcat
 sudo yum install tomcat
 
 #Configure tomcat
-1. copy mysql-connector-java-5.1.34-bin.jar to /usr/share/tomcat/lib
-2. configure tomcat basic auth to secure /user/admin/register web service:
-add lines below to tomcat-users.xml
+1. copy mariadb-java-client-1.2.0.jar to /usr/share/tomcat/lib
+2. configure tomcat basic auth to secure "userManagemntWS/user/admin/register" web service:
+add lines below to /usr/share/tomcat/conf/tomcat-users.xml
     <role rolename="admin"/>
     <user username="yourAdminName" password="yourAdminPassword" roles="admin"/>
 (also modify the username and password in createAdminAccount.pl)
-3. inactive timeout in web.xml (default is 30mins)
+3. Modify inactive timeout in /usr/share/tomcat/conf/web.xml to 3 days (default is 30mins)
     <session-config>
-        <session-timeout>30</session-timeout>
+        <session-timeout>4320</session-timeout>
     </session-config>
-4. add the line below to tomcat /usr/share/tomcat7/conf/tomcat.conf to increase PermSize:
+4. add the line below to tomcat /usr/share/tomcat/conf/tomcat.conf to increase PermSize:
 JAVA_OPTS="$JAVA_OPTS -Xms256m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
 5. restart tomcat server
-%sudo service tomcat restart
+%sudo systemctl restart tomcat
 
 #Deploy userManagementWS to tomcat server
 copy userManagementWS.war to /usr/share/tomcat/webapps
 the tomcat server will decompress the userManagementWS.war
 #userManagementWS configurations
-copy userManagementWS.xml to /usr/share/tomcat/conf/Catalina/localhost/  
 (for CentOS7. The userManagementWS.xml needs to modify the sql connector where driverClassName="org.mariadb.jdbc.Driver") 
+copy userManagementWS.xml to /usr/share/tomcat/conf/Catalina/localhost/  
 
 #Deploy userManagement to tomcat server
 copy userManagement.war to /usr/share/tomcat/webapps
@@ -71,3 +71,6 @@ the tomcat server will decompress the userManagement.war
 #run script createAdminAccount.pl to add admin account with encrypted password to database
 %perl createAdminAccount.pl -e admin@my.com -p admin
 
+#Update ~/edge/edge_ui/sys.properties
+user_management=1
+edge_user_management_url=http://localhost:8080/userManagement 

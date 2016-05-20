@@ -11,9 +11,9 @@ my $cgi     = CGI->new;
 my %opt     = $cgi->Vars();
 my $queries = $opt{'query'} || $ARGV[0];
 
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
-my $sys         = &getSysParamFromConfig($config_tmpl);
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 
 my $ref_json_file = "$edgeui_wwwroot/data/Ref_list.json";

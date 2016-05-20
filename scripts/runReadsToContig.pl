@@ -37,6 +37,7 @@ my $pacbio_bwa_option="-b5 -q2 -r1 -z10 ";
 my $prefix="ReadsMapping";
 my ($file1,$file2);
 my $skip_aln;
+my $tmp;
 GetOptions( 
             'aligner=s' => \$aligner,
             'p=s'       => \$paired_files,
@@ -52,6 +53,8 @@ GetOptions(
             'pacbio'  => \$pacbio,
             'help|?',  sub {Usage()}
 );
+
+$tmp = $outDir;
 
 unless ( -e $ref_file && $outDir) { &Usage;}
 unless ( $paired_files or -e $file_long or -e $singleton) { &Usage; }
@@ -144,51 +147,57 @@ if ($file_long)
    }
    else
    {
-     my ($bwa_threads)= $bwa_options =~ /-t (\d+)/; 
-     if ($pacbio)
-     {
-     &executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     }
-     else
-     {
-     &executeCommand("bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     }
-  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' /tmp/LongReads$$.sam | uniq - | wc -l`;
+     $bwa_options .= ' -x pacbio ' if ($pacbio);
+     #&executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
+     &executeCommand("bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -m 1G -@ $samtools_threads - $outDir/LongReads$$ ");
+  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
   #`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
    }
-   &executeCommand("samtools view -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$");
+   &executeCommand("samtools view -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$") if ( -s "$outDir/LongReads$$.sam");
 }
 if ($paired_files){
    print "Mapping paired end reads\n";
    $offset = fastq_utility::checkQualityFormat($file1);
-   if ($offset==64) {$bowtie_options=$bowtie_options." --phred64 ";$bwa_options=$bwa_options." -I ";}
+   my $quality_options="";
    if ($aligner =~ /bowtie/i){
-     &executeCommand("bowtie2 $bowtie_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam");
+     $quality_options= " --phred64 " if ($offset==64);
+     &executeCommand("bowtie2 $bowtie_options $quality_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam");
    }
-   else
+   elsif($aligner =~ /bwa_short/i)
    {
-     &executeCommand("bwa aln $bwa_options $ref_file $file1 > /tmp/reads_1_$$.sai");
-     &executeCommand("bwa aln $bwa_options $ref_file $file2 > /tmp/reads_2_$$.sai");
-     &executeCommand("bwa sampe $ref_file /tmp/reads_1_$$.sai /tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam");
+     $quality_options= " -I " if ($offset==64);
+     &executeCommand("bwa aln $bwa_options $quality_options $ref_file $file1 > $tmp/reads_1_$$.sai");
+     &executeCommand("bwa aln $bwa_options $quality_options $ref_file $file2 > $tmp/reads_2_$$.sai");
+     &executeCommand("bwa sampe $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam");
    }
-   &executeCommand("samtools view -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$");
+   elsif($aligner =~ /bwa/i)
+   {
+     &executeCommand("bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS - | samtools sort -m 1G -@ $samtools_threads  - $outDir/paired$$ ");
+   }
+   &executeCommand("samtools view -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$") if (-s "$outDir/paired$$.sam");
 }
 
 if ($singleton)  
 {
     print "Mapping single end reads\n";
     $offset = fastq_utility::checkQualityFormat($singleton);
-    if ($offset==64) {$bowtie_options=$bowtie_options."--phred64 ";$bwa_options=$bwa_options."-I ";}
+    my $quality_options="";
 
     if ($aligner =~ /bowtie/i){
-       &executeCommand("bowtie2 $bowtie_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam");
+       $quality_options= " --phred64 " if ($offset==64);
+       &executeCommand("bowtie2 $bowtie_options $quality_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam");
     }
-    else
+    elsif($aligner =~ /bwa_short/i)
     {
-      &executeCommand("bwa aln $bwa_options $ref_file $singleton > /tmp/singleton$$.sai");
-      &executeCommand("bwa samse -n 50 $ref_file /tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam");
+      $quality_options= " -I " if ($offset==64);
+      &executeCommand("bwa aln $bwa_options $quality_options $ref_file $singleton > $tmp/singleton$$.sai");
+      &executeCommand("bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam");
     }
-    &executeCommand("samtools view -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$");
+    elsif($aligner =~ /bwa/i)
+    {
+      &executeCommand("bwa mem $bwa_options $ref_file $singleton | samtools view -@ $samtools_threads -ubS -| samtools sort -m 1G -@ $samtools_threads -  $outDir/singleton$$");
+    }
+    &executeCommand("samtools view -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$") if  (-s "$outDir/singleton$$.sam");
 } 
 
 if ($file_long and $paired_files and $singleton){
@@ -261,8 +270,8 @@ elsif($file_long)
    `mv $outDir/update_table$$ $outDir/${prefix}_coverage.table`;
 
   # clean up
-  `rm /tmp/*$$*`;
-  `rm $outDir/*$$*`;
+  `rm -rf $tmp/*$$*`;
+  `rm -rf $outDir/*$$*`;
   unlink "$outDir/$prefix.pileup";
 
 
@@ -298,8 +307,8 @@ sub splitContigFile
     my $seq_number = `grep -c ">" $file`;
     my $mid_point = int($seq_number/2);
     my $n;
-    open (OUT,">/tmp/Contig$$.01");
-    open (OUT2,">/tmp/Contig$$.02");
+    open (OUT,">$tmp/Contig$$.01");
+    open (OUT2,">$tmp/Contig$$.02");
     while(<IN>)
     {
        chomp;
@@ -339,7 +348,7 @@ sub fold {
     my $seq_name;
     my $len_cutoff=199;
     open (IN,$file);
-    open (OUT,">/tmp/Contig$$");
+    open (OUT,">$tmp/Contig$$");
     while(<IN>){
       chomp;
       if(/>/)
@@ -368,5 +377,5 @@ sub fold {
     }
     close IN;
     close OUT;
-    return ("/tmp/Contig$$");
+    return ("$tmp/Contig$$");
 }

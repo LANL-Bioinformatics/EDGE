@@ -11,10 +11,10 @@ mkdir -p $rootdir/bin
 
 export PATH=$PATH:$rootdir/bin/
 
-assembly_tools=( idba spades )
-annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn )
-utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer )
+assembly_tools=( idba spades megahit )
+annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
+utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils Rpackages)
+alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
@@ -52,16 +52,36 @@ echo "
 
 
 install_spades(){
+local VER=3.7.1
 echo "------------------------------------------------------------------------------
-                           Installing SPAdes 3.5.0
+                           Installing SPAdes $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf SPAdes-3.5.0-Linux.tar.gz 
-ln -sf $rootdir/thirdParty/SPAdes-3.5.0-Linux/bin/spades.py $rootdir/bin/spades.py
+tar xvzf SPAdes-$VER-Linux.tar.gz 
+ln -sf $rootdir/thirdParty/SPAdes-$VER-Linux/bin/spades.py $rootdir/bin/spades.py
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           SPAdes installed
+                           SPAdes $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_megahit(){
+local VER=1.0.3
+## --version MEGAHIT v1.0.3
+echo "------------------------------------------------------------------------------
+                           Installing megahit $VER
+------------------------------------------------------------------------------
+"
+tar xvzf megahit-v$VER.tar.gz 
+cd megahit-$VER
+make
+cp -f megahit* $rootdir/bin/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           megahit $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -144,18 +164,48 @@ echo "
 
 install_sratoolkit()
 {
+local VER=2.5.4
 echo "------------------------------------------------------------------------------
-                           Installing sratoolkit.2.4.4-linux64
+                           Installing sratoolkit.$VER-linux64
 ------------------------------------------------------------------------------
 "
-tar xvzf sratoolkit.2.4.4-linux64.tgz
-cd sratoolkit.2.4.4-linux64
-ln -sf $rootdir/thirdParty/sratoolkit.2.4.4-linux64/bin/fastq-dump $rootdir/bin/fastq-dump
-ln -sf $rootdir/thirdParty/sratoolkit.2.4.4-linux64/bin/vdb-dump $rootdir/bin/vdb-dump
+tar xvzf sratoolkit.$VER-linux64.tgz
+cd sratoolkit.$VER-linux64
+ln -sf $rootdir/thirdParty/sratoolkit.$VER-linux64/bin/fastq-dump $rootdir/bin/fastq-dump
+ln -sf $rootdir/thirdParty/sratoolkit.$VER-linux64/bin/vdb-dump $rootdir/bin/vdb-dump
+./bin/vdb-config --restore-defaults
+./bin/vdb-config -s /repository/user/default-path=$rootdir/edge_ui/ncbi
+./bin/vdb-config -s /repository/user/main/public/root=$rootdir/edge_ui/ncbi/public
+if [[ -n ${HTTP_PROXY} ]]; then
+	proxy_without_protocol=${HTTP_PROXY#http://}
+        ./bin/vdb-config --proxy $proxy_without_protocol
+fi
+if [[ -n ${http_proxy} ]]; then
+	proxy_without_protocol=${http_proxy#http://}
+        ./bin/vdb-config --proxy $proxy_without_protocol
+fi
+
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           sratoolkit.2.4.3-linux64 installed
+                           sratoolkit.$VER-linux64 installed
+------------------------------------------------------------------------------
+"
+}
+
+install_ea-utils(){
+echo "------------------------------------------------------------------------------
+                           Installing ea-utils.1.1.2-537
+------------------------------------------------------------------------------
+"
+tar xvzf ea-utils.1.1.2-537.tar.gz
+cd ea-utils.1.1.2-537
+PREFIX=$rootdir make install
+
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           ea-utils.1.1.2-537 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -163,18 +213,34 @@ echo "
 install_R()
 {
 echo "------------------------------------------------------------------------------
-                           Compiling R 2.15.3
+                           Compiling R 3.2.2
 ------------------------------------------------------------------------------
 "
-tar xvzf R-2.15.3.tar.gz
-cd R-2.15.3
-./configure --prefix=$rootdir --with-readline=no 
+tar xvzf R-3.2.2.tar.gz
+cd R-3.2.2
+./configure --prefix=$rootdir
 make
 make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            R compiled
+------------------------------------------------------------------------------
+"
+}
+install_Rpackages()
+{
+echo "------------------------------------------------------------------------------
+                           installing R packages
+------------------------------------------------------------------------------
+"
+echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | Rscript -  
+# need internet for following R packages.
+echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='http://cran.rstudio.com/')}" | Rscript -
+echo "library(devtools); install_github('seninp-bioinfo/MetaComp');" | Rscript -
+echo "
+------------------------------------------------------------------------------
+                           R packages installed
 ------------------------------------------------------------------------------
 "
 }
@@ -273,15 +339,27 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 tar xvzf JBrowse-1.11.6.tar.gz
-cd JBrowse-1.11.6
-./setup.sh
-mkdir -p -m 775 data
-cd $rootdir/thirdParty
+if [ -e $rootdir/edge_ui/JBrowse/data ]
+then
+  mv $rootdir/edge_ui/JBrowse/data $rootdir/edge_ui/JBrowse_olddata
+fi
 if [ -e $rootdir/edge_ui/JBrowse ]
 then
-  rm $rootdir/edge_ui/JBrowse
+  rm -rf $rootdir/edge_ui/JBrowse
 fi
-ln -sf $rootdir/thirdParty/JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
+
+mv JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
+cd $rootdir/edge_ui/JBrowse
+./setup.sh
+if [ -e $rootdir/edge_ui/JBrowse_olddata ]
+then
+  mv $rootdir/edge_ui/JBrowse_olddata $rootdir/edge_ui/JBrowse/data
+else
+  mkdir -p -m 775 data
+fi
+
+cd $rootdir/thirdParty
+#ln -sf $rootdir/thirdParty/JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
 echo "
 ------------------------------------------------------------------------------
                            JBrowse-1.11.6 installed
@@ -363,15 +441,13 @@ echo "
 install_bowtie2()
 {
 echo "------------------------------------------------------------------------------
-                           Compiling bowtie2 2.1.0
+                           Compiling bowtie2 2.2.6
 ------------------------------------------------------------------------------
 "
-tar xvzf bowtie2-2.1.0.tar.gz
-cd bowtie2-2.1.0
+tar xvzf bowtie2-2.2.6.tar.gz
+cd bowtie2-2.2.6
 make
-cp bowtie2 $rootdir/bin/.
-cp bowtie2-build $rootdir/bin/.
-cp bowtie2-align $rootdir/bin/.
+cp bowtie2* $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -490,6 +566,21 @@ echo "
 "
 }
 
+install_ShortBRED()
+{
+echo "------------------------------------------------------------------------------
+                           Installing ShortBRED
+------------------------------------------------------------------------------
+"
+tar xvzf ShortBRED-0.9.4M.tgz
+ln -sf $rootdir/thirdParty/ShortBRED-0.9.4M $rootdir/bin/ShortBRED
+echo "
+------------------------------------------------------------------------------
+                           ShortBRED installed
+------------------------------------------------------------------------------
+"
+}
+
 install_tbl2asn()
 {
 echo "------------------------------------------------------------------------------
@@ -533,6 +624,26 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            bwa compiled
+------------------------------------------------------------------------------
+"
+}
+
+install_RAPSearch2()
+{
+local VER=2.23
+echo "------------------------------------------------------------------------------
+                           Compiling RAPSearch2 $VER
+------------------------------------------------------------------------------
+"
+tar xvzf RAPSearch${VER}_64bits.tar.gz
+cd RAPSearch${VER}_64bits
+./install
+cp bin/rapsearch $rootdir/bin/rapsearch2
+cp bin/prerapsearch $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           RAPSearch2 $VER compiled
 ------------------------------------------------------------------------------
 "
 }
@@ -586,19 +697,19 @@ echo "
 install_kronatools()
 {
 echo "------------------------------------------------------------------------------
-               Installing KronaTools-2.4
+               Installing KronaTools-2.6
 ------------------------------------------------------------------------------
 "
-tar xvzf KronaTools-2.4.tar.gz
-cd KronaTools-2.4
+tar xvzf KronaTools-2.6.tar.gz
+cd KronaTools-2.6/KronaTools
 perl install.pl --prefix $rootdir --taxonomy $rootdir/database/Krona_taxonomy
 #./updateTaxonomy.sh --local
 cp $rootdir/scripts/microbial_profiling/script/ImportBWA.pl scripts/
-ln -sf $rootdir/thirdParty/KronaTools-2.4/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
+ln -sf $rootdir/thirdParty/KronaTools-2.6/KronaTools/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                        KronaTools-2.4 Installed
+                        KronaTools-2.6 Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -611,7 +722,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf samtools-0.1.19.tar.gz
 cd samtools-0.1.19
-make
+make CFLAGS='-g -fPIC -Wall -O2'
 cp samtools $rootdir/bin/.
 cp bcftools/bcftools $rootdir/bin/.
 cd $rootdir/thirdParty
@@ -1069,6 +1180,14 @@ else
   exit 1
 fi
 
+if python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
+then
+  python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
+else
+  echo "Cannot find a python BioPython Module installed" 1>&2
+  echo "Please install Biopython (http://biopython.org/DIST/docs/install/Installation.html)"
+  exit 1
+fi
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
@@ -1091,7 +1210,17 @@ else
     if ( checkLocalInstallation R )
     then
     {
-        echo "R is found"
+	R_VER=`$rootdir/bin/R --version | perl -nle 'print $& if m{version \d+\.\d+}'`;
+	if  ( echo $R_VER | awk '{if($2>="3.2") exit 0; else exit 1}' )
+	then
+	{
+        	echo "R $R_VER found"
+	}
+	else
+	{
+		install_R
+	}
+	fi
     }
     else
     {
@@ -1101,7 +1230,7 @@ else
 }
 fi
 
-echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(\"gridExtra_0.9.1.tar.gz\", repos = NULL, type=\"source\")}" | Rscript -  
+install_Rpackages()
 
 if ( checkSystemInstallation bedtools )
 then
@@ -1113,10 +1242,23 @@ fi
 
 if ( checkSystemInstallation fastq-dump )
 then
-  echo "sratoolkit is found"
+  sratoolkit_VER=`fastq-dump --version | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if  ( echo $sratoolkit_VER | awk '{if($1>="2.5.4") exit 0; else exit 1}' )
+  then
+    echo "sratoolkit $sratoolkit_VER found"
+  else
+    install_sratoolkit
+  fi
 else
   echo "sratoolkit is not found"
-  install_sratoolkit 
+  install_sratoolkit
+fi
+
+if ( checkSystemInstallation fastq-join )
+then
+  echo "fastq-join is found"
+else
+  install_ea-utils
 fi
 
 if ( checkSystemInstallation parallel )
@@ -1153,7 +1295,13 @@ fi
 
 if ( checkLocalInstallation ktImportBLAST )
 then
-  echo "KronaTools is found"
+  Krona_VER=`$rootdir/bin/ktGetLibPath | perl -nle 'print $& if m{KronaTools-\d\.\d}' | perl -nle 'print $& if m{\d\.\d}'`;
+  if  ( echo $Krona_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
+  then
+    echo "KronaTools $Krona_VER found"
+  else
+    install_kronatools
+  fi
 else
   echo "KronaTools is not found"
   install_kronatools
@@ -1232,6 +1380,14 @@ else
   install_tbl2asn
 fi
 
+if ( checkLocalInstallation ShortBRED/shortbred_quantify.py )
+then
+  echo "ShortBRED is found"
+else
+  echo "ShortBRED is not found"
+  install_ShortBRED
+fi
+
 
 if ( checkLocalInstallation kraken )
 then
@@ -1259,10 +1415,31 @@ fi
 
 if ( checkSystemInstallation bowtie2 )
 then
-  echo "bowtie2 is found"
+  bowtie_VER=`bowtie2 --version | grep bowtie | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  if  ( echo $bowtie_VER | awk '{if($1>="2.2.4") exit 0; else exit 1}' )
+  then 
+    echo "bowtie2 $bowtie_VER found"
+  else
+    install_bowtie2
+  fi
 else
   echo "bowtie2 is not found"
   install_bowtie2
+fi
+
+if ( checkSystemInstallation rapsearch2 )
+then
+  rapsearch_VER=`rapsearch2 2>&1| grep 'rapsearch v2' | perl -nle 'print $& if m{\d+\.\d+}'`;
+  if  ( echo $rapsearch_VER | awk '{if($1>="2.23") exit 0; else exit 1}' )
+  then
+    echo "RAPSearch2 $rapsearch_VER found"
+  else
+    install_RAPSearch2
+  fi
+
+else
+  echo "RAPSearch2 is not found"
+  install_RAPSearch2
 fi
 
 if ( checkLocalInstallation bwa )
@@ -1314,12 +1491,33 @@ else
   install_idba
 fi
 
-if ( checkLocalInstallation spades.py )
+if ( checkSystemInstallation spades.py )
 then
-  echo "SPAdes is found"
+  spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if ( echo $spades_VER | awk '{if($1>="3.7.1") exit 0; else exit 1}' )
+  then
+    echo "SPAdes $spades_VER found"
+  else
+    install_spades
+  fi
 else
   echo "SPAdes is not found"
   install_spades
+fi
+
+if ( checkSystemInstallation megahit  )
+then
+  ## --version MEGAHIT v1.0.3
+  megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if  ( echo $megahit_VER | awk '{if($1>="1.0.3") exit 0; else exit 1}' )
+  then
+    echo "megahit $megahit_VER found"
+  else
+    install_megahit
+  fi
+else
+  echo "megahit is not found"
+  install_megahit
 fi
 
 if [ -x $rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh  ]
@@ -1466,7 +1664,7 @@ else
   install_perl_cgi_session
 fi
 
-if [ -x $rootdir/thirdParty/JBrowse-1.11.6/bin/prepare-refseqs.pl ]
+if [ -x $rootdir/edge_ui/JBrowse/bin/prepare-refseqs.pl ]
 then
   echo "JBrowse is found"
 else
@@ -1490,6 +1688,14 @@ mkdir -p $rootdir/edge_ui/data
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > $rootdir/edge_ui/data/host_list.json
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
 
+# this may need sudo access
+matplotlibrc=`python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+if [ -n $matplotlibrc ]
+then 
+   echo ""
+   #perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
+fi
+
 if [ -f $HOME/.bashrc ]
 then
 {
@@ -1505,14 +1711,15 @@ else
 }
 fi
 
-sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
 
 TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]
 then
 {
-	sed -i.bak 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
+	sed -i.bak 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/sys.properties
 	DEFAULT_CPU=`echo -n $((TOLCPU/3))`;
 	if [ $DEFAULT_CPU -lt 1 ]
 	then
@@ -1526,6 +1733,9 @@ then
 	fi
 }
 fi
+
+# set up a cronjob for project old files clena up
+echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
 
 echo "
 

@@ -1,29 +1,14 @@
-[system]
-##edge_ui environmental vars
-edgeui_wwwroot=%EDGE_HOME%/edge_ui
-edgeui_input=%EDGE_HOME%/edge_ui/EDGE_input
-edgeui_output=%EDGE_HOME%/edge_ui/EDGE_output
-edgeui_archive=
-edgeui_tol_cpu=%TOTAL_NUM_CPU%
-edgeui_auto_queue=1
-edgeui_auto_run=1
-debug=0
+[project]
 ##number of cpu
 cpu=<TMPL_VAR NAME=edge-proj-cpu>
 ##store output to [outpath]/[projname] 
 outpath=<TMPL_VAR NAME=edge-proj-outpath>
 projname=<TMPL_VAR NAME=edge-proj-name>
 projdesc=<TMPL_VAR NAME=edge-proj-desc>
-## configure user management system  1: with 0: without
-user_management=0
-## if user management system is not in the same domain with edge
-## ex: http://www.someother.com/userManagement
-edge_user_management_url=
-## configure user upload function  1: able 0: disable
-user_upload=1
-## max file size for user upload
-user_upload_maxFileSize='5gb'
-user_social_login=0
+projid=<TMPL_VAR NAME=edge-proj-id>
+projcode=<TMPL_VAR NAME=edge-proj-code>
+projowner=<TMPL_VAR NAME=edge-proj-owner>
+projrunhost=<TMPL_VAR NAME=edge-proj-runhost>
 
 [Download Fastq]
 DoFastqDownload=auto
@@ -72,30 +57,41 @@ similarity=<TMPL_VAR NAME=edge-hostrm-similarity DEFAULT=90>
 DoAssembly=<TMPL_VAR NAME=edge-assembly-sw DEFAULT=1>
 assembledContigs=<TMPL_VAR NAME=edge-assembled-contig-file>
 minContigSize=<TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>
-## spades or idba_ud
+## spades or idba_ud or megahit
 assembler=<TMPL_VAR NAME=edge-assembler DEFAULT="idba_ud">
-idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=124> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
+idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=121> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
 ## for spades
-singleCellMode=<TMPL_VAR NAME=edge-spades-sc-sw DEFAULT=0>
-pacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
-nanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
+SpadesSingleCellMode=<TMPL_VAR NAME=edge-spades-sc-sw DEFAULT=0>
+SpadesMetagenomeMode=<TMPL_VAR NAME=edge-spades-mtg-sw DEFAULT=0>
+SpadesPacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
+SpadesNanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
+## for megahit
+megahit_preset=<TMPL_VAR NAME=edge-megahit-preset DEFAULT=meta>
 
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
+## support bowtie or bwa
+r2c_aligner=<TMPL_VAR NAME=edge-r2c-aligner DEFAULT="bowtie">
+r2c_aligner_options=<TMPL_VAR NAME=edge-r2c-aligner-options>
+r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
 DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
-bowtieOptions=
+## support bowtie or bwa
+r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bowtie">
+r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
 window_size=1000
 step_size=200
 reference=<TMPL_VAR NAME=edge-ref-file>
 MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
+r2g_extract_mapped=<TMPL_VAR NAME=edge-r2g-getmapped-sw DEFAULT=0>
+r2g_extract_unmapped=<TMPL_VAR NAME=edge-r2g-getunmapped-sw DEFAULT=0>
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
+DoReadsTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=<TMPL_VAR NAME=edge-taxa-allreads DEFAULT=0>
 enabledTools=<TMPL_VAR NAME=edge-taxa-enabled-tools DEFAULT="bwa">
@@ -130,7 +126,14 @@ annotateProgram=<TMPL_VAR NAME=edge-anno-tool DEFAULT=prokka>
 annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
 
 [ProPhage Detection]
-DoProPhageDetection=<TMPL_VAR NAME=edge-anno-sw DEFAULT=0>
+DoProPhageDetection=auto
+
+<TMPL_IF NAME=edge-sg-sw>
+[Specialty Genes Profiling]
+DoReadsSpecialtyGenes=<TMPL_VAR NAME=edge-reads-sg-sw DEFAULT=0>
+DoORFsSpecialtyGenes=<TMPL_VAR NAME=edge-orfs-sg-sw DEFAULT=0>
+SpecialtyGenesSearchTool=<TMPL_VAR NAME=edge-sg-stool DEFAULT='rapsearch2'>
+</TMPL_IF>
 
 [Phylogenetic Analysis]
 DoSNPtree=<TMPL_VAR NAME=edge-phylo-sw DEFAULT=0>
@@ -146,6 +149,9 @@ SNPrefGenome=<TMPL_VAR NAME=edge-phylo-ref-select-ref>
 treeMaker=<TMPL_VAR NAME=edge-phylo-tree DEFAULT=FastTree>
 ## SRA accessions ByrRun, ByExp, BySample, ByStudy
 SNP_SRA_ids=<TMPL_VAR NAME=edge-phylo-sra-acc DEFAULT=>
+PhaMEbootstrap=<TMPL_VAR NAME=edge-phylo-bootstrap-sw DEFAULT=1>
+PhaMEbootstrap_num=<TMPL_VAR NAME=edge-phylo-bootstrap-num DEFAULT=100>
+
 
 [Primer Validation]
 DoPrimerValidation=<TMPL_VAR NAME=edge-primer-valid-sw DEFAULT=0>
@@ -169,7 +175,28 @@ tm_diff=<TMPL_VAR NAME=edge-primer-adj-df DEFAULT=5>
 top=<TMPL_VAR NAME=edge-primer-adj-num DEFAULT=5>
 
 [Generate JBrowse Tracks]
-DoJBrowse=1
+DoJBrowse=<TMPL_VAR NAME=edge-jbroswe-sw DEFAULT=1>
+
+<TMPL_IF NAME=edge-qiime-sw>
+[Qiime analysis]
+DoQiimeAnalysis=<TMPL_VAR NAME=edge-qiime-sw DEFAULT=0>
+qiime_amplicon_type=<TMPL_VAR NAME=edge-qiime-at-sw DEFAULT="GreenGenes">
+qiime_input_dir=<TMPL_VAR NAME=edge-qiime-reads-dir-input DEFAULT=>
+qiime_paired_reads_orientation=<TMPL_VAR NAME=edge-qiime-pro-sw DEFAULT="fr">
+qiime_mapping_file=<TMPL_VAR NAME=edge-qiime-mapping-files>
+qiime_barcode_file=<TMPL_VAR NAME=edge-qiime-barcode-fq-files>
+qiime_barcode_len=<TMPL_VAR NAME=edge-qiime-barcode-length DEFAULT=6>
+qiime_q_threshold=<TMPL_VAR NAME=edge-qiime-phred-quality-threshold DEFAULT=3>
+qiime_max_n=<TMPL_VAR NAME=edge-qiime-max-n DEFAULT=1>
+qiime_min_per_read_length_fraction=<TMPL_VAR NAME=edge-qiime-min-per-read-length-fraction DEFAULT=0.5>
+qiime_UPARSE=<TMPL_VAR NAME=edge-qiime-UPARSE-sw DEFAULT=0>
+qiime_minimum_otu_size=<TMPL_VAR NAME=edge-qiime-minimum-otu-size DEFAULT=2>
+qiime_similarity=<TMPL_VAR NAME=edge-qiime-similarity DEFAULT=0.94>
+qiime_sampling_depth=<TMPL_VAR NAME=edge-qiime-sampling-depth DEFAULT=1000>
+qiime_filter_taxa=<TMPL_VAR NAME=edge-qiime-filter-taxa>
+qiime_substract_ntc=<TMPL_VAR NAME=edge-qiime-substract-ntc>
+</TMPL_IF>
+
 
 [HTML Report]
 DoHTMLReport=1

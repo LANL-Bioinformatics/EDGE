@@ -151,13 +151,14 @@ div#popupUser a {
 	font-size: 1.2em;
 }
 
-/* dialog */
-#edge-input-toggle {
-	color: #777;
+.edge-additional-options-toggle {
+	color: #777 !important;
 	font-size: 0.9em;
-	font-weight: 300;
+	font-weight: 300 !important;
 	text-decoration: none;
 }
+
+/* dialog */
 .edge-dialog{
 	width:90%;
 }
@@ -231,6 +232,15 @@ pre code {
 	margin: 1em 1em .75em;
 	float:left;
 }
+
+#scroll-up-btn {
+	position: fixed;
+	right: 1em;
+	bottom:4em;
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
 .ui-field-contain {
 	border-bottom-width: 0px;
 }
@@ -459,7 +469,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 /* buttons for adding/removing inputs */
-.btnDel-edge-input-se {
+.btnDel-edge-input {
 	visibility: hidden;
 }
 
@@ -596,6 +606,9 @@ div.edge-collapsible-options .ui-btn {
 .edge-time-bg-grey {
     background-color: #aaa;
 }
+.edge-time-bg-black {
+    background-color: #000000;
+}
 
 .edge-fg-green {
     color: #3eb249;
@@ -643,6 +656,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-icon-recycle:after,
+.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 .edge-navmenu-panel .ui-icon-delete:after,
 .edge-navmenu-panel .ui-icon-check:after {
 	opacity: 0.9;
@@ -791,6 +805,7 @@ div.edge-collapsible-options .ui-btn {
 	
 	.edge-navmenu-panel .ui-icon-load:after,
 	.edge-navmenu-panel .ui-icon-check:after,
+	.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 	.edge-navmenu-panel .ui-icon-recycle:after
 	{
 		opacity: 0.9;

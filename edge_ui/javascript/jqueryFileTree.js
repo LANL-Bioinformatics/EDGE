@@ -33,7 +33,7 @@
 if(jQuery) (function($){
 	
 	$.extend($.fn, {
-		fileTree: function(o, h) {
+		fileTree: function(o, h, dire) {
 			// Defaults
 			if( !o ) var o = {};
 			if( o.root == undefined ) o.root = '/';
@@ -83,6 +83,14 @@ if(jQuery) (function($){
 					});
 					// Prevent A from triggering the # on non-click events
 					if( o.folderEvent.toLowerCase != 'click' ) $(t).find('LI A').bind('click', function() { return false; });
+					$(t).find('LI A').bind('dblclick', function() { 
+						if( $(this).parent().hasClass('directory') ) {
+							dire($(this).attr('rel'));
+						}else{
+							dire($(this).attr('rel').substring(0,$(this).attr('rel').lastIndexOf('/')+1));
+						}
+						return false; 
+					});
 				}
 				// Loading message
 				$(this).html('<ul class="jqueryFileTree start"><li class="wait">' + o.loadMessage + '<li></ul>');

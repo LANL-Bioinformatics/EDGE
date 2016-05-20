@@ -63,7 +63,7 @@ convert_metaphyler_srv2metaphlan.pl $OUTPATH/$PREFIX.classify.tab > $OUTPATH/$PR
 convert_metaphylerSrv2tabTree.pl < $OUTPATH/$PREFIX.classify.tab > $OUTPATH/$PREFIX.out.tab_tree
 
 mpln2krona.pl -l g -i $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.krona
-ktImportText -a $OUTPATH/$PREFIX.out.krona -o $OUTPATH/$PREFIX.krona.html
+ktImportText $OUTPATH/$PREFIX.out.krona -o $OUTPATH/$PREFIX.krona.html
 krona_portable.pl -inhtml $OUTPATH/$PREFIX.kronaInternet.html  -outhtml $OUTPATH/$PREFIX.krona.html
 rm $OUTPATH/$PREFIX.kronaInternet.html
 

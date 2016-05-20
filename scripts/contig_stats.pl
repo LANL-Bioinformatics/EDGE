@@ -387,6 +387,7 @@ for (i in 1:length(fileListtxt))
 foreach my $file_index (0..$#files)
 {
   my $file = $files[$file_index];
+  my $filename = basename($file);
   my $seqNum = $stat{$file_index}{seq_num};
   my $N50 = $stat{$file_index}{N50};
   my $Max = $stat{$file_index}{MAX};
@@ -399,13 +400,13 @@ foreach my $file_index (0..$#files)
   print Rscript "
 file$file_index<-read.table(file=\"${file}_len_gc_cov.txt\",header=TRUE);
 # length histogram plot
-h$file_index<-hist(file$file_index\$Len,col=\'blue\',breaks=max(file$file_index\$Len)/100, main=\"Contig Length Distribution\",xlab=\"Length (bp)\",sub=\"$file\");
+h$file_index<-hist(file$file_index\$Len,col=\'blue\',breaks=max(file$file_index\$Len)/100, main=\"Contig Length Distribution\",xlab=\"Length (bp)\",sub=\"$filename\");
 leg.txt<-c(paste(prettyNum($seqNum,big.mark=\",\"), \"Contigs\"),\"N50 $N50\",paste(\"Max\",prettyNum($Max,big.mark=\",\")),\"Min $Min\",\"Median $median\",paste(\"Total Base\",prettyNum($totalLen,big.mark=\",\")))
 legend(\"topright\",legend=leg.txt,inset=0.02);
 
 # GC histogram plot
 GC<-file$file_index\$GC*100;
-hist(GC,breaks=c(0:100),xlab=\"GC (%)\",ylab=\"# of contigs\",main=\"Contig GC Histogram\",sub=\"$file\");
+hist(GC,breaks=c(0:100),xlab=\"GC (%)\",ylab=\"# of contigs\",main=\"Contig GC Histogram\",sub=\"$filename\");
 GCmean<-sprintf(\"Mean %.2f %%\", mean(GC))
 GCsd<-sprintf(\"Std %.2f\",sd(GC))
 legend(\"topright\",legend=c(GCmean,GCsd),inset=0.02)

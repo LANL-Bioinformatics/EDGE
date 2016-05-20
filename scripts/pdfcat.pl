@@ -16,6 +16,7 @@ my @input = ();
 GetOptions(
     'h|help'            =>  sub {usage()},
     'i|input=s'         =>  \@input,
+    'f|footer=s'		=>	\( my $footer = '' ),
     'o|output=s'        =>  \( my $output = '' ),
     'p|page|pages=s'    =>  sub {
 
@@ -44,7 +45,7 @@ exit 1 unless scalar @input > 0 and length $output > 0;
 
 my $pdf = PDF::API2->new( -file => $output );
 my $root = $pdf->outlines;
-
+my $font = $pdf->corefont('Helvetica');
 
 #   Step through each of the input files specified and extract the document 
 #   pages with the options specified.
@@ -97,6 +98,14 @@ foreach my $file ( @input ) {
             ++$document_page;
 
             my $page = $pdf->importpage($input, $_, $import_page);
+            if ($footer){
+               my $text = $page->text();
+               my ($llx, $lly, $urx, $ury) = $page->get_mediabox;
+               $text->font($font, 9);
+               $text->translate($urx-70-length($footer), 5);
+               $text->text("$footer");
+            }
+    
             my $bookmark = $outline->outline;
             $bookmark->title("Page $document_page");
             $bookmark->dest($page);
@@ -125,6 +134,10 @@ pdfcat.pl [input files ...] [options] [output file]
     -p|--page|--pages
 
         This argument, which follows an input file argument, defines the pages to be extracted for concatenation from a given input file. If this argument is not defined, all pages from the input file are concatenated. The pages specified for extraction may be separated by commas or designed by ranges.
+        
+    -f|--footer
+    
+    	Add footer text in the right bottom for every pdf page.
 
 USAGE
 exit;

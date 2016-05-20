@@ -80,7 +80,7 @@ my %reference=&getSeqInfo($referenceFile,0);
 print "Loading query $queryFile...\n";
 my %query=&getSeqInfo($queryFile,1);
 my $total_reads_num = scalar (keys (%query));
-print $log_fh  "Total_reads:\t$total_reads_num\n";
+print $log_fh  "Total_contigs:\t$total_reads_num\n";
 
 my ($total_identity,$total_hit)=(0,0);
 open (my $Rtable,">${prefix}.coordsR");

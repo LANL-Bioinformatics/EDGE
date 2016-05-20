@@ -22,6 +22,7 @@ CREATE TABLE projects (
     status varchar(255) NOT NULL DEFAULT 'in process',
     published varchar(25) NOT NULL DEFAULT 'no',
     code VARCHAR(255) NOT NULL,
+	full_name VARCHAR(255),
     created DATETIME,
     updated DATETIME
 );

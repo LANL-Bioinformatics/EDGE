@@ -20,6 +20,7 @@ use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 #use Data::Dumper;
 require "edge_user_session.cgi";
+require "../cluster/clusterWrapper.pl";
 
 my $cgi = CGI->new;
 my %opt = $cgi->Vars();
@@ -30,16 +31,27 @@ $EDGE_HOME ||= "$RealBin/../..";
 my $msg;
 my $excode;
 
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
-my $sys         = &getSysParamFromConfig( -e $opt{"edge-input-config"} ? $opt{"edge-input-config"} : $config_tmpl );
+my $projConfigTmpl  = "$RealBin/edge_config.tmpl";
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 my $um_url      = $sys->{edge_user_management_url};
 my $protocol    = $opt{protocol};
 my $domain      = $ENV{'HTTP_HOST'};
 $um_url ||= "$protocol//$domain/userManagement";
 my $debug       = $sys->{debug};
 
+#cluster
+my $cluster 	= $sys->{cluster};
+my $cluster_qsub_options= $sys->{cluster_qsub_options};
+my $cluster_job_resource= $sys->{cluster_job_resource};
+my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
+my $cluster_job_notify = $sys->{cluster_job_notify};
+my $cluster_job_prefix = $sys->{cluster_job_prefix};
+my $cluster_tmpl = "$RealBin/../cluster/clusterSubmit.tmpl";
+
 #init vars
+my $pipeline	= $opt{pipeline};
 my $pname       = $opt{'edge-proj-name'} || $ARGV[0];
 my $edge_input	= $sys->{edgeui_input};
 my $input_dir   = "$edge_input/public";
@@ -47,6 +59,7 @@ my $edge_output	= $sys->{edgeui_output};
 my $out_dir     = $opt{"edge-proj-outpath"};
 $out_dir      ||= $sys->{edgeui_output};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
+$edge_total_cpu = $cluster_job_max_cpu if ($cluster);
 my $num_cpu     = $opt{"edge-proj-cpu"};
 $num_cpu      ||= 4;
 my $username 	= $opt{'username'} || $ARGV[1];
@@ -63,6 +76,9 @@ my $hostlist       = &readListFromJson($host_list);
 my @edge_input_pe1 = split /[\x0]/, $opt{"edge-input-pe1[]"};
 my @edge_input_pe2 = split /[\x0]/, $opt{"edge-input-pe2[]"};
 my @edge_input_se  = split /[\x0]/, $opt{"edge-input-se[]"};
+my @edge_qiime_mapping_files = split /[\x0]/, $opt{"edge-qiime-mapping-file-input[]"};
+my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
+my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
 #check session
 if( $sys->{user_management} ){
@@ -77,6 +93,15 @@ if( $sys->{user_management} ){
 	}
 }
 
+# Qiime dir submit
+if ($edge_qiime_input_dir){
+	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
+	@edge_input_pe1 = @{$pe1_file_r};
+	@edge_input_pe2 = @{$pe2_file_r};
+	@edge_input_se = @{$se_file_r};
+	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir";
+}
+
 # batch submit
 my $projlist;
 my @pnames;
@@ -87,6 +112,8 @@ if ($opt{"edge-batch-text-input"}){
 	push @pnames, $pname ;
 }
 my @real_names = @pnames;
+
+
 
 #init SUBMISSION_STATUS
 $msg->{SUBMISSION_STATUS}="success";
@@ -105,7 +132,15 @@ if ($msg->{SUBMISSION_STATUS} eq 'success'){
 	}
 }
 
-my ($vital, $name2pid) = &checkProjVital();
+my ($vital, $name2pid, $error);
+if($cluster) {
+	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	if($error) {
+		&addMessage("CLUSTER","failure",$error);
+	}
+} else {
+	($vital, $name2pid) = &checkProjVital();
+}
 
 # check no running duplications
 &checkRunningProject() if $msg->{SUBMISSION_STATUS} eq 'success';
@@ -117,7 +152,11 @@ my ($vital, $name2pid) = &checkProjVital();
 &createConfig() if $msg->{SUBMISSION_STATUS} eq 'success';
 
 # run pipeline
-&runPipeline() if $msg->{SUBMISSION_STATUS} eq 'success';
+if($cluster) {
+	&runPipeline_cluster() if $msg->{SUBMISSION_STATUS} eq 'success';
+} else {
+	&runPipeline() if $msg->{SUBMISSION_STATUS} eq 'success';
+}
 
 # return
 &returnStatus();
@@ -151,7 +190,8 @@ sub getSysParamFromConfig {
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
-				if ( /^([^=]+)=([^=]+)/ ){
+				next if(/^#/);
+				if ( /^([^=]+)=(.*)/ ){
 					$sys->{$1}=$2;
 				}
 			}
@@ -165,6 +205,7 @@ sub getSysParamFromConfig {
 sub createProjDir {
 	foreach my $pname (@pnames){
     		my $proj_dir = "$out_dir/$pname";
+		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);
 		#clean the empty dir before checking the conflicted output path
     		system("rmdir $proj_dir") if ( -d $proj_dir && is_folder_empty($proj_dir));
     
@@ -178,6 +219,7 @@ sub createProjDir {
 	}
 	foreach my $pname (@pnames){
 		my $proj_dir = "$out_dir/$pname";
+		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);
 		#init output directory
 		$excode = system("mkdir -m 755 -p $proj_dir");
 
@@ -190,7 +232,8 @@ sub createProjDir {
 		}
 
 		#the user specified output path
-		if( $proj_dir ne "$sys->{edgeui_output}/$pname" ){
+		if ($opt{"edge-proj-outpath"}){
+		#if( $proj_dir ne "$sys->{edgeui_output}/$pname" ){
 			$excode = system("ln -sf $proj_dir $sys->{edgeui_output}/$opt{'edge-proj-name'}");
 			if( $excode ){
 				&addMessage("CREATE_OUTPUT","failure","FAILED to create symlink to $sys->{edgeui_output}.");
@@ -209,6 +252,7 @@ sub is_folder_empty {
 sub createConfig {
 	foreach my $pname (@pnames){
 		my $config_out = "$out_dir/$pname/config.txt";
+		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
 		if( defined $opt{"edge-input-config"} && -e $opt{"edge-input-config"} ){
 			open CFG, $opt{"edge-input-config"};
 			open CFG_OUT, ">$config_out";
@@ -226,6 +270,9 @@ sub createConfig {
 				}
 				elsif( $line =~ /^projdesc=/ ){
 					$line =~ s/^projdesc=.*/projdesc=$opt{"edge-proj-desc"}/;
+				}
+				elsif( $line =~ /^projid=/ ){
+					$line =~ s/^projdesc=.*/projdesc=$pname/;
 				}
 				print CFG_OUT "$line\n";
 			}
@@ -247,11 +294,12 @@ sub createConfig {
 				my (@refs,@refsl);
 				if( defined $opt{"edge-ref-file-fromlist"}){
 					@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};
-					my @gpaths = map { "$EDGE_HOME/database/NCBI_genomes/$_*/*.gbk" } @refsl;
-					my $gpathsl = join " ", @gpaths;
-					my @gfiles = `ls $gpathsl`;
-					chomp @gfiles;
-					push @refs, @gfiles;
+					map { 	my @tmp= `ls -d $EDGE_HOME/database/NCBI_genomes/$_*`; 
+						chomp @tmp;  
+						my @gfiles = `ls $tmp[0]/*gbk`; 
+						chomp @gfiles; 
+						push @refs,@gfiles;
+					    } @refsl;
 				}
 				push @refs, $opt{"edge-ref-file"} if (defined $opt{"edge-ref-file"} && -e $opt{"edge-ref-file"});
 				$opt{"edge-ref-file"} = join ",", @refs;
@@ -267,11 +315,18 @@ sub createConfig {
 			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g if $opt{"edge-taxa-sw"};
 			$opt{'edge-sra-acc'} = uc $opt{'edge-sra-acc'};
 			$opt{'edge-phylo-sra-acc'} = uc $opt{'edge-phylo-sra-acc'};
-			$opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-text-input"});
-			$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"} if ($opt{"edge-batch-text-input"});
+			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files;
+			$opt{'edge-qiime-barcode-fq-files'} = join ",", @edge_qiime_barcode_input if @edge_qiime_barcode_input;
+
+      		        $opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-text-input"});
+      		        $opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname if ($opt{"edge-batch-text-input"});
+			$opt{"edge-proj-id"} = $pname;
+			$opt{"edge-proj-code"} = $projlist->{$pname}->{projCode};
+			$opt{"edge-proj-runhost"} = "$protocol//$domain";
+			$opt{"edge-proj-owner"} = $username if ($username);
 
 			eval {
-				my $template = HTML::Template->new(filename => $config_tmpl, die_on_bad_params => 0 );
+				my $template = HTML::Template->new(filename => $projConfigTmpl, die_on_bad_params => 0 );
 				$template->param( %opt );
 			
 				open CONFIG, ">$config_out" or die "Can't write config file: $!";
@@ -304,14 +359,15 @@ sub runPipeline {
 	my $proj_count=1;
 	foreach my $pname (@pnames){
 		my $proj_dir = "$out_dir/$pname";
+		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);
 		my $config_out = "$proj_dir/config.txt";
 		my ($paired_files, $single_files) = ("","");
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
  	   	if ($opt{"edge-batch-text-input"}){
-    			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if (-f $projlist->{$pname}->{"q1"});
-    			$single_files = $projlist->{$pname}->{"s"} if (-f $projlist->{$pname}->{"s"});
-    	}else{
+    			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
+    			$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
+    		}else{
 			for (0..$#edge_input_pe1)
 			{
 				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] ";
@@ -353,6 +409,81 @@ sub runPipeline {
 	}
 }
 
+sub runPipeline_cluster {
+	my $proj_count=1;
+	if($num_cpu > $cluster_job_max_cpu) {
+		$num_cpu = $cluster_job_max_cpu;
+	}
+
+	if($cluster_job_resource =~ /<CPU\/2>/) {
+		#uge
+		if($num_cpu %2 == 1) {
+			$num_cpu --;
+		}
+
+		my $binding_cpu = $num_cpu/2;
+		$cluster_job_resource =~ s/<CPU\/2>/$binding_cpu/;
+	}
+	$cluster_job_resource =~ s/<CPU>/$num_cpu/;
+
+	foreach my $pname (@pnames){
+		my $job_name = $cluster_job_prefix.$pname;
+		my $proj_dir = "$out_dir/$pname";
+		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);
+		my $config_out = "$proj_dir/config.txt";
+		my $cluster_job_script = "$proj_dir/clusterSubmit.sh";
+		my $cluster_job_log = "$proj_dir/clusterJob.log";
+		my ($paired_files, $single_files) = ("","");
+		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
+    	
+ 	   	if ($opt{"edge-batch-text-input"}){
+    			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
+    			$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
+    		}else{
+			for (0..$#edge_input_pe1)
+			{
+				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] ";
+			}
+		
+			$single_files = join " ", @edge_input_se;
+		}
+		$process_parameters .= " --debug " if ($debug);
+		$process_parameters .= " -p $paired_files " if ($paired_files);
+		$process_parameters .= " -u $single_files " if ($single_files);
+
+		my $cmd = "$EDGE_HOME/runPipeline $process_parameters > $proj_dir/process_current.log";
+
+		open CT, $cluster_tmpl;
+		open CT_OUT, ">$cluster_job_script";
+		while(<CT>) {
+			chomp;	
+			if(/<JOB_NAME>/) {
+				s/<JOB_NAME>/$job_name/;
+			} elsif (/<JOB_RESOURCE_REQUEST>/) {
+				s/<JOB_RESOURCE_REQUEST>/$cluster_job_resource/;
+			} elsif(/<JOB_NOTIFY>/) {
+				s/<JOB_NOTIFY>/$cluster_job_notify/;
+			} elsif (/<JOB_LOG>/) {
+				s/<JOB_LOG>/$cluster_job_log/;
+			} elsif (/<COMMAND>/) {
+				s/<COMMAND>/$cmd/;
+			}
+			print CT_OUT "$_\n";
+		}
+		close CT_OUT;
+		close CT;
+		&addMessage("CLUSTER","info","Create job script: $cluster_job_script");
+		
+		my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
+		if($error) {
+			&addMessage("CLUSTER","failure","FAILED to submit $cluster_job_script: $error");
+		} else {
+			&addMessage("CLUSTER","info","$cluster_job_script job id: $job_id");
+		}
+		$proj_count++;
+	}
+}
+
 sub addProjToDB{
 	my $desc; 
 	foreach my $pname_index (0..$#pnames){
@@ -363,6 +494,7 @@ sub addProjToDB{
 			$desc = $opt{"edge-proj-desc"};
 		}
 		$desc =~ s/(['"])/\\$1/g;
+
 		my %data = (
 			email => $username,
    			password => $password,
@@ -386,31 +518,62 @@ sub addProjToDB{
 		#print $result_json,"\n";
 		my $info =  from_json($result_json);
 		my $new_id =  $info->{"id"};
+		my $projCode = &getProjcode($new_id);
 		$pnames[$pname_index] = $new_id;
 		&addMessage("PROJECT_NAME","info","Assigned project $pname with ID $new_id");
+		&addMessage("ASSIGN_PROJ_ID","failure","Database doens't assign $pname a project ID. You may not be logged in properly. Please contact admins.") if (!$new_id);
 		# assign value to new project id.
 		if ($opt{"edge-batch-text-input"}){
 			foreach my $key (keys %{$projlist->{$pname}}){
 				$projlist->{$new_id}->{$key} = $projlist->{$pname}->{$key}; 
+				$projlist->{$new_id}->{projCode} = $projCode; 
 			}
 		}
 
 		$projlist->{$new_id}->{REALNAME} = $pname; 
+		$projlist->{$new_id}->{projCode} = $projCode; 
 
 		my $user_project_dir = "$input_dir/MyProjects/${pname}_$new_id";
-		`ln -sf $edge_output/$new_id $user_project_dir` if (! -e $user_project_dir);
+		#`ln -sf $edge_output/$new_id $user_project_dir` if (! -e $user_project_dir);
+		`ln -sf $edge_output/$projCode $user_project_dir` if (! -e $user_project_dir);
 	}
+}
+
+sub getProjcode {
+	my $id = shift;
+	my %data = (
+		email => $username,
+		password => $password,
+		project_id => $id
+	);
+	# Encode the data structure to JSON		
+	my $data =  encode_json(\%data);
+
+	# Set the request parameters
+	my $url = $um_url. 'WS/project/getInfo';
+	my $browser = LWP::UserAgent->new;
+	my $req = PUT $url;
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+	$req->header( "Content-Length" => length($data) );
+	$req->content($data);
+
+	my $response = $browser->request($req);
+	my $result_json = $response->decoded_content;
+	my $info =  from_json($result_json);
+	return  $info->{"code"};
 }
 
 sub availableToRun {
 	my $num_cpu = shift;
 	my $cpu_been_used = 0;
-	return 0 if ($num_cpu > $sys->{edgeui_tol_cpu});
 	if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
 		foreach my $pid ( keys %$vital ){
 			$cpu_been_used += $vital->{$pid}->{CPU};
-			return 0 if $cpu_been_used + $num_cpu > $sys->{edgeui_tol_cpu};
+			return 0 if (($cpu_been_used + $num_cpu) > $sys->{edgeui_tol_cpu});
 		}
+		return 0 if ($num_cpu > $sys->{edgeui_tol_cpu});
 	}
 	return 1;
 }
@@ -475,6 +638,7 @@ sub addMessage {
 }
 
 sub checkParams {
+	my %files;		
 	if ($num_cpu > $edge_total_cpu){
 		&addMessage("PARAMS","edge-proj-cpu","The max number of CPU for the EDGE Server is $edge_total_cpu.");
 	}
@@ -486,8 +650,8 @@ sub checkParams {
     		my %namesUsed;
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}";
-			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}";
-			$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}";
+    			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}";
+    			$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}";
     			my $pe1=$projlist->{$pname}->{"q1"};
     			my $pe2=$projlist->{$pname}->{"q2"};
     			my $se=$projlist->{$pname}->{"s"};
@@ -499,17 +663,16 @@ sub checkParams {
     			}
     			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
     			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Please input at least 3 characters.") if (length($pname) < 3);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe1 of $pname.") if ( -f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ( -f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if ( -f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q1 file path of $pname.") if ( -f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q2 file path of $pname.") if ( -f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
+    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
     			&addMessage("PARAMS","edge-batch-text-input","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
     			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^[http|ftp]/i && ! -e $se);
     			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
     		}
 	}else{  ## Single project input
-		my %files;		
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Please input at least 3 characters.") if( length($opt{"edge-proj-name"}) < 3 );
 		#check invalid character
@@ -518,6 +681,7 @@ sub checkParams {
 			next if $param eq "edge-batch-text-input";
 			next if $param eq "username";
 			next if $param eq "password";
+			next if $param =~ /aligner-options/;
 			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
@@ -568,9 +732,25 @@ sub checkParams {
 			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'});
 		}else{
 			if (!@edge_input_pe1 && !@edge_input_pe2 && !@edge_input_se){
-				&addMessage("PARAMS","edge-input-pe1-1","Input error. Please check the file path.");
-				&addMessage("PARAMS","edge-input-pe2-1","Input error. Please check the file path.");
-				&addMessage("PARAMS","edge-input-se1","Input error. Please check the file path.");
+				&addMessage("PARAMS","edge-input-pe1-1","Input error.");
+				&addMessage("PARAMS","edge-input-pe2-1","Input error.");
+				&addMessage("PARAMS","edge-input-se1","Input error.");
+			}
+			if ($pipeline eq "qiime" && @edge_input_pe1 && @edge_input_se){
+
+				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
+			}
+		}
+		if ($pipeline eq "qiime"){
+			foreach my $i (0..$#edge_qiime_mapping_files){
+				my $id = "edge-qiime-mapping-file-input". ($i + 1);
+				$edge_qiime_mapping_files[$i] =~ s/ //g;
+				$edge_qiime_mapping_files[$i] = "$input_dir/$edge_qiime_mapping_files[$i]" if ($edge_qiime_mapping_files[$i] =~ /^\w/);
+				&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_mapping_files[$i]});
+				$files{$edge_qiime_mapping_files[$i]}=1;
+				if ($edge_qiime_mapping_files[$i] &&  $edge_input_se[$i] !~ /^[http|ftp]/i  && ! -e $edge_qiime_mapping_files[$i]){
+					&addMessage("PARAMS","$id","Input error. Please check the file path.");
+				}
 			}
 		}
 	}
@@ -665,7 +845,82 @@ sub checkParams {
 			}
 		}
 	}
+	if ($pipeline eq "qiime"){
+		$opt{"edge-qiime-sw"} =1;
+		$opt{"edge-qc-sw"} =0;
+		$opt{"edge-hostrm-sw"} =0;
+		$opt{"edge-assembly-sw"} = 0;
+		$opt{"edge-ref-sw"} = 0;
+		$opt{"edge-taxa-sw"} = 0;
+		$opt{"edge-contig-taxa-sw"} = 0;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-phylo-sw"} = 0 ;
+		$opt{"edge-primer-valid-sw"} = 0 ;
+		$opt{"edge-primer-adj-sw"} = 0 ;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-jbroswe-sw"} = 0 ;
+		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input"} if defined $opt{"edge-qiime-barcode-fq-file-input"};
+		foreach my $i (0..$#edge_qiime_barcode_input){
+			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);
+			$edge_qiime_barcode_input[$i] =~ s/ //g;
+			$edge_qiime_barcode_input[$i] = "$input_dir/$edge_qiime_barcode_input[$i]" if ($edge_qiime_barcode_input[$i] =~ /^\w/);
+			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_barcode_input[$i]});
+			$files{$edge_qiime_barcode_input[$i]}=1;
+			if ($edge_qiime_barcode_input[$i]  && -e $edge_qiime_barcode_input[$i]){
+				&addMessage("PARAMS","$id","Input error. FASTQ format required") if ( ! is_fastq($edge_qiime_barcode_input[$i]));
+			}else{
+				&addMessage("PARAMS","$id","Input error. Please check the file path.");
+				
+			}
+		}
+		&addMessage("PARAMS", "edge-qiime-barcode-length","Invalid input. Natural number required.") unless $opt{"edge-qiime-barcode-length"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-phred-quality-threshold", "Invalid input. Input should in range 0-41.") unless ( $opt{"edge-qiime-phred-quality-threshold"} >= 0 && $opt{"edge-qiime-phred-quality-threshold"} <=41 );
+		&addMessage("PARAMS", "edge-qiime-max-n","Invalid input. Natural number required.") unless $opt{"edge-qiime-max-n"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-min-per-read-length-fraction","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-min-per-read-length-fraction"} >=0 && $opt{"edge-qiime-min-per-read-length-fraction"} <=1 );
+		&addMessage("PARAMS", "edge-qiime-minimum-otu-size","Invalid input. Natural number required.") unless $opt{"edge-qiime-minimum-otu-size"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-similarity","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-similarity"} >=0 && $opt{"edge-qiime-similarity"} <=1 );
+		&addMessage("PARAMS", "edge-qiime-sampling-depth","Invalid input. Natural number required.") unless $opt{"edge-qiime-sampling-depth"}=~ /^\d+$/;
+
+		
+	}
 }
+
+
+sub parse_qiime_mapping_files{
+	my $qiime_dir=shift;
+	my $mapping_files=shift;
+	my @pe1_files;
+	my @pe2_files;
+	my @se_files;
+	if ( ! -d "$input_dir/$qiime_dir" ){
+		my $msg = "ERROR: the input $qiime_dir directroy does not exist or isn't a directory\n";
+		exit(1);
+	}
+	foreach my $f (@{$mapping_files}){
+		my $file_column_index;
+		open (my $fh, "$input_dir/$f") or die "Cannot read $f\n";
+		while(<$fh>){
+			chomp;
+			next if (/^\n/);
+			if (/SampleID/){
+				my @header = split /\t/,$_;
+				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
+			}elsif(! /^#/){
+				my @array = split /\t/,$_;
+				my @files = map { "$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
+				if (scalar(@files) % 2){
+					push @se_files,@files;
+				}else{
+					push @pe1_files,$files[0];
+					push @pe2_files,$files[1];
+				}
+			}
+		}
+		close $fh;
+	}
+	return (\@pe1_files,\@pe2_files,\@se_files);
+}
+
 
 sub is_fastq
 {

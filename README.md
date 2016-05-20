@@ -1,12 +1,12 @@
 # EDGE Bioinformatics
 
-This is version 1.1 of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
+This is development version of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-To run EDGE, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
+To run EDGE v1.1, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
 
-## Documentation
+## Documentation for 
 
 [ReadTheDocs](http://edge.readthedocs.org)
 
@@ -16,10 +16,13 @@ To run EDGE, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instru
 Chien-Chi Lo: <chienchi@lanl.gov>  
 Paul Li: <po-e@lanl.gov>  
 Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil> 
+Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>
 
 ## Citation
 
-Coming soon...
+[Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform](http://biorxiv.org/content/early/2016/02/21/040477) 
+Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bishop-Lilly, Yan Xu, Sanaa Ahmed, Shihai Feng, Vishwesh P. Mokashi, Patrick S. G. Chain
+bioRxiv doi: http://dx.doi.org/10.1101/040477
 
 ## Copyright
 

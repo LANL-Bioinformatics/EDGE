@@ -1,0 +1,13 @@
+#!/bin/sh
+#$ -S /bin/sh
+#$ -N <JOB_NAME> 
+#$ -l <JOB_RESOURCE_REQUEST> 
+#$ -m a
+#$ -M <JOB_NOTIFY>
+#$ -j y
+#$ -o <JOB_LOG> 
+
+umask 002
+
+<COMMAND>
+

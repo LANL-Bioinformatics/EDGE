@@ -78,7 +78,7 @@ cd -;
 convert_metascope2list.pl < $OUTPATH/$PREFIX.metascope.log > $OUTPATH/$PREFIX.out.list
 convert_list2tabTree.pl < $OUTPATH/$PREFIX.out.list > $OUTPATH/$PREFIX.out.tab_tree
 cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$5\"\t\"\$4}" > $OUTPATH/$PREFIX.out.krona
-ktImportTaxonomy -a -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
+ktImportTaxonomy -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
 
 set +x;
 echo "";

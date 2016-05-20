@@ -386,9 +386,9 @@ open(my $fastqCount_fh, ">$fastq_count") or die "Cannot write $fastq_count\n";
      if (! $ascii){$ascii = &checkQualityFormat($reads1_file)}
 
      # check NextSeq platform
-     if( &is_NextSeq($reads1_file) and $opt_q < 15){
-	$opt_q = 15;
-	warn "The input looks like NextSeq data and the quality level (-q) is adjusted to 15 for trimming.\n";
+     if( &is_NextSeq($reads1_file) and $opt_q < 16){
+	$opt_q = 16;
+	warn "The input looks like NextSeq data and the quality level (-q) is adjusted to 16 for trimming.\n";
      }else{ $opt_q = $orig_opt_q;}
 
     #split
@@ -2166,7 +2166,7 @@ sub open_file
     my ($file) = @_;
     my $fh;
     my $pid;
-    if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
+    if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file 2>&1 |") or die ("gunzip -c $file: $!"); }
     else { $pid=open($fh,'<',$file) or die("$file: $!"); }
     return ($fh,$pid);
 }
@@ -2251,14 +2251,17 @@ sub split_fastq {
    my ($fh,$pid) = open_file($input);
    while (<$fh>)
    {
+          die "$_\n" if (/invalid/);
           last if (eof);
           next if (/^$/);
           $name = $_;
           $name = '@'. "seq_$seq_num\n" if ($name =~ /No name/);
           $seq=<$fh>;
           $seq =~ s/\n//g;
+          die "$seq\n" if ($seq=~/invalid/);
           while ($seq !~ /\+/)
           {
+             die "$seq\nFormat ERROR" if ($seq=~/invalid/ or eof);
              $seq .= <$fh>;
              $seq =~ s/\n//g;
           }
@@ -2269,8 +2272,10 @@ sub split_fastq {
           $qual_seq=<$fh>;
           $qual_seq =~ s/\n//g;
           my $qual_seq_len = length $qual_seq;
+          die "$qual_seq\n" if ($qual_seq =~ /invalid/);
           while ( $qual_seq_len < $seq_len )
           {
+              die "$qual_seq\nFormat ERROR\n" if ($qual_seq =~ /invalid/ or eof);
               last if ( $qual_seq_len == $seq_len);
               $qual_seq .= <$fh>;
               $qual_seq =~ s/\n//g;
@@ -2294,7 +2299,7 @@ sub split_fastq {
 
    }
    my $average_len = $total_seq_length/$seq_num;
-   if ( $average_len < $opt_min_L) { print "The input average length $average_len < minimum cutoff length(opt_min_L) $opt_min_L\n."; exit;}
+   if ( $average_len < $opt_min_L) { print "ERROR: The input ($file_name) average length $average_len < minimum cutoff length(opt_min_L) $opt_min_L\n."; }
    close ($fh)  or die( "Cannot close file : $!");
    close (OUTFILE) or die( "Cannot close file : $!") if (! eof OUTFILE);
    return ($seq_num,$total_seq_length,@subfiles);

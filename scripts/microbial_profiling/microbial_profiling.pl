@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-#
+#!/usr/bin/env perl
 # Paul Li, B-11  (April 2013)
 #
 
@@ -208,6 +207,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			my $outdir = "$p_outdir/$idx\_$fnb/$tool";
 			my $prefix = "$fnb";
 			my $log    = "$p_logdir/$fnb-$tool.log";
+			my $ppid = $$;
 			$forkcnt++;
 
 			my $pid = fork();
@@ -216,11 +216,11 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			}
 			elsif( $pid == 0 ){
 				sleep 90*$forkcnt;
-				my $usage = &getCpuUsage($pid);
+				my $usage = &getCpuUsage($ppid);
 				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, retry in every 5-20 seconds...\n" if $forkcnt && $usage>$threads/4;
 				while( $forkcnt && $usage>$threads/4 ){
 					sleep rand(15)+5;
-					$usage = &getCpuUsage($pid);
+					$usage = &getCpuUsage($ppid);
 				}
 				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, starting...\n";
 
@@ -294,6 +294,14 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           echo \"====> Copying result list to report directory...\";
           cp $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
           cp $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
+          if [ -e $outdir/$prefix.sam ]
+          then
+            samtools view -b -@ $threads -S $outdir/$prefix.sam -o $tool_rep_dir/$fnb-$tool.bam;
+          fi 
+          if [ -e $outdir/$prefix.gottcha.sam ]
+          then
+            samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam;
+          fi 
           if [ -e $outdir/$prefix.out.read_classification ]
           then
             cp $outdir/$prefix.out.read_classification $tool_rep_dir/$fnb-$tool.read_classification
@@ -604,11 +612,13 @@ sub countFastq_exe
 sub getCpuUsage {
 	my $pid = shift;
 	$pid ||= $$;
-	my $pstree = `pstree -p $pid`;
+	my $pstree = `pstree -lp $pid`;
 	my @pids = $pstree =~ /\((\d+)\)/mg;
 	my $cpu=0;
 	foreach my $pid ( @pids ){
-		$cpu += `ps -p $pid -o c | tail -n1`;
+		my $usage = `ps -p $pid -o c | tail -n1`;
+		chomp $usage;
+		$cpu += $usage if $usage =~ /^\d+$/;
 	}
 	return $cpu/100;
 }

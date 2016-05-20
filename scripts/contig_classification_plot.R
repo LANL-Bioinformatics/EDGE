@@ -68,7 +68,8 @@ for ( i in 1:7) {
   	bp_plot_table<-bp_plot_table[order(bp_plot_table$ACC_COV_LEN,decreasing = TRUE),]
   	
   	# get contig assignemnt by top hit 
-  	top_hit_table<-merge(aggregate(ACC_COV_LEN ~ X..SEQ, data=data.rank, FUN=max),data.rank)
+	data.rank.forTopHit<-subset(data.rank, (RANK == ranklist[i] | (RANK == "unclassified" & LENGTH == ACC_COV_LEN)))
+  	top_hit_table<-merge(aggregate(ACC_COV_LEN ~ X..SEQ, data=data.rank.forTopHit, FUN=max),data.rank.forTopHit)
  
   	# get depth and GC info by merging table with contig id 
   	top_hit_table_with_cov<-merge(cov_0_above_table,top_hit_table,by.x="ID",by.y="X..SEQ")

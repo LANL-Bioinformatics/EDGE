@@ -52,11 +52,16 @@ nanoporeFile=
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
+## support bowtie or bwa
+edge-r2c-aligner=bowtie
+edge-r2c-aligner-options=
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
-DoReadsMappingReference=0
-bowtieOptions=
+DoReadsMappingReference=
+## support bowtie or bwa
+edge-r2g-aligner=bowtie
+edge-r2g-aligner-options=
 # reference genbank or fasta file
 reference=
 MapUnmappedReads=0
@@ -66,7 +71,7 @@ MapUnmappedReads=0
 DoReadsTaxonomy=1
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=0
-enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini,metascope
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference
@@ -99,7 +104,7 @@ annotateSourceGBK=
 [ProPhage Detection]
 DoProPhageDetection=1
 
-[SNP Phylogeny]
+[Phylogenetic Analysis]
 DoSNPtree=1
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
 SNPdbName=Ecoli

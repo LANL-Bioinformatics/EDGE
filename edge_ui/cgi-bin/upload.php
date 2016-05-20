@@ -46,7 +46,7 @@ function read_config($configFile){
 	return $array;
 }
 
-$edge_config=read_config(__DIR__."/edge_config.tmpl");
+$edge_config=read_config(__DIR__."/../sys.properties");
 
 // 5 minutes execution time
 @set_time_limit(5 * 60);
@@ -98,8 +98,8 @@ if ($cleanupTargetDir) {
 		}
 
 		// Remove temp file if it is older than the max age and is not the current file
-		if (preg_match('/\.part$/', $file) && (filemtime($tmpfilePath) < time() - $maxFileAge)) {
-			@unlink($tmpfilePath);
+		if (preg_match('/\.part$/', $file) || (filemtime($tmpfilePath) < time() - $maxFileAge)) {
+			unlink($tmpfilePath);
 		}
 	}
 	closedir($dir);
@@ -136,7 +136,13 @@ while ($buff = fread($in, 4096)) {
 // Check if file has been uploaded
 if (!$chunks || $chunk == $chunks - 1) {
 	// Strip the temp .part suffix off 
-	rename("{$filePath}.part", $filePath);
+	$fileType = mime_content_type("{$filePath}.part");
+	if(preg_match("/text/i", $fileType)){
+		system("sed 's/\r//' \"{$filePath}.part\" >$filePath");
+		unlink("{$filePath}.part");
+	}else{
+		rename("{$filePath}.part", $filePath);
+	}
 }
 
 // Return Success JSON-RPC response

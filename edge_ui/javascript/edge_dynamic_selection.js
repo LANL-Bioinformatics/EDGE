@@ -15,7 +15,7 @@ $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
     // native widget with "-menu". Upon creation of the listview widget we want to place an
     // input field before the list to be used for a filter.
-    .on( "listviewcreate", "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu", function( event ) {
+    .on( "listviewcreate", "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa", function( event ) {
         var input,
             list = $( event.target ),
             form = list.jqmData( "filter-form" ),
@@ -36,7 +36,7 @@ $.mobile.document
         }
         // Instantiate a filterable widget on the newly created listview and indicate that the
         // generated input form element is to be used for the filtering.
-        if (id.indexOf('hostrm')>0){
+        if (id.indexOf('hostrm')>0 || id.indexOf('get-contigs')>0 || id.indexOf('get-reads')>0 ){
         	list.filterable({
         		input: input,
             	children: "> li:not(:jqmData(placeholder='true'))",
@@ -142,7 +142,9 @@ $.mobile.document
     .on( "pagecontainerbeforeshow", function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
-        if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
+        if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog" || 
+		id === "edge-get-contigs-by-taxa-dialog" || (id && id.indexOf('get-reads')>0) ))
+	{
             return;
         }
         listview = data.toPage.find( "ul" );
@@ -160,17 +162,26 @@ $.mobile.document
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
             listview = data.toPage.jqmData( "listview" );
-      //      console.log(id);
-        if ( !(id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
-        	//console.log(event,data);
+        //if ( !(id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
+	if ( ! listview ) {
         	listview = data.prevPage.jqmData( "listview" );
         }
-       // console.log(id);
         
         form = listview.jqmData( "filter-form" );
+	if ( !form ) {
+		var input = $( "<input data-type='search'></input>" );
+		form = $( "<form></form>" ).append( input );
+		listview.filterable({
+		  input: input,
+		  children: "> li:not(:jqmData(placeholder='true'))",
+		  filterCallback: OrSearch
+		});
+		listview.jqmData( "filter-form",form);
+	}
         // Put the form back in the popup. It goes ahead of the listview.
         listview.before( form );
 	AddSelectRefList();
+	$('#'+id).enhanceWithin();
     });
 
 $( document ).ready(function(){

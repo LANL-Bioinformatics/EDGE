@@ -107,9 +107,9 @@ exit(0);
 
 sub checkFiles
 {
-    unless (-e "$ref.bwt")
+    unless (-s "$ref.bwt")  # bwa index is existed. no need to check ref fasta file.
     {
-        if (is_file_empty($_)) { die "$ref file is empty";}
+        if (is_file_empty($ref)) { die "$ref is empty";}
     }
  
     my %file;
@@ -441,6 +441,7 @@ sub open_file
     my $pid;
     if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
     else { $pid=open($fh,'<',$file) or die("$file: $!"); }
+    $SIG{'PIPE'} = 'IGNORE';
     return ($fh,$pid);
 }
 sub is_paired
@@ -476,6 +477,7 @@ sub is_paired
     }
     close $fh1;
     close $fh2;
+    $SIG{'PIPE'} = 'DEFAULT';
     kill 9, $pid1; # avoid gunzip broken pipe
     kill 9, $pid2; # avoid gunzip broken pipe
     return $is_paired;

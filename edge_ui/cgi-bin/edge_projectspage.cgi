@@ -23,9 +23,9 @@ my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
 
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
-my $sys         = &getSysParamFromConfig($config_tmpl);
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 my $out_dir     = $sys->{edgeui_output};
 my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
@@ -43,13 +43,27 @@ if( $sys->{user_management} ){
 
 #print Dumper ($list);
 print  $cgi->header( "text/html" );
-if ($userType =~ /admin/i && $viewType !~ /admin/i){
-	print "<h2>Project List	 <a id=\"edge-project-page-admin\" href=\"#\" class='ui-btn ui-mini ui-btn-inline ui-icon-bars ui-btn-icon-left'>See Project List as Admin</a></h2>\n";
-}else{
-	print  $cgi->h2("Project List");
+print  $cgi->h2("Project List");
+if ( $username && $password || $um_config == 0){
+	print "<div>\n";
+	#print "\t<label for='edge-projpage-action'>Checkbox Action</label>\n";
+	print "\t<select id='edge-projpage-action' data-mini='true' name='edge-projpage-action' data-native-menu='true'>\n";
+	print "\t\t<option value='0'>-----  Choose Action -----</option>\n";
+	if ($userType =~ /admin/i){
+		print "\t\t<option value='show-all'>See All Projects List (admin)</option>\n";
+	}
+	print "\t\t<option value='delete'>Delete Selected Projects</option>\n";
+	print "\t\t<option value='archive'>Archive Selected Projects</option>\n" if ( -w $sys->{edgeui_archive});
+	if ($um_config != 0){
+		print "\t\t<option value='share'>Share Selected Projects</option>\n";
+		print "\t\t<option value='publish'>Make Selected Projects Public</option>\n";
+	}
+	print "\t\t<option value='compare'>Compare Selected Projects Gottcha Results(HeatMap)</option>\n";
+	print "\t</select>\n</div>\n";
 }
 
-print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> ";
+print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
+print "<form id='edge-projpage-form'>\n";
 
 if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
 	# My Table
@@ -61,7 +75,7 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 HTML
 	;
 
-	my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Type"));
+	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Type"));
 	#my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Total Running Time"),th("Type"),th("Action"));
 	my $idxs = &sortList($list);
 	my $table_id = "edge-project-page-Mytable";
@@ -77,7 +91,7 @@ HTML
 		<h4>Projects shared with me</h4>
 HTML
 ;
-	@theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	@theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	$idxs = &sortList($list);
 	$table_id = "edge-project-paga-Guesttable";
 	&printTable($table_id,$idxs,$list,\@theads);
@@ -92,34 +106,33 @@ HTML
 		<h4>Projects published by others</h4>
 HTML
 ;
-	@theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	@theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	$idxs = &sortList($list);
 	$table_id = "edge-project-page-OtherPubtable";
 	&printTable($table_id,$idxs,$list,\@theads);
 	print "\t\t</div>\n";
 
 }elsif ($umSystemStatus=~ /true/i) {
+	# show admin list or published project
 	my $list =  &getUserProjFromDB();
 	my $idxs = &sortList($list);
-	my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }elsif ($um_config == 0) {
 	# all projects in the EDGE_output
 	my $list= &scanProjToList();
 	my $idxs = &sortList($list);
-	my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
+	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }
 
-print "\t\t\t</div>"; # data-filter
+print "\t\t\t</form></div>"; # data-filter
 
-#print "<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>\n";
 
-#print "<form class=\"ui-filterable\"><input id=\"edge-project-table-filter\" data-type=\"search\"> </form>\n";
+## END MAIN## 
 
-#print $cgi->table( {-id=>"edge-project-page-table" , -class=>"tablesorter"},
 sub sortList {
 	my $list = shift;
 	
@@ -145,11 +158,14 @@ sub printTable {
 	{
 		my $projOwner = $list->{$_}->{OWNER};
 		my $projStatus = $list->{$_}->{PROJSTATUS};
-		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC}\" data-pid=\"$list->{$_}->{PROJNAME}\">$list->{$_}->{REAL_PROJNAME}</a>";
+		my $projID = $list->{$_}->{PROJNAME};
+		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC}\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
 		my $projSubTime = $list->{$_}->{PROJSUBTIME};
 		my $projRunTime = $list->{$_}->{RUNTIME};
 		my $projLastRunTime = $list->{$_}->{LASTRUNTIME};
 		my $projType = $list->{$_}->{PROJ_TYPE};
+		my $projCode = $list->{$_}->{PROJCODE} || $list->{$_}->{REAL_PROJNAME};
+		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value=\'$projCode\'>";
 		my $projAction;
 		my $publish_action= ($projType =~ /published/)? "unpublished":"published";
 		$projAction = "<a href='#edge_confirm_dialog' id='action-sblehare-btn1' aria-haspopup='true' data-rel='popup' data-position-to='window' datadata-transition='pop' class='edge-icon-bg-grey ui-icon-forward ui-btn ui-overlay-shadow ui-btn-icon-notext ui-corner-all' data='share'>Share project</a>\n"; 
@@ -158,15 +174,16 @@ sub printTable {
 		$projType =~ s/published/public/;
 		my @tds;
 		if ($umSystemStatus=~ /true/i){
-			@tds = ($table_id =~ /Mytable/i)?  ( td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType)):
-							( td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner));
+			$checkbox="" if (!$username && !$password);
+			@tds = ($table_id =~ /Mytable/i)?  ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType)):
+							( td({-style=>"padding-right:1.5em"},$checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner));
 		}else{
-			@tds = ( td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
+			@tds = ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
 		}
 		push @tbodys, \@tds;
 	}
 	if (scalar(@idxs)<1){
-		my @tds = (td("No Projects"),td(""),td(""),td(""),td(""));
+		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
 		push @tbodys, \@tds;
 	}
 	print $cgi->table( 
@@ -207,7 +224,8 @@ sub scanProjToList {
 		next if $file eq '.' or $file eq '..';
 		if ( -d "$out_dir/$file" && -r "$out_dir/$file/process.log"  ) {
 			++$cnt;
-			$list=&pull_summary($file,$cnt,$list);
+			$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list);
+			$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list) if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
 			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME};
 			$list->{$cnt}->{PROJNAME} = $file;
 		}
@@ -228,7 +246,7 @@ sub getUserProjFromDB{
 	my $service;
 	if ($username && $password){ 
 		$service= ($viewType =~ /admin/i)? "WS/user/admin/getProjects" :"WS/user/getProjects";
-		$data{project_type} = $project_type if ($viewType =~ /user/i);
+		$data{project_type} = $project_type if ($viewType =~ /user/i && $project_type);
 	}else{
 		$service="WS/user/publishedProjects";
 	}
@@ -255,13 +273,17 @@ sub getUserProjFromDB{
 	foreach my $hash_ref (@$array_ref)
 	{
 		my $id = $hash_ref->{id};
+		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
 		next if ($status =~ /delete/i);
-		next if (! -r "$out_dir/$id/process.log");
-		$list=&pull_summary($id,$id,$list);
+		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
+		
+		my $processlog=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode/process.log":"$out_dir/$id/process.log";
+		$list=&pull_summary($processlog,$id,$list);
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{REAL_PROJNAME} = $project_name;
+		$list->{$id}->{PROCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{PROJ_TYPE} = $hash_ref->{type};
@@ -271,16 +293,15 @@ sub getUserProjFromDB{
 
 
 sub pull_summary {
-	my $pname = shift;
+	my $log = shift;
 	my $cnt= shift;
 	my $list = shift;
 	my @INFILES;
 	
 	my ($step,$lastline);
 	my $tol_running_sec=0;
-	$list->{$cnt}->{PROJSTATUS} = "Unfinished";
 
-	open(my $sumfh, "<", "$out_dir/$pname/process.log") or die $!;
+	open(my $sumfh, "<", "$log") or die $!;
 	while(<$sumfh>) {
 		chomp;
 		#parse input files
@@ -317,7 +338,7 @@ sub pull_summary {
 
 		if( /^\[(.*)\]/ ){
 			$step = $1;
-			if( $step eq "system" ){
+			if( $step eq "project" or $step eq "system"){
 				while(<$sumfh>){
 					chomp;
 					if ( /^([^=]+)=([^=]+)/ ){
@@ -340,7 +361,7 @@ sub pull_summary {
 			$dd = sprintf "%02d", $dd;
 			my $proj_start  = "$yyyy-$mm-$dd $hms";
 			$list->{$cnt}->{TIME} = $proj_start;
-			#$list->{$cnt}->{PROJSTATUS} = "Finished";
+			$list->{$cnt}->{PROJSTATUS} = "Unfinished";
 		}
 		elsif( /^Do.*=(.*)$/ ){
 			my $do = $1;
@@ -368,6 +389,9 @@ sub pull_summary {
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";
 			$list->{$cnt}->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>";
 		}
+		elsif( /All Done/){
+			$list->{$cnt}->{PROJSTATUS} = "Complete";
+		}
 		$lastline = $_;
 	}
 
@@ -376,35 +400,10 @@ sub pull_summary {
 
 	$list->{$cnt}->{PROJSTATUS}        = "Unstarted"   if $lastline =~ /EDGE_UI.*unstarted/;
 	$list->{$cnt}->{PROJSTATUS}        = "Interrupted" if $lastline =~ /EDGE_UI.*interrupted/;
+	$list->{$cnt}->{PROJSTATUS}        = "Archived"    if $lastline =~ /EDGE_UI.*archived/;
 	$list->{$cnt}->{TIME}              = $1            if $lastline =~ /\[(\S+ \S+)\] EDGE_UI/;
 	$list->{$cnt}->{$step}->{GNLSTATUS} = "Interrupted" if $list->{$cnt}->{$step}->{PROJSTATUS} eq "Interrupted"; #turn last step to unfinished
 	
-	#Reads Taxonomy Classification
-	my %toolmap;
-	open PROC_CUR, "<", "$out_dir/$pname/process_current.log" or die $!;
-	while(<PROC_CUR>) {
-		chomp;
-		#parse input files
-		if( /^\[RUN_TOOL\] \[(.*)\] COMMAND/ ){
-			$step = $1;
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLANALYSIS} = "<span style='margin-left:3em'>$step</span>";
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLRUN}      = "On";
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLSTATUS}   = "<span class='edge-fg-orange'>Running</span>";
-		}
-		elsif( /^\[RUN_TOOL\] \[(.*)\] Error occured/ ){
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLSTATUS}   = "Error";
-		}
-		elsif( /^\[RUN_TOOL\] \[(.*)\] Running time: (.*)/ ){
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLSTATUS}   = "Complete";
-			$list->{$cnt}->{"Reads Taxonomy Classification"}->{$step}->{GNLTIME}     = $2;
-		}
-		elsif( /All Done/){
-			$list->{$cnt}->{PROJSTATUS} = "Complete";
-		}
-	}
-	close PROC_CUR;
-
-
 	$list->{$cnt}->{INFILES} = join ", ", @INFILES;
 	$list->{$cnt}->{TIME} ||= strftime "%F %X", localtime;
 	
