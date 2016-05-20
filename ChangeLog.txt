@@ -1,3 +1,56 @@
+-- Version devel
+2016/05/20
+1. User management allows to configure email notification 
+2. Check host file writable for bwa index and reuse the index if it existed.
+3. Adjust NextSeq trimming quality to q=16
+4. Allow user logged in until CGI session expired
+5. QC script will report invalid gzip format issue
+6. R version 2.15.3 to 3.2.2, 
+7. KronaTools version 2.4 to 2.6, 
+8. Bowtie2 2.1.0 to 2.2.6, 
+9. gridExtra version 0.9.1 to 2.0.0
+10. Upgrade sratoolkit version from 2.4.4 to 2.5.4 which support proxy setup and make sra2fastq.pl work on pacbio and solid platform.
+11. SPAdes from 3.5.0 to 3.7.1 (with meta flag for metagenome)
+12. Add project name at the right bottom of final report pdf
+13. Add Computational resource check before preforming any action or submit new job.
+14. Clean intermediate files script for cron jobs set up. If cron job set up, EDGE will pop up reminding message
+15. Utility scripts to convert bam to fastq and extract fasta by taxonomy from contigs profiling result
+16. Update project dir by using secure code instead of project id
+17. Add email functions when job complete or shared to others
+18. Separate [system] configruation from edge_config.tmpl into sys.properties.
+19. Add bam_to_fastq_by_taxa.pl script to extract fastq from gottcha result by taxonomy
+20. Add edgeamdin acoount info into sys.properties and remove them from embeded code
+21. Make the example apache configuration file ready for copy with EDGE installation script
+22. Add a hash table on host file to avoid duplication
+23. Add ShortBRED and RAPSearch thirdparty tools and installation scripts.
+24. Add ShortBRED function for Antibotic resistance genes and Virulence Genes and simple ouptut count table
+25. MEGAHIT metagenome assembler.
+26. (univa) UGE cluster submission support (alpha test)
+27. Qiime amplicon analysis pipeline for 16s/18s/ITS data (Greengenes/SILVA/ITS)
+28. Allow the multiple runs/lanes (with or without duplicate barcodes) into the Qiime amplicon analysis pipeline
+29. Add MetaComp package (https://github.com/seninp-bioinfo/MetaComp. Pavel Senin).
+30. Add module configuration on/off in the sys.properties
+
+GUI update:
+1. GUI: Skip hidden files while selecting files
+2. GUI: Scroll up button
+3. GUI: download project button, which will compress the project directory but exclude bam, sam, fastq , gz files
+4. GUI: Add aligner and aligner options for mapping reads to contig/reference
+5. GUI: Add Bootstrap option for Phylogenetic analysis
+6. GUI: option to extract unmapped/mapped reads from reads mapping to contigs/reference
+7. GUI: Add extract reads from gottcha/bwa result by taxonomy
+8. GUI: options for MEGAHIT metagenome assembler
+9. GUI: A new navigate menu for Qiime analysis pipeline
+10. GUI: /edge_ui/?proj=xxxxxxxxx  url query works on the secure project code.
+11. GUI: A new Specialty Genes Detection module for EDGE pipepine.
+12. GUI: Mutliple project selection with actions drop list. Delete, Share, Publish, Archive, Compare Gottcha result.
+13. GUI: Result page with Contig table view for JBrowse link and Blast NT function.
+
+Database update:
+1. GOTTCHA db version v20150825
+
+Bugs fixes: batch submit bugs, tree view cutting issue, upload function fail when user management system is off, overly running taxonomy profiling tools in parallel... etc.
+
 -- Version 1.1
 2015/08/19
 1. Add size limit to contig for annotation ( default 700bp)

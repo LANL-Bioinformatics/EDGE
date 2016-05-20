@@ -15,12 +15,13 @@ To run EDGE v1.1, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" i
 ## Contact Info
 Chien-Chi Lo: <chienchi@lanl.gov>  
 Paul Li: <po-e@lanl.gov>  
-Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil> 
-Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>
+Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil>  
+Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>  
 
 ## Citation
 
 [Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform](http://biorxiv.org/content/early/2016/02/21/040477) 
+
 Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bishop-Lilly, Yan Xu, Sanaa Ahmed, Shihai Feng, Vishwesh P. Mokashi, Patrick S. G. Chain
 bioRxiv doi: http://dx.doi.org/10.1101/040477
 
