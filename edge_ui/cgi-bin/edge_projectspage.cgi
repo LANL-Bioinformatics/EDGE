@@ -136,8 +136,8 @@ print "\t\t\t</form></div>"; # data-filter
 sub sortList {
 	my $list = shift;
 	
-	my @idxs1 = grep { $list->{$_}->{STATUS} eq "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @idxs2 = grep { $list->{$_}->{STATUS} ne "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} eq "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} ne "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 	my @idxs = (@idxs1,@idxs2);
 	return \@idxs;
 }
@@ -166,11 +166,7 @@ sub printTable {
 		my $projType = $list->{$_}->{PROJ_TYPE};
 		my $projCode = $list->{$_}->{PROJCODE} || $list->{$_}->{REAL_PROJNAME};
 		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value=\'$projCode\'>";
-		my $projAction;
 		my $publish_action= ($projType =~ /published/)? "unpublished":"published";
-		$projAction = "<a href='#edge_confirm_dialog' id='action-sblehare-btn1' aria-haspopup='true' data-rel='popup' data-position-to='window' datadata-transition='pop' class='edge-icon-bg-grey ui-icon-forward ui-btn ui-overlay-shadow ui-btn-icon-notext ui-corner-all' data='share'>Share project</a>\n"; 
-		$projAction .= "<a href='#edge_confirm_dialog' id='action-share-btn2' aria-haspopup='true' data-rel='popup' data-position-to='window' datadata-transition='pop' class='edge-icon-bg-grey ui-icon-back ui-btn ui-overlay-shadow ui-btn-icon-notext ui-corner-all' data='share'>Unshare project</a>\n"; 
-		$projAction .= "<a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' datadata-transition='pop' class='edge-icon-bg-grey ui-icon-eye ui-btn ui-overlay-shadow ui-btn-icon-notext ui-corner-all' data=\"$publish_action\">Make project public/private</a>\n"; 
 		$projType =~ s/published/public/;
 		my @tds;
 		if ($umSystemStatus=~ /true/i){
@@ -282,7 +278,8 @@ sub getUserProjFromDB{
 		my $processlog=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode/process.log":"$out_dir/$id/process.log";
 		$list=&pull_summary($processlog,$id,$list);
 		$list->{$id}->{PROJNAME} = $id;
-		$list->{$id}->{REAL_PROJNAME} = $project_name;
+		$list->{$id}->{PROJSTATUS} = $status;
+		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
@@ -343,6 +340,7 @@ sub pull_summary {
 					chomp;
 					if ( /^([^=]+)=([^=]+)/ ){
 						$list->{$cnt}->{uc($1)}=$2;
+						$list->{$cnt}->{REAL_PROJNAME}=$2 if ($1 eq "projname");
 					}
 					elsif ( /^\[(.*)\]/ ){
 						$step = $1;

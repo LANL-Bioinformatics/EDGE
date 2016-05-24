@@ -29,7 +29,7 @@ eval {
 	&pull_qc();
 	&pull_assy();
 	&pull_anno();
-	&pull_referenceName();
+	#&pull_referenceName();
 	&pull_readmapping_contig();
 	&pull_readmapping_ref();
 	&pull_contigmapping();
@@ -53,12 +53,11 @@ output_html();
 sub pull_referenceName {
 	if( -e "$out_dir/Reference/reference.fasta" ){
 		#try to parse ref name
-		open REF, "$out_dir/Reference/reference.fasta" or die $!;
-		while(<REF>){
-			chomp;
-			$refname->{$1}=$2 if /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/;
+		my @fasta_header =`grep "^>" $out_dir/Reference/reference.fasta`;
+		foreach (@fasta_header)
+			chomp $_;
+			$refname->{$1}=$2 if ($_ =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ );
 		}
-		close REF;
 	}
 }
 
@@ -1064,27 +1063,27 @@ sub pull_summary {
 		elsif( /^Do.*=(.*)$/ ){
 			my $do = $1;
 			$do =~ s/ //g;
-			$prog->{$cnt}->{GNLRUN}= "Auto";
+			$prog->{$cnt}->{GNLRUN}= "Auto" if $do eq 'auto';
 			$prog->{$cnt}->{GNLRUN}= "On" if $do eq 1;
-			$prog->{$cnt}->{GNLRUN}= "Off" if $do eq 0;
+			$prog->{$cnt}->{GNLRUN}= "Off" if $do eq 0 && !$prog->{$cnt}->{GNLRUN};
 			
 			$prog->{$cnt}->{GNLSTATUS}="Skipped";
-			$prog->{$cnt}->{GNLSTATUS}="Incomplete" if $do eq 1;
+			$prog->{$cnt}->{GNLSTATUS}="Incomplete" if $prog->{$cnt}->{GNLRUN} eq 'On';
 			$prog->{$cnt}->{GNLSTATUS}= "Skipped" if ($prog->{$cnt}->{GNLANALYSIS} =~ /ProPhage/i && ($kingdom =~ /virus/i || /No CDS annotation/));
 		}
 		elsif( /Produce Final PDF Report/){
 			my $pdf_generate_time=<$sumfh>;
 			my ($h,$m,$s) = $pdf_generate_time =~ /(\d+):(\d+):(\d+)/;
-                        $tol_running_sec += $h*3600+$m*60+$s if ( defined $h);
+			$tol_running_sec += $h*3600+$m*60+$s if ( defined $h);
 		}
 		elsif( /Finished/ ){
 			$prog->{$ord}->{GNLSTATUS} = "Skipped (result exists)";
 		}
 		elsif( /Running time: (\d+:\d+:\d+)/ ){
 			$prog->{$ord}->{GNLSTATUS} = "Complete";
-			$prog->{$ord}->{GNLTIME} = $1;
-			 my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
-                        $tol_running_sec += $h*3600+$m*60+$s;
+			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
+			$tol_running_sec += $h*3600+$m*60+$s;
+			$prog->{$ord}->{GNLTIME} += $h*3600+$m*60+$s;
 		}
 		elsif( / Running/ ){
 			$prog->{$ord}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
@@ -1101,13 +1100,13 @@ sub pull_summary {
 		$lastline = $_;
 	}
 
-	#sum total running time
-	#foreach my $o ( keys %$prog ){
-	#	if ($prog->{$o}->{GNLTIME}){
-	#		my ($h,$m,$s) = $prog->{$o}->{GNLTIME} =~ /(\d+):(\d+):(\d+)/;
-	#		$tol_running_sec += $h*3600+$m*60+$s;
-	#	}
-	#}
+	#convert running time to h:m:s
+	foreach my $o ( keys %$prog ){
+		if ($prog->{$o}->{GNLTIME}){
+			my $step_sec = $prog->{$o}->{GNLTIME};
+			$prog->{$o}->{GNLTIME} = sprintf("%02d:%02d:%02d", int($step_sec / 3600), int(($step_sec % 3600) / 60), int($step_sec % 60));
+		}
+	}
 	#$vars->{RUNTIME} = strftime("\%H:\%M:\%S", gmtime($tol_running_sec));
 	$vars->{RUNTIME} = sprintf("%02d:%02d:%02d", int($tol_running_sec / 3600), int(($tol_running_sec % 3600) / 60), int($tol_running_sec % 60));
 

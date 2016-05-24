@@ -64,6 +64,22 @@ if (!$count){
 }
 
 ########
+sub pull_fastqCount {
+	my $count_file = shift;
+	my $list = shift;
+	open( my $fh, "$count_file");
+	while(<$fh>){
+		 chomp;
+		 my @temp = split /\t/, $_;
+		 if(@temp){
+		 	$list->{INPUTREADSNUM} += $temp[1];
+			$list->{INPUTREADSBASE} += $temp[2];
+		}
+	}
+	$list->{INPUTMRL} = sprintf ('%.2f',$list->{INPUTREADSBASE}/$list->{INPUTREADSNUM});
+	close $fh;
+	return $list;
+}
 
 sub check_analysis {
 	
@@ -114,6 +130,9 @@ sub check_analysis {
 			}
 		}
 		$list->{PROJCPTOOLS} = join(",",@proj_run_taxa_tools);
+		
+		my $fastq_count_file = "$proj_dir/QcReads/fastqCount.txt";
+		$list = &pull_fastqCount($fastq_count_file,$list) if (-e $fastq_count_file);
 		push @{$vars->{LOOP_PROJSUMMARY}}, $list; 
 	}
 }
@@ -187,8 +206,8 @@ sub output_html {
 	system("cp -r $EDGE_HOME/edge_ui/images $out_dir/");  
 	system("cp -r $EDGE_HOME/edge_ui/javascript $out_dir/");
 
-	 open(my $htmlfh, ">$html_outfile") or die $!;
-	 print $htmlfh $template->output();
-	 close ($htmlfh);
+	open(my $htmlfh, ">$html_outfile") or die $!;
+	print $htmlfh $template->output();
+	close ($htmlfh);
 }
 

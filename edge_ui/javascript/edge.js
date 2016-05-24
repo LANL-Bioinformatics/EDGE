@@ -1452,13 +1452,11 @@ $( document ).ready(function()
 				allMainPage.hide();
 				$( "#edge-project-page" ).html(data);
 				$( "#edge-project-page" ).show();
-				$( ".edge-project-page-link").each( function(){
+				$( ".edge-project-page-link").unbind('click').on('click', function(e){
+					e.preventDefault();
 					var pname = $(this).attr("data-pid");
-					$(this).off('click').on("click", function(e){
-						e.preventDefault();
-						updateReport(pname);
-						updateProject(pname);
-					});
+					updateReport(pname);
+					updateProject(pname);
 				});
 				$("#edge-projpage-action").on("change", function(){
 					var action = $(this).val();
