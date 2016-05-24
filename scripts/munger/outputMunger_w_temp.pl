@@ -29,7 +29,7 @@ eval {
 	&pull_qc();
 	&pull_assy();
 	&pull_anno();
-	#&pull_referenceName();
+	&pull_referenceName();
 	&pull_readmapping_contig();
 	&pull_readmapping_ref();
 	&pull_contigmapping();
@@ -54,7 +54,7 @@ sub pull_referenceName {
 	if( -e "$out_dir/Reference/reference.fasta" ){
 		#try to parse ref name
 		my @fasta_header =`grep "^>" $out_dir/Reference/reference.fasta`;
-		foreach (@fasta_header)
+		foreach (@fasta_header){
 			chomp $_;
 			$refname->{$1}=$2 if ($_ =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ );
 		}
