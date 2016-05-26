@@ -120,7 +120,7 @@ $( document ).ready(function()
 						$.mobile.loading( "hide" );
 						if( data.STATUS == "SUCCESS" ){
 							showMSG(data.INFO);
-							window.open(data.PATH);
+							window.open(edge_path + data.PATH);
 							// add monitor blast file output instead . It may time out for long blast run
 						}else{
 							showMSG(data.INFO);
@@ -193,7 +193,7 @@ $( document ).ready(function()
 	});
 	$('#edge-compare-summary-table').find('a').each(function(){
 		var projId=$(this).attr('data-pid');
-		var url = "/?proj=" + projId;
+		var url = location.origin + "/edge_ui/?proj=" + projId;
 		$(this).attr('href',url);
 	});
 	$(".edge-compare-output a[data-ajax='false']").each(function(){

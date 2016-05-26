@@ -41,25 +41,10 @@
 			  <thead>
 				<tr>
 				  <th data-priority='1'>Project Name</th>
-				  <th data-priority='2'>Taxonomy Classification Tools</th>
-				</tr>
-			  </thead>
-			  <tbody>
-			  	<TMPL_LOOP NAME=LOOP_PROJSUMMARY>
-				<tr>
-				  <td title="Desc: <TMPL_VAR NAME=PROJDESC DEFAULT=->"><a data-ajax='false' href="#" data-pid=<TMPL_VAR NAME=PROJID DEFAULT=->><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
-				  <td><TMPL_VAR NAME=PROJCPTOOLS DEFAULT=-></td>
-				</tr>
-				</TMPL_LOOP>
-			  </tbody>
-			</table>
-			<table id='edge-compare-fastq-count' data-role='table' class='output-table ui-responsive'>
-			  <thead>
-				<tr>
-				  <th data-priority='1'>Project Name</th>
 				  <th data-priority='2'>Reads</th>
 				  <th data-priority='3'>Total Bases</th>
 				  <th data-priority='4'>Mean Read Length</th>
+				  <th data-priority='5'>Taxonomy Classification Tools</th>
 				</tr>
 			  </thead>
 			  <tbody>
@@ -69,6 +54,7 @@
 				  <td><TMPL_VAR NAME=INPUTREADSNUM DEFAULT=-></td>
 				  <td><TMPL_VAR NAME=INPUTREADSBASE DEFAULT=-></td>
 				  <td><TMPL_VAR NAME=INPUTMRL DEFAULT=-></td>
+				  <td><TMPL_VAR NAME=PROJCPTOOLS DEFAULT=-></td>
 				</tr>
 				</TMPL_LOOP>
 			  </tbody>

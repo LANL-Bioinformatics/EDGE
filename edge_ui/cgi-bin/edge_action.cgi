@@ -526,10 +526,10 @@ elsif( $action eq 'compare'){
 	my $compare_out_dir = "$out_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
 	(my $relative_outdir=$compare_out_dir) =~ s/$www_root//;
+	$info->{PATH} = "$relative_outdir/compare_project.html";
+	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/compare_project.html\'>here</a>";
 	if ( -s "$compare_out_dir/compare_project.html"){
 		$info->{STATUS} = "SUCCESS";
-		$info->{PATH} = "$relative_outdir/compare_project.html";
-		$info->{INFO} = "The comparison result is available <a href=\'$relative_outdir/compare_project.html\'>here</a>";
 	}else{
 		my $cmd = "$EDGE_HOME/scripts/compare_projects/compare_projects.pl -out_dir $compare_out_dir -projects $projects";
 		my $pid = open COMPARE, "-|", $cmd or die $!;
@@ -544,8 +544,6 @@ elsif( $action eq 'compare'){
 				&returnStatus();
 			}else{
 				$info->{STATUS} = "SUCCESS";
-				$info->{PATH} = "$relative_outdir/compare_project.html";
-				$info->{INFO} = "The comparison result is available <a href=\'$relative_outdir/compare_project.html\'>here</a>";
 			}
 		}
 	}
@@ -559,7 +557,7 @@ elsif( $action eq 'compare'){
 	`mkdir -p $blast_out_dir`;
 	(my $relative_outdir=$blast_out_dir) =~ s/$www_root//;
 	$info->{PATH} = "$relative_outdir/$contig_id.blastNT.html";
-	$info->{INFO} = "The comparison result is available <a href=\'$relative_outdir/$contig_id.blastNT.html\'>here</a>";
+	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
 	if ( -s "$blast_out_dir/$contig_id.blastNT.html"){
 		$info->{STATUS} = "SUCCESS";
 	}else{

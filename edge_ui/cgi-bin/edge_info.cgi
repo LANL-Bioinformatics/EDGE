@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-#
 # Po-E (Paul) Li
 # Los Alamos National Lab.
 # 2014-08-07
@@ -43,6 +42,7 @@ require "../cluster/clusterWrapper.pl";
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
+my $init  = $opt{init};
 $pname ||= $ARGV[0];
 my $username    = $opt{'username'}|| $ARGV[1];
 my $password    = $opt{'password'}|| $ARGV[2];
@@ -60,6 +60,7 @@ my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
 my $www_root    = $sys->{edgeui_wwwroot};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
+my $edge_projlist_num = $sys->{"edgeui_project_list_num"};
 my $domain      = $ENV{'HTTP_HOST'};
 my $hideProjFromList = 0;
 $domain ||= "edgeset.lanl.gov";
@@ -70,6 +71,7 @@ my $cluster 	= $sys->{cluster};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $list; # ref for project list
+my @projlist; # project list index
 my $prog; # progress for latest job
 my $info; # info to return
 
@@ -80,6 +82,8 @@ $info->{INFO}->{DISKU} = $diskUsage;
 
 my $runcpu = ($cluster)? int($cluster_job_max_cpu/8): int($edge_total_cpu/8);
 $info->{INFO}->{RUNCPU} = ($runcpu>1)? $runcpu :1;
+
+$info->{INFO}->{PROJLISTNUM} = $edge_projlist_num;
 
 # module on/off
 $info->{INFO}->{UMSYSTEM}= ( $sys->{user_management} )? "true":"false";
@@ -94,7 +98,19 @@ $info->{INFO}->{MSGP}    = ( $sys->{m_specialty_genes_profiling} )?"true":"false
 $info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
 $info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
 
+&returnStatus() if ($init);
 #($umSystemStatus =~ /true/i)? &getUserProjFromDB():&scanNewProjToList();
+
+#check projects vital
+my ($vital, $name2pid, $error);
+if($cluster) {
+	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	if($error) {
+		$info->{INFO}->{ERROR}= "CLUSTER ERROR: $error";
+	}
+} else {
+	($vital, $name2pid) = &checkProjVital();
+}
 
 # session check
 if( $sys->{user_management} ){
@@ -115,37 +131,43 @@ else{
 	&scanNewProjToList();
 }
 
-
-#check projects vital
-my ($vital, $name2pid, $error);
-if($cluster) {
-	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
-	if($error) {
-		$info->{INFO}->{ERROR}= "CLUSTER ERROR: $error";
-	}
-} else {
-	($vital, $name2pid) = &checkProjVital();
-}
-
 my $time = strftime "%F %X", localtime;
 
-if( scalar keys %$list ){
+@projlist = sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+# selected project on index 0
+@projlist=((grep $list->{$_}->{NAME} eq $pname, @projlist), (grep $list->{$_}->{NAME} ne $pname, @projlist)) if ($pname);
+if( scalar @projlist ){
 	my $idx;
 	my $progs;
-
-	foreach my $i ( keys %$list ) {
+	my $count=0;
+	
+	# retrive progress info of a project that is selected by the following priorities:
+	#  1. assigned project
+	#  2. latest running project
+	#  3. lastest project
+	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @not_running_idxs;
+	$idx = $projlist[0];
+	if(scalar(@running_idxs)){
+		$idx = $running_idxs[0] if (!$pname);
+		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+		@projlist = (@running_idxs,@not_running_idxs);
+	}
+	
+	foreach my $i ( @projlist ) {
+		last if (++$count > $edge_projlist_num);
 		my $lproj    = $list->{$i}->{NAME};
 		my $lprojc   = $list->{$i}->{PROJCODE};
 		my $lcpu     = $list->{$i}->{CPU};
 		my $lstatus  = $list->{$i}->{STATUS};
 		my $lpid     = $list->{$i}->{PID};
-		my $realpid  = $name2pid->{$lproj}; 
+		my $realpid  = $name2pid->{$lproj}|| $name2pid->{$lprojc}; 
 		my $proj_dir = "$out_dir/$lproj";
 		$proj_dir = "$out_dir/$lprojc" if ( $lprojc && -d "$out_dir/$lprojc");
 		my $log      = "$proj_dir/process.log";
 		my $current_log      = "$proj_dir/process_current.log";
 		my $config   = "$proj_dir/config.txt";
-		$idx         = $i if ($lproj eq $pname || $lprojc eq $pname);
+
 		#remove project from list if output directory has been removed
 		unless( -e $log ){
 			delete $list->{$i};
@@ -174,7 +196,7 @@ if( scalar keys %$list ){
 				# the process log reports it's running, but can't find vital
 				# Unexpected exit detected
 				$list->{$i}->{STATUS} = "failed";
-				`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$lpid). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
+				`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
 			}
 			else{
 				$list->{$i}->{STATUS} = $p_status;
@@ -187,17 +209,6 @@ if( scalar keys %$list ){
 		}
 	}
 
-	# retrive progress info of a project that is selected by the following priorities:
-	#  1. assigned project
-	#  2. latest running project
-	#  3. lastest project
-
-	unless( $idx ){
-		my @idxs1 = grep { $list->{$_}->{STATUS} eq "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-		my @idxs2 = sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-		my @idxs = (@idxs1,@idxs2);
-		$idx = shift @idxs;
-	}
 	$info->{PROG} = $progs->{$idx};
 	# with user management, NAME becomes unique project id
 	$info->{INFO}->{NAME}   = $list->{$idx}->{NAME};
@@ -315,9 +326,11 @@ sub parseProcessLog {
 		}
 		elsif( /^Do.*=(.*)$/ ){
 			my $do = $1;
-			$prog->{$cnt}->{DO}=$do;
-			$prog->{$cnt}->{STATUS}="unfinished";
-			$prog->{$cnt}->{STATUS}="skip" if $do eq 0;
+			$prog->{$cnt}->{DO}= 'auto' if ($do eq 'auto');
+			$prog->{$cnt}->{DO}= 1 if ($do eq 1);
+			$prog->{$cnt}->{DO}= 0 if ($do eq 0 && !$prog->{$cnt}->{DO});
+			$prog->{$cnt}->{STATUS}="skip";
+			$prog->{$cnt}->{STATUS}="unfinished" if ($prog->{$cnt}->{DO});
 		}
 		elsif( /Finished/ ){
 			$prog->{$ord}->{STATUS} = "finished";
@@ -367,20 +380,20 @@ sub parseProcessLog {
 }
 
 sub scanNewProjToList {
-	my $list_idx;
-	my $cnt = (sort {$b<=>$a} keys %$list)[0];
-	
-	foreach my $i ( keys %$list ) {
-		my $n = $list->{$i}->{NAME};
-		$list_idx->{$n}=$i;
-	}
+	my $cnt = 1;
 	
 	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
-	while( defined (my $file = readdir BIN) ) {
-		next if $file eq '.' or $file eq '..';
-		if ( -d "$out_dir/$file" ) {
-			next if defined $list_idx->{$file};
-			$list->{++$cnt}->{NAME} = $file if -r "$out_dir/$file/process.log";
+	my @dirfiles = readdir(BIN);
+	foreach my $file (@dirfiles)  {
+		next if ($file eq '.' || $file eq '..' || ! -d "$out_dir/$file");
+		$cnt++;
+		if (-r "$out_dir/$file/config.txt"){
+			$list->{$cnt}->{NAME} = $file ;
+			$list->{$cnt}->{TIME} = (stat("$out_dir/$file"))[10]; 
+			$list->{$cnt}->{STATUS} eq "running" if $name2pid->{$file};
+			my $projname = `grep -a "projname=" $out_dir/$file/config.txt | awk -F'=' '{print \$2}'`;
+			chomp $projname;
+			$list->{$cnt}->{PROJNAME} = $projname;
 		}
 	}
 	closedir(BIN);
@@ -513,12 +526,14 @@ sub getUserProjFromDB{
 		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
+		my $created = $hash_ref->{created};
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
 		next if ( $status =~ /delete/i);
 		$list->{$id}->{NAME} = $id;
 		$list->{$id}->{PROJNAME} = $project_name;
 		$list->{$id}->{PROJCODE} = $projCode;
 		$list->{$id}->{DBSTATUS} = $status;
+		$list->{$id}->{TIME} = $created;
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{OWNER_FisrtN} = $hash_ref->{owner_firstname};
 		$list->{$id}->{OWNER_LastN} = $hash_ref->{owner_lastname};
@@ -555,6 +570,7 @@ sub getProjInfoFromDB{
 	my $project_name = $hash_ref->{name};
 	my $projCode = $hash_ref->{code};
 	my $status = $hash_ref->{status};
+	my $created = $hash_ref->{created};
 	my $projtype = ($hash_ref->{isPublished})?"publish":"false";
 	#next if (! -r "$out_dir/$id/process.log");
 	#next if ( $status =~ /delete/i);
@@ -563,6 +579,7 @@ sub getProjInfoFromDB{
 	$list->{$id}->{PROJCODE} = $projCode;
 	$list->{$id}->{DBSTATUS} = $status;
 	$list->{$id}->{PROJTYPE} = $projtype;
+	$list->{$id}->{TIME} = $created;
 }
 
 sub getProjID {

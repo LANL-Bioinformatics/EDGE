@@ -1102,7 +1102,7 @@ sub pull_summary {
 
 	#convert running time to h:m:s
 	foreach my $o ( keys %$prog ){
-		if ($prog->{$o}->{GNLTIME}){
+		if (defined $prog->{$o}->{GNLTIME}){
 			my $step_sec = $prog->{$o}->{GNLTIME};
 			$prog->{$o}->{GNLTIME} = sprintf("%02d:%02d:%02d", int($step_sec / 3600), int(($step_sec % 3600) / 60), int($step_sec % 60));
 		}

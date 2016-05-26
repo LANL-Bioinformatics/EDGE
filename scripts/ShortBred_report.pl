@@ -132,11 +132,10 @@ while(<$fh2>){
 	if ($category eq "AR" && ($sb_result_T{$array[1]}->{count} > 0) ){
 		my $resistant_drugs = ($drug_r->{$array[1]})? join("; ",@{$drug_r->{$array[1]}}):"";
 		push @{$sb_result_T{$array[1]}->{row}} , $resistant_drugs, $array[0],@array[2..$#array];
-		$column_num = scalar(@{$sb_result_T{$array[1]}->{row}});
+		$column_num = (scalar(@{$sb_result_T{$array[1]}->{row}}) > $column_num)? scalar(@{$sb_result_T{$array[1]}->{row}}):$column_num;
 	}elsif($category eq "VF" && ($sb_result_T{$array[2]}->{count}>0) ){
 		push @{$sb_result_T{$array[2]}->{row}} , @array[0..1],$array[3],@array[6..($#array)];
-
-		$column_num = scalar(@{$sb_result_T{$array[2]}->{row}});
+		$column_num = (scalar(@{$sb_result_T{$array[2]}->{row}}) > $column_num)? scalar(@{$sb_result_T{$array[2]}->{row}}):$column_num;
 	}
 }
 close $fh2;

@@ -124,10 +124,8 @@ sub check_analysis {
 		my @proj_run_taxa_tools;
 		foreach my $tool (split /,/,$tax_tools){
 			my $abu_list = "$projTaxa_dir/1_$reads_type/$tool/$reads_type-$tool.list.txt";
-			if ( -e $abu_list){
-				`echo "$projName\t$abu_list" >> $out_dir/$tool.list.fof.txt`;
-				push @proj_run_taxa_tools, $tool;
-			}
+			`echo "$projName\t$abu_list" >> $out_dir/$tool.list.fof.txt` if ( -s $abu_list);
+			push @proj_run_taxa_tools, $tool if ( -e $abu_list);
 		}
 		$list->{PROJCPTOOLS} = join(",",@proj_run_taxa_tools);
 		

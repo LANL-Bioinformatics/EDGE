@@ -1009,7 +1009,9 @@ $( document ).ready(function()
 					$( "#edge_integrity_dialog_header" ).text("Message");
 					showWarning(data.INFO);
 					if ( action == 'compare'){
-						window.open(data.PATH);
+						var loc = window.location.pathname;
+						var edge_path = loc.substring(0,loc.lastIndexOf('/'));
+						window.open(edge_path + data.PATH);
 					}
 				}
 				else{
@@ -1091,7 +1093,7 @@ $( document ).ready(function()
 				$( "#edge-content-report" ).find("img").lazyLoadXT();
 				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
 				$( "#edge-content-report" ).enhanceWithin();
-				if (localStorage.sid == "" || typeof localStorage.sid === "undefined"){
+				if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined")){
 					$('#get_download_link').hide();
 				}
 
@@ -1493,7 +1495,7 @@ $( document ).ready(function()
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 							if ( action === "compare" ){
 								actionConfirm(action,focusProjCodes);
-								updateProjectsPage('user');
+								//updateProjectsPage('user');
 							}else{
 								var actionRequest=[];
 								for (var i = 0; i < projids.length; i++) { 
@@ -1507,8 +1509,9 @@ $( document ).ready(function()
 								$.when.apply(null,actionRequest).done(function(){
 									$( "#edge_integrity_dialog" ).popup('close');
 									$( "#edge_integrity_dialog_header" ).text("Message");
+									$( "#edge_integrity_dialog" ).popup("reposition",{positionTo: 'window'});
+									//updateProjectsPage('user');
 									showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
-									updateProjectsPage('user');
 								});
 							}
 						});
@@ -1564,15 +1567,14 @@ $( document ).ready(function()
 		});
 	};
 
-	$('#edge-project-list-ul').filterable({filterCallback:OrSearch});
 
-	function edge_ui_init (pname) {
+	function edge_ui_init () {
 		$.ajax({
 			url: './cgi-bin/edge_info.cgi',
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : pname, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
+			data: { "init" : '1', 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			complete: function(data){
 			},
 			success: function(obj) {
@@ -1674,6 +1676,7 @@ $( document ).ready(function()
 				focusProjStatus = obj.INFO.STATUS;
 				focusProjTime   = obj.INFO.TIME;
 				focusProjType	= obj.INFO.PROJTYPE;
+				projListNumShow	= obj.INFO.PROJLISTNUM;
 				finished_proj   = 0;
 				running_proj    = 0;
 				failed_proj     = 0;
@@ -1708,10 +1711,12 @@ $( document ).ready(function()
 		
 					var listIdOrder = Object.keys(obj.LIST);
 					listIdOrder.sort(function(a,b){ return obj.LIST[a].TIME < obj.LIST[b].TIME ? -1 : obj.LIST[a].TIME > obj.LIST[b].TIME; }).reverse();
-
+					if (projListNumShow == 0){ projListNumShow = 9999999;}
+					var proj_count=0;
 					$.each(listIdOrder, function(i,v){
 						var proj_list_obj = obj.LIST[v];
 						if( proj_list_obj.NAME ){
+							proj_count++;
 							// with user management, NAME becomes unique project id
 							var projname = proj_list_obj.PROJNAME;
 							var name   = proj_list_obj.NAME;
@@ -1719,6 +1724,7 @@ $( document ).ready(function()
 							var pstatus = proj_list_obj.STATUS;
 							if (!projname) { projname = name;}
 							var fontColor = "white";
+							var displayList = "hiddenProjList"; 
 							var desc = proj_list_obj.DESC || "No description";
 							desc = desc + " ("+pstatus+")";
 									
@@ -1751,18 +1757,31 @@ $( document ).ready(function()
 							if (focusProjName == name){
 								fontColor = "yellow";
 							}
-							var dom = "<li class='edge-proj-list-li'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' style='color:"+fontColor+"' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
+							if (proj_count < projListNumShow){
+								displayList = "";
+							}
+							var dom = "<li class='edge-proj-list-li "  + displayList + "'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' style='color:"+fontColor+"' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
 							$(dom).appendTo( "#edge-project-list-ul" );
 						}
 					});
 				}else{
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
 				}
-				
 				if( $( ".edge-proj-list-li" ).size() == 0 ){
 					var dom = "<li class='edge-proj-list-li ui-disabled'><a href='#' class='edge-project-list ui-btn ui-btn-icon-right ui-icon-check'>No project found</a></li>";
 					$( "#edge-project-list-ul" ).append(dom);
 				}
+
+				$('.hiddenProjList').hide();
+				$('#edge-project-list-ul').filterable({
+					children:".edge-proj-list-li li",
+					filterCallback:OrSearch,
+					filter:function(event,ui){
+						if ($('#filterProjectList-input').val()){
+							$('.hiddenProjList').not('ui-screen-hidden').show();
+						}
+					}
+				});
 
 				// progress info
 				if(! $.isEmptyObject(obj.PROG))
