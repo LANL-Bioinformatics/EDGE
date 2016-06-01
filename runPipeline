@@ -573,7 +573,7 @@ sub Contigs_taxonomyAssignment
     my $prefix="$project_name";
     my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
     my $tax_assignments_result="$outputDir/$prefix.ctg_class.csv";
-	my $tax_lca_result="$outputDir/$prefix.ctg_class.LCS.csv";
+	my $tax_lca_result="$outputDir/$prefix.ctg_class.LCA.csv";
     my $log="$outputDir/log.txt";
     if ($noColorLog)
     {
