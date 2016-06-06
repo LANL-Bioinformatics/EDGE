@@ -1230,7 +1230,7 @@ else
 }
 fi
 
-install_Rpackages()
+install_Rpackages
 
 if ( checkSystemInstallation bedtools )
 then
@@ -1689,12 +1689,12 @@ perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > 
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
 
 # this may need sudo access
-matplotlibrc=`python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
-if [ -n $matplotlibrc ]
-then 
-   echo ""
+#matplotlibrc=`python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+#if [ -n $matplotlibrc ]
+#then 
+ #  echo ""
    #perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-fi
+#fi
 
 if [ -f $HOME/.bashrc ]
 then

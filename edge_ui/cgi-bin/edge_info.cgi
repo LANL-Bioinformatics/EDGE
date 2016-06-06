@@ -155,7 +155,7 @@ if( scalar @projlist ){
 	}
 	
 	foreach my $i ( @projlist ) {
-		last if (++$count > $edge_projlist_num);
+		last if ($edge_projlist_num && ++$count > $edge_projlist_num);
 		my $lproj    = $list->{$i}->{NAME};
 		my $lprojc   = $list->{$i}->{PROJCODE};
 		my $lcpu     = $list->{$i}->{CPU};
