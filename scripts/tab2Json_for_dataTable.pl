@@ -67,9 +67,9 @@ while(<$fh>){
 
 	my @array=split(/\t/,$_);
 	if ($mode eq 'contig'){
+		splice @array, 1, 0,  "<a href='#' class='edge-contigBlast' >BLAST</a>";
 		my $end = ($length_index)? $array[$length_index] : $contigsizelimit;
 		$array[0]="<a href='JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA&loc=$array[0]%3A1..$end' target='_blank'>$array[0]</a>" if ($projname);
-		splice @array, 1, 0,  "<a href='#' class='edge-contigBlast' >BLAST</a>";
 		next if ($length_index && $array[$length_index] < $contigsizelimit);
 	}
 	foreach my $i (0..$#array){

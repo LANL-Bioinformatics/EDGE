@@ -261,9 +261,6 @@ sub pull_contigmapping {
 	$vars->{CMREFTOLREF}      = $tol_ref_number;
 	$vars->{CMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{CMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
-	if ( ! -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table.json"){
-		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig $out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table > $out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table.json");
-	}
 	## display unmapped contigs mapping to RefSeq
 	$vars->{CMREF_UM} = 1 if -e "$out_dir/ReferenceBasedAnalysis/UnmappedContigs/log.txt";
 	if ($vars->{CMREF_UM}){
@@ -876,6 +873,9 @@ sub pull_readmapping_contig {
 	$vars->{RMMAPPEDPCT}   = sprintf "%.2f", $vars->{RMMAPPED}/$vars->{RMUSED}*100;
 	$vars->{RMUNMAPPED}    = $vars->{RMUSED} - $vars->{RMMAPPED};
 	$vars->{RMUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMUNMAPPED}/$vars->{RMUSED}*100;
+	if ( ! -e "$out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json"){
+		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table > $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json");
+	}
 }
 
 sub pull_readmapping_ref {
