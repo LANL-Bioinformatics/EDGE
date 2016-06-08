@@ -278,7 +278,7 @@ sub getUserProjFromDB{
 		my $processlog=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode/process.log":"$out_dir/$id/process.log";
 		$list=&pull_summary($processlog,$id,$list);
 		$list->{$id}->{PROJNAME} = $id;
-		$list->{$id}->{PROJSTATUS} = $status;
+		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
