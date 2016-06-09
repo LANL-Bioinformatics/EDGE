@@ -278,7 +278,7 @@ if ($check==0){
             my $fastq=$refdir.'/'.$files;
 #            print "$qname\n";
             my $read_list_name;
-            if ($qname=~/(.+)[_.]R?[12]/){
+            if ($qname=~/(.+)[_.]R?[12]\./){
                if ($reads==2){
                   $read_list_name=$1.'_pread';
 #                   print "$read\n";

@@ -742,6 +742,7 @@ sub checkParams {
 			}
 		}
 		if ($pipeline eq "qiime"){
+			&addMessage("PARAMS","edge-qiime-mapping-file-input1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
 				my $id = "edge-qiime-mapping-file-input". ($i + 1);
 				$edge_qiime_mapping_files[$i] =~ s/ //g;
