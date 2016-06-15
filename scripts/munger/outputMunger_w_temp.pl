@@ -921,7 +921,7 @@ sub pull_readmapping_ref {
 	$vars->{RMINDELS} = $tol_indels;	
 
 	my $cnt=0;
-	foreach my $n ( sort {$ref->{$b}->{RMREFT5} cmp $ref->{$a}->{RMREFT5}} keys %$ref )
+	foreach my $n ( sort {$ref->{$b}->{RMREFT5} <=> $ref->{$a}->{RMREFT5}} keys %$ref )
 	{
 		push @{$vars->{LOOP_RMREF}}, $ref->{$n};
 
