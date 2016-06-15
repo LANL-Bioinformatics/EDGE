@@ -1723,7 +1723,7 @@ $( document ).ready(function()
 							var time   =  proj_list_obj.TIME;
 							var pstatus = proj_list_obj.STATUS;
 							if (!projname) { projname = name;}
-							var fontColor = "white";
+							var bgColor = "#4d4d4d";
 							var displayList = "hiddenProjList"; 
 							var desc = proj_list_obj.DESC || "No description";
 							desc = desc + " ("+pstatus+")";
@@ -1755,12 +1755,12 @@ $( document ).ready(function()
 									unstart_proj++;
 							}
 							if (focusProjName == name){
-								fontColor = "yellow";
+								bgColor = "#041B8E";
 							}
 							if (proj_count < projListNumShow){
 								displayList = "";
 							}
-							var dom = "<li class='edge-proj-list-li "  + displayList + "'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' style='color:"+fontColor+"' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
+							var dom = "<li class='edge-proj-list-li "  + displayList + "'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' style='background:"+bgColor+" !important' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
 							$(dom).appendTo( "#edge-project-list-ul" );
 						}
 					});

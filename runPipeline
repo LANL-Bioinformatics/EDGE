@@ -17,7 +17,7 @@ $ENV{HOME} ||= $RealBin;
 
 # unbuffer
 $|=1;
-my $version="1.1";
+my $version="2.0.0";
 my $debug=0;
 my @unpairedReadsFile;
 my @pairedReadsFile;
@@ -3274,7 +3274,7 @@ sub writeJBrowseInfo
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl --in-ref-fa '$referenceGenome' --in-ctg-fa $contig_for_annotation_file --in-ctg-anno-gff3 '$annoationGFF' --in-ref-gff3 '$gff3File' --proj_outdir '$abs_outDir' 2>\&1 1>$log";
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
-    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name");
+    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
     system("rm -f $outputDir/*/*mapped.bam");
     system("touch $outputDir/writeJBrowseInfo.finished");
     &printRunTime($time);
