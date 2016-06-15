@@ -44,6 +44,7 @@ my $ref_sequence;
 my $reference;
 my @header_list;
 my @headers;
+my %headers_hash;
 my %gap_location;
 my %noncoding_location;
 my %coding_location;
@@ -64,6 +65,10 @@ my $frm;
 my $ref;
 my $query;
 my %positions;
+# When 60% linear reference lenght are gap (query compared to)
+# The query will not use to build snp alignment
+my $gap_cutoff=0.60;
+my $readsmapping_depth_cutoff=15;
 
 GetOptions(
    'i=s'      => \$indir,
@@ -126,7 +131,7 @@ read_cds_coords() if ($coding==1);
 read_reference($reffile);
 
 print "Reading Gaps file.\n";
-read_gap($gapfile);
+my $skip_query_ref=read_gap($gapfile);
 
 print "Printing Summary Statistics.\n";
 print_summary();
@@ -182,20 +187,42 @@ while (<IN>){
    chomp;
    push(@header_list,"$reference:$_");
    push(@headers,$_);
+   $headers_hash{$_}=1;
 }
 close IN;
 }
 
 sub read_gap
 {
-my ($gap_start,$gap_end);
+my %skip_query;
 open (IN, "$gapfile")|| die "$!";
 while (<IN>){
    chomp;
    if (/^$reference\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)$/){
-      ($gap_start,$gap_end)=($1,$2);
-      for (my $i=$gap_start;$i<=$gap_end;$i++){$gap_location{$i}++;}
+      my ($gap_start,$gap_end,$gap_length,$query)=($1,$2,$3,$4);
       $query_gaps{$4}+=$3;
+   }
+}
+close IN;
+
+foreach my $query (keys %query_gaps){
+   my $total_gap_length = $query_gaps{$query};
+   if ( ($total_gap_length/(length $ref_sequence)) > $gap_cutoff){
+       $skip_query{$query}=1;
+       my $gap_cutoff_per = $gap_cutoff *100;
+       print "$query are too different where >$gap_cutoff_per % to $reference. Will not use in building SNP tree\n";
+   }
+}
+
+open (IN, "$gapfile")|| die "$!";
+while (<IN>){
+   chomp;
+   if (/^$reference\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)$/){
+      my ($gap_start,$gap_end,$gap_length,$query)=($1,$2,$3,$4);
+      if (! $skip_query{$query}){
+
+          for (my $i=$gap_start;$i<=$gap_end;$i++){$gap_location{$i}++;}
+      }
    }
 }
 close IN;
@@ -211,6 +238,7 @@ if (-e $noncoding){
    }
 }
 close IN;
+return \%skip_query;
 }
 
 sub read_directory
@@ -245,31 +273,49 @@ my $ref=0;
 my $current_snp=0;
 my $first=0;
 my $second=0;
-my $CDScount=0;
+my $SNPcount=0;
+my %SNPcount;
 
 foreach my $comparison(@header_list){
-   $CDScount=0;
    if ($comparison=~/(.+):(.+)/){
-      print OUT ">$2\n";
-      ($first,$second)=($1,$2);
+       ($first,$second) = ($1,$2);
+       if ($skip_query_ref->{$second}) {print $second,"\n"; next;}
    }
-   foreach (sort {$a<=>$b}keys %snp_location){
+   for (1..length($ref_sequence)){
+       if (!defined $gap_location{$_}){ # Check SNP is not present in gaps.
+            if (defined $snp_location{$_}{$comparison}){
+                $SNPcount{$_}=1;
+            }
+       }
+   }
+}
+
+foreach my $comparison(@header_list){
+   if ($comparison=~/(.+):(.+)/){
+      ($first,$second) = ($1,$2);
+      #print $first,"\t",$second,"\n";
+      if ($skip_query_ref->{$second}) {print $second,"\n"; next;}
+      print OUT ">$second\n";
+   }
+  # foreach (sort {$a<=>$b} keys %snp_location){
+   for (sort keys %SNPcount){
       $current_snp=$_ -1;
-      if (!defined $gap_location{$_}){ # Check SNP is not present in gaps.
-         if (defined $snp_location{$_}{$comparison}){
-            print OUT $snp_location{$_}{$comparison};
-            $CDScount++;
-         }
-         else {
-            $ref= substr($ref_sequence,$current_snp,1);
-            print OUT $ref;
-            $CDScount++;
-         }# else
-      }# gap_location
+      if (defined $snp_location{$_}{$comparison}){	
+          $SNPcount{$_}=1;
+          print OUT $snp_location{$_}{$comparison};
+      }
+      else {
+	#print $_,"\t",length($ref_sequence),"\n";;
+         $ref= substr($ref_sequence,$current_snp,1);
+         print OUT $ref;
+	    #$SNPcount{$_}=1;
+            #$SNPcount++;
+      }# else
    }#snp_location
    print OUT "\n";
 }#header list
-print BASE "Total SNPs:\t$CDScount\n";
+$SNPcount = scalar (keys %SNPcount);
+print BASE "Total SNPs:\t$SNPcount\n";
 }
 
 sub create_CDSsnp_array
@@ -279,29 +325,44 @@ my $current_snp=0;
 my $first=0;
 my $second=0;
 my $CDScount=0;
+my %CDSSNPcount;
+
 foreach my $comparison(@header_list){
-   $CDScount=0;
    if ($comparison=~/(.+):(.+)/){
-      print CDSOUT ">$2\n";
-      ($first,$second)=($1,$2);
+       ($first,$second) = ($1,$2);
+       if ($skip_query_ref->{$second}) { next;}
    }
-   foreach (sort {$a<=>$b}keys %snp_location){
+   for (1..length($ref_sequence)){
+       if (!defined $gap_location{$_} && defined $coding_location{$_}){ # Check SNP is not present in gaps.
+            if (defined $snp_location{$_}{$comparison}){
+                $CDSSNPcount{$_}=1;
+            }
+       }
+   }
+}
+foreach my $comparison(@header_list){
+   if ($comparison=~/(.+):(.+)/){
+      ($first,$second)=($1,$2);
+      if ($skip_query_ref->{$second}) {next;}
+      print CDSOUT ">$second\n";
+      
+   }
+   for (sort keys %CDSSNPcount){
       $current_snp=$_ -1;
       #Check SNP is not present in gaps and present in coding region.
-      if (!defined $gap_location{$_} && defined $coding_location{$_}){
-         if (defined $snp_location{$_}{$comparison}){
-            print CDSOUT $snp_location{$_}{$comparison};
-            $CDScount++;
-         }
-         else {
-            $ref= substr($ref_sequence,$current_snp,1);
-            print CDSOUT $ref;
-            $CDScount++;
-         }# else
-      }# gap_location
+       if (defined $snp_location{$_}{$comparison}){
+          print CDSOUT $snp_location{$_}{$comparison};
+          $CDScount++;
+       }
+       else {
+          $ref= substr($ref_sequence,$current_snp,1);
+          print CDSOUT $ref;
+          $CDScount++;
+       }# else
    }#snp_location
    print CDSOUT "\n";
 }#header list
+$CDScount = scalar (keys %CDSSNPcount);
 if ($coding==1){print BASE "CDS SNPs:\t$CDScount\n";}
 }
 
@@ -311,22 +372,36 @@ my $ref=0;
 my $current_snp=0;
 my $first=0;
 my $second=0;
+my %INTSNPcount;
 
 foreach my $comparison(@header_list){
    if ($comparison=~/(.+):(.+)/){
-      print INTOUT ">$2\n";
-      ($first,$second)=($1,$2);
+       ($first,$second) = ($1,$2);
+       if ($skip_query_ref->{$second}) { next;}
    }
-   foreach (sort {$a<=>$b}keys %snp_location){
+   for (1..length($ref_sequence)){
+       if (!defined $gap_location{$_} && defined !$coding_location{$_}){ # Check SNP is not present in gaps.
+            if (defined $snp_location{$_}{$comparison}){
+                $INTSNPcount{$_}=1;
+            }
+       }
+   }
+}
+foreach my $comparison(@header_list){
+   if ($comparison=~/(.+):(.+)/){
+      ($first,$second)=($1,$2);
+      if ($skip_query_ref->{$second}) {next;}
+      print INTOUT ">$second\n";
+   }
+   for (sort keys %INTSNPcount){
       $current_snp=$_ -1;
       #Check SNP is not present in gaps and present in coding region.
-      if (!defined $gap_location{$_} && defined $coding_location{$_}){
-         if (defined $snp_location{$_}{$comparison}){print INTOUT $snp_location{$_}{$comparison};}
-         else {
-            $ref= substr($ref_sequence,$current_snp,1);
-            print INTOUT $ref;
-         }# else
-      }# gap_location
+      if (defined $snp_location{$_}{$comparison}){
+          print INTOUT $snp_location{$_}{$comparison};}
+      else {
+          $ref= substr($ref_sequence,$current_snp,1);
+          print INTOUT $ref;
+      }# else
    }#snp_location
    print INTOUT "\n";
 }#header list
@@ -342,7 +417,10 @@ my $start=0;
 my $end=0;
 
 foreach my $comparison(@header_list){
-  if ($comparison=~/(.+):(.+)/){($first,$second)=($1,$2);}
+   if ($comparison=~/(.+):(.+)/){
+       ($first,$second)=($1,$2);
+       if ($skip_query_ref->{$second}) {next;}
+   }
    foreach (sort {$a<=>$b}keys %snp_location){
       $current_snp=$_ -1;
       if (!defined $gap_location{$_}){
@@ -480,7 +558,7 @@ while(<$fh>){
          ($ref_id,$ref_pos,$tmp,$ref_base,$snp,$snp_quality,$tmp,$vcf_info,$vcf_info2,$tmp)=split /\t/,$_;
          my @values=split /;/,$vcf_info2;
          if ($values[0]=~/DP=(\d+)/){$depth=$1;}
-         if ($snp!~ /\./ && $ref_base!~ /\./ && $vcf_info2!~ /INDEL/ && $depth >=15){
+         if ($snp!~ /\./ && $ref_base!~ /\./ && $vcf_info2!~ /INDEL/ && $depth >=$readsmapping_depth_cutoff){
             $pairCount++;
             if (!defined $gap_location{$ref_pos}){$coreCount++;}
             if (!defined $coding_location{$ref_pos}){$intCount++;}
@@ -490,7 +568,7 @@ while(<$fh>){
    }
 }
 #print "BEFORE\t$ref_id\t$query_id\t$pairCount\n";
-if ($ref_id=~ /(.+)_(\d+)_(\d+)$/){$ref_id=$1;}
+if ($ref_id=~ /(.+)_(\d+)_(\d+)$/ && !$headers_hash{$ref_id}){$ref_id=$1;}
 #if ($query_id=~ /(.+)_(\d+)_(\d+)$/){$query_id=$1;}
 if ($contig==1){
    if ($query_id=~ /(.+)_(\d+)$/){$query_id=$1;}
@@ -510,9 +588,10 @@ sub print_summary
 my $last=0;
 my $first=1;
 my $gap_total=0;
+my $ref_len = length $ref_sequence;
 
 foreach my $query(sort keys %query_gaps){
-   print BASE "$query\t",$query_gaps{$query},"\n";
+   print BASE "$query\tGap_legnth\t",$query_gaps{$query},"\n";
 }
 
 
@@ -527,10 +606,16 @@ foreach my $keys(sort{$a<=>$b}keys %gap_location){
       $gap_total+=$gap_length;
       $start=$keys;
    }
-   $last=$keys;
+   $last=$keys;;
 }
-my $base_total= (length $ref_sequence)-$gap_total;
-print BASE "Reference sequence length:\t",length $ref_sequence,
+if ($last == $ref_len){
+     print GAPF "$start\t$last\n";
+     my $gap_length=$last-$start+1;
+     $gap_total+=$gap_length;
+}
+  
+my $base_total= $ref_len - $gap_total;
+print BASE "Reference sequence length:\t", $ref_len,
 "\nTotal gap length:\t$gap_total
 Core genome length:\t$base_total\n";
 
@@ -567,12 +652,13 @@ while (<IN>){
    if (/^\d/){
       $count++;
       ($rpos,$rbase,$qbase,$qpos,$buff,$dist,$frm,$frm,$ref,$query)= split ("\t",$_);
-      if ($query=~ /(.*)\_(\d+)\_\d+$/){
+      if ($query=~ /(.*)\_(\d+)\_\d+$/ && ! $headers_hash{$query}){
          $query=$1;
          $qpos=$qpos+$2-1;
       }
-      if ($ref=~ /(.*)\_(\d+)\_\d+$/){
+      if ($ref=~ /(.*)\_(\d+)\_\d+$/ && ! $headers_hash{$ref}){
          $ref=$1;
+	# print $snp_file,"\t",$ref,"\t$rpos\n";
          $rpos=$rpos+$2-1;
       }
       if ($qbase!~ /\./ && $rbase!~ /\./ && $ref=~ /$reference/){
@@ -601,9 +687,9 @@ while (<IN>){
       my @info=split(";",$info1);
 #      print "$info[0]\n";
       if ($info[0]=~/.+=(\d+)/){$depth=$1;}
-      if ($depth <15){$gap_location{$rpos}++;}
-      if ($qbase!~ /\./ && $rbase!~ /\./ && $info1!~ /INDEL/ && $depth>=15){
-         if ($ref=~ /(.+)_(\d+)_(\d+)$/){
+      if ($depth <$readsmapping_depth_cutoff){$gap_location{$rpos}++;}
+      if ($qbase!~ /\./ && $rbase!~ /\./ && $info1!~ /INDEL/ && $depth>=$readsmapping_depth_cutoff){
+         if ($ref=~ /(.+)_(\d+)_(\d+)$/ && ! $headers_hash{$ref}){
             $ref= $1;
             my $start=$2;
             if ($start>1){$rpos= $rpos+$start-1;}

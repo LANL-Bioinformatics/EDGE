@@ -51,7 +51,7 @@ my $genedir=$dir."/PSgenes";
 my $hyphydir=$dir."/hyphy";
 if (!-d $hyphydir){`mkdir $hyphydir`;}
 my $modelsFile=$hyphydir.'/models.txt';
-my $hyphy="/opt/apps/hyphy/lib/hyphy/TemplateBatchFiles";
+my $hyphy="$RealBin/../ext/lib/hyphy/TemplateBatchFiles";
 chdir $hyphy;
 
 read_directory($genedir);
@@ -287,12 +287,13 @@ fileToExecute = HYPHY_BASE_DIRECTORY + DIRECTORY_SEPARATOR + \"BranchSiteREL.bf\
 
 inputRedirect={};
 inputRedirect[\"01\"]=\"Universal\";
-inputRedirect[\"02\"]=\"No\";
-inputRedirect[\"03\"]=\"$core\";
-inputRedirect[\"04\"]=\"$tree_output\";
-inputRedirect[\"05\"]=\"All\";
-inputRedirect[\"06\"]=\"\";
-inputRedirect[\"07\"]=\"$output\";
+inputRedirect[\"02\"]=\"Yes\";
+inputRedirect[\"03\"]=\"No\";
+inputRedirect[\"04\"]=\"$core\";
+inputRedirect[\"05\"]=\"$tree_output\";
+inputRedirect[\"06\"]=\"All\";
+inputRedirect[\"07\"]=\"\";
+inputRedirect[\"08\"]=\"$output\";
 
 ExecuteAFile (fileToExecute,inputRedirect);
 ";
@@ -316,12 +317,13 @@ fileToExecute = HYPHY_BASE_DIRECTORY + DIRECTORY_SEPARATOR + \"BranchSiteREL.bf\
 
 inputRedirect={};
 inputRedirect[\"01\"]=\"Universal\";
-inputRedirect[\"02\"]=\"No\";
-inputRedirect[\"03\"]=\"$geneList[$i]\";
-inputRedirect[\"04\"]=\"$tree_output\";
-inputRedirect[\"05\"]=\"All\";
-inputRedirect[\"06\"]=\"\";
-inputRedirect[\"07\"]=\"$output\";
+inputRedirect[\"02\"]=\"Yes\";
+inputRedirect[\"03\"]=\"No\";
+inputRedirect[\"04\"]=\"$geneList[$i]\";
+inputRedirect[\"05\"]=\"$tree_output\";
+inputRedirect[\"06\"]=\"All\";
+inputRedirect[\"07\"]=\"\";
+inputRedirect[\"08\"]=\"$output\";
 
 ExecuteAFile (fileToExecute,inputRedirect);
 ";

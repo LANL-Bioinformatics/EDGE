@@ -100,6 +100,7 @@ my $ref_total_gaps_number=0;
 my $gap_num=0;
 foreach my $ref (sort keys %seq_hash){
    if ($ref=~/(.+)_(\d+)_(\d+)$/){($reference,$start_r,$end_r)=($1,$2,$3);}
+   $reference ||= $r_file_name;
    my ($genome_covered_pos,$gaps,@gap_array,$cov,$total_cov,$gap_len);
    my $ref_len_1=$seq_hash{$ref}->{len};
    if ($repeat==1){
@@ -111,7 +112,7 @@ foreach my $ref (sort keys %seq_hash){
                   $gap_num++;
                   $ref_total_gaps_bases += $gap_len;
 #                  print $ref,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
-                  print OUT $reference,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
+                  print OUT $r_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
                }
                @gap_array=();
             }
@@ -134,7 +135,7 @@ foreach my $ref (sort keys %seq_hash){
                if ($gap_len > $len_cutoff){
                   $gap_num++;
                   $ref_total_gaps_bases += $gap_len;
-                  print OUT $reference,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
+                  print OUT $r_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
                }
                @gap_array=();
             }
@@ -155,7 +156,7 @@ foreach my $ref (sort keys %seq_hash){
          $gap_num++;
          $ref_total_gaps_bases += $gap_len;
 #         print $ref,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
-         print OUT $reference,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
+         print OUT $r_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$q_file_name,"\n";
       }
    }
    $ref_total_gaps_number=+$gap_num;
@@ -167,6 +168,7 @@ my $query_total_gaps_number=0;
 $gap_num=0;
 foreach my $ref (sort keys %query_hash){
    if ($ref=~/(.+)_(\d+)_(\d+)$/){($query,$start_r,$end_r)=($1,$2,$3);}
+   $query ||= $q_file_name;
    my ($genome_covered_pos,$gaps,@gap_array,$cov,$total_cov,$gap_len);
    my $ref_len_1=$query_hash{$ref}->{len};
    if ($repeat==1){
@@ -178,7 +180,7 @@ foreach my $ref (sort keys %query_hash){
                   $gap_num++;
                   $query_total_gaps_bases += $gap_len;
 #                  print $ref,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
-                  print OUT2 $query,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
+                  print OUT2 $q_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
                }
                @gap_array=();
             }
@@ -201,7 +203,7 @@ foreach my $ref (sort keys %query_hash){
                if ($gap_len > $len_cutoff){
                   $gap_num++;
                   $query_total_gaps_bases += $gap_len;
-                  print OUT2 $query,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
+                  print OUT2 $q_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
                }
                @gap_array=();
             }
@@ -221,7 +223,7 @@ foreach my $ref (sort keys %query_hash){
          $gap_num++;
          $query_total_gaps_bases += $gap_len;
 #         print $ref,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
-         print OUT2 $query,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
+         print OUT2 $q_file_name,"\t",$gap_array[0],"\t",$gap_array[-1],"\t",$gap_len,"\t",$r_file_name,"\n";
       }
    }
    $query_total_gaps_number=+$gap_num;

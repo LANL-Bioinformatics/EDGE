@@ -31,7 +31,7 @@ if ($time==1){
    @overwrite=glob("$wdir/RAxML_*.$project\_cds");
    if (scalar @overwrite >0){
       print "*WARNING* RAxML trees with the name $project already exist. They will be overwritten.\n";
-      foreach (@overwrite){`rm $_`;}
+      system("rm -f $wdir/RAxML*");
    }
    
    if (-e $log && !-z $log){
@@ -122,6 +122,7 @@ my $wdir=shift;
 my $file=shift;
 my $name=shift;
 my $sequence;
+$name =~ s/\W/_/g;
 
 #print "$name\t$wdir/files/$name.fna\n";
 
@@ -149,8 +150,10 @@ my $name=shift;
 my ($header,@seq);
 my $sequence;
 my $count=1;
+$name =~ s/\W/_/g;
 my $contig=$name.'_contig';
-my $outfile=$dir.'/files/'.$name.'_contigs.fna';
+my $outfile=$dir.'/files/'.$name.'_contig.fna';
+my $total_size=0;
 
 #print "$contig\t$outfile\n";
 
@@ -167,12 +170,13 @@ if ($fh->open("<$file")){
 #      print ">$header\n$sequence\n";
       print OUT ">$header\n$sequence\n";
       $count++;
+      $total_size += length $sequence;
    }
    $/="\n";
    $fh->close;
    close OUT;
 }
-return $contig,$count;
+return $contig,$total_size;
 }
 
 # Identifies gap coords in reference genomes
@@ -206,7 +210,7 @@ close LIST;
 opendir(DIR,"$gapdir");
 while (my $gaps= readdir(DIR)){
 #   if ($gaps=~ /^$name\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s\.gaps/ && $gaps!~ /^$name\_norepeats/){
-   if ($gaps=~ /^$name\_norepeats\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s\.gaps/ ||$gaps=~ /^$name\_(.+)\.gaps/ ){
+   if ($gaps=~ /^$name\_norepeats\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s?\.gaps/ ||$gaps=~ /^$name\_(.+)\.gaps/ ){
       if (exists $query{$1}){
          $line=0;
          my $gapfile= "$gapdir/$gaps";
@@ -237,10 +241,10 @@ while (my $gaps= readdir(DIR)){
                   $gap_end=$1+$end-1;
                }
                else{
-                  $gap_start=$start-1;
+                  $gap_start=$start;
                   $gap_end=$end;
                }
-               print GAP "$name\t$gap_start\t$gap_end\t$length\tREADS_$query\n";
+               print GAP "$name\t$gap_start\t$gap_end\t$length\t${query}_read\n";
             }
             close IN;
             if ($line == 1){`rm $gap_file`; $line=0;}
@@ -467,6 +471,7 @@ return ("SNP database complete");
 
 sub modeltest
 {
+my $jmodeljar=shift;
 my $outdir=shift;
 my $file=shift;
 my $threads=shift;
@@ -476,7 +481,12 @@ my $log=shift;
 my $infile=$outdir."/$file\_all_snp_alignment.fna";
 my $outfile=$outdir."/$file\_modelTest.txt";
 
-my $modeltest= "java -jar /users/252891/scratch/tools/jmodeltest-2.1.2/jModelTest.jar -d $infile -f -i -g 4 -s 11 -AIC -a -tr $threads > $outfile\n\n";
+if ( ! -e $jmodeljar) { 
+  print "No jModelTest program detected. Skip model test\n";
+  return;
+}
+my $modeltest= "java -jar $jmodeljar -d $infile -f -i -g 4 -s 11 -AIC -a -tr $threads > $outfile\n\n";
+print "\n$modeltest\n";
 if (system ($modeltest)){die "Error running $modeltest.\n";}
 
 return ("SNP alignemnt complete");
@@ -497,13 +507,21 @@ if ($tree==1||$tree==3){
    my $fasttree="export OMP_NUM_THREADS=$thread; FastTreeMP -nt -gtr < $outdir/$name\_snp_alignment.fna > $outdir/$name\.fasttree 2>>$error\n\n";
    print $fasttree;
    if (system ($fasttree)){die "Error running $fasttree.\n";}
+   my $rooted_tree_cmd= "raxmlHPC-PTHREADS -T $thread -m GTRGAMMAI -f I -t $outdir/$name.fasttree -w $outdir -n $name 2>>$error >> $log\n\n";
+   if (system ($rooted_tree_cmd)){die "Error running $rooted_tree_cmd.\n";}
+   system("mv $outdir/RAxML_rootedTree.$name $outdir/${name}_rooted.fasttree") if ( -e "$outdir/RAxML_rootedTree.$name");
+   `rm $outdir/RAxML_info.$name`;
 }
 if ($tree==2||$tree==3){
    print "\n";
    my $raxml="raxmlHPC-PTHREADS -p 10 -T $thread -m GTRGAMMAI -s $outdir/$name\_snp_alignment.fna -w $outdir -n $name 2>>$error >> $log\n\n";
    print $raxml;
    if (system ($raxml)){die "Error running $raxml.\n";}
+   my $rooted_tree_cmd= "raxmlHPC-PTHREADS -T $thread -m GTRGAMMAI -f I -t $outdir/RAxML_bestTree.$name -w $outdir -n $name\_r 2>>$error >> $log\n\n";
+   print $rooted_tree_cmd;
+   if (system ($rooted_tree_cmd)){die "Error running $rooted_tree_cmd.\n";}
 }
+
 open (OUT, ">>$log");
 print OUT "Tree phylogeny complete.\n";
 close OUT;
@@ -717,7 +735,7 @@ my $analysis=shift;
 my $error=shift;
 my $log=shift;
 
-$threads=$threads/2;
+$threads=int($threads/2);
 
 my $hyphy="runHyPhy.pl -i $dir -t $threads -r $tree -o $outtree -c $core -a bsrel 2>>$error >> $log\n\n";
 print $hyphy;

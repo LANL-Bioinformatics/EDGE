@@ -47,10 +47,6 @@ exit;
 
 &usage unless ($file);
 
-if (-z $coords){
-   `cp $file $outfasta`;
-   exit;
-}
 
 my ($header,@seq,$sequence);
 my $length=0;
@@ -66,6 +62,13 @@ if ($fh->open("< $file")){
    }
    $/="\n";
    $fh->close;
+}
+
+if (-z $coords){
+   open (OUT, ">$outfasta");
+   print OUT ">${header}_1_$length\n$sequence\n";
+   close OUT;
+   exit;
 }
 
 my %repeats;

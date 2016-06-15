@@ -189,7 +189,7 @@ elsif ($temp=~/sread/i){
       $read2=$path.$1.$2.'2'.$4.$suffix;
       $readu=$path.$1.$suffix;
    }
-   if ($name=~ /(.+)([_.])(1)(.*)$/){
+   elsif ($name=~ /(.+)([_.])(1)(.*)$/){
       $prefix.= "\_$1";
       $read1=$path.$1.$2.$3.$4.$suffix;
       $read2=$path.$1.$2.'2'.$4.$suffix;

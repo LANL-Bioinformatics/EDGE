@@ -12,6 +12,7 @@ $|=1;
 
 # set up environments
 $ENV{PATH}="$RealBin:$RealBin/../ext/bin:$ENV{PATH}";
+$ENV{PERL5LIB} = "$ENV{PERL5LIB}:$RealBin/../lib:$RealBin/../ext/lib/perl5";
 
 =head
 
@@ -139,8 +140,20 @@ close CTL;
 
 ($name,$path,$suffix)=fileparse("$specie",qr/\.[^.]*/);
 my $reference=$workdir.'/files/'.$name.'.fna';
+if ($rsignal==0){
+   opendir(DIR, $refdir);
+   while (my $files= readdir(DIR)){
+      if ($files=~ /.(fna|fa|fasta|fsa)$/){
+         $reference="$refdir/files/$files";
+         last;
+      }
+   }
+   closedir DIR;
+}
+
+($name,$path,$suffix)=fileparse("$reference",qr/\.[^.]*/);
 if ($gsignal==1){$annotation="$refdir/$name.gff";}
-if ($pselection>0){$genefile="$refdir/$name.ffn";}
+if ($pselection>0){$genefile="$refdir/$name.gff";}
 
 my $error="$outdir/$project.error";
 my $logfile="$outdir/$project\_PhaME.log";
@@ -154,14 +167,14 @@ if (!-d $refdir || !-d $workdir || !-d $outdir){
 }
 
 print "\tReference:\t$reference\n";
-if (!-e "$refdir/$specie"){print "File $specie does not exist.\nPlease provide correct reference\n";}
+#if (!-e "$reference"){print "File $reference does not exist.\nPlease provide correct reference\n";}
 if ($gsignal==1){
    print "\tAnnotation:\t$annotation\n";
-   if (-e $reference && !-e $annotation){print "File $name.gff.\nPlease provide correct annotation file\n";}
+   if ( !-e $annotation){print "File $annotation does not exist.\nPlease provide correct annotation file\n";}
 }
 if ($pselection>0){
    print "\tGenes:\t$genefile\n";
-   if (-e $reference && !-e $genefile){print "File $name.ffn.\nPlease provide correct functional protein file\n";}
+   if (-e $reference && !-e $genefile){print "File $genefile does not exist.\nPlease provide correct functional protein file\n";}
 }
 
 print "\tCode:\t$type\n";
@@ -190,11 +203,23 @@ elsif($time==2 || $data==7){
 
 if ($check==0){
    if ($data==0){$nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
-   if ($data==1){$contig_nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
-   if ($data==2){$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
+   if ($data==1){
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
+      $fasta_list{$list}=$genome_size;
+      $contig_nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
+   }
+   if ($data==2){
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
+      $fasta_list{$list}=$genome_size;
+      $read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
+   }
    if ($data==3){$nucmer=1;$contig_nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
    if ($data==4){$nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
-   if ($data==5){$contig_nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
+   if ($data==5){
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
+      $fasta_list{$list}=$genome_size;
+      $contig_nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
+   }
    if ($data==6){$nucmer=1;$contig_nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
    if ($data==7){$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
 }
@@ -235,7 +260,7 @@ if ($check==0){print "Complete.\n";}
 
 &print_timeInterval($runtime,"\tPreparing files... ");
 if ($check==0){
-   if (!-e "$workdir/files"){`mkdir $workdir/files`;}
+   `mkdir -p $workdir/files`;
    
    if ($time==1){
       opendir(DIR,$refdir);
@@ -243,7 +268,7 @@ if ($check==0){
          next if ($files=~/^\..?/);
          my ($rname,$rpath,$rsuffix)=fileparse("$files",qr/\.[^.]*/);
          if ($nucmer==1){
-            if ($files=~/.+\.fn|s?a?s?t?a$/ && $files!~/contigs?/ && $files!~ /fa?s?t?q/){
+            if ($files=~/.+\.fn|s?a?s?t?a$/){
                my $fasta="$refdir/$files";
                my ($list,$genome_size)=PhaME::prepareComplete($workdir,$fasta,$rname);
                $fasta_list{$list}=$genome_size;
@@ -276,9 +301,9 @@ if ($check==0){
       if ($read_mapping==1){
          if ($files=~ /.+\.f{1}a?s?t?q$/ && $files!~ /.+\.f{1}n|s?a?s?t?a$/ && $files!~ /\.contigs?/){
             my $fastq=$refdir.'/'.$files;
-#            print "$qname\n";
+            print "$qname\n";
             my $read_list_name;
-            if ($qname=~/(.+)[_.]R?[12]\./){
+            if ($qname=~/(.+)[_.]R?[12]$/){
                if ($reads==2){
                   $read_list_name=$1.'_pread';
 #                   print "$read\n";
@@ -312,7 +337,7 @@ if ($nucmer==1){
    foreach my $names(keys %fasta_list){
       print FAS "$names\n";
       print ALL "$names\n";
-      print STAT "$names\t",$fasta_list{$names},"\n";
+      print STAT "$names\tTotal_length\t",$fasta_list{$names},"\n";
 #      print "$names\t",$fasta_list{$names},"\n"; 
    }
 
@@ -326,7 +351,7 @@ if ($contig_nucmer==1){
    foreach my $names(keys %contig_list){
       print CON "$names\n";
       print ALL "$names\n";
-      print STAT "$names\t",$contig_list{$names},"\n";
+      print STAT "$names\tTotal_length\t",$contig_list{$names},"\n";
    }
 
    &print_timeInterval($runtime,"Running NUCmer on contigs\n");
@@ -361,7 +386,7 @@ if ($read_mapping==1){
 if ($buildSNP==1){
    if ($gsignal==1){
       &print_timeInterval($runtime,"Preparing to identify SNPs\n");
-      print "\tGenBank file provided, SNPs will be differentiated as coding vs noncoding\n";
+      print "\tGFF annotation file provided, SNPs will be differentiated as coding vs noncoding\n";
       my ($genname,$genpath,$gensuffix)=fileparse("$annotation",qr/\.[^.]*/);
       PhaME::codingRegions($outdir,$annotation,$genname);
    }
@@ -372,7 +397,10 @@ if ($buildSNP==1){
 }
 
 if ($buildtree==1|| $bs==1){
-   if (($tree==2||$tree==3)&&($modeltest==1)){PhaME::modeltest($outdir,$project,$threads,$error,$logfile);}
+   if (($tree==2||$tree==3)&&($modeltest==1)){
+       my $jmodeltest_jar = "$RealBin/../ext/opt/jmodeltest-2.1.10/jModelTest.jar";
+       PhaME::modeltest($jmodeltest_jar,$outdir,$project,$threads,$error,$logfile);
+   }
    my $end=PhaME::buildTree($bindir,$outdir,$threads,$tree,"$project\_all",$error,$logfile);
    if ($gsignal==1){PhaME::buildTree($bindir,$outdir,$threads,$tree,"$project\_cds",$error,$logfile);}
    &print_timeInterval($runtime,"$end\n");
@@ -431,9 +459,11 @@ if ($ps==1){
       PhaME::paml($outdir,$bindir,$ptree,2,"BrSites",2,$core,$threads,$error,$logfile);
    }
    if ($pselection==2 || $pselection==3){
-      my $roottree=$outdir."/".$name."_cds_rooted.tree";
-      print "$roottree\n";
-      PhaME::hyphy($outdir,$bindir,$tbest,$roottree,$core,$threads,"bsrel",$error,$logfile);
+      my $rootedtree;
+      if ($tree==2||$tree==3){$rootedtree= "$outdir/RAxML_rootedTree.$project\_cds_r";}
+      if ($tree==1){$rootedtree="$outdir/$project\_cds_rooted.fasttree";}
+      print "$rootedtree\n";
+      PhaME::hyphy($outdir,$bindir,$tbest,$rootedtree,$core,$threads,"bsrel",$error,$logfile);
    }
 }
 
