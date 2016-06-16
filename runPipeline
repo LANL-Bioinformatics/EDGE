@@ -346,19 +346,21 @@ sub runSpecialtyGenesProfiling {
        return;
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    my $wgs_reads = "$pair_read " if ($pair_read);
+    $wgs_reads .= "$single_end_read " if ( -s $single_end_read);
     if ($configuration->{DoReadsSpecialtyGenes} and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
     {
        my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
        my $log = "$outputDir/log.txt";
        `mkdir -p $outputDir`;
 	# AR
-       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $pair_read $single_end_read --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
+       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/AR_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -project $project_name -out $outputDir";
        &executeCommand($cmd);
 	#VF
-       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $pair_read $single_end_read --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
+       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/VF_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -project $project_name -out $outputDir";
@@ -2741,7 +2743,7 @@ sub SNPtree
      $cmd .= "-reference $SNPrefName " if ($SNPrefName);
      $cmd .= "-p $pair_read " if ($pair_read);
      $cmd .= "-c $contig " if ($contig); 
-     $cmd .= "-s $single_end_read " if ($single_end_read); 
+     $cmd .= "-s $single_end_read " if ( -s $single_end_read); 
      $cmd .= "  >> $log"; 
     &lprint (" Prepare SNP phylogeny\n"); 
     &lprint (" Running \n $cmd\n");
@@ -3278,7 +3280,7 @@ sub writeJBrowseInfo
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl --in-ref-fa '$referenceGenome' --in-ctg-fa $contig_for_annotation_file --in-ctg-anno-gff3 '$annoationGFF' --in-ref-gff3 '$gff3File' --proj_outdir '$abs_outDir' 2>\&1 1>$log";
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
-    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name");
+    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
     system("rm -f $outputDir/*/*mapped.bam");
     system("touch $outputDir/writeJBrowseInfo.finished");
     &printRunTime($time);
