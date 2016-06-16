@@ -439,7 +439,7 @@ elsif( $action eq 'getcontigbytaxa'){
 	(my $relative_taxa_outdir=$taxa_outdir) =~ s/$www_root//;
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/;
 	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
-	my $cmd = "$EDGE_HOME/scripts/contig_classifier_by_bwa/extract_fasta_by_taxa.pl -fasta $assemble_outdir/contigs.fa -csv $taxa_outdir/$real_name.ctg_class.top.csv -taxa \"$taxa_for_contig_extract\" -rank genus > $taxa_outdir/$out_fasta_name";
+	my $cmd = "$EDGE_HOME/scripts/contig_classifier_by_bwa/extract_fasta_by_taxa.pl -fasta $assemble_outdir/${real_name}_contigs.fa -csv $taxa_outdir/$real_name.ctg_class.top.csv -taxa \"$taxa_for_contig_extract\" -rank genus > $taxa_outdir/$out_fasta_name";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract contig fasta";
 	
@@ -549,7 +549,7 @@ elsif( $action eq 'compare'){
 	}
 }elsif($action eq 'contigblast'){
 	my $blast_out_dir="$proj_dir/AssemblyBasedAnalysis/ContigBlast";
-	my $contig_file="$proj_dir/AssemblyBasedAnalysis/contigs.fa"; 
+	my $contig_file="$proj_dir/AssemblyBasedAnalysis/${real_name}_contigs.fa"; 
 	my $nt_db="$EDGE_HOME/database/nt/nt"; 
 	my $cpu = `grep -a "cpu=" $proj_dir/config.txt | awk -F"=" '{print \$2}'`;
 	chomp $cpu;

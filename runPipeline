@@ -17,7 +17,7 @@ $ENV{HOME} ||= $RealBin;
 
 # unbuffer
 $|=1;
-my $version="2.0.0";
+my $version="1.1";
 my $debug=0;
 my @unpairedReadsFile;
 my @pairedReadsFile;
@@ -185,13 +185,13 @@ my $annotateProgram=$configuration->{annotateProgram}||"prokka";
 if ($referenceGenome)
 {
     my ($r2gBam,$r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,$referenceGenome);
-    my ($r2gUnmappedPaired,$r2gUnmappedSingle);
+    my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);
 
     if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
-        ($r2gUnmappedPaired, $r2gUnmappedSingle) = &retrieveUnmappedReads($r2gBam);
+        ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
     }
     if( $configuration->{MapUnmappedReads} ){
-        &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle);
+        &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads);
     }
 
     # taxonomy analysis
@@ -204,8 +204,8 @@ if ($referenceGenome)
         else
         {
             # retrieve unmapped reads
-            ($r2gUnmappedPaired,$r2gUnmappedSingle) = &retrieveUnmappedReads($r2gBam);
-	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy");
+            ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
+	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads);
             `ln -sf $outDir/ReadsBasedAnalysis/UnmappedReads $outDir/ReferenceBasedAnalysis/`;
         }
     }
@@ -240,7 +240,7 @@ if ($configuration->{DoContigsTaxonomy} and $contigFile)
 if ($configuration->{DoAssembly} and $contigFile )
 {
     #not sure if it is Virus, use size of references to determine the kingdoma (580K is smallest Prok,Mycoplasma)
-    my $contigTotalSize = `grep contigs.fa $outDir/AssemblyBasedAnalysis/contigs_stats.txt | awk \'{print \$9}\'`;
+    my $contigTotalSize = `grep ${project_name}_contigs.fa $outDir/AssemblyBasedAnalysis/contigs_stats.txt | awk \'{print \$9}\'`;
     if (!$tax_kingdom)
     {
         $tax_kingdom = ($contigTotalSize >= 580000) ? "Bacteria":"Viruses";
@@ -346,21 +346,19 @@ sub runSpecialtyGenesProfiling {
        return;
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    my $wgs_reads = "$pair_read " if ($pair_read);
-    $wgs_reads .= "$single_end_read " if ( -s $single_end_read);
     if ($configuration->{DoReadsSpecialtyGenes} and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
     {
        my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
        my $log = "$outputDir/log.txt";
        `mkdir -p $outputDir`;
 	# AR
-       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
+       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $pair_read $single_end_read --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/AR_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -project $project_name -out $outputDir";
        &executeCommand($cmd);
 	#VF
-       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
+       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $pair_read $single_end_read --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/VF_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -project $project_name -out $outputDir";
@@ -1073,22 +1071,26 @@ sub retrieveUnmappedReads
     my $bamFile=shift;
     my $time=time();
     my $outputDir="$outDir/ReferenceBasedAnalysis/UnmappedReads";
+    my $log = "$outputDir/log.txt";
     my $unmappedSingle="$outputDir/singleEnd.fastq";
     my $unmappedPaired_1="$outputDir/pairedEnd.1.fastq";
     my $unmappedPaired_2="$outputDir/pairedEnd.2.fastq";
     my $NumOfunmappedPaired=0;
     my $NumOfunmappedSingle=0;
+    my $total_unmapped_reads=0;
     `mkdir -p $outputDir`;
     if ( (-s "$unmappedSingle" || -s "$unmappedPaired_1") && -e "$outputDir/retrieveUnmappedReads.finished" )
     {
        &lprint ("  Unmapped reads retrieved\n");
+       $total_unmapped_reads = `awk -F":" '{print \$2}' $log`;
+       chomp $total_unmapped_reads;
        if ($QCpairFile)
        {
-          return ("$unmappedPaired_1 $unmappedPaired_2",$unmappedSingle);
+          return ("$unmappedPaired_1 $unmappedPaired_2",$unmappedSingle,$total_unmapped_reads);
        }
        else
        {
-          return ("",$unmappedSingle);
+          return ("",$unmappedSingle,$total_unmapped_reads);
        }
     }
     else
@@ -1141,16 +1143,18 @@ sub retrieveUnmappedReads
     &lprint ("  Unmapped reads:\n");
     &lprint ("    Paired End: $NumOfunmappedPaired\n");
     &lprint ("    Single End: $NumOfunmappedSingle\n");
+    $total_unmapped_reads = $NumOfunmappedPaired + $$NumOfunmappedSingle;
+    `echo "Total Unmapped:$total_unmapped_reads" > $log`;
     unlink "$outputDir/unmapped.sam";
     &printRunTime($time);
     system("touch $outputDir/retrieveUnmappedReads.finished");
     if ($QCpairFile)
     {
-        return ("$unmappedPaired_1 $unmappedPaired_2",$unmappedSingle);
+        return ("$unmappedPaired_1 $unmappedPaired_2",$unmappedSingle,$total_unmapped_reads);
     }
     else
     {
-        return ("",$unmappedSingle);
+        return ("",$unmappedSingle,$total_unmapped_reads);
     }
 }
 
@@ -2201,8 +2205,8 @@ sub processProvideContigs
     my $providedContigFile=$configuration->{assembledContigs};
     my $time=time();
     my $outputDir="$abs_outDir/AssemblyBasedAnalysis";
-    my $contig_file= "$outputDir/contigs.fa";
-    my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
+    my $contig_file= "$outputDir/${project_name}_contigs.fa";
+    my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     my $contig_min_length = $configuration->{minContigSize} || 200;
     `mkdir -p $outputDir`;
     if ($noColorLog)
@@ -2243,8 +2247,8 @@ sub runSpadesAssembly
     my $time=time();
     my $outputDir="$outDir/AssemblyBasedAnalysis";
     my $SPAdesOutDir="$outputDir/SPAdes";
-    my $contig_file= "$outputDir/contigs.fa";
-    my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
+    my $contig_file= "$outputDir/${project_name}_contigs.fa";
+    my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     my $log = "$outputDir/assembly.log";
     my $pacbio_file = $configuration->{SpadesPacbioFile};
     my $nanopore_file = $configuration->{SpadesNanoporeFile};
@@ -2331,10 +2335,10 @@ sub runAssembly
     my $AssemblerOutDir;
     my $AssemblerContigs;
     my $AssemblerLog;
-    my $final_contig_file= "$outputDir/contigs.fa";
+    my $final_contig_file= "$outputDir/${project_name}_contigs.fa";
     my $log = "$outputDir/assembly.log";
     my $contig_min_length = $configuration->{minContigSize}||200;
-    my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
+    my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     my $sys_mem = &get_sys_memory;
     my $mem_limit = $sys_mem - 524288;  # leave 512MB in case overflow or system hand
     my $cmd;
@@ -2482,8 +2486,8 @@ sub runIdbaAssembly
     my $outputDir="$outDir/AssemblyBasedAnalysis";
     my $pairFastaFile="$outputDir/pairedForAssembly.fasta";
     my $unpairFastaFile="$outputDir/unpairedForAssembly.fasta";
-    my $contig_file= "$outputDir/contigs.fa";
-    my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
+    my $contig_file= "$outputDir/${project_name}_contigs.fa";
+    my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     my $log = "$outputDir/assembly.log";
     my $singleEndOnlyFlag=0;
     my $parameters=" -o $outputDir/idba ". $configuration->{idbaOptions};
@@ -2636,8 +2640,8 @@ sub rename_filter_fasta
     my $outputDir = shift;
     my $size_filter=shift;
     my $max_seq_number=shift;
-    my $output= "$outputDir/contigs.fa";
-    my $contig_for_annotation = "$outputDir/contigs_${contig_size_for_annotation}up.fa";
+    my $output= "$outputDir/${project_name}_contigs.fa";
+    my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     $max_seq_number ||= 100000;
     my $serial_id= "0" x length($max_seq_number);
     my $id_info;
@@ -2737,7 +2741,7 @@ sub SNPtree
      $cmd .= "-reference $SNPrefName " if ($SNPrefName);
      $cmd .= "-p $pair_read " if ($pair_read);
      $cmd .= "-c $contig " if ($contig); 
-     $cmd .= "-s $single_end_read " if ( -s $single_end_read); 
+     $cmd .= "-s $single_end_read " if ($single_end_read); 
      $cmd .= "  >> $log"; 
     &lprint (" Prepare SNP phylogeny\n"); 
     &lprint (" Running \n $cmd\n");
@@ -3274,7 +3278,7 @@ sub writeJBrowseInfo
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl --in-ref-fa '$referenceGenome' --in-ctg-fa $contig_for_annotation_file --in-ctg-anno-gff3 '$annoationGFF' --in-ref-gff3 '$gff3File' --proj_outdir '$abs_outDir' 2>\&1 1>$log";
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
-    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
+    &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name");
     system("rm -f $outputDir/*/*mapped.bam");
     system("touch $outputDir/writeJBrowseInfo.finished");
     &printRunTime($time);
