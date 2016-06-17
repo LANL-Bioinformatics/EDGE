@@ -59,7 +59,8 @@ $edge_config=read_config(__DIR__."/../sys.properties");
 //$targetDir = 'uploads';
 $targetDir = $edge_config["edgeui_input"].$_REQUEST["targetDir"];
 $cleanupTargetDir = true; // Remove old files
-$maxFileAge = 7 * 24 * 60 * 60; // Temp file age in 7 days 
+$maxDay = ($edge_config["edgeui_proj_store_days"]>0)? $edge_config["edgeui_proj_store_days"] : 1095;
+$maxFileAge = $maxDay * 24 * 60 * 60; // Temp file age in maxday days 
 
 
 // Create target dir

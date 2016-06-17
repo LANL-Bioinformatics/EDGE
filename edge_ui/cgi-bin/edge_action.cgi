@@ -875,8 +875,13 @@ sub getUserProjFromDB{
 sub scanProjToList{
 	my $out_dir = shift;
 	my $pname = shift;
+	my $config_file;
 	my ($projid,$projCode,$projName);
-	my $config_file = `grep -a "projid=$pname" $out_dir/*/config.txt | awk -F':' '{print \$1}'`;
+	if ($pname && -d "$out_dir/$pname"){
+		$config_file = "$out_dir/$pname/config.txt";
+	}else{
+		$config_file = `grep -a "projid=$pname" $out_dir/*/config.txt | awk -F':' '{print \$1}'`;
+	}
 	chomp $config_file;
 	return ($projName,$projCode) if ( ! -e $config_file);
 	open (my $fh, $config_file) or die "Cannot read $config_file\n";

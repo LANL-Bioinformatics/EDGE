@@ -191,7 +191,7 @@ if ($referenceGenome)
         ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
     }
     if( $configuration->{MapUnmappedReads} ){
-        &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads);
+        &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads > 0);
     }
 
     # taxonomy analysis
@@ -205,7 +205,7 @@ if ($referenceGenome)
         {
             # retrieve unmapped reads
             ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
-	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads);
+	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads > 0);
             `ln -sf $outDir/ReadsBasedAnalysis/UnmappedReads $outDir/ReferenceBasedAnalysis/`;
         }
     }
@@ -1145,7 +1145,7 @@ sub retrieveUnmappedReads
     &lprint ("  Unmapped reads:\n");
     &lprint ("    Paired End: $NumOfunmappedPaired\n");
     &lprint ("    Single End: $NumOfunmappedSingle\n");
-    $total_unmapped_reads = $NumOfunmappedPaired + $$NumOfunmappedSingle;
+    $total_unmapped_reads = $NumOfunmappedPaired + $NumOfunmappedSingle;
     `echo "Total Unmapped:$total_unmapped_reads" > $log`;
     unlink "$outputDir/unmapped.sam";
     &printRunTime($time);
