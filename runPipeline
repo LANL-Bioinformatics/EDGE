@@ -1441,21 +1441,23 @@ $taxonomyPDFfiles .= $contigTaxonomyPDF."," if( -e "$contigTaxonomyPDF");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.strain.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.strain.pdf");
-#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.megan.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.megan.pdf");
-#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.megan.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.megan.pdf");
-#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.megan.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.megan.pdf");
-#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.megan.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.megan.pdf");
+ 
+my @taxonomyTreePDF = `ls $taxonomy_report_dir/1_$taxonomy_prefix/*/*pdf`;
+foreach my $treepdf (@taxonomyTreePDF){
+	chomp $treepdf;
+	$taxonomyPDFfiles .= $treepdf."," if ( -e "$treepdf");
+}
 
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-b/$taxonomy_prefix-gottcha-genDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-b/$taxonomy_prefix-gottcha-genDB-b.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-v/$taxonomy_prefix-gottcha-genDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-v/$taxonomy_prefix-gottcha-genDB-v.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-b/$taxonomy_prefix-gottcha-speDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-b/$taxonomy_prefix-gottcha-speDB-b.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-v/$taxonomy_prefix-gottcha-speDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-v/$taxonomy_prefix-gottcha-speDB-v.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-b/$taxonomy_prefix-gottcha-strDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-b/$taxonomy_prefix-gottcha-strDB-b.tree.pdf");
-$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-v/$taxonomy_prefix-gottcha-strDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-v/$taxonomy_prefix-gottcha-strDB-v.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphyler-srv/$taxonomy_prefix-metaphyler-srv.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-b/$taxonomy_prefix-gottcha-genDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-b/$taxonomy_prefix-gottcha-genDB-b.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-v/$taxonomy_prefix-gottcha-genDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-genDB-v/$taxonomy_prefix-gottcha-genDB-v.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-b/$taxonomy_prefix-gottcha-speDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-b/$taxonomy_prefix-gottcha-speDB-b.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-v/$taxonomy_prefix-gottcha-speDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-speDB-v/$taxonomy_prefix-gottcha-speDB-v.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-b/$taxonomy_prefix-gottcha-strDB-b.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-b/$taxonomy_prefix-gottcha-strDB-b.tree.pdf");
+#$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-v/$taxonomy_prefix-gottcha-strDB-v.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/gottcha-strDB-v/$taxonomy_prefix-gottcha-strDB-v.tree.pdf");
 
 my $qc_flag = ($configuration->{DoQC})?"V":"";
 my $host_removal_flag = ($configuration->{DoHostRemoval})?"V":"";
