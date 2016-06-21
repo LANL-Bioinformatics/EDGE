@@ -204,20 +204,20 @@ elsif($time==2 || $data==7){
 if ($check==0){
    if ($data==0){$nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
    if ($data==1){
-      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
-      $fasta_list{$list}=$genome_size;
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name) if ($time ne "2");
+      $fasta_list{$list}=$genome_size if ($list);
       $contig_nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
    }
    if ($data==2){
-      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
-      $fasta_list{$list}=$genome_size;
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name) if ($time ne "2");
+      $fasta_list{$list}=$genome_size if ($list);
       $read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
    }
    if ($data==3){$nucmer=1;$contig_nucmer=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
    if ($data==4){$nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
    if ($data==5){
-      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name);
-      $fasta_list{$list}=$genome_size;
+      my ($list,$genome_size)=PhaME::prepareComplete($workdir,$reference,$name) if ($time ne "2");
+      $fasta_list{$list}=$genome_size if ($list);
       $contig_nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}
    }
    if ($data==6){$nucmer=1;$contig_nucmer=1;$read_mapping=1;$buildSNP=1;$buildtree=1;if ($pselection>0){$ps=1;}}
@@ -337,7 +337,7 @@ if ($nucmer==1){
    foreach my $names(keys %fasta_list){
       print FAS "$names\n";
       print ALL "$names\n";
-      print STAT "$names\tTotal_length\t",$fasta_list{$names},"\n";
+      print STAT "$names\tTotal_length\t",$fasta_list{$names},"\n" if ($time ne "2");
 #      print "$names\t",$fasta_list{$names},"\n"; 
    }
 

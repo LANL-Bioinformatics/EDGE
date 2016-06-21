@@ -433,7 +433,7 @@ my $outdir=$indir."/results";
 my $reference= $outdir.'/temp/'.$name.'.fna';
 my $type;
 
-if(!-e $reference){$indir.'/'.$name.'.fna';}
+if(!-e $reference){$indir.'/files/'.$name.'.fna';}
 print "\n";
 my $map="runReadsMapping.pl -r $reference -q $indir -d $outdir -t $thread -l $list -a bowtie 2>>$error >> $log\n\n";
 print $map;

@@ -170,6 +170,9 @@ $( document ).ready(function()
 							localStorage.umStatus = false;
 							$('.no-show-logout').show();
 							$(".edge-user-btn").hide();
+							$("#action-unshare-btn").parent().hide();
+							$("#action-share-btn").parent().hide();
+							$("#action-publish-btn").parent().hide();
 							uploadFiles(inputFileDir);
 						}
           			} // if

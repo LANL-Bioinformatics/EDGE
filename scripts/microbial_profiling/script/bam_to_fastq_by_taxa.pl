@@ -177,7 +177,7 @@ if ($zip){
   &print_timeInterval($time, "Compressed fastq files ... \n");
   my ($file_name, $file_path, $file_suffix)=fileparse("$prefix", qr/\.[^.]*/);
   chdir $file_path;
-  `tar -czvf $file_name.fastq.tgz $file_name*fastq`;
+  `zip $file_name.fastq.zip $file_name*fastq`;
   `rm -f $file_name*fastq`;
 }
 

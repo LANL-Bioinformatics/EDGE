@@ -480,9 +480,9 @@ elsif( $action eq 'getreadsbytaxa'){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
 	
-	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.tgz"){
+	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
-		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.tgz";
+		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
 	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" ){
 		$info->{INFO}   = "The result bam does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
@@ -494,7 +494,7 @@ elsif( $action eq 'getreadsbytaxa'){
 
 		if( $pid ){
 			$info->{STATUS} = "SUCCESS";
-			$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.tgz";
+			$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
 		}
 	}
 }

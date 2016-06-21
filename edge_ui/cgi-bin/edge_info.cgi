@@ -145,12 +145,12 @@ if( scalar @projlist ){
 	#  1. assigned project
 	#  2. latest running project
 	#  3. lastest project
-	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname or $list->{$_}->{STATUS} eq "unstarted" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 	my @not_running_idxs;
 	$idx = $projlist[0];
 	if(scalar(@running_idxs)){
 		$idx = $running_idxs[0] if (!$pname);
-		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname and $list->{$_}->{STATUS} ne "unstarted"} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 		@projlist = (@running_idxs,@not_running_idxs);
 	}
 	
@@ -386,11 +386,16 @@ sub scanNewProjToList {
 	my @dirfiles = readdir(BIN);
 	foreach my $file (@dirfiles)  {
 		next if ($file eq '.' || $file eq '..' || ! -d "$out_dir/$file");
+		my $config = "$out_dir/$file/config.txt";
+		my $processLog = "$out_dir/$file/process_current.log";
 		$cnt++;
-		if (-r "$out_dir/$file/config.txt"){
+		if (-r "$config"){
 			$list->{$cnt}->{NAME} = $file ;
 			$list->{$cnt}->{TIME} = (stat("$out_dir/$file"))[10]; 
 			$list->{$cnt}->{STATUS} eq "running" if $name2pid->{$file};
+			if ( -r "$processLog" && `grep -a "queued" $processLog`){
+				$list->{$cnt}->{STATUS} eq "unstarted";
+			}
 			my $projname = `grep -a "projname=" $out_dir/$file/config.txt | awk -F'=' '{print \$2}'`;
 			chomp $projname;
 			$list->{$cnt}->{PROJNAME} = $projname;
@@ -533,6 +538,7 @@ sub getUserProjFromDB{
 		$list->{$id}->{PROJNAME} = $project_name;
 		$list->{$id}->{PROJCODE} = $projCode;
 		$list->{$id}->{DBSTATUS} = $status;
+		$list->{$id}->{STATUS} = $status;
 		$list->{$id}->{TIME} = $created;
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{OWNER_FisrtN} = $hash_ref->{owner_firstname};
@@ -578,6 +584,7 @@ sub getProjInfoFromDB{
 	$list->{$id}->{PROJNAME} = $project_name;
 	$list->{$id}->{PROJCODE} = $projCode;
 	$list->{$id}->{DBSTATUS} = $status;
+	$list->{$id}->{STATUS} = $status;
 	$list->{$id}->{PROJTYPE} = $projtype;
 	$list->{$id}->{TIME} = $created;
 }

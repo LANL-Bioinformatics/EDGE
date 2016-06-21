@@ -136,9 +136,10 @@ print "\t\t\t</form></div>"; # data-filter
 sub sortList {
 	my $list = shift;
 	
-	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} eq "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} ne "running" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @idxs = (@idxs1,@idxs2);
+	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} =~ /running/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} =~ /unstarted/i } sort {$list->{$a}->{REAL_PROJNAME} cmp $list->{$b}->{REAL_PROJNAME}} keys %$list;
+	my @idxs3 = grep { $list->{$_}->{PROJSTATUS} !~ /running|unstarted/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs = (@idxs1,@idxs2,@idxs3);
 	return \@idxs;
 }
 
