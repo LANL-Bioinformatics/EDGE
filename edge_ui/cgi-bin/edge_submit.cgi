@@ -183,7 +183,6 @@ sub readBatchInput {
 	my $full_file_path="$edge_input/". md5_hex($username)."/".$excel_file;  #full path to file
 
 	#open($input_dir) or die "cannot access python script. Check path";
-
 	#TODO change this to wherever scripts live
 	my $path_to_script = "/home/edge/edge/scripts/importBatchExcelFile.py";
 
