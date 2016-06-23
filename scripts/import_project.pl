@@ -71,7 +71,7 @@ if ($new_projid && $new_projcode){
 	my $new_config = "$edge_output/$new_projcode/config.txt";
 	my $new_processLog =  "$edge_output/$new_projcode/process.log";
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/; s/projid=[[:graph:]]*/projid=$new_projid/; s/projcode=[[:graph:]]*/projcode=$new_projcode/' $new_config");
-	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g' 's/EDGE_output\/$projid/EDGE_output\/$new_projid/g' $new_processLog");
+	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g; s/EDGE_output\\\/$projid/EDGE_output\\\/$new_projid/g' $new_processLog");
 	system("sed -i.bak 's/$projcode/$new_projcode/g' $new_processLog") if ($projcode);
 	print "Done importing \"$projname\". Please check EDGE to confirm it worked.\n";
 }
