@@ -93,9 +93,12 @@ $( document ).ready(function()
                 allMainPage.hide();
 		var maxFileSize = localStorage.maxFileSize || '10mb';
 		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
+		
                 $( "#edge-content-uploadfile" ).fadeIn("fast", function(){
+
                         if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
                                 //destory file upload 
+
                                 var uploader = $("#uploader").pluploadQueue({
                                     buttons : {browse:false,start:false,stop:false}
                                 });
@@ -370,6 +373,7 @@ $( document ).ready(function()
 					userType = data.type;
 					FileTree("/" + data.UserDir + "/");
                                         uploadFiles("/" + data.UserDir + "/");
+
 
 					$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 					$('#edge-user-btn').html(localStorage.fnname);

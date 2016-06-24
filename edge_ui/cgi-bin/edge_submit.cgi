@@ -18,7 +18,7 @@ use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
-#use Data::Dumper;
+use Data::Dumper;
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 
@@ -59,7 +59,6 @@ my $edge_output	= $sys->{edgeui_output};
 my $out_dir     = $opt{"edge-proj-outpath"};
 $out_dir      ||= $sys->{edgeui_output};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
-$edge_total_cpu = $cluster_job_max_cpu if ($cluster);
 my $num_cpu     = $opt{"edge-proj-cpu"};
 $num_cpu      ||= 4;
 my $username 	= $opt{'username'} || $ARGV[1];
@@ -80,6 +79,9 @@ my @edge_qiime_mapping_files = split /[\x0]/, $opt{"edge-qiime-mapping-file-inpu
 my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
 my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
+
+
+
 #check session
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
@@ -89,9 +91,10 @@ if( $sys->{user_management} ){
 	}
 	else{
 		($username,$password) = getCredentialsFromSession($sid);
-		$input_dir="$edge_input/". md5_hex($username);
+		$input_dir="$edge_input/". md5_hex($username);  #full path to file
 	}
 }
+
 
 # Qiime dir submit
 if ($edge_qiime_input_dir){
@@ -103,20 +106,30 @@ if ($edge_qiime_input_dir){
 }
 
 # batch submit
-my $projlist;
-my @pnames;
-if ($opt{"edge-batch-text-input"}){
-	$projlist=&readBatchInput();
-	@pnames = keys %{$projlist};
-}else{
-	push @pnames, $pname ;
+my $projlist; 
+my @pnames;   
+if ($opt{"edge-batch-input-excel"})
+	{
+		$projlist = &readBatchInput();
+		@pnames = keys %{$projlist};
+	
+	}
+else{
+	addMessage("Path to file incorrect. Check excel file upload");
+	returnStatus();
 }
 my @real_names = @pnames;
 
 
 
+
+
+
 #init SUBMISSION_STATUS
 $msg->{SUBMISSION_STATUS}="success";
+
+
+
 
 # validating parameters
 &checkParams();
@@ -162,24 +175,46 @@ if($cluster) {
 &returnStatus();
 
 ############################################################################
+
+#adjust to call python script and pass in path as variable for python
 sub readBatchInput {
-	my $list={};
-	my $proj_name;
-	foreach (split /\n/, $opt{"edge-batch-text-input"}) {
-        	if (/^\#/) { next; }
-        	unless (/\w/) { next; }
-        	s/^\s+|\s+$//g;
-        	chomp;
-        	if (/^\[(.*)\]/) { $proj_name=$1; next; }
-		my ($key, $val) = split(/=/, $_);
-		if ($key ne "description"){
-			$val =~ s/ //g;
-		}
-	        $val="" if (!$val);
-        	$list->{$proj_name}->{$key} = $val;
-    	}
+
+	my $excel_file = $opt{"edge-batch-input-excel"};
+	my $full_file_path="$edge_input/". md5_hex($username)."/".$excel_file;  #full path to file
+
+	#open($input_dir) or die "cannot access python script. Check path";
+	#TODO change this to wherever scripts live
+	my $path_to_script = "/home/edge/edge/scripts/importBatchExcelFile.py";
+
+	#open python file which is located in scripts. 	
+	#pass in $input_dir as location of xlsx file
+	my @output = `python $path_to_script $full_file_path`;
+   
+	#create a hash
+	my $list;
+	my $temp_project_name;
+
+	foreach my $test (@output){
+	    chomp $test; 
+	    next if ($test =~ /None/);
+    
+	    my @data = split ",", $test;
+	    $data[0] =~ s/\s/_/g;
+	#data[0] = project name, data[1] = q1, data[2] = q2
+	#data[3] = desc
+
+	#Nested hash ref
+	$list->{$data[0]}->{ "q1" }=$data[1];
+	$list->{$data[0]}->{ "q2" }=$data[2];
+	$list->{$data[0]}->{ "description" }=$data[3];
+
+
+	}
+	#return outter hash
 	return $list;
 }
+
+
 
 sub getSysParamFromConfig {
 	my $config = shift;
@@ -318,8 +353,8 @@ sub createConfig {
 			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files;
 			$opt{'edge-qiime-barcode-fq-files'} = join ",", @edge_qiime_barcode_input if @edge_qiime_barcode_input;
 
-      		        $opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-text-input"});
-      		        $opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname if ($opt{"edge-batch-text-input"});
+      		        $opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-input-excel"});
+      		        $opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"} if ($opt{"edge-batch-input-excel"});
 			$opt{"edge-proj-id"} = $pname;
 			$opt{"edge-proj-code"} = $projlist->{$pname}->{projCode};
 			$opt{"edge-proj-runhost"} = "$protocol//$domain";
@@ -364,7 +399,7 @@ sub runPipeline {
 		my ($paired_files, $single_files) = ("","");
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
- 	   	if ($opt{"edge-batch-text-input"}){
+ 	   	if ($opt{"edge-batch-input-excel"}){
     			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
     			$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
     		}else{
@@ -436,7 +471,7 @@ sub runPipeline_cluster {
 		my ($paired_files, $single_files) = ("","");
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
- 	   	if ($opt{"edge-batch-text-input"}){
+ 	   	if ($opt{"edge-batch-input-excel"}){
     			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
     			$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
     		}else{
@@ -488,7 +523,7 @@ sub addProjToDB{
 	my $desc; 
 	foreach my $pname_index (0..$#pnames){
 		my $pname = $pnames[$pname_index];
-		if ($opt{"edge-batch-text-input"}){
+		if ($opt{"edge-batch-input-excel"}){
 			$desc = $projlist->{$pname}->{description};
 		}else{
 			$desc = $opt{"edge-proj-desc"};
@@ -523,7 +558,7 @@ sub addProjToDB{
 		&addMessage("PROJECT_NAME","info","Assigned project $pname with ID $new_id");
 		&addMessage("ASSIGN_PROJ_ID","failure","Database doens't assign $pname a project ID. You may not be logged in properly. Please contact admins.") if (!$new_id);
 		# assign value to new project id.
-		if ($opt{"edge-batch-text-input"}){
+		if ($opt{"edge-batch-input-excel"}){
 			foreach my $key (keys %{$projlist->{$pname}}){
 				$projlist->{$new_id}->{$key} = $projlist->{$pname}->{$key}; 
 				$projlist->{$new_id}->{projCode} = $projCode; 
@@ -642,11 +677,11 @@ sub checkParams {
 	if ($num_cpu > $edge_total_cpu){
 		&addMessage("PARAMS","edge-proj-cpu","The max number of CPU for the EDGE Server is $edge_total_cpu.");
 	}
-	if ( ($opt{"edge-batch-text-input"}) and ($opt{"edge-proj-desc"} or $opt{"edge-input-pe1[]"} or $opt{"edge-input-pe2[]"} or $opt{"edge-input-se[]"} or $opt{"edge-sra-acc"})){
+	if ( ($opt{"edge-batch-input-excel"}) and ($opt{"edge-proj-desc"} or $opt{"edge-input-pe1[]"} or $opt{"edge-input-pe2[]"} or $opt{"edge-input-se[]"} or $opt{"edge-sra-acc"})){
 		&addMessage("PARAMS","edge-input-sequence","Input error. You have both single project input and batch input.");
     	}
       
-	if (  $opt{"edge-batch-text-input"} ){ ## batch input
+	if (  $opt{"edge-batch-input-excel"} ){ ## batch input
     		my %namesUsed;
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}";
@@ -657,20 +692,20 @@ sub checkParams {
     			my $se=$projlist->{$pname}->{"s"};
 
     			if ($namesUsed{$pname}){
-    				&addMessage("PARAMS","edge-batch-text-input", "Duplicate project name found.");
+    				&addMessage("PARAMS","edge-batch-input-excel", "Duplicate project name found.");
     			}else{
     				$namesUsed{$pname}=1;
     			}
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid project name. Please input at least 3 characters.") if (length($pname) < 3);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^[http|ftp]/i && ! -e $se);
-    			&addMessage("PARAMS","edge-batch-text-input","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters.") if (length($pname) < 3);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^[http|ftp]/i && ! -e $se);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
     		}
 	}else{  ## Single project input
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
@@ -678,7 +713,7 @@ sub checkParams {
 		#check invalid character
 		foreach my $param (keys %opt ){
 			next if $param eq "edge-proj-desc";
-			next if $param eq "edge-batch-text-input";
+			next if $param eq "edge-batch-input-excel";
 			next if $param eq "username";
 			next if $param eq "password";
 			next if $param =~ /aligner-options/;
@@ -742,7 +777,6 @@ sub checkParams {
 			}
 		}
 		if ($pipeline eq "qiime"){
-			&addMessage("PARAMS","edge-qiime-mapping-file-input1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
 				my $id = "edge-qiime-mapping-file-input". ($i + 1);
 				$edge_qiime_mapping_files[$i] =~ s/ //g;
