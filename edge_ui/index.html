@@ -111,7 +111,7 @@
 				<li data-icon='arrow-u-r'><a href='#edge_confirm_dialog' id='action-archive-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='archive'>Move to the archive storage</a>
 				<li data-icon='forward' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-share-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='share'>Share project</a>
 				<li data-icon='back' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-unshare-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='unshare'>Unshare project</a>
-                                <li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
+				<li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
 			</ul>
 		</div>
 	</div><!-- /progress panel -->
@@ -330,17 +330,14 @@ This website is available for use with publicly available data, while local stan
 			</div>
 			<div id="edge-batch-input" class="edge-main-pipeline-input" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
 				<h4>Batch Project Submission</h4>
-				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="#" id="edge-batch-sample-input">[Sample Input]</a> to see the example. </p>
+				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
+				<div id="edge-batch-input-block1" class="edge-batch-input"> 
 					<div class="ui-field-contain input-type-file">
-						<label for="edge-batch-file-input">Batch Text File</label>
-						<input type="file" id="edge-batch-file-input" name="edge-batch-file-input">
+						<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
+						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
+						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 					</div>
-					<p class="edge-center">or enter your batch sample descriptions here</p>
-					<div data-role="fieldcontain" >
-						<label for="edge-batch-text-input">Batch Sample Input:</label>
-						<textarea name="edge-batch-text-input" id="edge-batch-text-input"></textarea>
-						<!--<a href="#" id="edge-batch-sample-input">[Sample Input]</a>  --!>
-					</div>
+				</div>
 			</div>
 		</div>
 		<p></p>
