@@ -89,26 +89,22 @@ $( document ).ready(function()
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 
-        $( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
-                allMainPage.hide();
+	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
+		allMainPage.hide();
 		var maxFileSize = localStorage.maxFileSize || '10mb';
 		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
-		
-                $( "#edge-content-uploadfile" ).fadeIn("fast", function(){
-
-                        if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
-                                //destory file upload 
-
-                                var uploader = $("#uploader").pluploadQueue({
-                                    buttons : {browse:false,start:false,stop:false}
-                                });
-
+		$( "#edge-content-uploadfile" ).fadeIn("fast", function(){
+			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
+				//destory file upload 
+				var uploader = $("#uploader").pluploadQueue({
+					buttons : {browse:false,start:false,stop:false}
+				});
 				$( "#edge-upload-maxFileSize").html("0 kb");
-                                showWarning("Please login to upload files.");
-                        }
-                });
-                page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+					showWarning("Please login to upload files.");
+				}
         });
+		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+    });
 
 	
 	$('#chck-rememberme').click(function() {
@@ -372,8 +368,7 @@ $( document ).ready(function()
 					localStorage.udir = data.UserDir;
 					userType = data.type;
 					FileTree("/" + data.UserDir + "/");
-                                        uploadFiles("/" + data.UserDir + "/");
-
+					uploadFiles("/" + data.UserDir + "/");
 
 					$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 					$('#edge-user-btn').html(localStorage.fnname);
@@ -641,6 +636,7 @@ $( document ).ready(function()
 		}
 	});
 	//
+	/*
     	// batch input 
     	$('#edge-batch-sample-input').click( function(e) {
     		e.preventDefault();
@@ -677,6 +673,7 @@ $( document ).ready(function()
       		r.readAsText(f);
 		} 
   	}
+  	*/
   	
 	//init reserch usage bar
 	$( "input[id$='usage-bar']" ).each(function( event ) {
@@ -1896,7 +1893,7 @@ $( document ).ready(function()
                             max_file_size :  maxFileSize,
                             // Specify what files to browse for
                             mime_types: [
-                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,genbank,gb,txt,text,config,ini"},
+                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,genbank,gb,txt,text,config,ini,xls,xlsx"},
                                     {title : "application/x-gzip", extensions : "gz"},
                             ]
                     },

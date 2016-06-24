@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
 	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
 	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/jquery.dataTables.min.css" />
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/tooltipster.css'/>
@@ -19,6 +20,7 @@
 
 	<script src="javascript/jquery.js"></script>
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/jquery.dataTables.min.js"></script>
 	<script src="javascript/edge.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -101,7 +103,7 @@
 			<ul data-role="listview" data-inset="true">
 				<li data-role='list-divider'>Action</li>
 				<li data-icon='bars'>     <a href='#edge_log_dialog' id='edge-view-log-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey'>View live log</a>
-				<li data-icon='refresh'>  <a href='#edge_confirm_dialog' id='action-rerun-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='rerun'>Force to rerun this project</a>
+				<li data-icon='refresh'>  <a href='#edge_confirm_dialog' id='action-rerun-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='rerun'>Force this project to rerun</a>
 				<li data-icon='forbidden'><a href='#edge_confirm_dialog' id='action-interrupt-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='interrupt'>Interrupt running project</a>
 				<li data-icon='delete'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='delete'>Delete entire project</a>
 				<!-- <li data-icon='minus'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='remove'>Remove from project list</a> -->
@@ -109,10 +111,7 @@
 				<li data-icon='arrow-u-r'><a href='#edge_confirm_dialog' id='action-archive-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='archive'>Move to the archive storage</a>
 				<li data-icon='forward' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-share-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='share'>Share project</a>
 				<li data-icon='back' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-unshare-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='unshare'>Unshare project</a>
-                <li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
-
-                <li data-icon='bars' <a href='#edge_confirm_dialog' id='action-rename-pjct' aria-haspopup= 'edge-icon-bg-grey' data='rename'> Rename Project </a> 
-
+				<li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
 			</ul>
 		</div>
 	</div><!-- /progress panel -->
@@ -186,7 +185,7 @@ This website is available for use with publicly available data, while local stan
 	<div role='main' id='edge-project-page' class='ui-content edge-content edge-output edge-main-page'>
 	</div><!-- /project_page -->
 
-<form id="edge-run-pipeline-form">
+<form id="edge-run-pipeline-form" autocomplete='off'>
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
 		<h2>Input Your Sample</h2>
 		<p class="edge-main-pipeline-input">EDGE requires sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences.</p>
@@ -318,7 +317,7 @@ This website is available for use with publicly available data, while local stan
 
 						<div class="ui-field-contain">
 							<label for="edge-proj-desc">Use # of CPUs</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="16"></div>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
 
 						<div class="ui-field-contain input-type-file">
 							<label for="edge-input-config">Config File</label>
@@ -331,35 +330,14 @@ This website is available for use with publicly available data, while local stan
 			</div>
 			<div id="edge-batch-input" class="edge-main-pipeline-input" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
 				<h4>Batch Project Submission</h4>
-
-				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. 
-				Click 
-
-				<a href="BatchExcelExample.xlsx" download="" target="_blank">  Download [Sample File]</a> 
-				to see the example. 
-
-				</p>
-
-
-
-
-<div class="ui-fild-contain"> 
-<label class='tooltip' title=' Column headers must be labeled: "Project", "Q1", "Q2", "Description" '>  </label>
- </div> 
-
-
-		<div id="edge-batch-input-block1" class="edge-batch-input"> 
-			<div class="ui-field-contain input-type-file">
-					<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
+				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
+				<div id="edge-batch-input-block1" class="edge-batch-input"> 
+					<div class="ui-field-contain input-type-file">
+						<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
 						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
 						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
-		</div>
-
-					
-					<div data-role="fieldcontain" >
-						
-						<!--<a href="#" id="edge-batch-sample-input">[Sample Input]</a>  --!>
 					</div>
+				</div>
 			</div>
 		</div>
 		<p></p>
@@ -526,7 +504,16 @@ This website is available for use with publicly available data, while local stan
 				<div class="ui-field-contain"><label for="edge-assembly-step">Step Size</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-step" id="edge-assembly-step" value="20"></div>
 			</div>
 			<div id="edge-spades-parameters">
-				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genome, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
+				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
+				<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend class="tooltip" title="metaSPAdes supports only a single paired-end library.">Metagenome Data</legend>
+					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw1" value="1">
+					<label for="edge-spades-mtg-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw2" value="0" checked>
+					<label for="edge-spades-mtg-sw2">No</label>
+				</fieldset>
+				</div>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Single Cell Data</legend>
@@ -767,7 +754,7 @@ This website is available for use with publicly available data, while local stan
 					<label for="edge-taxa-allreads2">No</label>
 				</fieldset>
 			</div>
-			<p class="edge_tool_note">EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, MetaPhyler (short read version), Kraken, MetaScope and reads mapping to NCBI RefSeq using BWA.</p>
+			<p class="edge_tool_note">EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, Kraken and reads mapping to NCBI RefSeq using BWA.</p>
 			<div class="ui-field-contain" id="edge-taxa-tool-select">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Classification Tools</legend>
@@ -785,7 +772,7 @@ This website is available for use with publicly available data, while local stan
 							<option value="gottcha-strDB-v" selected=""> GOTTCHA Strain</option>
 						</optgroup>
 						<optgroup label="Reads Mapping">
-							<option value="bwa," selected="">Reads Mapping (BWA against RefSeq)</option>
+							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>
 						<optgroup label="Other Tools">
 							<option value="metaphlan" selected="">MetaPhlAn</option>
@@ -795,7 +782,7 @@ This website is available for use with publicly available data, while local stan
 				</fieldset>
 			</div>
 			<li>Contig-based Taxonomy Classification</li>
-			<p class="edge_tool_note">EDGE will map contigs to NCBI genomes and make taxonomy inference to each contigs.</p>
+			<p class="edge_tool_note">EDGE will map contigs to NCBI genomes and make a taxonomic inference for each contig.</p>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Contigs Classification</legend>
@@ -901,7 +888,7 @@ This website is available for use with publicly available data, while local stan
 					<label for="edge-sg-sw">Specialty Genes Profiling</label>
 				</div>
 			</h4>
-			<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">Shortbred</a> to search Antibiotic Resisitance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
+			<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search for Antibiotic Resistance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Reads Specialty Genes Profiling</legend>
@@ -1037,7 +1024,7 @@ This website is available for use with publicly available data, while local stan
 				<li>Reads Filters</li>
 				<div class="ui-field-contain">
 					<label for="edge-qiime-phred-quality-threshold" class='tooltip' title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)">PHRED Quality Threshold</label>
-					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="3">
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="19">
 				</div>
 				<div class="ui-field-contain">
 					<label for="edge-qiime-max-n"  class='tooltip' title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable">Max "N" base</label>
@@ -1238,7 +1225,7 @@ This website is available for use with publicly available data, while local stan
 </form>
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
-		<p>EDGE version 1.1</p>	
+		<p>EDGE version 2.0.0</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo">
             <a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
