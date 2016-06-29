@@ -110,6 +110,8 @@ if ($opt{"edge-batch-input-excel"})
 {
 	$projlist = &readBatchInput();
 	@pnames = keys %{$projlist};
+}else{
+        push @pnames, $pname ;
 }
 
 my @real_names = @pnames;
