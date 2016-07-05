@@ -145,12 +145,12 @@ if( scalar @projlist ){
 	#  1. assigned project
 	#  2. latest running project
 	#  3. lastest project
-	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname or $list->{$_}->{STATUS} eq "unstarted" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname or $list->{$_}->{STATUS} eq "unstarted" or $list->{$_}->{STATUS} eq "in process" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 	my @not_running_idxs;
 	$idx = $projlist[0];
 	if(scalar(@running_idxs)){
 		$idx = $running_idxs[0] if (!$pname);
-		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname and $list->{$_}->{STATUS} ne "unstarted"} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname and $list->{$_}->{STATUS} ne "unstarted" and $list->{$_}->{STATUS} ne "in process"} sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 		@projlist = (@running_idxs,@not_running_idxs);
 	}
 	
@@ -393,10 +393,18 @@ sub scanNewProjToList {
 			$list->{$cnt}->{NAME} = $file ;
 			$list->{$cnt}->{TIME} = (stat("$out_dir/$file"))[10]; 
 			$list->{$cnt}->{STATUS} eq "running" if $name2pid->{$file};
-			if ( -r "$processLog" && `grep -a "queued" $processLog`){
-				$list->{$cnt}->{STATUS} eq "unstarted";
+			if ( -r "$processLog"){
+				open (my $fh, $processLog);
+				while(<$fh>){
+					if (/queued/){
+						$list->{$cnt}->{STATUS} eq "unstarted";
+						last;
+					}
+				}
+				close $fh;
 			}
-			my $projname = `grep -a "projname=" $out_dir/$file/config.txt | awk -F'=' '{print \$2}'`;
+			#my $projname = `grep -a "projname=" $out_dir/$file/config.txt | awk -F'=' '{print \$2}'`;
+			my $projname = $file;
 			chomp $projname;
 			$list->{$cnt}->{PROJNAME} = $projname;
 		}
