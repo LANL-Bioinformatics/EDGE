@@ -805,6 +805,12 @@
 							<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 						  	<th data-priority='3'>% Plasmid</th>
 							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_LEN">
+							<th data-priority='3'>Linear LEN</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_DOC">
+						  	<th data-priority='3'>Linear DOC</th>
+							</TMPL_IF>
 						  	<th data-priority='1'>Abundance</th>
 							</tr>
 						</thead>
@@ -817,6 +823,12 @@
 								<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 								<td><TMPL_VAR NAME=CPABU_PMD DEFAULT=-></td>
 								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_LEN">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_DOC">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
+								</TMPL_IF>
 								<td><TMPL_VAR NAME=CPABU_ABU DEFAULT=-></td>
 							</tr>
 							</TMPL_LOOP>
@@ -828,7 +840,7 @@
 							<select class="edge-get-reads-by-taxa" id="edge-get-reads-by-taxa-<TMPL_VAR NAME=CPTOOL>" data-mini="true" name="edge-get-reads-by-taxa<TMPL_VAR NAME=CPTOOL_LABEL>" data-native-menu="false">
 								<option>Select</option>
 								<TMPL_LOOP NAME=LOOP_CPTOOL_DOWNLOAD>
-								<option value="<TMPL_VAR NAME=CPABU_DOWNLOAD_TAX >" ><TMPL_VAR NAME=CPABU_DOWNLOAD_TAX > (<TMPL_VAR NAME=CPABU_ABU >)</option>
+								<option value="<TMPL_VAR NAME=CPABU_DOWNLOAD_TAX_ID >" ><TMPL_VAR NAME=CPABU_DOWNLOAD_TAX > (<TMPL_VAR NAME=CPABU_ABU >)</option>
 								</TMPL_LOOP>
 							</select>
 							<div id='edge-get-reads-spinner-<TMPL_VAR NAME=CPTOOL>' style="margin-left:0.3em"></div>
