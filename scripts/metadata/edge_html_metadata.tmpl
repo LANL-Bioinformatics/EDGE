@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class='ui-mobile'><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+	<base href='.'>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no'>
+	<title>EDGE bioinformatics</title>
+	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="stylesheet" href="css/edge-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
+	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/edge.css"/>
+	<link rel='stylesheet' href='css/edge-output.css'/>
+	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
+	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/edge-metadata.js"></script>
+	<script src="javascript/raphael-min.js" ></script>
+	<script src="javascript/jsphylosvg-min.js"></script>    
+	<script src="javascript/jquery.tooltipster.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.autoload.min.js"></script>
+
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places"></script>
+	<script src="javascript/jquery.geocomplete.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/geocomplete.css" />
+
+</head>
+
+<body class='ui-mobile-viewport'>
+
+<div data-role='page' class='edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active' tabindex='0' style='padding-bottom: 82px;'>
+
+	<div data-role='header' class='edge-header ui-header ui-bar-inherit'>
+		<div class='edge-logo'>
+			<img src='images/edge_logo.svg'>
+			<h2 class='ui-title' role='heading' aria-level='1'>EDGE bioinformatics</h2>
+		</div>
+	</div><!-- /header -->
+
+	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>
+		<h2 id="edge-output-projid" data-pid="<TMPL_VAR NAME=PROJID>">Edit <TMPL_VAR NAME=PROJNAME DEFAULT=-> Sample Metadata</h2>
+		
+		<form id="edge-sample-metadata-form-edit">
+					<div class="ui-field-contain">
+						<label for="edge-sample-type-edit">Sample Type</label>
+						<select name="edge-sample-type-edit" id="edge-sample-type-edit" data-mini="true" >
+							<TMPL_IF NAME="SMD_TYPE_H">
+							<option value="human" selected>Human</option>
+							<TMPL_ELSE>
+							<option value="human">Human</option>
+							</TMPL_IF>
+							<TMPL_IF NAME="SMD_TYPE_A">
+							<option value="animal" selected>Animal</option>
+							<TMPL_ELSE>
+							<option value="animal">Animal</option>
+							</TMPL_IF>
+							<TMPL_IF NAME="SMD_TYPE_E">
+							<option value="environmental" selected>Environmental</option>
+							<TMPL_ELSE>
+							<option value="environmental">Environmental</option>
+							</TMPL_IF>
+						</select>
+					</div>
+
+		                	<div id="edge-pg-host-associated-edit" >
+			                	<div class="ui-field-contain">
+						        <label for="edge-pg-host-edit">Host</label>
+							<TMPL_IF NAME="SMD_TYPE_H">
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-host-edit" id="edge-pg-host-edit" maxlength="30" value="<TMPL_VAR NAME=SMD_HOST DEFAULT=human>">
+							<TMPL_ELSE>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-host-edit" id="edge-pg-host-edit" maxlength="30" value="<TMPL_VAR NAME=SMD_HOST DEFAULT=>">
+							</TMPL_IF>
+		                    		</div>
+		                    		<div class="ui-field-contain">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend></legend>
+							<TMPL_IF NAME="SMD_HOST_CONDITION_H">
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition1" value="healthy" checked="checked">
+							<TMPL_ELSE>
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition1" value="healthy" >
+							</TMPL_IF>
+								<label for="edge-pg-host-condition1">Healthy</label>
+							<TMPL_IF NAME="SMD_HOST_CONDITION_D">
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition2" value="diseased" checked="checked">
+							<TMPL_ELSE>
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition2" value="diseased">
+							</TMPL_IF>
+								<label for="edge-pg-host-condition2">Diseased</label>
+							<TMPL_IF NAME="SMD_HOST_CONDITION_U">
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition3" value="unknown" checked="checked">
+							<TMPL_ELSE>
+								<input type="radio" name="edge-pg-host-condition-edit" id="edge-pg-host-condition3" value="unknown">
+							</TMPL_IF>
+								<label for="edge-pg-host-condition3">Unknown</label>
+							</fieldset>
+		                    		</div>
+		                	</div>
+
+		                	<div id="edge-pg-human-edit" >
+			                	<div class="ui-field-contain">
+						        <label for="pg-cb-gender-edit">Gender</label>
+							<TMPL_IF NAME="SMD_GENDER">
+							<input type="checkbox" name="pg-cb-gender-edit" id="pg-cb-gender-edit" data-mini="true" checked>
+							<TMPL_ELSE>
+							<input type="checkbox" name="pg-cb-gender-edit" id="pg-cb-gender-edit" data-mini="true">
+							</TMPL_IF>
+		                    		</div>
+		                    		<div class="ui-field-contain" id="human-gender-edit">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend></legend>
+								<TMPL_IF NAME="SMD_GENDER_M">
+								<input type="radio" name="edge-pg-gender-edit" id="edge-pg-gender1" value="male" checked="checked">
+								<label for="edge-pg-gender1">Male</label>
+								<input type="radio" name="edge-pg-gender-edit" id="edge-pg-gender2" value="female">
+								<label for="edge-pg-gender2">Female</label>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_GENDER_F">
+								<input type="radio" name="edge-pg-gender-edit" id="edge-pg-gender1" value="male">
+								<label for="edge-pg-gender1">Male</label>
+								<input type="radio" name="edge-pg-gender-edit" id="edge-pg-gender2" value="female" checked="checked">
+								<label for="edge-pg-gender2">Female</label>
+								</TMPL_IF>
+							</fieldset>
+		                    		</div>
+			                	<div class="ui-field-contain">
+						        <label for="pg-cb-age-edit" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Age</label>
+							<TMPL_IF NAME="SMD_AGE">
+							<input type="checkbox" name="pg-cb-age-edit" id="pg-cb-age-edit" data-mini="true" checked>
+							<TMPL_ELSE>
+							<input type="checkbox" name="pg-cb-age-edit" id="pg-cb-age-edit" data-mini="true">
+							</TMPL_IF>
+		                    		</div>
+			                	<div class="ui-field-contain" id="human-age-edit">
+						        <label for="edge-pg-age-edit"></label>
+							<input type="number" name="edge-pg-age-edit" id="edge-pg-age-edit" data-mini="true" data-clear-btn="true" value="<TMPL_VAR NAME=SMD_AGE DEFAULT=1>" min="1" max="130">
+		                    		</div>
+		                	</div>
+
+
+					<div class="ui-field-contain">
+						<label for="edge-sample-source-edit">Isolation Source</label>
+						<div id="edge-sample-source-options-host-edit">
+							<select data-mini="true" name="edge-sample-source-host-edit" id="edge-sample-source-host-edit">
+								<TMPL_IF NAME="SMD_SOURCE_blood">
+								<option value="blood"  selected>Blood</option>
+								<TMPL_ELSE>
+								<option value="blood">Blood</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_nasal">
+								<option value="nasal"  selected>Nasal</option>
+								<TMPL_ELSE>
+								<option value="nasal">Nasal</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_saliva">
+								<option value="saliva"  selected>Saliva (oral)</option>
+								<TMPL_ELSE>
+								<option value="saliva">Saliva (oral)</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_skin">
+								<option value="skin"  selected>Skin</option>
+								<TMPL_ELSE>
+								<option value="skin">Skin</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_sputum">
+								<option value="sputum"  selected>Sputum</option>
+								<TMPL_ELSE>
+								<option value="sputum">Sputum</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_stool">
+								<option value="stool"  selected>Stool (gut)</option>
+								<TMPL_ELSE>
+								<option value="stool">Stool (gut)</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_throat">
+								<option value="throat"  selected>Throat</option>
+								<TMPL_ELSE>
+								<option value="throat">Throat</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_vaginal">
+								<option value="vaginal"  selected>Vaginal</option>
+								<TMPL_ELSE>
+								<option value="vaginal">Vaginal</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_wound">
+								<option value="wound"  selected>Wound</option>
+								<TMPL_ELSE>
+								<option value="wound">Wound</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_other">
+								<option value="other"  selected>Other</option>
+								<TMPL_ELSE>
+								<option value="other">Other</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_unknown">
+								<option value="unknown"  selected>Unknown</option>
+								<TMPL_ELSE>
+								<option value="unknown">Unknown</option>
+								</TMPL_IF>
+							</select>
+						</div>
+				
+						<div id="edge-sample-source-options-nonhost-edit">
+							<select data-mini="true" name="edge-sample-source-nonhost-edit" id="edge-sample-source-nonhost-edit">
+								<TMPL_IF NAME="SMD_SOURCE_air">
+								<option value="air"  selected>Air</option>
+								<TMPL_ELSE>
+								<option value="air">Air</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_be">
+								<option value="built-environment"  selected>Built-environment</option>
+								<TMPL_ELSE>
+								<option value="built-environment">Built-environment</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_mb">
+								<option value="microbial mat/biofilm"  selected>Microbial mat/biofilm</option>
+								<TMPL_ELSE>
+								<option value="microbial mat/biofilm">Microbial mat/biofilm</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_plant">
+								<option value="plant"  selected>Plant</option>
+								<TMPL_ELSE>
+								<option value="plant">Plant</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_sediment">
+								<option value="sediment"  selected>Sediment</option>
+								<TMPL_ELSE>
+								<option value="sediment">Sediment</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_soil">
+								<option value="soil"  selected>Soil</option>
+								<TMPL_ELSE>
+								<option value="soil">Soil</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_water">
+								<option value="water"  selected>Water</option>
+								<TMPL_ELSE>
+								<option value="water">Water</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_ws">
+								<option value="wastewater/sludge"  selected>Wastewater/Sludge</option>
+								<TMPL_ELSE>
+								<option value="wastewater/sludge">Wastewater/Sludge</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_other">
+								<option value="other"  selected>Other</option>
+								<TMPL_ELSE>
+								<option value="other">Other</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SOURCE_unknown">
+								<option value="unknown"  selected>Unknown</option>
+								<TMPL_ELSE>
+								<option value="unknown">Unknown</option>
+								</TMPL_IF>
+							</select>
+						</div>
+		                	</div>
+		                	
+			           	<div class="ui-field-contain">
+						<label for="edge-pg-sample-source-detail-edit"></label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-sample-source-detail-edit" id="edge-pg-sample-source-detail-edit" maxlength="30"  value="<TMPL_VAR NAME=SMD_SOURCE_DETAIL DEFAULT=>" placeholder="More detailed Information">
+		                    	</div>
+		                	
+					<div class="ui-field-contain">
+						<label for="edge-pg-collection-date-edit">Collection Date</label>
+						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-collection-date-edit" id="edge-pg-collection-date-edit" maxlength="30"  value="<TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=>">
+					</div>
+
+
+					<!-- geo autocomplete -->
+
+					<div class="map_canvas" id="map_canvas" ></div>
+					<div class="ui-field-contain">
+						<label>Location</label>
+					      	<input id="geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below"/>
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="locality" id="edge-pg-sample-city-edit" data-mini="true" data-clear-btn="false"type="text" placeholder="City" value="<TMPL_VAR NAME=SMD_CITY DEFAULT=>">
+					</div>
+
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="administrative_area_level_1"  id="edge-pg-sample-state-edit" data-mini="true" data-clear-btn="false"type="text"placeholder="State"value="<TMPL_VAR NAME=SMD_STATE DEFAULT=>">
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="country" id="edge-pg-sample-country-edit" data-mini="true" data-clear-btn="false"type="text" placeholder="Country" value="<TMPL_VAR NAME=SMD_COUNTRY DEFAULT=>">
+					</div>
+
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="lat" id="edge-pg-sample-lat-edit" data-mini="true" data-clear-btn="false"type="text" placeholder="Latitude" value="<TMPL_VAR NAME=SMD_LAT DEFAULT=>">
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="lng" id="edge-pg-sample-lng-edit" data-mini="true" data-clear-btn="false"type="text" placeholder="Longitude" value="<TMPL_VAR NAME=SMD_LNG DEFAULT=>">
+					</div>
+					
+
+					<!-- end geo -->
+
+
+					<div class="ui-field-contain">
+						<label for="edge-pg-seq-platform-edit">Sequencing Platform</label>
+						<div id="edge-pg-seq-platform-options-edit">
+							<select data-mini="true" name="edge-pg-seq-platform-edit" id="edge-pg-seq-platform-edit">
+								<TMPL_IF NAME="SMD_SEQ_PLATFORM_ILL">
+								<option value="Illumina" selected>Illumina</option>
+								<TMPL_ELSE>
+								<option value="Illumina">Illumina</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQ_PLATFORM_ION">
+								<option value="IonTorrent" selected>IonTorrent</option>
+								<TMPL_ELSE>
+								<option value="IonTorrent">IonTorrent</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQ_PLATFORM_NAN">
+								<option value="Nanopore" selected>Nanopore</option>
+								<TMPL_ELSE>
+								<option value="Nanopore">Nanopore</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQ_PLATFORM_PAC">
+								<option value="PacBio" selected>PacBio</option>
+								<TMPL_ELSE>
+								<option value="PacBio">PacBio</option>
+								</TMPL_IF>
+							</select>
+						</div>
+					</div>
+		                	</div><div class="ui-field-contain">
+						<label for="edge-pg-sequencer-edit">Sequencer</label>
+						<div id="edge-pg-sequencer-options-ill-edit">
+							<select data-mini="true" name="edge-pg-sequencer-ill-edit" id="edge-pg-sequencer-ill-edit">
+								<TMPL_IF NAME="SMD_SEQUENCER_ILL_Hi">
+								<option value="HiSeq" selected>HiSeq</option>
+								<TMPL_ELSE>
+								<option value="HiSeq">HiSeq</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ILL_HiX">
+								<option value="HiSeq X" selected>HiSeq X</option>
+								<TMPL_ELSE>
+								<option value="HiSeq X">HiSeq X</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ILL_Min">
+								<option value="MiniSeq" selected>MiniSeq</option>
+								<TMPL_ELSE>
+								<option value="MiniSeq">MiniSeq</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ILL_Mi">
+								<option value="MiSeq" selected>Miseq</option>
+								<TMPL_ELSE>
+								<option value="MiSeq">Miseq</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ILL_Next">
+								<option value="NextSeq" selected>Nextseq</option>
+								<TMPL_ELSE>
+								<option value="NextSeq">Nextseq</option>
+								</TMPL_IF>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-ion-edit">
+							<select data-mini="true" name="edge-pg-sequencer-ion-edit" id="edge-pg-sequencer-ion-edit">
+								<TMPL_IF NAME="SMD_SEQUENCER_ION_S5">
+								<option value="Ion S5" selected>Ion S5</option>
+								<TMPL_ELSE>
+								<option value="Ion S5">Ion S5</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ION_PGM">
+								<option value="Ion PGM" selected>Ion PGM</option>
+								<TMPL_ELSE>
+								<option value="Ion PGM">Ion PGM</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_ION_Proton">
+								<option value="Ion Proton" selected>Ion Proton</option>
+								<TMPL_ELSE>
+								<option value="Ion Proton">Ion Proton</option>
+								</TMPL_IF>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-nan-edit">
+							<select data-mini="true" name="edge-pg-sequencer-nan-edit" id="edge-pg-sequencer-nan-edit">
+								<TMPL_IF NAME="SMD_SEQUENCER_NAN_Minion">
+								<option value="MinIon" selected>MinIon</option>
+								<TMPL_ELSE>
+								<option value="MinIon">MinIon</option>
+								</TMPL_IF>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-pac-edit">
+							<select data-mini="true" name="edge-pg-sequencer-pac-edit" id="edge-pg-sequencer-pac-edit">
+								<TMPL_IF NAME="SMD_SEQUENCER_PAC_RS">
+								<option value="RS II" selected>RS II</option>
+								<TMPL_ELSE>
+								<option value="RS II">RS II</option>
+								</TMPL_IF>
+								<TMPL_IF NAME="SMD_SEQUENCER_PAC_Sequel">
+								<option value="Sequel" selected>Sequel</option>
+								<TMPL_ELSE>
+								<option value="Sequel">Sequel</option>
+								</TMPL_IF>
+							</select>
+						</div>
+		                	</div>
+					<div class="ui-field-contain">
+						<label for="edge-pg-seq-date-edit">Sequencing Date</label>
+						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-seq-date-edit" id="edge-pg-seq-date-edit" maxlength="30" value="<TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=>">
+					</div>
+		
+
+			<div class="edge-center">
+				<input data-mini="true" type="button" id="edge-sample-metadata-form-submit" data-inline="true" class="edge-center" value="Save">
+				<input data-mini="true" type="button" id="edge-sample-metadata-form-cancel" data-inline="true" class="edge-center" value="Cancel">
+				<input data-mini="true" type="button" id="edge-sample-metadata-form-reset" data-inline="true" class="edge-center" value="Reset">
+			</div>
+		</form>
+
+	</div><!-- /content -->
+
+
+	<div data-role='footer' data-position='fixed' data-tap-toggle='false' class='edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup' role='contentinfo'>
+		<div class='edge-footer-logo'>
+			<img src='images/logo_DTRA.png'/>
+			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
+	</div><!-- /footer -->
+
+
+
+</div><!-- /page -->
+
+</body></html>

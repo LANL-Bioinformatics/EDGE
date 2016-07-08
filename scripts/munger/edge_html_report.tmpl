@@ -112,6 +112,48 @@
 			</table>
 		</div>
 		
+<!--sample metadata -->	
+	<TMPL_IF NAME="OUT_SAMPLE_METADATA">
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Sample Metadata</h4>
+			<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				<thead>
+					<tr>
+					  <th data-priority='1'></th>
+					  <th data-priority='2'></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr><td>Sample Type</td><td><TMPL_VAR NAME=SMD_TYPE DEFAULT=-></td></tr>
+					<TMPL_IF NAME="OUT_SMD_HOST">
+						<tr><td>Host</td><td><TMPL_VAR NAME=SMD_HOST DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_HOST_CONDITION">
+						<tr><td>Host Condition</td><td><TMPL_VAR NAME=SMD_HOST_CONDITION DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_GENDER">
+						<tr><td>Gender</td><td><TMPL_VAR NAME=SMD_GENDER DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_AGE">
+						<tr><td>Age</td><td><TMPL_VAR NAME=SMD_AGE DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<tr><td>Source</td><td><TMPL_VAR NAME=SMD_SOURCE DEFAULT=-></td></tr>
+					<tr><td>Source Detailed Information</td><td><TMPL_VAR NAME=SMD_SOURCE_DETAIL DEFAULT=-></td></tr>
+					<tr><td>Collection Date</td><td><TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=-></td></tr>
+					<tr><td>City</td><td><TMPL_VAR NAME=SMD_CITY DEFAULT=-></td></tr>
+					<tr><td>State</td><td><TMPL_VAR NAME=SMD_STATE DEFAULT=-></td></tr>
+					<tr><td>Country</td><td><TMPL_VAR NAME=SMD_COUNTRY DEFAULT=-></td></tr>
+					<tr><td>Latitude</td><td><TMPL_VAR NAME=SMD_LAT DEFAULT=-></td></tr>
+					<tr><td>Longitude</td><td><TMPL_VAR NAME=SMD_LNG DEFAULT=-></td></tr>
+					<tr><td>Sequencing Platform</td><td><TMPL_VAR NAME=SMD_SEQ_PLATFORM DEFAULT=-></td></tr>
+					<tr><td>Sequencer</td><td><TMPL_VAR NAME=SMD_SEQUENCER DEFAULT=-></td></tr>
+					<tr><td>Sequencing Date</td><td><TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=-></td></tr>
+				  </tbody>
+			</table>
+		</div>
+	</TMPL_IF>
+<!-- END sample metatdata -->	
+
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<TMPL_IF NAME="SRADERR">
 			<p class="error"><TMPL_VAR NAME=SRADERR></p>

@@ -59,6 +59,11 @@ if ( $username && $password || $um_config == 0){
 		print "\t\t<option value='publish'>Make Selected Projects Public</option>\n";
 	}
 	print "\t\t<option value='compare'>Compare Selected Projects Gottcha Results(HeatMap)</option>\n";
+	#sample metadata
+	if($sys->{edge_sample_metadata}) {
+		print "\t\t<option value='metadata-bsveadd'>Share Selected Projects' Metadata with BSVE</option>\n";
+	}
+	#END sample metadata
 	print "\t</select>\n</div>\n";
 }
 

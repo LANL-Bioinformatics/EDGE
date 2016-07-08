@@ -9,6 +9,7 @@ use Cwd;
 use FindBin qw($RealBin);
 use lib "$RealBin/lib";
 #use File::Tee qw(tee);
+require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$ENV{PATH}";
 $ENV{PERL5LIB} = "$RealBin/lib:$ENV{PERL5LIB}";
@@ -283,6 +284,7 @@ if ($configuration->{DoAssembly} and $contigFile)
 # generate JBrowse Tracks
 &writeJBrowseInfo($outDir) if ($configuration->{DoJBrowse});
 
+my $taxonomy_report_dir;
 my $conversion_cmd_array_ref = &MergeReport();
 
 #&lprint ("All Done. \n See $final_report for the Final pdf Report\n");
@@ -290,6 +292,20 @@ my $conversion_cmd_array_ref = &MergeReport();
 
 &generateHTMLreport($outDir,$conversion_cmd_array_ref) if ($configuration->{DoHTMLReport});
 #&updateProjectHTML($outDir,$start_time_string) if ($configuration->{DoHTMLReport});
+
+##pathogen detection 
+my $taxonomy_summary = "$taxonomy_report_dir/summary.txt";
+if($sys->{edge_pathogen_detection} && -e $taxonomy_summary) {
+	&detectPathogen($taxonomy_summary);
+}
+##END pathogen detection
+##sample metadata submission
+if($sys->{edge_sample_metadata_autosubmit2bsve}) {
+        &lprint ("\nSubmit metadata to bsve ...");
+	&pushSampleMetadata("add", $outDir, $sys);
+        &lprint ("Metadata finished.\n\n");
+}
+##END sample metadata
 
 &lprint ("Total");
 
@@ -1420,7 +1436,7 @@ my $numOfpairedFiles=0;
 
 my $ref_file_names;
 my $taxonomy_prefix;
-my $taxonomy_report_dir;
+
 if ($referenceGenome)
 {
     my $ref_file_list="$outDir/Reference/ref_list.txt";
@@ -1577,7 +1593,7 @@ print $Rfh <<Rscript;
 pdf(file = "$readsMappingToRefStatsPDF",width = 10, height = 8)
   
 readsMappingToRefStats<-readLines("$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt",n=11)
-reedsMappingToRefStats<-sub("-?nan","0",readsMappingToRefStats,ignore.case = TRUE)
+readsMappingToRefStats<-gsub("-?nan","0",readsMappingToRefStats,ignore.case = TRUE)
 plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
 for (i in 1:length(readsMappingToRefStats)){
      text(0,1-0.07*i,readsMappingToRefStats[i],adj=0,font=2)
@@ -3448,4 +3464,18 @@ sub lprint {
       my ($line) = @_;
       print LOG $line;  
       print $line;
+}
+
+sub detectPathogen
+{
+	my $summary =shift;
+	my $log = "$outDir/pathogenDetect.log";
+	my $dbhost = $sys->{pathogen_dbhost};
+	my $dbname = $sys->{pathogen_dbname};
+	my $dbuser = $sys->{pathogen_dbuser};
+	my $dbpasswd = $sys->{pathogen_dbpasswd};
+	my $cmd="python $RealBin/scripts/identify_pathogens.py -i $summary -o $outDir/pathogens.txt -d $dbhost -n $dbname -u $dbuser -p $dbpasswd 2>\&1 1>$log";
+    	&lprint ("\n Running \n $cmd\n");
+   	&executeCommand("$cmd"); 
+    	&lprint ("Pathogen detection finished.\n");
 }

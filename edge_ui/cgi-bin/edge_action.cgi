@@ -18,6 +18,9 @@ use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
+##sample metadata
+require "../metadata_scripts/metadata_api.pl";
+#END
 
 my $cgi    = CGI->new;
 my %opt    = $cgi->Vars();
@@ -83,7 +86,7 @@ my $time = strftime "%F %X", localtime;
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
 $info->{STATUS} = "FAILURE";
 #$info->{INFO}   = "Project $pname not found.";
-if ($memUsage > 99 or $cpuUsage > 99){
+if ($memUsage > 99 or $cpuUsage > 99  and $action ne 'interrupt'){
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
@@ -124,6 +127,7 @@ if ( $sys->{user_management} )
 		$permission->{tarproj} = 1;
 		$permission->{getcontigbytaxa} = 1;
 		$permission->{getreadsbytaxa} = 1;
+		$permission->{metadata} = 1;
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
@@ -575,7 +579,60 @@ elsif( $action eq 'compare'){
 			close STDOUT;
 		}
 	}
+}elsif( $action eq 'metadata-delete' ){
+##sample metatdata
+	$info->{STATUS} = "SUCCESS";
+	$info->{INFO}   = "Project $real_name sample metadata has been deleted.";
+
+	my $metadata = "$proj_dir/sample_metadata.txt";
+	if( -e $metadata ){
+		if(-w $metadata) {
+			my $bsveId = `grep -a "bsve_id=" $metadata | awk -F'=' '{print \$2}'`;
+			chomp $bsveId;
+			`rm -f $metadata`;
+			if($bsveId) {#keep bsve_id 
+				open OUT,  ">$metadata";
+				print OUT "bsve_id=$bsveId"."\n";
+				close OUT;
+			}
+		} else {
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to delete the sample metadata.";
+		}
+	}
+} elsif($action eq 'metadata-bsveadd') { 
+	if( $sys->{user_management} && !$permission->{metadata} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	if(pushSampleMetadata("add", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been submitted to the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to submit the sample metadata to the BSVE server";
+	}
+
+} elsif($action eq 'metadata-bsveupdate') {
+	if(pushSampleMetadata("update", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been updated in the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to update the sample metadata in the BSVE server";
+	}
+
+} elsif($action eq 'metadata-bsvedelete') {
+	if(pushSampleMetadata( "delete", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been deleted from the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to delete the sample metadata from the BSVE server.";
+	}
 }
+#END sample metadata
+
 &returnStatus();
 
 ######################################################
@@ -913,3 +970,4 @@ sub getSystemUsage {
                 return (0,0,0);
         }
 }
+
