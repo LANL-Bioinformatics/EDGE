@@ -160,7 +160,7 @@ my @real_names = @pnames;
 
 #init SUBMISSION_STATUS
 $msg->{SUBMISSION_STATUS}="success";
-print Dumper(\%opt);
+
 # validating parameters
 &checkParams();
 
