@@ -18,7 +18,7 @@ use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
-#use Data::Dumper;
+use Data::Dumper;
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 
@@ -36,8 +36,8 @@ my $projConfigTmpl  = "$RealBin/edge_config.tmpl";
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 my $um_url      = $sys->{edge_user_management_url};
-my $protocol    = $opt{protocol};
-my $domain      = $ENV{'HTTP_HOST'};
+my $protocol    = $opt{protocol}|| 'http:';
+my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 $um_url ||= "$protocol//$domain/userManagement";
 my $debug       = $sys->{debug};
 
@@ -61,10 +61,10 @@ $out_dir      ||= $sys->{edgeui_output};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
 my $num_cpu     = $opt{"edge-proj-cpu"};
 $edge_total_cpu = $cluster_job_max_cpu if ($cluster);
-$num_cpu      ||= 4;
-my $username 	= $opt{'username'} || $ARGV[1];
-my $password 	= $opt{'password'} || $ARGV[2];
-my $sid         = $opt{'sid'} || $ARGV[3];
+if(!$num_cpu){  $num_cpu=2; $opt{"edge-proj-cpu"}=2; }
+my $username 	= $opt{'username'};
+my $password 	= $opt{'password'};
+my $sid         = $opt{'sid'};
 
 #my $proj_dir    = "$out_dir/$opt{'edge-proj-name'}";
 #my $config_out  = "$proj_dir/config.txt";
@@ -80,6 +80,48 @@ my @edge_qiime_mapping_files = split /[\x0]/, $opt{"edge-qiime-mapping-file-inpu
 my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
 my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
+
+#####  Chienchi add for batch sra submit #######
+my $batch_sra_run=0;
+if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
+	$batch_sra_run=1;
+	$sys->{user_management}=0;
+	$opt{'edge-proj-name'} = $pname;
+	$opt{'edge-sra-sw'} =1;
+	$opt{'edge-sra-acc'} = $ARGV[1];
+	$opt{'edge-proj-desc'} = $ARGV[2];
+	$opt{'edge-qc-sw'} =1;
+	$opt{'edge-qc-q'} = 5; 
+	$opt{'edge-qc-minl'} = 50; 
+	$opt{'edge-qc-avgq'} = 0; 
+	$opt{'edge-qc-n'} = 0; 
+	$opt{'edge-qc-lc'} = 0.85; 
+	$opt{'edge-qc-5end'} = 0; 
+	$opt{'edge-qc-3end'} = 0; 
+
+	$opt{'edge-assembly-sw'}=0;
+	$opt{'edge-taxa-allreads'} =1;
+	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa";
+
+        ###sample metadata
+        $opt{"edge-metadata-sw"} = 1; 
+        $opt{'edge-sample-type'} = $ARGV[3];
+	$opt{'edge-sample-source-host'} = $ARGV[4];
+        $opt{'edge-sample-source-nonhost'} = $ARGV[4];
+        $opt{'edge-pg-collection-date'} = $ARGV[5];
+	$opt{'locality'} = $ARGV[6] if $ARGV[6] ne "NA";
+	$opt{'administrative_area_level_1'} = $ARGV[7] if $ARGV[7] ne "NA";
+	$opt{'country'} = $ARGV[8];
+	$opt{'lat'} = $ARGV[9];
+	$opt{'lng'} = $ARGV[10];
+	$opt{'edge-pg-seq-platform'} = $ARGV[11];
+	$opt{'edge-pg-sequencer-ill'} = $ARGV[12];
+	$opt{'edge-pg-sequencer-ion'} = $ARGV[12];
+	$opt{'edge-pg-sequencer-nan'} = $ARGV[12];
+	$opt{'edge-pg-sequencer-pac'} = $ARGV[12];
+        #END
+}
+###################
 
 #check session
 if( $sys->{user_management} ){
@@ -110,13 +152,15 @@ if ($opt{"edge-batch-input-excel"})
 {
 	$projlist = &readBatchInput();
 	@pnames = keys %{$projlist};
+}else{
+        push @pnames, $pname ;
 }
 
 my @real_names = @pnames;
 
 #init SUBMISSION_STATUS
 $msg->{SUBMISSION_STATUS}="success";
-
+print Dumper(\%opt);
 # validating parameters
 &checkParams();
 
@@ -149,6 +193,9 @@ if($cluster) {
 
 # re-use config or generate one
 &createConfig() if $msg->{SUBMISSION_STATUS} eq 'success';
+
+#create sample_metadata.txt file
+&createSampleMetadataFile() if $msg->{SUBMISSION_STATUS} eq 'success';
 
 # run pipeline
 if($cluster) {
@@ -702,6 +749,16 @@ sub checkParams {
 			next if $param eq "username";
 			next if $param eq "password";
 			next if $param =~ /aligner-options/;
+			##sample metadata
+			next if $param =~ /edge-pg/;
+			next if $param =~ /edge-sample/;
+			next if $param eq "locality";
+			next if $param eq "administrative_area_level_1";
+			next if $param eq "country";
+			next if $param eq "lat";
+			next if $param eq "lng";
+			next if $param eq "keywords";
+
 			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
@@ -903,6 +960,12 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qiime-sampling-depth","Invalid input. Natural number required.") unless $opt{"edge-qiime-sampling-depth"}=~ /^\d+$/;
 
 		
+	} else {##sample metadata
+		if ( $sys->{edge_sample_metadata} && $opt{"edge-metadata-sw"}){
+			#&addMessage("PARAMS", "country", "Metadata sample location country or lat&lng required.") unless ( $opt{'country'} || ($opt{'lat'} && $opt{'lng'})); 
+			#&addMessage("PARAMS", "edge-pg-collection-date", "Metadata sample collection date is required.") unless ( $opt{'edge-pg-collection-date'} ); 
+			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
+		} 
 	}
 }
 
@@ -991,4 +1054,59 @@ sub open_file
 	if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
 	else { $pid=open($fh,'<',$file) or die("$file: $!"); }
 	return ($fh,$pid);
+}
+
+##sample metadata
+sub createSampleMetadataFile {
+	foreach my $pname (@pnames){
+		my $metadata_out = "$out_dir/$pname/sample_metadata.txt";
+		$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/sample_metadata.txt" if ($username && $password);
+		if ( $sys->{edge_sample_metadata} && $opt{"edge-metadata-sw"}){
+			open OUT,  ">$metadata_out";
+			print OUT "type=".$opt{'edge-sample-type'}."\n" if ( $opt{'edge-sample-type'} ); 
+			if( $opt{'edge-sample-type'} eq "human") {
+				if($opt{'pg-cb-gender'}) {
+					print OUT "gender=".$opt{'edge-pg-gender'}."\n";
+				}
+				if($opt{'pg-cb-age'}) {
+					print OUT "age=".$opt{'edge-pg-age'}."\n";
+				}
+			}
+
+			if( $opt{'edge-sample-type'} eq "human" || $opt{'edge-sample-type'} eq "animal") {
+				print OUT "host=".$opt{'edge-pg-host'}."\n";
+				print OUT "host_condition=".$opt{'edge-pg-host-condition'}."\n";
+				print OUT "source=".$opt{'edge-sample-source-host'}."\n";
+			} else {
+				print OUT "source=".$opt{'edge-sample-source-nonhost'}."\n";
+			}
+			print OUT "source_detail=".$opt{'edge-pg-sample-source-detail'}."\n";
+			print OUT "collection_date=".$opt{'edge-pg-collection-date'}."\n" if ( $opt{'edge-pg-collection-date'} );
+			print OUT "city=".$opt{'locality'}."\n" if ( $opt{'locality'} );
+			print OUT "state=".$opt{'administrative_area_level_1'}."\n" if ( $opt{'administrative_area_level_1'} );
+			print OUT "country=".$opt{'country'}."\n" if ( $opt{'country'} );
+			print OUT "lat=".$opt{'lat'}."\n" if ( $opt{'lat'} );
+			print OUT "lng=".$opt{'lng'}."\n" if ( $opt{'lng'} );
+			print OUT "seq_platform=".$opt{'edge-pg-seq-platform'}."\n" if ( $opt{'edge-pg-seq-platform'} );
+
+			if($opt{'edge-pg-seq-platform'} eq "Illumina") {
+				print OUT "sequencer=".$opt{'edge-pg-sequencer-ill'}."\n";
+			} elsif($opt{'edge-pg-seq-platform'} eq "IonTorrent") {
+				print OUT "sequencer=".$opt{'edge-pg-sequencer-ion'}."\n";
+			} elsif($opt{'edge-pg-seq-platform'} eq "Nanopore") {
+				print OUT "sequencer=".$opt{'edge-pg-sequencer-nan'}."\n";
+			} elsif($opt{'edge-pg-seq-platform'} eq "PacBio") {
+				print OUT "sequencer=".$opt{'edge-pg-sequencer-pac'}."\n";
+			}
+
+			print OUT "seq_date=".$opt{'edge-pg-seq-date'}."\n" if ( $opt{'edge-pg-seq-date'} );
+
+			close OUT;
+		} else {
+			if(-e $metadata_out) {
+				`rm $metadata_out`;
+			}
+
+		}
+	}
 }

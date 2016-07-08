@@ -25,6 +25,11 @@ my $NUM_READS_FOR_DOWNSTREAM = 0;
 
 eval {
 	&pull_summary();
+
+	## sample metadata
+	&pull_sampleMetadata();
+	#END
+
 	&pull_fastqCount();
 	&pull_qc();
 	&pull_assy();
@@ -121,6 +126,9 @@ sub output_html {
 	#reformat number with thousand separator
 	foreach my $var ( keys %$vars ){
 		next if ($var eq "PROJID");
+		#sample metadata
+		next if ($var =~ /SMD_/);
+		#END sample metadata
 		if( ref($vars->{$var}) eq 'ARRAY' ){
 			for( my $i=0; $i < scalar(@{$vars->{$var}}); $i++ ){
 				if( ref($vars->{$var}[$i]) eq 'HASH' ){
@@ -191,6 +199,73 @@ sub prep_jbrowse_link {
 	$vars->{JB_REF_CDS_CTG}  = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CCTG2REF"; 
 	$vars->{JB_REF_CDS_BAM}  = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CBAM"; 
 }
+
+
+## sample metadata
+sub pull_sampleMetadata {
+	my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
+	my $sys          = &getSysParamFromConfig($sysconfig);
+	if($sys->{edge_sample_metadata}) {
+		$vars->{OUT_SAMPLE_METADATA}   = 1;
+	}
+	my $metadata = "$out_dir/sample_metadata.txt";
+	if(-e $metadata) {
+        	open CONF, $metadata or die "Can't open $metadata $!";
+        	while(<CONF>){
+      			chomp;
+               	 	next if(/^#/);
+           		if ( /(.*)=(.*)/ ){
+             			$vars->{SMD_TYPE} =$2 if ($1 eq "type");
+             			$vars->{OUT_SMD_GENDER} =1 if ($1 eq "gender");
+             			$vars->{SMD_GENDER} =$2 if ($1 eq "gender");
+             			$vars->{OUT_SMD_AGE} =1 if ($1 eq "age");
+             			$vars->{SMD_AGE} =$2 if ($1 eq "age");
+             			$vars->{OUT_SMD_HOST} =1 if ($1 eq "host");
+             			$vars->{SMD_HOST} =$2 if ($1 eq "host");
+             			$vars->{OUT_SMD_HOST_CONDITION} =1 if ($1 eq "host_condition");
+             			$vars->{SMD_HOST_CONDITION} =$2 if ($1 eq "host_condition");
+             			$vars->{SMD_SOURCE} =$2 if ($1 eq "source");
+             			$vars->{SMD_SOURCE_DETAIL} =$2 if ($1 eq "source_detail");
+             			$vars->{SMD_COLLECTION_DATE} =$2 if ($1 eq "collection_date");
+             			$vars->{SMD_CITY} =$2 if ($1 eq "city");
+             			$vars->{SMD_STATE} =$2 if ($1 eq "state");
+             			$vars->{SMD_COUNTRY} =$2 if ($1 eq "country");
+             			$vars->{SMD_LAT} =$2 if ($1 eq "lat");
+             			$vars->{SMD_LNG} =$2 if ($1 eq "lng");
+             			$vars->{SMD_SEQ_PLATFORM} =$2 if ($1 eq "seq_platform");
+             			$vars->{SMD_SEQUENCER} =$2 if ($1 eq "sequencer");
+             			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "seq_date");
+             			$vars->{SMD_ID} =$2 if ($1 eq "id");
+              		}
+      		  }
+        	close CONF;
+	} else {
+		$vars->{OUT_SAMPLE_NO_METADATA}   = 1;
+	}
+}
+
+
+sub getSysParamFromConfig {
+	my $config = shift;
+	my $sys;
+	open CONF, $config or die "Can't open $config: $!";
+	while(<CONF>){
+		if( /^\[system\]/ ){
+			while(<CONF>){
+				chomp;
+				last if /^\[/;
+				if ( /^([^=]+)=([^=]+)/ ){
+					$sys->{$1}=$2;
+				}
+			}
+		}
+		last;
+	}
+	close CONF;
+	return $sys;
+}
+
+##END sample metadata
 
 sub pull_assy {
 	my $err;
@@ -1095,6 +1170,7 @@ sub pull_summary {
 			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure. The process has failed unexpectedly. Please contact system administrator. Or try to rerun the job</span>" if (/Unexpected exit/);
 		}
 		elsif( /All Done/){
+			$prog->{$ord}->{GNLSTATUS} = "Complete";
 			$vars->{PROJSTATUS} = "Complete";
 		}
 		$lastline = $_;
