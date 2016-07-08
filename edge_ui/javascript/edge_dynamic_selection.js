@@ -1,15 +1,17 @@
-//init host
-$.getJSON( "data/host_list.json", function( data ) {
-	var genomeIds = Object.keys(data);
-	genomeIds.sort();
+function addHostList(){
+	//init host
+	$.getJSON( "data/host_list.json", function( data ) {
+		var genomeIds = Object.keys(data);
+		genomeIds.sort();
 
-	$.each( genomeIds, function( key, val ) {
-		var name=val;
-		name = name.replace(/_/g, " ");
-		$("#edge-hostrm-file-fromlist").append($("<option value="+val+">"+name+"</option>"));
+		$.each( genomeIds, function( key, val ) {
+			var name=val;
+			name = name.replace(/_/g, " ");
+			$("#edge-hostrm-file-fromlist").append($("<option value="+val+">"+name+"</option>"));
+		});
+		$("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
 	});
-	$("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
-});
+}
 
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
@@ -123,17 +125,18 @@ $.mobile.document
          }
         // select all or none 
          $("#"+id+"-none").click(function() {
-   	     		list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
-   	     		list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
-   	     		$select_menu.find("option:not([disabled])").removeAttr("selected");
-   	     		$select_menu.selectmenu('refresh');
-   	     });
-   	     $("#"+id+"-all").click(function() {
-   	     		list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
-   	     		list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
-   	     		$select_menu.find("option:not([disabled])").attr("selected",'selected');
-   	     		$select_menu.selectmenu('refresh');
-   	     });
+   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
+   	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
+   	     	$select_menu.find("option:not([disabled])").removeAttr("selected");
+   	     	$select_menu.selectmenu('refresh');
+   	 });
+   	 $("#"+id+"-all").click(function() {
+   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
+   	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
+   	     	$select_menu.find("option:not([disabled])").attr("selected",'selected');
+		list.children().not(".ui-screen-hidden").attr("aria-selected",true);
+   	     	$select_menu.selectmenu('refresh');
+   	 });
     })
     // The custom select list may show up as either a popup or a dialog, depending on how much
     // vertical room there is on the screen. If it shows up as a dialog, then the form containing
@@ -185,6 +188,7 @@ $.mobile.document
     });
 
 $( document ).ready(function(){
+	//addHostList();
 	$('#edge-phylo-ref-select-listbox').on( "popupafterclose", function(){
 		AddSelectRefList();
 	});
