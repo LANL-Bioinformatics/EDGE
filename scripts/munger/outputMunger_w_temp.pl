@@ -830,7 +830,7 @@ sub pull_taxa {
 		chomp;
 		my @temp = split /\t/, $_;
 		my $row;
-		next if $temp[1] =~ /gottcha-(\w{3})DB/ && $temp[2] !~ /$1/;
+		next if $temp[1] =~ /gottcha\d?-(\w{3})DB/ && $temp[2] !~ /$1/;
 		next if $temp[1] =~ /^TOOL$/;
 
 		if( scalar @temp > 5 ){
@@ -868,7 +868,10 @@ sub pull_taxa {
 			### tool result
 			next if $temp[2] ne "species";
 			my $tool;
-			$tool->{CPTOOL_CPABU_PMD} = 1 if $toolname =~ /gottcha/;
+			$tool->{CPTOOL_CPABU_PMD} = 1 if $toolname =~ /gottcha-/;
+			$tool->{CPTOOL_GOTTCHA2_LINEAR_LEN} = 1 if $toolname =~ /gottcha2-/;
+			$tool->{CPTOOL_GOTTCHA2_LINEAR_DOC} = 1 if $toolname =~ /gottcha2-/;
+
 			
 			my $count=0;
 			if (-e $abu_list){
@@ -883,12 +886,20 @@ sub pull_taxa {
 						$res_row->{CPABU_TAX} = ($t[1] =~ /unclassied|unassign/i or $t[1] eq "NA" )? $t[1]:
 									"<a href=\'http://www.ncbi.nlm.nih.gov/genome/?term=\"$t[1]\"\' target='_blank' >$t[1]</a>";
 						$res_row->{CPABU_DOWNLOAD_TAX} = $t[1];
+						$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[1];
 					
-						if( $toolname =~ /gottcha/ ){
+						if( $toolname =~ /gottcha-/ ){
 							$res_row->{CPABU_REA} = _reformat_val($t[8]);
 							$res_row->{CPABU_PMD} = sprintf "%.1f", ($t[7]/$t[6]*100);
 							$res_row->{CPTOOL_CPABU_PMD} = 1;
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[2]*100);
+						}
+						elsif( $toolname =~ /gottcha2/ ){
+							$res_row->{CPABU_REA} = _reformat_val($t[2]);
+							$res_row->{GOTTCHA2_LINEAR_LEN} = _reformat_val($t[8]);
+							$res_row->{GOTTCHA2_LINEAR_DOC} = sprintf "%.2f", $t[9];
+							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[10]*100);
+							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 						}
 						elsif( $toolname =~ /metaphlan/ ){
 							$res_row->{CPABU_REA} = "N/A";
@@ -912,6 +923,8 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} =~ s/\b(\w)/\U$1/g;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (bacterial species database)" if $row->{CPTOOL} =~ /gottcha-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;
+			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (bacterial species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
+			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
 			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken_mini/;
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 

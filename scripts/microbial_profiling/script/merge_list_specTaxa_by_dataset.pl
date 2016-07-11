@@ -23,24 +23,21 @@ my $data;
 my $tools;
 my $filters;
 my %tool_order=(
-	'blastn'          => 10,
-	'bwa'             => 20,
-	'bwa-target'      => 25,
-	'kraken'          => 26,
-	'kraken_mini'     => 27,
-	'gottcha-genDB-b' => 30,
-	'gottcha-speDB-b' => 40,
-	'gottcha-strDB-b' => 50,
-	'sequedex-opg'    => 90,
-	'sequedex-tol'    => 100,
-	'metaphlan'       => 110,
-	'metacv'          => 120,
-	'metaphyler-bn'   => 130,
-	'metaphyler-bx'   => 140,
-	'metaphyler-srv'  => 150,
-	'gottcha-genDB-v' => 160,
-	'gottcha-speDB-v' => 161,
-	'gottcha-strDB-v' => 162
+	'gottcha2-genDB-v' => 1,
+	'gottcha2-speDB-v' => 2,
+	'gottcha2-strDB-v' => 3,
+	'gottcha-genDB-v'  => 4,
+	'gottcha-speDB-v'  => 5,
+	'gottcha-strDB-v'  => 6,
+	'blastn'           => 7,
+	'bwa-target'       => 8,
+	'kraken'           => 9,
+	'kraken_mini'      => 10,
+	'sequedex-opg'     => 11,
+	'sequedex-tol'     => 12,
+	'metaphlan'        => 13,
+	'metacv'           => 14,
+	'bwa'              => 15
 );
 
 #parsing filter
@@ -65,11 +62,11 @@ foreach my $file ( @listfile ){
 	($dataset,$tool) = $file =~ /\d+_([^\/]+)\/([^\/]+)\/([^\/]+)\.[^\.]+$/;
 
 	if( $opt{level} =~ /species/i ){
-		next if $tool =~ /gottcha-genDB/;
+		next if $tool =~ /gottcha\d?-genDB/;
 	}
 	elsif( $opt{level} =~ /strain/i ){
-		next if $tool =~ /gottcha-speDB/;
-		next if $tool =~ /gottcha-genDB/;
+		next if $tool =~ /gottcha\d?-speDB/;
+		next if $tool =~ /gottcha\d?-genDB/;
 	}
 
 	$tools->{$tool}=1;

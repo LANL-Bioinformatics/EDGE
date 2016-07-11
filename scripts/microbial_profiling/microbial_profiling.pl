@@ -302,6 +302,10 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           then
             samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam;
           fi 
+          if [ -e $outdir/$prefix.gottcha_*.sam ]
+          then
+            cp $outdir/$prefix.gottcha_*.sam $tool_rep_dir/;
+          fi 
           if [ -e $outdir/$prefix.out.read_classification ]
           then
             cp $outdir/$prefix.out.read_classification $tool_rep_dir/$fnb-$tool.read_classification
