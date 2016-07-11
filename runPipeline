@@ -977,6 +977,7 @@ sub variantAnalysis
     my $r2g_outputDir="$outDir/ReadsBasedAnalysis/readsMappingToRef/";
     my $c2g_gapAnalysisOutput="$outputDir/GapVSReference.report.txt";
     my $r2g_gapAnalysisOutput="$r2g_outputDir/GapVSReference.report.txt";
+    my $r2g_gapJSONanalysisOutput = "$r2g_outputDir/GapVSReference.report.json";
     my $log2 = "$r2g_outputDir/variantAnalysis.log";
     my $cmd;
     if ($noColorLog)
@@ -1013,6 +1014,8 @@ sub variantAnalysis
     &lprint (" Running \n $cmd\n") if ( -s $r2g_gap_file);
     &executeCommand($cmd) if ( -s $r2g_gap_file); 
     &printRunTime($time);
+    $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
+    &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );
     system("touch $outputDir/variantAnalysis.finished") if ( -e $outputDir);
     system("touch $r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;
@@ -1768,7 +1771,7 @@ sub runQC
     my $quality_cutoff = $configuration->{"q"} || 5;
     my $min_length = $configuration->{"min_L"} || 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
-    my $num_N = ($configuration->{"n"})? $$configuration->{"n"} : 2;
+    my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 2;
     my $low_complexity = $configuration->{"lc"} || 0.85;
     my $cut_3_end = ($configuration->{"3end"})? $configuration->{"3end"}: 0;
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
