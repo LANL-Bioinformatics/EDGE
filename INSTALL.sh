@@ -628,7 +628,7 @@ echo "--------------------------------------------------------------------------
                            Compiling FastTree
 ------------------------------------------------------------------------------
 "
-gcc -DOPENMP -fopenmp -O3 -finline-functions -funroll-loops -Wall -o FastTreeMP FastTree.c -lm
+gcc -DOPENMP -DUSE_DOUBLE -fopenmp -O3 -finline-functions -funroll-loops -Wall -o FastTreeMP FastTree.c -lm
 cp -f FastTreeMP $rootdir/bin/.
 echo "
 ------------------------------------------------------------------------------
@@ -1356,7 +1356,13 @@ fi
 
 if ( checkSystemInstallation FastTreeMP )
 then
-  echo "FastTreeMP is found"
+  FastTree_VER=`FastTreeMP  2>&1 | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  if  ( echo $FastTree_VER | awk '{if($1>="2.1.8") exit 0; else exit 1}' )
+  then 
+    echo "FastTreeMP is found"
+  else
+    install_FastTree
+  fi
 else
   echo "FastTreeMP is not found"
   install_FastTree
