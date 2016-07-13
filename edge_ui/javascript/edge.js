@@ -892,8 +892,9 @@ $( document ).ready(function()
 		}
 	});
 
-	//confirm dialog
+	//confirm dialog popup
 	$( "a[id^='action']" ).on('click', function(){
+
 		if (!focusProjName){
 			showWarning("No focus project for the action");
 			return false;
@@ -914,23 +915,42 @@ $( document ).ready(function()
 		if(action == "metadata-bsveupdate") {
 			actionContent = "Do you want to <span id='action_type'>UPDATE</span> project "+focusProjRealName+" sample metadata in BSVE?";
 		}
-
-		if (action.indexOf("publish") < 0 && action.indexOf("bsve") < 0 ){
 		//END sample metadata
 
+
+		if (action.indexOf("publish") < 0 && action.indexOf("bsve") < 0 ){
 		//if (action.indexOf("publish") < 0){
 			actionContent += "<p>This action can not be undone.</p>";
 		}
+
 		if (action == "share" || action == "unshare"){
 			$("#edge_confirm_dialog_content").html( "<span id='action_type'>"+action.toUpperCase()+"</span> project " +focusProjRealName+ " to");
 			setUserList(action,focusProjName);
-		}else{
+		} 
+		else if (action == "rename"){
+				renameUserProject(action);
+				//focusProjName is the projectID #
+		}
+		else{
 			$("#edge_confirm_dialog_content").html(actionContent);
 		}
+
 		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 			actionConfirm(action,focusProjName);
 		});
 	});
+
+	function renameUserProject(action){
+		//send strings to #edge_cinfirm_diaglo_content to be printed in popup box
+		var myVar = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> "+focusProjRealName+"? <br> <br>";
+		myVar +="Enter New Project Name <br>";
+		myVar += "<input type= 'text' name='rename_project_Name' id='rename_project_Name_ID'> <br> <br>";
+		myVar += "Enter New Project Description <br>";
+		myVar += "<input type= 'text' name='rename_project_Desc' id='rename_project_Desc_ID'> <br> <br>";
+		
+		//sends to html page
+		$("#edge_confirm_dialog_content").html(myVar);
+	}
 
 	function setUserList(action,pname){
 		var actionContent= '<fieldset data-role="controlgroup" id="edge-userList" data-filter="true" data-filter-placeholder="Search users ...">';
@@ -999,7 +1019,13 @@ $( document ).ready(function()
 			updateProject(focusProjName);
 		}
 	});
+
 	function actionConfirm (action,focusProjName,request){
+
+		var rename_project = $("#rename_project_Name_ID").val(); //project name
+		var project_description = $("#rename_project_Desc_ID").val(); //project desc
+
+
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
 			if($(this).hasClass('ui-checkbox-on')){
@@ -1007,12 +1033,13 @@ $( document ).ready(function()
 			}
 		});
 		var shareEmail = userChkArray.join(',');
+		//ajax sends the data to edge_action.cgi via Key, value
 		var myAjaxRequest= $.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : focusProjName, "action": action, "userType":userType, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':localStorage.sid},
+			data: { "proj" : focusProjName, "action": action, "userType":userType, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':localStorage.sid, "rename_project": rename_project, "project_description": project_description},
 			beforeSend: function(){
 				if (!request){
 					$.mobile.loading( "show", {
@@ -1043,6 +1070,10 @@ $( document ).ready(function()
 						window.open(edge_path + data.PATH);
 					}
 				}
+				else if( action == 'rename'){
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					showWarning(data.INFO);
+				} 
 				else{
 					showWarning(data.INFO);
 				}
@@ -1053,6 +1084,7 @@ $( document ).ready(function()
 			error: function(data){
 				$.mobile.loading( "hide" );
 				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+
 			}
 		});
 		if (request){
