@@ -445,9 +445,8 @@ if (mean_cov < 1)
 }else{
 	h<-hist(a\$V2,breaks=c(0:round(mean_cov+b),max(a\$V2)),plot=FALSE)
 	plot(h\$count[2:length(h\$count)],type=\'h\',lwd=3, col=\'black\',main=\"Mapping Reads To Reference ${ref_name}: Coverage Depth Histogram\",xlab=\"Coverage(fold)\",ylab=\'Frequency\',xaxt=\"n\",xlim=c(1,length(h\$count)))
-	x<-seq(1,(length(h\$count)-std_cov) ,mean_cov/5)
-	x.text <- format(x,digit=1)
-	axis(1,labels=x.text,at=x,tick=TRUE)
+	x<-seq(1,round(length(h\$count)-std_cov) , round(mean_cov/5))
+	axis(1,labels=x,at=x,tick=TRUE)
 	axis(1,labels=paste(\">\",round(mean_cov+b)),at=round(mean_cov+b),tick=TRUE,las=2)
 }
 leg.txt<-paste(\"Average fold: \",format(mean_cov,digit=4),\"sd\", format(std_cov,digit=4));

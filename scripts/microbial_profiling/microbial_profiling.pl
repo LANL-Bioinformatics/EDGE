@@ -302,13 +302,17 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           then
             samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam;
           fi 
+          if [ -e $outdir/$prefix.gottcha_*.sam ]
+          then
+            cp $outdir/$prefix.gottcha_*.sam $tool_rep_dir/;
+          fi 
           if [ -e $outdir/$prefix.out.read_classification ]
           then
             cp $outdir/$prefix.out.read_classification $tool_rep_dir/$fnb-$tool.read_classification
           fi          
 
           echo \"====> Generating phylo_dot_plot for each tool...\";
-          phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree -p $outdir/$prefix.tree
+          phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree -p $outdir/$prefix.tree -t $fnb-$tool
 		";
 
         print $post_fh "
@@ -347,9 +351,9 @@ merge_list_specTaxa_by_dataset.pl $p_outdir/$idx\_$fnb/*/*.out.list --top $heatm
 wait
 
 echo \"==> Generating heatmaps...\";
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf --title $fnb.genus &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf --title $fnb.species &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf --title $fnb.strain &
 ";
 	print $post_fh "\nwait\n";
 	print $post_fh "echo \"[END #$idx $fnb]\"\n\n";

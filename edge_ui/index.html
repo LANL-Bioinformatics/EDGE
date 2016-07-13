@@ -33,6 +33,11 @@
 	<script src="javascript/edge_dynamic_selection.js"></script>
 	<script src="javascript/hello.all.min.js"></script>
 
+	<!-- sample metadata -->
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places"></script>
+	<script src="javascript/jquery.geocomplete.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/geocomplete.css" />
+
 </head>
 
 <body class="ui-mobile-viewport ui-push-a">
@@ -118,6 +123,16 @@
                 <li data-icon='edit' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-rename-pjct' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class= 'edge-icon-bg-grey' data='rename'> Rename Project </a> 
 
 			</ul>
+
+			<!-- sample metadata -->
+			<ul data-role="listview" data-inset="true">
+				<li data-role='list-divider'>Sample Metatdata</li>
+				<li data-icon='edit'>     <a id='edge-pg-metadata-edit' class='edge-icon-bg-grey'>Edit</a>
+				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-delete'>Delete</a>
+				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsvedelete'>Delete from BSVE</a>
+				<li data-icon='forward'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-submit-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsveadd'>Share with BSVE</a>
+			</ul>
+			<!-- END sample metadata -->
 		</div>
 	</div><!-- /progress panel -->
 
@@ -196,6 +211,206 @@ This website is available for use with publicly available data, while local stan
 		<p class="edge-main-pipeline-input">EDGE requires sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences.</p>
 		<p class="edge-qiime-pipeline-input">The <a href="http://qiime.org/tutorials/open_reference_illumina_processing.html" target="_blank">Qiime</a> pipeline requires sequence data files in FASTQ format and a <a href="http://qiime.org/documentation/file_formats.html" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.</p>
 		<div data-role="collapsible-set">
+
+
+<!-- sample metadata -->
+		<div id="edge-sample-metadata">
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" >
+			<h4 class="edge-main-pipeline-input">
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-metadata-sw" name="edge-metadata-sw" data-role="slider" data-mini="true">
+						<option value="0" selected="TRUE">Off</option><option value="1">On</option>
+					</select>
+					<label for="edge-metadata-sw">Sample Metadata</label>
+				</div>
+			</h4>
+			<div class="ui-corner-all custom-corners">
+				
+					<div class="ui-field-contain">
+						<label for="edge-sample-type">Sample Type</label>
+						<select name="edge-sample-type" id="edge-sample-type" data-mini="true" >
+							<option value="human">Human</option>
+							<option value="animal">Animal</option>
+							<option value="environmental">Environmental</option>
+						</select>
+					</div>
+
+		                	<div id="edge-pg-host-associated" >
+			                	<div class="ui-field-contain">
+						        <label for="edge-pg-host">Host</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-host" id="edge-pg-host" maxlength="30" value="human">
+		                    		</div>
+		                    		<div class="ui-field-contain">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend></legend>
+								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition1" value="healthy">
+								<label for="edge-pg-host-condition1">Healthy</label>
+								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition2" value="diseased">
+								<label for="edge-pg-host-condition2">Diseased</label>
+								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition3" value="unknown" checked="checked">
+								<label for="edge-pg-host-condition3">Unknown</label>
+							</fieldset>
+		                    		</div>
+		                	</div>
+
+		                	<div id="edge-pg-human" >
+			                	<div class="ui-field-contain">
+						        <label for="pg-cb-gender">Gender</label>
+							<input type="checkbox" name="pg-cb-gender" id="pg-cb-gender" data-mini="true">
+		                    		</div>
+		                    		<div class="ui-field-contain" id="human-gender">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend></legend>
+								<input type="radio" name="edge-pg-gender" id="edge-pg-gender1" value="male" checked="checked">
+								<label for="edge-pg-gender1">Male</label>
+								<input type="radio" name="edge-pg-gender" id="edge-pg-gender2" value="female">
+								<label for="edge-pg-gender2">Female</label>
+							</fieldset>
+		                    		</div>
+			                	<div class="ui-field-contain">
+						        <label for="pg-cb-age" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Age</label>
+							<input type="checkbox" name="pg-cb-age" id="pg-cb-age" data-mini="true">
+		                    		</div>
+			                	<div class="ui-field-contain" id="human-age">
+						        <label for="edge-pg-age"></label>
+							<input type="number" name="edge-pg-age" id="edge-pg-age" data-mini="true" data-clear-btn="true" value="1" min="1" max="130">
+		                    		</div>
+		                	</div>
+
+					<div class="ui-field-contain">
+						<label for="edge-sample-source">Isolation Source</label>
+						<div id="edge-sample-source-options-host">
+							<select data-mini="true" name="edge-sample-source-host" id="edge-sample-source-host">
+								<option value="blood">Blood</option>
+								<option value="nasal">Nasal</option>
+								<option value="saliva">Saliva (oral)</option>
+								<option value="skin">Skin</option>
+								<option value="sputum">Sputum</option>
+								<option value="stool">Stool (gut)</option>
+								<option value="throat">Throat</option>
+								<option value="vaginal">Vaginal</option>
+								<option value="wound">Wound</option>
+								<option value="other">Other</option>
+								<option value="unknown">Unknown</option>
+							</select>
+						</div>
+						<div id="edge-sample-source-options-nonhost">
+							<select data-mini="true" name="edge-sample-source-nonhost" id="edge-sample-source-nonhost">
+								<option value="air">Air</option>
+								<option value="built-environment">Built-environment</option>
+								<option value="microbial mat/biofilm">Microbial mat/biofilm</option>
+								<option value="plant">Plant</option>
+								<option value="sediment">Sediment</option>
+								<option value="soil">Soil</option>
+								<option value="water">Water</option>
+								<option value="wastewater/sludge">Wastewater/Sludge</option>
+								<option value="other">Other</option>
+								<option value="unknown">Unknown</option>
+							</select>
+						</div>
+		                	</div>
+		                	
+			           	<div class="ui-field-contain">
+						<label for="edge-pg-sample-source-detail"></label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-sample-source-detail" id="edge-pg-sample-source-detail" maxlength="30" placeholder="More detailed Information">
+		                    	</div>
+		                	
+					<div class="ui-field-contain">
+						<label for="edge-pg-collection-date">Collection Date</label>
+						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-collection-date" id="edge-pg-collection-date" maxlength="30">
+					</div>
+
+					<!-- geo autocomplete -->
+
+					<form>
+					<div class="map_canvas" id="map_canvas" ></div>
+					<div class="ui-field-contain">
+						<label>Location</label>
+					      	<input id="geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below"/>
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="locality" id="edge-pg-sample-city" data-mini="true" data-clear-btn="false"type="text" placeholder="City">
+					</div>
+
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="administrative_area_level_1"  id="edge-pg-sample-state" data-mini="true" data-clear-btn="false"type="text"placeholder="State">
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="country" id="edge-pg-sample-country" data-mini="true" data-clear-btn="false"type="text" placeholder="Country">
+					</div>
+
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="lat" id="edge-pg-sample-lat" data-mini="true" data-clear-btn="false"type="text" placeholder="Latitude">
+					</div>
+
+					<div class="ui-field-contain">
+						<label></label>
+						<input name="lng" id="edge-pg-sample-lng" data-mini="true" data-clear-btn="false"type="text" placeholder="Longitude">
+					</div>
+					</form>
+
+					<!-- end geo -->
+
+					<div class="ui-field-contain">
+						<label for="edge-pg-seq-platform">Sequencing Platform</label>
+						<div id="edge-pg-seq-platform-options">
+							<select data-mini="true" name="edge-pg-seq-platform" id="edge-pg-seq-platform">
+								<option value="Illumina">Illumina</option>
+								<option value="IonTorrent">IonTorrent</option>
+								<option value="Nanopore">Nanopore</option>
+								<option value="PacBio">PacBio</option>
+							</select>
+						</div>
+		                	</div><div class="ui-field-contain">
+						<label for="edge-pg-sequencer">Sequencer</label>
+						<div id="edge-pg-sequencer-options-ill">
+							<select data-mini="true" name="edge-pg-sequencer-ill" id="edge-pg-sequencer-ill">
+								<option value="HiSeq">HiSeq</option>
+								<option value="HiSeq X">HiSeq X</option>
+								<option value="MiniSeq">MiniSeq</option>
+								<option value="MiSeq">Miseq</option>
+								<option value="NextSeq">Nextseq</option>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-ion">
+							<select data-mini="true" name="edge-pg-sequencer-ion" id="edge-pg-sequencer-ion">
+								<option value="Ion S5">Ion S5</option>
+								<option value="Ion PGM">Ion PGM</option>
+								<option value="Ion Proton">Ion Proton</option>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-nan">
+							<select data-mini="true" name="edge-pg-sequencer-nan" id="edge-pg-sequencer-nan">
+								<option value="MinIon">MinIon</option>
+							</select>
+						</div>
+						<div id="edge-pg-sequencer-options-pac">
+							<select data-mini="true" name="edge-pg-sequencer-pac" id="edge-pg-sequencer-pac">
+								<option value="RS II">RS II</option>
+								<option value="Sequel">Sequel</option>
+							</select>
+						</div>
+		                	</div>
+					<div class="ui-field-contain">
+						<label for="edge-pg-seq-date">Sequencing Date</label>
+						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-seq-date" id="edge-pg-seq-date" maxlength="30">
+					</div>
+				
+			</div>
+			<br><br>
+		</div>
+		</div>
+<!-- END sample metadata -->
+
+
 			<div data-role="collapsible" id="edge-input-sequence" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
 				<h4 class="edge-main-pipeline-input">Input Raw Reads</h4>
 

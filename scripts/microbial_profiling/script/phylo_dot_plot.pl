@@ -18,6 +18,7 @@ my $res=GetOptions(\%opt,
             'prefix=s',
             'scale=s',
             'mode=s',
+            'title=s',
             'help|?') || &usage();
 &usage() if !-r $opt{input} || !defined $opt{prefix};
 
@@ -35,6 +36,7 @@ USAGE: $0 --input <TREE_TAB_FILE> --prefix <OUTPUT_PREFIX> [OPTIONS]
 OPTIONS:
     --scale | -s <STRING>     Scaling factor: max or total. Default is \"max\".
     --mode  | -m <STRING>     Scaling mode: normal or log. Default is \"log\".
+    --title | -t <STRING>     Title
 ";
 exit;
 }
@@ -43,6 +45,7 @@ my $intab  = $opt{input};
 my $prefix = $opt{prefix};
 my $scale  = $opt{scale};
 my $mode   = $opt{mode};
+my $title  = $opt{title};
 $scale   ||= "max";
 $mode    ||= "log";
 
@@ -104,7 +107,8 @@ my $svg = new phylo_dot_plot(
 	-branch  => 170,
 	-scale   => $scale,
 	-mode    => $mode,
-	-size    => 16
+	-size    => 16,
+	-title   => $title,
 );
 
 open FILE, ">$prefix.svg";

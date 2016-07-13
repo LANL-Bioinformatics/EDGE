@@ -112,6 +112,48 @@
 			</table>
 		</div>
 		
+<!--sample metadata -->	
+	<TMPL_IF NAME="OUT_SAMPLE_METADATA">
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Sample Metadata</h4>
+			<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				<thead>
+					<tr>
+					  <th data-priority='1'></th>
+					  <th data-priority='2'></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr><td>Sample Type</td><td><TMPL_VAR NAME=SMD_TYPE DEFAULT=-></td></tr>
+					<TMPL_IF NAME="OUT_SMD_HOST">
+						<tr><td>Host</td><td><TMPL_VAR NAME=SMD_HOST DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_HOST_CONDITION">
+						<tr><td>Host Condition</td><td><TMPL_VAR NAME=SMD_HOST_CONDITION DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_GENDER">
+						<tr><td>Gender</td><td><TMPL_VAR NAME=SMD_GENDER DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_AGE">
+						<tr><td>Age</td><td><TMPL_VAR NAME=SMD_AGE DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<tr><td>Source</td><td><TMPL_VAR NAME=SMD_SOURCE DEFAULT=-></td></tr>
+					<tr><td>Source Detailed Information</td><td><TMPL_VAR NAME=SMD_SOURCE_DETAIL DEFAULT=-></td></tr>
+					<tr><td>Collection Date</td><td><TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=-></td></tr>
+					<tr><td>City</td><td><TMPL_VAR NAME=SMD_CITY DEFAULT=-></td></tr>
+					<tr><td>State</td><td><TMPL_VAR NAME=SMD_STATE DEFAULT=-></td></tr>
+					<tr><td>Country</td><td><TMPL_VAR NAME=SMD_COUNTRY DEFAULT=-></td></tr>
+					<tr><td>Latitude</td><td><TMPL_VAR NAME=SMD_LAT DEFAULT=-></td></tr>
+					<tr><td>Longitude</td><td><TMPL_VAR NAME=SMD_LNG DEFAULT=-></td></tr>
+					<tr><td>Sequencing Platform</td><td><TMPL_VAR NAME=SMD_SEQ_PLATFORM DEFAULT=-></td></tr>
+					<tr><td>Sequencer</td><td><TMPL_VAR NAME=SMD_SEQUENCER DEFAULT=-></td></tr>
+					<tr><td>Sequencing Date</td><td><TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=-></td></tr>
+				  </tbody>
+			</table>
+		</div>
+	</TMPL_IF>
+<!-- END sample metatdata -->	
+
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<TMPL_IF NAME="SRADERR">
 			<p class="error"><TMPL_VAR NAME=SRADERR></p>
@@ -763,6 +805,12 @@
 							<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 						  	<th data-priority='3'>% Plasmid</th>
 							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_LEN">
+							<th data-priority='3'>Linear LEN</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_DOC">
+						  	<th data-priority='3'>Linear DOC</th>
+							</TMPL_IF>
 						  	<th data-priority='1'>Abundance</th>
 							</tr>
 						</thead>
@@ -775,6 +823,12 @@
 								<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 								<td><TMPL_VAR NAME=CPABU_PMD DEFAULT=-></td>
 								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_LEN">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_DOC">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
+								</TMPL_IF>
 								<td><TMPL_VAR NAME=CPABU_ABU DEFAULT=-></td>
 							</tr>
 							</TMPL_LOOP>
@@ -786,7 +840,7 @@
 							<select class="edge-get-reads-by-taxa" id="edge-get-reads-by-taxa-<TMPL_VAR NAME=CPTOOL>" data-mini="true" name="edge-get-reads-by-taxa<TMPL_VAR NAME=CPTOOL_LABEL>" data-native-menu="false">
 								<option>Select</option>
 								<TMPL_LOOP NAME=LOOP_CPTOOL_DOWNLOAD>
-								<option value="<TMPL_VAR NAME=CPABU_DOWNLOAD_TAX >" ><TMPL_VAR NAME=CPABU_DOWNLOAD_TAX > (<TMPL_VAR NAME=CPABU_ABU >)</option>
+								<option value="<TMPL_VAR NAME=CPABU_DOWNLOAD_TAX_ID >" ><TMPL_VAR NAME=CPABU_DOWNLOAD_TAX > (<TMPL_VAR NAME=CPABU_ABU >)</option>
 								</TMPL_LOOP>
 							</select>
 							<div id='edge-get-reads-spinner-<TMPL_VAR NAME=CPTOOL>' style="margin-left:0.3em"></div>

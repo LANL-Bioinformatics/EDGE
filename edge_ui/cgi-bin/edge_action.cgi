@@ -20,6 +20,9 @@ use Tie::File;
 
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
+##sample metadata
+require "../metadata_scripts/metadata_api.pl";
+#END
 
 my $cgi    = CGI->new;
 my %opt    = $cgi->Vars();
@@ -89,7 +92,7 @@ my $time = strftime "%F %X", localtime;
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
 $info->{STATUS} = "FAILURE";
 #$info->{INFO}   = "Project $pname not found.";
-if ($memUsage > 99 or $cpuUsage > 99){
+if ($memUsage > 99 or $cpuUsage > 99  and $action ne 'interrupt'){
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
@@ -130,6 +133,7 @@ if ( $sys->{user_management} )
 		$permission->{tarproj} = 1;
 		$permission->{getcontigbytaxa} = 1;
 		$permission->{getreadsbytaxa} = 1;
+		$permission->{metadata} = 1;
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
@@ -487,13 +491,18 @@ elsif( $action eq 'getreadsbytaxa'){
 	my $extract_from_original_fastq = ($cptool_for_reads_extract =~ /gottcha/i)? " -fastq $reads_fastq " : "";
 	$out_fasta_name = "$real_name"."_"."$cptool_for_reads_extract"."_"."$out_fasta_name";
 	my $cmd = "$EDGE_HOME/scripts/microbial_profiling/script/bam_to_fastq_by_taxa.pl -rank species  -name \"$taxa_for_contig_extract\" -prefix $readstaxa_outdir/$out_fasta_name -se -zip $extract_from_original_fastq $readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam ";
+		#GOTTCHA2 Only
+	if( $cptool_for_reads_extract =~ /gottcha2/i ){
+		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+	}
+
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
 	
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
-	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" ){
+	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") ){
 		$info->{INFO}   = "The result bam does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
@@ -585,7 +594,60 @@ elsif( $action eq 'compare'){
 			close STDOUT;
 		}
 	}
+}elsif( $action eq 'metadata-delete' ){
+##sample metatdata
+	$info->{STATUS} = "SUCCESS";
+	$info->{INFO}   = "Project $real_name sample metadata has been deleted.";
+
+	my $metadata = "$proj_dir/sample_metadata.txt";
+	if( -e $metadata ){
+		if(-w $metadata) {
+			my $bsveId = `grep -a "bsve_id=" $metadata | awk -F'=' '{print \$2}'`;
+			chomp $bsveId;
+			`rm -f $metadata`;
+			if($bsveId) {#keep bsve_id 
+				open OUT,  ">$metadata";
+				print OUT "bsve_id=$bsveId"."\n";
+				close OUT;
+			}
+		} else {
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to delete the sample metadata.";
+		}
+	}
+} elsif($action eq 'metadata-bsveadd') { 
+	if( $sys->{user_management} && !$permission->{metadata} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	if(pushSampleMetadata("add", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been submitted to the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to submit the sample metadata to the BSVE server";
+	}
+
+} elsif($action eq 'metadata-bsveupdate') {
+	if(pushSampleMetadata("update", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been updated in the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to update the sample metadata in the BSVE server";
+	}
+
+} elsif($action eq 'metadata-bsvedelete') {
+	if(pushSampleMetadata( "delete", $proj_dir, $sys)) {
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "Project $real_name sample metadata has been deleted from the BSVE server.";
+	} else {
+		$info->{STATUS} = "FAILURE";
+		$info->{INFO}   = "Failed to delete the sample metadata from the BSVE server.";
+	}
 }
+#END sample metadata
+
 &returnStatus();
 
 
@@ -986,3 +1048,4 @@ sub getSystemUsage {
                 return (0,0,0);
         }
 }
+
