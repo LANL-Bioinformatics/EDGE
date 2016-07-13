@@ -89,18 +89,19 @@ my $start_time_string=&getTmpNameByTime;
 
 my $process_log_file = "$outDir/process.log";
 my $error_log_file="$outDir/error.log";
-open ( LOG, ">>", $process_log_file) or die "Failed to write $process_log_file\n$!";
+open ( my $log_fh, ">>", $process_log_file) or die "Failed to write $process_log_file\n$!";
 open(STDERR, '>&', STDOUT) or die "Can't redirect stderr: $!";
 open(STDERR, '>', $error_log_file) or die "Can't redirect stderr: $!";
 $SIG{__WARN__} = sub {print STDERR @_; &lprint  (@_)};
 $SIG{__DIE__} = sub {print STDERR @_; &lprint  (@_);exit 1};
 # print whole running command and config file to process log
 &lprint("\nProject Start: $start_time_string\n");
-print LOG qx/ps -o args $$/;
+print $log_fh qx/ps -o args $$/;
 &lprint("Version: $version\n");
 open (my $config_fh, "$configFile") or die "Cannot open $configFile\n$!";
-while(<$config_fh>){ if (! /user|edgeui\_/) {print LOG $_;}}
+while(<$config_fh>){ if (! /user|edgeui\_/) {print $log_fh $_;}}
 close $config_fh;
+if ( ! -e "$outDir/config.txt"){ `cp $configFile $outDir/config.txt`;}
 
 
 if (!@referenceGenome and $configuration->{reference})
@@ -313,7 +314,7 @@ if($sys->{edge_sample_metadata_autosubmit2bsve}) {
 
 &lprint ("All Done. \n\n");
 
-close LOG;
+close $log_fh;
 
 my $mail_subject= "EDGE project $project_name complete";
 my $recipient = $configuration->{projowner};
@@ -1460,13 +1461,14 @@ $taxonomyPDFfiles .= $contigTaxonomyPDF."," if( -e "$contigTaxonomyPDF");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.strain.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.strain.pdf");
- 
-my @taxonomyTreePDF = `ls $taxonomy_report_dir/1_$taxonomy_prefix/*/*pdf`;
-foreach my $treepdf (@taxonomyTreePDF){
-	chomp $treepdf;
-	$taxonomyPDFfiles .= $treepdf."," if ( -e "$treepdf");
-}
 
+if ( -d "$taxonomy_report_dir/1_$taxonomy_prefix"){
+	my @taxonomyTreePDF = `ls $taxonomy_report_dir/1_$taxonomy_prefix/*/*pdf`;
+	foreach my $treepdf (@taxonomyTreePDF){
+		chomp $treepdf;
+		$taxonomyPDFfiles .= $treepdf."," if ( -e "$treepdf");
+	}
+}
 #$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/bwa/$taxonomy_prefix-bwa.tree.pdf");
 #$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/kraken_mini/$taxonomy_prefix-kraken_mini.tree.pdf");
 #$taxonomyPDFfiles .= "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf"."," if ( -e "$taxonomy_report_dir/1_$taxonomy_prefix/metaphlan/$taxonomy_prefix-metaphlan.tree.pdf");
@@ -3465,7 +3467,7 @@ sub get_sys_memory
 
 sub lprint {
       my ($line) = @_;
-      print LOG $line;  
+      print $log_fh $line;  
       print $line;
 }
 
