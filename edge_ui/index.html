@@ -109,9 +109,14 @@
 				<!-- <li data-icon='minus'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='remove'>Remove from project list</a> -->
 				<li data-icon='recycle'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='empty'>Empty project outputs</a>
 				<li data-icon='arrow-u-r'><a href='#edge_confirm_dialog' id='action-archive-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='archive'>Move to the archive storage</a>
+
 				<li data-icon='forward' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-share-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='share'>Share project</a>
+
 				<li data-icon='back' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-unshare-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='unshare'>Unshare project</a>
 				<li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
+
+                <li data-icon='edit' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-rename-pjct' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class= 'edge-icon-bg-grey' data='rename'> Rename Project </a> 
+
 			</ul>
 		</div>
 	</div><!-- /progress panel -->
@@ -317,7 +322,7 @@ This website is available for use with publicly available data, while local stan
 
 						<div class="ui-field-contain">
 							<label for="edge-proj-desc">Use # of CPUs</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="16"></div>
 
 						<div class="ui-field-contain input-type-file">
 							<label for="edge-input-config">Config File</label>
