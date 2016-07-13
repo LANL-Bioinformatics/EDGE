@@ -16,6 +16,8 @@ use HTTP::Request::Common;
 use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
+use Tie::File;
+
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 ##sample metadata
@@ -27,9 +29,11 @@ my %opt    = $cgi->Vars();
 my $pname  = $opt{proj};
 my $username = $opt{username};
 my $password = $opt{password};
+my $new_proj_name = $opt{rename_project};  #getting project name input value from edge.js
+my $new_proj_desc = $opt{project_description};  #getting project description input value from edge.js
 my $action = lc($opt{action});
 my $shareEmail = $opt{shareEmail};
-my $userType = $opt{userType}||"user";
+my $userType = $opt{userType}||"user"; 
 my $protocol = $opt{protocol}||"http:";
 my $sid = $opt{sid};
 my $taxa_for_contig_extract = $opt{taxa};
@@ -64,6 +68,8 @@ my $info;
 my $proj_dir    = abs_path("$out_dir/$pname");
 my $list;
 my $permission;
+
+
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -138,6 +144,11 @@ if ( $sys->{user_management} )
 	}
 }
 	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
+	#output directory
+
+if ($action eq 'rename' ){
+	renameProject();
+}
 
 if( $action eq 'empty' ){
 	if( $sys->{user_management} && !$permission->{$action} ){
@@ -228,7 +239,6 @@ elsif( $action eq 'delete' ){
 				}
 			}
 		}
-	
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"delete");
 			`rm -f $user_proj_dir`;
@@ -640,6 +650,10 @@ elsif( $action eq 'compare'){
 
 &returnStatus();
 
+
+
+
+
 ######################################################
 
 sub getSysParamFromConfig {
@@ -738,6 +752,64 @@ sub getProjNameFromDB{
 	}
 }
 
+sub renameProject{
+	
+	my $project_name = $new_proj_name;
+	my $project_description = $new_proj_desc;
+	my $pnameID = $pname;
+
+	#adjust txt files. (config.txt and process.log )
+	my $config_file = $proj_dir."/config.txt";
+	tie my @array, 'Tie::File', $config_file or die;
+
+
+	$array[5] = 'projname='.$project_name;
+	$array[6] = 'projdesc='.$project_description; 
+
+	my $process_log = $proj_dir."/process.log";
+	tie my @array2, 'Tie::File', $process_log or die;
+	$array2[10] = 'projname='.$project_name;
+	$array2[11] = 'projdesc='.$project_description;
+
+
+	#hash to store the data 
+	my %data = (
+			email => $username,
+			password => $password,
+			project_id => $pnameID,
+			new_project_name => $project_name, 
+			new_description => $project_description,
+			
+		);
+
+		
+		#Encode the data structure to JSON
+        #interacts with the java api to access the sql DB tables
+        my $data = to_json(\%data);
+        #w Set the request parameters
+        my $url = $um_url ."WS/project/update";
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+        #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+        $req->header( "Content-Length" => length($data) );
+        $req->content($data);
+
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+        my $result =  from_json($result_json);
+     
+        if ($result->{status})
+        {
+        		$info->{STATUS} = "SUCCESS";
+                $info->{INFO} .= " Project has been ${action}d to $project_name.";
+        }
+
+
+}
+
+
 sub updateDBProjectStatus{
         my $project = shift;
         my $status = shift;
@@ -748,6 +820,7 @@ sub updateDBProjectStatus{
                 new_project_status => $status
         );
         # Encode the data structure to JSON
+        #interacts with the a java api to access the sql DB tables
         my $data = to_json(\%data);
         #w Set the request parameters
         my $url = $um_url ."WS/project/update";
