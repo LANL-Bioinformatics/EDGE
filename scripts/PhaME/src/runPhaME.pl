@@ -46,7 +46,7 @@ my $workdir;
 my $outdir;
 my $project;
 my $rsignal=0;
-my $specie;
+my $reference;
 my $name;
 my $path;
 my $suffix;
@@ -98,14 +98,11 @@ while (<CTL>){
    }
    if (/project\s*=\s*(\S+)\s*#{0,1}.*$/){$project=$1;}
    if (/reference\s*=\s*(0|1)\s*#{0,1}.*$/){$rsignal=$1;}
-   if ($rsignal==1 && /reffile\s*=\s*(\S+)\s*#{0,1}.*$/){$specie=$1;}
+   if ($rsignal==1 && /reffile\s*=\s*(\S+)\s*#{0,1}.*$/){$reference="$refdir/$1";}
    elsif($rsignal==0){
       opendir(DIR, $refdir);
-      while (my $files= readdir(DIR)){
-         if ($files=~ /.[fna|fa|fasta|fsa]$/){$specie=$files;
-            last;
-         }
-      }
+      my @reffiles = grep { /.[fna|fa|fasta|fsa]$/ && -f "$refdir/$_" } readdir(DIR);
+      $reference= "$refdir/". $reffiles[int(rand(scalar(@reffiles)))];
       closedir DIR;
    }
    if (/cdsSNPS\s*=\s*(0|1)\s*#{0,1}.*$/){$gsignal=$1;}
@@ -137,19 +134,6 @@ while (<CTL>){
    if (/cutoff\s*=\s*(\d+)\s*#.*$/){$cutoff=$1;}
 }
 close CTL;
-
-($name,$path,$suffix)=fileparse("$specie",qr/\.[^.]*/);
-my $reference=$workdir.'/files/'.$name.'.fna';
-if ($rsignal==0){
-   opendir(DIR, $refdir);
-   while (my $files= readdir(DIR)){
-      if ($files=~ /.(fna|fa|fasta|fsa)$/){
-         $reference="$refdir/files/$files";
-         last;
-      }
-   }
-   closedir DIR;
-}
 
 ($name,$path,$suffix)=fileparse("$reference",qr/\.[^.]*/);
 if ($gsignal==1){$annotation="$refdir/$name.gff";}
