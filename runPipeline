@@ -1,5 +1,6 @@
 #!/usr/bin/env perl 
 use strict;
+use warnings;
 use File::Basename;
 use Getopt::Long;
 use LWP::UserAgent;
@@ -12,7 +13,7 @@ use lib "$RealBin/lib";
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$ENV{PATH}";
-$ENV{PERL5LIB} = "$RealBin/lib:$ENV{PERL5LIB}";
+$ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
 $ENV{EDGE_HOME} = $RealBin if ! defined $ENV{EDGE_HOME};
 $ENV{HOME} ||= $RealBin;
 
@@ -47,7 +48,7 @@ GetOptions("u=s{,}"           => \@unpairedReadsFile,
 sub Usage
 {
      my $msg=shift;
-     &lprint ("\nfailed ...     ".$msg."\n\n") if $msg;
+     print ("\nfailed ...     ".$msg."\n\n") if $msg;
      print <<"END";
      Usage: perl $0 [options] -c config.txt -p reads1.fastq reads2.fastq -o out_directory
      Version $version
@@ -3422,10 +3423,10 @@ sub updateProjectHTML
     my $tail = "    </table>\n</center>\n</div>\n<center><img src=\"images/logo.png\"/></center>\n</div>\n</BODY>\n</HTML>\n";
     open (my $ofh ,">$outputHTML") or die "Cannot write to $outputHTML:$!\n";
     chmod 0777, $ofh;
-    open (my $fh,"$project_list") or die "Cannot open $project_list:$!\n";
+    open (my $fh2,"$project_list") or die "Cannot open $project_list:$!\n";
     print $ofh $header;
     
-    while (<$fh>)
+    while (<$fh2>)
     {
         chomp;
         my ($time,$project_path,$ref)=split /\t/,$_;
@@ -3438,7 +3439,7 @@ sub updateProjectHTML
         print $ofh "    </td>\n    </tr>\n";
     }
     print $ofh  $tail;
-    close $fh;
+    close $fh2;
     close $ofh;
 }
 
