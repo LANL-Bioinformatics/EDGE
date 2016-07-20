@@ -52,7 +52,10 @@ if ( $username && $password || $um_config == 0){
 	if ($userType =~ /admin/i){
 		print "\t\t<option value='show-all'>See All Projects List (admin)</option>\n";
 	}
-	print "\t\t<option value='delete'>Delete Selected Projects</option>\n";
+	print "\t\t<option value='rerun'>Force Selected Projects to rerun</option>\n";
+        print "\t\t<option value='interrupt'>Interrupt running Projects</option>\n";
+        print "\t\t<option value='delete'>Delete Selected Projects</option>\n";
+        print "\t\t<option value='empty'>Empty Selected Projects Output</option>\n";
 	print "\t\t<option value='archive'>Archive Selected Projects</option>\n" if ( -w $sys->{edgeui_archive});
 	if ($um_config != 0){
 		print "\t\t<option value='share'>Share Selected Projects</option>\n";
@@ -228,7 +231,7 @@ sub scanProjToList {
 			++$cnt;
 			$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list);
 			$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list) if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
-			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME};
+			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
 			$list->{$cnt}->{PROJNAME} = $file;
 		}
 	}

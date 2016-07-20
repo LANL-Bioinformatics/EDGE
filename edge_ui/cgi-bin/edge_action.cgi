@@ -16,8 +16,6 @@ use HTTP::Request::Common;
 use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
-use Tie::File;
-
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 ##sample metadata
@@ -29,11 +27,9 @@ my %opt    = $cgi->Vars();
 my $pname  = $opt{proj};
 my $username = $opt{username};
 my $password = $opt{password};
-my $new_proj_name = $opt{rename_project};  #getting project name input value from edge.js
-my $new_proj_desc = $opt{project_description};  #getting project description input value from edge.js
 my $action = lc($opt{action});
 my $shareEmail = $opt{shareEmail};
-my $userType = $opt{userType}||"user"; 
+my $userType = $opt{userType}||"user";
 my $protocol = $opt{protocol}||"http:";
 my $sid = $opt{sid};
 my $taxa_for_contig_extract = $opt{taxa};
@@ -69,8 +65,6 @@ my $proj_dir    = abs_path("$out_dir/$pname");
 my $list;
 my $permission;
 
-
-
 #cluster
 my $cluster 	= $sys->{cluster};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
@@ -100,6 +94,7 @@ if ($memUsage > 99 or $cpuUsage > 99  and $action ne 'interrupt'){
 #session check
 my $real_name = $pname;
 my $projCode;
+my $projStatus;
 my @projCodes = split /,/,$opt{proj} if ($action eq 'compare');
 my $user_proj_dir = "$input_dir/tmp";
 if ( $sys->{user_management} )
@@ -115,7 +110,7 @@ if ( $sys->{user_management} )
 	
 	$list = &getUserProjFromDB("owner");
 
-	($real_name,$projCode)= &getProjNameFromDB($pname) if ($action ne 'compare');
+	($real_name,$projCode,$projStatus)= &getProjNameFromDB($pname) if ($action ne 'compare');
 	
 	$user_proj_dir = "$input_dir/". md5_hex($username)."/MyProjects/$real_name"."_".$pname;
 	#separate permission for future uses. A permission module can be added potentially..
@@ -137,18 +132,13 @@ if ( $sys->{user_management} )
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
-	($real_name,$projCode)= &scanProjToList($out_dir,$pname) if ($action ne 'compare');
+	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare');
 	if (!$real_name){
 		$info->{INFO} = "ERROR: No project with ID $pname.";
 		&returnStatus();
 	}
 }
 	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
-	#output directory
-
-if ($action eq 'rename' ){
-	renameProject();
-}
 
 if( $action eq 'empty' ){
 	if( $sys->{user_management} && !$permission->{$action} ){
@@ -239,6 +229,7 @@ elsif( $action eq 'delete' ){
 				}
 			}
 		}
+	
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"delete");
 			`rm -f $user_proj_dir`;
@@ -268,7 +259,7 @@ elsif( $action eq 'interrupt' ){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to stop EDGE process.";
 	
-	my $pid = $name2pid->{$pname} || $name2pid->{$projCode}; 
+	my $pid = $name2pid->{$pname} || $name2pid->{$projCode} || $projStatus eq "unstarted"; 
 
 	if( $pid ){
 		my $invalid;
@@ -281,7 +272,7 @@ elsif( $action eq 'interrupt' ){
 			}
 		} else {
 			$invalid = &killProcess($pid);
-			if( !$invalid ){
+			if( !$invalid  || $projStatus eq "unstarted"){
 				`echo "\n*** [$time] EDGE_UI: This project has been interrupted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 				$info->{STATUS} = "SUCCESS";
 				$info->{INFO}   = "The process (PID: $pid) has been stopped.";
@@ -491,18 +482,13 @@ elsif( $action eq 'getreadsbytaxa'){
 	my $extract_from_original_fastq = ($cptool_for_reads_extract =~ /gottcha/i)? " -fastq $reads_fastq " : "";
 	$out_fasta_name = "$real_name"."_"."$cptool_for_reads_extract"."_"."$out_fasta_name";
 	my $cmd = "$EDGE_HOME/scripts/microbial_profiling/script/bam_to_fastq_by_taxa.pl -rank species  -name \"$taxa_for_contig_extract\" -prefix $readstaxa_outdir/$out_fasta_name -se -zip $extract_from_original_fastq $readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam ";
-		#GOTTCHA2 Only
-	if( $cptool_for_reads_extract =~ /gottcha2/i ){
-		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
-	}
-
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
 	
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
-	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") ){
+	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" ){
 		$info->{INFO}   = "The result bam does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
@@ -650,10 +636,6 @@ elsif( $action eq 'compare'){
 
 &returnStatus();
 
-
-
-
-
 ######################################################
 
 sub getSysParamFromConfig {
@@ -748,67 +730,9 @@ sub getProjNameFromDB{
 		 $info->{INFO} .= $result->{error_msg}."\n";;
 	}
 	else{
-		return ($result->{name} , $result->{code});
+		return ($result->{name} , $result->{code}, $result->{status});
 	}
 }
-
-sub renameProject{
-	
-	my $project_name = $new_proj_name;
-	my $project_description = $new_proj_desc;
-	my $pnameID = $pname;
-
-	#adjust txt files. (config.txt and process.log )
-	my $config_file = $proj_dir."/config.txt";
-	tie my @array, 'Tie::File', $config_file or die;
-
-
-	$array[5] = 'projname='.$project_name;
-	$array[6] = 'projdesc='.$project_description; 
-
-	my $process_log = $proj_dir."/process.log";
-	tie my @array2, 'Tie::File', $process_log or die;
-	$array2[10] = 'projname='.$project_name;
-	$array2[11] = 'projdesc='.$project_description;
-
-
-	#hash to store the data 
-	my %data = (
-			email => $username,
-			password => $password,
-			project_id => $pnameID,
-			new_project_name => $project_name, 
-			new_description => $project_description,
-			
-		);
-
-		
-		#Encode the data structure to JSON
-        #interacts with the java api to access the sql DB tables
-        my $data = to_json(\%data);
-        #w Set the request parameters
-        my $url = $um_url ."WS/project/update";
-        my $browser = LWP::UserAgent->new;
-        my $req = PUT $url;
-        $req->header('Content-Type' => 'application/json');
-        $req->header('Accept' => 'application/json');
-        #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
-        $req->header( "Content-Length" => length($data) );
-        $req->content($data);
-
-        my $response = $browser->request($req);
-        my $result_json = $response->decoded_content;
-        my $result =  from_json($result_json);
-     
-        if ($result->{status})
-        {
-        		$info->{STATUS} = "SUCCESS";
-                $info->{INFO} .= " Project has been ${action}d to $project_name.";
-        }
-
-
-}
-
 
 sub updateDBProjectStatus{
         my $project = shift;
@@ -820,7 +744,6 @@ sub updateDBProjectStatus{
                 new_project_status => $status
         );
         # Encode the data structure to JSON
-        #interacts with the a java api to access the sql DB tables
         my $data = to_json(\%data);
         #w Set the request parameters
         my $url = $um_url ."WS/project/update";
@@ -1011,14 +934,29 @@ sub scanProjToList{
 	my $out_dir = shift;
 	my $pname = shift;
 	my $config_file;
-	my ($projid,$projCode,$projName);
+	my $processLog;
+	my ($projid,$projCode,$projName,$projStatus);
 	if ($pname && -d "$out_dir/$pname"){
 		$config_file = "$out_dir/$pname/config.txt";
+		$processLog = "$out_dir/$pname/process_current.log";
 	}else{
 		$config_file = `grep -a "projid=$pname" $out_dir/*/config.txt | awk -F':' '{print \$1}'`;
 	}
 	chomp $config_file;
-	return ($projName,$projCode) if ( ! -e $config_file);
+	return ($projName,$projCode,$projStatus) if ( ! -e $config_file);
+	if ( -r "$processLog"){
+		open (my $fh, $processLog);
+		while(<$fh>){
+			if (/queued/){
+				$projStatus="unstarted";
+				last;
+			}
+			if (/^All Done/){
+				$projStatus="finished";
+			}
+		}
+		close $fh;
+	}
 	open (my $fh, $config_file) or die "Cannot read $config_file\n";
 	while(<$fh>){
 		last if (/^\[Down/);
@@ -1028,7 +966,7 @@ sub scanProjToList{
 
 	}
 	close $fh;
-	return ($projName,$projid);
+	return ($projName,$projid,$projStatus);
 }
 
 sub getSystemUsage {
