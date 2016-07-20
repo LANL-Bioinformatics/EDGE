@@ -58,7 +58,14 @@ sub pushSampleMetadata {
 			}
 			#end
 
-			my $obj = new SampleMetadata($metadata->{'bsve_id'}, ,$metadata->{'type'}, $metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'source'}, $metadata->{'source_detail'}, $metadata->{'collection_date'}, $metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'seq_date'}, $metadata->{'seq_platform'}, $metadata->{'sequencer'});
+			my $obj = new SampleMetadata($metadata->{'bsve_id'}, ,$metadata->{'study_title'},$metadata->{'sample_name'},$metadata->{'type'},$metadata->{'experiment_title'}, $metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'source'}, $metadata->{'source_detail'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'seq_date'}, $metadata->{'seq_platform'}, $metadata->{'sequencer'},$metadata->{'instrument_model'},$metadata->{'center_name'});
+
+			if($metadata->{'run_host'}) {
+				$configuration->{'projrunhost'} = $metadata->{'run_host'};
+			}
+			if($metadata->{'run_id'}) {
+				$configuration->{'projid'} = $metadata->{'run_id'};
+			}
 			my $data = $obj->toJson($sys->{'sample_metadata_api_key'}, $sys->{'sample_metadata_api_token'},  $configuration->{'projrunhost'}, $configuration->{'projid'});
 
 			print MLG "$action sample metadata\n";
