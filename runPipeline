@@ -31,7 +31,7 @@ my $noColorLog=0;
 my $primerFile;
 my $proxy=$ENV{HTTP_PROXY}||$ENV{http_proxy};
 my ($annoationGFF,$annoationFAA,$annoationFNA); #assembly annotation files
-
+my $data_cleanup;
 GetOptions("u=s{,}"           => \@unpairedReadsFile,
            "p=s{,}"           => \@pairedReadsFile,
            "o=s"              => \$outDir,
@@ -41,6 +41,7 @@ GetOptions("u=s{,}"           => \@unpairedReadsFile,
            "config|c=s"       => \$configFile,
            "noColorLog"       => \$noColorLog,
            "debug"            => \$debug,
+           "data_cleanup"     => \$data_cleanup,
            "version"          => sub{printVersion()},
            "help|?"           => sub{Usage()} );
 
@@ -68,6 +69,8 @@ sub Usage
             -primer       A pair of Primers sequences in strict fasta format   
 
             -cpu          number of CPUs (default: 8)
+
+            -data_cleanup remove .sam .bam .gz .fastq .fq. tgz files after run finished.
  
             -version      print verison
 
@@ -173,7 +176,7 @@ if ($configuration->{DoAssembly})
         my $assembler = $configuration->{assembler};
         ($contigFile,$contig_for_annotation_file)=&runAssembly($QCpairFile,$QCunpairFile,$assembler);
     }
-    &runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile);
+    &runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and $configuration->{DoReadsMappingContigs});
 }
 
 my $tax_kingdom=$configuration->{kingdom};
@@ -326,17 +329,24 @@ my $mail_msg = "EDGE project $project_name (Description: $configuration->{projde
                "\nOr click link below\n\n $configuration->{projrunhost}/edge_ui/?proj=$projID\n";
 &sendMail($sys->{cluster_job_notify},$recipient,$mail_subject,$mail_msg) if ($sys->{email_notification} && $recipient);
 
-my $url = "http://localhost";
-my $pid=fork();
-if ($pid == 0)
-{
-    unless ( &check_server_up($url) || &check_server_up("$url:8080") )
-    {
+## DATA Clean up ##
+if ($configuration->{projrunhost} =~ /edge-bsve/ || defined $data_cleanup ){
+	my $cmd = "$RealBin/scripts/data_cleanup.pl $abs_outDir";
+	system($cmd);
+}
+### 
+
+#my $url = "http://localhost";
+#my $pid=fork();
+#if ($pid == 0)
+#{
+#    unless ( &check_server_up($url) || &check_server_up("$url:8080") )
+#    {
         #system ("$RealBin/scripts/httpserver.py --webdir $RealBin/edge_ui & ");   
        # &open_default_browser("file:///$abs_outDir/HTML_Report/report.html");
-    }
-exit 0;
-}
+#    }
+#exit 0;
+#}
 ### END MAIN ###
 ### Below are subroutins ###
 
@@ -1556,10 +1566,9 @@ if ($configuration->{DoHostRemoval}){
     $mergeFiles .= $hostReomvalPDF.",";
 }
 
-if ($contigFile)
+if ($contigFile and $configuration->{DoReadsMappingContigs})
 {
     $mergeFiles .= $contigStatsPDF.",".$readsMappingToContigStatsPDF.",".$readsMappingToContigPDF.",";
-    $mergeFiles .= $annotationStatsPDF."," if ( -e $annotationStatsPDF);
 
 print $Rfh <<Rscript;
 pdf(file = "$readsMappingToContigStatsPDF",width = 10, height = 8)
@@ -1575,6 +1584,8 @@ tmp<-dev.off()
 Rscript
 
 }
+
+$mergeFiles .= $annotationStatsPDF."," if ( -e $annotationStatsPDF);
 
 if ($referenceGenome)
 {
