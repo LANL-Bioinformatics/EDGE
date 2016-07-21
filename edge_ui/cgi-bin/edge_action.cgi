@@ -16,6 +16,8 @@ use HTTP::Request::Common;
 use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
+use Tie::File;
+
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 ##sample metadata
@@ -27,6 +29,8 @@ my %opt    = $cgi->Vars();
 my $pname  = $opt{proj};
 my $username = $opt{username};
 my $password = $opt{password};
+my $new_proj_name = $opt{rename_project};  #getting project name input value from edge.js
+my $new_proj_desc = $opt{project_description};  #getting project description input value from edge.js
 my $action = lc($opt{action});
 my $shareEmail = $opt{shareEmail};
 my $userType = $opt{userType}||"user";
@@ -142,6 +146,10 @@ if ( $sys->{user_management} )
 	}
 }
 	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
+
+if ($action eq 'rename' ){
+	renameProject();
+}
 
 if( $action eq 'empty' ){
 	if( $sys->{user_management} && !$permission->{$action} ){
@@ -485,13 +493,17 @@ elsif( $action eq 'getreadsbytaxa'){
 	my $extract_from_original_fastq = ($cptool_for_reads_extract =~ /gottcha/i)? " -fastq $reads_fastq " : "";
 	$out_fasta_name = "$real_name"."_"."$cptool_for_reads_extract"."_"."$out_fasta_name";
 	my $cmd = "$EDGE_HOME/scripts/microbial_profiling/script/bam_to_fastq_by_taxa.pl -rank species  -name \"$taxa_for_contig_extract\" -prefix $readstaxa_outdir/$out_fasta_name -se -zip $extract_from_original_fastq $readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam ";
+	#GOTTCHA2 Only
+	if( $cptool_for_reads_extract =~ /gottcha2/i ){
+		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+	}
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
 	
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
-	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" ){
+	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") ){
 		$info->{INFO}   = "The result bam does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
@@ -773,6 +785,46 @@ sub getProjNameFromDB{
 		return ($result->{name} , $result->{code}, $result->{status});
 	}
 }
+
+sub renameProject{
+	my $project_name = $new_proj_name;
+	my $project_description = $new_proj_desc;
+	my $pnameID = $pname;
+	#adjust txt files. (config.txt and process.log )
+	my $config_file = $proj_dir."/config.txt";
+	tie my @array, 'Tie::File', $config_file or die;
+
+	my %data = (
+		email => $username,
+		password => $password,
+		project_id => $pnameID,
+		new_project_name => $project_name, 
+		new_description => $project_description,
+	);
+
+	#Encode the data structure to JSON
+	#        #interacts with the java api to access the sql DB tables
+	my $data = to_json(\%data);
+	#w Set the request parameters
+	my $url = $um_url ."WS/project/update";
+	my $browser = LWP::UserAgent->new;
+	my $req = PUT $url;
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+	$req->header( "Content-Length" => length($data) );
+	$req->content($data);
+	
+	my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+        my $result =  from_json($result_json);
+     	
+	if ($result->{status})
+        {
+        	$info->{STATUS} = "SUCCESS";
+                $info->{INFO} .= " Project has been ${action}d to $project_name.";
+        }
+}		
 
 sub updateDBProjectStatus{
         my $project = shift;
