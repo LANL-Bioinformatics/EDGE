@@ -36,7 +36,8 @@ my $taxa_for_contig_extract = $opt{taxa};
 my $cptool_for_reads_extract = $opt{cptool};
 my $contig_id = $opt{contigID};
 my $blast_params = $opt{"edge-contig-blast-params"} || " -num_alignments 10 -num_descriptions 10 -evalue 1e-10 " ;
-my $domain	= $ENV{'HTTP_HOST'};
+my $domain	= $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
+my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 $ENV{PATH} = "$EDGE_HOME/bin:$ENV{PATH}";
@@ -52,6 +53,8 @@ $domain     ||= $ARGV[6];
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
 my $out_dir     = $sys->{edgeui_output};
 my $input_dir   = $sys->{edgeui_input};
 my $www_root	= $sys->{edgeui_wwwroot};
@@ -86,7 +89,7 @@ my $time = strftime "%F %X", localtime;
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
 $info->{STATUS} = "FAILURE";
 #$info->{INFO}   = "Project $pname not found.";
-if ($memUsage > 99 or $cpuUsage > 99  and $action ne 'interrupt'){
+if ($memUsage > 99 or $cpuUsage > 99  and $action ne 'interrupt' and !$cluster){
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
@@ -633,7 +636,44 @@ elsif( $action eq 'compare'){
 	}
 }
 #END sample metadata
+elsif($action eq 'define-gap-depth'){
+	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;
+	my $gap_out_dir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
+	my $gap_outfile="$gap_out_dir/readsToRef_d$gap_depth_cutoff.gaps";
+	my $gff_file="$proj_dir/Reference/reference.gff";
+	my $gap_analysisOutfile="$gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.txt";
+	my $gap_analysisOutfile_json="$gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
+	(my $relative_gap_out_dir=$gap_out_dir) =~ s/$www_root//;
 
+	if ( $gap_depth_cutoff == 0 ){
+		$info->{STATUS} = "SUCCESS";
+		$info->{PATH} = "$relative_gap_out_dir/GapVSReference.report.json";
+		&returnStatus();
+	}
+	if ( -s $gap_analysisOutfile_json){
+		$info->{STATUS} = "SUCCESS";
+		$info->{PATH} = "$relative_gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
+		&returnStatus();
+	}
+	my $cmd;
+	unless ( -s $gap_outfile){
+		opendir( my $dh, $gap_out_dir);
+		my @coverage_file =  grep { /coverage$/ && -f "$gap_out_dir/$_" } readdir($dh);
+		closedir $dh;
+		foreach my $file(@coverage_file){
+			$cmd .= "$EDGE_HOME/scripts/gap_count.pl $gap_out_dir/$file $gap_depth_cutoff >> $gap_outfile ;";
+		}
+	}
+	$cmd .= "$EDGE_HOME/scripts/gap_analysis.pl -gff $gff_file -gap $gap_outfile > $gap_analysisOutfile;";
+	$cmd .= "$EDGE_HOME/scripts/tab2Json_for_dataTable.pl -project_dir $proj_dir -limit 0  -mode ref_gap $gap_analysisOutfile > $gap_analysisOutfile_json";
+	my $pid = open GAP, "-|",$cmd or die $!;
+	close GAP;
+	if( $pid ){
+		$pid++;
+		$info->{STATUS} = "SUCCESS";
+		$info->{PATH} = "$relative_gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
+	}
+}
 &returnStatus();
 
 ######################################################

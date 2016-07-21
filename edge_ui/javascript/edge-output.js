@@ -51,42 +51,88 @@ $( document ).ready(function()
 		});
 	});
 	//data Table
-	var json_table_file;
+	var gap_depth_cut_off=0
 	$('.edge-output-datatables').on('click',function(){
-		json_table_file = $(this).attr('data-src');
+		var json_table_file = $(this).attr('data-src');
 		var tablelinkdom = $(this);
+		var dataTableDom = (/Gap/.test(json_table_file))? '<"#edge-gap-depth-cutoff-div">frtip':'lfrtip';
 		$.ajax( {
 			cache:false,
 			url: json_table_file,
 			dataType:"json",
 			beforeSend: function(){
+				$('#edge-output-datatable-spinner').addClass("edge-sp edge-sp-circle");;
 			},
 			complete: function(){
 			},
 			success:function(json){
-				var datatable=$('#edge-output-datatable').dataTable( {
-					"aaData":json.data,
-					"aoColumns":json.columns,
+				var datatable=$('#edge-output-datatable').DataTable( {
+					"data":json.data,
+					"columns":json.columns,
+					"dom":dataTableDom,
+					"processing": true,
 					//"deferRender": true,
 					"scrollX": true,
 					"destroy": true,
-					"bDestroy":true,
-					"fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+					"rowCallback": function( nRow, aData, iDisplayIndex ) {
 						$('td', nRow).attr('nowrap','nowrap');
 						return nRow;
 					},
 					"drawCallback": function(settings) {
 						contigBlast(tablelinkdom);
+					},
+					"initComplete": function(settings, json) {
+						$('#edge-output-datatable-spinner').removeClass("edge-sp edge-sp-circle");;
 					}
 				});
+				var gap_depth_input = '<label> Define Gap Depth Coverage: <input type="number" id="edge-gap-depth-cutoff" min="0" max="20" value="'+gap_depth_cut_off+'"> <input type="button" id="edge-gap-depth-cutoff-submit" value="Go"></label>';
+				if (/Gap/.test(json_table_file)){
+					$('#edge-gap-depth-cutoff-div').html(gap_depth_input);
+					$('#edge-gap-depth-cutoff-div').css('display','inline-block');
+					$('#edge-gap-depth-cutoff-submit').on('click', function(){
+						$('#edge-output-datatables-dialog').popup('close');
+						gap_depth_cut_off = $('#edge-gap-depth-cutoff').val();
+						defineGapDepth(gap_depth_cut_off,tablelinkdom);
+					});
+				}
 				$('#edge-output-datatables-dialog').popup("reposition",{positionTo: 'window'});
-    			$('#edge-output-datatables-dialog').on("popupafterclose", function( event, ui ) {
-							datatable.fnDestroy();
+    				$('#edge-output-datatables-dialog').on("popupafterclose", function( event, ui ) {
+							datatable.destroy();
 							$('#edge-output-datatable').empty();
 				});
+			},
+			error:function(x,t,m){
+				$('#edge-output-datatables-dialog').popup('close');
+				showMSG("ACTION FAILED: "+ t + "  Please try again or contact your system administrator." );
 			}
 		});
 	});
+	function defineGapDepth (cutoff,tablelinkdom){
+		$.ajax({
+			url: "./cgi-bin/edge_action.cgi",
+			dataType: "json",
+			cache: false,
+			data: { "proj" : focusProjName, "action": 'define-gap-depth', "userType":localStorage.userType, "gap-depth-cutoff" :cutoff,'protocol': location.protocol, 'sid':localStorage.sid},
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Doing Gap analysis...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			success: function(data){
+				$.mobile.loading( "hide" );
+				if( data.STATUS == "SUCCESS" ){
+					tablelinkdom.attr('data-src',data.PATH);
+					tablelinkdom.click();
+				}
+			},
+			error: function(x,t,m){
+				$.mobile.loading( "hide" );
+				showMSG("ACTION FAILED: "+ t + "  Please try again or contact your system administrator." );
+			}
+		});
+	}
 
 	function contigBlast (tablelinkdom) {
 		$('.edge-contigBlast').on('click',function(){

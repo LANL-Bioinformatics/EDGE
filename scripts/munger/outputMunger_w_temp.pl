@@ -1031,6 +1031,7 @@ sub pull_readmapping_ref {
 	$vars->{RMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
 	$vars->{RMREFSNPFILE}     = 0;
 	$vars->{RMREFSNPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
+	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
 
 	## display unmapped reads mapping to RefSeq
 	my $tol_um_org=0;

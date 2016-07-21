@@ -539,7 +539,9 @@
 								<TMPL_IF NAME="RMREFSNPFILE">
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNP Report </a>
 								</TMPL_IF>
-								|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_ANNO_BAM DEFAULT=->'> JBrowse </a>
+								<TMPL_IF NAME="RMREFGAPFILE">
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
+								</TMPL_IF>
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 						</div></li>
 						<li><span class="li-report-content-title">Unmapped Reads</span><div class="li-report-content">
@@ -1353,6 +1355,7 @@
 				<h4 class='ui-title'>Table</h4>
 			</div>
 			<div role="main" class="ui-content">
+				 <div id='edge-output-datatable-spinner'></div>
 				<table id="edge-output-datatable" class="display" cellspacing="0">
 				</table>
 			</div>
