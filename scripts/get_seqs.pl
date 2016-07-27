@@ -14,7 +14,9 @@ my %hash;
 
 if ( -f $file1 || $file1 eq "-") {
   my $fh;
-  $fh = (-f $file1)? open (IN,"$file1") : *STDIN ;
+  if (-r $file1){ 
+        open ($fh,"$file1");
+  }else{ $fh= *STDIN; }
   while (<$fh>)
   {
     chomp;
