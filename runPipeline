@@ -30,7 +30,7 @@ my @referenceGenome;
 my $noColorLog=0;
 my $primerFile;
 my $proxy=$ENV{HTTP_PROXY}||$ENV{http_proxy};
-my ($annoationGFF,$annoationFAA,$annoationFNA); #assembly annotation files
+my ($annotationGFF,$annotationFAA,$annotationFNA); #assembly annotation files
 my $data_cleanup;
 GetOptions("u=s{,}"           => \@unpairedReadsFile,
            "p=s{,}"           => \@pairedReadsFile,
@@ -227,7 +227,7 @@ if ($referenceGenome)
         &runUnmappedContigToRefSeq($unusedContigFasta) if $configuration->{MapUnmappedContigs} && -s $unusedContigFasta;
 	}
     #SNP/INDEL analysis
-    &variantAnalysis($c2g_SNP_INDEL_file,$c2g_Gap,$r2gVCF,$r2gGap,$gff3File);   
+    &variantAnalysis($c2g_SNP_INDEL_file,$c2g_Gap,$r2gVCF,$r2gGap,$gff3File) if ($configuration->{DoVariantAnalysis});
 }
 else # reference unknown 
 {
@@ -246,16 +246,17 @@ if ($configuration->{DoContigsTaxonomy} and $contigFile)
 if ($configuration->{DoAssembly} and $contigFile )
 {
     #not sure if it is Virus, use size of references to determine the kingdoma (580K is smallest Prok,Mycoplasma)
-    my $contigTotalSize = `grep ${project_name}_contigs.fa $outDir/AssemblyBasedAnalysis/contigs_stats.txt | awk \'{print \$9}\'`;
+    my $contigTotalSize=0;
+    $contigTotalSize = `grep ${project_name}_contigs.fa $outDir/AssemblyBasedAnalysis/contigs_stats.txt | awk \'{print \$9}\'` if (-e "$outDir/AssemblyBasedAnalysis/contigs_stats.txt");
     if (!$tax_kingdom)
     {
         $tax_kingdom = ($contigTotalSize >= 580000) ? "Bacteria":"Viruses";
     }
     if ($configuration->{DoAnnotation})
     {
-        ($annoationGFF,$annoationFAA,$annoationFNA)=&runAnnotation($contig_for_annotation_file,$tax_kingdom,$annotateProgram,$project_name);
+        ($annotationGFF,$annotationFAA,$annotationFNA)=&runAnnotation($contig_for_annotation_file,$tax_kingdom,$annotateProgram,$project_name);
         #phagefinder if Bacteria
-        &phageFinder($annoationGFF,$annoationFAA,$annoationFNA) if ($tax_kingdom ne "Viruses");
+        &phageFinder($annotationGFF,$annotationFAA,$annotationFNA) if ($tax_kingdom ne "Viruses");
     }
 
 }
@@ -268,7 +269,7 @@ if ($configuration->{DoSNPtree})
 
 if ($configuration->{DoReadsSpecialtyGenes} || $configuration->{DoORFsSpecialtyGenes})
 {
-   &runSpecialtyGenesProfiling($QCpairFile,$QCunpairFile,$annoationFAA);
+   &runSpecialtyGenesProfiling($QCpairFile,$QCunpairFile,$annotationFAA);
 }
 
 my $pcrCheckFailure=0;
@@ -353,7 +354,7 @@ if ($configuration->{projrunhost} =~ /edge-bsve/ || defined $data_cleanup ){
 sub runSpecialtyGenesProfiling {
     my $pair_read = shift;
     my $single_end_read= shift;
-    my $annoationFAA = shift;
+    my $annotationFAA = shift;
     my $search_tool = $configuration->{SpecialtyGenesSearchTool} || "rapsearch2";
     my $ShortBRED_PATH = "$RealBin/bin/ShortBRED";
 	my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
@@ -395,13 +396,13 @@ sub runSpecialtyGenesProfiling {
        &executeCommand($cmd);
        system("touch $outputDir/runSpecialtyGenesProfiling.finished");
     }
-    if ($configuration->{DoORFsSpecialtyGenes} and -s $annoationFAA and ! -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+    if ($configuration->{DoORFsSpecialtyGenes} and -s $annotationFAA and ! -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
     {
        my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
        my $log = "$outputDir/log.txt";
        `mkdir -p $outputDir`;
 	# AR
-       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annoationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>$log 2>&1";
+       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/AR_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -project $project_name -out $outputDir";
@@ -412,7 +413,7 @@ sub runSpecialtyGenesProfiling {
        &executeCommand($cmd);
 
 	# VF
-       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annoationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";
+       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";
        &lprint ("  Running \n  $cmd \n");
        &executeCommand($cmd);
        $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/VF_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -project $project_name -out $outputDir";
@@ -661,7 +662,7 @@ sub Download_SRA
     $cmd .= join (" ",@SRA_ids);
     $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
-    &executeCommand($cmd);
+    eval {system($cmd) };
     &read_SRAD_Download_dir($outputDir);
 
     &printRunTime($time);
@@ -674,11 +675,17 @@ sub read_SRAD_Download_dir
     my $dir=shift;
     opendir(my $sra_dir_fh,$dir) or die "Cannot read $dir\n";
     my @files = sort grep {/fastq/} readdir($sra_dir_fh);
-    close $sra_dir_fh;
+    closedir $sra_dir_fh;
     if (!@files && !@pairedReadsFile && !@unpairedReadsFile)
     {
-        &lprint("No fastq file from the SRA downloaed. Failed\n");
-        die "No input\n";
+        &lprint("No fastq file from the SRA download. try again\n");
+	&Download_SRA();
+        #die "No input\n";
+    }
+    if (`grep -i -a "Error" $dir/log.txt`){
+       `rm -rf $dir/*fastq*`;
+        &lprint("The SRA download failed. try again\n");
+        &Download_SRA();
     }
     my %pair;
     if (scalar(@files)==1)
@@ -914,7 +921,7 @@ sub Reads_taxonomyAssignment
     my $logFile = "$outputDir/error.log";
     `mkdir -p $outputDir`;
     my $time=time();
-    my $dparam="--debug" if $debug;
+    my $dparam=($debug)?"--debug":"" ;
 	my $bwaScoreCut=30;
 
 	#find out the mean of input reads
@@ -1246,7 +1253,7 @@ sub runAnnotation
             chdir "$outputDir_abs_path/RATT";
             my $ref_abs_path = "$outputDir_abs_path/RATT/source";
             my $contig_abs_path = Cwd::abs_path("$contigFile");
-	    # convert genbank to embl for RATT annoation transfer
+	    # convert genbank to embl for RATT annotation transfer
 	    &executeCommand("cp $sourceGBK $outputDir_abs_path/RATT/source/source.gbk");
   	    &executeCommand("genbank2embl.pl $outputDir_abs_path/RATT/source/source.gbk 2>/dev/null");
             $cmd = ("$RealBin/scripts/runRATT.sh $ref_abs_path $contig_abs_path $project_name Species 1>$log 2>\&1 ");
@@ -1518,14 +1525,17 @@ text(0,1-0.24,paste("Output Dir:", \"$outDir\"),adj=0,font=2)
 nextPos<-1-0.32
 parameters_pos<-nextPos-0.14
 input_pos<-nextPos-0.28
-
-if(file.exists(\"$referenceGenome\")){
-  text(0,nextPos,paste("Reference:",\"$ref_file_names\"),adj=0,font=2)
-  nextPos<-nextPos-0.08
-  parameters_pos<-nextPos-0.12
-  input_pos<-nextPos-0.26
-}
 Rscript
+
+if($referenceGenome){
+print $Rfh <<Rscript;
+  
+text(0,nextPos,paste("Reference:",\"$ref_file_names\"),adj=0,font=2)
+nextPos<-nextPos-0.08
+parameters_pos<-nextPos-0.12
+input_pos<-nextPos-0.26
+Rscript
+}
 
 if ($configuration->{'DoQiimeAnalysis'}){
 print $Rfh <<Rscript;
@@ -2326,7 +2336,7 @@ sub runSpadesAssembly
     &lprint ("  Running\n  $cmd\n");
     eval{ system($cmd);};
     
-    &executeCommand("mv $SPAdesOutDir/spades.log $log");
+    &executeCommand("mv $SPAdesOutDir/spades.log $log") if ( -e "$SPAdesOutDir/spades.log");
 
     my $spades_contigs ="$SPAdesOutDir/contigs.fasta";
 
@@ -3314,7 +3324,12 @@ sub writeJBrowseInfo
     system("rm -f $outputDir/writeJBrowseInfo.finished");
     
     my $project_name=basename($abs_outDir);
-    my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl --in-ref-fa '$referenceGenome' --in-ctg-fa $contig_for_annotation_file --in-ctg-anno-gff3 '$annoationGFF' --in-ref-gff3 '$gff3File' --proj_outdir '$abs_outDir' 2>\&1 1>$log";
+    my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl ";
+    $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
+    $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
+    $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
+    $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
+    $cmd .= "--proj_outdir '$abs_outDir' 2>\&1 1>$log";
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
     &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");

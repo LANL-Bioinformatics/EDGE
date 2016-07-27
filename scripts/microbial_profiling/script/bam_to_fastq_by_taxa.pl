@@ -164,7 +164,8 @@ close $pair1_fh;
 close $pair2_fh;
 close $se_fh;
 
-
+print "$rank: " if ($rank);
+print "$mapped_ref_name\n" if ($mapped_ref_name);
 print "Paired 1: $p1_count; ";
 print "Paired 2: $p2_count; ";
 print "Single End: $se_count; \n";
