@@ -68,7 +68,7 @@ sub pull_referenceName {
 
 sub checkProjTarFile{
 	my $proj_realname = $vars->{PROJNAME};
-	my $projID = $vars->{PROJID};
+	my $projID = $vars->{PROJID} || $projname;
 	$vars->{OUT_GET_DOWNLOAD} = 0 if $vars->{PROJSTATUS} ne "Complete";
 	my $tarFile1 = "$out_dir/$proj_realname.tgz";
 	my $tarFile2 = "$out_dir/${proj_realname}_$projID.tgz";
@@ -297,6 +297,9 @@ sub pull_contigmapping {
 	return unless -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.log";
 	open(my $cmfh, "<", "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.log") or die $!;
 	while(<$cmfh>) {
+		# v1.1 use Total_reads
+		if ($_ =~ /^Total_reads:\s+(\d+)/) 		  { $vars->{CMREADS} = $1; next; }
+		# v2.0 correct to Total_contigs
 		if ($_ =~ /^Total_contigs:\s+(\d+)/) 		  { $vars->{CMREADS} = $1; next; }
 		if ($_ =~ /^Unused Contigs#:\s+(\d+)/)     { $vars->{CMUNUSED} = $1; next; }
 		if ($_ =~ /^Avg_coverage_fold:\s(.*)\n/)  { $vars->{CMAVEFOLD} = $1; next; }

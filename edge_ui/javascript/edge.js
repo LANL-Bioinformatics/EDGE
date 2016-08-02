@@ -1183,7 +1183,7 @@ $( document ).ready(function()
 					});
 				var pstatus = $( "#edge-content-report" ).find("p:first").text().match( /Project Status: (.+)/m );
 
-				if( pstatus[1] != "Complete" ){
+				if( pstatus[1] != "Complete" && pstatus[1] != "Archived"){
 					$( "#edge-content-report div.ui-grid-a" ).hide();
 					$( "#edge-content-report div.ui-grid-c" ).hide();
 				}
