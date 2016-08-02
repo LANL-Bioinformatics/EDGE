@@ -9,14 +9,21 @@ fi
 test_result(){
 	Test=$rootdir/TestOutput/SNP_Phylogeny/testPhylogeneticAnalysis_summaryStatistics.txt
 	Expect=$rootdir/testPhylogeneticAnalysis_summaryStatistics.txt
+	Expect2=$rootdir/testPhylogeneticAnalysis_summaryStatistics2.txt
 	testName="EDGE Phylogenetic Analysis test";
 	if cmp -s "$Test" "$Expect"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
 	else
-		echo "$testName failed!"
-		touch "$rootdir/TestOutput/test.fail"
+		if cmp -s "$Test" "$Expect2"
+		then
+			echo "$testName passed!"
+                	touch "$rootdir/TestOutput/test.success"
+		else
+			echo "$testName failed!"
+			touch "$rootdir/TestOutput/test.fail"
+		fi
 	fi
 }
 
