@@ -24,6 +24,7 @@ done
 
 TestNUM=0;
 FailTestNum=0;
+SuccessTestNum=0;
 for d in $(ls -d */);
 do
 	if [[ $d =~ run([A-Za-z0-9]+)Test ]]
@@ -38,6 +39,7 @@ do
 		if [ -f "$d/TestOutput/test.success" ]
 		then 
 			echo -e "$GREEN[OK]$NC"
+			SuccessTestNum=$((SuccessTestNum+1))
 		else
 			echo -e "$RED[Failed]$NC"
 			FailTestNum=$((FailTestNum+1))
@@ -46,7 +48,7 @@ do
 	fi
 done
 
-echo -e "\n $FailTestNum/$TotalTestNUM test(s) failed";
+echo -e "\n $SuccessTestNum/$TotalTestNUM test(s) passed";
 
 printf "\n Total Running Time: %02d:%02d:%02d\n\n" "$((SECONDS/3600%24))" "$((SECONDS/60%60))" "$((SECONDS%60))"
 
