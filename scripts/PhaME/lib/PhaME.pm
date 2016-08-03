@@ -125,7 +125,7 @@ my $sequence;
 $name =~ s/\W/_/g;
 
 #print "$name\t$wdir/files/$name.fna\n";
-
+`mkdir -p $wdir/files`;
 open (OUT,">$wdir/files/$name.fna")||die "$!";
 print OUT ">$name\n";
 open (IN,$file)||die "$!";
