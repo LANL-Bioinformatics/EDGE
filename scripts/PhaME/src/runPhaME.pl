@@ -94,7 +94,7 @@ while (<CTL>){
       $workdir=$1;
       if ($workdir=~/.+\/$/){my $temp= chop($workdir);}
       $outdir=$workdir.'/results';
-      if (! -e $outdir){mkdir "$outdir";}
+      if (! -e $outdir){`mkdir -p $outdir`;}
    }
    if (/project\s*=\s*(\S+)\s*#{0,1}.*$/){$project=$1;}
    if (/reference\s*=\s*(0|1)\s*#{0,1}.*$/){$rsignal=$1;}
@@ -414,7 +414,7 @@ if ($ps==1){
    my $genedir= $outdir.'/PSgenes';
    if ($pselection==1 || $pselection==3){
       $pamldir= $outdir.'/paml';
-      if (!-d $pamldir){`mkdir $pamldir`;}
+      if (!-d $pamldir){`mkdir -p $pamldir`;}
       `cp $tbest $pamldir`;
       if ($tree==2||$tree==3){$ptree= $pamldir."/RAxML_bestTree.$project\_cds";}
       if ($tree==1){$ptree=$pamldir."$outdir./$project\.fasttree";}
