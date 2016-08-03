@@ -18,6 +18,7 @@ alignments_tools=( hmmer infernal bowtie2 bwa mummer )
 taxonomy_tools=( kraken metaphlan kronatools gottcha )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
+all_tools=("${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
 install_idba()
@@ -913,6 +914,7 @@ usage: $0 options
     help            show this help
     list            show available tools for updates
     tools_name      install/update individual tool
+    force           force to install all list tools locally
     
     ex: To update bowtie2 only
         $0 bowtie2
@@ -969,6 +971,26 @@ print_tools_list()
 
 
 ### Main ####
+if ( checkSystemInstallation csh )
+then
+  #echo "csh is found"
+  echo ""
+else
+  echo "csh is not found"
+  echo "Please Install csh first, then INSTALL the package"
+  exit 1
+fi
+
+if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
+then 
+  #perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
+  echo ""
+else 
+  echo "Cannot find a perl Bioperl Module installed" 1>&2
+  echo "Please install Bioperl (http://www.bioperl.org/)"
+  exit 1
+fi
+
 if [ "$#" -ge 1 ]
 then
   for f in $@
@@ -976,59 +998,65 @@ then
     case $f in
       help)
         print_usage
-        exit;;
+        exit 0;;
       list)
         print_tools_list
-        exit;;
+        exit 0;;
       Assembly)
         for tool in "${assembly_tools[@]}"
         do
             install_$tool
         done
         echo -e "Assembly tools installed.\n"
-        exit;;  
+        exit 0;;  
       Annotation)
         for tool in "${annotation_tools[@]}"
         do
             install_$tool
         done
         echo -e "Annotation tools installed.\n"
-        exit;;  
+        exit 0;;  
       Alignment)
         for tool in "${alignments_tools[@]}"
         do
             install_$tool
         done
         echo -e "Alignment tools installed.\n"
-        exit;; 
+        exit 0;; 
       Taxonomy)
         for tool in "${taxonomy_tools[@]}"
         do
             install_$tool
         done
         echo -e "Taxonomy tools installed.\n"
-        exit;; 
+        exit 0;; 
       Phylogeny)
         for tool in "${phylogeny_tools[@]}"
         do
             install_$tool
         done
         echo -e "Phylogeny tools installed.\n"
-        exit;; 
+        exit 0;; 
       Utility)
         for tool in "${utility_tools[@]}"
         do
             install_$tool
         done
         echo -e "Utility tools installed.\n"
-        exit;; 
+        exit 0;; 
       Perl_Modules)
         for tool in "${perl_modules[@]}"
         do
             install_$tool
         done
         echo -e "Perl_Modules installed.\n"
-        exit;; 
+        exit 0;;
+      force)
+        for tool in "${all_tools[@]}" 
+        do
+            install_$tool
+        done
+        ;;
       *)
         if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" )
         then
@@ -1037,18 +1065,9 @@ then
             echo "$f: no this tool in the list"
             print_tools_list
         fi
-        exit;;
+        exit 0;;
     esac
   done
-fi
-
-if ( checkSystemInstallation csh )
-then
-  echo "csh is found"
-else
-  echo "csh is not found"
-  echo "Please Install csh first, then INSTALL the package"
-  exit 1
 fi
 
 if ( checkSystemInstallation inkscape )
@@ -1059,16 +1078,6 @@ else
  # echo "Please Install inkscape, then INSTALL the package"
  # exit 1
 fi
-
-if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
-then 
-  perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
-else 
-  echo "Cannot find a perl Bioperl Module installed" 1>&2
-  echo "Please install Bioperl (http://www.bioperl.org/)"
-  exit 1
-fi
-
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
