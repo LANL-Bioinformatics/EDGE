@@ -209,8 +209,8 @@ foreach my $query (keys %query_gaps){
    my $total_gap_length = $query_gaps{$query};
    if ( ($total_gap_length/(length $ref_sequence)) > $gap_cutoff){
        $skip_query{$query}=1;
-       my $gap_cutoff_per = $gap_cutoff *100;
-       print "$query are too different where >$gap_cutoff_per % to $reference. Will not use in building SNP tree\n";
+       my $total_covered_percentage = sprintf("%.2f%%", (1 - ($total_gap_length/(length $ref_sequence)))*100);
+       print "Warnings: $query covered only $total_covered_percentage of the $reference. It will not use in building SNP tree\n";
    }
 }
 
@@ -251,7 +251,7 @@ while (my $files= readdir(DIR)){
    $snp_file= $snp_dir.'/'.$files;
    SNPcounts($snp_file);
    if ($files=~ /^$name.+snps$/){
-      if ($files=~ /contigs.snps$/){
+      if ($files=~ /contigs?.snps$/){
          $snp_file= $snp_dir.'/'.$files;
          contig_nucmer_snp($snp_file);
       }
@@ -535,7 +535,7 @@ my ($tmp,$snp_quality,$vcf_info, $vcf_info2);
 my ($sname,$spath,$ssuffix)=fileparse("$file",qr/\.[^.]*/);
 my $contig=0;
 
-if ($sname=~/contigs$/){$contig=1;}
+if ($sname=~/contigs?$/){$contig=1;}
 open (my $fh, $file) or die "$!";
 my $header = <$fh>;
 while(<$fh>){
@@ -553,7 +553,14 @@ while(<$fh>){
 
    if ($ssuffix =~ /vcf/){
       my $depth=0;
-      if (/^#CHROM.+\/$reference\_(\S+)\.sort\.bam/){$query_id=$1.'_read';}
+      my @read_types=("_read","_pread","_sread");
+      if (/^#CHROM.+\/$reference\_(\S+)\.sort\.bam/){
+          my $query=$1;
+          foreach my $type(@read_types){
+              $query_id = $query.$type;
+              last if ($headers_hash{$query_id});
+          }
+      }
       if ($_ !~ /^#/){
          ($ref_id,$ref_pos,$tmp,$ref_base,$snp,$snp_quality,$tmp,$vcf_info,$vcf_info2,$tmp)=split /\t/,$_;
          my @values=split /;/,$vcf_info2;
@@ -677,10 +684,18 @@ my $count=0;
 my ($id,$qual,$filter,$info1,$info2,$tmp);
 my %mapped;
 my $depth=15;
+my @read_types=("_read","_pread","_sread");
+my $query;
 open (IN,"$snp_file")||die "$!";
 while (<IN>){
    chomp;
-   if (/^#CHROM.+\/\S+\/$reference\_(\S+)\.sort\.bam/){$query=$1.'_read';}
+   if (/^#CHROM.+\/\S+\/$reference\_(\S+)\.sort\.bam/){
+       my $query_id=$1;
+       foreach my $type(@read_types){
+           my $query = $query_id.$type;
+           last if ($headers_hash{$query}); 
+       }
+   }
    if (!/^\#/){
       ($ref,$rpos,$id,$rbase,$qbase,$qual,$filter,$info1,$info2,$tmp)= split ("\t",$_);
 #      print "$ref\t$rpos\t$rbase\t$qbase\t$info1\t$info2\t$tmp\n";

@@ -999,6 +999,10 @@
 		<TMPL_IF NAME="OUT_SP_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>Phylogenetic Analysis</h4>
+	
+				<TMPL_IF NAME="SPWARN">
+				<p class="error"><TMPL_VAR NAME=SPWARN></p>
+				</TMPL_IF>
 
 				<TMPL_IF NAME="SPERROR">
 				<p class="error"><TMPL_VAR NAME=SPERROR></p>

@@ -225,13 +225,15 @@ while (my $gaps= readdir(DIR)){
 #      if ($gaps=~ /^$name\_norepeats\_(.+)\_?$name?\_?[\d+\_\d+]?\.gaps$/){
       if ($gaps=~ /^$name\_(.+)\_$name(\_\d+\_\d+)?\.gaps$/){
          my $query=$1;
-         my $tmp= $query.'_read';
-         if (exists $query{$tmp}){
-            my $gap_file= "$gapdir/$gaps";
-            $line=0;
-            open (IN,$gap_file)|| die "$!";
+         my @read_types=("_pread","_sread","_read");
+         foreach my $type(@read_types){
+           my $tmp= $query.$type;
+           if (exists $query{$tmp}){
+             my $gap_file= "$gapdir/$gaps";
+             $line=0;
+             open (IN,$gap_file)|| die "$!";
         # print "Read Mapping Gaps $gaps\n";
-            while (<IN>){
+             while (<IN>){
                chomp;
                $line++;
                next if (/Start\s+End\s+Length.+/);
@@ -244,11 +246,12 @@ while (my $gaps= readdir(DIR)){
                   $gap_start=$start;
                   $gap_end=$end;
                }
-               print GAP "$name\t$gap_start\t$gap_end\t$length\t${query}_read\n";
-            }
-            close IN;
-            if ($line == 1){`rm $gap_file`; $line=0;}
-         }
+               print GAP "$name\t$gap_start\t$gap_end\t$length\t${query}$type\n";
+             }
+             close IN;
+             if ($line == 1){`rm $gap_file`; $line=0;}
+           }
+        } #foreach @read_types
       }
    }
 #   last OUTER;
@@ -433,7 +436,7 @@ my $outdir=$indir."/results";
 my $reference= $outdir.'/temp/'.$name.'.fna';
 my $type;
 
-if(!-e $reference){$indir.'/files/'.$name.'.fna';}
+if(!-e $reference || -z $reference){ $reference = $indir.'/files/'.$name.'.fna';}
 print "\n";
 my $map="runReadsMapping.pl -r $reference -q $indir -d $outdir -t $thread -l $list -a bowtie 2>>$error >> $log\n\n";
 print $map;

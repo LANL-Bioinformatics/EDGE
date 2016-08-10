@@ -2863,7 +2863,7 @@ sub SNPtree
 
     $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.all -o $outputDir -a $phyloXML_annotation_file ";
     &executeCommand($cmd);
-    if ($SNPdbName || $SNPrefName)
+    if ( ($SNPdbName && $SNPdbName !~/hantavirus/i) || $SNPrefName)
     {
         my $cdsTreeFile= $treeMaker eq "FastTree"? "${project_name}_cds.fasttree" : "RAxML_bestTree.${project_name}_cds";;
         system("mv $outputDir/results/$cdsTreeFile $outputDir/results/SNPphyloTree.cds");
@@ -2872,7 +2872,7 @@ sub SNPtree
     }
  
     system("mv $outputDir/results/${project_name}_* $outputDir/");
-    system("mv $outputDir/results/RAxML_* $outputDir/");
+    system("mv $outputDir/results/RAxML_* $outputDir/ 2>/dev/null");
     unless ($debug)
     {
       #system("mv $outputDir/results/RAxML_bestTree.all $outputDir/RAxML_bestTree.all.nwk");

@@ -577,9 +577,10 @@ sub pull_snp_phylogeny {
 	#return unless -e "$out_dir/SNP_Phylogeny/$vars->{SPDB}";
 	my $db = $vars->{SPDB};
 	my $proj_realname = $vars->{PROJNAME};
-	my (@errs,$errs); 
+	my (@errs,$errs,@warnings); 
 	@errs = `grep ERROR $out_dir/SNP_Phylogeny/results/error.log` if ( -e "$out_dir/SNP_Phylogeny/results/error.log");
-	$errs = join ("\n",@errs) if (@errs);
+	@warnings = `grep "Warnings" $out_dir/SNP_Phylogeny/${proj_realname}_PhaME.log` if ( -e "$out_dir/SNP_Phylogeny/${proj_realname}_PhaME.log");
+	$errs = join ("<br/>\n",@errs) if (@errs);
 	#$vars->{SPCDS} = 1 if ( -e "$out_dir/SNP_Phylogeny/SNPphyloTree.cds.xml");
 	$vars->{SPREFLIST} = "$out_dir/SNP_Phylogeny/annotation.txt";
 	$vars->{SPTREEALL} = "$out_dir/SNP_Phylogeny/SNPphyloTree.all.xml";
@@ -588,6 +589,7 @@ sub pull_snp_phylogeny {
 	$vars->{SPALNALL}  = "$out_dir/SNP_Phylogeny/${proj_realname}_all_snp_alignment.fna";
 	$vars->{SPALNCDS}  = "$out_dir/SNP_Phylogeny/${proj_realname}_cds_snp_alignment.fna";
 	$vars->{SPERROR}   = "$errs" if ($errs);
+	$vars->{SPWARN}    = join ("<br/>\n",@warnings) if (@warnings);
 	$vars->{SPDIR}     = "$out_dir/SNP_Phylogeny/";
 	my $summary_file = "$out_dir/SNP_Phylogeny/${proj_realname}_summaryStatistics.txt";
 	if (-e "$summary_file"){

@@ -155,19 +155,21 @@ else{
 	## precompute SNPdb
 	## Check species in SNPdb
 	$random_ref=1;
-	$cdsSNPS=1;
+	$cdsSNPS=0;
 	$refdir = "$outputDir_abs_path/files";
 	open (my $mapfh,$ref_id_map) or die "Cannot open $ref_id_map\n";
 	while(<$mapfh>)
 	{
 	    chomp;
+            next if (/^#/);
 	    my($id,$ref) = split /\s+/,$_;
 	    $ref_id{$id}=$ref;
 	}
 	close $mapfh;
 	$reffile= $ref_id{$SNPdbName}.".fna";
 	$gff_file= $ref_id{$SNPdbName}.".gff";
-
+	my ($name,$path,$suffix)=fileparse("$ref_id_map",qr/\.[^.]*/);
+	$cdsSNPS=1 if ( -e "$path/$SNPdbName/$gff_file");
 	my $current_db = join(", ",keys(%ref_id));
 	unless($SNPdbName) {print "\nPlease specify a db_Name in the SNPdb\nCurrent available db are $current_db.\n\n"; &usage(); exit;}
 
@@ -210,7 +212,7 @@ $data_type = 6 if ((@pair_read || $single_end_read) && $contig && ($genomes||$ge
 $modeltest = 0 if ($treeMaker =~ /FastTree/i);
 $molecular_analysis = 1 if ($PosSelect =~ /PAML/i);
 $molecular_analysis = 2 if ($PosSelect =~ /HyPhy/i);
-$kingdom_code = 1 if ($kingdom =~ /Virus/i);
+$kingdom_code = 1 if ($kingdom =~ /Virus/i || $SNPdbName =~ /Virus/i);
 $kingdom_code = 2 if ($kingdom =~ /Eukaryote/i);
 
 

@@ -285,7 +285,7 @@ if ($check==0){
       if ($read_mapping==1){
          if ($files=~ /.+\.f{1}a?s?t?q$/ && $files!~ /.+\.f{1}n|s?a?s?t?a$/ && $files!~ /\.contigs?/){
             my $fastq=$refdir.'/'.$files;
-            print "$qname\n";
+            #print "$qname\n";
             my $read_list_name;
             if ($qname=~/(.+)[_.]R?[12]$/){
                if ($reads==2){
