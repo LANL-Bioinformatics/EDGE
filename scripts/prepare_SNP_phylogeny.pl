@@ -144,7 +144,17 @@ if ($genomes || $genomesFiles)
 	if($reference){
 		my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$reference*`;
 		chomp @tmpl;
-		system("$RealBin/genbank2gff3.pl --outdir stdout $tmpl[0]/*gbk > $refdir/$reference.gff");
+                my @gfiles = `ls -S $tmpl[0]/*gbk`;
+		my @gfffiles;
+		foreach my $gbk (@gfiles){
+			chomp $gbk;
+			my $gbk_basename=basename($gbk);
+			system("$RealBin/genbank2gff3.pl -e 3 --outdir stdout $gbk > $refdir/$gbk_basename.gff");
+			push @gfffiles, "$refdir/$gbk_basename.gff";
+		}
+		my $cat_cmd="$RealBin/cat_gff.pl -i ". join(" ",@gfffiles) . "> $refdir/$reference.gff";
+		system($cat_cmd);
+		unlink @gfffiles;
 		$reffile = "$reference.fna";
 		$gff_file = "$reference.gff";
 		$cdsSNPS=1;
