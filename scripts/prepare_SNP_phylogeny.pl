@@ -129,7 +129,19 @@ if ($genomes || $genomesFiles)
 		} split /,/,$genomesFiles;
 	}
 	if($reference){
-		system("$RealBin/genbank2gff3.pl --outdir stdout $EDGE_HOME/database/NCBI_genomes/$reference*/*gbk > $refdir/$reference.gff");
+		my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$reference*`;
+		chomp @tmpl;
+		my @gfiles = `ls -S $tmpl[0]/*gbk`;
+		my @gfffiles;
+		foreach my $gbk (@gfiles){
+			chomp $gbk;
+			my $gbk_basename=basename($gbk);
+			system("$RealBin/genbank2gff3.pl -e 3 --outdir stdout $gbk > $refdir/$gbk_basename.gff");
+			push @gfffiles, "$refdir/$gbk_basename.gff";
+		}
+		my $cat_cmd="$RealBin/cat_gff.pl -i ". join(" ",@gfffiles) . "> $refdir/$reference.gff";
+		system($cat_cmd);
+		unlink @gfffiles;
 		$reffile = "$reference.fna";
 		$gff_file = "$reference.gff";
 		$cdsSNPS=1;
@@ -140,7 +152,6 @@ else{
 	## precompute SNPdb
 	## Check species in SNPdb
 	$random_ref=1;
-	$cdsSNPS=1;
 	$refdir = "$outputDir_abs_path/files";
 	open (my $mapfh,$ref_id_map) or die "Cannot open $ref_id_map\n";
 	while(<$mapfh>)
@@ -152,7 +163,9 @@ else{
 	close $mapfh;
 	$reffile= $ref_id{$SNPdbName}.".fna";
 	$gff_file= $ref_id{$SNPdbName}.".gff";
-
+	
+	my ($name,$path,$suffix)=fileparse("$ref_id_map",qr/\.[^.]*/);
+	$cdsSNPS=1 if ( -e "$path/$SNPdbName/$gff_file");
 	my $current_db = join(", ",keys(%ref_id));
 	unless($SNPdbName) {print "\nPlease specify a db_Name in the SNPdb\nCurrent available db are $current_db.\n\n"; &usage(); exit;}
 
