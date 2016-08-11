@@ -638,7 +638,7 @@
 				<label for="edge-phylo-sw">Phylogenetic Analysis</label>
 				</div>
 			</h4>
-			<p class="edge_tool_note">EDGE supports 5 pre-computed databases for SNP phylogeny analsysis and two tree builders. FastTree is faster and RAxML is slower but more accurate.</p>
+			<p class="edge_tool_note">EDGE supports 5 pre-computed databases for SNP phylogeny analysis and two tree builders. FastTree is faster and RAxML is slower but more accurate.</p>
 			<div class="ui-field-contain">
 			<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 				<legend>Tree Build Method</legend>
@@ -649,7 +649,7 @@
 			</fieldset>
 			</div>
 			<div class="ui-field-contain input-type-file">
-			<label for="edge-phylo-patho">Pathogen SNP DB</label>
+			<label for="edge-phylo-patho">Pre-built SNP DB</label>
 			<select id="edge-phylo-patho" data-mini="true" name="edge-phylo-patho" data-native-menu="true">
 				<option value="">Select a Pathogen...</option>
 				<option value="Ecoli">Ecoli</option>
@@ -673,8 +673,9 @@
 			</fieldset>-->
 			</div>
 			<p class="edge-center">or</p>
+			<p class="edge_tool_note">Select/Add Genomes or SRA Reads: The same species or at least within the same genus are recommended.</p>
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-phylo-ref-select">Select Genome(s)</label>
+				<label for="edge-phylo-ref-select" class='tooltip' title="This workflow is a whole genome SNP based analysis that requires at minimum one reference genome and at least three dataset for building the phylogenetic tree. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better).">Select Genome(s)</label>
 				<select id="edge-phylo-ref-select" data-mini="true" name="edge-phylo-ref-select" data-native-menu="false" multiple="multiple">
 					<option disabled>Search genomes...</option>
 				</select>
