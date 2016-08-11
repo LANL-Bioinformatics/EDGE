@@ -692,7 +692,7 @@ while (<IN>){
    if (/^#CHROM.+\/\S+\/$reference\_(\S+)\.sort\.bam/){
        my $query_id=$1;
        foreach my $type(@read_types){
-           my $query = $query_id.$type;
+           $query = $query_id.$type;
            last if ($headers_hash{$query}); 
        }
    }
