@@ -171,7 +171,7 @@ opendir(DIR,"$gapdir");
 while (my $gaps= readdir(DIR))
 {
 #   if ($gaps=~ /^$name\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s\.gaps/ && $gaps!~ /^$name\_norepeats/){
-   if ($gaps=~ /^$name\_norepeats\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s\.gaps/){
+   if ($gaps=~ /^$name\_norepeats\_(.+)\_norepeats\.gaps/ || $gaps=~ /^$name\_(.+_contig)s\.gaps/ || $gaps=~ /^$name\_(.+)\.gaps/ ){
       if (exists $query{$1}){
          $line=0;
          my $gapfile= "$gapdir/$gaps";
@@ -384,7 +384,7 @@ my $outdir=$indir."/results";
 my $log=$outdir.'/currentRun.log';
 my $reference= $outdir.'/temp/'.$name.'.fna';
 
-if(!-e $reference){$reference=$indir.'/files/'.$name.'.fna';} 
+if(!-e $reference || -z $reference){$reference=$indir.'/files/'.$name.'.fna';} 
 print "\n";
 my $map="time $bindir/runReadsMapping.pl -r $reference -q $indir -d $outdir -t $thread -l $list -a bowtie 2>>$error >> $log\n\n";
 print $map;

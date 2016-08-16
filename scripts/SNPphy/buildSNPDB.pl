@@ -35,6 +35,8 @@ my $cdsSNPoutfile;
 my $cdsSNPstats;
 my $CDScoords;
 my $noncoding;
+# When 60% linear reference lenght are gap (query compared to)
+my $gap_cutoff=0.60;
 
 GetOptions(
    'i=s'      => \$in_dir,
@@ -168,22 +170,39 @@ sub read_gap
 my $count=0;
 my %skip_query;
 my ($gap_start,$gap_end,$gap_length);
+my %gaps;
 open (IN, "$gap_file")|| die "$!";
 while (<IN>){
    chomp;
    if (/^$reference\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)$/){
       ($gap_start,$gap_end,$gap_length,$query)=($1,$2,$3,$4);
-      if ( ($gap_length/(length $ref_sequence)) > 0.75)
-      {
-          $skip_query{$query}=1;
-          print "$query are too different >75% to $reference. Will not use in building SNP tree\n";
-          next;
-      }
-      for (my $i=$gap_start;$i<=$gap_end;$i++){$gap_location{$i}++;}
+      $gaps{$4} += $3;
    }
 }
 close IN;
 
+foreach my $query (keys %gaps){
+   my $total_gap_length = $gaps{$query};
+   if ( ($total_gap_length/(length $ref_sequence)) > $gap_cutoff){
+       $skip_query{$query}=1;
+       my $total_covered_percentage = sprintf("%.2f %%", (1 - ($total_gap_length/(length $ref_sequence)))*100);
+       print "Warnings: $query covered only $total_covered_percentage of the $reference. It will not use in building SNP tree\n";
+   }
+ 
+}
+
+open (IN, "$gapfile")|| die "$!";
+while (<IN>){
+   chomp;
+   if (/^$reference\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)$/){
+      my ($gap_start,$gap_end,$gap_length,$query)=($1,$2,$3,$4);
+      if (! $skip_query{$query}){
+
+          for (my $i=$gap_start;$i<=$gap_end;$i++){$gap_location{$i}++;}
+      }
+   }
+}
+close IN;
 #if (-e $in_dir.'/noncoding.txt'){
 #   open (IN, "$noncoding")|| die "$!";
 #   while (<IN>){
