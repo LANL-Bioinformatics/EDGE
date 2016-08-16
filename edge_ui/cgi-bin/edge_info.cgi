@@ -452,7 +452,7 @@ sub availableToRun {
 }
 
 sub getSystemUsage {
-	my $mem = `free -m | awk 'NR==2{printf "%.1f", \$3*100/(\$4+\$3)}'`;
+	my $mem = `vmstat -s | awk  '\$0 ~/total memory/ {total=\$1 } \$0 ~/free memory/ {free=\$1} \$0 ~/buffer memory/ {buffer=\$1} \$0 ~/cache/ {cache=\$1} END{print (total-free-buffer-cache)/total*100}'`;
 	my $cpu = `top -bn1 | grep load | awk '{printf "%.1f", \$(NF-2)}'`;
 	my $disk = `df -h $out_dir | tail -1 | awk '{print \$5}'`;
 	$disk= `df -h $out_dir | tail -1 | awk '{print \$4}'` if ($disk !~ /\%/);
