@@ -154,7 +154,7 @@ sub runMetaComp {
 				$title = "GOTTCHA Merged plot ($rank)";
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
 				$cmd = "Rscript $RealBin/merge_and_plot_gottcha_assignments.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
-				$cmd .= " 1>$log 2>\&1 ";
+				$cmd .= " 1>>$log 2>\&1 ";
 				system($cmd) if (! -s "$plot_filename.pdf");
 				$tool_list->{GOTTCHA}->{$rank}->{CPRANK}=$rank;
 				if ($kingdom eq "Bacteria"){
@@ -172,16 +172,22 @@ sub runMetaComp {
 				my $loop = "LOOP_".uc($tool);
 				$title = uc($tool)." Merged plot ($rank)";
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
-				$cmd = "Rscript $RealBin/merge_and_plot_gottcha_assignments.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
-				$cmd .= " 1>$log 2>\&1 ";
-				#system($cmd) if (! -s "$plot_filename.pdf");
-				#$tool_list->{uc($tool)}=1;
-				#push @{$tool_list->{$loop}},$res;
-				#$count++;
+				my $Rscript = ($tool =~/kraken/i)?"merge_and_plot_kraken_assignments.R":"merge_and_plot_${tool}_assignments.R";
+				$cmd = "Rscript $RealBin/$Rscript $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
+				$cmd .= " 1>>$log 2>\&1 ";
+				system($cmd) if (! -s "$plot_filename.pdf");
+				my $tool_res;
+				$tool_res->{CPRANK}=$rank;
+				$tool_res->{CPTOOLNAME}=uc($tool);
+				$tool_res->{CPTOOLPDF}="${tool}_merged_heatmap.pdf";
+				$tool_res->{CPTOOLSVG}="${tool}_merged_heatmap.svg";
+				push @{$vars->{LOOP_CPTOOL}}, $tool_res;
+				$count++;
 			}
 		}
 	}
 	foreach my $tool ( keys %$tool_list ){
+		next if ($tool !~ /gottcha/i);
 		my $res = $tool_list->{$tool};
 		foreach my $rank ( sort keys %$res ){
 			my $rank_res = $res->{$rank};
@@ -189,7 +195,7 @@ sub runMetaComp {
 			push @{$tool_list->{$loop}}, $rank_res;
 		}
 	}
-	push @{$vars->{LOOP_CPTOOL}}, $tool_list;
+	unshift @{$vars->{LOOP_CPTOOL}}, $tool_list;
 	return $count;
 }
 

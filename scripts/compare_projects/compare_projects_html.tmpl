@@ -96,13 +96,13 @@
 				</div>
 				</TMPL_LOOP>
 				<TMPL_ELSE>
-				<TMPL_IF NAME=CPKINGDOM>
-				<div class="ui-responsive edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
-					<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOM> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLPDF >'> [PDF] </a></span>
-					<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLSVG >'></img>
-					</a>
+				<div class="ui-grid-a edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
+					<div class="ui-responsive ui-block-a">
+						<span class="iframe_label"><TMPL_VAR NAME=CPTOOLNAME><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLPDF >'> [PDF] </a></span>
+						<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLSVG >'></img>
+						</a>
+					</div>
 				</div>
-				</TMPL_IF>
 				</TMPL_IF>
 				</TMPL_LOOP>
 		</div</li>
