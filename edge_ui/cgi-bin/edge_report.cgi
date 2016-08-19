@@ -6,12 +6,19 @@
 #
 
 use strict;
-#use lib "/Users/paulli/perl5/lib/perl5";
-#use JSON;
+use JSON;
 use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
-#use Data::Dumper;
+use Data::Dumper;
+
+use LWP::UserAgent;
+use HTTP::Request::Common;
+use POSIX qw(strftime);
+use Digest::MD5 qw(md5_hex);
+require "edge_user_session.cgi";
+
+
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
@@ -20,17 +27,52 @@ $pname ||= $ARGV[0];
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 
+my $username    = $opt{'username'}|| $ARGV[1];
+my $password    = $opt{'password'}|| $ARGV[2];
+my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[3];
+my $protocol = $opt{protocol} || 'http:';
+my $sid         = $opt{'sid'}|| $ARGV[4];
+my $viewType;
+my $domain      = $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $edgeui_output  = $sys->{edgeui_output};
-my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
-my $proj_list=&scanProjToList($edgeui_output);
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 
-if( $proj_list->{$pname} ){
-	my $projDir = $relpath . "/". $proj_list->{$pname};
+my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
+my $um_url      = $sys->{edge_user_management_url};
+my $out_dir     = $sys->{edgeui_output};
+my $projDir;
+# Generates the project list (pname = encoded name) Scans output dir
+if( $sys->{user_management} ){
+	($username,$password,$viewType) = getCredentialsFromSession($sid);
+	my $proj_code=&getProjCodeFromDB($pname, $username, $password);
+	$projDir = $relpath ."/". $proj_code;
+} else {
+	if ( -e "$edgeui_output/$pname/config.txt"){
+		$projDir = $relpath."/".$pname;
+	}else{
+		my $proj_list=&scanProjToList($edgeui_output);
+		if( $proj_list->{$pname} ){
+			$projDir = $relpath . "/". $proj_list->{$pname};
+		}
+	}
+}
+
+
+generateReport($projDir);
+
+
+exit;
+
+######################################################
+sub generateReport {
+	my $projDir = shift;
 	chdir $edgeui_wwwroot;
 	my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/munger/outputMunger_w_temp.pl $projDir $projDir/HTML_Report/report_web.html";
 	`$cmd`;
@@ -48,51 +90,44 @@ if( $proj_list->{$pname} ){
 	close REP;
 
 	my $html = join "", @htmls;
-	#$html =~ s/>\s+</></mg;
-	#$html =~ s/\t/ /mg;
-	#$html =~ s/ {2,}//mg;
-	#$html =~ s/\n/ /mg;
 
 	print "Content-Type: text/html\n\n",
 		  $html;
-	
-		  #open LOG, ">/tmp/edge_report$$.log";
-		  #print LOG $test;
-		  #close LOG;
 }
-
-exit;
-
-######################################################
 
 sub scanProjToList {
 	my $out_dir = shift;
-        my $list;
-        opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
-        while( defined (my $file = readdir BIN) ) {
-                next if $file eq '.' or $file eq '..';
+	my $list;
+	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
+	while( defined (my $file = readdir BIN) ) 
+	{
+		next if $file eq '.' or $file eq '..';
 		my $projid;
 		my $projCode;
-                if ( -d "$out_dir/$file" && -r "$out_dir/$file/config.txt"  ) {
+		if ( -d "$out_dir/$file" && -r "$out_dir/$file/config.txt"  ) 
+		{
 			open ( CONFIG, "$out_dir/$file/config.txt") or die "Cannot open $out_dir/$file/config.txt\n";
-			while(<CONFIG>){
+			while(<CONFIG>)
+			{
 				last if (/^\[Down/);
-				if (/^projid=(\S+)/){
+				if (/^projid=(\S+)/)
+				{
 					$projid=$1;
 				}
-				if (/^projcode=(\S+)/){
+				if (/^projcode=(\S+)/)
+				{
 					$projCode=$1;
 				}
 			}
 			close CONFIG;
-                        $projid ||= $file;
+			$projid ||= $file;
 			$list->{$projid} = $file;
 			$list->{$file} = $file;
 			$list->{$projCode} = $file;
-                }
-        }
-        closedir(BIN);
-        return $list;
+		}
+	}
+	closedir(BIN);
+	return $list;
 }
 
 sub getSysParamFromConfig {
@@ -115,4 +150,55 @@ sub getSysParamFromConfig {
 	return $sys;
 }
 
+
+sub getProjCodeFromDB{
+    my $projectID=shift;
+    $projectID = &getProjID($projectID);
+    my $username = shift;
+    my $password = shift;
+    
+    my %data = (
+       email => $username,
+       password => $password,
+   	   project_id => $projectID 
+    );
+    
+	$um_url ||= "$protocol//$domain/userManagement";
+    # Encode the data structure to JSON
+    my $data = to_json(\%data);
+    #w Set the request parameters
+    my $url = $um_url ."WS/project/getInfo";
+    my $browser = LWP::UserAgent->new;
+    my $req = PUT $url;
+    $req->header('Content-Type' => 'application/json');
+    $req->header('Accept' => 'application/json');
+    #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+    $req->header( "Content-Length" => length($data) );
+    $req->content($data);
+
+    my $response = $browser->request($req);
+    my $result_json = $response->decoded_content;
+	# print $result_json if (@ARGV);
+	my $hash_ref = from_json($result_json);
+
+	my $id = $hash_ref->{id};
+	my $project_name = $hash_ref->{name};
+	my $projCode = $hash_ref->{code};
+	
+	return $projCode;
+}
+sub getProjID {
+  my $project=shift;
+  my $projID = $project;
+  if ( -d "$out_dir/$project"){ # use ProjCode as dir
+    open (my $fh, "$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
+    while(<$fh>){
+      if (/^projid=(\S+)/){
+        $projID = $1;
+        last;
+      }
+    }
+  }
+  return $projID;
+}
 

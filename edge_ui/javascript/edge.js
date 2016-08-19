@@ -1137,7 +1137,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: { "proj" : pname, "sid":localStorage.sid },
+			data: { "proj" : pname, "sid":localStorage.sid , 'umSystem':umSystemStatus, 'protocol':location.protocol},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
