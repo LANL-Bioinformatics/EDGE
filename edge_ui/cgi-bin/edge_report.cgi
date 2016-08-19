@@ -7,6 +7,8 @@
 
 use strict;
 use JSON;
+use FindBin qw($RealBin);
+use lib "$RealBin/../../lib";
 use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
