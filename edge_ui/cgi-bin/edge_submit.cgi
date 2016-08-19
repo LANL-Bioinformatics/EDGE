@@ -80,6 +80,7 @@ my @edge_qiime_mapping_files = split /[\x0]/, $opt{"edge-qiime-mapping-file-inpu
 my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
 my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
+my @edge_ref_input;
 
 #####  Chienchi add for batch sra submit #######
 my $batch_sra_run=0;
@@ -368,7 +369,7 @@ sub createConfig {
 						push @refs,@gfiles;
 					    } @refsl;
 				}
-				push @refs, $opt{"edge-ref-file"} if (defined $opt{"edge-ref-file"} && -e $opt{"edge-ref-file"});
+				push @refs, @edge_ref_input if @edge_ref_input;
 				$opt{"edge-ref-file"} = join ",", @refs;
 			}
 			if ($opt{"edge-phylo-sw"})
@@ -838,7 +839,14 @@ sub checkParams {
 		$opt{"edge-ref-file"} = $input_dir."/".$opt{"edge-ref-file"} if ( $opt{"edge-ref-file"} =~ /^\w/ );
 		&addMessage("PARAMS","edge-ref-file","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
 		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file","Invalid input. Fasta or Genbank format required") if ( -e $opt{"edge-ref-file"} && ! is_fasta($opt{"edge-ref-file"}) && ! is_genbank($opt{"edge-ref-file"}) );
+		if ($opt{"edge-ref-file"}){
+			@edge_ref_input = split /[\x0]/, $opt{"edge-ref-file"} if defined $opt{"edge-ref-file"};
+			for my $i (0..$#edge_ref_input){
+				$edge_ref_input[$i] = $input_dir."/".$edge_ref_input[$i] if ($edge_ref_input[$i]=~ /^\w/);
+				my $id = 'edge-ref-file'. ($i + 1);
+				&addMessage("PARAMS",$id,"Invalid input. Fasta or Genbank format required") if ( -e $edge_ref_input[$i] && ! is_fasta($edge_ref_input[$i]) && ! is_genbank($edge_ref_input[$i]));
+			}
+		}
 	}
 	if ( $opt{"edge-taxa-sw"} && scalar split(/[\x0]/,$opt{"edge-taxa-enabled-tools"}) < 1 ){
 		&addMessage("PARAMS","edge-taxa-tools","You need to choose at least one tool.");
@@ -918,8 +926,8 @@ sub checkParams {
 			@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file"} if defined $opt{"edge-phylo-ref-file"};
 			for my $i (0..$#edge_phylo_ref_input){
 				$edge_phylo_ref_input[$i] = $input_dir."/".$edge_phylo_ref_input[$i] if ($edge_phylo_ref_input[$i]=~ /^\w/);
-				my $id = 'edge-phylo-ref-file-'. ($i + 1);
-				&addMessage("PARAMS",$id,"Invalid input. Genbank format required") if ( -e $edge_phylo_ref_input[$i] && ! is_fasta($edge_phylo_ref_input[$i]) );
+				my $id = 'edge-phylo-ref-file'. ($i + 1);
+				&addMessage("PARAMS",$id,"Invalid input. Fasta format required") if ( -e $edge_phylo_ref_input[$i] && ! is_fasta($edge_phylo_ref_input[$i]) );
 			}
 		}
 	}

@@ -119,8 +119,7 @@
 
 				<li data-icon='back' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-unshare-btn' aria-haspopup='true' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='unshare'>Unshare project</a>
 				<li data-icon='eye' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-publish-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='publish'>Make project public</a>
-
-                <li data-icon='edit' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-rename-pjct' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class= 'edge-icon-bg-grey' data='rename'> Rename Project </a> 
+				<li data-icon='edit' class="no-show-logout"><a href='#edge_confirm_dialog' id='action-rename-pjct' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class= 'edge-icon-bg-grey' data='rename'> Rename Project </a> 
 
 			</ul>
 
@@ -537,7 +536,7 @@ This website is available for use with publicly available data, while local stan
 
 						<div class="ui-field-contain">
 							<label for="edge-proj-desc">Use # of CPUs</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="16"></div>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
 
 						<div class="ui-field-contain input-type-file">
 							<label for="edge-input-config">Config File</label>
@@ -861,11 +860,15 @@ This website is available for use with publicly available data, while local stan
 				</select>
 			</div>
 			<p class="edge-center">and/or</p>
-			<div class="ui-field-contain input-type-file">
-				<label for="edge-ref-file">Reference Genome</label>
-				<input type="text" data-mini="true" name="edge-ref-file" id="edge-ref-file" placeholder="absolute FASTA/GenBank file path/select file">
-				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			<div id="edge-ref-file-block1" class="ui-field-contain input-type-file edge-ref-file-block">
+				<label for="edge-ref-file">Reference genome</label>
+				<input type="text" data-mini="true" name="edge-ref-file" id="edge-ref-file-1" placeholder="absolute FASTA/GenBank file path/select file">
+				<div class="edge-file-selector">
+				<a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+				<a href="#" class="btnAdd-edge-ref-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
+				</div>
 			</div>
+
 			<div class="ui-field-contain" id="edge-r2g-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Reads Aligner</legend>

@@ -802,7 +802,7 @@ $( document ).ready(function()
         	     //alert('maximum fields reached')
         	}                        
     	});
-  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file').click( function(e) {
+  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file').click( function(e) {
 		e.preventDefault();
 		var blockClass, blockIDprefix, inputID, label, selectClass;
 		if ($(this).hasClass("btnAdd-edge-phylo-ref-file")){
@@ -817,7 +817,13 @@ $( document ).ready(function()
 			blockIDprefix = "edge-qiime-barcode-fq-file-block";
 			inputID = "edge-qiime-barcode-fq-file-input";
 			label = "Barcode Fastq File";
-		}
+		}else if ($(this).hasClass("btnAdd-edge-ref-file")){
+			selectClass = ".btnAdd-edge-ref-file";
+			blockClass = ".edge-ref-file-block";
+			blockIDprefix = "edge-ref-file-block";
+			inputID = "edge-ref-file";
+			label = "Reference Genome";
+                }
 		// how many "duplicatable" input fields we currently have
 		var num = $(blockClass).length;
 		console.log(num);	
