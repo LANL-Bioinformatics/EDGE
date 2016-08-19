@@ -127,13 +127,9 @@
 		</div>
 	
 		<p>
-			<ul>
-			<li>No need for high-level bioinformaticists at the site of sequencing.</li>
-			<li>No need to move large datasets.</li>
-			<li>Edge Bioinformatics enables sequencing as a solution in the biological facilities where human-resources, space, bandwidth, and time are limited</li>
-			<li>A highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data.</li>
-			<li>Allow users to address a wide range of use cases including assay validataion and the characterization of novel biological threats, clinical samples, and complex environmental samples.</li>
-			</ul>
+			EDGE bioinformatics is intended to help truly democratize the use of Next Generation Sequencing for exploring genomes and metagenomes. Given that bioinformatic analysis is now the rate limiting factor in genomics, we developed EDGE bioinformatics with a <b>user-friendly interface</b> that allows scientists to perform a number of tailored analyses using <b>many cutting-edge tools</b>. 
+This website is available for use with publicly available data, while local stand-alone implementations can accommodate data generated on-site for immediate analysis, eliminating the need to move large datasets. 
+			<h3 class="edge-center">EDGE Workflow</h3>
 			<div class="edge-center"><a href="#popup-workflow" data-transition="fade" data-rel="popup" data-position-to="window"><img style="max-width:100%; height:auto;" src="images/workflow_small.jpg"/></a></div>
 			<div data-role="popup" data-history="false" id="popup-workflow" class="photopopup" data-overlay-theme="a" data-corners="false" data-tolerance="30,15">
 				<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
@@ -142,22 +138,32 @@
 				</a>
 			</div>
 		</p>
+		<h2>Features of EDGE</h2>
+                <p>
+                        <ul>
+                        <li>No need for high-level bioinformaticists</li>
+                        <li>Allow users to address a wide range of use cases including the assembly/annotation and comparison of novel genomes, and the characterization of complex clinical or environmental samples</li>
+                        <li>Can present the results of several taxonomy classification tools for easy comparison</li>
+                        <li>Focus on accurate and rapid analysis</li>
+                        <li>Enables sequencing as a solution in facilities where human-resources, space, bandwidth, and time are limited</li>
+                        </ul>
+                </p>
 		<h2>Implementation</h2>
 		<p>
 			<ul>
-			<li>EDGE pipeline was implemented in Perl and wraps up several existing tools within the package including a cutting-edge assembler and sequencing reads aligners.</li>
-			<li>The User Interface was mainly implemented in <a href="https://jquerymobile.com">JQuery Mobile</a>, which is a HTML5-based user interface system designed to make responsive web sites and apps that are accessible on all smartphone, tablet and desktop devices.</li> 
-			<li>The current version of EDGE pipeline has been extensively tested on a Linux Server with Ubuntu 13.04 operation system and will only work on 64bit Linux environments.</li>
-			<li>Due to the involvement of several memory/time consuming steps, it requires at least 16Gb memory and at least 8 computing CPUs. A higher computer spec is recommended: 128Gb memory and 16 computing CPUs.</li>
+			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts that form six mainly independent modules</li>
+			<li>The EDGE bioinformatics web-based graphic user interface is primarily implemented using the JQuery Mobile javascript framework and HTML5 on the client-side, and implements perl CGI using Apache or Python on the server-side</li>
+			<li>The current version of EDGE pipeline has been extensively tested on Linux platforms with Ubuntu 14.04 and CentOS 6/7 operation system and will only work on 64bit Linux environments</li>
+			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 16GB memory and 8 CPUs, though we typically use on servers with a minimum of 128GB memory with 16 CPUs</li>
 			</ul>
 		</p>
 		<h2>Download & Updates</h2>
 		<p>
-			Please check our GitHub site <a href="https://lanl-bioinformatics.github.io/edge/" target="_blank">LANL-Bioinformatics</a>.
+			Please check our <a href="https://lanl-bioinformatics.github.io/EDGE/" target="_blank">LANL-Bioinformatics GitHub site</a>.
 		</p>
 		<h2>Tutorial & Help</h2>
 		<p>
-			The tutorial and guide are hosted in readthedocs.org in <a href="https://edge.readthedocs.org/en/latest/" target="_blank">online</a> or <a href="https://media.readthedocs.org/pdf/edge/latest/edge.pdf" target="_blank">PDF</a> version. User discussion group will be online soon.
+			The tutorial and guide are hosted in <a href="https://edge.readthedocs.org/en/v1.1/" target="_blank">edge.readthedocs.org</a> in (<a href="https://media.readthedocs.org/pdf/edge/v1.1/edge.pdf" target="_blank">click here for PDF version</a>). User discussion group can be found <a href="https://groups.google.com/d/forum/edge-users" target="_blank">here</a>.
 		</p>
 	</div><!-- /home -->
 
@@ -184,7 +190,7 @@
 						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-desc" id="edge-proj-desc" placeholder="(optional)"></div>
 					<div class="ui-field-contain">
 						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Input from NCBI Short Reads Archive(SRA)</legend>
+						<legend>Input from NCBI Sequence Reads Archive(SRA)</legend>
 							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
 							<label for="edge-sra-sw1">Yes</label>
 							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
@@ -508,11 +514,15 @@
 				</select>
 			</div>
 			<p class="edge-center">and/or</p>
-			<div class="ui-field-contain input-type-file">
-				<label for="edge-ref-file">Reference genome</label>
-				<input type="text" data-mini="true" name="edge-ref-file" id="edge-ref-file" placeholder="absolute FASTA/GenBank file path/select file">
-				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
-			</div>
+			<div id="edge-ref-file-block1" class="ui-field-contain input-type-file edge-ref-file-block">
+                                <label for="edge-ref-file">Reference genome</label>
+                                <input type="text" data-mini="true" name="edge-ref-file" id="edge-ref-file-1" placeholder="absolute FASTA/GenBank file path/select file">
+                                <div class="edge-file-selector">
+                                        <a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+                                        <a href="#" class="btnAdd-edge-ref-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
+                                </div>
+                        </div>
+
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Identify Unmapped Reads</legend>
