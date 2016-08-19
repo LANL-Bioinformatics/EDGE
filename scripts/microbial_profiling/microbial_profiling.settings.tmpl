@@ -61,7 +61,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha2-genDB-v">
 [gottcha2-genDB-v]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuman3x.genus.fna
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.genus.fna
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
@@ -83,7 +83,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha2-speDB-v">
 [gottcha2-speDB-v]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuman3x.species.fna
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
