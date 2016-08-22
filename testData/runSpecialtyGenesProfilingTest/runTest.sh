@@ -6,6 +6,8 @@ if [ -z ${EDGE_HOME+x} ]; then
 	EDGE_HOME="$rootdir/../../"
 fi
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/log.txt
 	Test=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.txt
 	Expect=$rootdir/AR_genes_ShortBRED_table.txt
 	Test2=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt
@@ -19,10 +21,18 @@ test_result(){
  			touch "$rootdir/TestOutput/test.success"
 		else
 			echo "Virluence Gene profiling test failed"
+			if [ -f "$TestLog" ]
+			then
+				cat $TestLog >> $MainErrLog
+			fi
    			touch "$rootdir/TestOutput/test.fail"
 		fi
 	else
    		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >> $MainErrLog
+		fi
    		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

@@ -6,6 +6,8 @@ if [ -z ${EDGE_HOME+x} ]; then
 	EDGE_HOME="$rootdir/../../"
 fi
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/QiimeAnalysis/errorLog.txt
 	Test=$rootdir/TestOutput/QiimeAnalysis/analysis/biom_table_summary.txt
 	Expect=$rootdir/biom_table_summary.txt
 	testName="EDGE Qiime Analysis pipeline test";
@@ -15,6 +17,10 @@ test_result(){
    		touch "$rootdir/TestOutput/test.success"
 	else
    		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >> $MainErrLog
+		fi
    		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

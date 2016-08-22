@@ -7,10 +7,12 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
 	Test=$rootdir/TestOutput/AssayCheck/pcrContigValidation.txt
 	Expect=$rootdir/pcrContigValidation.txt
 	Test2=$rootdir/TestOutput/AssayCheck/PCR.design.primers.gff3
 	testName="EDGE PCR Assay Analysis test";
+	Test2Log=$rootdir/TestOutput/AssayCheck/PCR.design.log
 	if cmp -s "$Test" "$Expect"
 	then
 		if [ -s "$Test2" ]
@@ -19,10 +21,18 @@ test_result(){
 			touch "$rootdir/TestOutput/test.success"
 		else
 			echo "PCA design failed!"
+			if [ -f "$Test2Log" ] 
+			then
+				cat $Test2Log >> $MainErrLog
+			fi
 			touch "$rootdir/TestOutput/test.fail"
 		fi
 	else
 		echo "PCR validation failed!"
+		if [ -f "$Test" ] 
+		then
+			cat $Test >> $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

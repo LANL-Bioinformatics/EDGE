@@ -7,17 +7,21 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/ReadsBasedAnalysis/readsMappingToRef/mapping.log
 	Test=$rootdir/TestOutput/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
 	Expect=$rootdir/readsToRef.alnstats.txt
-	Test2=$rootdir/TestOutput/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt
-	Expect2=$rootdir/readsToRef.SNPs_report.txt
-	testName="EDGE Reads to Contigs Mapping test";
+	testName="EDGE Reads to Reference Mapping test";
 	if cmp -s "$Test" "$Expect"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
 	else
 		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >> $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }
