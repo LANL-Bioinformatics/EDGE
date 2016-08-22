@@ -65,6 +65,8 @@ my $domain      = $ENV{'HTTP_HOST'};
 my $hideProjFromList = 0;
 $domain ||= "edgeset.lanl.gov";
 $um_url ||= "$protocol//$domain/userManagement";
+$umSystemStatus ||= $sys->{user_management} if (!@ARGV);
+$umSystemStatus = ($umSystemStatus eq "false")?0:$umSystemStatus;
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -113,7 +115,7 @@ if($cluster) {
 }
 
 # session check
-if( $sys->{user_management} ){
+if( $umSystemStatus ){
 	my $valid = verifySession($sid);
 	if($valid){
 		($username,$password,$viewType) = getCredentialsFromSession($sid);
@@ -238,7 +240,7 @@ if( scalar keys %$list && $sys->{edgeui_auto_run} ){
 		my $run=0;
 		$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
 		if($run && ($umSystemStatus eq 'ture'?$sid:1) ){
-			my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" $sid $domain 2>> $proj_dir/error.log`;
+			my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" $sid $domain $umSystemStatus 2>> $proj_dir/error.log`;
 			#print STDERR "$json";
 			my $info = decode_json($json);
 			$list->{$i}->{STATUS} = "running" if $info->{STATUS} eq "SUCCESS";

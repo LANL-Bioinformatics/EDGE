@@ -1474,7 +1474,7 @@ if ($configuration->{AllReads} or !$referenceGenome)
     $taxonomy_prefix="allReads";
     $taxonomy_report_dir="$outDir/ReadsBasedAnalysis/Taxonomy/report";
 }
-my $taxonomyPDFfiles;
+my $taxonomyPDFfiles="";
 $taxonomyPDFfiles .= $contigTaxonomyPDF."," if( -e "$contigTaxonomyPDF");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.genus.pdf");
 $taxonomyPDFfiles .= "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf"."," if ( -e "$taxonomy_report_dir/heatmap_DATASET-$taxonomy_prefix.species.pdf");

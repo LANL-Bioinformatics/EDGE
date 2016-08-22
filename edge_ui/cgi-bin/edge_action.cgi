@@ -53,6 +53,7 @@ $password   ||= $ARGV[3];
 $shareEmail ||= $ARGV[4];
 $sid        ||= $ARGV[5];
 $domain     ||= $ARGV[6];
+my $umSystemStatus = $ARGV[7];
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -67,6 +68,7 @@ my $keep_days	= $sys->{edgeui_proj_store_days};
 $domain       ||= "edgeset.lanl.gov";
 $um_url	      ||= "$protocol//$domain/userManagement";
 $out_dir      ||= "/tmp"; #for security
+$umSystemStatus ||= $sys->{user_management} if (! @ARGV);
 my $info;
 my $proj_dir    = abs_path("$out_dir/$pname");
 my $list;
@@ -104,7 +106,7 @@ my $projCode;
 my $projStatus;
 my @projCodes = split /,/,$opt{proj} if ($action eq 'compare');
 my $user_proj_dir = "$input_dir/tmp";
-if ( $sys->{user_management} )
+if ( $umSystemStatus )
 {
 	my $valid = verifySession($sid);
 	unless($valid){
@@ -295,7 +297,7 @@ elsif( $action eq 'interrupt' ){
 	}
 }
 elsif( $action eq 'rerun' ){
-	if( $sys->{user_management} && !$permission->{$action} ){
+	if( $umSystemStatus && !$permission->{$action} ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
