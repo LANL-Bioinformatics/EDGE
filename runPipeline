@@ -119,6 +119,9 @@ if (!@referenceGenome and $configuration->{reference})
 }
 $primerFile ||= $configuration->{primer}; 
 my $project_name = $configuration->{projname}||basename($outDir);
+if (length ($project_name) > 30 && $configuration->{DoAnnotation} && $configuration->{annotateProgram} =~ /prokka/i ){ 
+	&lprint("Project Name is too long (> 30 characters) will casue errors for Prokka annotation pipeline");
+}
 
 #&checkDependedPrograms;
 #&makeDirectory;

@@ -1477,7 +1477,7 @@ else
   install_mummer
 fi
 
-if ( checkSystemInstallation wigToBigWig )
+if ( checkLocalInstallation wigToBigWig )
 then
   echo "wigToBigWig is found"
 else

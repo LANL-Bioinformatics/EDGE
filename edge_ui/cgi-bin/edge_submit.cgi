@@ -731,7 +731,7 @@ sub checkParams {
     			$namesUsed{$pname}=1;
     		}
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters.") if (length($pname) < 3);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
@@ -743,7 +743,7 @@ sub checkParams {
     	}
 	}else{  ## Single project input
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
-		&addMessage("PARAMS","edge-proj-name","Invalid project name. Please input at least 3 characters.") if( length($opt{"edge-proj-name"}) < 3 );
+		&addMessage("PARAMS","edge-proj-name","Invalid project name. Please input at least 3 characters but less than 30.") if( length($opt{"edge-proj-name"}) < 3  || length($pname) > 30 );
 		#check invalid character
 		foreach my $param (keys %opt ){
 			next if $param eq "edge-proj-desc";
