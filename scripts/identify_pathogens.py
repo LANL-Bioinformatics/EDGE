@@ -86,6 +86,8 @@ def main(argv):
      #open file, grab strain names in list
      with open(infile_name) as tabfile: 
           taxreader = csv.reader(tabfile, delimiter="\t")
+          btaxa = ''
+          vtaxa = ''
           for row in taxreader:
                #print "row = ", row
                if row[0] == 'DATASET':

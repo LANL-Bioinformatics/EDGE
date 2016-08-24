@@ -205,10 +205,10 @@ sub prep_jbrowse_link {
 sub pull_sampleMetadata {
 	my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 	my $sys          = &getSysParamFromConfig($sysconfig);
-	if($sys->{edge_sample_metadata}) {
+	my $metadata = "$out_dir/sample_metadata.txt";
+	if($sys->{edge_sample_metadata} && -s $metadata) {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
 	}
-	my $metadata = "$out_dir/sample_metadata.txt";
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
