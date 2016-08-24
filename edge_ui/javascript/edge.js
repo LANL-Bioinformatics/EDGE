@@ -1152,6 +1152,10 @@ $( document ).ready(function()
 				//console.log("got response");
 				allMainPage.hide();
 				$( "#edge-content-report" ).html(data);
+				if (  /The project does not exist/.test(data)){ 
+					showWarning(data);
+					return;
+				}
 				$( "#edge-content-report div[data-role='popup']" ).popup();
 				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
 				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();

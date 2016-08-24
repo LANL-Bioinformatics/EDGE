@@ -42,27 +42,40 @@ my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $edgeui_output  = $sys->{edgeui_output};
-$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 
 my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
 my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
 my $projDir;
 # Generates the project list (pname = encoded name) Scans output dir
-if( $sys->{user_management} ){
+# if user management is on the pname should be numbers. 
+if( $sys->{user_management}  && $pname !~ /\D/ ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
 	my $proj_code=&getProjCodeFromDB($pname, $username, $password);
+	if (!$proj_code){
+		my $html = "<p>The project does not exist</p>";
+		print "Content-Type: text/html\n\n",
+		$html;
+		exit 0;
+	}
 	$projDir = $relpath ."/". $proj_code;
-} else {
+}
+if( !$sys->{user_management} || !$username) {
 	if ( -e "$edgeui_output/$pname/config.txt"){
 		$projDir = $relpath."/".$pname;
 	}else{
 		my $proj_list=&scanProjToList($edgeui_output);
 		if( $proj_list->{$pname} ){
 			$projDir = $relpath . "/". $proj_list->{$pname};
-		}
+		}else{
+			my $html = "<p>The project does not exist</p>";
+			print "Content-Type: text/html\n\n",
+			$html;
+			exit 0;
+                }
 	}
 }
 

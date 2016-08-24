@@ -3511,6 +3511,6 @@ sub detectPathogen
 	my $dbpasswd = $sys->{pathogen_dbpasswd};
 	my $cmd="python $RealBin/scripts/identify_pathogens.py -i $summary -o $outDir/pathogens.txt -d $dbhost -n $dbname -u $dbuser -p $dbpasswd 2>\&1 1>$log";
     	&lprint ("\n Running \n $cmd\n");
-   	&executeCommand("$cmd"); 
+   	eval{system("$cmd");};
     	&lprint ("Pathogen detection finished.\n");
 }

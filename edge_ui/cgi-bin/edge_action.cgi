@@ -169,7 +169,7 @@ if( $action eq 'empty' ){
 		while( defined (my $file = readdir BIN) ) {
 			next if $file eq '.' or $file eq '..';
 			`rm -rf $proj_dir/$file` if -d "$proj_dir/$file";
-			`rm $proj_dir/\.run*`;
+			`rm -f $proj_dir/\.run*`;
 		}
 		closedir(BIN);
 

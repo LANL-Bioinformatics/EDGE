@@ -39,6 +39,7 @@ my $um_url      = $sys->{edge_user_management_url};
 my $protocol    = $opt{protocol}|| 'http:';
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 $um_url ||= "$protocol//$domain/userManagement";
+my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $debug       = $sys->{debug};
 
 #cluster
@@ -49,6 +50,8 @@ my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $cluster_job_notify = $sys->{cluster_job_notify};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_tmpl = "$RealBin/../cluster/clusterSubmit.tmpl";
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 
 #init vars
 my $pipeline	= $opt{pipeline};
