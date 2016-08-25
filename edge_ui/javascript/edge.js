@@ -80,6 +80,12 @@ $( document ).ready(function()
 		$(".edge-main-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").show();
 		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		$('.edge-input-se-block').hide();
+		$('.edge-input-pe-block').show();
+		$('#edge-qiime-pipeline-dir-input').hide();
+		$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
 		integrityCheck();
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
@@ -1531,7 +1537,13 @@ $( document ).ready(function()
 					updateReport(pname);
 					updateProject(pname);
 				});
-				$("#edge-projpage-action").on("change", function(){
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+				$("#edge-projpage-action").children('a').on("click", function(){
 					var action = $(this).val();
 					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> projects " ;
 					//sample metadata
@@ -1548,7 +1560,10 @@ $( document ).ready(function()
 					}else{
 						if ( $('[name="edge-projpage-ckb"]:checked').length === 0 ){
 							showWarning("There are no projects selected.");
-							$("#edge-projpage-action").val("0");
+							return;
+						}
+						if ( $('[name="edge-projpage-ckb"]:checked').length < 2 && action === "compare"){
+							showWarning("There is only one project selected for comparison.");
 							return;
 						}
 						var projnames=[];
@@ -1598,7 +1613,6 @@ $( document ).ready(function()
 								});
 							}
 						});
-						$("#edge-projpage-action").val("0").selectmenu('refresh');
 					}
 					
 				});
@@ -1607,8 +1621,8 @@ $( document ).ready(function()
 					create: function (event,ui){
 						 $('#edge-project-page').find('.ui-filterable').addClass('ui-grid-a').css('margin','0px');
 						 $('#edge-project-page').find('.ui-filterable').find('div').addClass('ui-block-b');
-						 $('#edge-projpage-action').parent().addClass('ui-block-a');
-						 $('#edge-project-page').find('.ui-block-b').before($('#edge-projpage-action').parent());
+						 $('#edge-projpage-action').addClass('ui-block-a');
+						 $('#edge-project-page').find('.ui-block-b').before($('#edge-projpage-action'));
 					},
 					filterCallback: OrSearch,
 					filter:function( event, ui ) { 
@@ -1621,7 +1635,7 @@ $( document ).ready(function()
 						});
 					}
 				});
-       			$( "#edge-project-page" ).enhanceWithin();
+				$( "#edge-project-page" ).enhanceWithin();
 
 				$( "#edge_confirm_dialog" ).popup({
 					afterclose: function( event, ui ) {

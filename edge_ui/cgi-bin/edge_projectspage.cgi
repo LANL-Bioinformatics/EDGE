@@ -45,29 +45,28 @@ if( $sys->{user_management} ){
 print  $cgi->header( "text/html" );
 print  $cgi->h2("Project List");
 if ( $username && $password || $um_config == 0){
-	print "<div>\n";
-	#print "\t<label for='edge-projpage-action'>Checkbox Action</label>\n";
-	print "\t<select id='edge-projpage-action' data-mini='true' name='edge-projpage-action' data-native-menu='true'>\n";
-	print "\t\t<option value='0'>-----  Choose Action -----</option>\n";
+# Action buttons
+	print "<div id='edge-projpage-action' class='flex-container'>\n";
 	if ($userType =~ /admin/i){
-		print "\t\t<option value='show-all'>See All Projects List (admin)</option>\n";
+		print '<a href="" title="See All Projects List (admin)" class="tooltip ui-btn ui-btn-c ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">show-all</a>';
 	}
-	print "\t\t<option value='rerun'>Force Selected Projects to rerun</option>\n";
-        print "\t\t<option value='interrupt'>Interrupt running Projects</option>\n";
-        print "\t\t<option value='delete'>Delete Selected Projects</option>\n";
-        print "\t\t<option value='empty'>Empty Selected Projects Output</option>\n";
-	print "\t\t<option value='archive'>Archive Selected Projects</option>\n" if ( -w $sys->{edgeui_archive});
+	print '<a href="" title="Force Selected Projects to rerun" class="tooltip ui-btn ui-btn-c ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all" data-role="button" >rerun</a>';
+	print '<a href="" title="Interrupt running Projects" class="tooltip ui-btn ui-btn-c ui-icon-forbidden ui-btn-icon-notext ui-corner-all" data-role="button" role="button">interrupt</a>';
+	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">remove</a>';
+	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-c ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
+	if ($sys->{edgeui_archive}){
+		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
+	}
 	if ($um_config != 0){
-		print "\t\t<option value='share'>Share Selected Projects</option>\n";
-		print "\t\t<option value='publish'>Make Selected Projects Public</option>\n";
+		print '<a href="" title="Share Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-forward ui-btn-icon-notext ui-corner-all" data-role="button" role="button">share</a>';
+		print '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-c ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
 	}
-	print "\t\t<option value='compare'>Compare Selected Projects Gottcha Results(HeatMap)</option>\n";
+	print '<a href="" title="Compare Selected Projects Taxonomy Classification(HeapMap)" class="tooltip ui-btn ui-btn-c ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
 	#sample metadata
 	if($sys->{edge_sample_metadata}) {
-		print "\t\t<option value='metadata-bsveadd'>Share Selected Projects' Metadata with BSVE</option>\n";
+		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
 	}
-	#END sample metadata
-	print "\t</select>\n</div>\n";
+	print '</div>';
 }
 
 print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
