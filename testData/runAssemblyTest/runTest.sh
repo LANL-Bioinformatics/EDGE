@@ -11,7 +11,7 @@ test_result(){
 	TestLog=$rootdir/TestOutput/AssemblyBasedAnalysis/assembly.log
 	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/testAssembly_contigs.fa
 	testName="EDGE Reads Assembly test";
-	if [ -s $Test ]
+	if [[ $(find $Test -type f -size +4500000c 2>/dev/null) ]]
 	then
 		grep -c ">" $Test | awk '{print "Contigs number: " $1}'
 		echo "$testName finished"

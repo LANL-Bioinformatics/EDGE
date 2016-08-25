@@ -1023,18 +1023,27 @@ sub variantAnalysis
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     system("rm -f $outputDir/variantAnalysis.finished");
     system("rm -f $r2g_outputDir/variantAnalysis.finished");
-    $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $c2g_SNP_INDEL_File -format nucmer -output $outputDir 2>$log";
-    &lprint (" Running \n $cmd\n") if ( -s $c2g_SNP_INDEL_File);
-    &executeCommand($cmd) if ( -s $c2g_SNP_INDEL_File);
-    $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $c2g_gap_file > $c2g_gapAnalysisOutput 2>>$log";
-    &lprint (" Running \n $cmd\n") if ( -s $c2g_gap_file);
-    &executeCommand($cmd) if ( -s $c2g_gap_file); 
-    $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $r2g_vcf_file -format vcf -output $r2g_outputDir 2>>$log2";
-    &lprint (" Running \n $cmd\n") if ( -s $r2g_vcf_file);
-    &executeCommand($cmd) if ( -s $r2g_vcf_file);
-    $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $r2g_gap_file > $r2g_gapAnalysisOutput 2>>$log2";
-    &lprint (" Running \n $cmd\n") if ( -s $r2g_gap_file);
-    &executeCommand($cmd) if ( -s $r2g_gap_file); 
+    if ($c2g_SNP_INDEL_File and -s $c2g_SNP_INDEL_File){
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $c2g_SNP_INDEL_File -format nucmer -output $outputDir 2>$log";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    if ($c2g_gap_file and -s $c2g_gap_file){
+      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $c2g_gap_file > $c2g_gapAnalysisOutput 2>>$log";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    if ($r2g_vcf_file and -s $r2g_vcf_file){
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $r2g_vcf_file -format vcf -output $r2g_outputDir 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    if ($r2g_gap_file and -s $r2g_gap_file){
+      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $r2g_gap_file > $r2g_gapAnalysisOutput 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+
     &printRunTime($time);
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );

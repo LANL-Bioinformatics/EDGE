@@ -320,7 +320,7 @@ if ($nucmer==1){
    open (FAS, ">$workdir/fasta_list.txt")||die "$!";
    open (CON, ">$workdir/contigs_list.txt")||die "$!";
 
-   foreach my $names(keys %fasta_list){
+   foreach my $names(sort keys %fasta_list){
       print FAS "$names\n";
       print ALL "$names\n";
       print STAT "$names\tTotal_length\t",$fasta_list{$names},"\n" if ($time ne "2");
@@ -334,7 +334,7 @@ if ($nucmer==1){
 
 if ($contig_nucmer==1){
    open (CON, ">$workdir/contigs_list.txt")||die "$!";
-   foreach my $names(keys %contig_list){
+   foreach my $names(sort keys %contig_list){
       print CON "$names\n";
       print ALL "$names\n";
       print STAT "$names\tTotal_length\t",$contig_list{$names},"\n";

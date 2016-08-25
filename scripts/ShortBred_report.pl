@@ -141,7 +141,7 @@ while(<$fh2>){
 close $fh2;
 
 
-foreach my $id (sort {$sb_result_T{$b}->{count}<=>$sb_result_T{$a}->{count}} keys %sb_result_T){
+foreach my $id (sort {$sb_result_T{$b}->{count}<=>$sb_result_T{$a}->{count}|| $a cmp $b } keys %sb_result_T){
 	my $data;
 	if ($sb_result_T{$id}->{count}>0){
 		my @tmp=@{$sb_result_T{$id}->{row}};
