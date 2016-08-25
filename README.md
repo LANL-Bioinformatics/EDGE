@@ -6,6 +6,8 @@ EDGE is a highly adaptable bioinformatics platform that allows laboratories to q
 
 To run EDGE v1.1, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
 
+For basic information about EDGE, visit the <a href="href="https://edge.readthedocs.io/en/latest/EDGE_ABCs.html" >EDGE ABC's</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
+
 ## Documentation for 
 
 [ReadTheDocs](http://edge.readthedocs.org)
