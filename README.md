@@ -6,6 +6,8 @@ EDGE is a highly adaptable bioinformatics platform that allows laboratories to q
 
 A demonstration version of EDGE is currently available at https://bioedge.lanl.gov/edge_ui/ with example data sets available to the public to view and/or re-run and also allows EDGE runs of SRA/ENA data. (This webserver does not currently support upload of data due in part to LANL security regulations, however local installations are meant to be fully functional.) To run EDGE follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/v1.1/introduction.html. It is also linked at the bottom of the EDGE homepage.
 
+For basic information about EDGE, visit the [EDGE ABC's](a href="https://edge.readthedocs.io/en/latest/EDGE_ABCs.html), that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
+
 ## Documentation
 
 [ReadTheDocs](http://edge.readthedocs.org)
