@@ -359,22 +359,6 @@ sub createConfig {
 				$hosts{$opt{"edge-hostrm-file"}}=1 if (defined $opt{"edge-hostrm-file"} && -e $opt{"edge-hostrm-file"});
 				$opt{"edge-hostrm-file"} = join ",", keys %hosts;
 			} 
-
-			if ( $opt{"edge-ref-sw"} )
-			{
-				my (@refs,@refsl);
-				if( defined $opt{"edge-ref-file-fromlist"}){
-					@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};
-					map { 	my @tmp= `ls -d $EDGE_HOME/database/NCBI_genomes/$_*`; 
-						chomp @tmp;  
-						my @gfiles = `ls $tmp[0]/*gbk`; 
-						chomp @gfiles; 
-						push @refs,@gfiles;
-					    } @refsl;
-				}
-				push @refs, @edge_ref_input if @edge_ref_input;
-				$opt{"edge-ref-file"} = join ",", @refs;
-			}
 			if ($opt{"edge-phylo-sw"})
 			{
 				my @snpPhylo_refs;
@@ -839,9 +823,17 @@ sub checkParams {
 	
 	#tool parameters
 	if ( $opt{"edge-ref-sw"}){
-		$opt{"edge-ref-file"} = $input_dir."/".$opt{"edge-ref-file"} if ( $opt{"edge-ref-file"} =~ /^\w/ );
-		&addMessage("PARAMS","edge-ref-file","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		my (@refs,@refsl,$num_selected);
+		if( defined $opt{"edge-ref-file-fromlist"}){
+			@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};
+			map { 	my @tmp= `ls -d $EDGE_HOME/database/NCBI_genomes/$_*`; 
+				chomp @tmp;  
+				my @gfiles = `ls $tmp[0]/*gbk`; 
+				chomp @gfiles; 
+				push @refs,@gfiles;
+			    } @refsl;
+			$num_selected = scalar(@refsl);
+		}
 		if ($opt{"edge-ref-file"}){
 			@edge_ref_input = split /[\x0]/, $opt{"edge-ref-file"} if defined $opt{"edge-ref-file"};
 			for my $i (0..$#edge_ref_input){
@@ -849,7 +841,17 @@ sub checkParams {
 				my $id = 'edge-ref-file'. ($i + 1);
 				&addMessage("PARAMS",$id,"Invalid input. Fasta or Genbank format required") if ( -e $edge_ref_input[$i] && ! is_fasta($edge_ref_input[$i]) && ! is_genbank($edge_ref_input[$i]));
 			}
+			$num_selected += scalar(@edge_ref_input);
 		}
+		push @refs, @edge_ref_input if @edge_ref_input;
+		$opt{"edge-ref-file"} = join ",", @refs;
+		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		
+		if (defined $sys->{edge_ref_genome_file_max} && $num_selected > $sys->{edge_ref_genome_file_max}){
+			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $sys->{edge_ref_genome_file_max}");
+		}
+		
 	}
 	if ( $opt{"edge-taxa-sw"} && scalar split(/[\x0]/,$opt{"edge-taxa-enabled-tools"}) < 1 ){
 		&addMessage("PARAMS","edge-taxa-tools","You need to choose at least one tool.");
