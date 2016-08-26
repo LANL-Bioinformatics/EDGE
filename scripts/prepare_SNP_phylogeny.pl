@@ -179,7 +179,7 @@ else{
 	$reffile= $ref_id{$SNPdbName}.".fna";
 	$gff_file= $ref_id{$SNPdbName}.".gff";
 	my ($name,$path,$suffix)=fileparse("$ref_id_map",qr/\.[^.]*/);
-	$cdsSNPS=1 if ( -e "$path/$SNPdbName/$gff_file");
+	$cdsSNPS=1 if ( -e "$path/$SNPdbName/files/$gff_file");
 	my $current_db = join(", ",keys(%ref_id));
 	unless($SNPdbName) {print "\nPlease specify a db_Name in the SNPdb\nCurrent available db are $current_db.\n\n"; &usage(); exit;}
 
