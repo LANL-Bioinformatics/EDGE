@@ -255,6 +255,13 @@ pre code {
 	opacity: .4;
 }
 
+.edge-navmenu-panel .edge-proj-active {
+	background: linear-gradient(        to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -webkit-linear-gradient(to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -o-linear-gradient(     to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -moz-linear-gradient(   to bottom,#0159b0,  #014AB0 100% ) !important;
+}
+
 /* Content */
 .edge-home .edge-content {
 	padding-top: 5em;
@@ -565,7 +572,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-panel-inner .ui-listview .ui-listview > li > .edge-project-list {
-	background: #4d4d4d !important;
+	background: #4d4d4d;
 	color: #fff;
 	text-shadow: 0 2px 0 #000 !important;
 	opacity: 1 !important;
@@ -789,7 +796,7 @@ div.edge-collapsible-options .ui-btn {
 	.edge-navmenu-panel .ui-collapsible,
 	.edge-navmenu-panel .ui-collapsible-content,
 	.edge-navmenu-panel .ui-btn {
-		background: none !important;
+		background: none;
 		border-color: #ddd !important;
 	}
 		
@@ -913,9 +920,3 @@ div.edge-collapsible-options .ui-btn {
 	font-size: 0.85em;
 }
 
-.flex-container {
-	display: -webkit-flex; /* Safari */
-	display: flex;
-	-webkit-flex-wrap: wrap; /* Safari */
-	flex-wrap:         wrap;
-}
