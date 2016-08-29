@@ -11,11 +11,12 @@
 	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
 	<link rel="stylesheet" href="css/jqueryFileTree.css" />
 	<link rel="stylesheet" href="css/jquery.dataTables.min.css" />
+	<link rel="stylesheet" href="css/jquery.dataTables.custom.css" />
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/tooltipster.css'/>
 	<link rel="stylesheet" href="css/jquery.lazyloadxt.spinner.min.css">
-        <link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
+    <link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
 	<link rel="stylesheet" type="text/css" href="css/zocial.css" />
 
 	<script src="javascript/jquery.js"></script>
@@ -28,8 +29,8 @@
 	<script src="javascript/jquery.tooltipster.min.js"></script>
 	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
 	<script src="javascript/jquery.lazyloadxt.autoload.min.js"></script>
-        <script type="text/javascript" src="javascript/plupload/plupload.full.min.js"></script>
-        <script type="text/javascript" src="javascript/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+	<script type="text/javascript" src="javascript/plupload/plupload.full.min.js"></script>
+	<script type="text/javascript" src="javascript/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
 	<script src="javascript/edge_dynamic_selection.js"></script>
 	<script src="javascript/hello.all.min.js"></script>
 
@@ -211,6 +212,155 @@ This website is available for use with publicly available data, while local stan
 		<p class="edge-qiime-pipeline-input">The <a href="http://qiime.org/tutorials/open_reference_illumina_processing.html" target="_blank">Qiime</a> pipeline requires sequence data files in FASTQ format and a <a href="http://qiime.org/documentation/file_formats.html" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.</p>
 		<div data-role="collapsible-set">
 
+			<div data-role="collapsible" id="edge-input-sequence" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+				<h4 class="edge-main-pipeline-input">Input Raw Reads</h4>
+
+				<div class="ui-body-d ui-content">
+					<div class="ui-field-contain">
+						<label for="edge-proj-name">Project Name</label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-name" id="edge-proj-name" maxlength="30" placeholder="(required, at 3 but less than 30 characters)"></div>
+					<div class="ui-field-contain">
+						<label for="edge-proj-desc">Description</label>
+						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-desc" id="edge-proj-desc" placeholder="(optional)"></div>
+					
+					<div class="ui-field-contain edge-qiime-pipeline-input">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Amplicon Type</legend>
+							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw1" value="GreenGenes" checked="checked">
+							<label for="edge-qiime-at-sw1">16s (GreenGenes)</label>
+							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw2" value="SILVA">
+							<label for="edge-qiime-at-sw2">16s/18s (SILVA)</label>
+							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="ITS">
+							<label for="edge-qiime-at-sw3">Fungal ITS</label>
+						</fieldset>
+					</div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Input from NCBI Sequence Reads Archive(SRA)</legend>
+							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
+							<label for="edge-sra-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
+							<label for="edge-sra-sw2">No</label>
+						</fieldset>
+					</div>
+					<div id="edge-file-input-block">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
+						<legend>Reads Type</legend>
+							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="pe" checked="checked">
+							<label for="edge-qiime-rt-sw1">Paired Reads</label>
+							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="se">
+							<label for="edge-qiime-rt-sw2">Unpaired Reads</label>
+							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="dedir">
+							<label for="edge-qiime-rt-sw3">De-multiplexed Reads Dir</label>
+						</fieldset>
+						
+						<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
+						<legend class='tooltip' id="edge-qiime-pro-tooltip">Paired Reads Orientation</legend>
+							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
+							<label for="edge-qiime-pro-sw1">FR</label>
+							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
+							<label for="edge-qiime-pro-sw2">RF</label>
+						</fieldset>
+						
+						<p class="edge-center edge-main-pipeline-input">Sequencing Reads:</p>
+
+						
+						<div id="edge-input-pe-block1" class="edge-input-pe-block"> 
+							<div class="ui-field-contain input-type-file">
+								<label for="edge-input-pe1-1">Pair-1 FASTQ File</label>
+								<input type="text" data-mini="true" name="edge-input-pe1[]" id="edge-input-pe1-1" placeholder="absolute file path/select file">
+								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+							</div>
+							<div class="ui-field-contain input-type-file">
+								<label for="edge-input-pe2-1">Pair-2 FASTQ File</label>
+								<input type="text" data-mini="true" name="edge-input-pe2[]" id="edge-input-pe2-1" placeholder="absolute file path/select file">
+								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+								<a href="#" class="btnDel-edge-input-pe" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
+								</div>
+							</div>
+						</div>
+						<p class="edge-center edge-main-pipeline-input">and/or</p>
+				
+						<div id="edge-input-se-block1" class="ui-field-contain input-type-file edge-input-se-block">
+							<label for="edge-input-se1">Single-end FASTQ File</label>
+							<input data-mini="true" type="text" name="edge-input-se[]" id="edge-input-se1" placeholder="absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
+							</div>	
+						</div>
+					</div> 
+					<div id="edge-sra-input-block">
+						<div class="ui-field-contain">
+							<label for=edge-sra-acc">SRA Accession</label>
+							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
+						</div>
+						<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
+					</div>
+					<div class="edge-qiime-pipeline-input">
+						<div id="edge-qiime-pipeline-dir-input" class="ui-field-contain input-type-file">
+							<label for="edge-qiime-reads-dir-input" class="tooltip" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID.">Directory</label>
+							<input data-mini="true" type="text" name="edge-qiime-reads-dir-input" id="edge-qiime-reads-dir-input" placeholder="absolute dir path/select dir">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">Dir</a></div>
+						</div>
+					</div>
+					<div class="edge-qiime-pipeline-input">
+						<p class="edge-center">Mapping File:</p>
+						<div id="edge-qiime-pipeline-input-block1" class="ui-field-contain input-type-file edge-qiime-pipeline-input-block">
+							<label for="edge-qiime-mapping-file-input" class="tooltip" id="edge-qiime-mapping-file-tooltip">Mapping File</label>
+							<input data-mini="true" type="text" name="edge-qiime-mapping-file-input[]" id="edge-qiime-mapping-file-input1" placeholder="absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a></div>
+						</div>
+					</div>
+
+					<div class="edge-right">|<a href="#" id="edge-input-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
+
+					<div id="edge-input-options" class="edge-additional-options">
+						<div class="ui-field-contain btnAdd-edge-input">
+							<a href="#" id="btnAdd-edge-input-pe" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Paired-end Input</a>
+							<a href="#" id="btnAdd-edge-input-se" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Single-end Input</a>
+							<a href="#" id="btnAdd-edge-qiime-mapping-file" class="edge-qiime-pipeline-input" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Mapping File Field</a>
+						</div>
+						<div class="ui-field-contain">
+							<label for="edge-proj-outpath">Specify Output Path</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-outpath" id="edge-proj-outpath" placeholder="(optional)"></div>
+						<!--<p class="edge-center">or</p>
+						<div class="ui-field-contain">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend>Store to Input Directory</legend>
+								<label for="edge-proj-outpath-input">Store to Input Directory</label>
+								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input1" value="1" checked="checked">
+								<label for="edge-proj-outpath-input1">Yes</label>
+								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input2" value="0">
+								<label for="edge-proj-outpath-input2">No</label>
+							</fieldset>
+						</div>-->
+
+						<div class="ui-field-contain">
+							<label for="edge-proj-desc">Use # of CPUs</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
+
+						<div class="ui-field-contain input-type-file">
+							<label for="edge-input-config">Config File</label>
+							<input data-mini="true" type="text" name="edge-input-config" id="edge-input-config" placeholder="(optional) absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+						</div>
+						<p class="edge_tool_note">Your customized parameters can be used again. You can utilize the file selector above to upload a standard config file generated by EDGE bioinformatics.</p>
+					</div>
+				</div>
+			</div>
+			<div id="edge-batch-input" class="edge-main-pipeline-input" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
+				<h4>Batch Project Submission</h4>
+				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
+				<div id="edge-batch-input-block1" class="edge-batch-input"> 
+					<div class="ui-field-contain input-type-file">
+						<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
+						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
+						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 <!-- sample metadata -->
 		<div id="edge-sample-metadata">
@@ -409,156 +559,6 @@ This website is available for use with publicly available data, while local stan
 		</div>
 <!-- END sample metadata -->
 
-
-			<div data-role="collapsible" id="edge-input-sequence" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
-				<h4 class="edge-main-pipeline-input">Input Raw Reads</h4>
-
-				<div class="ui-body-d ui-content">
-					<div class="ui-field-contain">
-						<label for="edge-proj-name">Project Name</label>
-						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-name" id="edge-proj-name" maxlength="30" placeholder="(required, at 3 but less than 30 characters)"></div>
-					<div class="ui-field-contain">
-						<label for="edge-proj-desc">Description</label>
-						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-desc" id="edge-proj-desc" placeholder="(optional)"></div>
-					
-					<div class="ui-field-contain edge-qiime-pipeline-input">
-						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Amplicon Type</legend>
-							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw1" value="GreenGenes" checked="checked">
-							<label for="edge-qiime-at-sw1">16s (GreenGenes)</label>
-							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw2" value="SILVA">
-							<label for="edge-qiime-at-sw2">16s/18s (SILVA)</label>
-							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="ITS">
-							<label for="edge-qiime-at-sw3">Fungal ITS</label>
-						</fieldset>
-					</div>
-					<div class="ui-field-contain">
-						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Input from NCBI Sequence Reads Archive(SRA)</legend>
-							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
-							<label for="edge-sra-sw1">Yes</label>
-							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
-							<label for="edge-sra-sw2">No</label>
-						</fieldset>
-					</div>
-					<div id="edge-file-input-block">
-						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-						<legend>Reads Type</legend>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="pe" checked="checked">
-							<label for="edge-qiime-rt-sw1">Paired Reads</label>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="se">
-							<label for="edge-qiime-rt-sw2">Unpaired Reads</label>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="dedir">
-							<label for="edge-qiime-rt-sw3">De-multiplexed Reads Dir</label>
-						</fieldset>
-						
-						<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-						<legend class='tooltip' id="edge-qiime-pro-tooltip">Paired Reads Orientation</legend>
-							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
-							<label for="edge-qiime-pro-sw1">FR</label>
-							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
-							<label for="edge-qiime-pro-sw2">RF</label>
-						</fieldset>
-						
-						<p class="edge-center edge-main-pipeline-input">Sequencing Reads:</p>
-
-						
-						<div id="edge-input-pe-block1" class="edge-input-pe-block"> 
-							<div class="ui-field-contain input-type-file">
-								<label for="edge-input-pe1-1">Pair-1 FASTQ File</label>
-								<input type="text" data-mini="true" name="edge-input-pe1[]" id="edge-input-pe1-1" placeholder="absolute file path/select file">
-								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
-							</div>
-							<div class="ui-field-contain input-type-file">
-								<label for="edge-input-pe2-1">Pair-2 FASTQ File</label>
-								<input type="text" data-mini="true" name="edge-input-pe2[]" id="edge-input-pe2-1" placeholder="absolute file path/select file">
-								<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
-								<a href="#" class="btnDel-edge-input-pe" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
-								</div>
-							</div>
-						</div>
-						<p class="edge-center edge-main-pipeline-input">and/or</p>
-				
-						<div id="edge-input-se-block1" class="ui-field-contain input-type-file edge-input-se-block">
-							<label for="edge-input-se1">Single-end FASTQ File</label>
-							<input data-mini="true" type="text" name="edge-input-se[]" id="edge-input-se1" placeholder="absolute file path/select file">
-							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
-							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
-							</div>	
-						</div>
-					</div> 
-					<div id="edge-sra-input-block">
-						<div class="ui-field-contain">
-							<label for=edge-sra-acc">SRA Accession</label>
-							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
-						</div>
-						<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
-					</div>
-					<div class="edge-qiime-pipeline-input">
-						<div id="edge-qiime-pipeline-dir-input" class="ui-field-contain input-type-file">
-							<label for="edge-qiime-reads-dir-input" class="tooltip" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID.">Directory</label>
-							<input data-mini="true" type="text" name="edge-qiime-reads-dir-input" id="edge-qiime-reads-dir-input" placeholder="absolute dir path/select dir">
-							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">Dir</a></div>
-						</div>
-					</div>
-					<div class="edge-qiime-pipeline-input">
-						<p class="edge-center">Mapping File:</p>
-						<div id="edge-qiime-pipeline-input-block1" class="ui-field-contain input-type-file edge-qiime-pipeline-input-block">
-							<label for="edge-qiime-mapping-file-input" class="tooltip" id="edge-qiime-mapping-file-tooltip">Mapping File</label>
-							<input data-mini="true" type="text" name="edge-qiime-mapping-file-input[]" id="edge-qiime-mapping-file-input1" placeholder="absolute file path/select file">
-							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
-							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a></div>
-						</div>
-					</div>
-
-					<div class="edge-right">|<a href="#" id="edge-input-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
-
-					<div id="edge-input-options" class="edge-additional-options">
-						<div class="ui-field-contain btnAdd-edge-input">
-							<a href="#" id="btnAdd-edge-input-pe" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Paired-end Input</a>
-							<a href="#" id="btnAdd-edge-input-se" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Single-end Input</a>
-							<a href="#" id="btnAdd-edge-qiime-mapping-file" class="edge-qiime-pipeline-input" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Mapping File Field</a>
-						</div>
-						<div class="ui-field-contain">
-							<label for="edge-proj-outpath">Specify Output Path</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-outpath" id="edge-proj-outpath" placeholder="(optional)"></div>
-						<!--<p class="edge-center">or</p>
-						<div class="ui-field-contain">
-							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Store to Input Directory</legend>
-								<label for="edge-proj-outpath-input">Store to Input Directory</label>
-								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input1" value="1" checked="checked">
-								<label for="edge-proj-outpath-input1">Yes</label>
-								<input type="radio" data-mini="true" name="edge-proj-outpath-input" id="edge-proj-outpath-input2" value="0">
-								<label for="edge-proj-outpath-input2">No</label>
-							</fieldset>
-						</div>-->
-
-						<div class="ui-field-contain">
-							<label for="edge-proj-desc">Use # of CPUs</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
-
-						<div class="ui-field-contain input-type-file">
-							<label for="edge-input-config">Config File</label>
-							<input data-mini="true" type="text" name="edge-input-config" id="edge-input-config" placeholder="(optional) absolute file path/select file">
-							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
-						</div>
-						<p class="edge_tool_note">Your customized parameters can be used again. You can utilize the file selector above to upload a standard config file generated by EDGE bioinformatics.</p>
-					</div>
-				</div>
-			</div>
-			<div id="edge-batch-input" class="edge-main-pipeline-input" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
-				<h4>Batch Project Submission</h4>
-				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
-				<div id="edge-batch-input-block1" class="edge-batch-input"> 
-					<div class="ui-field-contain input-type-file">
-						<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
-						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
-						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
-					</div>
-				</div>
-			</div>
-		</div>
 		<p></p>
 		<h2 class="edge-main-pipeline-input">Choose Processes / Analyses</h2>
 		<p class="edge-main-pipeline-input">EDGE provides many modules to do various analyses. You can choose to run or skip a specific process. Parameters/options are provided for most of the analyses.
@@ -923,37 +923,6 @@ This website is available for use with publicly available data, while local stan
 					</fieldset>
 				</div>
 			</div>
-
-			<!--
-			<li>Unmapped-read Classification</li>
-			<div class="ui-field-contain" id="edge-taxa-tool-select-unmapped">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Classification Tool</legend>
-					<label for="edge-taxa-enabled-tools" class="select">Run with following databases</label>
-					<select name="edge-taxa-enabled-tool-unmapped" id="edge-taxa-enabled-tool-unmapped" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
-						<option>Choose Profiling Tools:</option>
-						<optgroup label="GOTTCHA Bacterial Databases">
-							<option value="gottcha-genDB-b"> GOTTCHA Genus</option>
-							<option value="gottcha-speDB-b"> GOTTCHA Species </option>
-							<option value="gottcha-strDB-b"> GOTTCHA Strain</option>
-						</optgroup>
-						<optgroup label="GOTTCHA Viral Databases">
-							<option value="gottcha-genDB-v"> GOTTCHA Genus</option>
-							<option value="gottcha-speDB-v"> GOTTCHA Species</option>
-							<option value="gottcha-strDB-v"> GOTTCHA Strain</option>
-						</optgroup>
-						<optgroup label="Reads Mapping">
-							<option value="bwa," selected="">Reads Mapping (BWA against RefSeq)</option>
-						</optgroup>
-						<optgroup label="Other Tools">
-							<option value="metaphlan">MetaPhlAn</option>
-							<option value="kraken_mini">Kraken (mini database)</option>
-							<option value="metaphyler-srv">Metaphyler (Short Read Version)</option>
-						</optgroup>
-					</select>
-				</fieldset>
-			</div> -->
-
 		</div>
 
 		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
@@ -994,6 +963,17 @@ This website is available for use with publicly available data, while local stan
 							<option value="gottcha-speDB-v" selected=""> GOTTCHA Species</option>
 							<option value="gottcha-strDB-v" selected=""> GOTTCHA Strain</option>
 						</optgroup>
+                        
+						<!--
+						<optgroup label="GOTTCHA2 Bacterial Databases">
+						    <option value="gottcha2-speDB-b"> GOTTCHA2 Species</option>
+						</optgroup>
+						<optgroup label="GOTTCHA2 Viral Databases">
+						    <option value="gottcha2-genDB-v" selected=""> GOTTCHA2 Genus</option>
+						    <option value="gottcha2-speDB-v" selected=""> GOTTCHA2 Species</option>
+						</optgroup>
+						-->
+
 						<optgroup label="Reads Mapping">
 							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>

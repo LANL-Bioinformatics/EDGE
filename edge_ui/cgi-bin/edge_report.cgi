@@ -20,8 +20,6 @@ use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 require "edge_user_session.cgi";
 
-
-
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
@@ -50,11 +48,12 @@ my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
 my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
 my $projDir;
+my $proj_code;
+my $proj_status;
 # Generates the project list (pname = encoded name) Scans output dir
-# if user management is on the pname should be numbers. 
-if( $sys->{user_management}  && $pname !~ /\D/ ){
+if( $sys->{user_management} && $pname !~ /\D/ ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
-	my $proj_code=&getProjCodeFromDB($pname, $username, $password);
+	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password);
 	if (!$proj_code){
 		my $html = "<p>The project does not exist</p>";
 		print "Content-Type: text/html\n\n",
@@ -63,7 +62,7 @@ if( $sys->{user_management}  && $pname !~ /\D/ ){
 	}
 	$projDir = $relpath ."/". $proj_code;
 }
-if( !$sys->{user_management} || !$username) {
+if( !$sys->{user_management} || !$username ){
 	if ( -e "$edgeui_output/$pname/config.txt"){
 		$projDir = $relpath."/".$pname;
 	}else{
@@ -75,7 +74,7 @@ if( !$sys->{user_management} || !$username) {
 			print "Content-Type: text/html\n\n",
 			$html;
 			exit 0;
-                }
+		}
 	}
 }
 
@@ -88,18 +87,30 @@ exit;
 ######################################################
 sub generateReport {
 	my $projDir = shift;
+	my $complete_report_exist = 0;
 	chdir $edgeui_wwwroot;
-	my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/munger/outputMunger_w_temp.pl $projDir $projDir/HTML_Report/report_web.html";
-	`$cmd`;
-	#print STDERR "$cmd";
+
+	if( ! -e "$projDir/HTML_Report/.complete_report_web" ){
+		my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/munger/outputMunger_w_temp.pl $projDir $projDir/HTML_Report/report_web.html";
+		`$cmd`;
+		#print STDERR "outputMunger_w_temp.pl ran!\n";
+	}
+	else{
+		$complete_report_exist = 1;
+		#print STDERR "outputMunger_w_temp.pl NOT ran!\n";
+	}
 
 	open REP, "$projDir/HTML_Report/report_web.html" or die "Can't open report_web.html: $!";
 	my $pr=0;
 	my @htmls;
-	while(<REP>){
+	foreach(<REP>){
 		last if /<!-- \/content -->/;
 		push @htmls, $_ if $pr;
 		$pr=1 if /id='edge-content-report'/;
+
+		if( $_ =~ /Project Status: (complete|archived)/i && !$complete_report_exist ){
+			`touch $projDir/HTML_Report/.complete_report_web`;
+		}
 	}
 
 	close REP;
@@ -167,40 +178,41 @@ sub getSysParamFromConfig {
 
 
 sub getProjCodeFromDB{
-    my $projectID=shift;
-    $projectID = &getProjID($projectID);
-    my $username = shift;
-    my $password = shift;
+	my $projectID=shift;
+	$projectID = &getProjID($projectID);
+	my $username = shift;
+	my $password = shift;
     
-    my %data = (
-       email => $username,
-       password => $password,
-   	   project_id => $projectID 
-    );
+	my %data = (
+		email => $username,
+		password => $password,
+		project_id => $projectID 
+	);
     
 	$um_url ||= "$protocol//$domain/userManagement";
-    # Encode the data structure to JSON
-    my $data = to_json(\%data);
-    #w Set the request parameters
-    my $url = $um_url ."WS/project/getInfo";
-    my $browser = LWP::UserAgent->new;
-    my $req = PUT $url;
-    $req->header('Content-Type' => 'application/json');
-    $req->header('Accept' => 'application/json');
-    #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
-    $req->header( "Content-Length" => length($data) );
-    $req->content($data);
+	# Encode the data structure to JSON
+	my $data = to_json(\%data);
+ 	#w Set the request parameters
+	my $url = $um_url ."WS/project/getInfo";
+	my $browser = LWP::UserAgent->new;
+	my $req = PUT $url;
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+	$req->header( "Content-Length" => length($data) );
+	$req->content($data);
 
-    my $response = $browser->request($req);
-    my $result_json = $response->decoded_content;
+	my $response = $browser->request($req);
+	my $result_json = $response->decoded_content;
 	# print $result_json if (@ARGV);
 	my $hash_ref = from_json($result_json);
 
 	my $id = $hash_ref->{id};
 	my $project_name = $hash_ref->{name};
 	my $projCode = $hash_ref->{code};
+	my $projStatus = $hash_ref->{status};
 	
-	return $projCode;
+	return ($projCode,$projStatus);
 }
 sub getProjID {
   my $project=shift;

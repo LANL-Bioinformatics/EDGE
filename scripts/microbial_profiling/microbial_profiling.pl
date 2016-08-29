@@ -217,8 +217,8 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			elsif( $pid == 0 ){
 				sleep 90*$forkcnt;
 				my $usage = &getCpuUsage($ppid);
-				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, retry in every 5-20 seconds...\n" if $forkcnt && $usage>$threads/4;
-				while( $forkcnt && $usage>$threads/4 ){
+				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, retry in every 5-20 seconds...\n" if $forkcnt && $usage>0.8;
+				while( $forkcnt && $usage>0.8 ){
 					sleep rand(15)+5;
 					$usage = &getCpuUsage($ppid);
 				}

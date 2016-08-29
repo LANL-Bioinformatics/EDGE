@@ -10,7 +10,7 @@ use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
 use Data::Dumper;
-use CGI::Pretty;
+#use CGI::Pretty;
 require "edge_user_session.cgi";
 
 my $cgi   = CGI->new;
@@ -22,15 +22,16 @@ my $userType    = $opt{'userType'}|| $ARGV[3];
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
+my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
+my ($webhostname) = $domain =~ /^(\S+?)\./;
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 my $out_dir     = $sys->{edgeui_output};
 my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
-my $domain      = $ENV{'HTTP_HOST'};
-$domain ||= "edgeset.lanl.gov";
 $um_url ||= "$protocol//$domain/userManagement";
 
 # session check
@@ -45,7 +46,7 @@ if( $sys->{user_management} ){
 print  $cgi->header( "text/html" );
 print  $cgi->h2("Project List");
 if ( $username && $password || $um_config == 0){
-# Action buttons
+	#Action buttons
 	print "<div id='edge-projpage-action' class='flex-container'>\n";
 	if ($userType =~ /admin/i){
 		print '<a href="" title="See All Projects List (admin)" class="tooltip ui-btn ui-btn-c ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">show-all</a>';
@@ -56,68 +57,35 @@ if ( $username && $password || $um_config == 0){
 	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-c ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
 	if ($sys->{edgeui_archive}){
 		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
-	}
-	if ($um_config != 0){
+ 	}
+	 if ($um_config != 0){
 		print '<a href="" title="Share Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-forward ui-btn-icon-notext ui-corner-all" data-role="button" role="button">share</a>';
 		print '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-c ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
-	}
-	print '<a href="" title="Compare Selected Projects Taxonomy Classification(HeapMap)" class="tooltip ui-btn ui-btn-c ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
-	#sample metadata
-	if($sys->{edge_sample_metadata}) {
-		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
-	}
-	print '</div>';
+ 	}
+	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-c ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
+ 	if($sys->{edge_sample_metadata}) {
+ 		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
+ 	}
+ 	print '</div>';
 }
 
-print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
-print "<form id='edge-projpage-form'>\n";
+#print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
+#print "<form id='edge-projpage-form'>\n";
 
 if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
 	# My Table
 	my $list = &getUserProjFromDB("owner");
+	my $list_g = &getUserProjFromDB("guest");
+	my $list_p = &getUserProjFromDB("other_published");
+	$list = { %$list, %$list_g } if $list_g;
+	$list = { %$list, %$list_p } if $list_p;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
-	print <<"HTML";  
-		<div data-role='collapsible' data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false" >
-		<h4>My Projects</h4>
-HTML
-	;
 
-	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Type"));
 	#my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Total Running Time"),th("Type"),th("Action"));
+	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
 	my $idxs = &sortList($list);
-	my $table_id = "edge-project-page-Mytable";
+	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
-	print "\t\t</div>\n";
-	
-	# Projects shared to me Table
-	undef $list;
-	undef $idxs;
-	$list =  &getUserProjFromDB("guest");
-	print <<"HTML";  
-		<div data-role='collapsible' data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true" >
-		<h4>Projects shared with me</h4>
-HTML
-;
-	@theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
-	$idxs = &sortList($list);
-	$table_id = "edge-project-paga-Guesttable";
-	&printTable($table_id,$idxs,$list,\@theads);
-	print "\t\t</div>\n";
-
-	# Projects published by others Table
-	undef $list;
-	undef $idxs;
-	$list =  &getUserProjFromDB("other_published");
-	print <<"HTML";  
-		<div data-role='collapsible' data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true" >
-		<h4>Projects published by others</h4>
-HTML
-;
-	@theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
-	$idxs = &sortList($list);
-	$table_id = "edge-project-page-OtherPubtable";
-	&printTable($table_id,$idxs,$list,\@theads);
-	print "\t\t</div>\n";
 
 }elsif ($umSystemStatus=~ /true/i) {
 	# show admin list or published project
@@ -135,7 +103,6 @@ HTML
 	&printTable($table_id,$idxs,$list,\@theads);
 }
 
-print "\t\t\t</form></div>"; # data-filter
 
 
 ## END MAIN## 
@@ -157,7 +124,7 @@ sub printTable {
 	my $theads = shift;
 	my @idxs = @{$idx_ref};
 	my @tbodys;
-	return if (@ARGV);
+	#return if (@ARGV);
 	if ($list->{INFO}->{ERROR})
 	{
 		print "<p class='error'>$list->{INFO}->{ERROR}</p>\n";
@@ -179,15 +146,24 @@ sub printTable {
 		my @tds;
 		if ($umSystemStatus=~ /true/i){
 			$checkbox="" if (!$username && !$password);
-			@tds = ($table_id =~ /Mytable/i)?  ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType)):
-							( td({-style=>"padding-right:1.5em"},$checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner));
+			if( scalar @$theads == 7 ){
+				@tds = ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
+			}
+			else{
+				@tds = ( td({-style=>"padding-right:1.5em"},$checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
+			}
 		}else{
 			@tds = ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
 		}
 		push @tbodys, \@tds;
 	}
+
 	if (scalar(@idxs)<1){
 		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
+		if( scalar @$theads == 7 ){
+			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""));
+		}
+
 		push @tbodys, \@tds;
 	}
 	print $cgi->table( 
@@ -273,7 +249,7 @@ sub getUserProjFromDB{
                 return;
         }
         my $array_ref =  from_json($result_json);
-	print Dumper ($array_ref) if @ARGV;
+	#print Dumper ($array_ref) if @ARGV;
 	foreach my $hash_ref (@$array_ref)
 	{
 		my $id = $hash_ref->{id};

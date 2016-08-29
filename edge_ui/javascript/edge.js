@@ -14,7 +14,7 @@ $( document ).ready(function()
 	var focusProjTime;
 	var focusProjRunningStep;
 
-	var interval = 1000*5; //check every 7 secs
+	var interval = 1000*7; //check every 7 secs
 	var updateProjInterval;
 	var updateLogInterval;
 	var inputFileID;
@@ -80,6 +80,12 @@ $( document ).ready(function()
 		$(".edge-main-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").show();
 		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		$('.edge-input-se-block').hide();
+		$('.edge-input-pe-block').show();
+		$('#edge-qiime-pipeline-dir-input').hide();
+		$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
 		integrityCheck();
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
@@ -1527,7 +1533,13 @@ $( document ).ready(function()
 					updateReport(pname);
 					updateProject(pname);
 				});
-				$("#edge-projpage-action").on("change", function(){
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+				$("#edge-projpage-action").children('a').on("click", function(){
 					var action = $(this).val();
 					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> projects " ;
 					//sample metadata
@@ -1544,9 +1556,12 @@ $( document ).ready(function()
 					}else{
 						if ( $('[name="edge-projpage-ckb"]:checked').length === 0 ){
 							showWarning("There are no projects selected.");
-							$("#edge-projpage-action").val("0");
 							return;
 						}
+						if ( $('[name="edge-projpage-ckb"]:checked').length < 2 && action === "compare"){
+							showWarning("There is only one project selected for comparison.");
+ 							return;
+ 						}
 						var projnames=[];
 						var projids=[];
 						$('[name="edge-projpage-ckb"]:checked').each(function( event ) {
@@ -1594,17 +1609,16 @@ $( document ).ready(function()
 								});
 							}
 						});
-						$("#edge-projpage-action").val("0").selectmenu('refresh');
 					}
 					
 				});
 				$("#edge-project-list-filter").filterable({
 					children: $( "#edge-project-list-filter" ).find("tbody").children(),
 					create: function (event,ui){
-						 $('#edge-project-page').find('.ui-filterable').addClass('ui-grid-a').css('margin','0px');
-						 $('#edge-project-page').find('.ui-filterable').find('div').addClass('ui-block-b');
-						 $('#edge-projpage-action').parent().addClass('ui-block-a');
-						 $('#edge-project-page').find('.ui-block-b').before($('#edge-projpage-action').parent());
+					//	 $('#edge-project-page').find('.ui-filterable').addClass('ui-grid-a').css('margin','0px');
+					//	 $('#edge-project-page').find('.ui-filterable').find('div').addClass('ui-block-b');
+					//	 $('#edge-projpage-action').addClass('ui-block-a');
+					//	 $('#edge-project-page').find('.ui-block-b').before($('#edge-projpage-action'));
 					},
 					filterCallback: OrSearch,
 					filter:function( event, ui ) { 
@@ -1617,7 +1631,7 @@ $( document ).ready(function()
 						});
 					}
 				});
-       			$( "#edge-project-page" ).enhanceWithin();
+				$( "#edge-project-page" ).enhanceWithin();
 
 				$( "#edge_confirm_dialog" ).popup({
 					afterclose: function( event, ui ) {
@@ -1637,6 +1651,15 @@ $( document ).ready(function()
 						}
 					}
 				);*/
+				$('#edge-project-page-table').DataTable({
+					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"pageLength": 25
+				});
+
+				$('#edge-project-page-table tbody').on( 'click', 'tr', function () {
+				    $(this).toggleClass('selected');
+				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
+				} );
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
@@ -1745,7 +1768,7 @@ $( document ).ready(function()
 					updateProject(pname);
 				});
 				clearInterval(updateProjInterval);
-				updateProjInterval = setInterval(function(){ if (running_proj>0 || unstart_proj>0){updateProject(pname)}}, interval);
+				updateProjInterval = setInterval(function(){ updateProject(pname) }, interval);
 			},
 			success: function(obj) {
 				// update focused proj
@@ -1864,7 +1887,7 @@ $( document ).ready(function()
 									unstart_proj++;
 							}
 							if (focusProjName == name){
-								bgClass = "edge-proj-active";
+								bgClass= "edge-proj-active";
 							}
 							if (proj_count < projListNumShow){
 								displayList = "";
@@ -2284,6 +2307,10 @@ $( document ).ready(function()
 				//console.log("got response");
 				allMainPage.hide();
 				$( "#edge-content-report" ).html(data);
+				if (  /The project does not exist/.test(data)){ 
+					showWarning(data);
+					return;
+				}
 				$( "#edge-content-report div[data-role='popup']" ).popup();
 				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
 				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();

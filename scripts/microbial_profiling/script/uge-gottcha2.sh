@@ -71,19 +71,18 @@ do
 done
 
 ## path
-export PATH=$EDGE_HOME/thirdParty/anaconda3/bin/:$EDGE_HOME/thirdParty/gottcha2:$EDGE_HOME/bin:$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
+export PATH=$EDGE_HOME/thirdParty/gottcha2:$EDGE_HOME/bin:$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
 
 mkdir -p $OUTPATH
 
 set -xe;
 
-momo_settings="-mc 0 -mr 0 -ml 0 -r READ_COUNT"
-gottcha.py $momo_settings -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha.py -r READ_COUNT -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
 
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$4"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv >> $OUTPATH/$PREFIX.out.list
 
-gottcha.py $momo_settings -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -r READ_COUNT -c > $OUTPATH/$PREFIX.out.tab_tree
+gottcha.py -r READ_COUNT -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
