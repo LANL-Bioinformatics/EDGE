@@ -1540,7 +1540,7 @@ $( document ).ready(function()
 					multiple:true
 				});
 				$("#edge-projpage-action").children('a').on("click", function(){
-					var action = $(this).val();
+					var action = $(this).text();
 					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> projects " ;
 					//sample metadata
 					if(action === "metadata-bsveadd") {
