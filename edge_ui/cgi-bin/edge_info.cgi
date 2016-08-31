@@ -53,15 +53,19 @@ my $sid         = $opt{'sid'}|| $ARGV[4];
 my $ip          = $ARGV[5];
 $ENV{REMOTE_ADDR} = $ip if $ip;
 
+my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
 my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
 my $www_root    = $sys->{edgeui_wwwroot};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
 my $edge_projlist_num = $sys->{"edgeui_project_list_num"};
-my $domain      = $ENV{'HTTP_HOST'};
 my $hideProjFromList = 0;
 $domain ||= "edgeset.lanl.gov";
 $um_url ||= "$protocol//$domain/userManagement";
@@ -152,7 +156,7 @@ if( scalar @projlist ){
 		my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} eq "unstarted" or $list->{$_}->{STATUS} eq "in process" } @projlist;
 		$idx = $running_idxs[0] if (scalar(@running_idxs));
 	}
-
+	#print $idx if ($ARGV[1]);
 	@projlist = ($idx);
 	
 	foreach my $i ( @projlist ) {
