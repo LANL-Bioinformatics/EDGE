@@ -81,8 +81,7 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	$list = { %$list, %$list_p } if $list_p;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
-	#my @theads = (th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Total Running Time"),th("Type"),th("Action"));
-	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
+	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
 	my $idxs = &sortList($list);
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
@@ -91,14 +90,14 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	# show admin list or published project
 	my $list =  &getUserProjFromDB();
 	my $idxs = &sortList($list);
-	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }elsif ($um_config == 0) {
 	# all projects in the EDGE_output
 	my $list= &scanProjToList();
 	my $idxs = &sortList($list);
-	my @theads = (th(""),th("Project Name"),th({-style=>"width: 8%"},"Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
+	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }
@@ -147,13 +146,13 @@ sub printTable {
 		if ($umSystemStatus=~ /true/i){
 			$checkbox="" if (!$username && !$password);
 			if( scalar @$theads == 7 ){
-				@tds = ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
+				@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
 			}
 			else{
-				@tds = ( td({-style=>"padding-right:1.5em"},$checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
+				@tds = ( td($checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
 			}
 		}else{
-			@tds = ( td({-style=>"padding-right:1.5em"},$checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
+			@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
 		}
 		push @tbodys, \@tds;
 	}

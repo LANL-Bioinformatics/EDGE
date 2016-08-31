@@ -1653,7 +1653,8 @@ $( document ).ready(function()
 				);*/
 				$('#edge-project-page-table').DataTable({
 					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-					"pageLength": 25
+					"pageLength": 25,
+					"responsive": true
 				});
 
 				$('#edge-project-page-table tbody').on( 'click', 'tr', function () {

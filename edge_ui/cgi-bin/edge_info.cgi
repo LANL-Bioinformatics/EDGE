@@ -137,7 +137,7 @@ my $time = strftime "%F %X", localtime;
 
 @projlist = sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 # selected project on index 0
-@projlist=((grep $list->{$_}->{NAME} eq $pname, @projlist), (grep $list->{$_}->{NAME} ne $pname, @projlist)) if ($pname);
+@projlist=(grep $list->{$_}->{NAME} eq $pname, @projlist) if ($pname);
 if( scalar @projlist ){
 	my $idx;
 	my $progs;
@@ -147,14 +147,13 @@ if( scalar @projlist ){
 	#  1. assigned project
 	#  2. latest running project
 	#  3. lastest project
-	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{NAME} eq $pname or $list->{$_}->{STATUS} eq "unstarted" or $list->{$_}->{STATUS} eq "in process" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @not_running_idxs;
 	$idx = $projlist[0];
-	if(scalar(@running_idxs)){
-		$idx = $running_idxs[0] if (!$pname);
-		@not_running_idxs = grep { $list->{$_}->{STATUS} ne "running" and $list->{$_}->{NAME} ne $pname and $list->{$_}->{STATUS} ne "unstarted" and $list->{$_}->{STATUS} ne "in process" } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-		@projlist = (@running_idxs,@not_running_idxs);
+	if (!$pname){
+		my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} eq "unstarted" or $list->{$_}->{STATUS} eq "in process" } @projlist;
+		$idx = $running_idxs[0] if (scalar(@running_idxs));
 	}
+
+	@projlist = ($idx);
 	
 	foreach my $i ( @projlist ) {
 		last if ($edge_projlist_num && ++$count > $edge_projlist_num);
@@ -167,6 +166,7 @@ if( scalar @projlist ){
 		my $proj_dir = "$out_dir/$lproj";
 		$proj_dir = "$out_dir/$lprojc" if ( $lprojc && -d "$out_dir/$lprojc");
 		my $log      = "$proj_dir/process.log";
+		my $sjson    = "$proj_dir/.run.complete.status.json";
 		my $current_log      = "$proj_dir/process_current.log";
 		my $config   = "$proj_dir/config.txt";
 
@@ -176,6 +176,13 @@ if( scalar @projlist ){
 			next;
 		}	
 		
+		#status JSON
+		if( -e $sjson ){
+			my $storedStatus = readListFromJson($sjson);
+			$list->{$i} = $storedStatus->{LIST};
+			$progs->{$i} = $storedStatus->{PROG};
+			next;
+		}
 		# update current project status
 		if( -r $log ){
 			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($log);
@@ -207,6 +214,12 @@ if( scalar @projlist ){
 			$progs->{$i} = $prog;
 			if ( $list->{$i}->{DBSTATUS} && ($list->{$i}->{STATUS} ne $list->{$i}->{DBSTATUS})){
 				&updateDBProjectStatus($i, $list->{$i}->{STATUS});
+			}
+			if( $list->{$i}->{STATUS} eq "finished" && !-e $sjson ){
+				my $storedStatus;
+				$storedStatus->{LIST} = $list->{$i};
+				$storedStatus->{PROG} = $progs->{$i};
+				saveListToJason($storedStatus, $sjson);
 			}
 		}
 	}
@@ -254,6 +267,27 @@ $info->{LIST} = $list if $list;
 &returnStatus();
 
 ######################################################
+
+sub readListFromJson {
+	my $json = shift;
+	my $list = {};
+	if( -r $json ){
+		open JSON, $json;
+		flock(JSON, 1);
+  		local $/ = undef;
+  		$list = decode_json(<JSON>);
+  		close JSON;
+	}
+	return $list;
+}
+
+sub saveListToJason {
+	my ($list, $file) = @_;
+	open JSON, ">$file" or die "Can't write to file: $file\n";
+  	my $json = encode_json($list);
+	print JSON $json;
+  	close JSON;
+}
 
 sub getSysParamFromConfig {
 	my $config = shift;
@@ -400,20 +434,31 @@ sub scanNewProjToList {
 		$cnt++;
 		if (-r "$config"){
 			$list->{$cnt}->{NAME} = $file ;
-			$list->{$cnt}->{TIME} = (stat("$out_dir/$file"))[10]; 
+			$list->{$cnt}->{TIME} =  strftime "%F %X",localtime((stat("$config"))[10]); 
 			$list->{$cnt}->{STATUS} eq "running" if $name2pid->{$file};
 			if ( -r "$processLog"){
 				open (my $fh, $processLog);
 				while(<$fh>){
 					if (/queued/){
-						$list->{$cnt}->{STATUS} eq "unstarted";
-						last;
+						$list->{$cnt}->{STATUS} = "unstarted";
+					}
+					if (/All Done/){
+						$list->{$cnt}->{STATUS} = "finished";
+					}
+					if (/failed/i){
+						$list->{$cnt}->{STATUS} = "failed";
 					}
 				}
 				close $fh;
 			}
-			#my $projname = `grep -a "projname=" $out_dir/$file/config.txt | awk -F'=' '{print \$2}'`;
 			my $projname = $file;
+			# if the system change from User management on to off. will need parse the project name from config file
+			#  using grep is slow than open file and regrex
+			#if ( length($projname)==32 ){
+			#	open (my $fh, $config);
+			#	while(<$fh>){if (/projname=(.*)/){$projname=$1;chomp $projname;last;};}
+			#	close $fh;
+			#}
 			chomp $projname;
 			$list->{$cnt}->{PROJNAME} = $projname;
 		}
