@@ -16,7 +16,7 @@
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/tooltipster.css'/>
 	<link rel="stylesheet" href="css/jquery.lazyloadxt.spinner.min.css">
-    <link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
+	<link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
 	<link rel="stylesheet" type="text/css" href="css/zocial.css" />
 
 	<script src="javascript/jquery.js"></script>
@@ -33,8 +33,10 @@
 	<script type="text/javascript" src="javascript/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
 	<script src="javascript/edge_dynamic_selection.js"></script>
 	<script src="javascript/hello.all.min.js"></script>
+	<script src="javascript/thenBy.min.js"></script>
 
 	<!-- sample metadata -->
+	<!-- NOTE: this key AI... for googleapis only works for .lanl.gov servers-->
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places"></script>
 	<script src="javascript/jquery.geocomplete.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/geocomplete.css" />
@@ -56,6 +58,9 @@
 			<h2 class="ui-title" role="heading" aria-level="1">EDGE bioinformatics</h2>
 			<h5></h5>
 			</a>
+		</div>
+		<div id="edge-project-header" class="edge-project-header">
+			<h2 class="edge-project-title"></h2>
 		</div>
 		<a href="" class="edge-navmenu-link ui-nodisc-icon ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">Menu</a>
 		<a href="" id="edge-user-btn" class="edge-user-btn ui-btn ui-nodisc-icon ui-btn-icon-left ui-icon-user ui-btn-icon-notext ui-corner-all ui-btn-right">User</a>
@@ -106,10 +111,11 @@
 				<li class="ui-btn"><span class="res-type">DISK</span><input type="range" id="disk-usage-bar" data-highlight="true" min="0" max="100" value="0"><span id="disk-usage-val"></span></li>
 			</ul>
 
-			<ul data-role="listview" data-inset="true">
+			<ul data-role="listview" data-inset="true" id="project-actions">
 				<li data-role='list-divider'>Action</li>
 				<li data-icon='bars'>     <a href='#edge_log_dialog' id='edge-view-log-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey'>View live log</a>
 				<li data-icon='refresh'>  <a href='#edge_confirm_dialog' id='action-rerun-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='rerun'>Force this project to rerun</a>
+				<li data-icon='gear'>  <a href='#' id='action-reconfig-btn' class='edge-icon-bg-grey' data='reconfig'>Reconfig project (BETA)</a>
 				<li data-icon='forbidden'><a href='#edge_confirm_dialog' id='action-interrupt-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='interrupt'>Interrupt running project</a>
 				<li data-icon='delete'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='delete'>Delete entire project</a>
 				<!-- <li data-icon='minus'>   <a href='#edge_confirm_dialog' id='action-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='remove'>Remove from project list</a> -->
@@ -125,11 +131,10 @@
 			</ul>
 
 			<!-- sample metadata -->
-			<ul data-role="listview" data-inset="true">
+			<ul data-role="listview" data-inset="true" id="metadata-actions">
 				<li data-role='list-divider'>Sample Metatdata</li>
-				<li data-icon='edit'>     <a id='edge-pg-metadata-edit' class='edge-icon-bg-grey'>Edit</a>
+				<li data-icon='edit'>     <a id='metadata-edit' class='edge-icon-bg-grey'>Edit</a>
 				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-delete'>Delete</a>
-				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsvedelete'>Delete from BSVE</a>
 				<li data-icon='forward'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-submit-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsveadd'>Share with BSVE</a>
 			</ul>
 			<!-- END sample metadata -->
@@ -217,7 +222,7 @@ This website is available for use with publicly available data, while local stan
 
 				<div class="ui-body-d ui-content">
 					<div class="ui-field-contain">
-						<label for="edge-proj-name">Project Name</label>
+						<label for="edge-proj-name">Project/Run Name</label>
 						<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-name" id="edge-proj-name" maxlength="30" placeholder="(required, at 3 but less than 30 characters)"></div>
 					<div class="ui-field-contain">
 						<label for="edge-proj-desc">Description</label>
@@ -283,7 +288,7 @@ This website is available for use with publicly available data, while local stan
 				
 						<div id="edge-input-se-block1" class="ui-field-contain input-type-file edge-input-se-block">
 							<label for="edge-input-se1">Single-end FASTQ File</label>
-							<input data-mini="true" type="text" name="edge-input-se[]" id="edge-input-se1" placeholder="absolute file path/select file">
+							<input data-mini="true" type="text" name="edge-input-se[]" id="edge-input-se-1" placeholder="absolute file path/select file">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a>
 							</div>	
@@ -363,200 +368,248 @@ This website is available for use with publicly available data, while local stan
 		</div>
 
 <!-- sample metadata -->
-		<div id="edge-sample-metadata">
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" >
-			<h4 class="edge-main-pipeline-input">
-				<div class="ui-field-contain edge-collapsible-options">
-					<select id="edge-metadata-sw" name="edge-metadata-sw" data-role="slider" data-mini="true">
-						<option value="0" selected="TRUE">Off</option><option value="1">On</option>
-					</select>
-					<label for="edge-metadata-sw">Sample Metadata</label>
-				</div>
-			</h4>
+	<div id="edge-sample-metadata" class="edge-main-pipeline-input">
+		<div data-role="collapsible" id="edge-input-metadata" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+			<h4 class="edge-main-pipeline-input">Input Metadata</h4>
+
 			<div class="ui-corner-all custom-corners">
-				
-					<div class="ui-field-contain">
-						<label for="edge-sample-type">Sample Type</label>
-						<select name="edge-sample-type" id="edge-sample-type" data-mini="true" >
-							<option value="human">Human</option>
-							<option value="animal">Animal</option>
-							<option value="environmental">Environmental</option>
-						</select>
+			
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-d">
+						<b><em>Study</em></b><a href="#popupInfo-study" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-study" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>Describe the sequencing study including a title and a study type.</p>
+						</div>
 					</div>
+					<div class="ui-body ui-body-a ui-corner-all">
+						<div class="ui-field-contain">
+							<label for="metadata-study-title">Study Title</label>
+							 <input type="text" id="metadata-study-title" name="metadata-study-title" placeholder="Enter a new title or select an existing title from a list by entering a key word" class="metadata-input">
+						</div>
+						<div class="ui-field-contain" id="study-title-div" style="display:none;">
+							<label for="metadata-study-title-list"></label>
+							<div class="dblist-study">
+								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-study-title" id="metadata-study-title-list">
+						 		</ul>
+							</div>
+						</div>
+						<div class="ui-field-contain">
+							<label for="metadata-study-type">Study Type</label>
+							 <input type="text" id="metadata-study-type" name="metadata-study-type" placeholder="Enter a new type or select an existing type from a list by entering a key word" class="metadata-input">
+						</div>
+						<div class="ui-field-contain" id="study-type-div" style="display:none;">
+							<label for="metadata-study-type-list"></label>
+							<div class="dblist-study-type">
+								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-study-type" id="metadata-study-type-list">
+						 		</ul>
+							</div>
+						</div>
+					</div>
+				</div>
 
-		                	<div id="edge-pg-host-associated" >
-			                	<div class="ui-field-contain">
-						        <label for="edge-pg-host">Host</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-host" id="edge-pg-host" maxlength="30" value="human">
-		                    		</div>
-		                    		<div class="ui-field-contain">
+				<br><br>
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-d">
+						<b><em>Sample</em></b><a href="#popupInfo-sample" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-sample" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>Since the sample is one of the most important objects to be described biologically, it is highly recommended to describe the sample in as much detail as possible.</p>
+						</div>
+					</div>
+					<div class="ui-body ui-body-a ui-corner-all">
+				        	
+					   	<div class="ui-field-contain">
+							<label for="metadata-sample-name">Sample Name</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="metadata-sample-name" id="metadata-sample-name" maxlength="30" placeholder="Sample Name" class="metadata-input">
+				            	</div>
+
+				           	<div class="ui-field-contain">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend></legend>
-								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition1" value="healthy">
-								<label for="edge-pg-host-condition1">Healthy</label>
-								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition2" value="diseased">
-								<label for="edge-pg-host-condition2">Diseased</label>
-								<input type="radio" name="edge-pg-host-condition" id="edge-pg-host-condition3" value="unknown" checked="checked">
-								<label for="edge-pg-host-condition3">Unknown</label>
+								<legend>Sample Type</legend>
+								<input type="radio" name="metadata-sample-type" id="metadata-sample-type2" value="animal">
+								<label for="metadata-sample-type2">Animal</label>
+								<input type="radio" name="metadata-sample-type" id="metadata-sample-type3" value="environmental">
+								<label for="metadata-sample-type3">Environmental</label>
+								<input type="radio" name="metadata-sample-type" id="metadata-sample-type1" value="human" checked="checked">
+								<label for="metadata-sample-type1">Human</label>
 							</fieldset>
-		                    		</div>
-		                	</div>
+				            	</div>
 
-		                	<div id="edge-pg-human" >
-			                	<div class="ui-field-contain">
-						        <label for="pg-cb-gender">Gender</label>
-							<input type="checkbox" name="pg-cb-gender" id="pg-cb-gender" data-mini="true">
-		                    		</div>
-		                    		<div class="ui-field-contain" id="human-gender">
-							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend></legend>
-								<input type="radio" name="edge-pg-gender" id="edge-pg-gender1" value="male" checked="checked">
-								<label for="edge-pg-gender1">Male</label>
-								<input type="radio" name="edge-pg-gender" id="edge-pg-gender2" value="female">
-								<label for="edge-pg-gender2">Female</label>
-							</fieldset>
-		                    		</div>
-			                	<div class="ui-field-contain">
-						        <label for="pg-cb-age" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Age</label>
-							<input type="checkbox" name="pg-cb-age" id="pg-cb-age" data-mini="true">
-		                    		</div>
-			                	<div class="ui-field-contain" id="human-age">
-						        <label for="edge-pg-age"></label>
-							<input type="number" name="edge-pg-age" id="edge-pg-age" data-mini="true" data-clear-btn="true" value="1" min="1" max="130">
-		                    		</div>
-		                	</div>
+				        	<div id="metadata-host-block" >
+					        	<div class="ui-field-contain" id="metadata-host-h">
+								<label for="metadata-host">Host</label>
+								<input type="text" data-mini="true" data-clear-btn="false" name="metadata-host-h" id="metadata-host-h" maxlength="30" value="human" readonly>
+				            		</div>
+					        	<div class="ui-field-contain" id="metadata-host-a">
+								<label for="metadata-host">Host</label>
+							 	<input type="text" id="metadata-host" name="metadata-host" placeholder="Enter a new host or select an existing host from a list by entering a key word" class="metadata-input">
+				            		</div>
+							<div class="ui-field-contain" id="host-list-div" style="display:none;">
+								<label for="metadata-host-list"></label>
+								<div class="dblist-pg-host">
+								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-host" id="metadata-host-list">
+							 	</ul>
+								</div>
+							</div>
+				            		<div class="ui-field-contain">
+								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+									<legend>Host Condition</legend>
+									<input type="radio" name="metadata-host-condition" id="metadata-host-condition1" value="healthy">
+									<label for="metadata-host-condition1">Healthy</label>
+									<input type="radio" name="metadata-host-condition" id="metadata-host-condition2" value="diseased">
+									<label for="metadata-host-condition2">Diseased</label>
+									<input type="radio" name="metadata-host-condition" id="metadata-host-condition3" value="unknown" checked="checked">
+									<label for="metadata-host-condition3">Unknown</label>
+								</fieldset>
+				            		</div>
+				        	</div>
 
-					<div class="ui-field-contain">
-						<label for="edge-sample-source">Isolation Source</label>
-						<div id="edge-sample-source-options-host">
-							<select data-mini="true" name="edge-sample-source-host" id="edge-sample-source-host">
-								<option value="blood">Blood</option>
-								<option value="nasal">Nasal</option>
-								<option value="saliva">Saliva (oral)</option>
-								<option value="skin">Skin</option>
-								<option value="sputum">Sputum</option>
-								<option value="stool">Stool (gut)</option>
-								<option value="throat">Throat</option>
-								<option value="vaginal">Vaginal</option>
-								<option value="wound">Wound</option>
-								<option value="other">Other</option>
-								<option value="unknown">Unknown</option>
-							</select>
+				        	<div id="metadata-host-human" >
+					        	<div class="ui-field-contain">
+								<label for="metadata-host-gender-cb">Gender</label>
+								<input type="checkbox" name="metadata-host-gender-cb" id="metadata-host-gender-cb" data-mini="true">
+				            		</div>
+				            		<div class="ui-field-contain" id="human-gender">
+								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+									<legend></legend>
+									<input type="radio" name="metadata-host-gender" id="metadata-host-gender1" value="male" checked="checked">
+									<label for="metadata-host-gender1">Male</label>
+									<input type="radio" name="metadata-host-gender" id="metadata-host-gender2" value="female">
+									<label for="metadata-host-gender2">Female</label>
+								</fieldset>
+				            		</div>
+					        	<div class="ui-field-contain">
+								<label for="metadata-host-age-cb" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Age</label>
+								<input type="checkbox" name="metadata-host-age-cb" id="metadata-host-age-cb" data-mini="true">
+				            		</div>
+					        	<div class="ui-field-contain" id="human-age">
+								<label for="metadata-host-age"></label>
+								<input type="number" name="metadata-host-age" id="metadata-host-age" data-mini="true" data-clear-btn="true" value="1" min="1" max="130">
+				            		</div>
+
+							<div data-role="collapsible" id="metadata-travels-collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
+								<h4 class="edge-main-pipeline-input">Recent Travels</h4>
+						    		<div id="metadata-travels">
+						    		</div>
+								<div class="ui-field-contain">
+									<a href="#" class="ui-btn ui-btn-icon-left ui-icon-plus ui-mini" id="add-travel">Add a travel</a>
+								</div>
+								<br><br>
+							</div>
+
+							<div data-role="collapsible" id="metadata-symptoms-collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
+								<h4 class="edge-main-pipeline-input">Symptoms</h4>
+								<p class="edge_tool_note">(please check all that apply):</p>
+						    		<div id="metadata-symptoms">
+						    		</div>
+							</div>
+				        	</div>
+
+
+						<div class="ui-field-contain">
+							<label for="metadata-isolation-source">Isolation Source</label>
+							 <input type="text" id="metadata-isolation-source" name="metadata-isolation-source" placeholder="Enter a new source or select an existing source from a list by entering a key word" class="metadata-input">
 						</div>
-						<div id="edge-sample-source-options-nonhost">
-							<select data-mini="true" name="edge-sample-source-nonhost" id="edge-sample-source-nonhost">
-								<option value="air">Air</option>
-								<option value="built-environment">Built-environment</option>
-								<option value="microbial mat/biofilm">Microbial mat/biofilm</option>
-								<option value="plant">Plant</option>
-								<option value="sediment">Sediment</option>
-								<option value="soil">Soil</option>
-								<option value="water">Water</option>
-								<option value="wastewater/sludge">Wastewater/Sludge</option>
-								<option value="other">Other</option>
-								<option value="unknown">Unknown</option>
-							</select>
+						<div class="ui-field-contain" id="isolation-source-list-div" style="display:none;">
+							<label for="metadata-isolation-source-list"></label>
+							<div class="dblist-sample-source">
+							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-isolation-source" id="metadata-isolation-source-list">
+						 	</ul>
+							</div>
 						</div>
-		                	</div>
-		                	
-			           	<div class="ui-field-contain">
-						<label for="edge-pg-sample-source-detail"></label>
-						<input type="text" data-mini="true" data-clear-btn="false" name="edge-pg-sample-source-detail" id="edge-pg-sample-source-detail" maxlength="30" placeholder="More detailed Information">
-		                    	</div>
-		                	
-					<div class="ui-field-contain">
-						<label for="edge-pg-collection-date">Collection Date</label>
-						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-collection-date" id="edge-pg-collection-date" maxlength="30">
-					</div>
-
-					<!-- geo autocomplete -->
-
-					<form>
-					<div class="map_canvas" id="map_canvas" ></div>
-					<div class="ui-field-contain">
-						<label>Location</label>
-					      	<input id="geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below"/>
-					</div>
-
-					<div class="ui-field-contain">
-						<label></label>
-						<input name="locality" id="edge-pg-sample-city" data-mini="true" data-clear-btn="false"type="text" placeholder="City">
-					</div>
-
-
-					<div class="ui-field-contain">
-						<label></label>
-						<input name="administrative_area_level_1"  id="edge-pg-sample-state" data-mini="true" data-clear-btn="false"type="text"placeholder="State">
-					</div>
-
-					<div class="ui-field-contain">
-						<label></label>
-						<input name="country" id="edge-pg-sample-country" data-mini="true" data-clear-btn="false"type="text" placeholder="Country">
-					</div>
-
-
-					<div class="ui-field-contain">
-						<label></label>
-						<input name="lat" id="edge-pg-sample-lat" data-mini="true" data-clear-btn="false"type="text" placeholder="Latitude">
-					</div>
-
-					<div class="ui-field-contain">
-						<label></label>
-						<input name="lng" id="edge-pg-sample-lng" data-mini="true" data-clear-btn="false"type="text" placeholder="Longitude">
-					</div>
-					</form>
-
-					<!-- end geo -->
-
-					<div class="ui-field-contain">
-						<label for="edge-pg-seq-platform">Sequencing Platform</label>
-						<div id="edge-pg-seq-platform-options">
-							<select data-mini="true" name="edge-pg-seq-platform" id="edge-pg-seq-platform">
-								<option value="Illumina">Illumina</option>
-								<option value="IonTorrent">IonTorrent</option>
-								<option value="Nanopore">Nanopore</option>
-								<option value="PacBio">PacBio</option>
-							</select>
+				        	
+						<div class="ui-field-contain">
+							<label for="metadata-sample-collection-date">Collection Date</label>
+							<input type="date" data-mini="true" data-clear-btn="false" name="metadata-sample-collection-date" id="metadata-sample-collection-date" maxlength="30" class="metadata-input">
 						</div>
-		                	</div><div class="ui-field-contain">
-						<label for="edge-pg-sequencer">Sequencer</label>
-						<div id="edge-pg-sequencer-options-ill">
-							<select data-mini="true" name="edge-pg-sequencer-ill" id="edge-pg-sequencer-ill">
-								<option value="HiSeq">HiSeq</option>
-								<option value="HiSeq X">HiSeq X</option>
-								<option value="MiniSeq">MiniSeq</option>
-								<option value="MiSeq">Miseq</option>
-								<option value="NextSeq">Nextseq</option>
-							</select>
+
+						<!-- geo autocomplete -->
+
+						<div id="metadata-sample-geo">
+							<div class="ui-field-contain">
+								<label>Location</label>
+							      	<input name="metadata-sample-location" id="metadata-sample-geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below" class="metadata-input">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="locality" id="metadata-sample-city" data-mini="true" data-clear-btn="false" type="text" placeholder="City" class="metadata-input">
+							</div>
+
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="administrative_area_level_1"  id="metadata-sample-state" data-mini="true" data-clear-btn="false"type="text" placeholder="State" class="metadata-input">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="country" id="metadata-sample-country" data-mini="true" data-clear-btn="false" type="text" placeholder="Country" class="metadata-input">
+							</div>
+
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="lat" id="metadata-sample-lat" data-mini="true" data-clear-btn="false" type="text" placeholder="Latitude" class="metadata-input">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="lng" id="metadata-sample-lng" data-mini="true" data-clear-btn="false" type="text" placeholder="Longitude" class="metadata-input">
+							</div>
 						</div>
-						<div id="edge-pg-sequencer-options-ion">
-							<select data-mini="true" name="edge-pg-sequencer-ion" id="edge-pg-sequencer-ion">
-								<option value="Ion S5">Ion S5</option>
-								<option value="Ion PGM">Ion PGM</option>
-								<option value="Ion Proton">Ion Proton</option>
-							</select>
-						</div>
-						<div id="edge-pg-sequencer-options-nan">
-							<select data-mini="true" name="edge-pg-sequencer-nan" id="edge-pg-sequencer-nan">
-								<option value="MinIon">MinIon</option>
-							</select>
-						</div>
-						<div id="edge-pg-sequencer-options-pac">
-							<select data-mini="true" name="edge-pg-sequencer-pac" id="edge-pg-sequencer-pac">
-								<option value="RS II">RS II</option>
-								<option value="Sequel">Sequel</option>
-							</select>
-						</div>
-		                	</div>
-					<div class="ui-field-contain">
-						<label for="edge-pg-seq-date">Sequencing Date</label>
-						<input type="date" data-mini="true" data-clear-btn="false" name="edge-pg-seq-date" id="edge-pg-seq-date" maxlength="30">
+
+						<!-- end geo -->
 					</div>
+				</div>
+				<br><br>
+
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-d">
+						<b><em>Experiment</em></b><a href="#popupInfo-experiment" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-experiment" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>Describe the experimental setup.</p>
+						</div>
+					</div>
+					<div class="ui-body ui-body-a ui-corner-all">
+						<div class="ui-field-contain">
+							<label for="metadata-exp-title">Experiment Title</label>
+							 <input type="text" id="metadata-exp-title" name="metadata-exp-title" placeholder="Experiment Title" class="metadata-input">
+						</div>
+						<div class="ui-field-contain">
+							<label for="metadata-seq-center">Sequencing Center</label>
+							 <input type="text" id="metadata-seq-center" name="metadata-seq-center" placeholder="Enter a new sequencing center or select an existing center from a list by entering a key word" class="metadata-input">
+						</div>
+						<div class="ui-field-contain" id="seq-center-list-div" style="display:none;">
+							<label for="edge-seq-center-list"></label>
+							<div class="dblist-seq-center">
+							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-seq-center" id="edge-seq-center-list">
+						 	</ul>
+							</div>
+						</div>
+						<div class="ui-field-contain">
+							<label for="metadata-sequencer">Sequencer</label>
+							 <input type="text" id="metadata-sequencer" name="metadata-sequencer" placeholder="Enter a new sequencer or select an existing sequencer from a list by entering a key word" class="metadata-input">
+						</div>
+						<div class="ui-field-contain" id="sequencer-list-div" style="display:none;">
+							<label for="edge-sequencer-list"></label>
+							<div class="dblist-sequencer">
+							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-sequencer" id="edge-sequencer-list">
+						 	</ul>
+							</div>
+						</div>
+
+						<div class="ui-field-contain">
+							<label for="metadata-seq-date">Sequencing Date</label>
+							<input type="date" data-mini="true" data-clear-btn="false" name="metadata-seq-date" id="metadata-seq-date" maxlength="30" class="metadata-input">
+						</div>
+					</div>
+				</div>
+
 				
 			</div>
 			<br><br>
 		</div>
-		</div>
+	</div>
 <!-- END sample metadata -->
 
 		<p></p>
@@ -1058,7 +1111,7 @@ This website is available for use with publicly available data, while local stan
 			</div>
 			<div id="edge-phylo-ref-file-block1" class="ui-field-contain input-type-file edge-phylo-ref-file-block">
 				<label for="edge-phylo-ref-file1">Add Genome(s) </label>
-				<input type="text" data-mini="true" name="edge-phylo-ref-file" id="edge-phylo-ref-file1" placeholder="absolute FASTA file path/select file">
+				<input type="text" data-mini="true" name="edge-phylo-ref-file" id="edge-phylo-ref-file-1" placeholder="absolute FASTA file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 				<a href="#" class="btnAdd-edge-phylo-ref-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
 				</div>
@@ -1092,25 +1145,41 @@ This website is available for use with publicly available data, while local stan
 					<label for="edge-sg-sw">Specialty Genes Profiling</label>
 				</div>
 			</h4>
-			<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search for Antibiotic Resistance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
-			<div class="ui-field-contain">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Reads Specialty Genes Profiling</legend>
-					<input type="radio" data-mini="true" name="edge-reads-sg-sw" id="edge-reads-sg-sw1" value="1" checked="checked">
-					<label for="edge-reads-sg-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-reads-sg-sw" id="edge-reads-sg-sw2" value="0">
-					<label for="edge-reads-sg-sw2">No</label>
-				</fieldset>
-			</div>
-
-			<div class="ui-field-contain">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Contigs (ORFs) Specialty Genes Profiling</legend>
-					<input type="radio" data-mini="true" name="edge-orfs-sg-sw" id="edge-orfs-sg-sw1" value="1">
-					<label for="edge-orfs-sg-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-orfs-sg-sw" id="edge-orfs-sg-sw2" value="0" checked="checked">
-					<label for="edge-orfs-sg-sw2">No</label>
-				</fieldset>
+			<ol type="a">
+			<li>Read-based Specialty Gene Analysis</li>
+				<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search the reads for Antibiotic Resistance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Reads Specialty Genes Profiling</legend>
+						<input type="radio" data-mini="true" name="edge-reads-sg-sw" id="edge-reads-sg-sw1" value="1" checked="checked">
+						<label for="edge-reads-sg-sw1">Yes</label>
+						<input type="radio" data-mini="true" name="edge-reads-sg-sw" id="edge-reads-sg-sw2" value="0">
+						<label for="edge-reads-sg-sw2">No</label>
+					</fieldset>
+				</div>
+			<li>Contig-based (ORF) Specialty Gene Analysis</li>
+				<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search the ORFs on the contigs for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
+				<p class="edge_tool_note">EDGE will use <a href="https://card.mcmaster.ca/analyze/rgi" target="_blank">RGI (Resistance Gene Identifier)</a> to search the ORFs on the contigs for Antibiotic Resistance genes from <a href="https://card.mcmaster.ca" target="_blank">CARD</a>.</p>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>ORF Specialty Genes Profiling</legend>
+						<input type="radio" data-mini="true" name="edge-orfs-sg-sw" id="edge-orfs-sg-sw1" value="1" checked="checked">
+						<label for="edge-orfs-sg-sw1">Yes</label>
+						<input type="radio" data-mini="true" name="edge-orfs-sg-sw" id="edge-orfs-sg-sw2" value="0">
+						<label for="edge-orfs-sg-sw2">No</label>
+					</fieldset>
+				</div>
+			</ol>
+			<div class="edge-right">|<a href="#" id="edge-sg-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
+			<div id="edge-sg-options" class="edge-additional-options">
+				<div class="ui-field-contain">
+					<label for="edge-sg-identity-options" class="tooltip edge-identity-options">ShortBRED Minimum Percent Identity</label>
+					<input type="number" data-mini="true" data-clear-btn="false" name="edge-sg-identity-options" id="edge-sg-identity-options" value=95>
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-sg-length-options" class="tooltip edge-length-options">ShortBRED Minimum Percent Length</label>
+					<input type="number" data-mini="true" data-clear-btn="false" name="edge-sg-length-options" id="edge-sg-length-options" value=95>
+				</div>
 			</div>
 		</div>
 		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
@@ -1215,7 +1284,7 @@ This website is available for use with publicly available data, while local stan
 				<li>Barcode Options</li>
 				<div id="edge-qiime-barcode-fq-file-block1" class="ui-field-contain input-type-file edge-qiime-barcode-fq-file-block">
 					<label for="edge-qiime-barcode-fq-file-input" class="tooltip" id="edge-qiime-barcode-fq-file-tooltip">Barcode Fastq File</label>
-					<input data-mini="true" type="text" name="edge-qiime-barcode-fq-file-input" id="edge-qiime-barcode-fq-file-input1" placeholder="absolute file path/select file">
+					<input data-mini="true" type="text" name="edge-qiime-barcode-fq-file-input" id="edge-qiime-barcode-fq-file-input-1" placeholder="absolute file path/select file">
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 					<a href="#" class="btnAdd-edge-qiime-barcode-fq-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
 					</div>
@@ -1277,6 +1346,7 @@ This website is available for use with publicly available data, while local stan
 		<div class="edge-center">
 			<input data-mini="true" type="button" id="edge-form-submit" data-inline="true" class="edge-center" value="Submit">
 			<input data-mini="true" type="button" id="edge-form-reset" data-inline="true" class="edge-center" value="Reset">
+			<input data-mini="true" type="button" id="edge-form-reconfig-rerun" data-inline="true" class="edge-center" value="Save modified parameters">
 		</div>
 
 		<ul data-role="listview" data-inset="true" id="edge-submit-info">
@@ -1427,6 +1497,105 @@ This website is available for use with publicly available data, while local stan
             	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         </div> <!--  uploadfile-form -->
 </form>
+
+<form id="edgesite-form">
+        <div role="main" id="edgesite-content" class="ui-content edge-content edge-main-page">
+                <h2>EdgeSite</h2>
+		<p class="edge_tool_note">Please fill out this form before using 'Run EDGE'.</p>
+        	
+				        	
+						<div class="ui-field-contain">
+							<label for="edgesite-org">Organization Full Name</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edgesite-org" id="edgesite-org" maxlength="30" placeholder="Your organization full name">
+						</div>
+						<div class="ui-field-contain">
+							<label for="edgesite-acronym">Acronym</label>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edgesite-acronym" id="edgesite-acronym" maxlength="30" placeholder="Your organization acronym">
+						</div>
+
+						<!-- geo autocomplete -->
+
+						<div id="edgesite-geo">
+							<div class="ui-field-contain">
+								<label>Location</label>
+							      	<input name="edgesite-location" id="edgesite-geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="locality" id="edgesite-city" data-mini="true" data-clear-btn="false" type="text" placeholder="City">
+							</div>
+
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="administrative_area_level_1"  id="edgesite-state" data-mini="true" data-clear-btn="false"type="text" placeholder="State">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="country" id="edgesite-country" data-mini="true" data-clear-btn="false" type="text" placeholder="Country">
+							</div>
+
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="lat" id="edgesite-lat" data-mini="true" data-clear-btn="false" type="text" placeholder="Latitude">
+							</div>
+
+							<div class="ui-field-contain">
+								<label></label>
+								<input name="lng" id="edgesite-lng" data-mini="true" data-clear-btn="false" type="text" placeholder="Longitude">
+							</div>
+						</div>
+
+						<!-- end geo -->
+
+				           	<div class="ui-field-contain">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend>Enable Sample Metadata? <a href="#popupInfo-enable-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-enable-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>This function will allow you to record detailed sample information for a project/run.</p>
+						</div></legend>
+								<input type="radio" name="edgesite-enable-metadata" id="edgesite-enable-metadata1" value="yes" checked>
+								<label for="edgesite-enable-metadata1">Yes</label>
+								<input type="radio" name="edgesite-enable-metadata" id="edgesite-enable-metadata2" value="no">
+								<label for="edgesite-enable-metadata2">No</label>
+							</fieldset>
+				            	</div>
+
+				           	<div class="ui-field-contain" id="edgesite-share-metadata-div">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend>Share Sample Metadata with BSVE? <a href="#popupInfo-share-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-share-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>This function will allow you to send sample metadata to BSVE database server.</p>
+						</div></legend>
+								<input type="radio" name="edgesite-share-metadata" id="edgesite-share-metadata1" value="yes" checked>
+								<label for="edgesite-share-metadata1">Yes</label>
+								<input type="radio" name="edgesite-share-metadata" id="edgesite-share-metadata2" value="no">
+								<label for="edgesite-share-metadata2">No</label>
+							</fieldset>
+				            	</div>
+
+				           	<div class="ui-field-contain" id="edgesite-autoshare-metadata-div">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+								<legend>Auto Submit Sample Metadata? <a href="#popupInfo-autoshare-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-autoshare-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>Auto Submit: sample metadata will be automatically submitted to BSVE at the end of each run. Otherwise, you have to select project(s)/run(s) and submit sample metadata menually.</p>
+						</div></legend>
+								<input type="radio" name="edgesite-autoshare-metadata" id="edgesite-autoshare-metadata1" value="yes" checked>
+								<label for="edgesite-autoshare-metadata1">Yes</label>
+								<input type="radio" name="edgesite-autoshare-metadata" id="edgesite-autoshare-metadata2" value="no">
+								<label for="edgesite-autoshare-metadata2">No</label>
+							</fieldset>
+				            	</div>
+
+						<div class="edge-center">
+							<input data-mini="true" type="button" id="edgesite-form-submit" data-inline="true" class="edge-center" value="Sumbit">
+							<input data-mini="true" type="button" id="edgesite-form-reset" data-inline="true" class="edge-center" value="Reset">
+						</div>
+        </div> 
+</form><!--  edgesite-form -->
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE version 2.0.0</p>	

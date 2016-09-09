@@ -23,16 +23,19 @@ require "edge_user_session.cgi";
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
+my $init  = $opt{init};
 $pname ||= $ARGV[0];
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 
 my $username    = $opt{'username'}|| $ARGV[1];
 my $password    = $opt{'password'}|| $ARGV[2];
+my $viewType    = "user";
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[3];
 my $protocol = $opt{protocol} || 'http:';
 my $sid         = $opt{'sid'}|| $ARGV[4];
-my $viewType;
+my $ip          = $ARGV[5];
+$ENV{REMOTE_ADDR} = $ip if $ip;
 my $domain      = $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
@@ -51,7 +54,7 @@ my $projDir;
 my $proj_code;
 my $proj_status;
 # Generates the project list (pname = encoded name) Scans output dir
-if( $sys->{user_management} && $pname !~ /\D/ ){
+if( $sys->{user_management} && $pname !~ /\D/ && $sid ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
 	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password);
 	if (!$proj_code){
@@ -77,8 +80,6 @@ if( !$sys->{user_management} || !$username ){
 		}
 	}
 }
-
-
 generateReport($projDir);
 
 
@@ -182,7 +183,7 @@ sub getProjCodeFromDB{
 	$projectID = &getProjID($projectID);
 	my $username = shift;
 	my $password = shift;
-    
+
 	my %data = (
 		email => $username,
 		password => $password,

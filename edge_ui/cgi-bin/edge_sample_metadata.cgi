@@ -5,12 +5,15 @@ use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
 use JSON;
+use File::Basename;
 require "edge_user_session.cgi";
+require "../metadata_scripts/metadata_api.pl";
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
 my $sid         = $opt{'sid'};
+my $userType         = $opt{'userType'};
 my $prealname = $opt{projname};
 my $action = $opt{'action'};
 
@@ -31,6 +34,115 @@ if ($action eq "check"){
 
 	&returnStatus();
 }
+
+if($action eq "edgesite-save") {
+	my $msg;
+	$msg->{SUBMISSION_STATUS}="success";# return json
+	# session check
+	if( $sys->{user_management} ){
+		my $valid = verifySession($sid);
+		if(!$valid){
+			$msg->{SUBMISSION_STATUS}="failure";
+			$msg->{ERROR} .="Invalid session. Please login again!\n";
+
+			my $json = encode_json($msg);
+			print $cgi->header('application/json'), $json;
+			exit;
+		}
+		if($userType ne "admin") {
+			
+			$msg->{SUBMISSION_STATUS}="failure";
+			$msg->{ERROR} .="Permission denied. Only admin can submit this form!\n";
+
+			my $json = encode_json($msg);
+			print $cgi->header('application/json'), $json;
+			exit;
+		}
+	}
+	if(!$opt{'edgesite-org'} || !$opt{'edgesite-location'}) {
+		$msg->{SUBMISSION_STATUS}="failure";
+		$msg->{ERROR} .="Organization Full Name and Location must be filled!\n";
+
+		my $json = encode_json($msg);
+		print $cgi->header('application/json'), $json;
+		exit;
+	}
+	if(-w $sysconfig) {
+		my ($apiKey, $apiToken);
+
+		if( $opt{'edgesite-share-metadata'} eq "yes") {
+			$sys->{'edgesite-organization'} = $opt{'edgesite-org'};
+			$sys->{'edgesite-acronym'} = $opt{'edgesite-acronym'};
+			$sys->{'edgesite-location'} = $opt{'edgesite-location'};
+			$sys->{'edgesite-city'} = $opt{'locality'};
+			$sys->{'edgesite-state'} = $opt{'administrative_area_level_1'};
+			$sys->{'edgesite-country'} = $opt{'country'};
+			$sys->{'edgesite-lat'} = $opt{'lat'};
+			$sys->{'edgesite-lng'} = $opt{'lng'};
+
+			#get api key/token from BSVE API server
+			($apiKey, $apiToken) = pushEdgeSite($sys);
+		}
+
+		if($apiKey eq "error") {
+			$msg->{SUBMISSION_STATUS}="failure";
+			$msg->{ERROR} .="Failed to submit to BSV API server:$apiToken\n";
+		} else {
+			open OUT,  ">>$sysconfig";
+			print OUT "##edgesite settings####\n";
+			print OUT "edgesite-organization=".$opt{'edgesite-org'}."\n";
+			print OUT "edgesite-acronym=".$opt{'edgesite-acronym'}."\n";
+			print OUT "edgesite-location=".$opt{'edgesite-location'}."\n";
+			print OUT "edgesite-city=".$opt{'locality'}."\n";
+			print OUT "edgesite-state=".$opt{'administrative_area_level_1'}."\n";
+			print OUT "edgesite-country=".$opt{'country'}."\n";
+			print OUT "edgesite-lat=".$opt{'lat'}."\n";
+			print OUT "edgesite-lng=".$opt{'lng'}."\n";
+		
+			if( $opt{'edgesite-enable-metadata'} eq "yes") {
+				print OUT "edge_sample_metadata=1\n";
+				if( $opt{'edgesite-share-metadata'} eq "yes") {
+					print OUT "edge_sample_metadata_share2bsve=1\n";
+					if( $opt{'edgesite-autoshare-metadata'} eq "yes") {
+						print OUT "edge_sample_metadata_autosubmit2bsve=1\n";
+					} else {
+						print OUT "edge_sample_metadata_autosubmit2bsve=0\n";
+					}
+				} else {
+					print OUT "edge_sample_metadata_share2bsve=0\n";
+				}
+			} else {
+				print OUT "edge_sample_metadata=0\n";
+			}
+
+			print OUT "bsve_api_key=$apiKey\n" if $apiKey;
+			print OUT "bsve_api_token=$apiToken\n" if $apiToken;
+		
+			print OUT "##END edgesite settings####\n\n";
+			close OUT;
+		}
+	} else {
+		$msg->{SUBMISSION_STATUS}="failure";
+		$msg->{ERROR} .="Have no write permission on $sysconfig.\n";
+		
+	}
+
+	if($msg->{SUBMISSION_STATUS} ne "failure") {
+		my $dir = dirname($sysconfig);
+		my $doneFile = "$dir/edgesite.installation.done";
+		`touch $doneFile`;
+		if(!-e $doneFile) {
+			$msg->{SUBMISSION_STATUS}="failure";
+			$msg->{ERROR}.="Have no write permission to create a new file $doneFile.\n";
+		}
+	}
+
+	my $json = encode_json($msg);
+	print $cgi->header('application/json'), $json;
+	exit;
+}
+
+
 # session check
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
@@ -84,61 +196,118 @@ if( $proj_list->{$pname} ){
 		$msg->{SUBMISSION_STATUS}="success";
 
 		my $projDir = $edgeui_output . "/". $proj_list->{$pname};
-		my $metadata_out = "$projDir/sample_metadata.txt";
-		
-		#get bsveid
-		my $bsveId;
-		if( -e $metadata_out ){
-			$bsveId = `grep -a "bsve_id=" $metadata_out | awk -F'=' '{print \$2}'`;
-			chomp $bsveId;
-		}
-		#save changes 
-		if(open OUT,  ">$metadata_out") {
-			print OUT "type=".$opt{'edge-sample-type-edit'}."\n" if ( $opt{'edge-sample-type-edit'} ); 
-			if( $opt{'edge-sample-type-edit'} eq "human") {
-				if($opt{'pg-cb-gender-edit'}) {
-					print OUT "gender=".$opt{'edge-pg-gender-edit'}."\n";
-				}
-				if($opt{'pg-cb-age-edit'}) {
-					print OUT "age=".$opt{'edge-pg-age-edit'}."\n";
-				}
-			}
 
-			if( $opt{'edge-sample-type-edit'} eq "human" || $opt{'edge-sample-type-edit'} eq "animal") {
-				print OUT "host=".$opt{'edge-pg-host-edit'}."\n";
-				print OUT "host_condition=".$opt{'edge-pg-host-condition-edit'}."\n";
-				print OUT "source=".$opt{'edge-sample-source-host-edit'}."\n";
+		if(-w $projDir) {
+			#travels
+			my $travel_out = "$projDir/metadata_travels.txt";
+			my @travels = split /[\x0]/, $opt{"metadata-travel-location"};
+			my @travel_df = split /[\x0]/, $opt{"metadata-travel-date-f"};
+			my @travel_dt = split /[\x0]/, $opt{"metadata-travel-date-t"};
+			my @cities = split /[\x0]/, $opt{"locality"};
+			my @states = split /[\x0]/, $opt{'administrative_area_level_1'};
+			my @countries = split /[\x0]/, $opt{'country'};
+			my @lats = split /[\x0]/, $opt{'lat'};
+			my @lngs = split /[\x0]/, $opt{'lng'};
+			my $geoLoc_cnt = 0;
+			if (@travels > 0) {
+				open TOUT, ">$travel_out";
+				foreach my $travel (@travels) {
+					print TOUT "travel-date-from=".$travel_df[$geoLoc_cnt]."\n";
+					print TOUT "travel-date-to=".$travel_dt[$geoLoc_cnt]."\n";
+					print TOUT "travel-location=$travel\n";
+					print TOUT "city=".$cities[$geoLoc_cnt]."\n";
+					print TOUT "state=".$states[$geoLoc_cnt]."\n";
+					print TOUT "country=".$countries[$geoLoc_cnt]."\n";
+					print TOUT "lat=".$lats[$geoLoc_cnt]."\n";
+					print TOUT "lng=".$lngs[$geoLoc_cnt]."\n";
+					$geoLoc_cnt++;
+				}
+				close(TOUT);
 			} else {
-				print OUT "source=".$opt{'edge-sample-source-nonhost-edit'}."\n";
-			}
-			print OUT "source_detail=".$opt{'edge-pg-sample-source-detail-edit'}."\n";
-			print OUT "collection_date=".$opt{'edge-pg-collection-date-edit'}."\n" if ( $opt{'edge-pg-collection-date-edit'} );
-			print OUT "city=".$opt{'locality'}."\n" if ( $opt{'locality'} );
-			print OUT "state=".$opt{'administrative_area_level_1'}."\n" if ( $opt{'administrative_area_level_1'} );
-			print OUT "country=".$opt{'country'}."\n" if ( $opt{'country'} );
-			print OUT "lat=".$opt{'lat'}."\n" if ( $opt{'lat'} );
-			print OUT "lng=".$opt{'lng'}."\n" if ( $opt{'lng'} );
-			print OUT "seq_platform=".$opt{'edge-pg-seq-platform-edit'}."\n" if ( $opt{'edge-pg-seq-platform-edit'} );
-
-			if($opt{'edge-pg-seq-platform-edit'} eq "Illumina") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-ill-edit'}."\n";
-			} elsif($opt{'edge-pg-seq-platform-edit'} eq "IonTorrent") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-ion-edit'}."\n";
-			} elsif($opt{'edge-pg-seq-platform-edit'} eq "Nanopore-edit") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-nan-edit'}."\n";
-			} elsif($opt{'edge-pg-seq-platform-edit'} eq "PacBio") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-pac-edit'}."\n";
+				#delete old travels if exist
+				`rm -f $travel_out`;
 			}
 
-			print OUT "seq_date=".$opt{'edge-pg-seq-date-edit'}."\n" if ( $opt{'edge-pg-seq-date-edit'} );
-		
-			print OUT "bsve_id=".$bsveId."\n" if ($bsveId);
+			#symptoms
+			my $symptom_out = "$projDir/metadata_symptoms.txt";
+			my @symptom_cats = split /[\x0]/, $opt{"metadata-symptom-cat"};
+			my @symptom_catIDs = split /[\x0]/, $opt{"metadata-symptom-catID"};
+			my ($cat,$catID);
+			my $symptomLines;
+			for(my $cat_cnt=0; $cat_cnt<@symptom_cats;$cat_cnt++) {
+				$cat = $symptom_cats[$cat_cnt];
+				$catID = $symptom_catIDs[$cat_cnt];
+				my @symptoms = split /[\x0]/, $opt{"metadata-symptom-$catID"};
+				foreach my $symptom(@symptoms) {
+					$symptomLines .= "$cat\t$symptom\n";
+				}
+			}
+			if($symptomLines) {
+				open SOUT, ">$symptom_out";
+				print SOUT "$symptomLines";
+				close(SOUT);
+			} else {
+				#delete old symptoms if exist
+				`rm -f $symptom_out`;
+			}
 
+			#sample metadata
+			my $metadata_out = "$projDir/metadata_sample.txt";
+			open OUT,  ">$metadata_out";
+			my $id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"`;
+			print OUT "study_id=$id\n";
+			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
+			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
+			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); ; 
+			print OUT "sample_name=".$opt{'metadata-sample-name'}."\n" if ( $opt{'metadata-sample-name'} ); 
+			print OUT "sample_type=".$opt{'metadata-sample-type'}."\n" if ( $opt{'metadata-sample-type'} ); 
+
+			if( $opt{'metadata-sample-type'} eq "human" || $opt{'metadata-sample-type'} eq "animal") {
+				if($opt{'metadata-sample-type'} eq "human") {
+					if($opt{'metadata-host-gender-cb'}) {
+						print OUT "gender=".$opt{'metadata-host-gender'}."\n";
+					}
+					if($opt{'metadata-host-age-cb'}) {
+						print OUT "age=".$opt{'metadata-host-age'}."\n";
+					}
+					print OUT "host=human\n";
+				} else {
+					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
+					print OUT "host=".$opt{'metadata-host'}."\n";
+					`rm -f $travel_out`;
+					`rm -f $symptom_out`;
+				}
+				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
+				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
+				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
+			} else {
+				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
+				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
+				`rm -f $travel_out`;
+				`rm -f $symptom_out`;
+			}
+			
+			print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n" if ( $opt{'metadata-sample-collection-date'} );
+			print OUT "location=".$opt{'metadata-sample-location'}."\n" if ( $opt{'metadata-sample-location'} );
+			print OUT "city=".$cities[$geoLoc_cnt]."\n" if($cities[$geoLoc_cnt]);
+			print OUT "state=".$states[$geoLoc_cnt]."\n" if($states[$geoLoc_cnt]);
+			print OUT "country=".$countries[$geoLoc_cnt]."\n" if($countries[$geoLoc_cnt]);
+			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
+			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
+			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
+			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
+			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
+			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
+			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
+			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
 			close OUT;
+
 		} else {
 			$msg->{SUBMISSION_STATUS}="failure";
-
 		}
+
+		#delete HTML_Report/.complete_report_web
+		`rm $projDir/HTML_Report/.complete_report_web`;
 
 		# return json
 		my $json = encode_json($msg);

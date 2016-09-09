@@ -62,8 +62,8 @@ $opt{'in-ctg2ref-indels'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/co
 $opt{'in-ctg-fa'}              ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigs.fa";
 $opt{'in-ctg-anno-gff3'}       ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Annotation/PROKKA.gff";
 $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.primers.gff3";
-$opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/With_AR_markers_hit.gff";
-$opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/With_VF_markers_hit.gff";
+$opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
+$opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.gff";
 $opt{'in-read2ctg-bam'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam";
 $opt{'in-read2ref-bam'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam";
 $opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
@@ -137,10 +137,10 @@ sub main {
 		executeCommand("ln -s $opt{'in-ctg-fa'} $opt{'out-ctg-coord-dir'}/contigs.fa");
 		executeCommand("biodb-to-json.pl --compress --quiet --conf $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf --out $opt{'out-ctg-coord-dir'}");
 		if (-e $opt{'in-orf-ar-gff3'}){
-			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-ar-gff3'} --key 'Antibiotics Resistance Genes Marker' --trackLabel ARmarker --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-ar-gff3'} --key 'Antibiotics Resistance Genes' --trackLabel 'AR' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
 		}
 		if (-e $opt{'in-orf-vf-gff3'}){
-			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes Marker' --trackLabel 'VFmarker' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes' --trackLabel 'Virulence' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
 		}
 		print "Done.\n";
 

@@ -31,6 +31,7 @@ CREATE TABLE users_projects (
     user_id INT NOT NULL,
     project_id INT NOT NULL,
     role varchar(255) NOT NULL DEFAULT 'owner',
+    display varchar(25) NOT NULL DEFAULT 'yes',
     PRIMARY KEY (user_id,project_id),
     FOREIGN KEY up_user_id_key (user_id) REFERENCES users(id),
     FOREIGN KEY up_project_id_key (project_id) REFERENCES projects(id)

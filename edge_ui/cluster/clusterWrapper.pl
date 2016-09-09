@@ -4,10 +4,13 @@ use strict;
 
 my $DEBUG = 0; 
 
-my $BIN="/opt/uge/bin/lx-amd64";
-$ENV{SGE_ROOT} ="/opt/uge";
-$ENV{SGE_CELL} ="seqprod";
-$ENV{SGE_CLUSTER_NAME} ="seqclust";
+sub LoadSGEenv {
+	my $sys = shift;
+	$ENV{PATH} = "$ENV{PATH}:$sys->{sge_bin}";
+        $ENV{SGE_ROOT} = "$sys->{sge_root}";
+        $ENV{SGE_CELL} = "$sys->{sge_cell}";
+        $ENV{SGE_CLUSTER_NAME} = "$sys->{sge_cluster_name}";
+}
 
 sub clusterSubmitJob {#submit job
     my ($in, $opt) = @_;
@@ -19,8 +22,8 @@ sub clusterSubmitJob {#submit job
     }
 
     #submit job
-    print "$BIN/qsub $opt $in\n" if $DEBUG;
-    my $job = `$BIN/qsub $opt $in`;
+    print "qsub $opt $in\n" if $DEBUG;
+    my $job = `qsub $opt $in`;
     print "$job\n" if $DEBUG;
 
     my $job_id;
@@ -40,7 +43,7 @@ sub clusterSubmitJob {#submit job
 
 sub clusterGetJobs {#get all jobs
     my $error;
-    my $stats = `$BIN/qstat -xml`;
+    my $stats = `qstat -xml`;
    	my $joblist;
 
 	if($stats !~ /<queue_info>/) {
@@ -58,17 +61,23 @@ sub checkProjVital_cluster {
 	my ($joblist, $error) = clusterGetJobs();
 	my ($pid, $proj, $stat, $jobName,$numcpu);
 	if(!$error) {
-		foreach my $job (@{$joblist->{queue_info}->{job_list}}) {
+		my @jobs;
+		# if only one running, it is stored in HASH.
+		if (ref($joblist->{queue_info}->{job_list}) eq "HASH"){
+			@jobs = ($joblist->{queue_info}->{job_list});
+		}elsif(ref($joblist->{queue_info}->{job_list}) eq "ARRAY"){
+			@jobs = @{$joblist->{queue_info}->{job_list}};
+		}
+		foreach my $job (@jobs) {
 			$pid = $job->{JB_job_number};
    			$jobName = $job->{JB_name};
    			$stat = $job->{state}[1];
 			if($stat eq 'Eqw') {
 				$stat = "Cluster Job Error.";
 			} 
-
 			$numcpu = $job->{slots};
 
-            if($jobName =~ /^$cluster_job_prefix(.*)/) {
+			if($jobName =~ /^$cluster_job_prefix(.*)/) {
 				$proj = $1;
 				$vital->{$pid}->{PROJ} = $proj;
 				$vital->{$pid}->{CPU} = $numcpu;
@@ -76,13 +85,13 @@ sub checkProjVital_cluster {
 				$name2pid->{$proj} = $pid;
 			}
 		}
-	} 
+	}
 	return ($vital,$name2pid,$error);
 }
 
 sub clusterDeleteJob {
     my $job_id = shift;
-    my $status  = `$BIN/qdel $job_id 2>&1`;
+    my $status  = `qdel $job_id 2>&1`;
 
 	# making sure to give enough time for processing deletion request
  	sleep(3);
@@ -95,5 +104,4 @@ sub clusterDeleteJob {
         return 1;#failure
     }
 }
-
 1;

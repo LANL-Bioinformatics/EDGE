@@ -41,6 +41,7 @@ my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 $um_url ||= "$protocol//$domain/userManagement";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $debug       = $sys->{debug};
+my $request_uri = $ENV{'REQUEST_URI'};
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -50,6 +51,8 @@ my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $cluster_job_notify = $sys->{cluster_job_notify};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_tmpl = "$RealBin/../cluster/clusterSubmit.tmpl";
+&LoadSGEenv($sys) if ($cluster);
+
 $sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
 $sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 
@@ -84,6 +87,14 @@ my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
 my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
 my @edge_ref_input;
+my $projlist;
+my @pnames;
+
+##### Logan add Specialty Gene Options Convert to Percent#####
+my $sb_min_id = sprintf("%.3f", $opt{"edge-sg-identity-options"});
+$opt{"edge-sg-identity-options"} = $sb_min_id/100;
+my $sb_min_len = sprintf("%.3f", $opt{"edge-sg-length-options"});
+$opt{"edge-sg-length-options"} = $sb_min_len/100;
 
 #####  Chienchi add for batch sra submit #######
 my $batch_sra_run=0;
@@ -149,9 +160,15 @@ if ($edge_qiime_input_dir){
 	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir";
 }
 
+# Reconfig
+if( $opt{"type"} eq "reconfig" ){
+	if ($username && $password){
+		$pname = $opt{'rec_projname'};
+		$projlist->{$pname}->{projCode} = $opt{'rec_projcode'};
+	}
+}
+
 # batch submit
-my $projlist; 
-my @pnames;   
 if ($opt{"edge-batch-input-excel"})
 {
 	$projlist = &readBatchInput();
@@ -167,6 +184,13 @@ $msg->{SUBMISSION_STATUS}="success";
 
 # validating parameters
 &checkParams();
+
+# if reconfig only
+if( $opt{"type"} eq "reconfig" ){
+	&createConfig( "reconfig" ) if $msg->{SUBMISSION_STATUS} eq 'success';
+	&createSampleMetadataFile() if $msg->{SUBMISSION_STATUS} eq 'success';
+	&returnStatus();
+}
 
 if ($msg->{SUBMISSION_STATUS} eq 'success'){
 	#if user management is on. will replace pnames to unique IDs
@@ -323,7 +347,14 @@ sub is_folder_empty {
 sub createConfig {
 	foreach my $pname (@pnames){
 		my $config_out = "$out_dir/$pname/config.txt";
+		my $json_out   = "$out_dir/$pname/config.json";
 		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
+		$json_out   = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.json" if ($username && $password);
+		
+		#backup config first
+		`mv $config_out $config_out.bak` if( -e $config_out );
+		`mv $json_out $json_out.bak` if( -e $json_out );
+
 		if( defined $opt{"edge-input-config"} && -e $opt{"edge-input-config"} ){
 			open CFG, $opt{"edge-input-config"};
 			open CFG_OUT, ">$config_out";
@@ -359,6 +390,7 @@ sub createConfig {
 				$hosts{$opt{"edge-hostrm-file"}}=1 if (defined $opt{"edge-hostrm-file"} && -e $opt{"edge-hostrm-file"});
 				$opt{"edge-hostrm-file"} = join ",", keys %hosts;
 			} 
+
 			if ($opt{"edge-phylo-sw"})
 			{
 				my @snpPhylo_refs;
@@ -377,7 +409,7 @@ sub createConfig {
 			$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname if ($opt{"edge-batch-input-excel"});
 			$opt{"edge-proj-id"} = $pname;
 			$opt{"edge-proj-code"} = $projlist->{$pname}->{projCode};
-			$opt{"edge-proj-runhost"} = "$protocol//$domain";
+			$opt{"edge-proj-runhost"} = ($request_uri =~ /edge_ui/)?"$protocol//$domain/edge_ui":"$protocol//$domain";
 			$opt{"edge-proj-owner"} = $username if ($username);
 
 			eval {
@@ -396,6 +428,8 @@ sub createConfig {
 			else{
 				&addMessage("GENERATE_CONFIG","success","Config file generated.");
 			}
+			
+			saveListToJason( \%opt, $json_out );
 		}
 	}
 }
@@ -528,13 +562,13 @@ sub runPipeline_cluster {
 		}
 		close CT_OUT;
 		close CT;
-		&addMessage("CLUSTER","info","Create job script: $cluster_job_script");
+		&addMessage("CLUSTER","info","Create job script: clusterSubmit.sh");
 		
 		my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
 		if($error) {
 			&addMessage("CLUSTER","failure","FAILED to submit $cluster_job_script: $error");
 		} else {
-			&addMessage("CLUSTER","info","$cluster_job_script job id: $job_id");
+			&addMessage("CLUSTER","info","job id: $job_id");
 		}
 		$proj_count++;
 	}
@@ -738,8 +772,8 @@ sub checkParams {
 			next if $param eq "password";
 			next if $param =~ /aligner-options/;
 			##sample metadata
-			next if $param =~ /edge-pg/;
-			next if $param =~ /edge-sample/;
+			next if $param =~ /metadata/;
+			next if $param =~ /edgesite/;
 			next if $param eq "locality";
 			next if $param eq "administrative_area_level_1";
 			next if $param eq "country";
@@ -974,7 +1008,7 @@ sub checkParams {
 
 		
 	} else {##sample metadata
-		if ( $sys->{edge_sample_metadata} && $opt{"edge-metadata-sw"}){
+		if ( $sys->{edge_sample_metadata} ){
 			#&addMessage("PARAMS", "country", "Metadata sample location country or lat&lng required.") unless ( $opt{'country'} || ($opt{'lat'} && $opt{'lng'})); 
 			#&addMessage("PARAMS", "edge-pg-collection-date", "Metadata sample collection date is required.") unless ( $opt{'edge-pg-collection-date'} ); 
 			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
@@ -1072,54 +1106,119 @@ sub open_file
 ##sample metadata
 sub createSampleMetadataFile {
 	foreach my $pname (@pnames){
-		my $metadata_out = "$out_dir/$pname/sample_metadata.txt";
-		$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/sample_metadata.txt" if ($username && $password);
-		if ( $sys->{edge_sample_metadata} && $opt{"edge-metadata-sw"}){
+		if ( $sys->{edge_sample_metadata}){
+			#travels
+			my $travel_out = "$out_dir/$pname/metadata_travels.txt";
+			$travel_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_travels.txt" if ($username && $password);
+			my @travels = split /[\x0]/, $opt{"metadata-travel-location"};
+			my @travel_df = split /[\x0]/, $opt{"metadata-travel-date-f"};
+			my @travel_dt = split /[\x0]/, $opt{"metadata-travel-date-t"};
+			my @cities = split /[\x0]/, $opt{"locality"};
+			my @states = split /[\x0]/, $opt{'administrative_area_level_1'};
+			my @countries = split /[\x0]/, $opt{'country'};
+			my @lats = split /[\x0]/, $opt{'lat'};
+			my @lngs = split /[\x0]/, $opt{'lng'};
+			my $geoLoc_cnt = 0;
+			if (@travels > 0) {
+				open TOUT, ">$travel_out";
+				foreach my $travel (@travels) {
+					print TOUT "travel-date-from=".$travel_df[$geoLoc_cnt]."\n";
+					print TOUT "travel-date-to=".$travel_dt[$geoLoc_cnt]."\n";
+					print TOUT "travel-location=$travel\n";
+					print TOUT "city=".$cities[$geoLoc_cnt]."\n";
+					print TOUT "state=".$states[$geoLoc_cnt]."\n";
+					print TOUT "country=".$countries[$geoLoc_cnt]."\n";
+					print TOUT "lat=".$lats[$geoLoc_cnt]."\n";
+					print TOUT "lng=".$lngs[$geoLoc_cnt]."\n";
+					$geoLoc_cnt++;
+				}
+				close(TOUT);
+			}
+
+			#symptoms
+			my $symptom_out = "$out_dir/$pname/metadata_symptoms.txt";
+			$symptom_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_symptoms.txt" if ($username && $password);
+			my @symptom_cats = split /[\x0]/, $opt{"metadata-symptom-cat"};
+			my @symptom_catIDs = split /[\x0]/, $opt{"metadata-symptom-catID"};
+			my ($cat,$catID);
+			my $symptomLines;
+			for(my $cat_cnt=0; $cat_cnt<@symptom_cats;$cat_cnt++) {
+				$cat = $symptom_cats[$cat_cnt];
+				$catID = $symptom_catIDs[$cat_cnt];
+				my @symptoms = split /[\x0]/, $opt{"metadata-symptom-$catID"};
+				foreach my $symptom(@symptoms) {
+					$symptomLines .= "$cat\t$symptom\n";
+				}
+			}
+			if($symptomLines) {
+				open SOUT, ">$symptom_out";
+				print SOUT "$symptomLines";
+				close(SOUT);
+			}
+
+			#sample metadata
+			my $metadata_out = "$out_dir/$pname/metadata_sample.txt";
+			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_sample.txt" if ($username && $password);
 			open OUT,  ">$metadata_out";
-			print OUT "type=".$opt{'edge-sample-type'}."\n" if ( $opt{'edge-sample-type'} ); 
-			if( $opt{'edge-sample-type'} eq "human") {
-				if($opt{'pg-cb-gender'}) {
-					print OUT "gender=".$opt{'edge-pg-gender'}."\n";
-				}
-				if($opt{'pg-cb-age'}) {
-					print OUT "age=".$opt{'edge-pg-age'}."\n";
-				}
-			}
+			my $id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"`;
+			print OUT "study_id=$id\n";
+			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
+			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
+			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); ; 
+			print OUT "sample_name=".$opt{'metadata-sample-name'}."\n" if ( $opt{'metadata-sample-name'} ); 
+			print OUT "sample_type=".$opt{'metadata-sample-type'}."\n" if ( $opt{'metadata-sample-type'} ); 
 
-			if( $opt{'edge-sample-type'} eq "human" || $opt{'edge-sample-type'} eq "animal") {
-				print OUT "host=".$opt{'edge-pg-host'}."\n";
-				print OUT "host_condition=".$opt{'edge-pg-host-condition'}."\n";
-				print OUT "source=".$opt{'edge-sample-source-host'}."\n";
+			if( $opt{'metadata-sample-type'} eq "human" || $opt{'metadata-sample-type'} eq "animal") {
+				if($opt{'metadata-sample-type'} eq "human") {
+					if($opt{'metadata-host-gender-cb'}) {
+						print OUT "gender=".$opt{'metadata-host-gender'}."\n";
+					}
+					if($opt{'metadata-host-age-cb'}) {
+						print OUT "age=".$opt{'metadata-host-age'}."\n";
+					}
+					print OUT "host=human\n";
+				} else {
+					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
+					print OUT "host=".$opt{'metadata-host'}."\n";
+				}
+				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
+				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
+				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			} else {
-				print OUT "source=".$opt{'edge-sample-source-nonhost'}."\n";
+				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
+				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			}
-			print OUT "source_detail=".$opt{'edge-pg-sample-source-detail'}."\n";
-			print OUT "collection_date=".$opt{'edge-pg-collection-date'}."\n" if ( $opt{'edge-pg-collection-date'} );
-			print OUT "city=".$opt{'locality'}."\n" if ( $opt{'locality'} );
-			print OUT "state=".$opt{'administrative_area_level_1'}."\n" if ( $opt{'administrative_area_level_1'} );
-			print OUT "country=".$opt{'country'}."\n" if ( $opt{'country'} );
-			print OUT "lat=".$opt{'lat'}."\n" if ( $opt{'lat'} );
-			print OUT "lng=".$opt{'lng'}."\n" if ( $opt{'lng'} );
-			print OUT "seq_platform=".$opt{'edge-pg-seq-platform'}."\n" if ( $opt{'edge-pg-seq-platform'} );
-
-			if($opt{'edge-pg-seq-platform'} eq "Illumina") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-ill'}."\n";
-			} elsif($opt{'edge-pg-seq-platform'} eq "IonTorrent") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-ion'}."\n";
-			} elsif($opt{'edge-pg-seq-platform'} eq "Nanopore") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-nan'}."\n";
-			} elsif($opt{'edge-pg-seq-platform'} eq "PacBio") {
-				print OUT "sequencer=".$opt{'edge-pg-sequencer-pac'}."\n";
-			}
-
-			print OUT "seq_date=".$opt{'edge-pg-seq-date'}."\n" if ( $opt{'edge-pg-seq-date'} );
-
+			
+			print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n" if ( $opt{'metadata-sample-collection-date'} );
+			print OUT "location=".$opt{'metadata-sample-location'}."\n" if ( $opt{'metadata-sample-location'} );
+			print OUT "city=".$cities[$geoLoc_cnt]."\n" if($cities[$geoLoc_cnt]);
+			print OUT "state=".$states[$geoLoc_cnt]."\n" if($states[$geoLoc_cnt]);
+			print OUT "country=".$countries[$geoLoc_cnt]."\n" if($countries[$geoLoc_cnt]);
+			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
+			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
+			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
+			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
+			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
+			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
+			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
+			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
 			close OUT;
-		} else {
-			if(-e $metadata_out) {
-				`rm $metadata_out`;
-			}
 
-		}
+			#run metadata
+			my $run_out = "$out_dir/$pname/metadata_run.txt";
+			$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
+			open ROUT,  ">$run_out";
+			$id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
+			print ROUT "edge-run-id=$id\n";
+			close ROUT;
+		} 
 	}
+}
+
+sub saveListToJason {
+	my ($list, $file) = @_;
+	open JSON, ">$file" or die "Can't write to file: $file\n";
+  	my $json = to_json($list, {utf8 => 1, pretty => 1});
+	print JSON $json;
+  	close JSON;
 }

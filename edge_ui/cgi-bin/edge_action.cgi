@@ -77,6 +77,8 @@ my $permission;
 #cluster
 my $cluster 	= $sys->{cluster};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
+my $cluster_qsub_options= $sys->{cluster_qsub_options};
+&LoadSGEenv($sys) if ($cluster);
 
 #check projects vital
 my ($vital, $name2pid, $error);
@@ -95,7 +97,7 @@ my $time = strftime "%F %X", localtime;
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
 $info->{STATUS} = "FAILURE";
 #$info->{INFO}   = "Project $pname not found.";
-if (($memUsage > 99 or $cpuUsage > 99)  and $action ne 'interrupt' and !$cluster){
+if ( ($memUsage > 99 or $cpuUsage > 99) and $action ne 'interrupt' and !$cluster){
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
@@ -305,6 +307,10 @@ elsif( $action eq 'rerun' ){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to rerun project $real_name.";
 
+	if( -e "$proj_dir/config.txt.bak"){
+		cleanProjectForNewConfig();
+	}
+
 	my $pid = $name2pid->{$pname} || $name2pid->{$projCode};
 
 	if( ! defined $pid ){
@@ -313,14 +319,15 @@ elsif( $action eq 'rerun' ){
 			if(!-e $cluster_job_script) {
 				$info->{INFO} = "Failed to restart this project. File $cluster_job_script not found.";
 			} else {
-				my ($job_id,$error) = clusterSubmitJob($cluster_job_script);
+				&updateDBProjectStatus($pname,"running") if ($username && $password);
+				my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
 				if($error) {
 					$info->{INFO} = "Failed to restart this project: $error";
 				} else {
 					$info->{STATUS} = "SUCCESS";
 					$info->{INFO}   = "Project $real_name has been restarted (JOB ID: $job_id).";
 					$info->{PID}    = $job_id;
-					`echo "\n*** [$time] EDGE_UI: This project has been restarted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+					`echo "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 				}
 			}
 		} else {
@@ -341,12 +348,13 @@ elsif( $action eq 'rerun' ){
 				`echo "$cmd" >> $proj_dir/process.log`;
 				`echo "\n*** [$time] EDGE_UI: Project unstarted ***" >> $proj_dir/process.log`;
 				$info->{INFO} = "The server does not have enough CPU available to run this job. The job is queued";
+				&updateDBProjectStatus($pname,"unstarted") if ($username && $password);
 				&returnStatus();
 			}
 			if( $cmd ){
 				chdir($proj_dir);
 				#remove cached report/status
-				`rm -f $proj_dir/.run.complete.status.json`;
+				#`rm -f $proj_dir/.run.complete.status.json`;
 				`rm -f $proj_dir/HTML_Report/.complete_report_web`;
 				my $newpid = open RUNPIPLINE, "-|", "$cmd > $proj_dir/process_current.log 2>&1 &" or die $!;
 				close RUNPIPLINE;
@@ -355,6 +363,7 @@ elsif( $action eq 'rerun' ){
 					$info->{STATUS} = "SUCCESS";
 					$info->{INFO}   = "Project $real_name has been restarted (PID: $newpid).";
 					$info->{PID}    = $newpid;
+					&updateDBProjectStatus($pname,"running") if ($username && $password);
 				}
 				else{
 					$info->{INFO} = "Failed to restart this project.";
@@ -547,6 +556,9 @@ elsif( $action eq 'publish' || $action eq 'unpublish'){
 	`ln -sf $proj_dir $public_proj_dir` if ($action eq 'publish' && ! -e "$public_proj_dir");
 	`rm -f $public_proj_dir` if ($action eq 'unpublish');
 }
+elsif( $action eq 'disable-project-display' || $action eq 'enable-project-display'){
+	&updateDBProjectDisplay($pname,$action);
+}
 elsif( $action eq 'compare'){
 	my $compare_out_dir = "$out_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
@@ -605,22 +617,23 @@ elsif( $action eq 'compare'){
 	$info->{STATUS} = "SUCCESS";
 	$info->{INFO}   = "Project $real_name sample metadata has been deleted.";
 
-	my $metadata = "$proj_dir/sample_metadata.txt";
+	my $metadata = "$proj_dir/metadata_sample.txt";
+	my $traveldata = "$proj_dir/metadata_travels.txt";
+	my $symptomdata = "$proj_dir/metadata_symptoms.txt";
+	
 	if( -e $metadata ){
 		if(-w $metadata) {
-			my $bsveId = `grep -a "bsve_id=" $metadata | awk -F'=' '{print \$2}'`;
-			chomp $bsveId;
 			`rm -f $metadata`;
-			if($bsveId) {#keep bsve_id 
-				open OUT,  ">$metadata";
-				print OUT "bsve_id=$bsveId"."\n";
-				close OUT;
-			}
+			`rm -f $traveldata`;
+			`rm -f $symptomdata`;
 		} else {
 			$info->{STATUS} = "FAILURE";
-			$info->{INFO}   = "Failed to delete the sample metadata.";
+			$info->{INFO}   = "Failed to delete the sample metadata. Permission denied.";
 		}
 	}
+	#delete HTML_Report/.complete_report_web
+	`rm -f $proj_dir/HTML_Report/.complete_report_web`;
+	
 } elsif($action eq 'metadata-bsveadd') { 
 	if( $sys->{user_management} && !$permission->{metadata} ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
@@ -635,6 +648,10 @@ elsif( $action eq 'compare'){
 	}
 
 } elsif($action eq 'metadata-bsveupdate') {
+	if( $sys->{user_management} && !$permission->{metadata} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
 	if(pushSampleMetadata("update", $proj_dir, $sys)) {
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO}   = "Project $real_name sample metadata has been updated in the BSVE server.";
@@ -643,15 +660,7 @@ elsif( $action eq 'compare'){
 		$info->{INFO}   = "Failed to update the sample metadata in the BSVE server";
 	}
 
-} elsif($action eq 'metadata-bsvedelete') {
-	if(pushSampleMetadata( "delete", $proj_dir, $sys)) {
-		$info->{STATUS} = "SUCCESS";
-		$info->{INFO}   = "Project $real_name sample metadata has been deleted from the BSVE server.";
-	} else {
-		$info->{STATUS} = "FAILURE";
-		$info->{INFO}   = "Failed to delete the sample metadata from the BSVE server.";
-	}
-}
+} 
 #END sample metadata
 elsif($action eq 'define-gap-depth'){
 	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;
@@ -859,6 +868,43 @@ sub updateDBProjectStatus{
         {
                 $info->{INFO} .= " Update Project status in database failed.";
         }
+}
+
+sub updateDBProjectDisplay{
+        my $project = shift;
+        my $action = shift;
+	my $display = "yes";
+	if($action eq "disable-project-display") {
+		$display = "no";
+	}
+        my %data = (
+                email => $username,
+                password => $password,
+                project_id => $project,
+                project_display => $display,
+        );
+        # Encode the data structure to JSON
+        my $data = to_json(\%data);
+        #w Set the request parameters
+        my $url = $um_url ."WS/user/updateProjectDisplay";
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+        #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+        $req->header( "Content-Length" => length($data) );
+        $req->content($data);
+
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+        my $result =  from_json($result_json);
+        if (! $result->{status})
+        {
+                $info->{INFO} .= " Update Project display in database failed.";
+        } else {
+       		$info->{STATUS} = "SUCCESS";
+                $info->{INFO} .= " Project display has been updated.";
+	}
 }
 
 sub sendMail{
@@ -1084,3 +1130,57 @@ sub getSystemUsage {
         }
 }
 
+sub cleanProjectForNewConfig {
+	my $module_ctl;
+	$module_ctl->{"Qiime analysis"}                 ->{"general"}       = "$proj_dir/QiimeAnalysis/runQiimeAnalysis.finished";
+        $module_ctl->{"Download SRA"}                   ->{"general"}       = "$proj_dir/SRA_Download/DownloadSRA.finished";
+        $module_ctl->{"ProPhage Detection"}             ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Prophage/phageFinder.finished";
+	$module_ctl->{"Count Fastq"}                    ->{"general"}       = "$proj_dir/QcReads/countFastq.finished";
+	$module_ctl->{"Quality Trim and Filter"}        ->{"general"}       = "$proj_dir/QcReads/runQC.finished";
+	$module_ctl->{"Host Removal"}                   ->{"general"}       = "$proj_dir/HostRemoval/*/run*.finished"; #  system("rm -f $outputDir/run${prefix}Removal.finished");
+	$module_ctl->{"Assembly"}                       ->{"Provided"}      = "$proj_dir/AssemblyBasedAnalysis/processProvideContigs.finished"; 
+	$module_ctl->{"Assembly"}                       ->{"SPAdes"}        = "$proj_dir/AssemblyBasedAnalysis/runSPAdesAssembly.finished"; #system("rm -f $outputDir/runAPAdesAssembly.finished");
+	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
+	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
+	$module_ctl->{"Assembly"}                       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/runAssembly.finished";
+	$module_ctl->{"Reads Mapping To Contigs"}       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/readsMappingToContig/runReadsToContig.finished";
+	$module_ctl->{"Reads Mapping To Reference"}     ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
+        $module_ctl->{"Reads Mapping To Reference"}     ->{"UnmappedReads"} = "$proj_dir/ReferenceBasedAnalysis/UnmappedReads/retrieveUnmappedReads.finished";
+	$module_ctl->{"Reads Taxonomy Classification"}  ->{"AllReads"}      = "$proj_dir/ReadsBasedAnalysis/Taxonomy/taxonomyAssignment.finished";
+	$module_ctl->{"Reads Taxonomy Classification"}  ->{"UnmappedReads"} = "$proj_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
+	$module_ctl->{"Contigs Mapping To Reference"}   ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
+	$module_ctl->{"Variant Analysis"}               ->{"ReadsBased"}    = "$proj_dir/ReadsBasedAnalysis/contigMappingToRef/variantAnalysis.finished";
+	$module_ctl->{"Variant Analysis"}               ->{"AssemblyBased"} = "$proj_dir/AssemblyBasedAnalysis/contigMappingToRef/variantAnalysis.finished";
+	$module_ctl->{"Contigs Taxonomy Classification"}->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Taxonomy/ContigsTaxonomy.finished";
+	$module_ctl->{"Contigs Blast"}                  ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished";
+	$module_ctl->{"Contigs Annotation"}             ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
+	$module_ctl->{"Phylogenetic Analysis"}          ->{"general"}       = "$proj_dir/SNP_Phylogeny/SNPtree.finished";
+	$module_ctl->{"Phylogenetic Analysis"}          ->{"SRA"}           = "$proj_dir/SNP_Phylogeny/SRAreads/download.finished";
+	$module_ctl->{"Specialty Genes Profiling"}      ->{"general"}       = "$proj_dir/.runSpecialtyGenesProfiling.finished";
+	$module_ctl->{"Specialty Genes Profiling"}      ->{"ReadsBased"}    = "$proj_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished";
+	$module_ctl->{"Specialty Genes Profiling"}      ->{"AssemblyBased"} = "$proj_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished";
+	$module_ctl->{"Primer Validation"}              ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
+	$module_ctl->{"Primer Design"}                  ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
+	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
+	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
+
+	my $new_config = &getSysParamFromConfig( "$proj_dir/config.txt" );
+	my $old_config = &getSysParamFromConfig( "$proj_dir/config.txt.bak" );
+
+	foreach my $module ( keys %$new_config ){
+		foreach my $param ( keys %{$new_config->{$module}} ){
+			#if one of the parameter in the module changed, reset the whole module
+			if( $new_config->{$module}->{$param} ne $old_config->{$module}->{$param} ){
+				foreach my $task ( keys %{$module_ctl->{$module}} ){
+					`rm -f $module_ctl->{$module}->{$task}`;
+				}
+				last;
+			}
+		}
+	}
+
+	#remove old config file
+	`rm -f "$proj_dir/config.txt.bak"`;
+
+	return;
+}

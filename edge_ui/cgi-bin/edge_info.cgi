@@ -53,7 +53,7 @@ my $sid         = $opt{'sid'}|| $ARGV[4];
 my $ip          = $ARGV[5];
 $ENV{REMOTE_ADDR} = $ip if $ip;
 
-my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
+my $domain      = $ENV{'HTTP_HOST'} || 'edge-dev-master.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
 # read system params from sys.properties
@@ -65,9 +65,9 @@ my $um_url      = $sys->{edge_user_management_url};
 my $out_dir     = $sys->{edgeui_output};
 my $www_root    = $sys->{edgeui_wwwroot};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
+my $max_num_jobs = $sys->{"max_num_jobs"};
 my $edge_projlist_num = $sys->{"edgeui_project_list_num"};
 my $hideProjFromList = 0;
-$domain ||= "edgeset.lanl.gov";
 $um_url ||= "$protocol//$domain/userManagement";
 $umSystemStatus ||= $sys->{user_management} if (!@ARGV);
 $umSystemStatus = ($umSystemStatus eq "false")?0:$umSystemStatus;
@@ -76,6 +76,8 @@ $umSystemStatus = ($umSystemStatus eq "false")?0:$umSystemStatus;
 my $cluster 	= $sys->{cluster};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
+&LoadSGEenv($sys) if ($cluster);
+
 my $list; # ref for project list
 my @projlist; # project list index
 my $prog; # progress for latest job
@@ -86,7 +88,7 @@ $info->{INFO}->{CPUU} = $cpuUsage;
 $info->{INFO}->{MEMU} = $memUsage;
 $info->{INFO}->{DISKU} = $diskUsage;
 
-my $runcpu = ($cluster)? int($cluster_job_max_cpu/8): int($edge_total_cpu/8);
+my $runcpu = ($cluster)? int(($cluster_job_max_cpu-1)/$max_num_jobs): int(($edge_total_cpu-1)/$max_num_jobs);
 $info->{INFO}->{RUNCPU} = ($runcpu>1)? $runcpu :1;
 
 $info->{INFO}->{PROJLISTNUM} = $edge_projlist_num;
@@ -130,6 +132,7 @@ if( $umSystemStatus ){
 	}
 	else{
 		&getUserProjFromDB();
+		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
 		$info->{INFO}->{SESSION_STATUS} = "invalid";
 	}
 }
@@ -138,12 +141,10 @@ else{
 }
 
 my $time = strftime "%F %X", localtime;
-
+my $idx;
 @projlist = sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 # selected project on index 0
-@projlist=(grep $list->{$_}->{NAME} eq $pname, @projlist) if ($pname);
 if( scalar @projlist ){
-	my $idx;
 	my $progs;
 	my $count=0;
 	
@@ -151,13 +152,11 @@ if( scalar @projlist ){
 	#  1. assigned project
 	#  2. latest running project
 	#  3. lastest project
-	$idx = $projlist[0];
-	if (!$pname){
-		my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} eq "unstarted" or $list->{$_}->{STATUS} eq "in process" } @projlist;
-		$idx = $running_idxs[0] if (scalar(@running_idxs));
-	}
-	#print $idx if ($ARGV[1]);
-	@projlist = ($idx);
+	$idx= ($pname)? (grep $list->{$_}->{NAME} eq $pname, @projlist)[0] : $projlist[0];
+	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} =~ /unstarted|interrupted|in process/ and $list->{$_}->{NAME} ne $pname } @projlist;
+	$idx = unshift @running_idxs if (scalar(@running_idxs) && !$pname);
+	$idx = $projlist[0] if (!$idx); # when given $pname does not exist.
+	@projlist = ($idx,@running_idxs); # update running projects and focus project program info.
 	
 	foreach my $i ( @projlist ) {
 		last if ($edge_projlist_num && ++$count > $edge_projlist_num);
@@ -174,31 +173,31 @@ if( scalar @projlist ){
 		my $current_log      = "$proj_dir/process_current.log";
 		my $config   = "$proj_dir/config.txt";
 
-		#remove project from list if output directory has been removed
-		unless( -e $log ){
+		#remove project from list if output directory has been removed	
+		unless( -e $log || -e $config){
 			delete $list->{$i};
 			next;
 		}	
-		
+	
 		#status JSON
-		if( -e $sjson ){
-			my $storedStatus = readListFromJson($sjson);
-			$list->{$i} = $storedStatus->{LIST};
-			$progs->{$i} = $storedStatus->{PROG};
-			next;
-		}
+		#if( -e $sjson ){
+		#	my $storedStatus = readListFromJson($sjson);
+		#	$list->{$i} = $storedStatus->{LIST};
+		#	$progs->{$i} = $storedStatus->{PROG};
+		#	next;
+		#}
 		# update current project status
 		if( -r $log ){
 			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($log);
-			$list->{$i}->{TIME} = $proj_start;
+			$list->{$i}->{TIME} ||= $proj_start;
 			$list->{$i}->{TIME} ||= strftime "%F %X", localtime;
 			$list->{$i}->{PID} = $realpid;
 			$list->{$i}->{CPU} = $numcpu;
 			$list->{$i}->{DESC} = $proj_desc;
 			($list->{$i}->{PROJLOG} = $current_log) =~ s/$www_root//;
-
 			#for unstarted project, read steps from config file
-			(my $tmp,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($config) if $p_status eq "unstarted";
+			$p_status = "unknown" if (!$p_status);
+			(my $tmp,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($config) if $p_status =~ /unstarted|unknown|interrupted/;
 			$list->{$i}->{CPU} = $numcpu;
 			$list->{$i}->{PROJNAME} = $proj_name;
 
@@ -209,7 +208,7 @@ if( scalar @projlist ){
 				# the process log reports it's running, but can't find vital
 				# Unexpected exit detected
 				$list->{$i}->{STATUS} = "failed";
-				`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
+				`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid $lproj $lprojc). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
 			}
 			else{
 				$list->{$i}->{STATUS} = $p_status;
@@ -219,12 +218,12 @@ if( scalar @projlist ){
 			if ( $list->{$i}->{DBSTATUS} && ($list->{$i}->{STATUS} ne $list->{$i}->{DBSTATUS})){
 				&updateDBProjectStatus($i, $list->{$i}->{STATUS});
 			}
-			if( $list->{$i}->{STATUS} eq "finished" && !-e $sjson ){
-				my $storedStatus;
-				$storedStatus->{LIST} = $list->{$i};
-				$storedStatus->{PROG} = $progs->{$i};
-				saveListToJason($storedStatus, $sjson);
-			}
+			#if( $list->{$i}->{STATUS} eq "finished" && !-e $sjson ){
+			#	my $storedStatus;
+			#	$storedStatus->{LIST} = $list->{$i};
+			#	$storedStatus->{PROG} = $progs->{$i};
+			#	saveListToJason($storedStatus, $sjson);
+			#}
 		}
 	}
 
@@ -242,6 +241,7 @@ if( scalar @projlist ){
 	$info->{INFO}->{SHOWMETA}   = $list->{$idx}->{SHOWMETA} if ($list->{$idx}->{SHOWMETA});
 	$info->{INFO}->{ISOWNER} = $list->{$idx}->{ISOWNER} if($list->{$idx}->{ISOWNER});
 	$info->{INFO}->{HASMETA}   = $list->{$idx}->{HASMETA} if ($list->{$idx}->{HASMETA});
+	$info->{INFO}->{SHAREBSVE}   = $list->{$idx}->{SHAREBSVE} if ($list->{$idx}->{SHAREBSVE});
 	$info->{INFO}->{METABSVE}   = $list->{$idx}->{METABSVE} if ($list->{$idx}->{METABSVE});
 	## END sample metadata
 }
@@ -471,11 +471,15 @@ sub scanNewProjToList {
 		if($sys->{edge_sample_metadata}) {
 			$list->{$cnt}->{SHOWMETA} = 1;
 			$list->{$cnt}->{ISOWNER} = 1;
+			if($sys->{edge_sample_metadata_share2bsve}) {
+				$list->{$cnt}->{SHAREBSVE} = 1;
+			}
 		}
-		my $metaFile = "$out_dir/$file/sample_metadata.txt";
+		my $metaFile = "$out_dir/$file/metadata_sample.txt";
+		my $runFile = "$out_dir/$file/metadata_run.txt";
 		if(-r $metaFile) {
 			$list->{$cnt}->{HASMETA} = 1;
-			my $bsveId = `grep -a "bsve_id=" $metaFile | awk -F'=' '{print \$2}'`;
+			my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
 			chomp $bsveId;
 			$list->{$cnt}->{METABSVE} = $bsveId;
 		} 
@@ -580,6 +584,7 @@ sub getUserProjFromDB{
 	my $service;
 	if ($username && $password){ 
 		$service = "WS/user/getProjects";
+		$data{project_display} = "yes";
 	}else{
 		$service = "WS/user/publishedProjects";
 	}
@@ -598,7 +603,7 @@ sub getUserProjFromDB{
 
 	my $response = $browser->request($req);
 	my $result_json = $response->decoded_content;
-	#print $result_json,"\n";
+	#print $result_json,"\n" if ($ARGV[1]);
 	if ($result_json =~ /\"error_msg\":"(.*)"/)
 	{
 		$info->{INFO}->{ERROR}=$1;
@@ -612,7 +617,7 @@ sub getUserProjFromDB{
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
 		my $created = $hash_ref->{created};
-		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
+		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && !$cluster);
 		next if ( $status =~ /delete/i);
 		$list->{$id}->{NAME} = $id;
 		$list->{$id}->{PROJNAME} = $project_name;
@@ -628,21 +633,29 @@ sub getUserProjFromDB{
 		## sample metadata
 		if($sys->{edge_sample_metadata}) {
 			$list->{$id}->{SHOWMETA} = 1;
+			if($sys->{edge_sample_metadata_share2bsve}) {
+				$list->{$id}->{SHAREBSVE} = 1;
+			}
 		}
 		if($username eq  $hash_ref->{owner_email}) {
 			$list->{$id}->{ISOWNER} = 1;
 		}
-		my $metaFile = "$out_dir/$id/sample_metadata.txt";
+		my $metaFile = "$out_dir/$id/metadata_sample.txt";
+		my $runFile = "$out_dir/$id/metadata_run.txt";
 		if(!-e $metaFile) {
-			$metaFile = "$out_dir/$projCode/sample_metadata.txt";
+			$metaFile = "$out_dir/$projCode/metadata_sample.txt";
+			$runFile = "$out_dir/$projCode/metadata_run.txt";
 		}
 		if(-r $metaFile) {
 			$list->{$id}->{HASMETA} = 1;
-			my $bsveId = `grep -a "bsve_id=" $metaFile | awk -F'=' '{print \$2}'`;
+		}
+		if(-r $runFile) {
+			my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
 			chomp $bsveId;
 			$list->{$id}->{METABSVE} = $bsveId;
 		} 
 		## END sample metadata
+		
 	}
 }
 
@@ -668,7 +681,7 @@ sub getProjInfoFromDB{
 
     my $response = $browser->request($req);
     my $result_json = $response->decoded_content;
-	print $result_json if (@ARGV);
+	#print $result_json if (@ARGV);
 	my $hash_ref = from_json($result_json);
 
 	my $id = $hash_ref->{id};

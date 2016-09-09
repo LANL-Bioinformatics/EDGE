@@ -12,9 +12,9 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
-$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$ENV{PATH}";
+$ENV{PATH} = "$RealBin/bin/Anaconda2/bin/:$RealBin:$RealBin/bin/:$RealBin/scripts/:$ENV{PATH}";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
-$ENV{EDGE_HOME} = $RealBin if ! defined $ENV{EDGE_HOME};
+$ENV{EDGE_HOME} = $RealBin;
 $ENV{HOME} ||= $RealBin;
 
 # unbuffer
@@ -272,7 +272,7 @@ if ($configuration->{DoSNPtree})
 
 if ($configuration->{DoReadsSpecialtyGenes} || $configuration->{DoORFsSpecialtyGenes})
 {
-   &runSpecialtyGenesProfiling($QCpairFile,$QCunpairFile,$annotationFAA);
+   &runSpecialtyGenesProfiling($QCpairFile,$QCunpairFile,$annotationFAA,$annotationGFF);
 }
 
 my $pcrCheckFailure=0;
@@ -329,8 +329,8 @@ my $recipient = $configuration->{projowner};
 $recipient = "$recipient,$sys->{email_recipient}" if ($sys->{email_recipient});
 my $projID= $configuration->{projcode} || $configuration->{projid};
 my $mail_msg = "EDGE project $project_name (Description: $configuration->{projdesc}) has been done. Please login to ".
-               "$configuration->{projrunhost}/edge_ui/ to see the result.".
-               "\nOr click link below\n\n $configuration->{projrunhost}/edge_ui/?proj=$projID\n";
+               "$configuration->{projrunhost}/ to see the result.".
+               "\nOr click link below\n\n $configuration->{projrunhost}/?proj=$projID\n";
 &sendMail($sys->{cluster_job_notify},$recipient,$mail_subject,$mail_msg) if ($sys->{email_notification} && $recipient);
 
 ## DATA Clean up ##
@@ -358,12 +358,19 @@ sub runSpecialtyGenesProfiling {
     my $pair_read = shift;
     my $single_end_read= shift;
     my $annotationFAA = shift;
+    my $annotationGFF = shift;
     my $search_tool = $configuration->{SpecialtyGenesSearchTool} || "rapsearch2";
     my $ShortBRED_PATH = "$RealBin/bin/ShortBRED";
-	my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
-    my $identity = "0.95";
-    my $pctlength = "0.95"; 
+    my $rgi_PATH = "$RealBin/thirdParty/Anaconda2/bin";
+    my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
+    my $identity = $configuration->{ShortBREDMinPercIdentity} || "0.95";
+    my $pctlength = $configuration->{ShortBREDMinPercLength} || "0.95"; 
     my $time=time();
+    my $VF_markers = "$RealBin/database/ShortBRED/VF/VFDB_9aa_markers.faa";
+    my $AR_markers = "$RealBin/database/ShortBRED/AR/ShortBRED_ABR_101bp_markers.faa";
+    my $AR_metadata = "$RealBin/database/ShortBRED/AR/ShortBRED_ABR_Metadata.tab";
+    my $specialtyGenesDone = 0;
+    my $VFDB_ini="$RealBin/scripts/specialty_genes/mysql.ini";
     if ($noColorLog)
     {
         &lprint ("[Specialty Genes Profiling]\n");
@@ -372,63 +379,93 @@ sub runSpecialtyGenesProfiling {
     {
         &lprint (colored ("[Specialty Genes Profiling]\n",'yellow'));
     }
-    if ( -e "$outDir/.runSpecialtyGenesProfiling.finished" )
+    if ($configuration->{DoReadsSpecialtyGenes} and $configuration->{DoORFsSpecialtyGenes})
     {
-       &lprint ("Specialty Genes Profiling Finished\n"); 
-       return;
+	if (-e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" and -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+	{
+		$specialtyGenesDone = 1;
+	}
     }  
+	elsif ($configuration->{DoReadsSpecialtyGenes} and -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+	{
+		$specialtyGenesDone = 1;
+	}
+	elsif ($configuration->{DoORFsSpecialtyGenes} and -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+	{
+		$specialtyGenesDone = 1;
+	}
+	if ($specialtyGenesDone)
+	{
+		&lprint ("Specialty Genes Profiling Finished\n");
+		return;
+	}
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $wgs_reads = "$pair_read " if ($pair_read);
     $wgs_reads .= "$single_end_read " if ( -s $single_end_read);
-    if ($configuration->{DoReadsSpecialtyGenes} and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
-    {
-       my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
-       my $log = "$outputDir/log.txt";
-       `mkdir -p $outputDir`;
-	# AR
-       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
-       &lprint ("  Running \n  $cmd \n");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/AR_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -project $project_name -out $outputDir";
-       &executeCommand($cmd);
-	#VF
-       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
-       &lprint ("  Running \n  $cmd \n");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/VF_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -project $project_name -out $outputDir";
-       &executeCommand($cmd);
-       system("touch $outputDir/runSpecialtyGenesProfiling.finished");
-    }
-    if ($configuration->{DoORFsSpecialtyGenes} and -s $annotationFAA and ! -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
-    {
-       my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
-       my $log = "$outputDir/log.txt";
-       `mkdir -p $outputDir`;
-	# AR
-       my $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_ABR_101bp_markers.faa --results $outputDir/AR_genes_ShortBRED.txt --tmp $outputDir/AR_genes_tmp --marker_results $outputDir/AR_genes_markers.txt --SBhits $outputDir/AR_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>$log 2>&1";
-       &lprint ("  Running \n  $cmd \n");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/AR_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -project $project_name -out $outputDir";
-	   system("echo \"$cmd\"  >> $log");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_convert_to_gff.pl -SBhits $outputDir/AR_genes_SBhits.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/ShortBRED_ABR_Metadata.tab -category AR -faa $outDir/AssemblyBasedAnalysis/Annotation/$project_name.faa -gff $outDir/AssemblyBasedAnalysis/Annotation/$project_name.gff -covTable $cov_table -out $outputDir ";
-	   system("echo \"$cmd\"  >> $log");
-       &executeCommand($cmd);
+    if ( !-e "$VFDB_ini"){
+        open (my $fh_ini,">$VFDB_ini") or  die "Cannot write to $VFDB_ini\n";
+        print $fh_ini "[LOGIN]\n";
+        print $fh_ini "username=".$sys->{VFDB_dbuser}."\n";
+        print $fh_ini "password=".$sys->{VFDB_dbpasswd}."\n";
+        print $fh_ini "host=".$sys->{VFDB_dbhost}."\n";
+        print $fh_ini "port=".$sys->{VFDB_dbport}."\n";
+        print $fh_ini "database=".$sys->{VFDB_dbname}."\n";
+        close $fh_ini;
 
+    }
+	# Reads Based Analysis
+	if ($configuration->{DoReadsSpecialtyGenes} and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+    {
+		my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
+		my $log = "$outputDir/log.txt";
+        my $cmd;
+		`mkdir -p $outputDir`;
+	# AR Reads ShortBRED 
+       	$cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $AR_markers --results $outputDir/${project_name}_AR_genes_ShortBRED.txt --tmp $outputDir/${project_name}_AR_genes_tmp --marker_results $outputDir/${project_name}_AR_genes_markers.txt --SBhits $outputDir/${project_name}_AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
+       		&lprint ("  Running \n  $cmd \n");
+       		&executeCommand($cmd);
+       	$cmd="$RealBin/scripts/specialty_genes/ShortBred_report.pl -SBresult $outputDir/${project_name}_AR_genes_ShortBRED.txt -metadata $AR_metadata -category AR -project $project_name -out $outputDir";
+       		&lprint ("  Running \n  $cmd \n");
+			&executeCommand($cmd);
+	
+	#VF
+       	$cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $VF_markers --results $outputDir/${project_name}_VF_genes_ShortBRED.txt --tmp $outputDir/${project_name}_VF_genes_tmp --marker_results $outputDir/${project_name}_VF_genes_markers.txt --SBhits $outputDir/${project_name}_VF_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>>$log 2>&1";
+       		&lprint ("  Running \n  $cmd \n");
+       		&executeCommand($cmd);
+       $cmd = "python $RealBin/scripts/specialty_genes/ProcessVFSBResults.py -t reads -m $VFDB_ini -i $outputDir/${project_name}_VF_genes_ShortBRED.txt -p $outputDir/${project_name}_VF_genes_ShortBRED 1>>$log 2>&1";
+       		&lprint ("  Running \n  $cmd \n");
+       		&executeCommand($cmd);
+
+		system("touch $outputDir/runSpecialtyGenesProfiling.finished");
+    }
+
+	# ORF Based Analysis
+	if ($configuration->{DoORFsSpecialtyGenes} and -s $annotationFAA and -s $annotationGFF and ! -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+    {
+       	my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
+       	my $log = "$outputDir/log.txt";
+       	my $cmd;
+	`mkdir -p $outputDir`;
+		
+		
+	# AR
+		$cmd = "$rgi_PATH/rgi -i $annotationFAA -t protein -o AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi -n $numCPU 1>>$log 2>&1";
+			&lprint ("	Running \n $cmd \n");
+			&executeCommand($cmd);
+		$cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
+			&lprint ("	Running \n $cmd \n");
+			&executeCommand($cmd);
+	
 	# VF
-       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $ShortBRED_PATH/sample_markers/ShortBRED_VF_Evaluation_markers.faa --results $outputDir/VF_genes_ShortBRED.txt --tmp $outputDir/VF_genes_tmp --marker_results $outputDir/VF_genes_markers.txt --SBhits $outputDir/VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";
-       &lprint ("  Running \n  $cmd \n");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_report.pl -SBresult $outputDir/VF_genes_ShortBRED.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -project $project_name -out $outputDir";
-	   system("echo \"$cmd\"  >> $log");
-       &executeCommand($cmd);
-       $cmd="$RealBin/scripts/ShortBred_convert_to_gff.pl -SBhits $outputDir/VF_genes_SBhits.txt -metadata $ShortBRED_PATH/sample_markers/metadata_and_consensensus_sequences/VFDB.tab -category VF -faa $outDir/AssemblyBasedAnalysis/Annotation/$project_name.faa -gff $outDir/AssemblyBasedAnalysis/Annotation/$project_name.gff -covTable $cov_table -out $outputDir ";
-	   system("echo \"$cmd\"  >> $log");
-       &executeCommand($cmd);
-       system("touch $outputDir/runSpecialtyGenesProfiling.finished");
+       $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $VF_markers --results $outputDir/${project_name}_VF_genes_ShortBRED.txt --tmp $outputDir/${project_name}_VF_genes_tmp --marker_results $outputDir/${project_name}_VF_genes_markers.txt --SBhits $outputDir/${project_name}_VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";
+       		&lprint ("  Running \n  $cmd \n");
+       		&executeCommand($cmd);
+       $cmd = "python $RealBin/scripts/specialty_genes/ProcessVFSBResults.py -t orf -m $VFDB_ini -i $outputDir/${project_name}_VF_genes_ShortBRED.txt -s $outputDir/${project_name}_VF_genes_SBhits.txt -g $annotationGFF -p $outputDir/${project_name}_VF_genes_ShortBRED 1>>$log 2>&1";
+      	 	&lprint ("  Running \n  $cmd \n");
+       		&executeCommand($cmd);
+       	system("touch $outputDir/runSpecialtyGenesProfiling.finished");
     }
     
-    system("touch $outDir/.runSpecialtyGenesProfiling.finished");
     &printRunTime($time);
     return 0;	
 }
@@ -698,7 +735,7 @@ sub read_SRAD_Download_dir
     {
         foreach (@files)
         {
-            if (/(\S+)_[12]/)
+            if (/(\S+)_?.?[12]/)
             {
                 push @{$pair{$1}}, "$dir/$_";
                 #push @pairedReadsFile, "$dir/$_";
@@ -979,7 +1016,7 @@ sub Reads_taxonomyAssignment
     &executeCommand($cmd); 
     
     $cmd = "$RealBin/scripts/svg2pdf $outputDir/report/*/*/*svg  2>>$logFile";
-    &executeCommand($cmd) if (system("which inkscape  1>/dev/null") == 0);
+    &executeCommand($cmd);
     #unlink $input;
     system("touch $outputDir/taxonomyAssignment.finished");
     &printRunTime($time);
@@ -2456,7 +2493,7 @@ sub runAssembly
         $step = 20 if (!$step);
         $cmd .= " --maxk $maxK --mink $minK --step $step --min_contig $contig_min_length";
         # ulimit doesn't work on Mac OS
-        $cmd = "ulimit -v $mem_limit;" . $cmd;
+        $cmd = "ulimit -v $mem_limit 2>/dev/null;" . $cmd;
         $AssemblerContigs = "$AssemblerOutDir/contig-$maxK.fa";
     }
     if ($assembler =~ /spades/){
@@ -2634,7 +2671,7 @@ sub runIdbaAssembly
     my $sys_mem = &get_sys_memory;
     my $mem_limit = $sys_mem - 524288;  # leave 512MB in case overflow or system hand
     # ulimit doesn't work on Mac OS
-    $command = "ulimit -v $mem_limit;" . $command;
+    $command = "ulimit -v $mem_limit 2>/dev/null;" . $command;
     &lprint ("  Running\n  $command\n");
    
   

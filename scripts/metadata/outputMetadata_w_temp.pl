@@ -40,9 +40,7 @@ sub output_html {
 }
 
 sub pull_sampleMetadata {
-	my $metadata = "$out_dir/sample_metadata.txt";
-	$vars->{SMD_TYPE_H} = 1; #default setting
-	$vars->{SMD_GENDER_M} = 1; #default setting
+	my $metadata = "$out_dir/metadata_sample.txt";
 
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
@@ -50,139 +48,106 @@ sub pull_sampleMetadata {
       			chomp;
                	 	next if(/^#/);
            		if ( /(.*)=(.*)/ ){
-             			$vars->{SMD_TYPE} =$2 if ($1 eq "type");
+             			$vars->{SMD_STUDY_TITLE} =$2 if ($1 eq "study_title");
+             			$vars->{SMD_STUDY_TYPE} =$2 if ($1 eq "study_type");
+             			$vars->{SMD_NAME} =$2 if ($1 eq "sample_name");
+             			$vars->{SMD_TYPE} =$2 if ($1 eq "sample_type");
+             			$vars->{OUT_SMD_GENDER} =1 if ($1 eq "gender");
              			$vars->{SMD_GENDER} =$2 if ($1 eq "gender");
+             			$vars->{OUT_SMD_AGE} =1 if ($1 eq "age");
              			$vars->{SMD_AGE} =$2 if ($1 eq "age");
+             			$vars->{OUT_SMD_HOST} =1 if ($1 eq "host");
              			$vars->{SMD_HOST} =$2 if ($1 eq "host");
+             			$vars->{OUT_SMD_HOST_CONDITION} =1 if ($1 eq "host_condition");
              			$vars->{SMD_HOST_CONDITION} =$2 if ($1 eq "host_condition");
-             			$vars->{SMD_SOURCE} =$2 if ($1 eq "source");
-             			$vars->{SMD_SOURCE_DETAIL} =$2 if ($1 eq "source_detail");
+             			$vars->{SMD_SOURCE} =$2 if ($1 eq "isolation_source");
              			$vars->{SMD_COLLECTION_DATE} =$2 if ($1 eq "collection_date");
+             			$vars->{SMD_LOCATION} =$2 if ($1 eq "location");
              			$vars->{SMD_CITY} =$2 if ($1 eq "city");
              			$vars->{SMD_STATE} =$2 if ($1 eq "state");
              			$vars->{SMD_COUNTRY} =$2 if ($1 eq "country");
              			$vars->{SMD_LAT} =$2 if ($1 eq "lat");
              			$vars->{SMD_LNG} =$2 if ($1 eq "lng");
-             			$vars->{SMD_SEQ_PLATFORM} =$2 if ($1 eq "seq_platform");
+             			$vars->{SMD_EXP_TITLE} =$2 if ($1 eq "experiment_title");
+             			$vars->{SMD_SEQ_CENTER} =$2 if ($1 eq "sequencing_center");
              			$vars->{SMD_SEQUENCER} =$2 if ($1 eq "sequencer");
-             			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "seq_date");
-             			$vars->{SMD_ID} =$2 if ($1 eq "id");
+             			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "sequencing_date");
               		}
       		  }
         	close CONF;
 
-		#get drop down options
+		if($vars->{SMD_TYPE} eq "human") {
+			$vars->{SMD_HOST} = "";
+		}
+		#get list options
 		if($vars->{SMD_TYPE}) {
-			my $sampleType = $vars->{SMD_TYPE};
-			if($sampleType eq "human") {
-				$vars->{SMD_TYPE_H} = 1;
-			} elsif($sampleType eq "animal") {
-				$vars->{SMD_TYPE_A} = 1;
-				$vars->{SMD_TYPE_H} = 0;
-			} elsif($sampleType eq "environmental") {
-				$vars->{SMD_TYPE_H} = 0;
-				$vars->{SMD_TYPE_E} = 1;
-			} 
+			my $type = $vars->{SMD_TYPE};
+			setSampleType($type);
 		}
 		if($vars->{SMD_GENDER} ) {
 			my $gender = $vars->{SMD_GENDER};
-			if($gender eq "male") {
-				$vars->{SMD_GENDER_M} = 1;
-			} else {
-				$vars->{SMD_GENDER_M} = 0;
-				$vars->{SMD_GENDER_F} = 1;
-			}
+			setGender($gender);
+		} else {
+			setGender("male");
 		}
 		if($vars->{SMD_HOST_CONDITION}) {
-			my $val = $vars->{SMD_HOST_CONDITION};
-			if($val eq "healthy") {
-				$vars->{SMD_HOST_CONDITION_H} = 1;
-			} elsif($val eq "diseased") {
-				$vars->{SMD_HOST_CONDITION_D} = 1;
-			} elsif($val eq "unknown") {
-				$vars->{SMD_HOST_CONDITION_U} = 1;
-			}
+			my $type = $vars->{SMD_HOST_CONDITION};
+			setHostCondition($type);
+		} else {
+			setHostCondition("unknown");
 		}
-		if($vars->{SMD_SOURCE}) {
-			my $val = $vars->{SMD_SOURCE};
-			if($val eq "blood") {
-				$vars->{SMD_SOURCE_blood} = 1;
-			} elsif($val eq "nasal") {
-				$vars->{SMD_SOURCE_nasal} = 1;
-			} elsif($val eq "saliva") {
-				$vars->{SMD_SOURCE_saliva} = 1;
-			} elsif($val eq "skin") {
-				$vars->{SMD_SOURCE_skin} = 1;
-			} elsif($val eq "sputum") {
-				$vars->{SMD_SOURCE_sputum} = 1;
-			} elsif($val eq "stool") {
-				$vars->{SMD_SOURCE_stool} = 1;
-			} elsif($val eq "throat") {
-				$vars->{SMD_SOURCE_throat} = 1;
-			} elsif($val eq "vaginal") {
-				$vars->{SMD_SOURCE_vaginal} = 1;
-			} elsif($val eq "wound") {
-				$vars->{SMD_SOURCE_wound} = 1;
-			} elsif($val eq "other") {
-				$vars->{SMD_SOURCE_other} = 1;
-			} elsif($val eq "unknown") {
-				$vars->{SMD_SOURCE_unknown} = 1;
-			} elsif($val eq "air") {
-				$vars->{SMD_SOURCE_air} = 1;
-			} elsif($val eq "built-environment") {
-				$vars->{SMD_SOURCE_be} = 1;
-			} elsif($val eq "microbial mat/biofilm") {
-				$vars->{SMD_SOURCE_mb} = 1;
-			} elsif($val eq "plant") {
-				$vars->{SMD_SOURCE_plant} = 1;
-			} elsif($val eq "sediment") {
-				$vars->{SMD_SOURCE_sediment} = 1;
-			} elsif($val eq "soil") {
-				$vars->{SMD_SOURCE_soil} = 1;
-			} elsif($val eq "water") {
-				$vars->{SMD_SOURCE_water} = 1;
-			} elsif($val eq "wastewater/sludge") {
-				$vars->{SMD_SOURCE_ws} = 1;
-			} 
-		}
-		if($vars->{SMD_SEQ_PLATFORM}) {
-			my $val = $vars->{SMD_SEQ_PLATFORM};
-			if($val eq "Illumina") {
-				$vars->{SMD_SEQ_PLATFORM_ILL} = 1;
-			} elsif($val eq "IonTorrent") {
-				$vars->{SMD_SEQ_PLATFORM_ION} = 1;
-			}  elsif($val eq "Nanopore") {
-				$vars->{SMD_SEQ_PLATFORM_NAN} = 1;
-			}  elsif($val eq "PacBio") {
-				$vars->{SMD_SEQ_PLATFORM_PAC} = 1;
-			} 
-		}
-		if($vars->{SMD_SEQUENCER}) {
-			my $val = $vars->{SMD_SEQUENCER};
-			if($val eq "HiSeq") {
-				$vars->{SMD_SEQUENCER_ILL_Hi} = 1;
-			} elsif($val eq "HiSeq X") {
-				$vars->{SMD_SEQUENCER_ILL_HiX} = 1;
-			} elsif($val eq "MiniSeq") {
-				$vars->{SMD_SEQUENCER_ILL_Min} = 1;
-			} elsif($val eq "MiSeq") {
-				$vars->{SMD_SEQUENCER_ILL_Mi} = 1;
-			} elsif($val eq "NextSeq") {
-				$vars->{SMD_SEQUENCER_ILL_Next} = 1;
-			} elsif($val eq "Ion S5") {
-				$vars->{SMD_SEQUENCER_ION_S5} = 1;
-			} elsif($val eq "Ion PGM") {
-				$vars->{SMD_SEQUENCER_ION_PGM} = 1;
-			} elsif($val eq "Ion Proton") {
-				$vars->{SMD_SEQUENCER_ION_Proton} = 1;
-			} elsif($val eq "RS II") {
-				$vars->{SMD_SEQUENCER_PAC_RS} = 1;
-			} elsif($val eq "Sequel") {
-				$vars->{SMD_SEQUENCER_PAC_Sequel} = 1;
-			} elsif($val eq "MinTon") {
-				$vars->{SMD_SEQUENCER_NAN_MinIon} = 1;
-			}
-		}
-	} 
+	} else {
+		setSampleType("human");
+		setGender("male");
+		setHostCondition("unknown");
+	}
+}
+
+sub setSampleType {
+	my $type = shift;
+	my @types=('animal', 'environmental', 'human');
+			
+	for (my $i=0; $i<@types; $i++) {
+		my $item;
+		$item->{SMD_TYPE} = $types[$i];
+		$item->{SMD_TYPE_LABEL} = ucfirst($types[$i]);
+		$item->{SMD_TYPE_ID} = "metadata-sample-type$i";
+		if($type eq $types[$i]) {
+			$item->{SMD_TYPE_CHECKED} = "checked";
+		} 
+		push @{$vars->{LOOP_SMD_TYPES}}, $item;
+	}
+}
+
+sub setGender {
+	my $gender = shift;
+	my @genders = ('male', 'female');
+			
+	for (my $i=0; $i<@genders; $i++) {
+		my $item;
+		$item->{SMD_GENDER} = $genders[$i];
+		$item->{SMD_GENDER_LABEL} = ucfirst($genders[$i]);
+		$item->{SMD_GENDER_ID} = "metadata-host-gender$i";
+		if($gender eq $genders[$i]) {
+			$item->{SMD_GENDER_CHECKED} = "checked";
+		} 
+		push @{$vars->{LOOP_SMD_GENDERS}}, $item;
+	}
+}
+
+sub setHostCondition {
+	my $type = shift;
+	my @types=('healthy', 'diseased', 'unknown');
+			
+	for (my $i=0; $i<@types; $i++) {
+		my $item;
+		$item->{SMD_HOST_CONDITION} = $types[$i];
+		$item->{SMD_HOST_CONDITION_LABEL} = ucfirst($types[$i]);
+		$item->{SMD_HOST_CONDITION_ID} = "metadata-host-condition$i";
+		if($type eq $types[$i]) {
+			$item->{SMD_HOST_CONDITION_CHECKED} = "checked";
+		} 
+		push @{$vars->{LOOP_SMD_HOST_CONDITIONS}}, $item;
+	}
 }
 

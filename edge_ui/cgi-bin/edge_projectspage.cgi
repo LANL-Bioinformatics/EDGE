@@ -49,22 +49,24 @@ if ( $username && $password || $um_config == 0){
 	#Action buttons
 	print "<div id='edge-projpage-action' class='flex-container'>\n";
 	if ($userType =~ /admin/i){
-		print '<a href="" title="See All Projects List (admin)" class="tooltip ui-btn ui-btn-c ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">show-all</a>';
+		print '<a href="" title="See All Projects List (admin)" class="tooltip ui-btn ui-btn-d ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">show-all</a>';
 	}
-	print '<a href="" title="Force Selected Projects to rerun" class="tooltip ui-btn ui-btn-c ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all" data-role="button" >rerun</a>';
-	print '<a href="" title="Interrupt running Projects" class="tooltip ui-btn ui-btn-c ui-icon-forbidden ui-btn-icon-notext ui-corner-all" data-role="button" role="button">interrupt</a>';
-	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">remove</a>';
-	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-c ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
+	print '<a href="" title="Force Selected Projects to rerun" class="tooltip ui-btn ui-btn-d ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all" data-role="button" >rerun</a>';
+	print '<a href="" title="Interrupt running Projects" class="tooltip ui-btn ui-btn-d ui-icon-forbidden ui-btn-icon-notext ui-corner-all" data-role="button" role="button">interrupt</a>';
+	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">remove</a>';
+	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-d ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
 	if ($sys->{edgeui_archive}){
-		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
+		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
  	}
 	 if ($um_config != 0){
-		print '<a href="" title="Share Selected Projects" class="tooltip ui-btn ui-btn-c ui-icon-forward ui-btn-icon-notext ui-corner-all" data-role="button" role="button">share</a>';
-		print '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-c ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
+		print '<a href="" title="Share Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-forward ui-btn-icon-notext ui-corner-all" data-role="button" role="button">share</a>';
+		print '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-d ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
+		print '<a href="" title="Disable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-minus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">disable-project-display</a>';
+		print '<a href="" title="Enable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-plus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">enable-project-display</a>';
  	}
-	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-c ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
+	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
  	if($sys->{edge_sample_metadata}) {
- 		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-c ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
+ 		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
  	}
  	print '</div>';
 }
@@ -77,11 +79,11 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	my $list = &getUserProjFromDB("owner");
 	my $list_g = &getUserProjFromDB("guest");
 	my $list_p = &getUserProjFromDB("other_published");
-	$list = { %$list, %$list_g } if $list_g;
-	$list = { %$list, %$list_p } if $list_p;
+	$list = &ref_merger($list, $list_g) if $list_g;
+	$list = &ref_merger($list, $list_p) if $list_p;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
-	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
+	my @theads = (th(""),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
 	my $idxs = &sortList($list);
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
@@ -132,6 +134,7 @@ sub printTable {
 	{
 		my $projOwner = $list->{$_}->{OWNER};
 		my $projStatus = $list->{$_}->{PROJSTATUS};
+		my $projDisplay = $list->{$_}->{PROJDISPLAY};
 		my $projID = $list->{$_}->{PROJNAME};
 		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC}\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
 		my $projSubTime = $list->{$_}->{PROJSUBTIME};
@@ -145,8 +148,8 @@ sub printTable {
 		my @tds;
 		if ($umSystemStatus=~ /true/i){
 			$checkbox="" if (!$username && !$password);
-			if( scalar @$theads == 7 ){
-				@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
+			if( scalar @$theads == 8 ){
+				@tds = ( td($checkbox),td($projname),td($projStatus),td($projDisplay),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
 			}
 			else{
 				@tds = ( td($checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
@@ -159,8 +162,8 @@ sub printTable {
 
 	if (scalar(@idxs)<1){
 		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
-		if( scalar @$theads == 7 ){
-			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""));
+		if( scalar @$theads == 8 ){
+			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""),td(""));
 		}
 
 		push @tbodys, \@tds;
@@ -215,7 +218,7 @@ sub scanProjToList {
 
 sub getUserProjFromDB{
 	my $project_type = shift;
-	my $list;
+	my $list={};
         my %data = (
                 email => $username,
                 password => $password
@@ -255,6 +258,10 @@ sub getUserProjFromDB{
 		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
+		my $display = $hash_ref->{display}||"yes";
+		if($project_type eq "other_published") {
+			$display = "no";
+		}
 		next if ($status =~ /delete/i);
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
 		
@@ -262,6 +269,7 @@ sub getUserProjFromDB{
 		$list=&pull_summary($processlog,$id,$list);
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
+		$list->{$id}->{PROJDISPLAY} = $display;
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
@@ -400,4 +408,12 @@ sub check_um_service {
 	}else{
 		return 1;
 	}
+}
+
+sub ref_merger {
+	my ($r1, $r2) = @_;
+	foreach my $key (keys %$r2){
+		$r1->{$key} = $r2->{$key};
+	}
+	return $r1;
 }

@@ -13,11 +13,13 @@ function addHostList(){
 	});
 }
 
+target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa"
+
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
     // native widget with "-menu". Upon creation of the listview widget we want to place an
     // input field before the list to be used for a filter.
-    .on( "listviewcreate", "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa", function( event ) {
+    .on( "listviewcreate", target_menu, function( event ) {
         var input,
             list = $( event.target ),
             form = list.jqmData( "filter-form" ),
@@ -142,7 +144,7 @@ $.mobile.document
     // vertical room there is on the screen. If it shows up as a dialog, then the form containing
     // the filter input field must be transferred to the dialog so that the user can continue to
     // use it for filtering list items.
-    .on( "pagecontainerbeforeshow", function( event, data ) {
+    .on( "pagecontainerbeforeshow", target_menu, function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
         if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog" || 
@@ -161,7 +163,7 @@ $.mobile.document
         listview.before( form );
     })
     // After the dialog is closed, the form containing the filter input is returned to the popup.
-    .on( "pagecontainerhide", function( event, data ) {
+    .on( "pagecontainerhide", target_menu, function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
             listview = data.toPage.jqmData( "listview" );

@@ -6,6 +6,7 @@ use File::Basename;
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use POSIX qw{strftime};
+use JSON;
 
 my $out_dir       = $ARGV[0];
 my $html_outfile  = $ARGV[1];
@@ -31,30 +32,51 @@ eval {
 	#END
 
 	&pull_fastqCount();
+#	print STDOUT "fastqcount\n";
 	&pull_qc();
+#	print STDOUT "qc\n";
 	&pull_assy();
+#	print STDOUT "assay\n";
 	&pull_anno();
+#	print STDOUT "anno\n";
 	&pull_referenceName();
+#	print STDOUT "reference name\n";
 	&pull_readmapping_contig();
+#	print STDOUT "read mapping contig\n";
 	&pull_readmapping_ref();
+#	print STDOUT "read mapping ref\n";
 	&pull_contigmapping();
+#	print STDOUT "contig mapping\n";
 	&pull_host_rev();
+#	print STDOUT "host rev\n";
 	&pull_taxa();
+#	print STDOUT "taxa\n";
 	&pull_contig_taxa();
+#	print STDOUT "contig taxa\n";
 	&pull_snp_phylogeny();
+#	print STDOUT "snp phylogeny\n";
 	&pull_specialty_gene_profiling();
+#	print STDOUT "specialty genes\n";
 	&pull_pcr_contig_valid();
+#	print STDOUT "pcr contig valid\n";
 	&pull_pcr_ref_valid();
+#	print STDOUT "pcr ref valid\n";
 	&pull_pcr_design();
+#	print STDOUT "pcr design\n";
 	&pull_blast();
+#	print STDOUT "blast\n";
 	&pull_sra_download();
+#	print STDOUT "sra download\n";
 	&prep_jbrowse_link();
+#	print STDOUT "jbrowse link\n";
 	&checkImageReady();
+#	print STDOUT "check image ready\n";
 	&checkProjTarFile();
+#	print STDOUT "check proj tar file\n";
 };
-
+#print STDOUT "start output html \n";
 output_html();
-
+#print STDOUT "end output html\n";
 sub pull_referenceName {
 	if( -e "$out_dir/Reference/reference.fasta" ){
 		#try to parse ref name
@@ -182,7 +204,7 @@ sub check_analysis {
 	$vars->{OUT_PA_D_SW}  = 1 if -e "$out_dir/AssayCheck/PCR.design.primers.txt";
 	$vars->{OUT_AB_SW}    = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished" and -s "$out_dir/AssemblyBasedAnalysis/Blast/ContigsForBlast");
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
-	$vars->{OUT_SG_SW}    = 1 if ( -e "$out_dir/.runSpecialtyGenesProfiling.finished");
+	$vars->{OUT_SG_SW}    = 1 if (-e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" or -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" );
 	$vars->{OUT_OSG_SW}   = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
 	$vars->{OUT_RSG_SW}   = 1 if ( -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
 }
@@ -205,7 +227,7 @@ sub prep_jbrowse_link {
 sub pull_sampleMetadata {
 	my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 	my $sys          = &getSysParamFromConfig($sysconfig);
-	my $metadata = "$out_dir/sample_metadata.txt";
+	my $metadata = "$out_dir/metadata_sample.txt";
 	if($sys->{edge_sample_metadata} && -s $metadata) {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
 	}
@@ -213,9 +235,12 @@ sub pull_sampleMetadata {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
       			chomp;
-               	 	next if(/^#/);
+      			next if(/^#/);
            		if ( /(.*)=(.*)/ ){
-             			$vars->{SMD_TYPE} =$2 if ($1 eq "type");
+             			$vars->{SMD_STUDY_TITLE} =$2 if ($1 eq "study_title");
+             			$vars->{SMD_STUDY_TYPE} =$2 if ($1 eq "study_type");
+             			$vars->{SMD_NAME} =$2 if ($1 eq "sample_name");
+             			$vars->{SMD_TYPE} =$2 if ($1 eq "sample_type");
              			$vars->{OUT_SMD_GENDER} =1 if ($1 eq "gender");
              			$vars->{SMD_GENDER} =$2 if ($1 eq "gender");
              			$vars->{OUT_SMD_AGE} =1 if ($1 eq "age");
@@ -224,26 +249,75 @@ sub pull_sampleMetadata {
              			$vars->{SMD_HOST} =$2 if ($1 eq "host");
              			$vars->{OUT_SMD_HOST_CONDITION} =1 if ($1 eq "host_condition");
              			$vars->{SMD_HOST_CONDITION} =$2 if ($1 eq "host_condition");
-             			$vars->{SMD_SOURCE} =$2 if ($1 eq "source");
-             			$vars->{SMD_SOURCE_DETAIL} =$2 if ($1 eq "source_detail");
+             			$vars->{SMD_SOURCE} =$2 if ($1 eq "isolation_source");
              			$vars->{SMD_COLLECTION_DATE} =$2 if ($1 eq "collection_date");
+             			$vars->{SMD_LOCATION} =$2 if ($1 eq "location");
              			$vars->{SMD_CITY} =$2 if ($1 eq "city");
              			$vars->{SMD_STATE} =$2 if ($1 eq "state");
              			$vars->{SMD_COUNTRY} =$2 if ($1 eq "country");
              			$vars->{SMD_LAT} =$2 if ($1 eq "lat");
              			$vars->{SMD_LNG} =$2 if ($1 eq "lng");
-             			$vars->{SMD_SEQ_PLATFORM} =$2 if ($1 eq "seq_platform");
+             			$vars->{SMD_EXP_TITLE} =$2 if ($1 eq "experiment_title");
+             			$vars->{SMD_SEQ_CENTER} =$2 if ($1 eq "sequencing_center");
              			$vars->{SMD_SEQUENCER} =$2 if ($1 eq "sequencer");
-             			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "seq_date");
-             			$vars->{SMD_ID} =$2 if ($1 eq "id");
-              		}
-      		  }
+             			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "sequencing_date");
+              	}
+			}
         	close CONF;
+        	if($vars->{SMD_TYPE} eq "human") {
+				pull_travels();
+				pull_symptoms();
+			}
+
 	} else {
 		$vars->{OUT_SAMPLE_NO_METADATA}   = 1;
 	}
 }
 
+sub pull_symptoms {
+	my $symptoms = "$out_dir/metadata_symptoms.txt";
+	return unless -e $symptoms;
+	open CONF, $symptoms or die "Can't open $symptoms $!";
+        while(<CONF>){
+      		chomp;
+        	next if(/^#/);
+     		if ( /(.*)\t(.*)/ ){
+			$vars->{OUT_SMD_SYMS} =1; 
+			my $sym;
+			$sym->{SMD_SYM_CAT}=$1;
+			$sym->{SMD_SYM}=$2;
+			push @{$vars->{LOOP_SMD_SYMS}}, $sym;
+		}
+	}
+	close CONF;
+}
+
+sub pull_travels {
+	my $travels = "$out_dir/metadata_travels.txt";
+	return unless -e $travels;
+	open CONF, $travels or die "Can't open $travels $!";
+	
+	my $from;
+	my $to;
+        while(<CONF>){
+      		chomp;
+        	next if(/^#/);
+     		if ( /(.*)=(.*)/ ){
+			$vars->{OUT_SMD_TVLS} =1; 
+			if ($1 eq "travel-date-from") {
+				$from = $2;
+			} elsif ($1 eq "travel-date-to") {
+				$to = $2;
+			} elsif ($1 eq "travel-location") {
+				my $sym;
+				$sym->{SMD_TVL_DATE}="$from ~ $to";
+				$sym->{SMD_TVL_LOC}=$2;
+				push @{$vars->{LOOP_SMD_TVLS}}, $sym;
+			}
+		}
+	}
+	close CONF;
+}
 
 sub getSysParamFromConfig {
 	my $config = shift;
@@ -447,18 +521,44 @@ sub pull_host_rev {
 	close $hrfh;
 }
 
+sub sort_by_best_hit {
+    my $transRef = shift;
+    @$transRef = sort { $a->[8] cmp $b->[8] } @$transRef;
+    return $transRef;
+}
+
 sub pull_specialty_gene_profiling {
-	my $display_limit=5;
+	my $display_limit=40;
+	my $proj_realname = $vars->{PROJNAME};
 	if ($vars->{OUT_RSG_SW}){
-		my $num_input_reads = $NUM_READS_FOR_DOWNSTREAM;
+		my $num_input_reads;
+		($num_input_reads) = ($NUM_READS_FOR_DOWNSTREAM =~ m/(\d+)/);
 		$vars->{SGREADTOTAL} = $num_input_reads;
-		my $ar_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED.txt";
-		my $ar_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.txt";
-		my $vf_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.txt";
-		my $vf_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt";
+		# Support old runs
+		my ($ar_reads_output, $ar_reads_output_table, $vf_reads_output, $vf_reads_output_json, $vf_reads_output_sbhits, $vf_reads_output_table);
+		if ( -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_ShortBRED.txt") 
+		{
+
+			$ar_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_ShortBRED.txt";
+			$ar_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_ShortBRED_table.txt";
+			$vf_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED.txt";
+			$vf_reads_output_json="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED_table.json";
+			$vf_reads_output_sbhits="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_SBhits.txt";
+			$vf_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED_table.txt";
+		}
+		else 
+		{
+			$ar_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED.txt";
+			$ar_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.txt";
+			$vf_reads_output="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.txt";
+			$vf_reads_output_json="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.json";
+			$vf_reads_output_sbhits="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_SBhits.txt";
+			$vf_reads_output_table="$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt";
+		}
 		if ( -e $ar_reads_output) {
-			my $ar_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $ar_reads_output`;
+			my $ar_read_hit_num=`cat $ar_reads_output_table | wc -l`;
 			chomp $ar_read_hit_num;
+			$ar_read_hit_num --;
 			$vars->{SGRARHIT} = ($ar_read_hit_num)? $ar_read_hit_num : 0;
 		}
 		if ( -e $ar_reads_output_table) {
@@ -485,21 +585,80 @@ sub pull_specialty_gene_profiling {
 			$vars->{SGRARNOTE} = "Only top $display_limit results in terms of RPKM are listed in the table." if ($total_num>$display_limit);
 		}
 		if ( -e $vf_reads_output) {
-			my $vf_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $vf_reads_output`;
+			#my $vf_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $vf_reads_output`;
+			my $vf_read_hit_num=`awk 'BEGIN{count=0}\$2>0{count++}END{print count}'  $vf_reads_output`;
 			chomp $vf_read_hit_num;
 			$vars->{SGRVFHIT} = ($vf_read_hit_num)? $vf_read_hit_num : 0;
+		}
+		if ( -e $vf_reads_output_sbhits) {
+			my $vf_read_count=`cut -f 1 $vf_reads_output_sbhits | sort | uniq | wc -l`;
+			chomp $vf_read_count;
+			$vars->{SGRVFCOUNT} = ($vf_read_count)? $vf_read_count : 0;
+			my $vf_read_percent = ($vf_read_count/$num_input_reads)*100;
+			$vars->{SGRVFPERC} = $vf_read_percent;
+		}
+		if (-e $vf_reads_output_json){
+			my $json_text;{ local $/; open (my $jsonfh, "<", $vf_reads_output_json) or die "Cannot read json file\n"; $json_text = <$jsonfh>;close $jsonfh;}
+			my $jsondata = decode_json($json_text);
+			my ($genusCount, $classCount, $vfCount) = 0;
+			for my $class (sort keys %$jsondata){
+				my $classInfo;
+				my $vfHash = $jsondata->{$class};
+				#print STDOUT $vfHash." VFHash Class ".$class."\n";
+				for my $vf (sort keys %$vfHash){
+					my $vfInfo;
+					my $detailsArray = $vfHash->{$vf};
+					#print STDOUT $detailsArray." DetailsArray VF ".$vf."\n";
+					for my $detailsHash (sort { $a->{vfgene} cmp $b->{vfgene} } @{$detailsArray}){
+						my $detailInfo;
+						$detailInfo->{VFGENE} = $detailsHash->{vfgene};
+						my $vfnumber = $detailsHash->{vfnumber};
+						$detailInfo->{VFNUMBER} = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$vfnumber"."'>$vfnumber</a>";
+						my $vfaccession = $detailsHash->{accession};
+						$detailInfo->{VFACCESSION} = '<a href=\'http://www.ncbi.nlm.nih.gov/protein/'."$vfaccession"."'>$vfaccession</a>";
+						$detailInfo->{VFTAXID} = $detailsHash->{taxid};
+						$detailInfo->{VFSOURCE} = $detailsHash->{source};
+						$detailInfo->{VFFOUNDIN} = $detailsHash->{foundin};
+						$detailInfo->{VFGI} = $detailsHash->{gi};
+						$detailInfo->{VFVFDBINFO} = $detailsHash->{vfdbinfo};
+						$genusCount++;
+						$classCount++;
+						$vfCount++;
+						push @{$vfInfo->{LOOP_DETAIL_RES}}, $detailInfo;
+						#print STDOUT $detailInfo." DetailInfo\n";
+						#print STDOUT $detailsHash." DetailsHash Details ".$details."\n";
+						#for my $vfrow (keys $jsondata->{$genus}->{$class}->{$vf}->[$vfrowindex]){
+							#print STDOUT $vfrow."\n";
+						#}
+					} # End Details
+					$vfInfo->{VFVF_COUNT} = $vfCount;
+					$vfInfo->{VFVF} = $vf;
+					$vfCount = 0;
+					push @{$classInfo->{LOOP_VF_RES}},$vfInfo;
+				} # End VF
+				$classInfo->{VFCLASS_COUNT} = $classCount;
+				$classInfo->{VFCLASS} = $class;
+				$classCount = 0;
+				push @{$vars->{LOOP_SGRVF_CLASS_RES}}, $classInfo;					
+			} # End Class
 		}
 		if ( -e $vf_reads_output_table) {
 			my $total_num=0;
 			my $cnt=1;
+
+			$vars->{SGRVF_KRONA} = "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.krona.html";
+			
 			open (my $fh, $vf_reads_output_table) or die "Cannot read $vf_reads_output_table\n";
 			while(<$fh>){
-				next if (/^Family/);
+				next if (/^VFDB_Genus/);
 				my $vf_info;
-		#Family  Count   Hits    TotMarkerLength Property        Source  Gene Name       Locus Tag       Gene ID GI      Organism        Product Function        Classification 
+		
+		#0Family  1Count   2Hits    3TotMarkerLength Property        4Source  5Gene Name       6Locus Tag       7Gene ID 8GI      9Organism        10Product Function        11Classification 
+		#1VFGenus 2VFClass 3VF 4VFGene 5GeneraRepresented 6VFNumber 7GI 8OrganismGenus 9NewGeneAccession 10Score	
 				my @temp = split /\t/, $_;
 				if($cnt++<=$display_limit){
-					$temp[0] = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$temp[0]"."'>$temp[0]</a>";
+					$temp[5] = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$temp[5]"."'>$temp[5]</a>";
+					$temp[8] = '<a href=\'http://www.ncbi.nlm.nih.gov/protein/'."$temp[8]"."'>$temp[8]</a>";
 					for my $i (0 .. $#temp) {
 						my $idx = $i+1;
 						$vf_info->{"SGRVF$idx"}=$temp[$i];
@@ -509,33 +668,82 @@ sub pull_specialty_gene_profiling {
 				$total_num++;
 			}
 			close $fh;
-			$vars->{SGRVFNOTE} = "Only top $display_limit results in terms of RPKM are listed in the table." if ($total_num>$display_limit);
+			$vars->{SGRVFNOTE} = "Only the first $display_limit results displayed in the table." if ($total_num>$display_limit);
 		}
 	}
 	if ($vars->{OUT_OSG_SW}){
-		my $ar_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_SBhits.txt";
-		my $ar_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.txt";
-		my $vf_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_SBhits.txt";
-		my $vf_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt";
+		my ($ar_orf_output, $ar_orf_output_json, $ar_orf_output_table, $vf_orf_output, $vf_orf_output_json, $vf_orf_output_table);
+		if ( -e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_rgi.json") 
+		{
+			$ar_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_rgi.json";
+			$ar_orf_output_json="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_rgi_table.json";
+			$ar_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_AR_genes_rgi.txt";
+			$vf_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_SBhits.txt";
+			$vf_orf_output_json="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED_table.json";
+			$vf_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED_table.txt";
+		}	
+		else
+		{
+			$ar_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.json";
+			$ar_orf_output_json="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi_table.json";
+			$ar_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.txt";
+			$vf_orf_output="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_SBhits.txt";
+			$vf_orf_output_json="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.json";
+			$vf_orf_output_table="$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt";
+		}
 		if ( -e $ar_orf_output){
-			my $ar_orf_hit_num = `awk '{print \$2}' $ar_orf_output | sort | uniq | wc -l`;
+			#my $ar_orf_hit_num = `awk '{print \$2}' $ar_orf_output | sort | uniq | wc -l`;
+			my $ar_orf_hit_num = `tail -n +2 $ar_orf_output_table | wc -l`;
 			chomp $ar_orf_hit_num;
 			$vars->{SGOARHIT} = ($ar_orf_hit_num)? $ar_orf_hit_num : 0;
 		}
-		if ( -e $ar_orf_output_table) {
+		if (-e $ar_orf_output_json && $vars->{SGOARHIT} > 0 ){
+			my $json_text;{ local $/; open (my $jsonfh, "<", $ar_orf_output_json) or die "Cannot read json file\n"; $json_text = <$jsonfh>;close $jsonfh;}
+			my $jsondata = decode_json($json_text);
+			my $categoryCount = 0;
+			for my $category (sort keys %$jsondata){
+				my $categoryInfo;
+				my $detailsArray = $jsondata->{$category};
+					#print STDOUT $detailsArray." DetailsArray VF ".$vf."\n";
+					for my $detailsHash (sort { $a->{bestHitName} cmp $b->{bestHitName} } @{$detailsArray}){
+						my $detailInfo;
+						#my $detailsHash = $detailsArray->[$details];
+						$detailInfo->{ORFID} = $detailsHash->{orfID};
+						my $bestHitARO = $detailsHash->{bestHitARO};
+						my $bestHitAROName = $detailsHash->{bestHitName};
+						$detailInfo->{BESTHIT} = '<a href=\'https://card.mcmaster.ca/aro/'."$bestHitARO"."'>$bestHitAROName</a>";
+						$detailInfo->{SNPS} = $detailsHash->{snps};
+						$detailInfo->{BITSCORE} = $detailsHash->{bestBitScore};
+						$detailInfo->{PASSEVALUE} = $detailsHash->{passEvalue};
+						$detailInfo->{EVALUE} = $detailsHash->{bestHitEvalue};
+						$detailInfo->{CUTOFF} = $detailsHash->{cutOff};
+						$detailInfo->{AROCATEGORIES} = $detailsHash->{bestHitCategories};
+						$detailInfo->{OTHERHITS} = $detailsHash->{otherHits};
+						$categoryCount++;
+						push @{$categoryInfo->{LOOP_DETAIL_RES}}, $detailInfo;
+					} # End Details
+				$categoryInfo->{ARCATEGORY_COUNT} = $categoryCount;
+				$categoryInfo->{ARCATEGORY} = $category;
+				$categoryCount = 0;
+				push @{$vars->{LOOP_SGOAR_CAT_RES}}, $categoryInfo;					
+			} # End Class
+		}
+		if ( -e $ar_orf_output_table && $vars->{SGOARHIT} > 0 ) {
 			my $total_num=0;
 			my $cnt=1;
 			open (my $fh, $ar_orf_output_table) or die "Cannot read $ar_orf_output_table\n";
 			while(<$fh>){
-				next if (/^Family/);
+				next if (/^ORF_ID/);
 				my $ar_info;
 				my @temp = split /\t/, $_;
 				if($cnt++<=$display_limit){
-					$temp[0] = '<a href=\'http://ardb.cbcb.umd.edu/cgi/search.cgi?db=R&term='."$temp[0]"."'>$temp[0]</a>" if ($temp[-2] eq "ARDB");
+					#$temp[0] = '<a href=\'http://ardb.cbcb.umd.edu/cgi/search.cgi?db=R&term='."$temp[0]"."'>$temp[0]</a>" if ($temp[-2] eq "ARDB");
+					$temp[9] = '<a href=\'https://card.mcmaster.ca/aro/'."$temp[9]"."'>$temp[8]</a>";
 					for my $i (0 .. $#temp) {
 						my $idx = $i+1;
 						$ar_info->{"SGOAR$idx"}=$temp[$i];
 					}
+					#my @ar_info = sort_by_best_hit($ar_info);
 					push @{$vars->{LOOP_SGOAR}}, $ar_info;
 				}
 				$total_num++;
@@ -544,20 +752,76 @@ sub pull_specialty_gene_profiling {
 			$vars->{SGOARNOTE} = "Only top $display_limit results in terms of Count are listed in the table." if ($total_num>$display_limit);
 		}
 		if ( -e $vf_orf_output){
+			#my $vf_orf_hit_num=`awk 'BEGIN{count=0}\$2>0{count++}END{print count}'  $vf_orf_output`;
 			my $vf_orf_hit_num = `awk '{print \$2}' $vf_orf_output | sort | uniq | wc -l`;
 			chomp $vf_orf_hit_num;
+			my $vf_orf_perc = ($vf_orf_hit_num/$vars->{ANOCDS})*100;
 			$vars->{SGOVFHIT} = ($vf_orf_hit_num)? $vf_orf_hit_num : 0;
+			$vars->{SGOVFPERC} = $vf_orf_perc;
+		}
+		if (-e $vf_orf_output_json && $vars->{SGOVFHIT} > 0 ){
+			my $json_text;{ local $/; open (my $jsonfh, "<", $vf_orf_output_json) or die "Cannot read json file\n"; $json_text = <$jsonfh>;close $jsonfh;}
+			my $jsondata = decode_json($json_text);
+			my ($genusCount, $classCount, $vfCount) = 0;
+			for my $class (sort keys %$jsondata){
+				my $classInfo;
+				my $vfHash = $jsondata->{$class};
+				#print STDOUT $vfHash." VFHash Class ".$class."\n";
+				for my $vf (sort keys %$vfHash){
+					my $vfInfo;
+					my $detailsArray = $vfHash->{$vf};
+					#print STDOUT $detailsArray." DetailsArray VF ".$vf."\n";
+					for my $detailsHash (sort { $a->{vfgene} cmp $b->{vfgene} } @{$detailsArray}){
+						my $detailInfo;
+						$detailInfo->{VFGENE} = $detailsHash->{vfgene};
+						my $vfnumber = $detailsHash->{vfnumber};
+						$detailInfo->{VFNUMBER} = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$vfnumber"."'>$vfnumber</a>";
+						my $vfaccession = $detailsHash->{accession};
+						$detailInfo->{VFACCESSION} = '<a href=\'http://www.ncbi.nlm.nih.gov/protein/'."$vfaccession"."'>$vfaccession</a>";
+						$detailInfo->{VFTAXID} = $detailsHash->{taxid};
+						$detailInfo->{VFSOURCE} = $detailsHash->{source};
+						$detailInfo->{VFFOUNDIN} = $detailsHash->{foundin};
+						$detailInfo->{VFGI} = $detailsHash->{gi};
+						$detailInfo->{VFVFDBINFO} = $detailsHash->{vfdbinfo};
+						$genusCount++;
+						$classCount++;
+						$vfCount++;
+						#print $genus." ".$class." ".$vf." ".$detailInfo->{VFGENE}." ".$vfCount."\n";
+						push @{$vfInfo->{LOOP_DETAIL_RES}}, $detailInfo;
+						#print STDOUT $detailInfo." DetailInfo\n";
+						#print STDOUT $detailsHash." DetailsHash Details ".$details."\n";
+						#for my $vfrow (keys $jsondata->{$genus}->{$class}->{$vf}->[$vfrowindex]){
+							#print STDOUT $vfrow."\n";
+						#}
+					} # End Details
+					$vfInfo->{VFVF_COUNT} = $vfCount;
+					$vfInfo->{VFVF} = $vf;
+					$vfCount = 0;
+					push @{$classInfo->{LOOP_VF_RES}},$vfInfo;
+				} # End VF
+				$classInfo->{VFCLASS_COUNT} = $classCount;
+				$classInfo->{VFCLASS} = $class;
+				$classCount = 0;
+				push @{$vars->{LOOP_SGOVF_CLASS_RES}}, $classInfo;					
+			} # End Class
 		}
 		if ( -e $vf_orf_output_table) {
 			my $total_num=0;
 			my $cnt=1;
+			
+
+			$vars->{SGOVF_KRONA} = "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.krona.html";
+
+
+
 			open (my $fh, $vf_orf_output_table) or die "Cannot read $vf_orf_output_table\n";
 			while(<$fh>){
 				next if (/^Family/);
 				my $vf_info;
 				my @temp = split /\t/, $_;
 				if($cnt++<=$display_limit){
-					$temp[0] = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$temp[0]"."'>$temp[0]</a>";
+					$temp[5] = '<a href=\'http://www.mgc.ac.cn/cgi-bin/VFs/gene.cgi?GeneID='."$temp[5]"."'>$temp[5]</a>";
+					$temp[8] = '<a href=\'http://www.ncbi.nlm.nih.gov/protein/'."$temp[8]"."'>$temp[8]</a>";
 					for my $i (0 .. $#temp) {
 						my $idx = $i+1;
 						$vf_info->{"SGOVF$idx"}=$temp[$i];

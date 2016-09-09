@@ -15,10 +15,11 @@ assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils Rpackages)
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
-taxonomy_tools=( kraken metaphlan kronatools gottcha )
+taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
-all_tools=("${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
+python_packages=( Anaconda2 Anaconda3 )
+all_tools=( "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
 install_idba()
@@ -471,6 +472,24 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            gottcha-1.0b compiled
+------------------------------------------------------------------------------
+"
+}
+
+install_gottcha2()
+{
+echo "------------------------------------------------------------------------------
+                           Compiling gottcha-2.1 BETA
+------------------------------------------------------------------------------
+"
+tar xvzf gottcha2.tar.gz
+cd gottcha2
+ln -sf $PWD/gottcha.py $rootdir/bin/
+ln -sf $rootdir/database/GOTTCHA2 ./database
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           gottcha-2.1 BETA
 ------------------------------------------------------------------------------
 "
 }
@@ -966,6 +985,7 @@ echo "
 "
 }
 
+
 install_perl_cgi_session()
 {
 echo "------------------------------------------------------------------------------
@@ -981,6 +1001,58 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                          CGI-Session-4.48 Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_Anaconda2()
+{
+echo "------------------------------------------------------------------------------
+                 Installing Python Anaconda2 4.1.1
+------------------------------------------------------------------------------
+"
+if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
+    bash Anaconda2-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
+fi
+anacondabin=$rootdir/thirdParty/Anaconda2/bin/
+ln -fs $anacondabin/python $rootdir/bin
+ln -fs $anacondabin/pip $rootdir/bin
+ln -fs $anacondabin/conda $rootdir/bin
+wget -q --spider https://pypi.python.org/
+online=$?
+if [[ $online -eq 0 ]]; then
+    $anacondabin/conda install -y biopython
+    $anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3
+    $anacondabin/pip install qiime xlsx2csv
+	$anacondabin/conda install -y --channel https://conda.anaconda.org/bioconda rgi
+else
+    $anacondabin/conda install biopython-1.67-np110py27_0.tar.bz2
+    echo "Unable to connect to the internet, not able to install qiime or xlsx2csv"
+fi
+echo "
+------------------------------------------------------------------------------
+                         Python Anaconda2 4.1.1 Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_Anaconda3()
+{
+echo "------------------------------------------------------------------------------
+                 Installing Python Anaconda3 4.1.1
+------------------------------------------------------------------------------
+"
+if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
+    bash Anaconda3-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
+fi
+anacondabin=$rootdir/thirdParty/Anaconda3/bin/
+$anacondabin/pip install CairoSVG2.0.0-rc6.tar.gz
+ln -fs $anacondabin/python3 $rootdir/bin
+ln -fs $anacondabin/cairosvg $rootdir/bin
+
+echo "
+------------------------------------------------------------------------------
+                         Python Anaconda3 4.1.1 Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1078,6 +1150,11 @@ print_tools_list()
    do
 	   echo "* $i"
    done
+   echo -e "\nPython_Packages"
+   for i in "${python_packages[@]}"
+   do
+           echo "* $i"
+   done
 }
 
 
@@ -1089,26 +1166,6 @@ then
 else
   echo "csh is not found"
   echo "Please Install csh first, then INSTALL the package"
-  exit 1
-fi
-
-if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
-then 
-  #perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
-  echo -n ""
-else 
-  echo "Cannot find a perl Bioperl Module installed" 1>&2
-  echo "Please install Bioperl (http://www.bioperl.org/)"
-  exit 1
-fi
-
-if python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
-then
-  #python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
-  echo -n ""
-else
-  echo "Cannot find a python BioPython Module installed" 1>&2
-  echo "Please install Biopython (http://biopython.org/DIST/docs/install/Installation.html)"
   exit 1
 fi
 
@@ -1171,7 +1228,14 @@ then
             install_$tool
         done
         echo -e "Perl_Modules installed.\n"
-        exit 0 ;; 
+        exit 0 ;;
+      Python_Packages)
+        for tool in "${python_packages[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Python_Packages installed.\n"
+        exit 0 ;;
       force)
         for tool in "${all_tools[@]}"
         do
@@ -1179,7 +1243,7 @@ then
         done
         ;;
       *)
-        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" )
+        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" )
         then
             install_$f
         else
@@ -1198,6 +1262,29 @@ else
   echo "inkscape is not found"
  # echo "Please Install inkscape, then INSTALL the package"
  # exit 1
+fi
+
+if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
+then 
+  perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
+else 
+  echo "Cannot find a perl Bioperl Module installed" 1>&2
+  echo "Please install Bioperl (http://www.bioperl.org/)"
+  exit 1
+fi
+
+if $rootdir/bin/python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
+then
+  $rootdir/bin/python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
+else
+  install_Anaconda2
+fi
+
+if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
+then
+  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
+else
+  install_Anaconda3
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]
@@ -1718,13 +1805,15 @@ then
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bashrc
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bashrc
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/bin/Anaconda2/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 else
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bash_profile
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bash_profile
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bash_profile
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/bin/Anaconda2/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 fi
 
