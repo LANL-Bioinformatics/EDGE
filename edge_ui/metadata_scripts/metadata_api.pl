@@ -63,9 +63,22 @@ sub pushSampleMetadata {
 			}
 			#end
 
-			my $obj = new SampleMetadata($run->{'bsve_id'},'S'.$sys->{'bsve_api_key'}.$metadata->{'study_id'},$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
+			my $study_id=$metadata->{'study_id'};
+			if($study_id =~ /^\d+$/) {
+				$study_id = 'S'.$sys->{'bsve_api_key'}.$metadata->{'study_id'};
+			}
+			my $obj = new SampleMetadata($run->{'bsve_id'},$study_id,$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
 
-			my $data = $obj->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'},  $configuration->{'projrunhost'}, 'R'.$sys->{'bsve_api_key'}.$run->{'edge-run-id'});
+			my $run_id = $run->{'edge-run-id'};
+			$run_id = $configuration->{'projid'} unless $run_id;
+			my $run_host = $configuration->{'projrunhost'};
+			if($run_id =~ /^\d+$/) {
+				$run_id = 'R'.$sys->{'bsve_api_key'}.$run_id;
+			} else {
+				#SRA run
+				#$run_host = "SRA";
+			}
+			my $data = $obj->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $run_host, $run_id);
 
 			print MLG "$action sample metadata\n";
 			print MLG $data."\n" if($sys->{'bsve_api_debug'}) ;

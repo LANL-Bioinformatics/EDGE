@@ -119,21 +119,25 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa";
 
         ###sample metadata
-        $opt{"edge-metadata-sw"} = 1; 
-        $opt{'edge-sample-type'} = $ARGV[3];
-	$opt{'edge-sample-source-host'} = $ARGV[4];
-        $opt{'edge-sample-source-nonhost'} = $ARGV[4];
-        $opt{'edge-pg-collection-date'} = $ARGV[5];
-	$opt{'locality'} = $ARGV[6] if $ARGV[6] ne "NA";
-	$opt{'administrative_area_level_1'} = $ARGV[7] if $ARGV[7] ne "NA";
-	$opt{'country'} = $ARGV[8];
-	$opt{'lat'} = $ARGV[9];
-	$opt{'lng'} = $ARGV[10];
-	$opt{'edge-pg-seq-platform'} = $ARGV[11];
-	$opt{'edge-pg-sequencer-ill'} = $ARGV[12];
-	$opt{'edge-pg-sequencer-ion'} = $ARGV[12];
-	$opt{'edge-pg-sequencer-nan'} = $ARGV[12];
-	$opt{'edge-pg-sequencer-pac'} = $ARGV[12];
+	$opt{'metadata-study-id'} = $ARGV[3];
+	$opt{'metadata-study-title'} = $ARGV[4];
+        $opt{'metadata-sample-name'} = $ARGV[5];
+        $opt{'metadata-sample-type'} = $ARGV[6];
+	$opt{'metadata-host-gender'} = $ARGV[7];
+	$opt{'metadata-host'} = $ARGV[8];
+	$opt{'metadata-host-condition'} = $ARGV[9];
+	$opt{'metadata-isolation-source'} = $ARGV[10];
+	$opt{'metadata-sample-collection-date'} = $ARGV[11];
+	$opt{'metadata-sample-location'} = $ARGV[12];
+	$opt{'locality'} = $ARGV[13] if $ARGV[13] ne "NA";
+	$opt{'administrative_area_level_1'} = $ARGV[14] if $ARGV[14] ne "NA";
+	$opt{'country'} = $ARGV[15];
+	$opt{'lat'} = $ARGV[16];
+	$opt{'lng'} = $ARGV[17];
+	$opt{'metadata-exp-title'} = $ARGV[18];
+	$opt{'metadata-seq-center'} = $ARGV[19];
+	$opt{'metadata-sequencer'} = $ARGV[20];
+	$opt{'metadata-seq-date'} = $ARGV[21];
         #END
 }
 ###################
@@ -1160,7 +1164,9 @@ sub createSampleMetadataFile {
 			my $metadata_out = "$out_dir/$pname/metadata_sample.txt";
 			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_sample.txt" if ($username && $password);
 			open OUT,  ">$metadata_out";
-			my $id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"`;
+
+			my $id = $opt{'metadata-study-id'};
+			$id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"` unless $id;
 			print OUT "study_id=$id\n";
 			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
 			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
@@ -1205,12 +1211,14 @@ sub createSampleMetadataFile {
 			close OUT;
 
 			#run metadata
-			my $run_out = "$out_dir/$pname/metadata_run.txt";
-			$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
-			open ROUT,  ">$run_out";
-			$id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
-			print ROUT "edge-run-id=$id\n";
-			close ROUT;
+			if(!$batch_sra_run) {
+				my $run_out = "$out_dir/$pname/metadata_run.txt";
+				$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
+				open ROUT,  ">$run_out";
+				$id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
+				print ROUT "edge-run-id=$id\n";
+				close ROUT;
+			}
 		} 
 	}
 }

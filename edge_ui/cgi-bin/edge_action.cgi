@@ -332,7 +332,8 @@ elsif( $action eq 'rerun' ){
 			}
 		} else {
 			my $cmd = "";
-			open LOG, "$proj_dir/process.log" or die "Can't open process log:$!.";
+			my $process_log=(-e "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/process.log.bak";
+			open LOG, "$process_log" or die "Can't open process log:$!.";
 			foreach(<LOG>){
 				chomp;
 				if( /runPipeline -c / ){
