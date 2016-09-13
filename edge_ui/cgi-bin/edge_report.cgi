@@ -108,8 +108,8 @@ sub generateReport {
 		last if /<!-- \/content -->/;
 		push @htmls, $_ if $pr;
 		$pr=1 if /id='edge-content-report'/;
-
-		if( $_ =~ /Project Status: (complete|archived)/i && !$complete_report_exist ){
+		
+		if( $_ =~ /edge-output-projstatus.*(complete|archived)/i && !$complete_report_exist ){
 			`touch $projDir/HTML_Report/.complete_report_web`;
 		}
 	}

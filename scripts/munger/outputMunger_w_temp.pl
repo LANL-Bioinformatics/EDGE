@@ -646,7 +646,7 @@ sub pull_specialty_gene_profiling {
 			my $total_num=0;
 			my $cnt=1;
 
-			$vars->{SGRVF_KRONA} = "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.krona.html";
+			$vars->{SGRVF_KRONA} = "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED.krona.html";
 			
 			open (my $fh, $vf_reads_output_table) or die "Cannot read $vf_reads_output_table\n";
 			while(<$fh>){
@@ -810,7 +810,7 @@ sub pull_specialty_gene_profiling {
 			my $cnt=1;
 			
 
-			$vars->{SGOVF_KRONA} = "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.krona.html";
+			$vars->{SGOVF_KRONA} = "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes//${proj_realname}_VF_genes_ShortBRED.krona.html";
 
 
 

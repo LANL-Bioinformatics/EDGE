@@ -1135,7 +1135,7 @@
 						</table>
 						<TMPL_IF NAME=SGRARHIT>
 								<span class="li-report-content-title">Antibiotics Resistance Gene Markers</span>
-								<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+								<table id="sgrar-table" data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 									<thead>
 										<tr>
 										<th data-priority='1'>Family</th>
@@ -1155,7 +1155,7 @@
 										</TMPL_LOOP>
 									</tbody>
 								</table>
-								<p><TMPL_VAR NAME=SGRARNOTE> See<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.json'> full table.</a></p>
+								<p><TMPL_VAR NAME=SGRARNOTE> See<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/SpecialtyGenes/<TMPL_VAR NAME=PROJNAME DEFAULT=->_AR_genes_ShortBRED_table.json"> full table.</a></p>
 						</TMPL_IF> <!-- SGRARHIT -->
 						<TMPL_IF NAME=SGRVFHIT>
 							<span class="li-report-content-title">Virulence Genes</span>
