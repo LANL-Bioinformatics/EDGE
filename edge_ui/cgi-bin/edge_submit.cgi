@@ -116,7 +116,7 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 
 	$opt{'edge-assembly-sw'}=0;
 	$opt{'edge-taxa-allreads'} =1;
-	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa";
+	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-v,gottcha2-genDB-v,gottcha2-speDB-b,bwa";
 
         ###sample metadata
 	$opt{'metadata-study-id'} = $ARGV[3];
