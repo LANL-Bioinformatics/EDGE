@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+use FindBin qw($RealBin);
+use lib "$RealBin/../../lib";
 use CGI::Session qw/-ip_match/;
 use CGI::Session;
 use strict;

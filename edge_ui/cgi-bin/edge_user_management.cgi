@@ -25,17 +25,21 @@ $password ||= $ARGV[2];
 $pname[0] ||= $ARGV[3];
 $sid      ||= $ARGV[4];
 
+my $domain       = $ENV{'HTTP_HOST'};
+$domain ||= "edgeset.lanl.gov";
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
 my $edgeui_admin = $sys->{edgeui_admin};
 my $edgeui_adminpw = $sys->{edgeui_admin_password}; 
 my $um_switch	 = $sys->{user_management};
 my $um_url       = $sys->{edge_user_management_url};
 my $edge_input   = $sys->{edgeui_input};
-my $domain       = $ENV{'HTTP_HOST'};
 my $sessionValid = 0;
-$domain ||= "edgeset.lanl.gov";
 $protocol ||= "http:";
 $um_url ||= "$protocol//$domain/userManagement";
 #print Dumper (\%ENV);

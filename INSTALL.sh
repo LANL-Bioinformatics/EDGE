@@ -1021,10 +1021,13 @@ ln -fs $anacondabin/conda $rootdir/bin
 wget -q --spider https://pypi.python.org/
 online=$?
 if [[ $online -eq 0 ]]; then
-    $anacondabin/conda install -y biopython
-    $anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3
-    $anacondabin/pip install qiime xlsx2csv
+	$anacondabin/conda install -y biopython
+	$anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3 
+	$anacondabin/pip install matplotlib==1.4.3
+	$anacondabin/pip install qiime xlsx2csv openpyxl
 	$anacondabin/conda install -y --channel https://conda.anaconda.org/bioconda rgi
+	matplotlibrc=`$anacondabin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+	perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
 else
     $anacondabin/conda install biopython-1.67-np110py27_0.tar.bz2
     echo "Unable to connect to the internet, not able to install qiime or xlsx2csv"
@@ -1791,14 +1794,6 @@ cd $rootdir
 mkdir -p $rootdir/edge_ui/data
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > $rootdir/edge_ui/data/host_list.json
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
-
-# this may need sudo access
-#matplotlibrc=`python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
-#if [ -n $matplotlibrc ]
-#then 
- #  echo ""
-   #perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-#fi
 
 if [ -f $HOME/.bashrc ]
 then

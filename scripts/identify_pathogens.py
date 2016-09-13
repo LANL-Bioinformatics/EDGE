@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
 import csv
-import MySQLdb as my
+import mysql.connector as my
 import sys, getopt
 
 #read from EDGE output summary.txt file that has the format:
@@ -117,7 +117,7 @@ def main(argv):
           outfile.write("pathogen"+"\t"+"host(s)"+"\t"+"disease(s)"+"\n")
           #open database connection
           try: 
-               db = my.connect(host = host, user = user, passwd = passwd, db = db_name)
+               db = my.connect(host=host, user=user, password=passwd, database=db_name)
 
                #prepare cursor object
                cursor = db.cursor()

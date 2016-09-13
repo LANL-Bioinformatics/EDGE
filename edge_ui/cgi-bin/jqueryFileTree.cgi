@@ -21,6 +21,9 @@ use HTML::Entities ();
 # read system params from sys.properties
 my $config_tmpl = "$RealBin/../sys.properties";
 my $sys         = &getSysParamFromConfig($config_tmpl);
+my $domain      = $ENV{'HTTP_HOST'};
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
 my $root        = $sys->{edgeui_input};
 
 #----------------------------------------------------------

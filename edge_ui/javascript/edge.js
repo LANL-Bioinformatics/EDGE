@@ -1670,7 +1670,7 @@ $( document ).ready(function()
 										showWarning('Metadata of projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been shared with BSVE.');
 									} else {
 									//END sample metadata
-										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
+										showWarning( 'The ' + action + ' action on project(s) is complete.' + '<ul>' + projnames.join('\n') + '</ul>');
 									}
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
 								});
