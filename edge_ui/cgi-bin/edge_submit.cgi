@@ -1110,7 +1110,7 @@ sub open_file
 ##sample metadata
 sub createSampleMetadataFile {
 	foreach my $pname (@pnames){
-		if ( $sys->{edge_sample_metadata}){
+		if ( $sys->{edge_sample_metadata} && ($opt{'metadata-study-title'} || $opt{'metadata-sample-name'} || $opt{'metadata-exp-title'})){
 			#travels
 			my $travel_out = "$out_dir/$pname/metadata_travels.txt";
 			$travel_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_travels.txt" if ($username && $password);
