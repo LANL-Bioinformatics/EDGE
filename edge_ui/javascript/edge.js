@@ -1845,7 +1845,7 @@ $( document ).ready(function()
 				focusProjInfo   = obj.INFO;
 				focusProjName   = obj.INFO.NAME;
 				focusProjRealName   = obj.INFO.PROJNAME || obj.INFO.NAME;
-				focusProjConfigFile = "EDGE_output/" + (obj.INFO.PROJCODE || obj.INFO.PROJNAME) + "/config.json";
+				focusProjConfigFile = obj.INFO.PROJCONFIG;
 				focusProjLogFile    = obj.INFO.PROJLOG;
 				focusProjStatus = obj.INFO.STATUS;
 				focusProjTime   = obj.INFO.TIME;

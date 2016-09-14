@@ -172,7 +172,8 @@ if( scalar @projlist ){
 		my $sjson    = "$proj_dir/.run.complete.status.json";
 		my $current_log      = "$proj_dir/process_current.log";
 		my $config   = "$proj_dir/config.txt";
-
+		my $config_json = "$proj_dir/config.json";
+		($list->{$i}->{PROJCONFIG} = $config_json) =~ s/$www_root// if ($i == $idx);
 		#remove project from list if output directory has been removed	
 		unless( -e $log || -e $config){
 			delete $list->{$i};
@@ -232,10 +233,11 @@ if( scalar @projlist ){
 	$info->{INFO}->{NAME}   = $list->{$idx}->{NAME};
 	$info->{INFO}->{PROJNAME}   = $list->{$idx}->{PROJNAME}; 
 	$info->{INFO}->{PROJCODE}   = $list->{$idx}->{PROJCODE};
-	$info->{INFO}->{PROJLOG} = $list->{$idx}->{PROJLOG};;
+	$info->{INFO}->{PROJLOG} = $list->{$idx}->{PROJLOG};
 	$info->{INFO}->{STATUS} = $list->{$idx}->{STATUS};
 	$info->{INFO}->{TIME}   = strftime "%F %X", localtime;
 	$info->{INFO}->{PROJTYPE} = $list->{$idx}->{PROJTYPE} if ($list->{$idx}->{PROJTYPE});
+	$info->{INFO}->{PROJCONFIG} = $list->{$idx}->{PROJCONFIG} if ($list->{$idx}->{PROJCONFIG});
 
 	## sample metadata
 	$info->{INFO}->{SHOWMETA}   = $list->{$idx}->{SHOWMETA} if ($list->{$idx}->{SHOWMETA});
