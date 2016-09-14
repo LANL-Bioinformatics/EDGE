@@ -3355,6 +3355,8 @@ sub writeJBrowseInfo
     my $abs_outDir = Cwd::abs_path("$outDir");
     my $outputDir = "$abs_outDir/JBrowse";
     my $log="$outputDir/log.txt";
+    my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
+    my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
     `mkdir -p $outputDir`;
     if ($noColorLog)
     {
@@ -3378,7 +3380,10 @@ sub writeJBrowseInfo
     $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
     $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
     $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
+    $cmd .= "--in-orf-ar-gff3 '$ARGenesGFF' " if ( -e "$ARGenesGFF");
+    $cmd .= "--in-orf-vf-gff3 '$VFGenesGFF' " if ( -e "$VFGenesGFF");
     $cmd .= "--proj_outdir '$abs_outDir' 2>\&1 1>$log";
+
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
     &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
