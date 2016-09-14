@@ -810,7 +810,7 @@ sub pull_specialty_gene_profiling {
 			my $cnt=1;
 			
 
-			$vars->{SGOVF_KRONA} = "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes//${proj_realname}_VF_genes_ShortBRED.krona.html";
+			$vars->{SGOVF_KRONA} = "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/${proj_realname}_VF_genes_ShortBRED.krona.html";
 
 
 

@@ -1082,11 +1082,10 @@ $( document ).ready(function()
 						var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 						window.open(edge_path + data.PATH);
 					}
+					if( action == 'rename'){
+						$( "#edge-output-projname").text(rename_project);
+					}
 				}
-				else if( action == 'rename'){
-					$( "#edge_integrity_dialog_header" ).text("Message");
-					showWarning(data.INFO);
-				} 
 				else{
 					showWarning(data.INFO);
 				}
@@ -1172,7 +1171,6 @@ $( document ).ready(function()
 				$( "#edge-content-report" ).find("img").lazyLoadXT();
 				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
 				$( "#edge-content-report" ).enhanceWithin();
-
 				//for progress bar in report
 				if( $("#edge-output-projstatus").text() == "Running" ){
 					var progress_bar = $( '<div id="progressbar-block"><input type="range" id="progressbar" data-highlight="true" min="0" max="100" value="0"><div class="overlay"></div><span id="progressbar-val">Loading...</span></div>' )
@@ -1670,7 +1668,7 @@ $( document ).ready(function()
 										showWarning('Metadata of projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been shared with BSVE.');
 									} else {
 									//END sample metadata
-										showWarning( 'The ' + action + ' action on project(s) is complete.' + '<ul>' + projnames.join('\n') + '</ul>');
+										showWarning( 'The ' + action + ' action on project(s) is      complete.' + '<ul>' + projnames.join('\n') + '</ul>');
 									}
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
 								});

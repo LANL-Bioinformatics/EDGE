@@ -1209,16 +1209,16 @@ sub createSampleMetadataFile {
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
 			close OUT;
+		} 
 
-			#run metadata
-			if(!$batch_sra_run) {
-				my $run_out = "$out_dir/$pname/metadata_run.txt";
-				$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
-				open ROUT,  ">$run_out";
-				$id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
-				print ROUT "edge-run-id=$id\n";
-				close ROUT;
-			}
+		#run metadata
+		if(!$batch_sra_run) {
+			my $run_out = "$out_dir/$pname/metadata_run.txt";
+			$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
+			open ROUT,  ">$run_out";
+			my $id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
+			print ROUT "edge-run-id=$id\n";
+			close ROUT;
 		} 
 	}
 }

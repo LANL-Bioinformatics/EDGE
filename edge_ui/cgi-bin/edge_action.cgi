@@ -152,7 +152,15 @@ if ( $umSystemStatus )
 	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
 
 if ($action eq 'rename' ){
-	renameProject();
+	renameProject($new_proj_name,$new_proj_desc);
+	#edgeDB: update run name
+	my $runFile = "$proj_dir/metadata_run.txt";
+	if(-e $runFile) {
+		my $runId = `grep -a "edge-run-id=" $runFile | awk -F'=' '{print \$2}'`;
+		chomp $runId;
+		`perl edge_db.cgi run-update "$runId" "$new_proj_name"`;
+	}
+	#edgeDB
 }
 
 if( $action eq 'empty' ){
@@ -244,6 +252,15 @@ elsif( $action eq 'delete' ){
 				}
 			}
 		}
+	
+		#edgeDB: delete run name
+		my $runFile = "$proj_dir/metadata_run.txt";
+		if(-e $runFile) {
+			my $runId = `grep -a "edge-run-id=" $runFile | awk -F'=' '{print \$2}'`;
+			chomp $runId;
+			`perl edge_db.cgi run-delete "$runId" "$new_proj_name"`;
+		}
+		#edgeDB
 	
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"delete");
@@ -802,43 +819,61 @@ sub getProjNameFromDB{
 }
 
 sub renameProject{
-	my $project_name = $new_proj_name;
-	my $project_description = $new_proj_desc;
+	my $project_name = shift;
+	my $project_description = shift;
+	$project_description =~ s/(['"])/\\$1/g;
 	my $pnameID = $pname;
 	#adjust txt files. (config.txt and process.log )
 	my $config_file = $proj_dir."/config.txt";
-	tie my @array, 'Tie::File', $config_file or die;
+	my $process_log = $proj_dir."/process.log";
+	my $config_json = $proj_dir."/config.json";
+	#tie my @array, 'Tie::File', $config_file or die;
+	if ($umSystemStatus){
+		my %data = (
+			email => $username,
+			password => $password,
+			project_id => $pnameID,
+			new_project_name => $project_name, 
+			new_description => $project_description,
+		);
 
-	my %data = (
-		email => $username,
-		password => $password,
-		project_id => $pnameID,
-		new_project_name => $project_name, 
-		new_description => $project_description,
-	);
-
-	#Encode the data structure to JSON
-	#        #interacts with the java api to access the sql DB tables
-	my $data = to_json(\%data);
-	#w Set the request parameters
-	my $url = $um_url ."WS/project/update";
-	my $browser = LWP::UserAgent->new;
-	my $req = PUT $url;
-	$req->header('Content-Type' => 'application/json');
-	$req->header('Accept' => 'application/json');
-	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
-	$req->header( "Content-Length" => length($data) );
-	$req->content($data);
-	
-	my $response = $browser->request($req);
-        my $result_json = $response->decoded_content;
-        my $result =  from_json($result_json);
-     	
-	if ($result->{status})
-        {
-        	$info->{STATUS} = "SUCCESS";
-                $info->{INFO} .= " Project has been ${action}d to $project_name.";
-        }
+		#Encode the data structure to JSON
+		##interacts with the java api to access the sql DB tables
+		my $data = to_json(\%data);
+		#w Set the request parameters
+		my $url = $um_url ."WS/project/update";
+		my $browser = LWP::UserAgent->new;
+		my $req = PUT $url;
+		$req->header('Content-Type' => 'application/json');
+		$req->header('Accept' => 'application/json');
+		#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+		$req->header( "Content-Length" => length($data) );
+		$req->content($data);
+		my $response = $browser->request($req);
+		my $result_json = $response->decoded_content;
+		my $result =  from_json($result_json);
+		if ($result->{status})
+		{
+			$info->{STATUS} = "SUCCESS";
+			$info->{INFO} .= " Project has been ${action}d to $project_name.";
+		}
+	}else{
+		if ( -d "$out_dir/$project_name"){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO} .= " Project name is used.";
+		}else{
+			`mv $proj_dir $out_dir/$project_name`;
+			$info->{STATUS} = "SUCCESS";
+			$info->{INFO} .= " Project has been ${action}d to $project_name.";
+			$proj_dir = "$out_dir/$project_name";
+		}
+	}
+	if ($info->{STATUS} eq "SUCCESS"){
+     		system("sed -i.bak 's/projname=[[:graph:]]*/projname=$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $config_file") if ( -e $config_file); 
+     		system("sed -i.bak 's/$real_name/$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $process_log") if ( -e $process_log);
+		system("sed -i.bak 's/edge-proj-name\" : \"[[:graph:]]*\"/edge-proj-name\" : \"$project_name\"/; s/edge-proj-desc\" : \"[[:graph:]]*\"/edge-proj-desc\" : \"$project_description\"/;' $config_json") if ( -e $config_json);
+		unlink "$proj_dir/HTML_Report/.complete_report_web";
+	}
 }		
 
 sub updateDBProjectStatus{

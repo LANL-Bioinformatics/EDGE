@@ -10,6 +10,7 @@ my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $action = $opt{'action'}|| $ARGV[0];
 my $name = $opt{'name'} || $ARGV[1];
+my $newName = $opt{'new-name'} || $ARGV[2];
 my $sampleType = $opt{'sample-type'} || $ARGV[2];
 my $proj = $opt{'proj'};
 
@@ -351,6 +352,20 @@ if ($action eq "study-list"){
 	$stmt->execute($name);
 	$stmt->finish();
 	$out = $dbh->{mysql_insertid}
+} elsif($action eq "run-delete") {
+	# insert data into the links table
+	$sql = "delete from runs where id=?";
+	 
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute($name);
+	$stmt->finish();
+} elsif($action eq "run-update") {
+	# insert data into the links table
+	$sql = "update runs set name='$newName' where id=?";
+	 
+	$stmt = $dbh->prepare($sql);
+	$stmt->execute($name);
+	$stmt->finish();
 } 
 
 # disconnect from the MySQL database
