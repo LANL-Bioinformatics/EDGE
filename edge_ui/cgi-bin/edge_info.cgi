@@ -440,7 +440,7 @@ sub scanNewProjToList {
 		$cnt++;
 		if (-r "$config"){
 			$list->{$cnt}->{NAME} = $file ;
-			$list->{$cnt}->{TIME} =  strftime "%F %X",localtime((stat("$config"))[10]); 
+			$list->{$cnt}->{TIME} =  strftime "%F %X",localtime((stat("$config"))[9]); 
 			$list->{$cnt}->{STATUS} = "running" if $name2pid->{$file};
 			if ( -r "$processLog"){
 				open (my $fh, $processLog);

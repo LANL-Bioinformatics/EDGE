@@ -65,7 +65,7 @@ if ( $username && $password || $um_config == 0){
 		print '<a href="" title="Enable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-plus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">enable-project-display</a>';
  	}
 	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
- 	if($sys->{edge_sample_metadata}) {
+ 	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
  		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
  	}
  	print '</div>';
@@ -79,8 +79,8 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	my $list = &getUserProjFromDB("owner");
 	my $list_g = &getUserProjFromDB("guest");
 	my $list_p = &getUserProjFromDB("other_published");
-	$list = &ref_merger($list, $list_g) if $list_g;
 	$list = &ref_merger($list, $list_p) if $list_p;
+	$list = &ref_merger($list, $list_g) if $list_g;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
 	my @theads = (th(""),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
