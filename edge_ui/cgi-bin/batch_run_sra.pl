@@ -128,7 +128,7 @@ while(<$fh>){
 
 	chdir $RealBin;
 	$cmd = "$RealBin/edge_submit.cgi \"$projname\" \"$sra_id\" \"$projdesc\"";
-	$cmd .= " \"$study_id\" \"$study\" \"$sampleName\" \"$sampleType\" \"$gender\" \"$host\" \"$hostCondition\" \"$source\" \"$collectionDate\" \"$location\" \"$city\" \"$state\" \"$country\" \"$lat\" \"$lng\" \"$experiment\" \"$center\" \"$instrument\" \"$seqDate\"";
+	$cmd .= " \"$study_id\" \"$study\" \"$sampleName\" \"$sampleType\" \"$gender\" \"$host\" \"$hostCondition\" \"$source\" \"$collectionDate\" \"$location\" \"$city\" \"$state\" \"$country\" \"$lat\" \"$lng\" \"$experiment\" \"$center\" \"$instrument\" \"$seqDate\" 7";
 	#print $cmd,"\n";
 	system($cmd);
 }

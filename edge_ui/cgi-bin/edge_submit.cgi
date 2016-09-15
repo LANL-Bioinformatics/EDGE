@@ -138,6 +138,8 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'metadata-seq-center'} = $ARGV[19];
 	$opt{'metadata-sequencer'} = $ARGV[20];
 	$opt{'metadata-seq-date'} = $ARGV[21];
+	$num_cpu=$ARGV[22];
+	$opt{"edge-proj-cpu"}=$num_cpu;
         #END
 }
 ###################
