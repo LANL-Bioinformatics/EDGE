@@ -73,7 +73,7 @@ if ( $username && $password || $um_config == 0){
 
 #print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
 #print "<form id='edge-projpage-form'>\n";
-
+my $head_checkbox="<input type='checkbox' id='edge-projpage-ckall'>";
 if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
 	# My Table
 	my $list = &getUserProjFromDB("owner");
@@ -83,7 +83,7 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	$list = &ref_merger($list, $list_g) if $list_g;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
-	my @theads = (th(""),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
 	my $idxs = &sortList($list);
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
@@ -92,14 +92,14 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 	# show admin list or published project
 	my $list =  &getUserProjFromDB();
 	my $idxs = &sortList($list);
-	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }elsif ($um_config == 0) {
 	# all projects in the EDGE_output
 	my $list= &scanProjToList();
 	my $idxs = &sortList($list);
-	my @theads = (th(""),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
 	my $table_id = "edge-project-page-table";
 	&printTable($table_id,$idxs,$list,\@theads);
 }
