@@ -64,7 +64,7 @@ while(<STDIN>)
     $taxa->{$out} += $fields[1];
 }
 
-foreach my $lineage ( sort {$taxa->{$b}<=>$taxa->{$a}} keys %$taxa ){
+foreach my $lineage ( sort {$a cmp $b} keys %$taxa ){
 	next if $taxa->{$lineage} < $cutoff;
     print $taxa->{$lineage}."\t".$lineage."\n";
 }
