@@ -87,6 +87,8 @@ my $edge_qiime_input_dir = $opt{"edge-qiime-reads-dir-input"};
 my @edge_qiime_barcode_input;
 my @edge_phylo_ref_input;
 my @edge_ref_input;
+my $edge_ref_genome_file_max = $sys->{edge_ref_genome_file_max} || 20;
+my $edge_phylo_genome_file_max = $sys->{edge_phylo_genome_file_max} || 20;
 my $projlist;
 my @pnames;
 
@@ -138,8 +140,6 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'metadata-seq-center'} = $ARGV[19];
 	$opt{'metadata-sequencer'} = $ARGV[20];
 	$opt{'metadata-seq-date'} = $ARGV[21];
-	$num_cpu=$ARGV[22];
-	$opt{"edge-proj-cpu"}=$num_cpu;
         #END
 }
 ###################
@@ -399,10 +399,10 @@ sub createConfig {
 
 			if ($opt{"edge-phylo-sw"})
 			{
-				my @snpPhylo_refs;
-				map { push @snpPhylo_refs, $_} split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
-				$opt{"edge-phylo-ref-list"} = join ",",@snpPhylo_refs if @snpPhylo_refs;
-				$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
+				#my @snpPhylo_refs;
+				#map { push @snpPhylo_refs, $_} split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
+				#$opt{"edge-phylo-ref-list"} = join ",",@snpPhylo_refs if @snpPhylo_refs;
+				#$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
 			}
 	   
 			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g if $opt{"edge-taxa-sw"};
@@ -878,7 +878,7 @@ sub checkParams {
 			@edge_ref_input = split /[\x0]/, $opt{"edge-ref-file"} if defined $opt{"edge-ref-file"};
 			for my $i (0..$#edge_ref_input){
 				$edge_ref_input[$i] = $input_dir."/".$edge_ref_input[$i] if ($edge_ref_input[$i]=~ /^\w/);
-				my $id = 'edge-ref-file'. ($i + 1);
+				my $id = 'edge-ref-file-'. ($i + 1);
 				&addMessage("PARAMS",$id,"Invalid input. Fasta or Genbank format required") if ( -e $edge_ref_input[$i] && ! is_fasta($edge_ref_input[$i]) && ! is_genbank($edge_ref_input[$i]));
 			}
 			$num_selected += scalar(@edge_ref_input);
@@ -888,8 +888,8 @@ sub checkParams {
 		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
 		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
 		
-		if (defined $sys->{edge_ref_genome_file_max} && $num_selected > $sys->{edge_ref_genome_file_max}){
-			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $sys->{edge_ref_genome_file_max}");
+		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
+			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
 		}
 		
 	}
@@ -964,17 +964,30 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-blast-nr", "NR Database directory not found. Please check the path.") unless ( defined $opt{'edge-blast-nr'} && -d "$opt{'edge-blast-nr'}" ); 
 	}
 	if ( $opt{"edge-phylo-sw"} ){
+		my (@snpPhylo_selected_refs,$num_selected);
 		&addMessage("PARAMS", "edge-phylo-patho", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
 		&addMessage("PARAMS", "edge-phylo-ref-select", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
 		&addMessage("PARAMS", "edge-phylo-patho", "You have both input types. Please select either from precomputed SNPdb OR form Genomes list.") if ( $opt{'edge-phylo-patho'} && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file'}));
+		@snpPhylo_selected_refs =  split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
+		@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file"} if defined $opt{"edge-phylo-ref-file"};
+		$opt{"edge-phylo-ref-list"} = join ",",@snpPhylo_selected_refs if @snpPhylo_selected_refs;
+		$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
+		$num_selected = scalar(@snpPhylo_selected_refs) + scalar(@edge_phylo_ref_input);
 		if ($opt{"edge-phylo-ref-file"}){
-			@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file"} if defined $opt{"edge-phylo-ref-file"};
 			for my $i (0..$#edge_phylo_ref_input){
 				$edge_phylo_ref_input[$i] = $input_dir."/".$edge_phylo_ref_input[$i] if ($edge_phylo_ref_input[$i]=~ /^\w/);
-				my $id = 'edge-phylo-ref-file'. ($i + 1);
+				my $id = 'edge-phylo-ref-file-'. ($i + 1);
 				&addMessage("PARAMS",$id,"Invalid input. Fasta format required") if ( -e $edge_phylo_ref_input[$i] && ! is_fasta($edge_phylo_ref_input[$i]) );
 			}
 		}
+		if ($edge_phylo_genome_file_max && $num_selected > $edge_phylo_genome_file_max){
+                        &addMessage("PARAMS","edge-phylo-ref-select","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if defined $opt{"edge-phylo-ref-select"};
+                        &addMessage("PARAMS","edge-phylo-ref-file-1","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if (defined $opt{"edge-phylo-ref-file"});
+                }
+		if ($num_selected < 3){
+                        &addMessage("PARAMS","edge-phylo-ref-select","Please select/add at least three genomes") if defined $opt{"edge-phylo-ref-select"};
+                        &addMessage("PARAMS","edge-phylo-ref-file-1","Please select/add at least three genomes") if (defined $opt{"edge-phylo-ref-file"});
+                }
 	}
 	if ($pipeline eq "qiime"){
 		$opt{"edge-qiime-sw"} =1;
