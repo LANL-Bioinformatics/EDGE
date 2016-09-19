@@ -154,7 +154,7 @@ if( scalar @projlist ){
 	#  3. lastest project
 	$idx= ($pname)? (grep $list->{$_}->{NAME} eq $pname, @projlist)[0] : $projlist[0];
 	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} =~ /unstarted|interrupted|in process/ and $list->{$_}->{NAME} ne $pname } @projlist;
-	$idx = unshift @running_idxs if (scalar(@running_idxs) && !$pname);
+	$idx = shift @running_idxs if (scalar(@running_idxs) && !$pname);
 	$idx = $projlist[0] if (!$idx); # when given $pname does not exist.
 	@projlist = ($idx,@running_idxs); # update running projects and focus project program info.
 	
