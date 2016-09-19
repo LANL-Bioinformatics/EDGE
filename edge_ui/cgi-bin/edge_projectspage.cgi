@@ -65,6 +65,9 @@ if ( $username && $password || $um_config == 0){
 		print '<a href="" title="Enable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-plus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">enable-project-display</a>';
  	}
 	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
+ 	if($sys->{edge_sample_metadata}) {
+ 		print '<a href="" title="Export Selected Projects Metadata" class="tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-export</a>';
+ 	}
  	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
  		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
  	}
@@ -413,6 +416,9 @@ sub check_um_service {
 sub ref_merger {
 	my ($r1, $r2) = @_;
 	foreach my $key (keys %$r2){
+		if($r1->{$key}) {
+			$r2->{$key}->{PROJ_TYPE} .= ",public";
+		}
 		$r1->{$key} = $r2->{$key};
 	}
 	return $r1;

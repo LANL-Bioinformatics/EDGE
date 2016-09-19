@@ -106,7 +106,7 @@ if ( ($memUsage > 99 or $cpuUsage > 99) and $action ne 'interrupt' and !$cluster
 my $real_name = $pname;
 my $projCode;
 my $projStatus;
-my @projCodes = split /,/,$opt{proj} if ($action eq 'compare');
+my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export');
 my $user_proj_dir = "$input_dir/tmp";
 if ( $umSystemStatus )
 {
@@ -121,7 +121,7 @@ if ( $umSystemStatus )
 	
 	$list = &getUserProjFromDB("owner");
 
-	($real_name,$projCode,$projStatus)= &getProjNameFromDB($pname) if ($action ne 'compare');
+	($real_name,$projCode,$projStatus)= &getProjNameFromDB($pname) if ($action ne 'compare' && $action ne 'metadata-export');
 	
 	$user_proj_dir = "$input_dir/". md5_hex($username)."/MyProjects/$real_name"."_".$pname;
 	#separate permission for future uses. A permission module can be added potentially..
@@ -143,7 +143,7 @@ if ( $umSystemStatus )
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
-	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare');
+	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export');
 	if (!$real_name){
 		$info->{INFO} = "ERROR: No project with ID $pname.";
 		&returnStatus();
@@ -679,6 +679,24 @@ elsif( $action eq 'compare'){
 	}
 
 } 
+elsif( $action eq 'metadata-export'){
+	my $metadata_out_dir = "$out_dir/sample_metadata_export/". md5_hex(join ('',@projCodes));
+	unlink $metadata_out_dir;
+	(my $relative_outdir=$metadata_out_dir) =~ s/$www_root//;
+	my $metadata_out = "$metadata_out_dir/edge_sample_metadata.xlsx";
+
+	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
+	$info->{PATH} = $metadata_out;
+	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
+
+	`$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl -um $umSystemStatus -out $metadata_out -projects $projects`;
+
+	if( !-e "$metadata_out" ){
+		$info->{INFO} = "Error: failed to export sample metadata to .xlsx file";
+	}else{
+		$info->{STATUS} = "SUCCESS";
+	}
+}
 #END sample metadata
 elsif($action eq 'define-gap-depth'){
 	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;

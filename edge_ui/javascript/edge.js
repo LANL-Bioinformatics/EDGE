@@ -1633,7 +1633,7 @@ $( document ).ready(function()
 						var projids=[];
 						$('[name="edge-projpage-ckb"]:checked').each(function( event ) {
 							projnames.push("<li>"+$(this).closest('td').next('td').find('.edge-project-page-link').text()+"</li>");
-							if ( action === 'compare'){
+							if ( action === 'compare' || action === 'metadata-export'){
 								projids.push($(this).val());
 							}else{
 								projids.push($(this).closest('td').next('td').find('.edge-project-page-link').attr('data-pid'));
@@ -1647,7 +1647,7 @@ $( document ).ready(function()
 							setUserList(action,focusProjCodes);
 						}
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-							if ( action === "compare" ){
+							if ( action === "compare" || action === 'metadata-export'){
 								actionConfirm(action,focusProjCodes);
 							}else{
 								var actionRequest=[];
