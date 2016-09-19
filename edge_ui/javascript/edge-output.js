@@ -237,11 +237,6 @@ $( document ).ready(function()
 		$('.edge-compare-output').hide();
 		$('.edge-compare-'+ rank).show();
 	});
-	$('#edge-compare-summary-table').find('a').each(function(){
-		var projId=$(this).attr('data-pid');
-		var url = location.origin + "/edge_ui/?proj=" + projId;
-		$(this).attr('href',url);
-	});
 	$(".edge-compare-output a[data-ajax='false']").each(function(){
 		var url=$(this).attr('data-src');
 		$(this).attr('href',url);

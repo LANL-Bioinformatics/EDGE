@@ -50,7 +50,7 @@
 			  <tbody>
 			  	<TMPL_LOOP NAME=LOOP_PROJSUMMARY>
 				<tr>
-				  <td title="Desc: <TMPL_VAR NAME=PROJDESC DEFAULT=->"><a data-ajax='false' href="#" data-pid=<TMPL_VAR NAME=PROJID DEFAULT=->><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+				  <td title="Desc: <TMPL_VAR NAME=PROJDESC DEFAULT=->"><a data-ajax='false' href="<TMPL_VAR NAME=RUNHOST>/?proj=<TMPL_VAR NAME=PROJID DEFAULT=->"><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 				  <td><TMPL_VAR NAME=INPUTREADSNUM DEFAULT=-></td>
 				  <td><TMPL_VAR NAME=INPUTREADSBASE DEFAULT=-></td>
 				  <td><TMPL_VAR NAME=INPUTMRL DEFAULT=-></td>

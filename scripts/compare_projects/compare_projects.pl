@@ -18,6 +18,7 @@ my $html_outfile;
 my $project_dir_names;
 my $tax_tools;
 my $mode;
+my $runhost;
 my $usage = qq{
 Usage: $0
 	Required
@@ -26,6 +27,7 @@ Usage: $0
 
 	Optional:
 		-html_outfile    compare_project.html
+		-html_host	 the project host uri
 		-tax_tools       taxanomy_classification tools, separated by comma
 		-help            show this help
 };
@@ -35,6 +37,7 @@ GetOptions(
 		"html_outfile=s"   =>  \$html_outfile,
 		"projects=s"       =>  \$project_dir_names,
 		"tax_tools=s"      =>  \$tax_tools,
+		"html_host=s"      =>  \$runhost,
 		"version"          => sub{print "Version: $version\n";exit;},
 		"help|?"           => sub{print "$usage\n";exit;} 
 	);
@@ -50,6 +53,7 @@ my $vars;
 
 my $rel_out_dir=  ($out_dir =~ /^$edge_www\/(.*)$/)? $1:$out_dir;
 $vars->{OUTPUTDIR} = $rel_out_dir;
+$vars->{RUNHOST} = $runhost;
 
 `mkdir -p $out_dir`;
 &check_analysis();

@@ -65,7 +65,7 @@ my $input_dir   = $sys->{edgeui_input};
 my $www_root	= $sys->{edgeui_wwwroot};
 my $um_url      = $sys->{edge_user_management_url};
 my $keep_days	= $sys->{edgeui_proj_store_days};
-$domain       ||= "edgeset.lanl.gov";
+my $runhost	= $sys->{"edge-proj-runhost"} || "$protocol//$domain";
 $um_url	      ||= "$protocol//$domain/userManagement";
 $out_dir      ||= "/tmp"; #for security
 $umSystemStatus ||= $sys->{user_management} if (! @ARGV);
@@ -558,7 +558,7 @@ elsif( $action eq 'share' || $action eq 'unshare' ){
 	&shareProject($pname,$proj_dir,$shareEmail,$action);
 	my $owner = $list->{$pname}->{OWNER};
 	if ($action eq 'share'){
-    		my $msg = "$owner has shared EDGE project $real_name to you. You can login to $protocol//$domain/edge_ui/ and see the project. Or click link below.\n\n $protocol//$domain/edge_ui/?proj=$projCode\n";
+    		my $msg = "$owner has shared EDGE project $real_name to you. You can login to $runhost and see the project. Or click link below.\n\n $runhost/?proj=$projCode\n";
 		my $subject = "EDGE project $real_name";
 		&sendMail($username,$shareEmail,$subject,$msg);
 	}
@@ -582,11 +582,11 @@ elsif( $action eq 'compare'){
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
 	(my $relative_outdir=$compare_out_dir) =~ s/$www_root//;
 	$info->{PATH} = "$relative_outdir/compare_project.html";
-	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/compare_project.html\'>here</a>";
+	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/compare_project.html\'>here</a>";
 	if ( -s "$compare_out_dir/compare_project.html"){
 		$info->{STATUS} = "SUCCESS";
 	}else{
-		my $cmd = "$EDGE_HOME/scripts/compare_projects/compare_projects.pl -out_dir $compare_out_dir -projects $projects";
+		my $cmd = "$EDGE_HOME/scripts/compare_projects/compare_projects.pl -html_host $runhost -out_dir $compare_out_dir -projects $projects";
 		my $pid = open COMPARE, "-|", $cmd or die $!;
 		close COMPARE;
 		$pid++;
@@ -612,7 +612,7 @@ elsif( $action eq 'compare'){
 	`mkdir -p $blast_out_dir`;
 	(my $relative_outdir=$blast_out_dir) =~ s/$www_root//;
 	$info->{PATH} = "$relative_outdir/$contig_id.blastNT.html";
-	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
+	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
 	if ( -s "$blast_out_dir/$contig_id.blastNT.html"){
 		$info->{STATUS} = "SUCCESS";
 	}else{
@@ -687,7 +687,7 @@ elsif( $action eq 'metadata-export'){
 
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
 	$info->{PATH} = $metadata_out;
-	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
+	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
 
 	`$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl -um $umSystemStatus -out $metadata_out -projects $projects`;
 
