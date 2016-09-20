@@ -10,11 +10,13 @@
 	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
 	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
 	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/jquery-ui-datepicker.css" />
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
 	<link rel='stylesheet' href='css/tooltipster.css'/>
 	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery-ui-datepicker.js"></script>
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/edge-metadata.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -194,7 +196,7 @@
 				        	
 						<div class="ui-field-contain">
 							<label for="metadata-sample-collection-date">Collection Date</label>
-							<input type="date" data-mini="true" data-clear-btn="false" name="metadata-sample-collection-date" id="metadata-sample-collection-date" maxlength="30"  value="<TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=>" class="metadata-input">
+							<input type="text" data-role="date" data-mini="true" data-clear-btn="false" name="metadata-sample-collection-date" id="metadata-sample-collection-date" maxlength="30"  value="<TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=>"  class="metadata-input metadata-input-date">
 						</div>
 
 						<!-- geo autocomplete -->
@@ -275,7 +277,7 @@
 
 						<div class="ui-field-contain">
 							<label for="metadata-seq-date">Sequencing Date</label>
-							<input type="date" data-mini="true" data-clear-btn="false" name="metadata-seq-date" id="metadata-seq-date" maxlength="30" value="<TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=>" class="metadata-input">
+							<input type="text" data-role="date" data-mini="true" data-clear-btn="false" name="metadata-seq-date" id="metadata-seq-date" maxlength="30" value="<TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=>"  class="metadata-input metadata-input-date">
 						</div>
 					</div>
 				</div>

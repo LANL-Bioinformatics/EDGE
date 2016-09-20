@@ -2387,11 +2387,11 @@ $( document ).ready(function()
 								
 		dom += '<div class="ui-field-contain">';
 		dom += '<label>From</label>';
-		dom += '<input type="date" data-mini="true" data-clear-btn="false" name="metadata-travel-date-f" id="metadata-travel-date-f-'+travels+'" maxlength="30">';
+		dom += '<input data-role="date" type="text" data-mini="true" data-clear-btn="false" name="metadata-travel-date-f" id="metadata-travel-date-f-'+travels+'" maxlength="30" class="metadata-travel-date">';
 		dom += '</div>';
 		dom += '<div class="ui-field-contain">';
 		dom += '<label>To</label>';
-		dom += '<input type="date" data-mini="true" data-clear-btn="false" name="metadata-travel-date-t" id="metadata-travel-date-t-'+travels+'" maxlength="30">';
+		dom += '<input data-role="date" type="text" data-mini="true" data-clear-btn="false" name="metadata-travel-date-t" id="metadata-travel-date-t-'+travels+'" maxlength="30" class="metadata-travel-date">';
 		dom += '</div>';
 		dom += '<div id="metadata-travel-geo-'+travels+'">';
 		dom += '<div class="ui-field-contain">';
@@ -2478,6 +2478,12 @@ $( document ).ready(function()
 		$(this).geocomplete({
 		  details: "#metadata-travels #metadata-travel-geo-10"
 		});
+	});
+	$('#metadata-travels').on('focus','.metadata-travel-date',function() {
+		$(this).datepicker({
+		      changeMonth: true,
+		      changeYear: true
+	    	});
 	});
 
 	//sample type change
@@ -2710,6 +2716,12 @@ $( document ).ready(function()
 		$(this).geocomplete({
 		  details: "#edgesite-geo"
 		});
+	});
+
+	//datepicker
+	$('.metadata-input-date').datepicker({
+		changeMonth: true,
+		changeYear: true
 	});
 
 //functions

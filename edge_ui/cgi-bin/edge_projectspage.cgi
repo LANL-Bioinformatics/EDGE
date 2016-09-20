@@ -53,7 +53,7 @@ if ( $username && $password || $um_config == 0){
 	}
 	print '<a href="" title="Force Selected Projects to rerun" class="tooltip ui-btn ui-btn-d ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all" data-role="button" >rerun</a>';
 	print '<a href="" title="Interrupt running Projects" class="tooltip ui-btn ui-btn-d ui-icon-forbidden ui-btn-icon-notext ui-corner-all" data-role="button" role="button">interrupt</a>';
-	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">remove</a>';
+	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">delete</a>';
 	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-d ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
 	if ($sys->{edgeui_archive}){
 		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
