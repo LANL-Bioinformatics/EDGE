@@ -276,7 +276,7 @@ if ($action eq "study-list"){
 					$out .= '</div>';
 					$out .= '<div class="ui-field-contain">';
 					$out .= '<label></label>';
-					$out .= '<input name="lng" id="metadata-travel-lng-'.$travels.'" data-mini="true" data-clear-btn="false" type="text" placeholder="Longitude" value="'.$lat.'">';
+					$out .= '<input name="lng" id="metadata-travel-lng-'.$travels.'" data-mini="true" data-clear-btn="false" type="text" placeholder="Longitude" value="'.$lng.'">';
 					$out .= '</div>';
 					$out .= '</div>';
 					$out .= '<br><br>';
