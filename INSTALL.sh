@@ -240,7 +240,7 @@ echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.p
 # need internet for following R packages.
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='http://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
 echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('http://bioconductor.org/biocLite.R'); biocLite('phyloseq')} " | $rootdir/bin/Rscript -
-echo "library(devtools); install_github('seninp-bioinfo/MetaComp');" | $rootdir/bin/Rscript -
+echo "library(devtools); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.1');" | $rootdir/bin/Rscript -
 echo "
 ------------------------------------------------------------------------------
                            R packages installed
