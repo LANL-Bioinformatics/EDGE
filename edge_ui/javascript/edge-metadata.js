@@ -210,7 +210,8 @@ $( document ).ready(function()
 	$('#metadata-travels').on('focus','.metadata-travel-date',function() {
 		$(this).datepicker({
 		      changeMonth: true,
-		      changeYear: true
+		      changeYear: true,
+		      dateFormat: 'yy-mm-dd'
 	    	});
 	});
 
@@ -247,7 +248,8 @@ $( document ).ready(function()
 	//datepicker
 	$('.metadata-input-date').datepicker({
 		changeMonth: true,
-		changeYear: true
+		changeYear: true,
+		dateFormat: 'yy-mm-dd'
 	});
 
 	//study-title auto complete
