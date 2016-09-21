@@ -274,7 +274,7 @@ sub getUserProjFromDB{
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
 		$list->{$id}->{PROJDISPLAY} = $display;
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
-		$list->{$id}->{PROCODE} = $projCode;
+		$list->{$id}->{PROJCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{PROJ_TYPE} = $hash_ref->{type};
