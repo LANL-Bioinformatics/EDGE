@@ -2245,6 +2245,10 @@ $( document ).ready(function()
 	function setRunEdge() {
 		allMainPage.hide();
 		pipeline="EDGE";
+		toggle_input_fields("enable");
+		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
+		$('#edge-form-submit').closest('.ui-btn').show();
+		$('#edge-form-reset').closest('.ui-btn').show();
 		$("#edge-submit-info" ).children().remove();
 		$("#edge-file-input-block").children().show();
 		$(".btnAdd-edge-input").children().show();
@@ -2270,7 +2274,7 @@ $( document ).ready(function()
 		$.getJSON( focusProjConfigFile, function( data ) {
 			//loading pipeline
 			if( data['pipeline'] == "EDGE" ){
-				$( "a[href=#edge-content-pipeline]" ).click();
+				setRunEdge();
 				toggle_input_fields( "reconfig" );
 				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
 				$('#edge-form-submit').closest('.ui-btn').hide();
