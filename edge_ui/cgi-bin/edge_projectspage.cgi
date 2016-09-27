@@ -209,8 +209,13 @@ sub scanProjToList {
 		next if $file eq '.' or $file eq '..';
 		if ( -d "$out_dir/$file" && -r "$out_dir/$file/process.log"  ) {
 			++$cnt;
-			$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list);
-			$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list) if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
+			if ( -e "$out_dir/$file/.AllDone"){
+				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
+			}else
+			{
+				$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file");
+				$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
+			}
 			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
 			$list->{$cnt}->{PROJNAME} = $file;
 		}
@@ -267,9 +272,13 @@ sub getUserProjFromDB{
 		}
 		next if ($status =~ /delete/i);
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
-		
-		my $processlog=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode/process.log":"$out_dir/$id/process.log";
-		$list=&pull_summary($processlog,$id,$list);
+		my $proj_dir=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode":"$out_dir/$id";
+		my $processlog = "$proj_dir/process.log";
+		if ( $status eq "finished" && -e "$proj_dir/.AllDone"){
+			$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
+		}else{
+			$list=&pull_summary($processlog,$id,$list,$proj_dir);
+		}
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
 		$list->{$id}->{PROJDISPLAY} = $display;
@@ -282,51 +291,46 @@ sub getUserProjFromDB{
 	return $list;
 }
 
-
+sub get_start_run_time{
+	my $log = shift;
+	my $id = shift;
+	my $list = shift;
+	my $tol_running_sec=0;
+	my ($start_time, $run_time);
+	open (my $log_fh, $log) or die "Cannot read $log\n";
+	while(<$log_fh>){
+		chomp;
+		($start_time, $run_time) = split /\t/,$_;
+		$list->{$id}->{PROJSUBTIME} = $start_time if ($start_time);
+		if ($run_time =~ /(\d+):(\d+):(\d+)/ ){
+                        $tol_running_sec += $1*3600+$2*60+$3;
+		}
+	}
+	my ($yyyy,$mm,$dd,$hms) = $list->{$id}->{PROJSUBTIME} =~ /(\d{4}) (\w{3})\s+(\d+)\s+(.*)/;
+	$list->{$id}->{TIME} = "$yyyy-$mm-$dd $hms";
+	$list->{$id}->{RUNTIME} = sprintf("%02d:%02d:%02d", int($tol_running_sec / 3600), int(($tol_running_sec % 3600) / 60), int($tol_running_sec % 60));
+	close $log_fh;
+	return $list;
+}
 sub pull_summary {
 	my $log = shift;
 	my $cnt= shift;
 	my $list = shift;
+	my $proj_dir =shift;
 	my @INFILES;
 	
 	my ($step,$lastline);
 	my $tol_running_sec=0;
-
+	my $run_time;
 	open(my $sumfh, "<", "$log") or die $!;
 	while(<$sumfh>) {
 		chomp;
-		#parse input files
-		if( /runPipeline/ ) {
-			undef @INFILES;	
-		}
-		if( /runPipeline .*-p (.*) -\w/ || /runPipeline .*-p (.*) >/ || /runPipeline .*-p (.*)$/) {
-			push @INFILES, split /\s+/,$1;
-		}
-		if(/runPipeline .*-u (.*) -\w/ || /runPipeline .*-u (.*) >/ || /runPipeline .*-u (.*)$/){
-			push @INFILES, split /\s+/,$1;
-		}
-
-		#parse reference files
-		if( /runPipeline .*-ref (\S+)/){
-			$list->{$cnt}->{REFFILE} = $1;
-		}
-		elsif( /^reference=(\S+)/ ){
-			 $list->{$cnt}->{REFFILE} = $1;
-		}
 
 		if( /Total Running time: (\d+):(\d+):(\d+)/){
+			$run_time = $_;
 			$list->{$cnt}->{LASTRUNTIME} = "$1h $2m $3s";
 			next;
 		}
-		elsif( /^Host=(.*)/ ){
-			$list->{$cnt}->{HOSTFILE} = $1;
-			next;
-		}
-		elsif( /^SNPdbName=(.*)/ ){
-			$list->{$cnt}->{SPDB} = $1;
-			next;
-		}
-
 		if( /^\[(.*)\]/ ){
 			$step = $1;
 			if( $step eq "project" or $step eq "system"){
@@ -400,6 +404,10 @@ sub pull_summary {
 	$list->{$cnt}->{TIME} ||= strftime "%F %X", localtime;
 	
 	close ($sumfh);
+	if ($list->{$cnt}->{PROJSTATUS} eq "Complete" && ! -e "$proj_dir/.AllDone"){
+		`echo -e "$list->{$cnt}->{PROJSUBTIME}\t$run_time" >> $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
+	}
+	unlink "$proj_dir/.AllDone" unless ($list->{$cnt}->{PROJSTATUS} eq "Complete");
 	return $list;
 }
 

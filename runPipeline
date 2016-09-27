@@ -87,6 +87,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
+unlink "$abs_outDir/.AllDone";
 
 # Capture error log
 my $start_time_string=&getTmpNameByTime;
@@ -259,7 +260,7 @@ if ($configuration->{DoAssembly} and $contigFile )
     {
         ($annotationGFF,$annotationFAA,$annotationFNA)=&runAnnotation($contig_for_annotation_file,$tax_kingdom,$annotateProgram,$project_name);
         #phagefinder if Bacteria
-        &phageFinder($annotationGFF,$annotationFAA,$annotationFNA) if ($tax_kingdom ne "Viruses");
+        &phageFinder($annotationGFF,$annotationFAA,$annotationFNA) if ($tax_kingdom ne "Viruses" and $configuration->{DoProPhageDetection});
     }
 
 }
@@ -318,11 +319,12 @@ if($sys->{edge_sample_metadata_autosubmit2bsve}) {
 
 &lprint ("Total");
 
-&printRunTime($^T);
+my $total_run_time=&printRunTime($^T);
 
 &lprint ("All Done. \n\n");
 
 close $log_fh;
+`echo -e "$start_time_string\t$total_run_time" > $abs_outDir/.AllDone`;
 
 my $mail_subject= "EDGE project $project_name complete";
 my $recipient = $configuration->{projowner};
@@ -3346,6 +3348,7 @@ sub printRunTime {
   my $time_string = sprintf(" Running time: %02d:%02d:%02d\n\n", int($runTime / 3600), int(($runTime % 3600) / 60), 
   int($runTime % 60));
   &lprint ($time_string);
+  return $time_string;
 }
 
 sub writeJBrowseInfo
