@@ -1,8 +1,9 @@
+#!/usr/bin/env python 
 # -*- coding: utf-8 -*-
-#!/usr/bin/python
 import csv
 import mysql.connector as my
 import sys, getopt
+import codecs
 
 #read from EDGE output summary.txt file that has the format:
 #DATASET TOOL    LEVEL   TOP1    TOP2    TOP3    TOP4    TOP5
@@ -113,17 +114,17 @@ def main(argv):
           taxa = btaxa+vtaxa
           #print "line 112 all taxa = ", taxa
           #open output file for writing
-          outfile = open(outfile_name, 'w')
+          outfile = codecs.open(outfile_name, 'w',encoding='utf8')
           outfile.write("pathogen"+"\t"+"host(s)"+"\t"+"disease(s)"+"\n")
           #open database connection
           try: 
-               db = my.connect(host=host, user=user, password=passwd, database=db_name)
-
-               #prepare cursor object
-               cursor = db.cursor()
+               db = my.connect(host=host, user=user, password=passwd, database=db_name,buffered=True)
 
                #for each strain in list, query pathogen database and if found and if host is human, write pathogen name, host and disease info to tab delimited file
                for i in taxa:
+                    #prepare cursor object
+                    cursor = db.cursor()
+
                     #print "line 124 taxa line = ", i
                     #if the line contains weird characters, such as '/', remove those characters
                     if '/' in i:
@@ -137,65 +138,77 @@ def main(argv):
                     else:
                          species = "none"
                     #print "genus, species:", genus, species
-                    cursor.execute("""SELECT id FROM pathogen WHERE genome_name = %s""", (i,))
-                    if cursor.fetchone() is None:
+                    query=("SELECT id FROM pathogen WHERE genome_name = %s LIMIT 0, 1")
+                    cursor.execute(query, (i,))
+	            row = cursor.fetchone()
+                    if row is None:
                          print "no entry in pathogen table with exact pathogen name: ", i
                          #try to find genus, species in database
-                         cursor.execute("""SELECT id FROM pathogen WHERE genus = %s AND species = %s""", (genus,species,))
-                         if cursor.fetchone() is None:
+                         query=("SELECT id FROM pathogen " "WHERE genus = %s AND species = %s LIMIT 0, 1")
+                         cursor.execute(query, (genus,species,))
+			 row = cursor.fetchone()
+                         if row is None:
                               print "no entry in pathogen table with genus and species: ", genus, species
                               #lastly try to find genus only
-                              cursor.execute("""SELECT id FROM pathogen WHERE genus = %s""", genus)
-                              if cursor.fetchone() is None:
+   	                      cursor.execute("""SELECT id FROM pathogen WHERE genus = %s LIMIT 0, 1""", (genus,))
+                              row = cursor.fetchone()
+                              if row is None:
                                    print "no entry in pathogen table with genus: ", genus
                               else: #found genus so grab pathogen name, host and disease, check if host includes human 
                                    #and if so write to file
                                    #print "line 147 genus = ", genus
-                                   cursor.execute("""SELECT id FROM pathogen WHERE genus = %s""", genus)
-                                   path_PK = cursor.fetchone()[0]
+                                   #cursor.execute("""SELECT id FROM pathogen WHERE genus = %s""", (genus,))
+                                   path_PK = row[0]
                                    #print "pathogen id = ", path_PK
-                                   cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id""", path_PK,)
+                                   cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
                                    #grab data from cursor
                                    pdata = cursor.fetchone()
                                    pathogen_name =  pdata[0]
                                    host =  pdata[4]
                                    disease =  pdata[6]
+				   cursor.close()
                                    #write to file
                                    if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
                                         outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
+
                          else: #found genus and species so grab pathogen name, host and disease, check if host includes 
                          #human and if so write to file
                               #print "line 160 genus and species are ", genus, species
-                              cursor.execute("""SELECT id FROM pathogen WHERE genus = %s AND species = %s""", (genus,species,))
-                              path_PK = cursor.fetchone()[0]
+                              #cursor.execute("""SELECT id FROM pathogen WHERE genus = %s AND species = %s""", (genus,species,))
+                              #path_PK = cursor.fetchone()[0]
+                              path_PK = row[0]
                               #print "line 169 pathogen id = ", path_PK
-                              cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id""", path_PK,)
+                              cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
                               pdata = cursor.fetchone()
                               #print "line 172 pdata = ", pdata
                               pathogen_name =  pdata[0]
                               #print "line 170 pathogen name = ", pathogen_name
                               host =  pdata[4]
                               disease =  pdata[6]
+			      cursor.close()
                               #write to file
                               if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
                                    outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
                     else: #found entire pathogen name so grab pathogen name, host and disease, check if host includes human and if so write to file
                          #print "line 177 pathogen name = ", pathogen_name
-                         cursor.execute("""SELECT id FROM pathogen WHERE genome_name = %s""", (i,))
-                         path_PK = cursor.fetchone()[0]
-                         cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id""", path_PK,)
+                         #cursor.execute("""SELECT id FROM pathogen WHERE genome_name = %s""", (i,))
+                         #path_PK = cursor.fetchone()[0]
+                         path_PK = row[0]
+                         cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
                          pdata = cursor.fetchone()
                          pathogen_name =  pdata[0]
                          host =  pdata[4]
                          disease =  pdata[6]
+			 cursor.close()
                          #write to file
                          if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
                               outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
           except my.Error as e:
                print >> sys.stderr, "MySQL error: ", e
           except:
-               print >> sys.stderr, "Unknown error occurred"
+               print >> sys.stderr, "Unknown error occurred" 
           outfile.close()
+          db.close()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
