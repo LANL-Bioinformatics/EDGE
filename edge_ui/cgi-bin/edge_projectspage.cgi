@@ -307,6 +307,10 @@ sub get_start_run_time{
 		}
 	}
 	my ($yyyy,$mm,$dd,$hms) = $list->{$id}->{PROJSUBTIME} =~ /(\d{4}) (\w{3})\s+(\d+)\s+(.*)/;
+	my %mon2num = qw(jan 1  feb 2  mar 3  apr 4  may 5  jun 6  jul 7  aug 8  sep 9  oct 10 nov 11 dec 12);
+	$mm = $mon2num{ lc substr($mm, 0, 3) };
+	$mm = sprintf "%02d", $mm;
+	$dd = sprintf "%02d", $dd;
 	$list->{$id}->{TIME} = "$yyyy-$mm-$dd $hms";
 	$list->{$id}->{RUNTIME} = sprintf("%02d:%02d:%02d", int($tol_running_sec / 3600), int(($tol_running_sec % 3600) / 60), int($tol_running_sec % 60));
 	close $log_fh;
