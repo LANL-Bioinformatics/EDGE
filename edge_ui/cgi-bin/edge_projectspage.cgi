@@ -211,6 +211,7 @@ sub scanProjToList {
 			++$cnt;
 			if ( -e "$out_dir/$file/.AllDone"){
 				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
+				$list->{$cnt}->{PROJSTATUS} = "Complete";
 			}else
 			{
 				$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file");
@@ -303,6 +304,7 @@ sub get_start_run_time{
 		($start_time, $run_time) = split /\t/,$_;
 		$list->{$id}->{PROJSUBTIME} = $start_time if ($start_time);
 		if ($run_time =~ /(\d+):(\d+):(\d+)/ ){
+			$list->{$id}->{LASTRUNTIME} = "$1h $2m $3s";
                         $tol_running_sec += $1*3600+$2*60+$3;
 		}
 	}
@@ -409,7 +411,7 @@ sub pull_summary {
 	
 	close ($sumfh);
 	if ($list->{$cnt}->{PROJSTATUS} eq "Complete" && ! -e "$proj_dir/.AllDone"){
-		`echo -e "$list->{$cnt}->{PROJSUBTIME}\t$run_time" >> $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
+		`echo "$list->{$cnt}->{PROJSUBTIME}\t$run_time" >> $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
 	}
 	unlink "$proj_dir/.AllDone" unless ($list->{$cnt}->{PROJSTATUS} eq "Complete");
 	return $list;

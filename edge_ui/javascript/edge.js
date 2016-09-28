@@ -1847,7 +1847,7 @@ $( document ).ready(function()
 				focusProjInfo   = obj.INFO;
 				focusProjName   = obj.INFO.NAME;
 				focusProjRealName   = obj.INFO.PROJNAME || obj.INFO.NAME;
-				focusProjConfigFile = obj.INFO.PROJCONFIG;
+				focusProjConfigFile = '.' + obj.INFO.PROJCONFIG;
 				focusProjLogFile    = obj.INFO.PROJLOG;
 				focusProjStatus = obj.INFO.STATUS;
 				focusProjTime   = obj.INFO.TIME;

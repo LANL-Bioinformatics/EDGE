@@ -324,7 +324,7 @@ my $total_run_time=&printRunTime($^T);
 &lprint ("All Done. \n\n");
 
 close $log_fh;
-`echo -e "$start_time_string\t$total_run_time" > $abs_outDir/.AllDone`;
+`echo "$start_time_string\t$total_run_time" > $abs_outDir/.AllDone`;
 
 my $mail_subject= "EDGE project $project_name complete";
 my $recipient = $configuration->{projowner};
