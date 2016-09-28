@@ -93,6 +93,7 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 
 }elsif ($umSystemStatus=~ /true/i) {
 	# show admin list or published project
+	$head_checkbox="" if (!$username && !$password);
 	my $list =  &getUserProjFromDB();
 	my $idxs = &sortList($list);
 	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
