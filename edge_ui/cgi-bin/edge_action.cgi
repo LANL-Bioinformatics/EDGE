@@ -199,7 +199,7 @@ if( $action eq 'empty' ){
 			}
 		}
 		closedir(BIN);
-
+		&updateDBProjectStatus($pname,"unstarted") if ($username && $password);
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO} = "Project output has been emptied.";
 	}
@@ -298,6 +298,7 @@ elsif( $action eq 'interrupt' ){
 		if($cluster) {
 			$invalid = clusterDeleteJob($pid);
 			if( !$invalid ){
+				&updateDBProjectStatus($pname,"interrupted") if ($username && $password);
 				`echo "\n*** [$time] EDGE_UI: This project has been interrupted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 				$info->{STATUS} = "SUCCESS";
 				$info->{INFO}   = "The cluster job (JOB ID: $pid) has been stopped.";
@@ -305,6 +306,7 @@ elsif( $action eq 'interrupt' ){
 		} else {
 			$invalid = &killProcess($pid);
 			if( !$invalid  || $projStatus eq "unstarted"){
+				&updateDBProjectStatus($pname,"interrupted") if ($username && $password);
 				`echo "\n*** [$time] EDGE_UI: This project has been interrupted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 				$info->{STATUS} = "SUCCESS";
 				$info->{INFO}   = "The process (PID: $pid) has been stopped.";

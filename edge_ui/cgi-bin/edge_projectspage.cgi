@@ -268,6 +268,7 @@ sub getUserProjFromDB{
 		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
+		my $created_time = $hash_ref->{created};
 		my $display = $hash_ref->{display}||"yes";
 		if($project_type eq "other_published") {
 			$display = "no";
@@ -276,8 +277,13 @@ sub getUserProjFromDB{
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
 		my $proj_dir=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode":"$out_dir/$id";
 		my $processlog = "$proj_dir/process.log";
-		if ( $status eq "finished" && -e "$proj_dir/.AllDone"){
+		if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
 			$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
+			$status=($status =~ /finished/i)?"Complete":"Archived";
+		}elsif( $status =~ /unstarted/i){
+			$list->{$id}->{PROJSUBTIME}=$created_time;
+			$list->{$id}->{RUNTIME}="";
+			$status="Unstarted";
 		}else{
 			$list=&pull_summary($processlog,$id,$list,$proj_dir);
 		}

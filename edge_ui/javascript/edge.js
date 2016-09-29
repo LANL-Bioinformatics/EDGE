@@ -1089,12 +1089,14 @@ $( document ).ready(function()
 				else{
 					showWarning(data.INFO);
 				}
-				if (action != 'compare'){
+				if (action != 'compare' && !request){
 					updateProject(focusProjName);
 				}
-				
+				if ( $( "#edge-content-report" ).is(":visible")  && !request && action != 'delete'){
+					 updateReport(focusProjName);
+				}
 				//reload project list if project list page is loaded
-				if( $("#edge-project-page").is(":visible") ){
+				if( $("#edge-project-page").is(":visible") && !request){
 					updateProjectsPage( $("#edge-project-page-li").data( "mode") );
 				}
 			},
@@ -1670,6 +1672,7 @@ $( document ).ready(function()
 									//END sample metadata
 										showWarning( 'The ' + action + ' action on project(s) is      complete.' + '<ul>' + projnames.join('\n') + '</ul>');
 									}
+									updateProjectsPage( $("#edge-project-page-li").data( "mode") );
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
 								});
 							}
