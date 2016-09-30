@@ -239,7 +239,7 @@ echo "--------------------------------------------------------------------------
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript -  
 # need internet for following R packages.
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='http://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
-echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('http://bioconductor.org/biocLite.R');biocLite('phyloseq')} " | $rootdir/bin/Rscript -e -
+echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('http://bioconductor.org/biocLite.R');biocLite('phyloseq')} " | $rootdir/bin/Rscript -
 echo "library(devtools); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.1');" | $rootdir/bin/Rscript -
 echo "
 ------------------------------------------------------------------------------
