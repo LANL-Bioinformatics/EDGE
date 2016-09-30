@@ -11,7 +11,7 @@
 
 use strict;
 use Getopt::Long;
-use Cwd;
+use Cwd qw(getcwd abs_path);
 use File::Basename;
 use POSIX qw(strftime);
 use FindBin qw($RealBin);
@@ -24,8 +24,10 @@ my $version=0.4;
 my $Qiime_version="v1.9.1";
 my $debug=0;
 
+my $working_dir = getcwd;
+my $EDGE_HOME = abs_path("$working_dir/../../");
 # set up environments
-$ENV{PATH}= "/opt/apps/anaconda/bin:/scratch-218819/apps/anaconda2/bin:$RealBin/scripts/:$ENV{PATH}";
+$ENV{PATH}= "$EDGE_HOME/thirdParty/Anaconda2/bin:/scratch-218819/apps/anaconda2/bin:$RealBin/scripts/:$ENV{PATH}";
 
 sub Usage {
 	my $msg=shift;
