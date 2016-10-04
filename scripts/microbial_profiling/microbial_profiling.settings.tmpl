@@ -45,7 +45,7 @@ HEATMAP_DISPLAY_TOP=60
 
 <TMPL_IF NAME="gottcha-genDB-b">
 [gottcha-genDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.genus
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus
 TRIM_MINQ=20
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -53,31 +53,50 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-genDB-v">
 [gottcha-genDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.genus
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus
 TRIM_MINQ=20
 TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha2-genDB-v">
+[gottcha2-genDB-v]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.genus.fna
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
 <TMPL_IF NAME="gottcha-speDB-b">
 [gottcha-speDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.species 
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species 
 TRIM_MINQ=20
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
+<TMPL_IF NAME="gottcha2-speDB-b">
+[gottcha2-speDB-b]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d RefSeq-Release75.Bacteria.species.fna
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+
 <TMPL_IF NAME="gottcha-speDB-v">
 [gottcha-speDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.species
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species
 TRIM_MINQ=20
 TRIM_FIXL=30
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha2-speDB-v">
+[gottcha2-speDB-v]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
 <TMPL_IF NAME="gottcha-strDB-b">
 [gottcha-strDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Bacteria/GOTTCHA_BACTERIA_c3514_k24_u24_xHUMAN3x.strain
+COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain
 TRIM_MINQ=20
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -85,7 +104,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-strDB-v">
 [gottcha-strDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d Viruses/GOTTCHA_VIRUS_c5632_k24_u30.strain
+COMMAND=uge-gottcha.sh -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain
 TRIM_MINQ=20
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%

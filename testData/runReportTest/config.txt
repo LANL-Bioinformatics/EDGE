@@ -8,7 +8,7 @@ projdesc=Ecoli 10x test data Readss Taxonomy
 projid=
 projcode=
 projowner=
-projrReads=
+projrunhost=
 
 [Download Fastq]
 DoFastqDownload=auto
@@ -91,7 +91,7 @@ r2g_extract_unmapped=0
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoTaxonomy=1
+DoReadsTaxonomy=1
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=1
 #enabledTools=gottcha-genDB-b,bwa

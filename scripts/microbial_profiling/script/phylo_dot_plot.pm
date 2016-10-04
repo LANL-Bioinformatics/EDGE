@@ -42,6 +42,7 @@ my $tipwidth1;    # width of longest label among $t1 taxa
 my $compact;      # whether or not to ignore branch lengths
 my $ratio;        # horizontal to vertical ratio
 my $type;         # clado or phylo
+my $title;        # title
 
 my $std_size   = 16; # standard font size for initial
 my $std_branch = 20; # standard font size for initial
@@ -71,6 +72,7 @@ my $cnt_circle_max_r = 20;
            -compact => ignore branch lengths [boolean] (optional)
            -ratio => horizontal to vertical ratio [integer] (optional)
            -branch => stem length [integer] (optinal)
+           -title => title of the plot [string] (optional)
 
 =cut
 
@@ -80,12 +82,12 @@ sub new {
 	my $self = $class->SUPER::new(@args);
 	(
 		$t1,      $type,     $font, $size,    my $top, my $bottom,
-		my $left, my $right, $tip,  $compact, $ratio,  my $branch, my $scale, $cnt_scale_mode
+		my $left, my $right, $tip,  $compact, $ratio,  my $branch, my $scale, $cnt_scale_mode, $title
 	  )
 	  = $self->_rearrange(
 		[
 			qw(TREE TYPE FONT SIZE TOP BOTTOM 
-			    LEFT RIGHT TIP COMPACT RATIO BRANCH SCALE MODE)
+			    LEFT RIGHT TIP COMPACT RATIO BRANCH SCALE MODE TITLE)
 		],
 		@args
 	  );
@@ -103,11 +105,12 @@ sub new {
 	$scale   ||= "max";
 	$cnt_scale_mode ||= "normal";
 	$xoffset_from_root = 1;
+	$title	 ||= "";
 
 	# Roughly, a cladogram is set according to the following parameters.
 
 	#################################
-	#                           # T #   $top (T, top margin)
+	# title                     # T #   $top (T, top margin)
 	#        +---------+ XXX    #   #   $bottom (B, bottom margin)
 	#        |                  #   #   $left (L, left margin)
 	#        |                  #   #   $right (R, right margin)
@@ -284,6 +287,9 @@ sub print {
 	]]>
 </style>
 <g id="viewport" class="tree">';
+
+		# add title
+		$content .= "<text x='5' y='20'>$title</text>" if ($title);
 
 	  # call $root1->each_Descendent to avoid root node
 	  # because $root do not have ancestor, it will make wannings in __svghelper

@@ -115,9 +115,10 @@ div#popupUser a {
 }
 /* logo */
 .edge-logo {
-	width: 50%;
+	width: 25%;
     margin: 0 auto;
 	position: relative;
+	float: left;
 }
 .edge-logo img {
 	width:36px;
@@ -128,6 +129,13 @@ div#popupUser a {
       /*  height: 30px; */
 	float: right;
         width: auto;
+}
+
+.edge-project-header {
+	margin: auto;
+}
+.edge-project-title {
+	margin: 0
 }
 
 /* tooltip */
@@ -151,13 +159,14 @@ div#popupUser a {
 	font-size: 1.2em;
 }
 
-/* dialog */
-#edge-input-toggle {
-	color: #777;
+.edge-additional-options-toggle {
+	color: #777 !important;
 	font-size: 0.9em;
-	font-weight: 300;
+	font-weight: 300 !important;
 	text-decoration: none;
 }
+
+/* dialog */
 .edge-dialog{
 	width:90%;
 }
@@ -231,6 +240,15 @@ pre code {
 	margin: 1em 1em .75em;
 	float:left;
 }
+
+#scroll-up-btn {
+	position: fixed;
+	right: 1em;
+	bottom:4em;
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
 .ui-field-contain {
 	border-bottom-width: 0px;
 }
@@ -243,6 +261,13 @@ pre code {
 
 .edge-navmenu-panel .ui-btn:hover::after {
 	opacity: .4;
+}
+
+.edge-navmenu-panel .edge-proj-active {
+	background: linear-gradient(        to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -webkit-linear-gradient(to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -o-linear-gradient(     to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -moz-linear-gradient(   to bottom,#0159b0,  #014AB0 100% ) !important;
 }
 
 /* Content */
@@ -459,7 +484,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 /* buttons for adding/removing inputs */
-.btnDel-edge-input-se {
+.btnDel-edge-input {
 	visibility: hidden;
 }
 
@@ -555,7 +580,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-panel-inner .ui-listview .ui-listview > li > .edge-project-list {
-	background: #4d4d4d !important;
+	background: #4d4d4d;
 	color: #fff;
 	text-shadow: 0 2px 0 #000 !important;
 	opacity: 1 !important;
@@ -595,6 +620,9 @@ div.edge-collapsible-options .ui-btn {
 }
 .edge-time-bg-grey {
     background-color: #aaa;
+}
+.edge-time-bg-black {
+    background-color: #000000;
 }
 
 .edge-fg-green {
@@ -643,6 +671,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-icon-recycle:after,
+.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 .edge-navmenu-panel .ui-icon-delete:after,
 .edge-navmenu-panel .ui-icon-check:after {
 	opacity: 0.9;
@@ -775,7 +804,7 @@ div.edge-collapsible-options .ui-btn {
 	.edge-navmenu-panel .ui-collapsible,
 	.edge-navmenu-panel .ui-collapsible-content,
 	.edge-navmenu-panel .ui-btn {
-		background: none !important;
+		background: none;
 		border-color: #ddd !important;
 	}
 		
@@ -791,6 +820,7 @@ div.edge-collapsible-options .ui-btn {
 	
 	.edge-navmenu-panel .ui-icon-load:after,
 	.edge-navmenu-panel .ui-icon-check:after,
+	.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 	.edge-navmenu-panel .ui-icon-recycle:after
 	{
 		opacity: 0.9;
@@ -898,3 +928,51 @@ div.edge-collapsible-options .ui-btn {
 	font-size: 0.85em;
 }
 
+.flex-container {
+	display: -webkit-flex; /* Safari */
+	display: flex;
+	-webkit-flex-wrap: wrap; /* Safari */
+	flex-wrap:         wrap;
+}
+.flex-container .ui-btn {
+	margin:0.2em;
+}
+
+//progressbar
+#progressbar-block {
+	position: relative;
+	width: 100%;
+}
+#progressbar-block div.ui-slider {
+	width: 100%;
+	height: inherit;
+	margin: inherit;
+	display: inline-block;
+}
+#progressbar-block div.ui-slider-track {
+	background-color: #ddd;
+}
+#progressbar-block div.ui-btn-active {
+	background-image: url("images/progress.gif"), linear-gradient(to right, rgb(0, 0, 0), #2ad) !important;
+	height: 100%;
+	filter: alpha(opacity=25) !important;
+	opacity: 0.25 !important;
+}
+#progressbar-block div.overlay {
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 500;
+}
+#progressbar-val {
+	color: white;
+	text-shadow: 0 2px 0 #111 !important;
+	left: 0px;
+	min-width: 100px;
+	position: absolute;
+	top: 10px;
+	text-align: center;
+	z-index: 600;
+}

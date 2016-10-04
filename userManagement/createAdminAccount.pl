@@ -5,19 +5,33 @@ use Getopt::Long;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use JSON;
+use Term::ReadKey;
 
 my $url = 'http://localhost:8080/userManagementWS/user/admin/register';
-my $http_auth_username="yourAdminName";
-my $http_auth_password="yourAdminPassword";
+
+print "Enter database username: ";
+my $http_auth_username=<STDIN>;
+chomp $http_auth_username;
+ReadMode('noecho');
+print "Enter database password: ";
+my $http_auth_password=<STDIN>;
+chomp $http_auth_password;
+ReadMode(0);
+print "\n";
 my ($admin_password, $admin_email, $admin_firstname, $admin_lastname);
 GetOptions(
-       'p=s', \$admin_password,
-       'e=s', \$admin_email,
-       'fn=s', \$admin_firstname,
-       'ln=s', \$admin_lastname,
-      );
+	'e=s', \$admin_email,
+	'fn=s', \$admin_firstname,
+	'ln=s', \$admin_lastname,
+);
+usage() unless $admin_email;
+ReadMode('noecho');
+print "Enter EDGE Password: ";
+$admin_password=<STDIN>;
+chomp $admin_password;
+ReadMode(0);
+print "\n";
 
-usage() unless $admin_password && $admin_email;
 
 # Package the data in a data structure matching the expected JSON
 my %data = (
@@ -30,7 +44,7 @@ my %data = (
 # Encode the data structure to JSON
 my $json = JSON->new;
 my $data = $json->encode(\%data);
-print "$data\n";
+#print "$data\n";
 
 # Set the request parameters
 my $browser = LWP::UserAgent->new;

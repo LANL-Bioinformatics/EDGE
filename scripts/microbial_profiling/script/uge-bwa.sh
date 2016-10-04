@@ -69,14 +69,14 @@ echo "[BEGIN]"
 set -x;
 
 bwa mem -t $THREADS -T $BWASCORECUT $REFDB $FASTQ > $OUTPATH/$PREFIX.sam
-bwa_sam2read_taxa.pl species preload < $OUTPATH/$PREFIX.sam > $OUTPATH/$PREFIX.out.read_classification &
+# bwa_sam2read_taxa.pl species preload < $OUTPATH/$PREFIX.sam > $OUTPATH/$PREFIX.out.read_classification &
 bwa_sam2giReadCount.pl < $OUTPATH/$PREFIX.sam > $OUTPATH/${PREFIX}.csv &
 
 wait
 
 convert_gi2list.pl < $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.list &
 convert_gi2tabTree.pl < $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.tab_tree
-ktImportText -a $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+ktImportText $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
 
 wait
 

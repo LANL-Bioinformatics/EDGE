@@ -36,14 +36,21 @@
 	</div><!-- /header -->
 
 	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>
-		<h2><TMPL_VAR NAME=PROJNAME DEFAULT=-></h2>
+		<h2 id="edge-output-projname" data-pid="<TMPL_VAR NAME=PROJID>"><TMPL_VAR NAME=PROJNAME DEFAULT=-></h2>
+		<TMPL_IF NAME="OUT_GET_DOWNLOAD"> 
+		<div style='float:right;'><a href="#" id="get_download_link" class="ui-btn ui-mini ui-btn-inline">Get Download Link</a><div id='edge-download-spinner'></div></div>
+		</TMPL_IF>
+		<TMPL_IF NAME="OUT_DOWNLOAD"> 
+		<div style='float:right;'><a data-ajax='false' href="<TMPL_VAR NAME=PROJTARFILE DEFAULT=->" id="download_link" class="ui-btn ui-mini ui-btn-inline ui-btn-active">Download Project</a></div>
+		</TMPL_IF>
 		<p><u>Project Summary</u><br/>
 			Description: <TMPL_VAR NAME=PROJDESC DEFAULT=-><br/>
 			Submission Time: <TMPL_VAR NAME=PROJSUBTIME DEFAULT=-><br/>
 			Number of CPUs: <TMPL_VAR NAME=CPU DEFAULT=-><br/>
-			Project Status: <TMPL_VAR NAME=PROJSTATUS DEFAULT=-><br/>
+			Project Status: <span id="edge-output-projstatus"><TMPL_VAR NAME=PROJSTATUS DEFAULT=-></span><br/>
 			Total Analysis Run Time: <TMPL_VAR NAME=RUNTIME DEFAULT=-><br/>
-			Last Run Time: <TMPL_VAR NAME=LASTRUNTIME DEFAULT=-></p>
+			Last Run Time: <TMPL_VAR NAME=LASTRUNTIME DEFAULT=-><br/>
+		</p>
 
 		<div class='edge-right'>expand |<a data-ajax='false' href='#' id='edge-out-expand-all'> all </a>|<a data-ajax='false' href='#' id='edge-out-expand-none'> none </a>| sections</div>
 		
@@ -85,12 +92,14 @@
 				</tr>
 				<tr>
 				  <td>Output Directory</td>
-				  <td><a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+				  <td><a id="edge-proj-outdir" href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 				</tr>
+				<TMPL_UNLESS NAME="LOG_qiime_SW">
 				<tr>
 				  <td>PDF Report</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/final_report.pdf'>final_report.pdf</a></td>
 				</tr>
+				</TMPL_UNLESS>
 				<tr>
 				  <td>Process log</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/process.log'>process.log</a></td>
@@ -103,9 +112,54 @@
 			</table>
 		</div>
 		
+<!--sample metadata -->	
+	<TMPL_IF NAME="OUT_SAMPLE_METADATA">
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Sample Metadata</h4>
+			<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				<thead>
+					<tr>
+					  <th data-priority='1'></th>
+					  <th data-priority='2'></th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr><td>Sample Type</td><td><TMPL_VAR NAME=SMD_TYPE DEFAULT=-></td></tr>
+					<TMPL_IF NAME="OUT_SMD_HOST">
+						<tr><td>Host</td><td><TMPL_VAR NAME=SMD_HOST DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_HOST_CONDITION">
+						<tr><td>Host Condition</td><td><TMPL_VAR NAME=SMD_HOST_CONDITION DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_GENDER">
+						<tr><td>Gender</td><td><TMPL_VAR NAME=SMD_GENDER DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<TMPL_IF NAME="OUT_SMD_AGE">
+						<tr><td>Age</td><td><TMPL_VAR NAME=SMD_AGE DEFAULT=-></td></tr>
+					</TMPL_IF>
+					<tr><td>Source</td><td><TMPL_VAR NAME=SMD_SOURCE DEFAULT=-></td></tr>
+					<tr><td>Source Detailed Information</td><td><TMPL_VAR NAME=SMD_SOURCE_DETAIL DEFAULT=-></td></tr>
+					<tr><td>Collection Date</td><td><TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=-></td></tr>
+					<tr><td>City</td><td><TMPL_VAR NAME=SMD_CITY DEFAULT=-></td></tr>
+					<tr><td>State</td><td><TMPL_VAR NAME=SMD_STATE DEFAULT=-></td></tr>
+					<tr><td>Country</td><td><TMPL_VAR NAME=SMD_COUNTRY DEFAULT=-></td></tr>
+					<tr><td>Latitude</td><td><TMPL_VAR NAME=SMD_LAT DEFAULT=-></td></tr>
+					<tr><td>Longitude</td><td><TMPL_VAR NAME=SMD_LNG DEFAULT=-></td></tr>
+					<tr><td>Sequencing Platform</td><td><TMPL_VAR NAME=SMD_SEQ_PLATFORM DEFAULT=-></td></tr>
+					<tr><td>Sequencer</td><td><TMPL_VAR NAME=SMD_SEQUENCER DEFAULT=-></td></tr>
+					<tr><td>Sequencing Date</td><td><TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=-></td></tr>
+				  </tbody>
+			</table>
+		</div>
+	</TMPL_IF>
+<!-- END sample metatdata -->	
+
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<TMPL_IF NAME="SRADERR">
 			<p class="error"><TMPL_VAR NAME=SRADERR></p>
+			</TMPL_IF>
+			<TMPL_IF NAME="QCERR">
+			<p class="error"><TMPL_VAR NAME=QCERR></p>
 			</TMPL_IF>
 
 			<h4>Pre-processing</h4>
@@ -258,7 +312,7 @@
 
 					<p class='extra-text-link'>Link to 
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/contigs_stats.pdf'> Report PDF </a>
-						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/contigs.fa'> Contigs Fasta </a>
+						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/<TMPL_VAR NAME=PROJNAME DEFAULT=->_contigs.fa'> Contigs Fasta </a>
 						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis'> Directory </a></p>
 					</TMPL_UNLESS>
@@ -308,7 +362,7 @@
 
 					<p class='extra-text-link'>Link to 
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_plots.pdf'> Report PDF </a>
-						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO_BAM DEFAULT=->'> JBrowse </a>
+						|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json'> Table </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/readsMappingToContig'> Directory </a></p>
 					</TMPL_UNLESS>
 				</div></li>
@@ -485,7 +539,9 @@
 								<TMPL_IF NAME="RMREFSNPFILE">
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNP Report </a>
 								</TMPL_IF>
-								|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_ANNO_BAM DEFAULT=->'> JBrowse </a>
+								<TMPL_IF NAME="RMREFGAPFILE">
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
+								</TMPL_IF>
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 						</div></li>
 						<li><span class="li-report-content-title">Unmapped Reads</span><div class="li-report-content">
@@ -600,7 +656,8 @@
 					  	</TMPL_LOOP>
 					  </tbody>
 					</table>
-
+				
+					<p><TMPL_VAR NAME=CMREFTOLREFHASHIT DEFAULT=-> out of <TMPL_VAR NAME=CMREFTOLREF DEFAULT=-> reference(s) is(are) covered by input contigs.  <TMPL_VAR NAME=CMREFTABLENOTE></p>
 					<!--<p class="iframe_label jbrowse_iframe">Show contigs mapping to the reference using JBrowse in <a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_CDS_CTG DEFAULT=->'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
 					</p>-->
 						
@@ -722,7 +779,7 @@
 								</TMPL_IF>
 							</div>
 							<div class="ui-block-b" style="width:64%; padding: 0.7em 0 0 0; height:550px !important;">
-								<span class="iframe_label">Radar map at species level <a data-ajax='false' href='<TMPL_VAR NAME=CPRADAR DEFAULT=->'>[fullwindow]</a></span>
+								<span class="iframe_label"> <span id='edge-radarmap-label'>Radar map at species level </span><a data-ajax='false' href='<TMPL_VAR NAME=CPRADAR DEFAULT=->'>[fullwindow]</a></span>
 								<TMPL_IF NAME="CPRADAR">
 								<iframe style='height:510px;' data-src='<TMPL_VAR NAME=CPRADAR DEFAULT=->'>Your browser does not support iframes</iframe>
 								<TMPL_ELSE/>
@@ -750,6 +807,12 @@
 							<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 						  	<th data-priority='3'>% Plasmid</th>
 							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_LEN">
+							<th data-priority='3'>Linear LEN</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_DOC">
+						  	<th data-priority='3'>Linear DOC</th>
+							</TMPL_IF>
 						  	<th data-priority='1'>Abundance</th>
 							</tr>
 						</thead>
@@ -762,11 +825,29 @@
 								<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 								<td><TMPL_VAR NAME=CPABU_PMD DEFAULT=-></td>
 								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_LEN">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="GOTTCHA2_LINEAR_DOC">
+								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
+								</TMPL_IF>
 								<td><TMPL_VAR NAME=CPABU_ABU DEFAULT=-></td>
 							</tr>
 							</TMPL_LOOP>
 						</tbody>
 					</table>
+					<TMPL_IF NAME="CPABU_DOWNLOAD_LIST">
+					<div class="ui-field-contain">
+							<label for="edge-get-reads-by-taxa-<TMPL_VAR NAME=CPTOOL>" class="select" style="width:25%;">Extract Fastq</label>
+							<select class="edge-get-reads-by-taxa" id="edge-get-reads-by-taxa-<TMPL_VAR NAME=CPTOOL>" data-mini="true" name="edge-get-reads-by-taxa<TMPL_VAR NAME=CPTOOL_LABEL>" data-native-menu="false">
+								<option>Select</option>
+								<TMPL_LOOP NAME=LOOP_CPTOOL_DOWNLOAD>
+								<option value="<TMPL_VAR NAME=CPABU_DOWNLOAD_TAX_ID >" ><TMPL_VAR NAME=CPABU_DOWNLOAD_TAX > (<TMPL_VAR NAME=CPABU_ABU >)</option>
+								</TMPL_LOOP>
+							</select>
+							<div id='edge-get-reads-spinner-<TMPL_VAR NAME=CPTOOL>' style="margin-left:0.3em"></div>
+					</div>
+					</TMPL_IF>
 
 					<TMPL_IF NAME="CPTOOL_TREE">
 					<div class="ui-grid-a ui-responsive edge-taxa-report">
@@ -894,10 +975,19 @@
 						</div>
 					</div>
 					</TMPL_IF>
-
+					<div class="ui-field-contain">
+							<label for="edge-get-contigs-by-taxa" class="select" style="width:25%;">Extract Fasta</label>
+							<select id="edge-get-contigs-by-taxa" data-mini="true" name="edge-get-contigs-by-taxa" data-native-menu="false">
+								<option>Select</option>
+								<TMPL_LOOP NAME=LOOP_CCPSPE>
+								<option value="<TMPL_VAR NAME=CCPSPE >" ><TMPL_VAR NAME=CCPSPE > (<TMPL_VAR NAME=CCPSPENUM >)</option>
+								</TMPL_LOOP>
+							</select>
+							<div id='edge-get-contigs-spinner' style="margin-left:0.3em"></div>
+					</div>
 					<p class='extra-text-link'>Link to 
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/Taxonomy/<TMPL_VAR NAME=PROJNAME>.contigsClassification.pdf'> Report PDF </a>
-						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/Taxonomy/<TMPL_VAR NAME=PROJNAME>.ctg_class.top.csv'> Result </a>
+						|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/Taxonomy/<TMPL_VAR NAME=PROJNAME>.ctg_class.LCA.json'> Table </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/Taxonomy/'> Directory </a></p>
 				</div></li>
 				
@@ -909,11 +999,35 @@
 		<TMPL_IF NAME="OUT_SP_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>Phylogenetic Analysis</h4>
-			
-			<p><a data-ajax='false' href='<TMPL_VAR NAME=SPREFLIST DEFAULT=->' target="_blank">Selected database/reference genomes: <TMPL_VAR NAME=SPDB></a></p>
+	
+				<TMPL_IF NAME="SPWARN">
+				<p class="error"><TMPL_VAR NAME=SPWARN></p>
+				</TMPL_IF>
+
 				<TMPL_IF NAME="SPERROR">
 				<p class="error"><TMPL_VAR NAME=SPERROR></p>
 				<TMPL_ELSE>
+				
+				<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				  <thead>
+					<tr>
+					  <th data-priority='1'>Analysis</th>
+					  <th data-priority='2'>Stats</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr><td>Genomes</td><td><a data-ajax='false' href='<TMPL_VAR NAME=SPREFLIST DEFAULT=->' target="_blank">Selected database/reference genomes</a></td></tr>
+					<tr><td>Reference</td><td><TMPL_VAR NAME=SPREFNAME DEFAULT=-></td></tr>
+					<tr><td>Reference Size</td><td><TMPL_VAR NAME=SPREFLEN DEFAULT=-> bp</td></tr>
+					<tr><td>Total Gap Size</td><td><TMPL_VAR NAME=SPGAPLEN DEFAULT=-> bp</td></tr>
+					<tr><td>Core Genome Size</td><td><TMPL_VAR NAME=SPCORELEN DEFAULT=-> bp</td></tr>
+					<tr><td>Total SNPs</td><td><TMPL_VAR NAME=SPTOTALSNP DEFAULT=-></td></tr>
+					<TMPL_IF NAME="SPCDSSNP">
+					<tr><td>CDS SNPs</td><td><TMPL_VAR NAME=SPCDSSNP DEFAULT=-></td></tr>
+					</TMPL_IF>
+				  </tbody>
+				</table>
+				
 				<TMPL_IF NAME="SPTREEALL"> 
 				<div class="ui-grid-a ui-responsive snp_phylogeny">
 					<TMPL_IF NAME="SPTREECDS">
@@ -951,7 +1065,228 @@
 		</div>
 		</TMPL_IF>
 
-		<TMPL_IF NAME="OUT_PA_SW">
+		<TMPL_IF NAME="OUT_SG_SW">
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Specialty Genes Profiling</h4>
+			<ol>
+				<TMPL_IF NAME="OUT_RSG_SW">
+					<li><span class="li-report-content-title">Reads Specialty Genes Profiling</span><div class="li-report-content">
+						<table data-role='table' class='output-table ui-responsive'>
+						  <thead>
+							<tr>
+							  <th data-priority='1'>Reads</th>
+							  <th data-priority='2'>Stats</th>
+							</tr>
+						  </thead>
+						  <tbody>
+							<tr><td>Total VF Reads/Reads Analyzed</td><td><TMPL_VAR NAME=SGRVFCOUNT DEFAULT=-> / <TMPL_VAR NAME=SGREADTOTAL DEFAULT=-> (<TMPL_VAR NAME=SGRVFPERC DEFAULT=->%)</td></tr>
+							<tr><td>AR Marker Hits</td><td><TMPL_VAR NAME=SGRARHIT DEFAULT=-></td></tr>
+							<tr><td>VF Gene Hits</td><td><TMPL_VAR NAME=SGRVFHIT DEFAULT=-></td></tr>
+						  </tbody>
+						</table>
+						<TMPL_IF NAME=SGRARHIT>
+								<span class="li-report-content-title">Antibiotics Resistance Gene Markers</span>
+									<table id="sgrar-table" data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+									<thead>
+										<tr>
+										<th data-priority='1'>Family</th>
+										<th data-priority='3'>Resistant_To</th>
+										<th data-priority='3'>Classification</th>
+										<th data-priority='4'>Source</th>
+										</tr>
+									</thead>
+									<tbody>
+										<TMPL_LOOP NAME=LOOP_SGRAR>
+										<tr>
+											<td title="<TMPL_VAR NAME=SGRAR10 DEFAULT=->"><TMPL_VAR NAME=SGRAR1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=SGRAR5 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=SGRAR7 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=SGRAR9 DEFAULT=-></td>
+										</tr>
+										</TMPL_LOOP>
+									</tbody>
+								</table>
+								<p><TMPL_VAR NAME=SGRARNOTE> See<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/SpecialtyGenes/<TMPL_VAR NAME=PROJNAME DEFAULT=->_AR_genes_ShortBRED_table.json"> full table.</a></p>
+						</TMPL_IF> <!-- SGRARHIT -->
+						<TMPL_IF NAME=SGRVFHIT>
+							<span class="li-report-content-title">Virulence Genes</span>
+							<div class="li-report-content">
+								<div class="ui-grid-a">	
+									<div class="ui-block-a krona_plot" style="border: 1px solid #ddd; height:400px;">
+										<span class="iframe_label">Krona plot of Virulence Factors
+											<a data-ajax='false' href='<TMPL_VAR NAME=SGRVF_KRONA DEFAULT=->'>[fullwindow]</a>
+										</span>
+										<iframe data-src='<TMPL_VAR NAME=SGRVF_KRONA DEFAULT=->'>Your browser does not support iframes</iframe>
+									</div><!-- Krona Block-->
+						
+								</div><!-- Grid Block -->
+								<div data-role='main' class="ui-content" id='sgrvf'>
+									<h4>VF INFO<h4>
+									<ul data-role='listview'>
+										<TMPL_LOOP NAME=LOOP_SGRVF_CLASS_RES>
+										<li><div data-role='collapsible'> <!-- Class -->
+											<h4>VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></h4>
+											<ul data-role='listview'> <!-- Class -->
+												<TMPL_LOOP NAME=LOOP_VF_RES>
+												<li><div data-role='collapsible'> <!-- VF -->
+													<h4>Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></h4>
+														<table data-role='table' class='output-table ui-responsive'>
+															<thead>
+																<th>VF Gene</th>
+																<th>VF Number</th>
+																<th>Accession</th>
+																<th>Taxon ID</th>
+																<th>Typically Found On</th>
+																<th>Found In</th>
+																<th>VFDB Info</th>
+															</thead>
+															<TMPL_LOOP NAME=LOOP_DETAIL_RES>
+															<tr>
+																<td><TMPL_VAR NAME=VFGENE DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFNUMBER DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFACCESSION DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFTAXID DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFSOURCE DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFFOUNDIN DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFVFDBINFO DEFAULT=-></td>
+															</tr>
+															</TMPL_LOOP>
+														</table>
+												</div></li><!-- VF -->
+												</TMPL_LOOP>
+											</ul><!-- Class -->
+										</div></li><!-- Class -->
+										</TMPL_LOOP>
+									</ul>
+								</div> <!-- VF Lists -->
+							</div> <!-- VF Genes -->
+						</TMPL_IF> <!-- SGRVFHIT -->
+						<p class='extra-text-link'>Link to 
+							<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
+							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/SpecialtyGenes/'> Directory </a>
+						</p>
+					</div></li> <!-- Reads SG Profiling -->
+			</TMPL_IF> <!-- OUT_RSG_SW -->
+			<TMPL_IF NAME="OUT_OSG_SW">
+				<li><span class="li-report-content-title">ORFs Specialty Genes Profiling</span>
+					<div class="li-report-content">
+						<table data-role='table' class='output-table ui-responsive'>
+						  <thead>
+						    <tr>
+						      <th data-priority='1'>ORFs</th>
+						      <th data-priority='2'>Stats</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+						    <tr><td>Total ORFs Analyzed</td><td><TMPL_VAR NAME=ANOCDS DEFAULT=-></td></tr>
+						    <tr><td>ORF RGI AR Hits</td><td><TMPL_VAR NAME=SGOARHIT DEFAULT=-></td></tr>
+						    <tr><td>VF ORF Hits</td><td><TMPL_VAR NAME=SGOVFHIT DEFAULT=-> (<TMPL_VAR NAME=SGOVFPERC DEFAULT=->%)</td></tr>
+						  </tbody>
+						</table>
+						<TMPL_IF NAME=SGOARHIT>
+							<span class="li-report-content-title"><h3>Antibiotic Resistance Genes</span>
+							 <div class="li-report-content">
+								 <div data-role='main' class="ui-content" id='sgoar'>
+									<ul data-role='listview'>
+									<h4>AR INFO</h4>
+									<TMPL_LOOP NAME=LOOP_SGOAR_CAT_RES>
+									<li><div data-role='collapsible'> <!-- VF -->
+										<h4>AR Category: <strong><TMPL_VAR NAME=ARCATEGORY DEFAULT=AR></strong> Number of Genes: <strong><TMPL_VAR NAME=ARCATEGORY_COUNT DEFAULT=0></strong></h4>
+											<table data-role='table' class='output-table ui-responsive'>
+												<thead>
+													<th>ARO Name</th>
+													<th>Confidence</th>
+													
+													<th>Evalue Cutoff</th>
+													<th>Evalue</th>
+													<th>EDGE Annotation</th>
+												
+													<th>SNPs</th>
+													<th>ARO Categories</th>
+													<th>Other Hits</th>
+												</thead>
+												<TMPL_LOOP NAME=LOOP_DETAIL_RES>
+												<tr>
+													<td><TMPL_VAR NAME=BESTHIT DEFAULT=-></td>
+											
+													<td><TMPL_VAR NAME=CUTOFF DEFAULT=-></td>
+													<td><TMPL_VAR NAME=PASSEVALUE DEFAULT=-></td>
+													<td><TMPL_VAR NAME=EVALUE DEFAULT=-></td>
+													<td><TMPL_VAR NAME=ORFID DEFAULT=-></td>
+												
+													<td><TMPL_VAR NAME=SNPS DEFAULT=-></td>
+													<td><TMPL_VAR NAME=AROCATEGORIES DEFAULT=-></td>
+													<td><TMPL_VAR NAME=OTHERHITS DEFAULT=-></td>
+												</tr>
+												</TMPL_LOOP>
+											</table>
+									</div></li><!-- VF -->
+									</TMPL_LOOP>
+									</ul>
+								</div>
+							</div>
+						</TMPL_IF> <!-- SGOARHIT -->
+						<TMPL_IF NAME=SGOVFHIT>
+							<span class="li-report-content-title"><h3>Virulence Genes</h3></span>
+							<div class="li-report-content">
+								<div class="ui-grid-a ui-responsive edge-taxa-report">	
+									<div class="ui-block-b krona_ploti" style="border: 1px solid #ddd; height:400px;">
+										<span class="iframe_label">Krona plot of Virulence Factors
+										<a data-ajax='false' href='<TMPL_VAR NAME=SGOVF_KRONA DEFAULT=->'>[fullwindow]</a></span>
+										<iframe data-src='<TMPL_VAR NAME=SGOVF_KRONA DEFAULT=->'>Your browser does not support iframes</iframe>
+									</div> <!-- Krona Block -->
+								</div> <!-- Grid Block-->
+								<div data-role='main' class="ui-content" id='sgovf'>
+									<h4>VF INFO</h4>
+									<ul data-role='listview'><!-- Genus -->
+										<TMPL_LOOP NAME=LOOP_SGOVF_CLASS_RES>
+										<li><div data-role='collapsible'> <!-- Class -->
+											<h4>VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></h4>
+											<ul data-role='listview'> <!-- Class -->
+												<TMPL_LOOP NAME=LOOP_VF_RES>
+												<li><div data-role='collapsible'> <!-- VF -->
+													<h4>Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></h4>
+														<table data-role='table' class='output-table ui-responsive'>
+															<thead>
+																<th>VF Gene</th>
+																<th>VF Number</th>
+																<th>Accession</th>
+																<th>Typically Found On</th>
+																<th>Found In</th>
+																<th>VFDB Info</th>
+															</thead>
+															<TMPL_LOOP NAME=LOOP_DETAIL_RES>
+															<tr>
+																<td><TMPL_VAR NAME=VFGENE DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFNUMBER DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFACCESSION DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFSOURCE DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFFOUNDIN DEFAULT=-></td>
+																<td><TMPL_VAR NAME=VFVFDBINFO DEFAULT=-></td>
+															</tr>
+															</TMPL_LOOP>
+														</table>
+												</div></li><!-- VF -->
+												</TMPL_LOOP>
+											</ul><!-- Class -->
+										</div></li><!-- Class -->
+										</TMPL_LOOP>
+									</ul>
+								</div> <!-- VF Lists -->
+							</div> <!-- Virulence Gene Markers -->
+						</TMPL_IF> <!-- SGOVFHIT -->
+				
+						<p class='extra-text-link'>Link to 
+							<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
+							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/SpecialtyGenes/'> Directory </a>
+						</p>
+						
+				</div></li> <!-- ORF Specialty Genes -->
+			</TMPL_IF> <!-- OUT_OSG_SW -->
+		</ol>
+	</div> <!-- Specialty Gene Profiling -->
+	</TMPL_IF> <!-- OUT_SG_SW -->
+	<TMPL_IF NAME="OUT_PA_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>PCR Primer Analysis</h4>
 			<ol>
@@ -1048,6 +1383,26 @@
 
 		</div>
 		</TMPL_IF>
+		<TMPL_IF NAME="LOG_qiime_SW">
+                <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+                	<h4>Qiime analysis</h4>
+			<TMPL_IF NAME="ERROR_qiime">
+			<p class="error"><TMPL_VAR NAME=ERROR_qiime></p>
+			</TMPL_IF>
+			<TMPL_IF NAME="OUT_qiime_SW">
+			<div style="border: 1px solid #ddd; height:800px;">
+				<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/analysis/index.html'>[fullwindow]</a></span>
+				<iframe data-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/analysis/index.html'>Your browser does not support iframes</iframe>
+			</div>
+			</TMPL_IF>
+			<p class='extra-text-link'>Link to
+			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/slout'> Demultiplex result </a>
+			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/otus'> OTUs result </a>
+			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/analysis'> Diversity analysis result </a>
+			</p>
+			
+		</div>
+		</TMPL_IF>
 
 		<div data-role="popup" id="popup-general-svg" data-overlay-theme="b" data-theme="b" data-corners="false">
 		  <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
@@ -1057,6 +1412,17 @@
 		<div data-role="popup" id="popup-general" data-overlay-theme="b" data-theme="b" data-corners="false">
 		  <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
 		  <a href="#" data-rel="back"><img id="popup-general-img" src=""></a>
+		</div>
+		<div data-role="popup" id="edge-output-datatables-dialog" data-overlay-theme="b" data-corners="false" style="width:98%">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<div data-role="header" data-theme="a" class="ui-header ui-bar-a">
+				<h4 class='ui-title'>Table</h4>
+			</div>
+			<div role="main" class="ui-content">
+				 <div id='edge-output-datatable-spinner'></div>
+				<table id="edge-output-datatable" class="display" cellspacing="0">
+				</table>
+			</div>
 		</div>
 		<div data-role="popup" id="edge-outputfile-dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog">
 			<div data-role="header" data-theme="a" style="width:100%" class="ui-header ui-bar-a">
@@ -1076,7 +1442,7 @@
 			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
 	</div><!-- /footer -->
 
-</div><!-- /page -->
+</div><!--  /page -->
 
 <script>
 	var jblink = $("a.jb_link");

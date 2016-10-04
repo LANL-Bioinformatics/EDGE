@@ -7,6 +7,8 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/AssemblyBasedAnalysis/Annotation/testAnnotation.log
 	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/Annotation/plot_gff3.log
 	Expect=$rootdir/plot_gff3.log
 	testName="EDGE Contigs Annotation test";
@@ -16,6 +18,10 @@ test_result(){
 		touch "$rootdir/TestOutput/test.success"
 	else
 		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >> $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

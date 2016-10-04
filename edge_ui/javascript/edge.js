@@ -1,65 +1,53 @@
 $( document ).ready(function()
 {
 	var debug=true;
+	var pipeline="EDGE";
 	var running_proj=0;
 	var finished_proj=0;
 	var failed_proj=0;
+	var unstart_proj=0;
 	var focusProjName; //id or name
 	var focusProjRealName; // name
+	var focusProjLogFile;
+	var focusProjConfigFile;
 	var focusProjStatus;
 	var focusProjType;
 	var focusProjTime;
 	var focusProjRunningStep;
+	var focusProjInfo;
 
-	var interval = 1000*5; //check every 7 secs
+	var interval = 1000*7; //check every 7 secs
 	var updateProjInterval;
 	var updateLogInterval;
+	var inputLogObj = {};
 	var inputFileID;
 	var inputFileDir  = "/public/";
 	//var username;
 	//var password;
 	var userType;
-	var umSystemStatus = sessionStorage.umStatus || false;
-	var umSystemURL = sessionStorage.umURL;
+	var umSystemStatus = (localStorage.umStatus == 'true')? true : false;
+	var umSystemURL = localStorage.umURL;
 
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
-
+	
 	//init page
-	$(".no-show-logout").hide();
-	$("#edge-content-upload-li").hide();
+	//$("#edge-content-upload-li").hide();
 	$("#edge-phylo-ref-select-ref-div").hide();
-	if (! sessionStorage.umStatus ){
+	if (! umSystemStatus ){
 		check_user_management();
 	}else{
+		$(".no-show-logout").hide();
 		replaceUMurl();
 		$('#edge-project-page-li').text('Public Project List');
+		check_login();
 	}
 	
 	$('#edge-user-btn').on("click",function(){
 		$('#signInForm').popup('open');
 	});
 
-	if ( sessionStorage.sid && sessionStorage.sid !='' && sessionStorage.sid !='undefined' ){
-    		$('.no-show-login').hide();
-    		$(".no-show-logout").show();
-    	//username = sessionStorage.user;
-		firstname = sessionStorage.fnname;
-		//password = sessionStorage.pass;
-		userType = sessionStorage.userType;
-		FileTree("/" + sessionStorage.udir + "/");
-                uploadFiles("/" + sessionStorage.udir + "/");
-
-		$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
-		$('#edge-user-btn').html(sessionStorage.fnname);
-		$('#edge-project-page-li').text('My Project List');
-		$('#edge-user-btn').unbind("click").on("click",function(){
-			$('#popupUser').popup('open');
-		});
-	}else{
-		FileTree(inputFileDir);
-	}
-
+	edge_ui_init();
 	sync_input(); //sync input with switch
 	integrityCheck();
 	updateProject(focusProjName);
@@ -74,32 +62,66 @@ $( document ).ready(function()
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
 		allMainPage.hide();
-		$( "#edge-submit-info" ).children().remove();
-		$( "#edge-content-pipeline" ).fadeIn("fast", function(){
-			if (umSystemStatus && (sessionStorage.sid == "" || typeof sessionStorage.sid === "undefined") ){
+		pipeline="EDGE";
+		toggle_input_fields("enable");
+		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
+		$('#edge-form-submit').closest('.ui-btn').show();
+		$('#edge-form-reset').closest('.ui-btn').show();
+		$("#edge-submit-info" ).children().remove();
+		$("#edge-file-input-block").children().show();
+		$(".btnAdd-edge-input").children().show();
+		$(".edge-main-pipeline-input").show();
+		$(".edge-qiime-pipeline-input").hide();
+		$("#edge-content-pipeline" ).fadeIn("fast", function(){
+			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				showWarning("Please login to run EDGE.");
 			}
 		});
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 
-        $( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
-                allMainPage.hide();
-		var maxFileSize = sessionStorage.maxFileSize || '10mb';
-		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
-                $( "#edge-content-uploadfile" ).fadeIn("fast", function(){
-                        if (umSystemStatus && (sessionStorage.sid == "" || typeof sessionStorage.sid === "undefined") ){
-                                //destory file upload 
-                                var uploader = $("#uploader").pluploadQueue({
-                                    buttons : {browse:false,start:false,stop:false}
-                                });
+	$( "a[href=#edge-qiime-pipeline]" ).on( "click", function(){
+		allMainPage.hide();
+		pipeline="qiime";
+		toggle_input_fields("enable");
+		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
+		$('#edge-form-submit').closest('.ui-btn').show();
+		$('#edge-form-reset').closest('.ui-btn').show();
+		$("#edge-submit-info" ).children().remove();
+		$(".edge-main-pipeline-input").hide();
+		$(".edge-qiime-pipeline-input").show();
+		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		$('.edge-input-se-block').hide();
+		$('.edge-input-pe-block').show();
+		$('#edge-qiime-pipeline-dir-input').hide();
+		$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
+		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
+		integrityCheck();
+		$("#edge-content-pipeline" ).fadeIn("fast", function(){
+			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
+				showWarning("Please login to run EDGE.");
+			}
+		});
+		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+	});
 
+	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
+		allMainPage.hide();
+		var maxFileSize = localStorage.maxFileSize || '10mb';
+		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
+		$( "#edge-content-uploadfile" ).fadeIn("fast", function(){
+			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
+				//destory file upload 
+				var uploader = $("#uploader").pluploadQueue({
+					buttons : {browse:false,start:false,stop:false}
+				});
 				$( "#edge-upload-maxFileSize").html("0 kb");
-                                showWarning("Please login to upload files.");
-                        }
-                });
-                page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+					showWarning("Please login to upload files.");
+				}
         });
+		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+    });
 
 	
 	$('#chck-rememberme').click(function() {
@@ -113,6 +135,20 @@ $( document ).ready(function()
         	}
         });
 	 
+	//if url
+	function accessProjectFromUrl(qs) {
+		qs = qs.split('+').join(' ');
+		var params = {}, tokens,re = /[?&]?([^=]+)=([^&]*)/g;
+		while (tokens = re.exec(qs)) {
+			params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+		}
+		if( params.proj){
+			updateProject(params.proj);
+			updateReport(params.proj);
+		}
+	}
+	accessProjectFromUrl(document.location.search);
+
 	function check_user_management(){
     		$.ajax({
     			type: "POST",
@@ -120,51 +156,56 @@ $( document ).ready(function()
         		cache: false,
         		dataType: "json",
         	// send username and password as parameters to the Perl script
-        		data: {"action": 'check','protocol': location.protocol, 'sid':sessionStorage.sid },
-    			error: function(XMLHttpRequest, textStatus, errorThrown) { 
-				$('.no-show-logout').hide();
-				$('#edge-projet-list-li').hide();
-                $(".edge-user-btn").hide();
-				$( "a[href=#edge-content-pipeline]" ).hide();
-                                $( "a[href=#edge-content-uploadfile]" ).hide();
-
-         			$('#edge-content-home').prepend("<h2 class='error'>Failed to check user management system. Please check server error log for detail or contact system administrator</h2>");
+        		data: {"action": 'check','protocol': location.protocol, 'sid':localStorage.sid },
+				error: function(XMLHttpRequest, textStatus, errorThrown) { 
+					$('.no-show-logout').hide();
+					$('#edge-projet-list-li').hide();
+					$(".edge-user-btn").hide();
+					$( "a[href=#edge-content-pipeline]" ).hide();
+					$( "a[href=#edge-content-uploadfile]" ).hide();
+					$( "a[href=#edge-qiime-pipeline]" ).hide();
+					$('#edge-content-home').prepend("<h2 class='error'>Failed to check user management system. Please check server error log for detail or contact system administrator</h2>");
          			console.log("ERROR");
         		}, // error 
         		// script call was successful 
         		// data contains the JSON values returned by the cgi script 
         		success: function(data){
-				sessionStorage.maxFileSize = data.maxFileSize;
-				if (data.error) { // script returned error
-            				console.log(data.error);
-					if (data.error.toLowerCase().indexOf("administrator") >= 0){
-						$('.no-show-logout').hide();
-						$('#edge-projet-list-li').hide();
-                	        		$(".edge-user-btn").hide();
-						$( "a[href=#edge-content-pipeline]" ).hide();
-						$( "a[href=#edge-content-uploadfile]" ).hide();
-
-						$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
-					}else{
-						// no configuration to use User management
- 	         				$('.no-show-logout').show();
-        	    				$(".edge-user-btn").hide();
-                				uploadFiles(inputFileDir);
-					}
+					localStorage.maxFileSize = data.maxFileSize;
+					if (data.error) { // script returned error
+						console.log(data.error);
+						if (data.error.toLowerCase().indexOf("administrator") >= 0){
+							$('.no-show-logout').hide();
+							$('#edge-projet-list-li').hide();
+							$(".edge-user-btn").hide();
+							$( "a[href=#edge-content-pipeline]" ).hide();
+							$( "a[href=#edge-content-uploadfile]" ).hide();
+							$( "a[href=#edge-qiime-pipeline]" ).hide();
+							$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
+						}else{
+							// no configuration to use User management
+							localStorage.umStatus = false;
+							$('.no-show-logout').show();
+							$(".edge-user-btn").hide();
+							$("#action-unshare-btn").parent().hide();
+							$("#action-share-btn").parent().hide();
+							$("#action-publish-btn").parent().hide();
+							uploadFiles(inputFileDir);
+						}
           			} // if
           			else { // user_management is live
 						umSystemStatus = true;
-						sessionStorage.umStatus = umSystemStatus;
-						sessionStorage.umURL = data.url;
-						sessionStorage.sid = data.sid;
+						localStorage.umStatus = umSystemStatus;
+						localStorage.umURL = data.url;
+						localStorage.sid = data.sid;
 						umSystemURL = data.url;
-          					$(".no-show-logout").hide();
-          					$('.no-show-login').show();
+						$(".edge-user-btn").show();;
+						$(".no-show-logout").hide();
+						$('.no-show-login').show();
 						$('#edge-project-page-li').text('Public Project List');
 						updateProject();
 						replaceUMurl();
 						if (data.socialLogin){
-							sessionStorage.social = true;
+							localStorage.social = true;
 							$('#edge-social-login').show();
 							initSocial();
 						}else{
@@ -172,6 +213,7 @@ $( document ).ready(function()
 						}
 						//	console.log(data.SUCCESS);
           				}
+						check_login();
        				} // success
     		});
 	}
@@ -180,6 +222,27 @@ $( document ).ready(function()
 		$('#begin-password-reset').find('iframe').attr("src", umhref + "/resetPasswd.jsp");
 		$('#signUpForm').find('iframe').attr("src", umhref + "/register.jsp");
 		$('#UpdateProfileForm').find('iframe').attr("src", umhref + "/userUpdate.jsp");
+	}
+	function check_login(){
+		if ( localStorage.sid && localStorage.sid !='' && localStorage.sid !='undefined' ){
+    		$('.no-show-login').hide();
+    		$(".no-show-logout").show();
+			//username = localStorage.user;
+			firstname = localStorage.fnname;
+			//password = localStorage.pass;
+			userType = localStorage.userType;
+			FileTree("/" + localStorage.udir + "/");
+			uploadFiles("/" + localStorage.udir + "/");
+
+			$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
+			$('#edge-user-btn').html(localStorage.fnname);
+			$('#edge-project-page-li').text('My Project List');
+			$('#edge-user-btn').unbind("click").on("click",function(){
+				$('#popupUser').popup('open');
+			});
+		}else{
+			FileTree(inputFileDir);
+		}
 	}
 
 	//user menu
@@ -208,7 +271,7 @@ $( document ).ready(function()
   		}
 	});
 	
-	if ( sessionStorage.social ){
+	if ( localStorage.social ){
 		$('#edge-social-login').show();
 		initSocial();
 	}else{
@@ -262,7 +325,7 @@ $( document ).ready(function()
 			url: "./cgi-bin/edge_user_management.cgi",
 			dataType: "json",
 			cache: false,
-			data: $.param(response) + '&' + $.param({"action": "sociallogin",'protocol': location.protocol, 'sid': sessionStorage.sid}),
+			data: $.param(response) + '&' + $.param({"action": "sociallogin",'protocol': location.protocol, 'sid': localStorage.sid}),
 			success: function(data){
 				if (data.error){
 					showWarning("Failed to use "+ response.network +"  acoount to login in. Please check server error log for detail.");
@@ -306,26 +369,26 @@ $( document ).ready(function()
         		// script call was successful 
         		// data contains the JSON values returned by the cgi script 
         		success: function(data){
-				sessionStorage.maxFileSize=data.maxFileSize
+				localStorage.maxFileSize=data.maxFileSize;
 				if (data.status) { // login success
 					allMainPage.hide();
  				        $( "#edge-content-home" ).fadeIn();
  	        			$('.no-show-login').hide();
            				$(".no-show-logout").fadeIn("fast");
            				// add session storage
-           				//sessionStorage.user = username;
-					sessionStorage.fnname = data.firstname;
-					sessionStorage.lnname = data.lastname;
-           				//sessionStorage.pass = password;
-					sessionStorage.userType = data.type;
-					sessionStorage.sid = data.SESSION;
-					sessionStorage.udir = data.UserDir;
+           				//localStorage.user = username;
+					localStorage.fnname = data.firstname;
+					localStorage.lnname = data.lastname;
+           				//localStorage.pass = password;
+					localStorage.userType = data.type;
+					localStorage.sid = data.SESSION;
+					localStorage.udir = data.UserDir;
 					userType = data.type;
 					FileTree("/" + data.UserDir + "/");
-                                        uploadFiles("/" + data.UserDir + "/");
+					uploadFiles("/" + data.UserDir + "/");
 
 					$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
-					$('#edge-user-btn').html(sessionStorage.fnname);
+					$('#edge-user-btn').html(localStorage.fnname);
 					$('#edge-project-page-li').text('My Project List');
 					$('#edge-content-home').find(".error").remove();
 					$('#popupUser').removeClass('highlight');
@@ -333,6 +396,19 @@ $( document ).ready(function()
 						$('#popupUser').popup('open');
 					});
 					updateProject(focusProjName);
+					var LoginMsg = true; 
+					if (localStorage.LoginMsg){ LoginMsg =  ( localStorage.LoginMsg  === "true") ;}
+					var cleanData = (data.CleanData > 0);
+					if (  LoginMsg && cleanData ){
+						showWarning("The intermediate bam/sam/fastq/gz files in the projects directory will be deleted if they are older than "+ data.CleanData  + " days. <br/><p><input type='checkbox' data-role='none' id='chk-close-warning'>Don't show this again.</p>");
+						$('#chk-close-warning').click(function(){
+							if ($('#chk-close-warning').is(':checked')) {
+								localStorage.LoginMsg = false;
+							}else{
+								localStorage.LoginMsg = true;
+							}
+						});
+					}
 
           			} // if
           			else { // login was failed
@@ -361,8 +437,8 @@ $( document ).ready(function()
 		$('#popupUser').popup('close');
 		setTimeout( function() { 
 			$('#UpdateProfileForm').popup('open').css('width','240px'); 
-			$('#UpdateProfile-fn').val(sessionStorage.fnname);
-			$('#UpdateProfile-ln').val(sessionStorage.lnname);
+			$('#UpdateProfile-fn').val(localStorage.fnname);
+			$('#UpdateProfile-ln').val(localStorage.lnname);
 		}, 300 );
 	});
 	$('#updateProfile-cancel-btn').on('click',function(){
@@ -375,7 +451,7 @@ $( document ).ready(function()
 			newLn: $('#UpdateProfile-ln').val(),
 			action: 'update',
 			protocol: location.protocol,
-			sid: sessionStorage.sid
+			sid: localStorage.sid
 		};
 		if($('#UpdateProfile-password').val() != $('#UpdateProfile-password-confirm').val()){
 			$(".error").remove();
@@ -402,8 +478,8 @@ $( document ).ready(function()
 				if (data.error){
 					showWarning("Failed to udpate profile. Please check server error log for detail.");
 				}else{
-					sessionStorage.fnname=input.newFn;
-					sessionStorage.lnname=input.newLn;
+					localStorage.fnname=input.newFn;
+					localStorage.lnname=input.newLn;
 					$('#UpdateProfileForm').popup('close');
 					$('#edge-user-btn').html(input.newFn);
 		    			$( "#edge_integrity_dialog_header" ).text("Message");
@@ -414,9 +490,6 @@ $( document ).ready(function()
       		}); // ajax
 	};
 	
-	$(".edge-popup-close").on('click', function(e){
-		e.preventDefault();
-	});
 	$('#signOutBtn').on('click', function(){
 		logout("You have been logged out successfully.");
 	});
@@ -427,16 +500,15 @@ $( document ).ready(function()
 			url: "./cgi-bin/edge_user_management.cgi", 
         	dataType: "json",
         	cache: false,
-        	data: {"action": 'logout','protocol': location.protocol, 'sid':sessionStorage.sid },
+        	data: {"action": 'logout','protocol': location.protocol, 'sid':localStorage.sid },
         	// script call was *not* successful
         	error: function(XMLHttpRequest, textStatus, errorThrown) {
 				showWarning("Failed to login in. Please check server error log for detail.");
         	}, // error 
         	complete: function(data){
 		   		$('#popupUser').popup('close');
-				sessionStorage.clear();
-				username='';
-				password='';
+				//localStorage.clear();
+				localStorage.sid="";
 				userType='';
 				$('#signIn-password').empty();
 				allMainPage.hide();
@@ -480,6 +552,7 @@ $( document ).ready(function()
 	$('.tooltip').tooltipster({
 		theme:'tooltipster-light',
 		maxWidth: '480',
+		interactive: true,
 	});
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
@@ -492,6 +565,27 @@ $( document ).ready(function()
 	$("#edge-phylo-sra-acc-tooltip").tooltipster(
 		'content', $('<span>(Internet requried) Input SRA accessions (comma separate for > 1 input) support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*).</span>')
 	);
+	$('.edge-aligner-options').tooltipster(
+		'content', $('<span>Click <a href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#usage" target="_blank">Bowtie2 options</a> or <a href="http://bio-bwa.sourceforge.net/bwa.shtml#3" target="_blank">BWA mem options</a> for detail.</span>')
+	);
+	$('#edge-megahit-preset-l').tooltipster(
+		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr><tr><td>bulk</td><td>Experimental; assembly of standard bulk sequencing with sufficient depth</td></tr><tr><td>single-cell</td><td>Experimental; single-cell sequence assembly</td></tr></table></span>')
+	);
+	$("#edge-qiime-pro-tooltip").tooltipster(
+		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
+	);
+	
+	$("#edge-qiime-mapping-file-tooltip").tooltipster(
+		'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
+	);
+	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
+		'content', $('<span>If the barcode has been removed from reads fastq file (demultiplexd.), please provide corresponding fastq file containing the barcode reads for each amplicon sequence. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
+	);
+	$("#edge-qiime-UPARSE-tooltip").tooltipster(
+		'content',$('<span>Use UPARSE pipeline clusters NGS amplicon reads into OTUs. <a href="http://drive5.com/uparse/" target="_blank">Edgar, R.C. (2013) Nature Methods</a></span>')
+	);
+	
+
 	// filter serach callBack function
 	function revealOrSearch ( index, searchValue ) {
 		var ret = true;
@@ -536,10 +630,12 @@ $( document ).ready(function()
 	    	return ret;
 	}
 
-	//input sequence
-	$( "#edge-input-options" ).hide();
-	$( "#edge-input-toggle" ).on( "click", function(){
-		$( "#edge-input-options" ).toggle();
+	//options toggle
+	$( ".edge-additional-options" ).hide();
+	$( ".edge-additional-options-toggle" ).on( "click", function(){
+		var id = $(this).attr('id');
+		var optionsID = id.replace('toggle','options');
+		$( "#" + optionsID ).toggle();
 	});
 	//ncbi sra input
 	$( "#edge-sra-input-block" ).hide();
@@ -556,13 +652,16 @@ $( document ).ready(function()
 			$( "#edge-sra-acc" ).val('');
 		}
 	});
+	//
+	/*
     	// batch input 
     	$('#edge-batch-sample-input').click( function(e) {
     		e.preventDefault();
 		var path = (umSystemStatus)? 'PublicData':'data';
-		var sampleInput = "#each unique project name in the bracket []\n" + "[Project1]\n" + "#q1=path/to/paired_end_file_1\n" + "q1=" + path + "/testData/Ecoli_10x.1.fastq\n" + 
-			"#q2=path/to/paired_end_file_2\n" + "q2=" + path + "/testData/Ecoli_10x.2.fastq\n" + "description=\"test batch input project 1\"\n";
-		sampleInput = sampleInput + "[Project2]\n" + "#s=path/to/single_end_file\n" + "s=" + path + "/testData/Ecoli_10x.1.fastq\n" + "description=\"test batch input project 2\"\n";
+		
+    		var sampleInput = "#each unique project name in the bracket []\n" + "[Project1]\n" + "#q1=path/to/paired_end_file_1\n" + "q1=" + path + "/testData/Ecoli_10x.1.fastq\n" + 
+    	                  "#q2=path/to/paired_end_file_2\n" + "q2=" + path + "/testData/Ecoli_10x.2.fastq\n" + "description=\"test batch input project 1\"\n";
+    		sampleInput = sampleInput + "[Project2]\n" + "#s=path/to/single_end_file\n" + "s=" + path + "/testData/Ecoli_10x.1.fastq\n" + "description=\"test batch input project 2\"\n";
     		$('#edge-batch-text-input').val(sampleInput);
     		$('#edge-batch-text-input').textinput( "refresh" );
     		//$('#edge-batch-sample-input').hide();
@@ -591,6 +690,7 @@ $( document ).ready(function()
       		r.readAsText(f);
 		} 
   	}
+  	*/
   	
 	//init reserch usage bar
 	$( "input[id$='usage-bar']" ).each(function( event ) {
@@ -604,16 +704,34 @@ $( document ).ready(function()
 		$( "#edge_file_tree" ).fileTree({
 				root: Dir,
 				script: './cgi-bin/jqueryFileTree.cgi',
-			}, function(file) {
-				var file_relative=file.replace(Dir, "");
-				$( "#"+inputFileID ).val(file_relative);
-				$( "#edge_file_dialog" ).popup('close');
+			},function(file) {
+				if ( ! /-dir-/.test(inputFileID)){
+					var file_relative=file.replace(Dir, "");
+					$( "#"+inputFileID ).val(file_relative);
+					$( "#edge_file_dialog" ).popup('close');
+				}
+			},function(dire){
+				//double click dir/files return dir
+				if ( /-dir-/.test(inputFileID)){
+					var file_relative=dire.replace(Dir, "");
+					$( "#"+inputFileID ).val(file_relative);
+					$( "#edge_file_dialog" ).popup('close');
+				}
 			}
 		);
  
 		//show file browser
 		$( ".edge-file-selector" ).on( "click", function() {
 			inputFileID = $(this).prevAll().children().prop("id");
+		});
+		$( "#edge_file_dialog" ).popup({
+			beforeposition: function(){
+				if ( /-dir-/.test(inputFileID)){
+					$("#edge_file_dialog h4").text("Select a Directory");
+				}else{
+					$("#edge_file_dialog h4").text("Select a File");
+				}
+			}
 		});
 	}
 	
@@ -624,33 +742,47 @@ $( document ).ready(function()
 	});
 
 	//button for adding input fileds
-    	$('#btnAdd-edge-input-se').click( function(e) {
+    	$('#btnAdd-edge-input-se, #btnAdd-edge-qiime-mapping-file').click( function(e) {
 		e.preventDefault();
+		var blockClass, blockIDprefix, label, inputID;
+		var btnID = this.id;
+		var delbtnClass = ".btnDel-edge-input";
+		if ( btnID ==="btnAdd-edge-input-se") { 
+			blockClass = ".edge-input-se-block";
+			blockIDprefix = "edge-input-se-block";
+			label = "Single-end FASTQ file";
+			inputID = "edge-input-se";
+		}
+		else if ( btnID === "btnAdd-edge-qiime-mapping-file") { 
+			blockClass = ".edge-qiime-pipeline-input-block";
+			blockIDprefix = "edge-qiime-pipeline-input-block";
+			label = "Mapping File";
+			inputID = "edge-qiime-mapping-file-input";
+		}
         	// how many "duplicatable" input fields we currently have
-        	var num = $('.edge-input-se-block').length;	
-        	
+        	var num = $(blockClass).length;	
         	// the numeric ID of the new input field being added	
         	var newNum	= new Number(num + 1);		
-        	var newElem = $('#edge-input-se-block' + num ).clone().attr('id', 'edge-input-se-block' + newNum);
-        	newElem.find('label').attr( 'for', 'edge-input-se' + newNum ).text('Single-end FASTQ file (' + newNum + ')');            
-        	newElem.find('input').attr( 'id', 'edge-input-se' + newNum ).attr('name', 'edge-input-se[]');
-        	newElem.find('.btnDel-edge-input-se').css("visibility","visible");
+        	var newElem = $('#' + blockIDprefix + num ).clone().attr('id', blockIDprefix + newNum);
+        	newElem.find('label').attr( 'for', inputID + newNum ).text(label + '(' + newNum + ')');            
+        	newElem.find('input').attr( 'id', inputID + newNum ).attr('name', inputID + '[]');
+        	newElem.find(delbtnClass).css("visibility","visible");
         	// insert newElem
-        	$('#edge-input-se-block' + num).after(newElem);
+        	$('#' + blockIDprefix + num).after(newElem);
         	
         	// bind the selector 
         	newElem.find(".edge-file-selector").on( "click", function() {
-				inputFileID = 'edge-input-se' + newNum;
-		    });
+			inputFileID = inputID + newNum;
+		});
 		    
-		    newElem.find(".btnDel-edge-input-se").on( "click", function() {
-				$('#edge-input-se-block' + newNum ).remove();
-				$('#btnAdd-edge-input-se' ).removeClass('ui-disabled');
-		    });
+		newElem.find(delbtnClass).on( "click", function() {
+			$('#' + blockIDprefix + newNum ).remove();
+			$('#' + btnID ).removeClass('ui-disabled');
+		});
         	// business rule: limit the number of fields to 5
-        	if (newNum == 5) {
-        	     $('#btnAdd-edge-input-se' ).addClass('ui-disabled');
-        	     //alert('maximum fields reached')
+		if (newNum == 5) {
+			$('#' + btnID ).addClass('ui-disabled');
+			//alert('maximum fields reached')
         	}                        
     	});
     
@@ -687,52 +819,48 @@ $( document ).ready(function()
         	     //alert('maximum fields reached')
         	}                        
     	});
-  	$('.btnAdd-edge-phylo-ref-file').click( function(e) {
+  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file').click( function(e) {
 		e.preventDefault();
+		var blockClass, blockIDprefix, inputID, label, selectClass;
+		if ($(this).hasClass("btnAdd-edge-phylo-ref-file")){
+			selectClass = ".btnAdd-edge-phylo-ref-file";
+			blockClass = ".edge-phylo-ref-file-block";
+			blockIDprefix = "edge-phylo-ref-file-block";
+			inputID= "edge-phylo-ref-file";
+			label = "Add Genome(s)";
+		}else if ($(this).hasClass("btnAdd-edge-qiime-barcode-fq-file")){
+			selectClass = ".btnAdd-edge-qiime-barcode-fq-file";
+			blockClass = ".edge-qiime-barcode-fq-file-block";
+			blockIDprefix = "edge-qiime-barcode-fq-file-block";
+			inputID = "edge-qiime-barcode-fq-file-input";
+			label = "Barcode Fastq File";
+		}else if ($(this).hasClass("btnAdd-edge-ref-file")){
+			selectClass = ".btnAdd-edge-ref-file";
+			blockClass = ".edge-ref-file-block";
+			blockIDprefix = "edge-ref-file-block";
+			inputID = "edge-ref-file";
+			label = "Reference Genome";
+                }
 		// how many "duplicatable" input fields we currently have
-		var num = $('.edge-phylo-ref-file-block').length;
-		console.log(num);	
+		var num = $(blockClass).length;
 		// the numeric ID of the new input field being added	
 		var newNum	= new Number(num + 1);	
-		var newElem = $('#edge-phylo-ref-file-block' + num ).clone().attr('id', 'edge-phylo-ref-file-block' + newNum);
-		newElem.find('label:first').attr( 'for', 'edge-phylo-ref-file-' + newNum ).text('Add Genome FASTA (' + newNum + ')');
-		newElem.find('input:first').attr( 'id', 'edge-phylo-ref-file-' + newNum ).attr('name', 'edge-phylo-ref-file');
-		newElem.find('.btnAdd-edge-phylo-ref-file').remove();
+		var newElem = $('#' + blockIDprefix + num ).clone().attr('id', blockIDprefix + newNum);
+		newElem.find('label:first').attr( 'for', inputID + "-" + newNum ).text(label + '(' + newNum + ')');
+		newElem.find('input:first').attr( 'id', inputID + "-" + newNum ).attr('name', inputID);
+		newElem.find(selectClass).remove();
 		// insert newElem
-		$('#edge-phylo-ref-file-block' + num).after(newElem);
+		$('#' + blockIDprefix + num).after(newElem);
 			// bind the selector 
 			newElem.find(".edge-file-selector").on( "click", function() {
 			inputFileID = $(this).prevAll().children().prop("id");
 		});
 		// business rule: limit the number of fields to 5
 		if (newNum == 5) {
-			$('.btnAdd-edge-phylo-ref-file' ).addClass('ui-disabled');
+			$(selectClass).addClass('ui-disabled');
 			//alert('maximum fields reached')
 		}   
 	});
-	$('.btnAdd-edge-ref-file').click( function(e) {
-                e.preventDefault();
-                // how many "duplicatable" input fields we currently have
-                var num = $('.edge-ref-file-block').length;
-                console.log(num);       
-                // the numeric ID of the new input field being added    
-                var newNum      = new Number(num + 1);  
-                var newElem = $('#edge-ref-file-block' + num ).clone().attr('id', 'edge-ref-file-block' + newNum);
-                newElem.find('label:first').attr( 'for', 'edge-ref-file-' + newNum ).text('Reference genome (' + newNum + ')');
-                newElem.find('input:first').attr( 'id', 'edge-ref-file-' + newNum ).attr('name', 'edge-ref-file');
-                newElem.find('.btnAdd-edge-ref-file').remove();
-                // insert newElem
-                $('#edge-ref-file-block' + num).after(newElem);
-                        // bind the selector 
-                        newElem.find(".edge-file-selector").on( "click", function() {
-                        inputFileID = $(this).prevAll().children().prop("id");
-                });
-                // business rule: limit the number of fields to 5
-                if (newNum == 5) {
-                        $('.btnAdd-edge-ref-file' ).addClass('ui-disabled');
-                        //alert('maximum fields reached')
-                }   
-        });
 
 	$( ".edge-collapsible-options > select" ).on( "change", function() {
 		sync_input();
@@ -763,18 +891,18 @@ $( document ).ready(function()
 	});
 
 	$( "#edge-view-log-btn" ).on( "mouseover", function() {
-		getLog("./EDGE_output/"+focusProjName+"/process_current.log");
+		getLog("."+focusProjLogFile);
 	});
 
 	$( "#edge_log_dialog" ).popup({
 		beforeposition: function( event, ui ) {
-			getLog("./EDGE_output/"+focusProjName+"/process_current.log");
+			getLog("."+focusProjLogFile);
 		},
 		afteropen: function( event, ui ) {
 			if( focusProjStatus != "finished" ){
 				updateLogInterval = setInterval(
 					function(){
-						getLog("./EDGE_output/"+focusProjName+"/process_current.log");
+						getLog("."+focusProjLogFile);
 						if( focusProjStatus == "finished" ){
 							clearInterval(updateLogInterval);
 						}
@@ -786,21 +914,69 @@ $( document ).ready(function()
 		}
 	});
 
-	//confirm dialog
+	//confirm dialog popup
 	$( "a[id^='action']" ).on('click', function(){
+
+		if (!focusProjName){
+			showWarning("No focus project for the action");
+			return false;
+		}
 		var action = $(this).attr("data");
 		var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> project "+focusProjRealName+"?";
-		if (action.indexOf("publish") < 0){
+
+		//sample metadata
+		if(action == "metadata-delete") {
+			actionContent = "Do you want to <span id='action_type'>DELETE</span> project "+focusProjRealName+" sample metadata?";
+		}
+		if(action == "metadata-bsvedelete") {
+			actionContent = "Do you want to <span id='action_type'>DELETE</span> project "+focusProjRealName+" sample metadata from BSVE?";
+		}
+		if(action == "metadata-bsveadd") {
+			actionContent = "Do you want to <span id='action_type'>SHARE</span> project "+focusProjRealName+" sample metadata with BSVE?";
+		}
+		if(action == "metadata-bsveupdate") {
+			actionContent = "Do you want to <span id='action_type'>UPDATE</span> project "+focusProjRealName+" sample metadata in BSVE?";
+		}
+		//END sample metadata
+
+		if (action.indexOf("publish") < 0 && action.indexOf("bsve") < 0 ){
+		//if (action.indexOf("publish") < 0){
 			actionContent += "<p>This action can not be undone.</p>";
 		}
+
 		if (action == "share" || action == "unshare"){
 			$("#edge_confirm_dialog_content").html( "<span id='action_type'>"+action.toUpperCase()+"</span> project " +focusProjRealName+ " to");
 			setUserList(action,focusProjName);
-		}else{
+		} 
+		else if (action == "rename"){
+			renameUserProject(action);
+			//focusProjName is the projectID #
+		}
+		else if (action == "reconfig"){
+			$( "div.edge-action-panel" ).panel('close');
+			reconfig( focusProjConfigFile );
+		}
+		else{
 			$("#edge_confirm_dialog_content").html(actionContent);
 		}
 		
+
+		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+			actionConfirm(action,focusProjName);
+		});
 	});
+
+	function renameUserProject(action){
+		//send strings to #edge_cinfirm_diaglo_content to be printed in popup box
+		var myVar = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> "+focusProjRealName+"? <br> <br>";
+		myVar +="Enter New Project Name <br>";
+		myVar += "<input type= 'text' name='rename_project_Name' id='rename_project_Name_ID'> <br> <br>";
+		myVar += "Enter New Project Description <br>";
+		myVar += "<input type= 'text' name='rename_project_Desc' id='rename_project_Desc_ID'> <br> <br>";
+		
+		//sends to html page
+		$("#edge_confirm_dialog_content").html(myVar);
+	}
 
 	function setUserList(action,pname){
 		var actionContent= '<fieldset data-role="controlgroup" id="edge-userList" data-filter="true" data-filter-placeholder="Search users ...">';
@@ -809,7 +985,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : pname,  "action": action, 'protocol': location.protocol, 'sid':sessionStorage.sid },
+			data: { "proj" : pname,  "action": action, 'protocol': location.protocol, 'sid':localStorage.sid },
 			success: function(data){
 				if (data.length>0){
 					$("#edge_confirm_dialog a:contains('Confirm')").show();
@@ -870,8 +1046,12 @@ $( document ).ready(function()
 		}
 	});
 
-	$("#edge_confirm_dialog a:contains('Confirm')").on("click",function(){
-		var action = $("#edge_confirm_dialog_content > span").html();
+	function actionConfirm (action,focusProjName,request){
+
+		var rename_project = $("#rename_project_Name_ID").val(); //project name
+		var project_description = $("#rename_project_Desc_ID").val(); //project desc
+
+
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
 			if($(this).hasClass('ui-checkbox-on')){
@@ -879,39 +1059,69 @@ $( document ).ready(function()
 			}
 		});
 		var shareEmail = userChkArray.join(',');
-		$.ajax({
+		//ajax sends the data to edge_action.cgi via Key, value
+		var myAjaxRequest= $.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : focusProjName, "action": action, "userType":userType, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':sessionStorage.sid},
+			data: { "proj" : focusProjName, "action": action, "userType":userType, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':localStorage.sid, "rename_project": rename_project, "project_description": project_description},
 			beforeSend: function(){
-				$.mobile.loading( "show", {
-					text: "Executing "+ action.toUpperCase() +" command...",
-					textVisible: 1,
-					html: ""
-				});
+				if (!request){
+					$.mobile.loading( "show", {
+						text: "Executing "+ action.toUpperCase() +" command...",
+						textVisible: 1,
+						html: ""
+					});
+				}
 			},
 			complete: function() {
-				$.mobile.loading( "hide" );
-				updateProject(focusProjName);
+				//$.mobile.loading( "hide" );
+				//sample metadata
+				if(action == 'metadata-delete') {
+					updateReport(focusProjName);
+				} 
+				//NOTE: this change also affects other actions; need move it to if block?
+				page.find( ".edge-action-panel" ).panel( "close" );
+				//END sample metadata
 			},
 			success: function(data){
+				$.mobile.loading( "hide" );
 				if( data.STATUS == "SUCCESS" ){
-					$.mobile.loading( "hide" );
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					showWarning(data.INFO);
+					if ( action == 'compare'){
+						var loc = window.location.pathname;
+						var edge_path = loc.substring(0,loc.lastIndexOf('/'));
+						window.open(edge_path + data.PATH);
+					}
+				}
+				else if( action == 'rename'){
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					showWarning(data.INFO);
+				} 
+				else{
 					showWarning(data.INFO);
 				}
-				else{
-					$.mobile.loading( "hide" );
-					showWarning(data.INFO);
+				if (action != 'compare'){
+					updateProject(focusProjName);
+				}
+				
+				//reload project list if project list page is loaded
+				if( $("#edge-project-page").is(":visible") ){
+					updateProjectsPage( $("#edge-project-page-li").data( "mode") );
 				}
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
 				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+
 			}
 		});
-	});
+		if (request){
+			request.push(myAjaxRequest);
+		}
+	}
 
 	//panel
 	$( ".edge-navmenu-panel ul" ).listview();
@@ -952,7 +1162,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: { "proj" : pname, "sid":sessionStorage.sid },
+			data: { "proj" : pname, "sid":localStorage.sid , 'umSystem':umSystemStatus, 'protocol':location.protocol},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
@@ -974,8 +1184,27 @@ $( document ).ready(function()
 				$( "#edge-content-report" ).show();
 				$( "#edge-content-report" ).find("img").lazyLoadXT();
 				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
-	
-				//console.log("finished loading");
+				$( "#edge-content-report" ).enhanceWithin();
+
+				//for progress bar in report
+				if( $("#edge-output-projstatus").text() == "Running" ){
+					var progress_bar = $( '<div id="progressbar-block"><input type="range" id="progressbar" data-highlight="true" min="0" max="100" value="0"><div class="overlay"></div><span id="progressbar-val">Loading...</span></div>' )
+					progress_bar.insertAfter( $( "#edge-output-projname" ) );
+					$( '#progressbar' ).slider({
+						create: function( event, ui ) {
+						    $(this).parent().parent().css('position','relative');
+						    $(this).parent().find('input').hide();
+						    $(this).parent().find('input').css('margin-left','-9999px'); // Fix for some FF versions
+						    $(this).parent().find('.ui-slider-track').css('margin','0 15px 15px 0px');
+						    $(this).parent().find('.ui-slider-track').css('height','1.5em');
+						    $(this).parent().find('.ui-slider-handle').hide();
+						}
+					}).slider("refresh");
+				}
+
+				if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined")){
+					$('#get_download_link').hide();
+				}
 
 				if ($( ".krona_plot" ).length){
                                         if(testKronaAnimation){clearInterval(testKronaAnimation);};
@@ -992,21 +1221,23 @@ $( document ).ready(function()
 			
 					clearInterval(testKronaAnimation);
 				}
-
-				//console.log("finished krona");
+				
 				$.getScript( "./javascript/edge-output.js" )
 					.done(function( script, textStatus ) {
 					//	console.log( "edge-output.js loaded: " + textStatus );
+						var projName = $('#edge-output-projname').html();
+						$('#edge-project-header').find('h2').html(projName);
 					})
 					.fail(function( jqxhr, settings, exception ) {
 						console.log( jqxhr, settings, exception );
 					});
 				var pstatus = $( "#edge-content-report" ).find("p:first").text().match( /Project Status: (.+)/m );
 
-				if( pstatus[1] != "Complete" ){
+				if( pstatus[1] != "Complete" && pstatus[1] != "Archived"){
 					$( "#edge-content-report div.ui-grid-a" ).hide();
 					$( "#edge-content-report div.ui-grid-c" ).hide();
 				}
+				//console.log($( "#edge-get-contigs-by-taxa" ));
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
@@ -1016,20 +1247,32 @@ $( document ).ready(function()
 	}
 
 	//submit
-	$( "#edge-form-submit" ).on( "click", function() {
-		if (umSystemStatus && sessionStorage.sid == ""){
+	$( "#edge-form-submit, #edge-form-reconfig-rerun" ).on( "click", function() {
+		var mode;
+
+		if (umSystemStatus && localStorage.sid == ""){
 			showWarning("Please login to run EDGE.");
 			return;
 		}
 
 		var projID=$("#edge-proj-name").val();
+		var addParam = $.param({ 'pipeline': pipeline, 'protocol': location.protocol, 'sid':localStorage.sid});
+
+		//reconfig
+		if( $(this).prop("id") == "edge-form-reconfig-rerun" ){
+			mode = "reconfig";
+			toggle_input_fields( "enable" ); //enable input fileds before submitting
+			projID = focusProjInfo.NAME;
+			var addRecParam = $.param({ 'type': "reconfig", "rec_projcode": focusProjInfo.PROJCODE, "rec_projname": projID })
+		}
+		
 		$.ajax({
 			url: "./cgi-bin/edge_submit.cgi",
 			type: "POST",
 			dataType: "json",
 			cache: false,
 			//data: $( "#edge-run-pipeline-form" ).serialize(),
-			data: ( page.find("form").serialize() +'&'+ $.param({ 'protocol': location.protocol, 'sid':sessionStorage.sid })),
+			data: ( page.find("form").serialize() +'&'+ addParam +'&'+ addRecParam ),
 			beforeSend: function(){
 				$(".list-info, .list-info-delete").fadeOut().remove(); //clear div
 				page.find("input").removeClass("highlight");
@@ -1063,12 +1306,20 @@ $( document ).ready(function()
 				});
 
 				if( obj.SUBMISSION_STATUS == "success" ){
+					$( ".highlight").removeClass("highlight");
 					$( "#edge-submit-info" ).fadeIn("fast");
-					var dom = "<li data-icon='info' class='list-info'><a href='#'>The job has been submitted successfully. Click to see open progress panel.</a></li>";
-					
-					$(dom).on( "click", function(){page.find( ".edge-action-panel" ).panel( "open" );})
-					      .appendTo( "#edge-submit-info");
-					updateProject(projID);
+
+					if( mode == "reconfig" ){
+						toggle_input_fields( "reconfig" );
+						var dom = "<li data-icon='info' class='list-info'><a href='#'>The project has been reconfigured successfully. Click to see open progress panel.</a></li>";
+						$(dom).on( "click", function(){page.find( ".edge-action-panel" ).panel( "open" );}).appendTo( "#edge-submit-info");
+						$('#action-rerun-btn').click();
+					}
+					else{
+						var dom = "<li data-icon='info' class='list-info'><a href='#'>The project has been submitted successfully. Click to see open progress panel.</a></li>";
+						$(dom).on( "click", function(){page.find( ".edge-action-panel" ).panel( "open" );}).appendTo( "#edge-submit-info");
+						updateProject(projID);
+					}
 				}
 				else{
 					// display error information
@@ -1169,6 +1420,22 @@ $( document ).ready(function()
 				}
 			}
 		});
+		$(":radio[name='edge-anno-sw']").on("change", function(){
+			if ( $(this).val() == 0 ){
+				if ( $( "#edge-orfs-sg-sw1" ).is(':checked') ){
+					$( "#edge-orfs-sg-sw1" ).prop("checked",false).checkboxradio("refresh");
+					$( "#edge-orfs-sg-sw2" ).prop("checked",true).checkboxradio("refresh");
+				}
+			}
+		});
+		$(":radio[name='edge-orfs-sg-sw']").on("change", function(){
+			if ( $(this).val() == 1 ){
+				if ( $( "#edge-anno-sw2" ).is(':checked') ){
+					showWarning("ORFs Specialty Gene Profiling function can only be performed when annotation function turns on.");
+					$( "#edge-orfs-sg-sw2" ).prop('checked',true);
+				}
+			}
+		});
 		$('#edge-anno-source').hide();
 		
 		$(":radio[name='edge-anno-tool']").on("change", function(){
@@ -1183,14 +1450,22 @@ $( document ).ready(function()
 		});
 
 		$('#edge-spades-parameters').hide();
+		$('#edge-megahit-parameters').hide();
 		$(":radio[name='edge-assembler']").on("change", function(){
 			if($('#edge-assembler1').is(':checked')){
 				$('#edge-spades-parameters').hide();
+				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').show();
 			}
 			if($('#edge-assembler2').is(':checked')){
-				$('#edge-spades-parameters').show();
+				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').hide();
+				$('#edge-spades-parameters').show();
+			}
+			if($('#edge-assembler3').is(':checked')){
+				$('#edge-spades-parameters').hide();
+				$('#edge-idba-parameters').hide();
+				$('#edge-megahit-parameters').show();
 			}
 		});
 		
@@ -1211,9 +1486,60 @@ $( document ).ready(function()
 			}
 		});
 		
+		$('.edge-input-se-block').hide();
+		$('#edge-qiime-pipeline-dir-input').hide();
+		$('#btnAdd-edge-input-se').hide();
+		$(":radio[name='edge-qiime-rt-sw']").on("change", function(){
+			if($('#edge-qiime-rt-sw1').is(':checked')){
+				$('.edge-input-se-block').hide();
+				$('.edge-input-pe-block').show();
+				$('#edge-qiime-pro-sw').show();
+				$('#btnAdd-edge-input-pe').show();
+				$('#btnAdd-edge-input-se').hide();
+				$('#edge-qiime-pipeline-dir-input').hide();
+			}
+			if($('#edge-qiime-rt-sw2').is(':checked')){
+				$('.edge-input-pe-block').hide();
+				$('.edge-input-se-block').show();
+				$('#edge-qiime-pro-sw').hide();
+				$('#btnAdd-edge-input-pe').hide();
+				$('#btnAdd-edge-input-se').show();
+				$('#edge-qiime-pipeline-dir-input').hide();
+			}
+			if($('#edge-qiime-rt-sw3').is(':checked')){
+				$('.edge-input-se-block').hide();
+				$('.edge-input-pe-block').hide();
+				$('#edge-qiime-pipeline-dir-input').show();
+				$('#btnAdd-edge-input-pe').hide();
+				$('#btnAdd-edge-input-se').hide();
+			}
+		});
 	}
 
-	function sync_input() {	//disable inputs for default tools
+	function toggle_input_fields( act ){
+		if( act == "reconfig" ){
+			$('#edge-proj-name').prop("disabled", true);
+			$('input[id^="edge-sra-"]').prop("disabled", true);
+			$('input[name="edge-sra-sw"]').prop("disabled", true).checkboxradio("refresh");
+			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
+			$('#edge-batch-input-excel-1').prop("disabled", true);
+			$('input[id^="edge-input-"]').prop("disabled", true);
+			$('#edge-qiime-mapping-file-input1').prop("disabled", true);
+			$('#edge-qiime-reads-dir-input').prop("disabled", true);
+		}
+		else{
+			$('#edge-proj-name').prop("disabled", false);
+			$('input[id^="edge-sra-"]').prop("disabled", false);
+			$('input[name="edge-sra-sw"]').prop("disabled", false).checkboxradio("refresh");
+			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
+			$('#edge-batch-input-excel-1').prop("disabled", false);
+			$('input[id^="edge-input-"]').prop("disabled", false);
+			$('#edge-qiime-mapping-file-input1').prop("disabled", false);
+			$('#edge-qiime-reads-dir-input').prop("disabled", false);
+		}
+	}
+
+	function sync_input( type ) {	//disable inputs for default tools
 		$( ".edge-collapsible-options > select" ).each( function() {
 			var inputOpt = $(this).parents('div[data-role="collapsible"]');
 			$(inputOpt).find("input").prop("disabled", false);
@@ -1252,11 +1578,12 @@ $( document ).ready(function()
 	};
 
 	function showWarning( dialog_content ) {
-		$( "#edge_integrity_dialog_content" ).text(dialog_content);
+		$( "#edge_integrity_dialog_content" ).html(dialog_content);
 		$( "#edge_integrity_dialog" ).popup('open');
 	}
 
 	$("#edge-project-page-li").on("click",function(){
+		$("#edge-project-page-li").data( "mode", "user" );
 		updateProjectsPage('user');
 	});
 	function updateProjectsPage(view) {
@@ -1265,7 +1592,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'userType':userType,'view':view,'protocol': location.protocol, 'sid':sessionStorage.sid},
+			data: {'umSystem':umSystemStatus,'userType':userType,'view':view,'protocol': location.protocol, 'sid':localStorage.sid},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
@@ -1277,22 +1604,115 @@ $( document ).ready(function()
 				$.mobile.loading( "hide" );
 			},
 			success: function(data){
+				updateProject();
 				allMainPage.hide();
 				$( "#edge-project-page" ).html(data);
 				$( "#edge-project-page" ).show();
-				$( ".edge-project-page-link").each( function(){
+				$( ".edge-project-page-link").unbind('click').on('click', function(e){
+					e.preventDefault();
 					var pname = $(this).attr("data-pid");
-					$(this).off('click').on("click", function(e){
-						e.preventDefault();
-						updateReport(pname);
-						updateProject(pname);
-					});
+					updateReport(pname);
+					updateProject(pname);
 				});
-				$("#edge-project-page-admin").on("click",function(){
-					updateProjectsPage('admin');
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+				$("#edge-projpage-action").children('a').on("click", function(){
+					var action = $(this).text();
+					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> projects " ;
+					//sample metadata
+					if(action === "metadata-bsveadd") {
+						actionContent = "Do you want to <span id='action_type'>SHARE</span> projects' metadata with BSVE?" ;
+					}
+					//END sample metadata
+					if ( action === "0" ){
+						return;
+					}
+					if ( action  === "show-all" ){
+						updateProjectsPage('admin');
+						$("#edge-project-page-li").data( "mode", "admin" );
+						return;
+					}else{
+						if ( $('[name="edge-projpage-ckb"]:checked').length === 0 ){
+							showWarning("There are no projects selected.");
+							return;
+						}
+						if ( $('[name="edge-projpage-ckb"]:checked').length < 2 && action === "compare"){
+							showWarning("There is only one project selected for comparison.");
+ 							return;
+ 						}
+						var projnames=[];
+						var projids=[];
+						$('[name="edge-projpage-ckb"]:checked').each(function( event ) {
+							projnames.push("<li>"+$(this).closest('td').next('td').find('.edge-project-page-link').text()+"</li>");
+							if ( action === 'compare'){
+								projids.push($(this).val());
+							}else{
+								projids.push($(this).closest('td').next('td').find('.edge-project-page-link').attr('data-pid'));
+							}
+						});
+						actionContent += '<ul>' + projnames.join('\n') + '</ul>';
+						var focusProjCodes = projids.join();
+						$("#edge_confirm_dialog_content").html(actionContent);
+						$( "#edge_confirm_dialog" ).enhanceWithin().popup('open');
+						if ( action === "share" ){
+							setUserList(action,focusProjCodes);
+						}
+						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+							if ( action === "compare" ){
+								actionConfirm(action,focusProjCodes);
+							}else{
+								var actionRequest=[];
+								for (var i = 0; i < projids.length; i++) { 
+									$.mobile.loading( "show", {
+										text: "Executing "+ action.toUpperCase()  + " command...",
+										textVisible: 1,
+										html: ""});
+									actionConfirm(action,projids[i],actionRequest);
+								}
+								// wait for all ajax request done
+								$.when.apply(null,actionRequest).done(function(){
+									$( "#edge_integrity_dialog" ).popup('close');
+									$( "#edge_integrity_dialog_header" ).text("Message");
+									$( "#edge_integrity_dialog" ).popup("reposition",{positionTo: 'window'});
+									//sample metadata
+									//if(action === "metadata-bsveadd") {
+									//	showWarning('Metadata of projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been shared with BSVE.');
+									if (action === "delete"){
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
+									} else if (action === "restart") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'ed');
+									} else if (action === "rerun") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + 'restarted');
+									} else if (action === "interrupt") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'ed');
+									} else if (action === "empty") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + 'emptied and restarted');
+									} else if (action === "share") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
+									} else if (action === "publish") {
+										showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'ed');
+									} else {
+										showWarning(action + 'was applied to' + '<ul>' + projnames.join('\n') + '</ul>');
+									}
+									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
+								});
+							}
+						});
+					}
+					
 				});
 				$("#edge-project-list-filter").filterable({
 					children: $( "#edge-project-list-filter" ).find("tbody").children(),
+					create: function (event,ui){
+					//	 $('#edge-project-page').find('.ui-filterable').addClass('ui-grid-a').css('margin','0px');
+					//	 $('#edge-project-page').find('.ui-filterable').find('div').addClass('ui-block-b');
+					//	 $('#edge-projpage-action').addClass('ui-block-a');
+					//	 $('#edge-project-page').find('.ui-block-b').before($('#edge-projpage-action'));
+					},
 					filterCallback: OrSearch,
 					filter:function( event, ui ) { 
 						$("#edge-project-list-filter .ui-collapsible").each(function(){
@@ -1304,44 +1724,13 @@ $( document ).ready(function()
 						});
 					}
 				});
-				/*$( "#edge-project-page" ).find("table").each(function(){
-					var input = $( "<input data-type='search' placeholder='Search projects ...'></input>" );
-					var form = $( "<form></form>" ).append( input );
-					form.enhanceWithin();
-					$(this).before( form ).jqmData( "filter-form", form ) ;
-                
-					$(this).attr("data-role", "table")
-					       .attr("data-filter","true")
-					       .attr("data-mode","reflow");
-
-					$(this).filterable({
-    						input: input,
-    						children: "> tbody tr",
-						filterCallback: OrSearch
-        					});			
-				});*/
-        			$( "#edge-project-page" ).enhanceWithin();
-			/*	$( "a[id^='action']" ).on('mouseover', function(){
-					var action = $(this).attr("data");
-					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> project "+focusProjRealName+"?";
-					if (action.indexOf("publish") < 0){
-						actionContent += "<p>This action can not be undone.</p>";
-					}
-					if (action == "share" || action == "unshare"){
-						actionContent = "<span id='action_type'>"+action.toUpperCase()+"</span> project " +focusProjRealName+ " to <p> Email:  <input type='text' id='edge_shareEmail' placeholder='comma separated email for multiple user' size='37'></p>";
-					}
-					$("#edge_confirm_dialog_content").html(actionContent);
-		
-				});
-
+				$( "#edge-project-page" ).enhanceWithin();
 
 				$( "#edge_confirm_dialog" ).popup({
 					afterclose: function( event, ui ) {
 						updateProject(focusProjName);
 					}
 				});
-			*/
-	//			$('#edge-project-list-collapsibleset').enhanceWithin();
 			/*	//use tablesortr library 
 				$("#edge-project-page-table").tablesorter(
 					{
@@ -1355,6 +1744,18 @@ $( document ).ready(function()
 						}
 					}
 				);*/
+
+				var ProjDataTable = $('#edge-project-page-table').DataTable({
+					"columnDefs": [ {"targets": 0, "orderable": false}],
+					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"pageLength": 25,
+					"responsive": true,
+				});
+
+				$('#edge-project-page-table tbody').on( 'click', 'tr', function () {
+				    $(this).toggleClass('selected');
+				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
+				} );
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
@@ -1364,7 +1765,81 @@ $( document ).ready(function()
 		});
 	};
 
-	$('#edge-project-list-ul').filterable({filterCallback:OrSearch});
+
+	function edge_ui_init () {
+		$.ajax({
+			url: './cgi-bin/edge_info.cgi',
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { "init" : '1', 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
+			complete: function(data){
+			},
+			success: function(obj) {
+				if( obj.INFO.UPLOAD == "false"){
+					var uploader = $("#uploader").pluploadQueue({
+					buttons : {browse:false,start:false,stop:false}
+					});
+					$("#edge-content-upload-li").hide();
+				}else{
+					$("#edge-content-upload-li").show();
+				}
+				( obj.INFO.ARCHIVE == "true" )?	$("#action-archive-btn").show():$("#action-archive-btn").hide();
+				
+				if ( obj.INFO.MQC == "true" ){
+					$("#edge-pp-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-pp-sw").val(0).slider("refresh");
+					$("#edge-pp-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MAA == "true" ){
+					$("#edge-assembly-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-assembly-sw").val(0).slider("refresh");
+					$("#edge-assembly-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MRBA == "true"){
+					$("#edge-ref-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-ref-sw").val(0).slider("refresh");
+					$("#edge-ref-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MTC == "true" ){
+					$("#edge-taxa-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-taxa-sw").val(0).slider("refresh");
+					$("#edge-taxa-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MPA == "true" ){
+					$("#edge-phylo-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-phylo-sw").val(0).slider("refresh");
+					$("#edge-phylo-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MSGP == "true" ){
+					$("#edge-sg-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-sg-sw").val(0).slider("refresh");
+					$("#edge-sg-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MPPA == "true"){
+					$("#edge-primer-sw").closest('div[data-role="collapsible"]').show();
+				}else{
+					$("#edge-primer-sw").val(0).slider("refresh");
+					$("#edge-primer-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
+				
+				if( String(obj.INFO.UMSYSTEM) != String(localStorage.umStatus) ){
+					check_user_management();
+				}
+				$('#edge-proj-cpu').val(obj.INFO.RUNCPU);
+			},
+			error: function(data){
+				showWarning("Failed to initialized EDGE GUI interface. Please check server error log for detail.");
+			}
+		});
+	};
 
 	function updateProject(pname) {
 		focusProjName = pname;
@@ -1373,7 +1848,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : pname, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':sessionStorage.sid },
+			data: { "proj" : pname, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			complete: function(data){
 				/*
 				console.log("finished_proj="+finished_proj);
@@ -1389,31 +1864,27 @@ $( document ).ready(function()
 					updateProject(pname);
 				});
 				clearInterval(updateProjInterval);
-				updateProjInterval = setInterval(function(){ if (running_proj>0){updateProject(pname)}}, interval);
+				updateProjInterval = setInterval(function(){ updateProject(pname) }, interval);
 			},
 			success: function(obj) {
 				// update focused proj
+				focusProjInfo   = obj.INFO;
 				focusProjName   = obj.INFO.NAME;
 				focusProjRealName   = obj.INFO.PROJNAME || obj.INFO.NAME;
+				focusProjConfigFile = "EDGE_output/" + (obj.INFO.PROJCODE || obj.INFO.PROJNAME) + "/config.json";
+				focusProjLogFile    = obj.INFO.PROJLOG;
 				focusProjStatus = obj.INFO.STATUS;
 				focusProjTime   = obj.INFO.TIME;
 				focusProjType	= obj.INFO.PROJTYPE;
+				projListNumShow	= obj.INFO.PROJLISTNUM;
 				finished_proj   = 0;
 				running_proj    = 0;
 				failed_proj     = 0;
-
+				unstart_proj	= 0;
 				//force logout
-				if( obj.INFO.SESSION_STATUS === "invalid" && sessionStorage.sid ){
+				if( obj.INFO.SESSION_STATUS === "invalid" && localStorage.sid ){
 					logout("Session expired. Please login again.");
 					return;
-				}
-				if( ! obj.INFO.UPLOAD){
-					var uploader = $("#uploader").pluploadQueue({
-					buttons : {browse:false,start:false,stop:false}
-					});
-					$("#edge-content-upload-li").hide();
-				}else{
-					$("#edge-content-upload-li").show();
 				}
 
 				//resource usage bar
@@ -1434,23 +1905,59 @@ $( document ).ready(function()
 							$("#action-share-btn").parent().parent().hide():
 							$("#action-share-btn").parent().parent().show();
 				}
+
+				//sample metadata
+				focusProjShowMeta = obj.INFO.SHOWMETA;
+				focusProjIsOwner = obj.INFO.ISOWNER;
+				focusProjHasMeta = obj.INFO.HASMETA;
+				focusProjMetaBSVE = obj.INFO.METABSVE;
+
+				if(focusProjShowMeta && (focusProjIsOwner || userType == 'admin')) {
+					$("#action-metadata-bsve-submit-btn").parent().parent().show();
+					if(focusProjHasMeta) {
+							$("#action-metadata-delete-btn").show();
+							$("#edge-pg-metadata-edit").attr('data','edit').text("Edit");
+							$("#action-metadata-bsve-submit-btn").show();
+					} else {
+							$("#edge-pg-metadata-edit").attr('data','edit').text("Add");
+							$("#action-metadata-delete-btn").hide();
+							$("#action-metadata-bsve-delete-btn").hide();
+							$("#action-metadata-bsve-submit-btn").hide();
+					}
+					(focusProjMetaBSVE)?
+							$("#action-metadata-bsve-delete-btn").show():
+							$("#action-metadata-bsve-delete-btn").hide();
+					(focusProjMetaBSVE)?
+							$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveupdate').text("Update in BSVE"):
+							$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveadd').text("Share with BSVE");
+				} else {
+					$("#action-metadata-bsve-submit-btn").parent().parent().hide();
+				}
+				//END sample metadata
+
 				// project list
 				if(! $.isEmptyObject(obj.LIST)){
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
 		
 					var listIdOrder = Object.keys(obj.LIST);
-					listIdOrder.sort(function(a,b){ return obj.LIST[a].TIME < obj.LIST[b].TIME ? -1 : obj.LIST[a].TIME > obj.LIST[b].TIME; }).reverse();
-
+					listIdOrder.sort(
+ 						firstBy(function(a,b){ return obj.LIST[b].TIME < obj.LIST[a].TIME ? -1 : obj.LIST[b].TIME > obj.LIST[a].TIME; })
+ 						.thenBy(function(a,b){ return obj.LIST[b].NAME < obj.LIST[a].NAME ? -1 : obj.LIST[b].NAME > obj.LIST[a].NAME; })
+ 					);
+					if (projListNumShow == 0){ projListNumShow = 9999999;}
+					var proj_count=0;
 					$.each(listIdOrder, function(i,v){
 						var proj_list_obj = obj.LIST[v];
 						if( proj_list_obj.NAME ){
+							proj_count++;
 							// with user management, NAME becomes unique project id
 							var projname = proj_list_obj.PROJNAME;
 							var name   = proj_list_obj.NAME;
-							var time   = proj_list_obj.TIME;
+							var time   =  proj_list_obj.TIME;
 							var pstatus = proj_list_obj.STATUS;
 							if (!projname) { projname = name;}
-							var fontColor = "white";
+							var bgClass = "";
+							var displayList = "hiddenProjList"; 
 							var desc = proj_list_obj.DESC || "No description";
 							desc = desc + " ("+pstatus+")";
 									
@@ -1465,6 +1972,11 @@ $( document ).ready(function()
 									projIcon  = "ui-icon-load";
 									running_proj++;
 									break;
+								case "archived":
+									projClass = "edge-time-bg-black";
+									projIcon = "ui-icon-arrow-u-r";
+									finished_proj++;
+									break;
   								case "failed":
 									projClass = "edge-time-bg-red";
 									projIcon  = "ui-icon-delete";
@@ -1473,31 +1985,48 @@ $( document ).ready(function()
   								default:
   									projClass = "edge-time-bg-grey";
   									projIcon  = "ui-icon-refresh";
+									unstart_proj++;
 							}
 							if (focusProjName == name){
-								fontColor = "yellow";
+								bgClass= "edge-proj-active";
 							}
-							var dom = "<li class='edge-proj-list-li'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' style='color:"+fontColor+"' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
+							if (proj_count < projListNumShow){
+								displayList = "";
+							}
+							var dom = "<li class='edge-proj-list-li "  + displayList + "'><div class='edge-project-time "+projClass+"'>"+time+"</div><a href='' class='edge-project-list ui-btn ui-btn-icon-right "+projIcon+" "+ bgClass +"' title='"+desc+"' data-pid='"+name+"'>"+projname+"</a></li>";
 							$(dom).appendTo( "#edge-project-list-ul" );
 						}
 					});
 				}else{
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
 				}
-				
 				if( $( ".edge-proj-list-li" ).size() == 0 ){
-					var dom = "<li class='edge-proj-list-li'><a href='#' class='edge-project-list ui-btn ui-btn-icon-right ui-icon-check'>No project found</a></li>";
+					var dom = "<li class='edge-proj-list-li ui-disabled'><a href='#' class='edge-project-list ui-btn ui-btn-icon-right ui-icon-check'>No project found</a></li>";
 					$( "#edge-project-list-ul" ).append(dom);
 				}
+
+				$('.hiddenProjList').hide();
+				$('#edge-project-list-ul').filterable({
+					children:".edge-proj-list-li li",
+					filterCallback:OrSearch,
+					filter:function(event,ui){
+						if ($('#filterProjectList-input').val()){
+							$('.hiddenProjList').not('ui-screen-hidden').show();
+						}
+					}
+				});
 
 				// progress info
 				if(! $.isEmptyObject(obj.PROG))
 				{
+					var tol_proj = 0;
+					var done_proj = 0;
+
 					$( "#edge-progress-ul > li" ).fadeOut().remove();
 					var projname = obj.INFO.PROJNAME || obj.INFO.NAME;
 					var dom = "<li data-role='list-divider'>"+projname+"</li>";
 					$( "#edge-progress-ul" ).append(dom);
-		
+
 					var listIdOrder = Object.keys(obj.PROG);
 					listIdOrder.sort(function(a,b){ return parseInt(a) - parseInt(b);});
 
@@ -1510,7 +2039,6 @@ $( document ).ready(function()
 
 						switch ( pstatus ) {
 							case "skip":
-								return true;
 								projIcon = (parseInt(v) > focusProjRunningStep) ? "ui-icon-forbidden" : "ui-icon-forbidden edge-icon-bg-green";
 								projText = (parseInt(v) > focusProjRunningStep) ? "Off" : "Skipped";
 								break;
@@ -1538,7 +2066,17 @@ $( document ).ready(function()
 						}
 
 						dom = "<li><a href='#' class='ui-btn ui-btn-icon-right "+projIcon+"' title='"+projText+"'>"+name+"</a></li>";
-						$( "#edge-progress-ul" ).append(dom);
+						if ( pstatus != "skip"){
+							$( "#edge-progress-ul" ).append(dom);
+						}
+
+						//for progress bar in report
+						if( pstatus != "skip"){
+							tol_proj++;
+							if( pstatus == "finished" || pstatus == "done" ){
+								done_proj++;
+							}
+						}
 					});
 
 					dom = "<li data-role='list-divider' class='edge-proj-last-check'>Last checked: "+obj.INFO.TIME+"</li>";
@@ -1555,6 +2093,22 @@ $( document ).ready(function()
 				}else{
 					$( "#edge-progress-ul > li" ).remove();
 				}
+				
+				//for progress bar in report
+				if( $('#edge-output-projname').length && $('#edge-output-projname').attr("data-pid") == obj.INFO.NAME ){
+					if( obj.INFO.STATUS == "finished" ){
+						$("#progressbar-block").hide();
+					}
+					else{
+						prog_pct = Math.round( done_proj / tol_proj * 100 );
+						$("#progressbar").val( prog_pct ).slider("refresh")
+						$("#progressbar-val").css("width",prog_pct+"%").text( obj.INFO.STATUS + " (" + prog_pct+"% done)" );
+					}
+
+					if( obj.INFO.STATUS == "finished" && $('#edge-output-status').text() && $('#edge-output-status').text() != "Complete" ){
+						updateReport( obj.INFO.NAME );
+					}
+				}
 			},
 			error: function(data){
 				$( "#edge-submit-info" ).fadeIn("fast");
@@ -1564,14 +2118,10 @@ $( document ).ready(function()
 		});
 	};
 
-
-
-
-
         //upload files  
         function uploadFiles(userDir){
 		var target = (umSystemStatus)? "MyUploads/":"Uploads/";
-		var maxFileSize = sessionStorage.maxFileSize || '10mb';
+		var maxFileSize = localStorage.maxFileSize || '10mb';
                 var uploader = $("#uploader").pluploadQueue({
                     // General settings
                     runtimes : 'html5,flash,silverlight,html4',
@@ -1595,7 +2145,7 @@ $( document ).ready(function()
                             max_file_size :  maxFileSize,
                             // Specify what files to browse for
                             mime_types: [
-                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,genbank,gb"},
+                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,genbank,gb,txt,text,config,ini,xls,xlsx"},
                                     {title : "application/x-gzip", extensions : "gz"},
                             ]
                     },
@@ -1614,7 +2164,7 @@ $( document ).ready(function()
                     // PreInit events, bound before any internal events
                     preinit: {
                        Init: function(up, file) {
-                          if (umSystemStatus && (sessionStorage.sid == "" || typeof sessionStorage.sid === "undefined") ){
+                          if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
                              //destory file upload 
                              var uploader = $("#uploader").pluploadQueue({
                                  buttons : {browse:false,start:false,stop:false}
@@ -1626,7 +2176,10 @@ $( document ).ready(function()
                     // Post init events, bound after the internal events
                     init : {
                        BeforeUpload: function (up, file) {
-                          var url = "./cgi-bin/plupload_session.cgi?sid="+sessionStorage.sid;
+			  if (! umSystemStatus){
+				return true;
+			  }
+                          var url = "./cgi-bin/plupload_session.cgi?sid="+localStorage.sid;
                           $.ajax({
                              type: "GET",
                              url: url,
@@ -1658,7 +2211,7 @@ $( document ).ready(function()
         // Handle the case when form was submitted before uploading has finished
         $('#edge-uploadfile-form').submit(function(e) {
 
-                if (umSystemStatus && sessionStorage.sid == ""){
+                if (umSystemStatus && localStorage.sid == ""){
                         showWarning("Please login to upload files.");
                         return;
                 }
@@ -1678,4 +2231,348 @@ $( document ).ready(function()
                 return false; // Keep the form from submitting
         });
 
+	// scroll top
+	$(window).scroll(function() {
+		if ($(this).scrollTop()>600) {
+			$('#scroll-up-btn:hidden').stop(true, true).fadeIn();
+		} else {
+			$('#scroll-up-btn').stop(true, true).fadeOut();
+		}	
+	});
+	$('#scroll-up-btn').on('click',function(){
+		$('html, body').stop().animate({
+        		scrollTop: 0
+    		}, 300, 'linear');
+		return false;
+	});
+
+//////////////////////////////////////
+//sample metadata
+	checkSampleMetadata();
+	
+	$( "#human-gender" ).fadeOut('fast');
+	$( "#human-age" ).fadeOut('fast');
+
+	$( '#pg-cb-gender' ).on("change",function(){
+		if($(this).is(':checked')){
+			$( "#human-gender" ).fadeIn('fast');
+		} else {
+			$( "#human-gender" ).fadeOut('fast');
+		}
+	});
+	$( '#pg-cb-age' ).on("change",function(){
+		if($(this).is(':checked')){
+			$( "#human-age" ).fadeIn('fast');
+		} else {
+			$( "#human-age" ).fadeOut('fast');
+		}
+	});
+
+
+	//sample type
+	if($( '#edge-sample-type').val() == "human") {
+			$( "#edge-pg-human" ).fadeIn('fast');
+			$( "#edge-pg-host-associated" ).fadeIn('fast');
+			$( "#edge-sample-source-options-host" ).fadeIn('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeOut('fast');
+	}
+	if($( '#edge-sample-type' ).val() == "animal") {
+			$( "#edge-pg-human" ).fadeOut('fast');
+			$( "#edge-pg-host-associated" ).fadeIn('fast');
+			$( "#edge-sample-source-options-host" ).fadeIn('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeOut('fast');
+	}
+	if($( '#edge-sample-type' ).val() == "environmental") {
+			$( "#edge-pg-human" ).fadeOut('fast');
+			$( "#edge-pg-host-associated" ).fadeOut('fast');
+			$( "#edge-sample-source-options-host" ).fadeOut('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeIn('fast');
+	}
+
+	$( '#edge-sample-type' ).on("change",function(){
+		if ( $(this).val() == 'human' ){
+			$( "#edge-pg-human" ).fadeIn('fast');
+			$( "#edge-pg-host-associated" ).fadeIn('fast');
+			$('#edge-pg-host').val("human");
+			$( "#edge-sample-source-options-host" ).fadeIn('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeOut('fast');
+
+		}
+		else if ($(this).val() == 'environmental' ){
+			$( "#edge-pg-human" ).fadeOut('fast');
+			$( "#edge-pg-host-associated" ).fadeOut('fast');
+			$( "#edge-sample-source-options-host" ).fadeOut('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeIn('fast');
+			
+		}
+		else if ($(this).val() == 'animal' ){
+			$( "#edge-pg-human" ).fadeOut('fast');
+			$( "#edge-pg-host-associated" ).fadeIn('fast');
+			$('#edge-pg-host').val("");
+			$( "#edge-sample-source-options-host" ).fadeIn('fast');
+			$( "#edge-sample-source-options-nonhost" ).fadeOut('fast');
+		}
+	});
+
+	//seq platform
+	if($( '#edge-pg-seq-platform' ).val() =='Illumina') {
+			$( "#edge-pg-sequencer-options-ill" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+
+	}
+	if($( '#edge-pg-seq-platform' ).val() =='IonTorrent') {
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+
+	}
+	if($( '#edge-pg-seq-platform' ).val() =='Nanopore') {
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+
+	}
+	if($( '#edge-pg-seq-platform' ).val() =='PacBio') {
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeIn('fast');
+
+	}
+
+	$( '#edge-pg-seq-platform' ).on("change",function(){
+		if ( $(this).val() == 'Illumina' ){
+			$( "#edge-pg-sequencer-options-ill" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+		}
+		else if ($(this).val() == 'IonTorrent' ){
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+		}
+		else if ($(this).val() == 'Nanopore' ){
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeIn('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeOut('fast');
+		}
+		else if ($(this).val() == 'PacBio' ){
+			$( "#edge-pg-sequencer-options-ill" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-ion" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-nan" ).fadeOut('fast');
+			$( "#edge-pg-sequencer-options-pac" ).fadeIn('fast');
+		}
+	});
+
+	//update sample metadata
+	$("#edge-pg-metadata-edit").on("click", function(){
+		page.find( ".edge-action-panel" ).panel( "close" );
+		editSampleMetadata();
+	});
+
+	//reconfig input
+	function reconfig(){
+		//add time stamp to avoid caching.
+		var ts = new Date().getTime();
+		focusProjConfigFile = focusProjConfigFile + "?_=" + ts;
+
+		$.getJSON( focusProjConfigFile, function( data ) {
+			//loading pipeline
+			if( data['pipeline'] == "EDGE" ){
+				$( "a[href=#edge-content-pipeline]" ).click();
+				toggle_input_fields( "reconfig" );
+				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+				$('#edge-form-submit').closest('.ui-btn').hide();
+				$('#edge-form-reset').closest('.ui-btn').hide();
+			}
+			else if( data['pipeline'] == "qiime" ){
+				$( "a[href=#edge-qiime-pipeline]" ).click();
+				toggle_input_fields( "reconfig" );
+				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+				$('#edge-form-submit').closest('.ui-btn').hide();
+				$('#edge-form-reset').closest('.ui-btn').hide();
+			}
+
+			//clean multiple input blocks
+			$( "div[id^='edge'][class$='-block']" ).not("[id$='-block1']").remove();
+
+			var items = [];
+			$.each( data, function( key, value ) {
+				var multi_input = new Object();
+				//fields of input
+				if( key.indexOf('[]') > 0 ){
+					key = key.replace('[]',"");
+					var arr = value.split("\u0000");
+					$.each( arr, function(i, val) {
+						id=i+1;
+						if( $('#'+key+"-"+id).length == 0 ){
+							btnID = key.slice(0,-1)
+							$('#btnAdd-'+btnID).click();
+						}
+						$('#'+key+"-"+id).val(val);
+					});
+				}
+				else if(  $('#'+key).data('role') == "slider" ){
+					$('#'+key).val(value).slider("refresh");
+					sync_input()
+				}
+				else if(  $("input:radio[name="+key+"]").is(':radio') ){
+					if( $("input:radio[name="+key+"]:checked").val() != value ){
+						$("input:radio[name="+ key +"][value="+ value  +"]").prop('checked', true)
+						$("input:radio[name="+key+"]").checkboxradio("refresh");
+						$("input:radio[name="+key+"]").trigger("change");
+					}
+				}
+				else if( $('.btnAdd-'+key).length ){	
+					var arr = value.split(",");
+					$.each( arr, function(i, val) {
+						id=i+1
+						if( $('#'+key+"-"+id).length == 0 ){
+							$('.btnAdd-'+key).click()
+						}
+						$('#'+key+"-"+id).val(value)
+					});
+				}
+				else if( $('#'+key).prop('type') == "select-multiple" ){
+					if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
+						var arr = value.split("\u0000");
+						$.each( arr, function(i, val) {
+							$('#'+key)
+							  .append($("<option></option>")
+							  .attr("value", val)
+							  .text(val));
+						});
+					}
+					else{
+						var arr = value.split(",");
+					}
+					$('#'+key).val(arr)
+					$('#'+key).selectmenu("refresh");
+
+					if( key == "edge-phylo-ref-select" ){
+						AddSelectRefList();
+						$('#edge-phylo-ref-select-ref').val(data["edge-phylo-ref-select-ref"]);
+						$('#edge-phylo-ref-select-ref').selectmenu("refresh");
+					}
+				}
+				else if( $('#'+key).is('select') ){
+					$('#'+key).val(value);
+					$('#'+key).selectmenu("refresh");
+				}
+				else{
+					$('#'+key).val(value);
+				}
+			});	
+		});
+	}
+
+	function checkSampleMetadata(){
+    		$.ajax({
+    			type: "POST",
+			url: "./cgi-bin/edge_sample_metadata.cgi", 
+        		cache: false,
+        		dataType: "json",
+        		data: {"action": 'check' },
+				error: function(XMLHttpRequest, textStatus, errorThrown) { 
+         			console.log("ERROR");
+        		}, // error 
+        		// script call was successful 
+        		// data contains the JSON values returned by the cgi script 
+        		success: function(data){
+				console.log("sample metadata is " + data.metadata);
+				if (data.metadata == "on") { // sample_metadata_bsve is on
+					//console.log("is on");
+					$( "#edge-sample-metadata" ).fadeIn('fast');
+					localStorage.metadata = true;
+          			} else { 
+					//console.log("is off");
+					$( "#edge-sample-metadata" ).fadeOut('fast');
+					localStorage.metadata = false;
+				}	
+       			} // success
+    		});
+	}
+
+	function editSampleMetadata() {
+		if (!focusProjName){
+			showWarning("No focus project for the action");
+			return false;
+		}
+		$.ajax({
+			url: "./cgi-bin/edge_sample_metadata.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: { "proj" : focusProjName, "projname":focusProjRealName, "sid":localStorage.sid, "action":"edit" },
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				//console.log("got response");
+				allMainPage.hide();
+				$( "#edge-content-report" ).html(data);
+				if (  /The project does not exist/.test(data)){ 
+					showWarning(data);
+					return;
+				}
+				$( "#edge-content-report div[data-role='popup']" ).popup();
+				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
+				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();
+				$( "#edge-content-report fieldset[data-role='controlgroup']" ).controlgroup();
+				$( "#edge-content-report" ).show();
+				$( "#edge-content-report" ).find("img").lazyLoadXT();
+				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
+				$( "#edge-content-report" ).enhanceWithin();
+								
+				$.getScript( "./javascript/edge-metadata.js" )
+					.done(function( script, textStatus ) {
+					//	console.log( "edge-output.js loaded: " + textStatus );
+					})
+					.fail(function( jqxhr, settings, exception ) {
+						console.log( jqxhr, settings, exception );
+					});
+				
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("Failed to retrieve the report. Please REFRESH the page and try again."+data);
+			}
+		});
+	};
+	
+	//init Host list
+	$.getJSON( "data/host_list.json", function( data ) {
+                var genomeIds = Object.keys(data);
+                genomeIds.sort();
+
+                $.each( genomeIds, function( key, val ) {
+                        var name=val;
+                        name = name.replace(/_/g, " ");
+                        $("#edge-hostrm-file-fromlist").append($("<option value="+val+">"+name+"</option>"));
+                });
+                $("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
+        });
+
+	//geo location
+        $("#geocomplete").geocomplete({
+          map: ".map_canvas",
+          details: "form",
+          types: ["geocode", "establishment"],
+        });
+
+//END sample metatdata	
 });

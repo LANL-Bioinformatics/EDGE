@@ -18,8 +18,8 @@ use HTML::Entities ();
 # to prevent the whole filesystem to be shown
 # for ex: the root folder of your webbrowser
 
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
+# read system params from sys.properties
+my $config_tmpl = "$RealBin/../sys.properties";
 my $sys         = &getSysParamFromConfig($config_tmpl);
 my $root        = $sys->{edgeui_input};
 
@@ -33,11 +33,11 @@ my $fullDir = $root . $dir;
 
 exit if ! -e $fullDir;
 
-opendir(BIN, $fullDir) or die "Can't open $dir: $!";
+opendir(BIN, $fullDir) or die "Can't open $fullDir: $!";
 my (@folders, @files);
 my $total = 0;
 while( defined (my $file = readdir BIN) ) {
-    next if $file eq '.' or $file eq '..';
+	next if $file =~ /^\./;
     $total++;
     if (-d "$fullDir/$file") {
 	push (@folders, $file);
@@ -71,9 +71,6 @@ foreach my $file (sort @files) {
 }
 
 print "</ul>\n";
-
-
-
 
 #--------------------------------------------------------------------------------------------------
 sub getCGIParams {

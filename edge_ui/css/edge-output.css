@@ -28,7 +28,7 @@
 	overflow: hidden;
 }
 
-#edge-content-report ol > li > ol > li {
+#edge-content-report  ol > li  ol > li {
 	list-style-type: lower-roman;
 	color: #333333;
 }
@@ -150,4 +150,38 @@ table.output-table-twocol thead tr th:first-child {
 	padding: 0 3em 0 0;
 	background-color: #FFF;
 	overflow-y: auto;
+}
+
+/* edge spinner */
+.edge-sp {
+  width: 24px;
+  height: 24px;
+  clear: both;
+  margin: 10px auto;
+}
+
+/* Spinner Circle Rotation */
+.edge-sp-circle {
+  border: 4px rgba(80, 162, 83, 0.25) solid;
+  border-top: 4px #50a253 solid;
+  border-radius: 50%;
+  -webkit-animation: spCircRot .6s infinite linear;
+  animation: spCircRot .6s infinite linear;
+}
+
+@-webkit-keyframes spCircRot {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@keyframes spCircRot {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }

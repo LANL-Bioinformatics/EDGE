@@ -7,16 +7,29 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
-	Test=$rootdir/TestOutput/SNP_Phylogeny/basesUsed.txt
-	Expect=$rootdir/basesUsed.txt
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/SNP_Phylogeny/log.txt
+	Test=$rootdir/TestOutput/SNP_Phylogeny/testPhylogeneticAnalysis_summaryStatistics.txt
+	Expect=$rootdir/testPhylogeneticAnalysis_summaryStatistics.txt
+	Expect2=$rootdir/testPhylogeneticAnalysis_summaryStatistics2.txt
 	testName="EDGE Phylogenetic Analysis test";
 	if cmp -s "$Test" "$Expect"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
 	else
-		echo "$testName failed!"
-		touch "$rootdir/TestOutput/test.fail"
+		if cmp -s "$Test" "$Expect2"
+		then
+			echo "$testName passed!"
+                	touch "$rootdir/TestOutput/test.success"
+		else
+			echo "$testName failed!"
+			if [ -f "$TestLog" ]
+			then
+				cat $TestLog >> $MainErrLog
+			fi
+			touch "$rootdir/TestOutput/test.fail"
+		fi
 	fi
 }
 

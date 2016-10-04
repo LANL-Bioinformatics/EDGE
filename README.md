@@ -1,23 +1,22 @@
 # EDGE Bioinformatics
 
-This is version 1.1.1 of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
+This is version 1.5 of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-A demonstration version of EDGE is currently available at https://bioedge.lanl.gov/edge_ui/ with example data sets available to the public to view and/or re-run and also allows EDGE runs of SRA/ENA data. (This webserver does not currently support upload of data due in part to LANL security regulations, however local installations are meant to be fully functional.) To run EDGE follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/v1.1/introduction.html. It is also linked at the bottom of the EDGE homepage.
-
-For basic information about EDGE, visit the <a href="https://edge.readthedocs.io/en/latest/EDGE_ABCs.html" >EDGE ABC's</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
+To demo EDGE, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.io. It is also linked at the bottom of the EDGE homepage.
 
 ## Documentation
 
-[ReadTheDocs](http://edge.readthedocs.org)
+[ReadTheDocs](http://edge.readthedocs.io)
 
-[PDF](https://readthedocs.org/projects/edge/downloads/pdf/latest/)
+[PDF](https://media.readthedocs.org/pdf/edge/v1.5/edge.pdf)
 
 ## Contact Info
 Chien-Chi Lo: <chienchi@lanl.gov>  
 Paul Li: <po-e@lanl.gov>  
-Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil> 
+Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil>
+Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>
 
 ## Citation
 

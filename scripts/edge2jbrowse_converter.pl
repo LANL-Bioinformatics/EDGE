@@ -27,6 +27,8 @@ my $res=GetOptions(\%opt,
     'in-ctg-fa=s',               #AssemblyBasedAnalysis/contigs.fa
     'in-ref-fa=s',               
     'in-ctg-anno-gff3=s',        #AssemblyBasedAnalysis/Annotation/PROKKA.gff
+    'in-orf-ar-gff3=s',	         #AssemblyBasedAnalysis/SpecialtyGenes/With_AR_markers_hit
+    'in-orf-vf-gff3=s',         #AssemblyBasedAnalysis/SpecialtyGenes/With_VF_markers_hit
     'in-ctg-adj-primer-gff3=s',  #AssayCheck/PCR.design.primers.gff3
     'in-read2ctg-bam=s',         #AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam
     'in-read2ref-bam=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam
@@ -60,6 +62,8 @@ $opt{'in-ctg2ref-indels'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/co
 $opt{'in-ctg-fa'}              ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigs.fa";
 $opt{'in-ctg-anno-gff3'}       ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Annotation/PROKKA.gff";
 $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.primers.gff3";
+$opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
+$opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.gff";
 $opt{'in-read2ctg-bam'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam";
 $opt{'in-read2ref-bam'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam";
 $opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
@@ -132,6 +136,12 @@ sub main {
 		executeCommand("prepare-refseqs.pl --fasta $opt{'in-ctg-fa'} --out $opt{'out-ctg-coord-dir'} --key 'Contig sequence'");
 		executeCommand("ln -s $opt{'in-ctg-fa'} $opt{'out-ctg-coord-dir'}/contigs.fa");
 		executeCommand("biodb-to-json.pl --compress --quiet --conf $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf --out $opt{'out-ctg-coord-dir'}");
+		if (-e $opt{'in-orf-ar-gff3'}){
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-ar-gff3'} --key 'Antibiotics Resistance Genes' --trackLabel 'AR' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+		}
+		if (-e $opt{'in-orf-vf-gff3'}){
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes' --trackLabel 'Virulence' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+		}
 		print "Done.\n";
 
 		#add read2ctg BAM track
@@ -141,6 +151,7 @@ sub main {
 			executeCommand("samtools sort $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
+			unlink "$opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam";
 			print "Done.\n";
 		}
 
@@ -223,6 +234,7 @@ sub main {
 				executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort");
 				executeCommand("samtools index $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort.bam");
 				executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
+				unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
 				print "Done.\n";
 	
 				print "#  - Adding BigWig track...";

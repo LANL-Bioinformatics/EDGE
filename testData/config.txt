@@ -28,15 +28,20 @@ singleCellMode=
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
+## support bowtie or bwa
+edge-r2c-aligner=bowtie
+edge-r2c-aligner-options=
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
 DoReadsMappingReference=auto
-bowtieOptions=
+## support bowtie or bwa
+edge-r2g-aligner=bowtie
+edge-r2g-aligner-options=
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoTaxonomy=1
+DoReadsTaxonomy=1
 AllReads=0
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini
 
@@ -66,7 +71,7 @@ annotateSourceGBK=
 [ProPhage Detection]
 DoProPhageDetection=1
 
-[SNP Phylogeny]
+[Phylogenetic Analysis]
 DoSNPtree=1
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
 SNPdbName=Ecoli

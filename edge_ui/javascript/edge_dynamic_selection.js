@@ -1,21 +1,25 @@
-//init host
-$.getJSON( "data/host_list.json", function( data ) {
-	var genomeIds = Object.keys(data);
-	genomeIds.sort();
+function addHostList(){
+	//init host
+	$.getJSON( "data/host_list.json", function( data ) {
+		var genomeIds = Object.keys(data);
+		genomeIds.sort();
 
-	$.each( genomeIds, function( key, val ) {
-		var name=val;
-		name = name.replace(/_/g, " ");
-		$("#edge-hostrm-file-fromlist").append($("<option value="+val+">"+name+"</option>"));
+		$.each( genomeIds, function( key, val ) {
+			var name=val;
+			name = name.replace(/_/g, " ");
+			$("#edge-hostrm-file-fromlist").append($("<option value="+val+">"+name+"</option>"));
+		});
+		$("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
 	});
-	$("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
-});
+}
+
+target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa"
 
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
     // native widget with "-menu". Upon creation of the listview widget we want to place an
     // input field before the list to be used for a filter.
-    .on( "listviewcreate", "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu", function( event ) {
+    .on( "listviewcreate", target_menu, function( event ) {
         var input,
             list = $( event.target ),
             form = list.jqmData( "filter-form" ),
@@ -36,7 +40,7 @@ $.mobile.document
         }
         // Instantiate a filterable widget on the newly created listview and indicate that the
         // generated input form element is to be used for the filtering.
-        if (id.indexOf('hostrm')>0){
+        if (id.indexOf('hostrm')>0 || id.indexOf('get-contigs')>0 || id.indexOf('get-reads')>0 ){
         	list.filterable({
         		input: input,
             	children: "> li:not(:jqmData(placeholder='true'))",
@@ -123,26 +127,29 @@ $.mobile.document
          }
         // select all or none 
          $("#"+id+"-none").click(function() {
-   	     		list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
-   	     		list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
-   	     		$select_menu.find("option:not([disabled])").removeAttr("selected");
-   	     		$select_menu.selectmenu('refresh');
-   	     });
-   	     $("#"+id+"-all").click(function() {
-   	     		list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
-   	     		list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
-   	     		$select_menu.find("option:not([disabled])").attr("selected",'selected');
-   	     		$select_menu.selectmenu('refresh');
-   	     });
+   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
+   	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
+   	     	$select_menu.find("option:not([disabled])").removeAttr("selected");
+   	     	$select_menu.selectmenu('refresh');
+   	 });
+   	 $("#"+id+"-all").click(function() {
+   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
+   	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
+   	     	$select_menu.find("option:not([disabled])").attr("selected",'selected');
+		list.children().not(".ui-screen-hidden").attr("aria-selected",true);
+   	     	$select_menu.selectmenu('refresh');
+   	 });
     })
     // The custom select list may show up as either a popup or a dialog, depending on how much
     // vertical room there is on the screen. If it shows up as a dialog, then the form containing
     // the filter input field must be transferred to the dialog so that the user can continue to
     // use it for filtering list items.
-    .on( "pagecontainerbeforeshow", function( event, data ) {
+    .on( "pagecontainerbeforeshow", target_menu, function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
-        if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
+        if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog" || 
+		id === "edge-get-contigs-by-taxa-dialog" || (id && id.indexOf('get-reads')>0) ))
+	{
             return;
         }
         listview = data.toPage.find( "ul" );
@@ -156,24 +163,34 @@ $.mobile.document
         listview.before( form );
     })
     // After the dialog is closed, the form containing the filter input is returned to the popup.
-    .on( "pagecontainerhide", function( event, data ) {
+    .on( "pagecontainerhide", target_menu, function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
             listview = data.toPage.jqmData( "listview" );
-      //      console.log(id);
-        if ( !(id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
-        	//console.log(event,data);
+        //if ( !(id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
+	if ( ! listview ) {
         	listview = data.prevPage.jqmData( "listview" );
         }
-       // console.log(id);
         
         form = listview.jqmData( "filter-form" );
+	if ( !form ) {
+		var input = $( "<input data-type='search'></input>" );
+		form = $( "<form></form>" ).append( input );
+		listview.filterable({
+		  input: input,
+		  children: "> li:not(:jqmData(placeholder='true'))",
+		  filterCallback: OrSearch
+		});
+		listview.jqmData( "filter-form",form);
+	}
         // Put the form back in the popup. It goes ahead of the listview.
         listview.before( form );
 	AddSelectRefList();
+	$('#'+id).enhanceWithin();
     });
 
 $( document ).ready(function(){
+	//addHostList();
 	$('#edge-phylo-ref-select-listbox').on( "popupafterclose", function(){
 		AddSelectRefList();
 	});

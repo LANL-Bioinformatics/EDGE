@@ -7,6 +7,7 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
 	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.log
 	Expect=$rootdir/contigsToRef.log
 	testName="EDGE Contigs to Reference Mapping test";
@@ -16,6 +17,10 @@ test_result(){
 		touch "$rootdir/TestOutput/test.success"
 	else
 		echo "$testName failed!"
+		if [ -f "$Test" ]
+		then
+			cat $Test >> $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

@@ -118,7 +118,7 @@ else
 	fi
 fi
 
-gottcha.pl --mode all -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha.pl --mode all -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB --dumpSam 
 
 set +e;
 
@@ -130,7 +130,7 @@ awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$3"\t"; { for(i=4;i<=NF;i++){out=out"\t"$i}
 gottcha_sum_lineage.pl $LVL < $OUTPATH/${PREFIX}_temp/$PREFIX.lineage.tsv > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
-ktImportText -a $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
 
 set +x;
 echo "";

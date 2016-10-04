@@ -91,7 +91,7 @@ time id_mapping_w_gi.pl $OUTPATH/${PREFIX}_coverage.table > $OUTPATH/$PREFIX.csv
 convert_bwa2list.pl $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.list
 convert_bwa2tabTree.pl < $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.tab_tree
 
-ktImportBWA -a $OUTPATH/$PREFIX.csv -o $OUTPATH/$PREFIX.krona.html
+ktImportBWA  $OUTPATH/$PREFIX.csv -o $OUTPATH/$PREFIX.krona.html
 /bin/grep strain $OUTPATH/$PREFIX.out.list | awk -F "\t" '{print $2"\t"$4}' > $OUTPATH/$PREFIX.out.megan
 /bin/grep species $OUTPATH/$PREFIX.out.list | awk -F "\t" '{print $2"\t"$4}' >> $OUTPATH/$PREFIX.out.megan
 /bin/grep genus $OUTPATH/$PREFIX.out.list | awk -F "\t" '{print $2"\t"$4}' >> $OUTPATH/$PREFIX.out.megan

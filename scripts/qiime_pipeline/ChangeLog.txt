@@ -1,0 +1,52 @@
+-- Version 0.4
+1. Allow the multiple runs/lanes (with or without duplicate barcodes) into the EDGE 16s analysis pipeline
+2. Remove mapping file header space. add enable_rev_strand_match parameters
+3. Add error msg if not enough sequencing depth to downstream process
+4. Change sampling depth option to Sequencing_depth_min_cutoff
+5. Add --target option for different amplicon analysis, Greengenes(16s), SILVA(16s/18s),ITS(fungal)
+6. Add silva_104 and its_12_11_otus database.
+7. Add -d option for a directory which havs demultiplexed fastq files.
+
+
+-- Version 0.3
+1. Update Qiime from 1.8.0 to 1.9.1
+2. Adjust min_reads_q_fraction from 0.75 to 0.5 by default 
+3. Sampleing depth by default is 1000.
+4. Patch X11 requirements to none.
+	python -c 'import matplotlib as m; print m.matplotlib_fname()'
+	edit lib/python/matplotlib/mpl-data/matplotlibrc
+	where "backend : Agg"
+5. paired input no need quote
+6. get_catetory_from_mapping_file for core diversity analysis 
+7. Option flag “-filter_taxa”  to filter OTU by taxonomy. 
+8. Option flag "-demultiplex_fa “ provide multiple previous demultiplex fasta by comma separated files and will bypass the split fastq step.
+   The fasta file will be concatenated as input for OTU clustering.
+9. Option flag "-substract_NTC" to substarct observation count from No Template Control (NTC)
+10. Option flast "-UPARSE" use UPARSE pipeline clusters NGS amplicon reads into OTUs
+11. Add RDP 16s training fasta as a requirement for UPARSE chimera check
+
+
+-- Version 0.2
+
+1. Deal with Paired-end data (LANL protocal)
+2. Barcodes fastq becomes optional. The pipeline will extract barcode from reads fastq depends on the length of barcodes
+3. Determine Sampling Depth (Mean - 1xStandard deviation)
+4. Add heatmap and taxanomy summary if the number of sample is 1. (No Core analysis)
+
+
+-- Version 0.1
+
+Based on following tutorials
+http://qiime.org/tutorials/processing_illumina_data.html
+http://qiime.org/1.6.0/tutorials/illumina_overview_tutorial.html
+http://qiime.org/tutorials/open_reference_illumina_processing.html
+Mapping File format 
+http://qiime.org/documentation/file_formats.html
+
+1. preprocessing fastq file
+2. checking maping file
+3. de-multiplex (split_libraries_fastq.py)
+4. pick-otus (pick_open_reference_otus.py)
+5. Core Analysis (core_diversity_analyses.py): alpha/beta diversity and taxanomy summary
+6. HTML update
+7. Processing and Error log
