@@ -971,7 +971,6 @@ sub checkParams {
 		@snpPhylo_selected_refs =  split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
 		@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file"} if defined $opt{"edge-phylo-ref-file"};
 		$opt{"edge-phylo-ref-list"} = join ",",@snpPhylo_selected_refs if @snpPhylo_selected_refs;
-		$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
 		$num_selected = scalar(@snpPhylo_selected_refs) + scalar(@edge_phylo_ref_input);
 		if ($opt{"edge-phylo-ref-file"}){
 			for my $i (0..$#edge_phylo_ref_input){
@@ -980,6 +979,7 @@ sub checkParams {
 				&addMessage("PARAMS",$id,"Invalid input. Fasta format required") if ( -e $edge_phylo_ref_input[$i] && ! is_fasta($edge_phylo_ref_input[$i]) );
 			}
 		}
+		$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
 		if ($edge_phylo_genome_file_max && $num_selected > $edge_phylo_genome_file_max){
                         &addMessage("PARAMS","edge-phylo-ref-select","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if defined $opt{"edge-phylo-ref-select"};
                         &addMessage("PARAMS","edge-phylo-ref-file-1","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if (defined $opt{"edge-phylo-ref-file"});
