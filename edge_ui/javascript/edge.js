@@ -224,7 +224,7 @@ $( document ).ready(function()
 			FileTree("/" + localStorage.udir + "/");
 			uploadFiles("/" + localStorage.udir + "/");
 
-			$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
+			//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 			$('#edge-user-btn').html(localStorage.fnname);
 			$('#edge-project-page-li').text('My Project List');
 			$('#edge-user-btn').unbind("click").on("click",function(){
@@ -377,7 +377,7 @@ $( document ).ready(function()
 					FileTree("/" + data.UserDir + "/");
 					uploadFiles("/" + data.UserDir + "/");
 
-					$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
+					//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 					$('#edge-user-btn').html(localStorage.fnname);
 					$('#edge-project-page-li').text('My Project List');
 					$('#edge-content-home').find(".error").remove();
@@ -506,8 +506,8 @@ $( document ).ready(function()
 				// remove session, update button
 				$('.no-show-login').fadeIn("fast");
 		    	$(".no-show-logout").hide();
-				$('#edge-user-btn').addClass("ui-btn-icon-notext").removeClass("edge-user-btn-login");
-				$('#edge-user-btn').html("User");
+				//$('#edge-user-btn').addClass("ui-btn-icon-notext").removeClass("edge-user-btn-login");
+				$('#edge-user-btn').html("Login");
 				$('#edge-project-page-li').text('Public Project List');
 				setTimeout( function() {updateProject(focusProjName);},5);
 		    	$( "#edge_integrity_dialog_header" ).text("Message");
@@ -1145,92 +1145,101 @@ $( document ).ready(function()
 	//update report
 	var testKronaAnimation;
 	function updateReport(pname) {
-		$.ajax({
-			url: "./cgi-bin/edge_report.cgi",
-			type: "POST",
-			dataType: "html",
-			cache: false,
-			data: { "proj" : pname, "sid":localStorage.sid , 'umSystem':umSystemStatus, 'protocol':location.protocol},
-			beforeSend: function(){
-				$.mobile.loading( "show", {
-					text: "Load...",
-					textVisible: 1,
-					html: ""
-				});
-			},
-			complete: function() {
-				$.mobile.loading( "hide" );
-			},
-			success: function(data){
-				//console.log("got response");
-				allMainPage.hide();
-				$( "#edge-content-report" ).html(data);
-				$( "#edge-content-report div[data-role='popup']" ).popup();
-				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
-				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();
-				$( "#edge-content-report fieldset[data-role='controlgroup']" ).controlgroup();
-				$( "#edge-content-report" ).show();
-				$( "#edge-content-report" ).find("img").lazyLoadXT();
-				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
-				$( "#edge-content-report" ).enhanceWithin();
-				//for progress bar in report
-				if( $("#edge-output-projstatus").text() == "Running" ){
-					var progress_bar = $( '<div id="progressbar-block"><input type="range" id="progressbar" data-highlight="true" min="0" max="100" value="0"><div class="overlay"></div><span id="progressbar-val">Loading...</span></div>' )
-					progress_bar.insertAfter( $( "#edge-output-projname" ) );
-					$( '#progressbar' ).slider({
-						create: function( event, ui ) {
-						    $(this).parent().parent().css('position','relative');
-						    $(this).parent().find('input').hide();
-						    $(this).parent().find('input').css('margin-left','-9999px'); // Fix for some FF versions
-						    $(this).parent().find('.ui-slider-track').css('margin','0 15px 15px 0px');
-						    $(this).parent().find('.ui-slider-track').css('height','1.5em');
-						    $(this).parent().find('.ui-slider-handle').hide();
-						}
-					}).slider("refresh");
-				}
-
-				if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined")){
-					$('#get_download_link').hide();
-				}
-
-				if ($( ".krona_plot" ).length){
-                                        if(testKronaAnimation){clearInterval(testKronaAnimation);};
-					testKronaAnimation = setInterval(function () {
-						$( "#edge-content-report iframe" ).each(function(){
-                                			var kf = this;
-                                			var h = $("div[title='Help']", $(kf).contents());
-                                			if ( $(h).size() ) {
-                                        			$(h).parent().hide();
-                                			}
-                        			});
-                			}, 100);
-        			}else if(testKronaAnimation){
-			
-					clearInterval(testKronaAnimation);
-				}
-				
-				$.getScript( "./javascript/edge-output.js" )
-					.done(function( script, textStatus ) {
-					//	console.log( "edge-output.js loaded: " + textStatus );
-						var projName = $('#edge-output-projname').html();
-						$('#edge-project-header').find('h2').html(projName);
-					})
-					.fail(function( jqxhr, settings, exception ) {
-						console.log( jqxhr, settings, exception );
+		if ( $('#edge-project-title').attr("data-pid") == pname ){
+			allMainPage.hide();
+			$( "#edge-content-report" ).show();
+		}
+		else{
+			$.ajax({
+				url: "./cgi-bin/edge_report.cgi",
+				type: "POST",
+				dataType: "html",
+				cache: false,
+				data: { "proj" : pname, "sid":localStorage.sid , 'umSystem':umSystemStatus, 'protocol':location.protocol},
+				beforeSend: function(){
+					$.mobile.loading( "show", {
+						text: "Load...",
+						textVisible: 1,
+						html: ""
 					});
-				var pstatus = $( "#edge-content-report" ).find("p:first").text().match( /Project Status: (.+)/m );
+				},
+				complete: function() {
+					$.mobile.loading( "hide" );
+				},
+				success: function(data){
+					//console.log("got response");
+					allMainPage.hide();
+					$( "#edge-content-report" ).html(data);
+					$( "#edge-content-report div[data-role='popup']" ).popup();
+					$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
+					$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();
+					$( "#edge-content-report fieldset[data-role='controlgroup']" ).controlgroup();
+					$( "#edge-content-report" ).show();
+					$( "#edge-content-report" ).find("img").lazyLoadXT();
+					$( "#edge-content-report" ).find("iframe").lazyLoadXT();
+					$( "#edge-content-report" ).enhanceWithin();
+					//for progress bar in report
+					if( $("#edge-output-projstatus").text() == "Running" ){
+						var progress_bar = $( '<div id="progressbar-block"><input type="range" id="progressbar" data-highlight="true" min="0" max="100" value="0"><div class="overlay"></div><span id="progressbar-val">Loading...</span></div>' )
+						progress_bar.insertAfter( $( "#edge-output-projname" ) );
+						$( '#progressbar' ).slider({
+							create: function( event, ui ) {
+							    $(this).parent().parent().css('position','relative');
+							    $(this).parent().find('input').hide();
+							    $(this).parent().find('input').css('margin-left','-9999px'); // Fix for some FF versions
+							    $(this).parent().find('.ui-slider-track').css('margin','0 15px 15px 0px');
+							    $(this).parent().find('.ui-slider-track').css('height','1.5em');
+							    $(this).parent().find('.ui-slider-handle').hide();
+							}
+						}).slider("refresh");
+					}
 
-				if( pstatus[1] != "Complete" && pstatus[1] != "Archived"){
-					$( "#edge-content-report div.ui-grid-a" ).hide();
-					$( "#edge-content-report div.ui-grid-c" ).hide();
+					if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined")){
+						$('#get_download_link').hide();
+					}
+
+					if ($( ".krona_plot" ).length){
+                	                        if(testKronaAnimation){clearInterval(testKronaAnimation);};
+						testKronaAnimation = setInterval(function () {
+							$( "#edge-content-report iframe" ).each(function(){
+                	                			var kf = this;
+                	                			var h = $("div[title='Help']", $(kf).contents());
+                	                			if ( $(h).size() ) {
+                	                        			$(h).parent().hide();
+                	                			}
+                	        			});
+                				}, 100);
+        				}else if(testKronaAnimation){
+				
+						clearInterval(testKronaAnimation);
+					}
+					
+					$.getScript( "./javascript/edge-output.js" )
+						.done(function( script, textStatus ) {
+						//	console.log( "edge-output.js loaded: " + textStatus );
+							var projName = $('#edge-output-projname').html();
+							$('#edge-project-title').html( projName+" /");
+							$('#edge-project-title').attr("data-pid", pname);
+							$('#edge-project-title').off("click");
+							$('#edge-project-title').on("click", function(){ updateReport(pname); });
+						})
+						.fail(function( jqxhr, settings, exception ) {
+							console.log( jqxhr, settings, exception );
+						});
+					var pstatus = $( "#edge-content-report" ).find("p:first").text().match( /Project Status: (.+)/m );
+
+					if( pstatus[1] != "Complete" && pstatus[1] != "Archived"){
+						$( "#edge-content-report div.ui-grid-a" ).hide();
+						$( "#edge-content-report div.ui-grid-c" ).hide();
+					}
+					//console.log($( "#edge-get-contigs-by-taxa" ));
+				},
+				error: function(data){
+					$.mobile.loading( "hide" );
+					showWarning("Failed to retrieve the report. Please REFRESH the page and try again.");
 				}
-				//console.log($( "#edge-get-contigs-by-taxa" ));
-			},
-			error: function(data){
-				$.mobile.loading( "hide" );
-				showWarning("Failed to retrieve the report. Please REFRESH the page and try again.");
-			}
-		});
+			});
+		}
 	}
 
 	//submit
@@ -2001,6 +2010,10 @@ $( document ).ready(function()
 						}
 					}
 				});
+
+				//if ( !$("#edge-content-report").is(':visible') ) {
+				//	$('#edge-project-title').html("");
+				//}
 
 				// progress info
 				if(! $.isEmptyObject(obj.PROG))

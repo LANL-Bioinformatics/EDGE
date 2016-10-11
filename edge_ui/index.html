@@ -8,6 +8,7 @@
         <link rel="icon" href="images/edge.ico" type="image/x-icon">
         <link rel="apple-touch-icon-precomposed" href="images/edge_logo_114.png">
         <link rel="icon" href="images/edge_logo_192.png" size="192x192">
+	<link rel="stylesheet" href="css/jquery-ui-datepicker.css" />
 	<link rel="stylesheet" href="css/edge_fonts/edge_fonts.css" />
 	<link rel="stylesheet" href="css/edge-theme.min.css" />
 	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
@@ -15,7 +16,6 @@
 	<link rel="stylesheet" href="css/jqueryFileTree.css" />
 	<link rel="stylesheet" href="css/jquery.dataTables.min.css" />
 	<link rel="stylesheet" href="css/jquery.dataTables.custom.css" />
-	<link rel="stylesheet" href="css/jquery-ui-datepicker.css" />
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/tooltipster.css'/>
@@ -64,11 +64,11 @@
 			<h5></h5>
 			</a>
 		</div>
-		<div id="edge-project-header" class="edge-project-header">
-			<h2 class="edge-project-title"></h2>
-		</div>
 		<a href="" class="edge-navmenu-link ui-nodisc-icon ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">Menu</a>
-		<a href="" id="edge-user-btn" class="edge-user-btn ui-btn ui-nodisc-icon ui-btn-icon-left ui-icon-user ui-btn-icon-notext ui-corner-all ui-btn-right">User</a>
+                <div class="edge-navmenu-button-div">
+                        <a href="" class="edge-nav-btn ui-corner-all" id="edge-project-title" data-pid=""></a>
+                        <a href="" class="edge-nav-btn ui-corner-all" id="edge-user-btn"      >Login</a>
+                </div>
 		<a href="" class="edge-action-link ui-nodisc-icon ui-btn-right ui-btn ui-icon-action ui-btn-icon-notext ui-corner-all no-show-logout " data-role="button" role="button">Action</a>
 	</div><!-- /header -->
 	<div id="panel-folder" class="panel-folder" style="top: 2.7em; left: -2px; z-index:100000">
@@ -202,10 +202,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		</p>
 		<h2>Download & Updates</h2>
 		<p>
-			Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">LANL-Bioinformatics GitHub site</a>.</br>
-                        VM image: <a href="https://edge.readthedocs.io/en/stable/installation.html#edge-vmware-ovf-image" target="_blank">location and instructions</a>.</br>
-                        Docker image: <a href="https://edge.readthedocs.io/en/stable/installation.html#edge-docker-image" target="_blank">location and instructions</a>.</br>
-                        </br>
+			Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">LANL-Bioinformatics GitHub site</a>.<br/>
+                        VM image: <a href="https://edge.readthedocs.io/en/stable/installation.html#edge-vmware-ovf-image" target="_blank">location and instructions</a>.<br/>
+                        Docker image: <a href="https://edge.readthedocs.io/en/stable/installation.html#edge-docker-image" target="_blank">location and instructions</a>.<br/>
+                        <br/>
                         Please visit <a href="https://lanl-bioinformatics.github.io/EDGE/" target="_blank">EDGE Homepage</a> for latest news and updates.
 		</p>
 		<h2>Tutorial & Help</h2>
@@ -379,7 +379,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 <!-- sample metadata -->
 	<div id="edge-sample-metadata" class="edge-main-pipeline-input">
-		<div data-role="collapsible" id="edge-input-metadata" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+		<div data-role="collapsible" id="edge-input-metadata" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
 			<h4 class="edge-main-pipeline-input">Input Metadata</h4>
 
 			<div class="ui-corner-all custom-corners">
@@ -417,7 +417,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</div>
 				</div>
 
-				<br><br>
+				<br/><br/>
 				<div class="ui-corner-all custom-corners">
 					<div class="ui-bar ui-bar-d">
 						<b><em>Sample</em></b><a href="#popupInfo-sample" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
@@ -503,7 +503,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 								<div class="ui-field-contain">
 									<a href="#" class="ui-btn ui-btn-icon-left ui-icon-plus ui-mini" id="add-travel">Add a travel</a>
 								</div>
-								<br><br>
+								<br/><br/>
 							</div>
 
 							<div data-role="collapsible" id="metadata-symptoms-collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
@@ -571,7 +571,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<!-- end geo -->
 					</div>
 				</div>
-				<br><br>
+				<br/><br/>
 
 				<div class="ui-corner-all custom-corners">
 					<div class="ui-bar ui-bar-d">
@@ -617,7 +617,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				
 			</div>
-			<br><br>
+			<br/><br/>
 		</div>
 	</div>
 <!-- END sample metadata -->
