@@ -8,9 +8,9 @@ fi
 test_result(){
 	MainErrLog=$rootdir/TestOutput/error.log
 	TestLog=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/log.txt
-	Test=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/AR_genes_ShortBRED_table.txt
-	Expect=$rootdir/AR_genes_ShortBRED_table.txt
-	Test2=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED_table.txt
+	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/SpecialtyGenes/testSpecialtyGenesProfiling_AR_genes_rgi.txt
+	Expect=$rootdir/Profiling_AR_genes_rgi.txt
+	Test2=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/testSpecialtyGenesProfiling_VF_genes_ShortBRED_table.txt
 	Expect2=$rootdir/VF_genes_ShortBRED_table.txt
 	testName="EDGE Specialty Genes Profiling test";
 	if cmp -s "$Test" "$Expect"
