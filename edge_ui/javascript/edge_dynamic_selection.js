@@ -13,7 +13,7 @@ function addHostList(){
 	});
 }
 
-target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa"
+var target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa";
 
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
@@ -144,7 +144,7 @@ $.mobile.document
     // vertical room there is on the screen. If it shows up as a dialog, then the form containing
     // the filter input field must be transferred to the dialog so that the user can continue to
     // use it for filtering list items.
-    .on( "pagecontainerbeforeshow", target_menu, function( event, data ) {
+    .on( "pagecontainerbeforeshow", function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
         if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog" || 
@@ -153,7 +153,6 @@ $.mobile.document
             return;
         }
         listview = data.toPage.find( "ul" );
-      //  console.log(listview);
         form = listview.jqmData( "filter-form" );
         // Attach a reference to the listview as a data item to the dialog, because during the
         // pagecontainerhide handler below the selectmenu widget will already have returned the
@@ -163,7 +162,7 @@ $.mobile.document
         listview.before( form );
     })
     // After the dialog is closed, the form containing the filter input is returned to the popup.
-    .on( "pagecontainerhide", target_menu, function( event, data ) {
+    .on( "pagecontainerhide", function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
             listview = data.toPage.jqmData( "listview" );

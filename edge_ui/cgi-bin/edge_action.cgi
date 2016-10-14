@@ -70,7 +70,9 @@ $um_url	      ||= "$protocol//$domain/userManagement";
 $out_dir      ||= "/tmp"; #for security
 $umSystemStatus ||= $sys->{user_management} if (! @ARGV);
 my $info;
+(my $out_rel_dir = $out_dir) =~ s/$www_root//;
 my $proj_dir    = abs_path("$out_dir/$pname");
+my $proj_rel_dir = "$out_rel_dir/$pname";
 my $list;
 my $permission;
 
@@ -149,7 +151,8 @@ if ( $umSystemStatus )
 	}
 }
 	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
-
+	$proj_rel_dir = "$out_rel_dir/$projCode" if ( -d "$out_dir/$projCode");
+	
 if ($action eq 'rename' ){
 	renameProject();
 }
@@ -193,6 +196,7 @@ if( $action eq 'empty' ){
 
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO} = "Project output has been emptied.";
+		&updateDBProjectStatus($pname,"unstarted") if ($username && $password);
 	}
 	else{
 		$info->{STATUS} = "FAILURE";
@@ -331,7 +335,8 @@ elsif( $action eq 'rerun' ){
 			}
 		} else {
 			my $cmd = "";
-			open LOG, "$proj_dir/process.log" or die "Can't open process log:$!.";
+			my $process_log=(-e "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/process.log.bak";
+			open LOG, "$process_log" or die "Can't open process log:$!.";
 			foreach(<LOG>){
 				chomp;
 				if( /runPipeline -c / ){
@@ -428,11 +433,9 @@ elsif( $action eq 'tarproj'){
 	my $tarDir =  "$proj_dir";
 	if ($username && $password){
 		$tarFile = "$proj_dir/${real_name}_$pname.tgz";
-		$tarDir = "$out_dir/${real_name}_$pname";
+		$tarDir = "$proj_dir/../${real_name}_$pname";
 	}
-	$tarDir =~ s/$out_dir//;
-	$tarDir =~ s/^\///;
-	(my $tarLink =  $tarFile ) =~ s/$www_root//;
+	my $tarLink = ($username && $password)? "$proj_rel_dir/${real_name}_$pname.tgz":"$proj_rel_dir/$real_name.tgz";
 	$tarLink =~ s/^\///;
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to tar project $real_name $tarLink";
@@ -456,6 +459,10 @@ elsif( $action eq 'tarproj'){
 		}else{
 			$info->{INFO}   = "Project $real_name tar file existed";
 		}
+	}else{
+		$info->{STATUS} = "SUCCESS";
+		$info->{INFO}   = "$real_name compressed file is ready to ";
+		$info->{LINK}   = "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
 	}
 }
 elsif( $action eq 'getcontigbytaxa'){
@@ -465,7 +472,7 @@ elsif( $action eq 'getcontigbytaxa'){
 	}	
 	my $assemble_outdir="$proj_dir/AssemblyBasedAnalysis";
 	my $taxa_outdir="$assemble_outdir/Taxonomy";
-	(my $relative_taxa_outdir=$taxa_outdir) =~ s/$www_root//;
+	my $relative_taxa_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/Taxonomy" ;
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/;
 	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
 	my $cmd = "$EDGE_HOME/scripts/contig_classifier_by_bwa/extract_fasta_by_taxa.pl -fasta $assemble_outdir/${real_name}_contigs.fa -csv $taxa_outdir/$real_name.ctg_class.top.csv -taxa \"$taxa_for_contig_extract\" -rank genus > $taxa_outdir/$out_fasta_name";
@@ -494,14 +501,15 @@ elsif( $action eq 'getreadsbytaxa'){
 	my $read_type="allReads";
 	my $reads_fastq="$proj_dir/ReadsBasedAnalysis/Taxonomy/$read_type.fastq"; 
 	my $readstaxa_outdir="$proj_dir/ReadsBasedAnalysis/Taxonomy/report/1_$read_type/$cptool_for_reads_extract";
+	my $relative_taxa_outdir="$proj_rel_dir/ReadsBasedAnalysis/Taxonomy/report/1_$read_type/$cptool_for_reads_extract";
      
 	if ( -e "$proj_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy"){
 		$read_type="UnmappedReads";
 		$reads_fastq="$proj_dir/ReadsBasedAnalysis/$read_type/Taxonomy/$read_type.fastq";
 		$readstaxa_outdir="$proj_dir/ReadsBasedAnalysis/$read_type/Taxonomy/report/1_$read_type/$cptool_for_reads_extract";
+		$relative_taxa_outdir="$proj_rel_dir/ReadsBasedAnalysis/$read_type/Taxonomy/report/1_$read_type/$cptool_for_reads_extract";
 
 	}
-	(my $relative_taxa_outdir=$readstaxa_outdir) =~ s/$www_root//;
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/g;
 	my $extract_from_original_fastq = ($cptool_for_reads_extract =~ /gottcha/i)? " -fastq $reads_fastq " : "";
 	$out_fasta_name = "$real_name"."_"."$cptool_for_reads_extract"."_"."$out_fasta_name";
@@ -557,8 +565,8 @@ elsif( $action eq 'publish' || $action eq 'unpublish'){
 }
 elsif( $action eq 'compare'){
 	my $compare_out_dir = "$out_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
+	my $relative_outdir = "$out_rel_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
-	(my $relative_outdir=$compare_out_dir) =~ s/$www_root//;
 	$info->{PATH} = "$relative_outdir/compare_project.html";
 	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/compare_project.html\'>here</a>";
 	if ( -s "$compare_out_dir/compare_project.html"){
@@ -582,13 +590,13 @@ elsif( $action eq 'compare'){
 	}
 }elsif($action eq 'contigblast'){
 	my $blast_out_dir="$proj_dir/AssemblyBasedAnalysis/ContigBlast";
+	my $relative_outdir="$proj_rel_dir/AssemblyBasedAnalysis/ContigBlast";
 	my $contig_file="$proj_dir/AssemblyBasedAnalysis/${real_name}_contigs.fa"; 
 	my $nt_db="$EDGE_HOME/database/nt/nt"; 
 	my $cpu = `grep -a "cpu=" $proj_dir/config.txt | awk -F"=" '{print \$2}'`;
 	chomp $cpu;
 	$blast_params =~ s/-num_threads\s+\d+//;
 	`mkdir -p $blast_out_dir`;
-	(my $relative_outdir=$blast_out_dir) =~ s/$www_root//;
 	$info->{PATH} = "$relative_outdir/$contig_id.blastNT.html";
 	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$protocol//$domain/edge_ui/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
 	if ( -s "$blast_out_dir/$contig_id.blastNT.html"){
@@ -668,7 +676,7 @@ elsif($action eq 'define-gap-depth'){
 	my $gff_file="$proj_dir/Reference/reference.gff";
 	my $gap_analysisOutfile="$gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.txt";
 	my $gap_analysisOutfile_json="$gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
-	(my $relative_gap_out_dir=$gap_out_dir) =~ s/$www_root//;
+	my $relative_gap_out_dir="$proj_rel_dir/ReferenceBasedAnalysis/readsMappingToRef";
 
 	if ( $gap_depth_cutoff == 0 ){
 		$info->{STATUS} = "SUCCESS";
