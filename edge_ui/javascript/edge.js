@@ -1145,6 +1145,7 @@ $( document ).ready(function()
 	//update report
 	var testKronaAnimation;
 	function updateReport(pname) {
+		sessionStorage.focusProjName = pname;
 		if ( $('#edge-project-title').attr("data-pid") == pname ){
 			allMainPage.hide();
 			$( "#edge-content-report" ).show();
@@ -1830,13 +1831,13 @@ $( document ).ready(function()
 	};
 
 	function updateProject(pname) {
-		focusProjName = pname;
+		focusProjName = sessionStorage.focusProjName;
 		$.ajax({
 			url: './cgi-bin/edge_info.cgi',
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : pname, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
+			data: { "proj" : focusProjName, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			complete: function(data){
 				/*
 				console.log("finished_proj="+finished_proj);

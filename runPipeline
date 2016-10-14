@@ -705,9 +705,10 @@ sub Download_SRA
     $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
     eval {system($cmd) };
+    &printRunTime($time);
     &read_SRAD_Download_dir($outputDir);
 
-    &printRunTime($time);
+    
     system("touch $outputDir/DownloadSRA.finished");
     return 0;	
 }
@@ -718,16 +719,21 @@ sub read_SRAD_Download_dir
     opendir(my $sra_dir_fh,$dir) or die "Cannot read $dir\n";
     my @files = sort grep {/fastq/} readdir($sra_dir_fh);
     closedir $sra_dir_fh;
-    if (!@files && !@pairedReadsFile && !@unpairedReadsFile)
+    if (`grep -i -a "SRA runs not found" $dir/log.txt`){
+        &lprint("failed. Input SRA accession cannot be found.\n");
+        exit(1);
+    }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile)
     {
         &lprint("No fastq file from the SRA download. try again\n");
-	&Download_SRA();
+        &Download_SRA();
+        return;
         #die "No input\n";
     }
     if (`grep -i -a "Error" $dir/log.txt`){
        `rm -rf $dir/*fastq*`;
         &lprint("The SRA download failed. try again\n");
         &Download_SRA();
+        return;
     }
     my %pair;
     if (scalar(@files)==1)
