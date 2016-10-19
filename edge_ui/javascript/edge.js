@@ -1146,7 +1146,7 @@ $( document ).ready(function()
 	var testKronaAnimation;
 	function updateReport(pname) {
 		sessionStorage.focusProjName = pname;
-		if ( $('#edge-project-title').attr("data-pid") == pname ){
+		if ( $('#edge-project-title').attr("data-pid") == pname && focusProjStatus != "running"){
 			allMainPage.hide();
 			$( "#edge-content-report" ).show();
 		}

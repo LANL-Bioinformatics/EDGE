@@ -14,6 +14,7 @@ function addHostList(){
 }
 
 var target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa";
+var target_dialog = ["edge-ref-file-fromlist-dialog","edge-phylo-ref-select-dialog","edge-hostrm-file-fromlist-dialog","edge-get-contigs-by-taxa-dialog"];
 
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
@@ -147,8 +148,7 @@ $.mobile.document
     .on( "pagecontainerbeforeshow", function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
-        if ( !( id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog" || 
-		id === "edge-get-contigs-by-taxa-dialog" || (id && id.indexOf('get-reads')>0) ))
+        if ( !( id && (target_dialog.indexOf(id)>=0 || id.indexOf('get-reads')>0) ))
 	{
             return;
         }
@@ -165,12 +165,15 @@ $.mobile.document
     .on( "pagecontainerhide", function( event, data ) {
         var listview, form,
             id = data.toPage && data.toPage.attr( "id" );
-            listview = data.toPage.jqmData( "listview" );
-        //if ( !(id === "edge-ref-file-fromlist-dialog" || id === "edge-phylo-ref-select-dialog") ) {
+        if ( !( id && (target_dialog.indexOf(id)>=0 || id.indexOf('get-reads')>0) ))
+	{
+            return;
+        }
+        listview = data.toPage.jqmData( "listview" );
 	if ( ! listview ) {
         	listview = data.prevPage.jqmData( "listview" );
         }
-        
+        popupID = id.replace("-dialog","-listbox-popup");
         form = listview.jqmData( "filter-form" );
 	if ( !form ) {
 		var input = $( "<input data-type='search'></input>" );
@@ -182,9 +185,11 @@ $.mobile.document
 		});
 		listview.jqmData( "filter-form",form);
 	}
-	//console.log(form);
         // Put the form back in the popup. It goes ahead of the listview.
         listview.before( form );
+	$('#'+popupID).on("popupbeforeposition", function( event, ui ) {
+        	listview.before( form );
+	})
 	AddSelectRefList();
 	$('#'+id).enhanceWithin();
     });
@@ -194,6 +199,7 @@ $( document ).ready(function(){
 	$('#edge-phylo-ref-select-listbox').on( "popupafterclose", function(){
 		AddSelectRefList();
 	});
+	
 });
 
 function AddSelectRefList() {
