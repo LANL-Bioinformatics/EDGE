@@ -641,13 +641,12 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-pp-sw">Pre-processing</label>
 				</div>
 			</h4>
-			<div data-role="tabs">
-				<div data-role="navbar">
-					<ul>
-						<li><a href="#edge-qc-parameters" class="ui-btn-active"> a. Quality Trim and Filter</a></li>
-						<li><a href="#edge-hostr-parameters" >b. Host Removal</a></li>
-					</ul>
+			<div class="edge-tabs" >
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><a href="#" data-id="edge-qc-parameters" class="ui-btn ui-mini ui-btn-active"> a. Quality Trim and Filter</a></div>
+					<div class="ui-block-b"><a href="#" data-id="edge-hostrm-parameters" class="ui-btn ui-mini">b. Host Removal</a></div>
 				</div>
+			</div>
 			<div id="edge-qc-parameters">
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -702,7 +701,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input type="number" name="edge-qc-3end" id="edge-qc-3end" data-mini="true" data-clear-btn="true" value="0">
 			</div>
 			</div> <!--edge-qc-parameters-->
-			<div id="edge-hostr-parameters">
+			<div id="edge-hostrm-parameters">
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Run Host Removal</legend>
@@ -735,7 +734,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			-->
 			</div><!--edge-hostr-parameters-->
-			</div><!--data-role= tabs-->
 		</div>
 		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
@@ -746,13 +744,12 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-assembly-sw">Assembly and Annotation</label>
 				</div>
 			</h4>
-			<div data-role="tabs">
-				<div data-role="navbar">
-					<ul>
-						<li><a href="#edge-assembly-parameters" class="ui-btn-active"> a. Assembly</a></li>
-						<li><a href="#edge-annotation-parameters" >b. Annotation</a></li>
-					</ul>
+			<div class="edge-tabs">
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><a href="#" data-id="edge-assembly-parameters" class="ui-btn ui-mini ui-btn-active"> a. Assembly</a></div>
+					<div class="ui-block-b"><a href="#" data-id="edge-annotation-parameters" class="ui-btn ui-mini">b. Annotation</a></div>
 				</div>
+			</div>
 			<div id="edge-assembly-parameters">
 			<div class="ui-field-contain">
                         	<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -904,7 +901,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<p class="edge_tool_note">Please provide the reference/source annotation (Genbank file), EDGE will use RATT to transfer the annotation from the reference genome. The reference genome must be close relative to the sample.</p>
                         </div>
 			</div> <!-- edge-annotation-parameters -->
-			</div> <!-- data-role="tabs" --> 
 		</div>
 
 		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
@@ -1037,7 +1033,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						    <option value="gottcha2-speDB-v" selected=""> GOTTCHA2 Species</option>
 						</optgroup>
 						-->
-
+	
 						<optgroup label="Reads Mapping">
 							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>
@@ -1202,14 +1198,12 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-primer-sw">PCR Primer Analysis</label>
 				</div>
 			</h4>
-			<div data-role="tabs">
-				<div data-role="navbar">
-					<ul>
-						<li><a href="#edge-primer-valid-parameters" class="ui-btn-active"> a. Primer Validation</a></li>
-						<li><a href="#edge-primer-design-parameters" >b. Primer Design</a></li>
-					</ul>
+			<div class="edge-tabs">
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><a href="#" data-id="edge-primer-valid-parameters" class="ui-btn ui-mini ui-btn-active"> a. Primer Validation</a></div>
+					<div class="ui-block-b"><a href="#" data-id="edge-primer-design-parameters" class="ui-btn ui-mini">b. Primer Design</a></div>
 				</div>
-	
+			</div>
 			<div id="edge-primer-valid-parameters">
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1285,7 +1279,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input type="number" data-mini="true" data-clear-btn="true" name="edge-primer-adj-num" id="edge-primer-adj-num" min="1" max="10" value="5">
 			</div>
 			</div> <!-- edge-primer-design-parameters -->
-			</div> <!-- data-role="tabs" -->
 		</div>
 		</div> <!--Choose Proceses collapsible for edge-main-pipeline-input"-->
 		<div class="edge-qiime-pipeline-input">

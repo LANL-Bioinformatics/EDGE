@@ -2995,4 +2995,17 @@ $( document ).ready(function()
     		});
 	}
 //END sample metatdata	
+//EDGE tabs
+	$(".edge-tabs").find("a").not(".ui-btn-active").each(function(){
+		$("#"+ $(this).attr("data-id")).hide();
+	});
+	$(".edge-tabs").find("a").on('click', function(){
+		$(this).parent("div").siblings("div").find('a').each(function(){
+			$(this).removeClass('ui-btn-active');
+			$("#"+ $(this).attr("data-id")).hide();
+		});
+		$(this).addClass('ui-btn-active');
+		$("#"+ $(this).attr("data-id")).show();
+	});
+//END EDGE tabs
 });
