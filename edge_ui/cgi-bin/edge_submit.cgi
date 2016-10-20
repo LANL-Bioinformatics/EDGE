@@ -19,11 +19,13 @@ use CGI qw(:standard);
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Data::Dumper;
+use Storable 'dclone';
 require "edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 
 my $cgi = CGI->new;
 my %opt = $cgi->Vars();
+my $opt_orig = dclone(\%opt);
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 
@@ -360,6 +362,7 @@ sub createConfig {
 		#backup config first
 		`mv $config_out $config_out.bak` if( -e $config_out );
 		`mv $json_out $json_out.bak` if( -e $json_out );
+		saveListToJason( $opt_orig, $json_out );
 
 		if( defined $opt{"edge-input-config"} && -e $opt{"edge-input-config"} ){
 			open CFG, $opt{"edge-input-config"};
@@ -435,7 +438,6 @@ sub createConfig {
 				&addMessage("GENERATE_CONFIG","success","Config file generated.");
 			}
 			
-			saveListToJason( \%opt, $json_out );
 		}
 	}
 }
@@ -885,8 +887,8 @@ sub checkParams {
 		}
 		push @refs, @edge_ref_input if @edge_ref_input;
 		$opt{"edge-ref-file"} = join ",", @refs;
-		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
 		
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");

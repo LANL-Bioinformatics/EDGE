@@ -2335,19 +2335,19 @@ $( document ).ready(function()
 						$("input:radio[name="+key+"]").trigger("change");
 					}
 				}
-				else if( $('.btnAdd-'+key).length ){	
-					var arr = value.split(",");
+				else if( $('.btnAdd-'+key).length ){
+					var arr = value.split("\u0000");
 					$.each( arr, function(i, val) {
 						id=i+1
 						if( $('#'+key+"-"+id).length == 0 ){
 							$('.btnAdd-'+key).click()
 						}
-						$('#'+key+"-"+id).val(value)
+						$('#'+key+"-"+id).val(val)
 					});
 				}
 				else if( $('#'+key).prop('type') == "select-multiple" ){
+					var arr = value.split("\u0000");
 					if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
-						var arr = value.split("\u0000");
 						$.each( arr, function(i, val) {
 							$('#'+key)
 							  .append($("<option></option>")
@@ -2355,9 +2355,7 @@ $( document ).ready(function()
 							  .text(val));
 						});
 					}
-					else{
-						var arr = value.split(",");
-					}
+					
 					$('#'+key).val(arr)
 					$('#'+key).selectmenu("refresh");
 
