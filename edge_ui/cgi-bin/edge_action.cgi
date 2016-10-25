@@ -888,16 +888,18 @@ sub renameProject{
 			$info->{STATUS} = "FAILURE";
 			$info->{INFO} .= " Project name is used.";
 		}else{
-			`mv $proj_dir $out_dir/$project_name`;
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO} .= " Project has been ${action}d to $project_name.";
-			$proj_dir = "$out_dir/$project_name";
 		}
 	}
 	if ($info->{STATUS} eq "SUCCESS"){
      		system("sed -i.bak 's/projname=[[:graph:]]*/projname=$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $config_file") if ( -e $config_file); 
      		system("sed -i.bak 's/$real_name/$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $process_log") if ( -e $process_log);
 		system("sed -i.bak 's/edge-proj-name\" : \"[[:graph:]]*\"/edge-proj-name\" : \"$project_name\"/; s/edge-proj-desc\" : \"[[:graph:]]*\"/edge-proj-desc\" : \"$project_description\"/;' $config_json") if ( -e $config_json);
+		if (!$umSystemStatus){
+			 `mv $proj_dir $out_dir/$project_name`;
+			$proj_dir = "$out_dir/$project_name";
+		}
 		unlink "$proj_dir/HTML_Report/.complete_report_web";
 	}
 }		
