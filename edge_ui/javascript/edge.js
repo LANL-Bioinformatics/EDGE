@@ -544,6 +544,14 @@ $( document ).ready(function()
 		maxWidth: '480',
 		interactive: true,
 	});
+	$('.my-tooltip-btn').not(".ui-alt-icon").hide();
+	$('.my-tooltip-btn').not(".ui-alt-icon").parent('label,legend').hover(function(){
+		$(this).find(".tooltip").addClass("ui-alt-icon");
+		$(this).find(".tooltip").show();
+		},function(){
+		$(this).find(".tooltip").removeClass("ui-alt-icon");
+		$(this).find(".tooltip").hide();
+	});
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
 		'content', $('<span>Trim both end with the Phred quality. In brief, it will find the position in the read where trimming will end (argmax) based on the following equation: <img src="images/FaQCs.png"/> <br/> where l is the read length and Qu is the user-defined quality threshold, and trimming ends after the summation of Qu - Qi becomes negative.</span>')

@@ -271,7 +271,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						</fieldset>
 						
 						<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-						<legend class='tooltip' id="edge-qiime-pro-tooltip">Paired Reads Orientation</legend>
+						<legend>Reads Orientation<a href="#" class="tooltip ui-btn  ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-pro-tooltip"></a></legend>
 							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
 							<label for="edge-qiime-pro-sw1">FR</label>
 							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
@@ -314,7 +314,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</div>
 					<div class="edge-qiime-pipeline-input">
 						<div id="edge-qiime-pipeline-dir-input" class="ui-field-contain input-type-file">
-							<label for="edge-qiime-reads-dir-input" class="tooltip" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID.">Directory</label>
+							<label for="edge-qiime-reads-dir-input">Directory<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID."></a></label>
 							<input data-mini="true" type="text" name="edge-qiime-reads-dir-input" id="edge-qiime-reads-dir-input" placeholder="absolute dir path/select dir">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">Dir</a></div>
 						</div>
@@ -322,7 +322,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<div class="edge-qiime-pipeline-input">
 						<p class="edge-center">Mapping File:</p>
 						<div id="edge-qiime-pipeline-input-block1" class="ui-field-contain input-type-file edge-qiime-pipeline-input-block">
-							<label for="edge-qiime-mapping-file-input" class="tooltip" id="edge-qiime-mapping-file-tooltip">Mapping File</label>
+							<label for="edge-qiime-mapping-file-input">Mapping File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-mapping-file-tooltip"></a></label>
 							<input data-mini="true" type="text" name="edge-qiime-mapping-file-input[]" id="edge-qiime-mapping-file-input1" placeholder="absolute file path/select file">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a></div>
@@ -370,7 +370,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
 				<div id="edge-batch-input-block1" class="edge-batch-input"> 
 					<div class="ui-field-contain input-type-file">
-						<label class = 'tooltip' title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1">Batch Excel File</label>
+						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1"></a></label>
 						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
 						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 					</div>
@@ -387,10 +387,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			
 				<div class="ui-corner-all custom-corners">
 					<div class="ui-bar ui-bar-d">
-						<b><em>Study</em></b><a href="#popupInfo-study" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-study" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>Describe the sequencing study including a title and a study type.</p>
-						</div>
+						<b><em>Study</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Describe the sequencing study including a title and a study type."></a>
 					</div>
 					<div class="ui-body ui-body-a ui-corner-all">
 						<div class="ui-field-contain">
@@ -421,10 +418,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<br/><br/>
 				<div class="ui-corner-all custom-corners">
 					<div class="ui-bar ui-bar-d">
-						<b><em>Sample</em></b><a href="#popupInfo-sample" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-sample" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>Since the sample is one of the most important objects to be described biologically, it is highly recommended to describe the sample in as much detail as possible.</p>
-						</div>
+						<b><em>Sample</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Since the sample is one of the most important objects to be described biologically, it is highly recommended to describe the sample in as much detail as possible."></a>
 					</div>
 					<div class="ui-body ui-body-a ui-corner-all">
 				        	
@@ -576,10 +570,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				<div class="ui-corner-all custom-corners">
 					<div class="ui-bar ui-bar-d">
-						<b><em>Experiment</em></b><a href="#popupInfo-experiment" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-experiment" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>Describe the experimental setup.</p>
-						</div>
+						<b><em>Experiment</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Describe the experimental setup."></a>
 					</div>
 					<div class="ui-body ui-body-a ui-corner-all">
 						<div class="ui-field-contain">
@@ -659,7 +650,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 
 			<div class="ui-field-contain">
-				<label for="edge-qc-q" class='tooltip' id="qc-q-tooltip">Trim Quality Level</label>
+				<label for="edge-qc-q">Trim Quality Level<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="qc-q-tooltip"></a></label>
 				<input type="number" name="edge-qc-q" id="edge-qc-q" data-mini="true" data-clear-btn="true" value="5">
 			</div>
 			<div class="ui-field-contain">
@@ -671,11 +662,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input type="number" name="edge-qc-minl" id="edge-qc-minl" data-mini="true" data-clear-btn="true" value="50">
 			</div>
 			<div class="ui-field-contain">
-				<label for="edge-qc-n" class='tooltip' title="Trimmed read has more than this number of continuous base 'N' will be discarded." >"N" Base Cutoff</label>
+				<label for="edge-qc-n">"N" Base Cutoff<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Trimmed read has more than this number of continuous base 'N' will be discarded." ></a></label>
 				<input type="number" name="edge-qc-n" id="edge-qc-n" data-mini="true" data-clear-btn="true" value="0">
 			</div>
 			<div class="ui-field-contain">
-				<label for="edge-qc-lc" class='tooltip' title="Maximum fraction of mono-/di-nucleotide sequence" >Low Complexity Filter Ratio</label>
+				<label for="edge-qc-lc">Low Complexity Filter<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum fraction of mono-/di-nucleotide sequence" ></a></label>
 				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
 			</div>
 			<div class="ui-field-contain input-type-file">
@@ -724,7 +715,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 			</div>
 			<div class="ui-field-contain">
-				<label for="edge-hostrm-similarity" class='tooltip' title='(Reads aligned bases) / (Reads length) x 100' >Similarity (%)</label>
+				<label for="edge-hostrm-similarity">Similarity (%)<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='(Reads aligned bases) / (Reads length) x 100' ></a></label>
 				<input type="number" name="edge-hostrm-similarity" id="edge-hostrm-similarity" data-mini="true" data-clear-btn="true" value="90">
 			</div>
 			<!--
@@ -787,7 +778,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend class="tooltip" title="metaSPAdes supports only a single paired-end library.">Metagenome Data</legend>
+					<legend>Metagenome Data<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="metaSPAdes supports only a single paired-end library."></a></legend>
 					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw1" value="1">
 					<label for="edge-spades-mtg-sw1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw2" value="0" checked>
@@ -817,7 +808,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div id="edge-megahit-parameters">
 				<p class="edge_tool_note">MEGAHIT is an ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph which achieves low memory assembly. </p>
 				<div class="ui-field-contain">
-					<label for="edge-megahit-preset" id="edge-megahit-preset-l" class="tooltip">Preset</label>
+					<label for="edge-megahit-preset">Preset<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-megahit-preset-l"></a></label>
 					<select id="edge-megahit-preset" data-mini="true" name="edge-megahit-preset" data-native-menu="false">
 						<option value="meta">meta</option>
 						<option value="meta-sensitive">meta-sensitive</option>
@@ -842,7 +833,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="edge-right">|<a href="#" id="edge-r2c-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
 			<div id="edge-r2c-options" class="edge-additional-options">
 				<div class="ui-field-contain">
-					<label for="edge-r2c-aligner-options" class="tooltip edge-aligner-options" >Aligner Options</label>
+					<label for="edge-r2c-aligner-options">Aligner Options<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options" ></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2c-aligner-options" id="edge-r2c-aligner-options" placeholder="(optional)">
 				</div>
 				<div class="ui-field-contain">
@@ -941,7 +932,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="edge-right">|<a href="#" id="edge-r2g-toggle" class="edge-additional-options-toggle"> additional options </a>|</div>
 			<div id="edge-r2g-options" class="edge-additional-options">
 				<div class="ui-field-contain">
-					<label for="edge-r2g-aligner-options" class="tooltip edge-aligner-options">Aligner Options</label>
+					<label for="edge-r2g-aligner-options">Aligner Options<<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options"></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2g-aligner-options" id="edge-r2g-aligner-options" placeholder="(optional)">
 				</div>
 				<div class="ui-field-contain">
@@ -1006,10 +997,9 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-taxa-allreads2">No</label>
 				</fieldset>
 			</div>
-			<p class="edge_tool_note">EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, Kraken and reads mapping to NCBI RefSeq using BWA.</p>
 			<div class="ui-field-contain" id="edge-taxa-tool-select">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Classification Tools</legend>
+					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, Kraken and reads mapping to NCBI RefSeq using BWA."></a></legend>
 					<label for="edge-taxa-enabled-tools" class="select">Run With Following Databases</label>
 					<select name="edge-taxa-enabled-tools" id="edge-taxa-enabled-tools" multiple="multiple" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
 						<option>Choose Classification Tools:</option>
@@ -1032,8 +1022,12 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						    <option value="gottcha2-genDB-v" selected=""> GOTTCHA2 Genus</option>
 						    <option value="gottcha2-speDB-v" selected=""> GOTTCHA2 Species</option>
 						</optgroup>
+						 <optgroup label="GOTTCHA2 Eukaryotic Databases">
+                                                    <option value="gottcha2-speDB-e-inv"> GOTTCHA2 Species Invertebrate (inv)</option>
+                                                    <option value="gottcha2-speDB-e-ptz"> GOTTCHA2 Species Protozoa (ptz)</option>
+                                                    <option value="gottcha2-speDB-e-ptg"> GOTTCHA2 Species Pathogen (ptg)</option>
+                                                </optgroup>
 						-->
-	
 						<optgroup label="Reads Mapping">
 							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>
@@ -1044,11 +1038,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</select>
 				</fieldset>
 			</div>
+
 			<li>Contig-based Taxonomy Classification</li>
-			<p class="edge_tool_note">EDGE will map contigs to NCBI genomes and make a taxonomic inference for each contig.</p>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Contigs Classification</legend>
+					<legend>Contigs Classification<a href="#" class='tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn' title="EDGE will map contigs to NCBI genomes and make a taxonomic inference for each contig."></a></legend>
 					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw1" value="1" checked="checked">
 					<label for="edge-contig-taxa-sw1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw2" value="0">
@@ -1105,7 +1099,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<p class="edge-center">or</p>
 			<p class="edge_tool_note">Select/Add Genomes or SRA Reads: The same species or at least within the same genus are recommended.</p>
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-phylo-ref-select" class='tooltip' title="This workflow is a whole genome SNP based analysis that requires at minimum one reference genome and at least three dataset for building the phylogenetic tree. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better).">Select Genome(s)</label>
+				<label for="edge-phylo-ref-select">Select Genome(s)<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This workflow is a whole genome SNP based analysis that requires at minimum one reference genome and at least three dataset for building the phylogenetic tree. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better)."></a></label>
 				<select id="edge-phylo-ref-select" data-mini="true" name="edge-phylo-ref-select" data-native-menu="false" multiple="multiple">
 					<option disabled>Search genomes...</option>
 				</select>
@@ -1125,7 +1119,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				
 			</div>
 			<div class="ui-field-contain">
-				<label for=edge-phylo-sra-acc" class="tooltip" id="edge-phylo-sra-acc-tooltip">SRA Accessions</label>
+				<label for=edge-phylo-sra-acc">SRA Accessions<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-phylo-sra-acc-tooltip"></a></label>
 				<input data-mini="true" type="text" name="edge-phylo-sra-acc" id="edge-phylo-sra-acc" placeholder="ex:SRR2133399,SRR576632">
 			</div>
 			
@@ -1180,11 +1174,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="edge-right">|<a href="#" id="edge-sg-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
 			<div id="edge-sg-options" class="edge-additional-options">
 				<div class="ui-field-contain">
-					<label for="edge-sg-identity-options" class="tooltip edge-identity-options">ShortBRED Minimum Percent Identity</label>
+					<label for="edge-sg-identity-options" class="edge-identity-options">ShortBRED Minimum Percent Identity</label>
 					<input type="number" data-mini="true" data-clear-btn="false" name="edge-sg-identity-options" id="edge-sg-identity-options" value=95>
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-sg-length-options" class="tooltip edge-length-options">ShortBRED Minimum Percent Length</label>
+					<label for="edge-sg-length-options" class="edge-length-options">ShortBRED Minimum Percent Length</label>
 					<input type="number" data-mini="true" data-clear-btn="false" name="edge-sg-length-options" id="edge-sg-length-options" value=95>
 				</div>
 			</div>
@@ -1287,7 +1281,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<ol type="a">
 				<li>Barcode Options</li>
 				<div id="edge-qiime-barcode-fq-file-block1" class="ui-field-contain input-type-file edge-qiime-barcode-fq-file-block">
-					<label for="edge-qiime-barcode-fq-file-input-1" class="tooltip" id="edge-qiime-barcode-fq-file-tooltip">Barcode Fastq File</label>
+					<label for="edge-qiime-barcode-fq-file-input-1">Barcode Fastq File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-barcode-fq-file-tooltip"></a></label>
 					<input data-mini="true" type="text" name="edge-qiime-barcode-fq-file-input" id="edge-qiime-barcode-fq-file-input-1" placeholder="absolute file path/select file">
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 					<a href="#" class="btnAdd-edge-qiime-barcode-fq-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
@@ -1300,21 +1294,21 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				<li>Reads Filters</li>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-phred-quality-threshold" class='tooltip' title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)">PHRED Quality Threshold</label>
+					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="19">
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-max-n"  class='tooltip' title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable">Max "N" base</label>
+					<label for="edge-qiime-max-n">Max "N" base<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-max-n" id="edge-qiime-max-n" min="0" max="100" value="1">
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-min-per-read-length-fraction" class="tooltip" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length.">Min Per Read Length Fraction</label>
+					<label for="edge-qiime-min-per-read-length-fraction">Min Per Read Length Fraction<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length."></a></label>
 					<input type="range" name="edge-qiime-min-per-read-length-fraction" id="edge-qiime-min-per-read-length-fraction" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
 				</div>
 				<li>OTU Clustering Options/Filters</li>
 				<!--<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend class="tooltip" id="edge-qiime-UPARSE-tooltip" >UPARSE</legend>
+					<legend>UPARSE<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="dge-qiime-UPARSE-tooltip"></a></legend>
 						<input type="radio" data-mini="true" name="edge-qiime-UPARSE-sw" id="edge-qiime-UPARSE-sw1" value="1">
 						<label for="edge-qiime-UPARSE-sw1">Yes</label>
 						<input type="radio" data-mini="true" name="edge-qiime-UPARSE-sw" id="edge-qiime-UPARSE-sw2" value="0" checked="checked">
@@ -1322,24 +1316,24 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</fieldset>
 				</div>-->
 				<div class="ui-field-contain">
-					<label for="edge-qiime-minimum-otu-size" class="tooltip" title="The minimum OTU size (in number of sequences) to retain the OTU">Minimum OTU Size</label>
+					<label for="edge-qiime-minimum-otu-size">Minimum OTU Size<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum OTU size (in number of sequences) to retain the OTU"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-minimum-otu-size" id="edge-qiime-minimum-otu-size" min="1" max="20" value="2">
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-similarity" class="tooltip" title="Sequence similarity threshold for clustering algorithm">Similarity</label>
+					<label for="edge-qiime-similarity">Similarity<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Sequence similarity threshold for clustering algorithm"></a></label>
 					<input type="range" name="edge-qiime-similarity" id="edge-qiime-similarity" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.94" step=".01">
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-sampling-depth" class="tooltip" title="Filter sample less this amount of sequences. The minimium of sequenceing depth of samples after this filter will be to use for even sub-sampling and maximum rarefaction depth. Depend on the 'biom summary table' to decide on this value for re-run.">Sequence Depth Filter</label>
+					<label for="edge-qiime-sampling-depth">Depth Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Filter sample less this amount of sequences. The minimium of sequenceing depth of samples after this filter will be to use for even sub-sampling and maximum rarefaction depth. Depend on the 'biom summary table' to decide on this value for re-run."></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-sampling-depth" id="edge-qiime-ampling-depth" min="100" max="50000" value="1000">
 				</div>
 				
 				<div class="ui-field-contain">
-					<label for=edge-qiime-filter-taxa" class="tooltip" title="Comma-separated list of taxa to discard from OTU table e.g: p__Bacteroidetes,p__Firmicutes">Taxonomy Filter</label>
+					<label for=edge-qiime-filter-taxa">Taxonomy Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Comma-separated list of taxa to discard from OTU table e.g: p__Bacteroidetes,p__Firmicutes"></a></label>
 					<input data-mini="true" type="text" name="edge-qiime-filter-taxa" id="edge-qiime-filter-taxa" placeholder="e.g: p__Bacteroidetes,p__Firmicutes">
 				</div>
 				<div class="ui-field-contain">
-					<label for=edge-qiime-substract-ntc" class="tooltip" title="Comma-separated list of Sample ID to substarct observation count from No Template Control (NTC) and remove NTC samples from OTU table">Substract NTC</label>
+					<label for=edge-qiime-substract-ntc">Substract NTC<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Comma-separated list of Sample ID to substarct observation count from No Template Control (NTC) and remove NTC samples from OTU table"></a></label>
 					<input data-mini="true" type="text" name="edge-qiime-substract-ntc" id="edge-qiime-substract-ntc" placeholder="e.g: NTC_ID_01">
 				</div>
 				</ol>
@@ -1557,10 +1551,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				           	<div class="ui-field-contain">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Enable Sample Metadata? <a href="#popupInfo-enable-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-enable-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>This function will allow you to record detailed sample information for a project/run.</p>
-						</div></legend>
+								<legend>Enable Sample Metadata? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="This function will allow you to record detailed sample information for a project/run."></a>
+								</legend>
 								<input type="radio" name="edgesite-enable-metadata" id="edgesite-enable-metadata1" value="yes" checked>
 								<label for="edgesite-enable-metadata1">Yes</label>
 								<input type="radio" name="edgesite-enable-metadata" id="edgesite-enable-metadata2" value="no">
@@ -1570,10 +1562,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				           	<div class="ui-field-contain" id="edgesite-share-metadata-div">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Share Sample Metadata with BSVE? <a href="#popupInfo-share-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-share-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>This function will allow you to send sample metadata to BSVE database server.</p>
-						</div></legend>
+								<legend>Share Sample Metadata with BSVE? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="This function will allow you to send sample metadata to BSVE database server."></a>
+								</legend>
 								<input type="radio" name="edgesite-share-metadata" id="edgesite-share-metadata1" value="yes" checked>
 								<label for="edgesite-share-metadata1">Yes</label>
 								<input type="radio" name="edgesite-share-metadata" id="edgesite-share-metadata2" value="no">
@@ -1583,10 +1573,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				           	<div class="ui-field-contain" id="edgesite-autoshare-metadata-div">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Auto Submit Sample Metadata? <a href="#popupInfo-autoshare-metadata" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-autoshare-metadata" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>Auto Submit: sample metadata will be automatically submitted to BSVE at the end of each run. Otherwise, you have to select project(s)/run(s) and submit sample metadata menually.</p>
-						</div></legend>
+								<legend>Auto Submit Sample Metadata? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Auto Submit: sample metadata will be automatically submitted to BSVE at the end of each run. Otherwise, you have to select project(s)/run(s) and submit sample metadata menually."></a>
+								</legend>
 								<input type="radio" name="edgesite-autoshare-metadata" id="edgesite-autoshare-metadata1" value="yes" checked>
 								<label for="edgesite-autoshare-metadata1">Yes</label>
 								<input type="radio" name="edgesite-autoshare-metadata" id="edgesite-autoshare-metadata2" value="no">
