@@ -150,7 +150,7 @@ $( document ).ready(function()
 				error: function(XMLHttpRequest, textStatus, errorThrown) { 
 					$('.no-show-logout').hide();
 					$('#edge-projet-list-li').hide();
-					$(".edge-user-btn").hide();
+					$("#edge-user-btn").hide();
 					$( "a[href=#edge-content-pipeline]" ).hide();
 					$( "a[href=#edge-content-uploadfile]" ).hide();
 					$( "a[href=#edge-qiime-pipeline]" ).hide();
@@ -166,7 +166,7 @@ $( document ).ready(function()
 						if (data.error.toLowerCase().indexOf("administrator") >= 0){
 							$('.no-show-logout').hide();
 							$('#edge-projet-list-li').hide();
-							$(".edge-user-btn").hide();
+							$("#edge-user-btn").hide();
 							$( "a[href=#edge-content-pipeline]" ).hide();
 							$( "a[href=#edge-content-uploadfile]" ).hide();
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
@@ -175,7 +175,7 @@ $( document ).ready(function()
 							// no configuration to use User management
 							localStorage.umStatus = false;
 							$('.no-show-logout').show();
-							$(".edge-user-btn").hide();
+							$("#edge-user-btn").hide();
 							$("#action-unshare-btn").parent().hide();
 							$("#action-share-btn").parent().hide();
 							$("#action-publish-btn").parent().hide();
@@ -188,7 +188,7 @@ $( document ).ready(function()
 						localStorage.umURL = data.url;
 						localStorage.sid = data.sid;
 						umSystemURL = data.url;
-						$(".edge-user-btn").show();;
+						$("#edge-user-btn").show();;
 						$(".no-show-logout").hide();
 						$('.no-show-login').show();
 						$('#edge-project-page-li').text('Public Project List');
@@ -1227,7 +1227,8 @@ $( document ).ready(function()
 						.done(function( script, textStatus ) {
 						//	console.log( "edge-output.js loaded: " + textStatus );
 							var projName = $('#edge-output-projname').html();
-							$('#edge-project-title').html( projName+" /");
+							var sep = (umSystemStatus)? ' /':'';
+							$('#edge-project-title').html( projName+sep);
 							$('#edge-project-title').attr("data-pid", pname);
 							$('#edge-project-title').off("click");
 							$('#edge-project-title').on("click", function(){ updateReport(pname); });
@@ -1857,8 +1858,12 @@ $( document ).ready(function()
 				$( "#edge-project-list-ul > li" ).off('click').on("click", function(e){
 					e.preventDefault();
 					var pname = $(this).children("a").attr("data-pid");
-					updateReport(pname);
-					updateProject(pname);
+					if (e.altKey){
+ 						window.open(location.href.split('#')[0] +"/?proj="+pname);
+ 					}else{
+						updateReport(pname);
+						updateProject(pname);
+					}
 				});
 				clearInterval(updateProjInterval);
 				updateProjInterval = setInterval(function(){ updateProject(pname) }, interval);
