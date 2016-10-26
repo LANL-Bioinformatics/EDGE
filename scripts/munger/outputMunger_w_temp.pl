@@ -1472,8 +1472,10 @@ sub pull_summary {
 
 	$vars->{PROJSTATUS}        = "Unstarted"   if $lastline =~ /EDGE_UI.*unstarted/;
 	$vars->{PROJSTATUS}        = "Interrupted" if $lastline =~ /EDGE_UI.*interrupted/;
-	$vars->{PROJSTATUS}        = "Archived" if $lastline =~ /EDGE_UI.*archived/;
+	$vars->{PROJSTATUS}        = "Archived"	   if $lastline =~ /EDGE_UI.*archived/;
 	$prog->{$ord}->{GNLSTATUS} = "Interrupted" if $vars->{PROJSTATUS} eq "Interrupted"; #turn last step to unfinished
+	$vars->{PROJSTATUS}        = "Complete"    if $mode ne "web"; # run by end of runPipeline  
+	$prog->{$ord}->{GNLSTATUS} = "Complete" if $mode ne "web";
 	
 	#Reads Taxonomy Classification
 	$ord = $map{"Reads Taxonomy Classification"};
@@ -1518,7 +1520,7 @@ sub pull_summary {
 		}
 	}
 	close PROC_CUR;
-
+	$prog->{$ord}->{GNLSTATUS} = "Interrupted" if $vars->{PROJSTATUS} eq "Interrupted"; #turn last step to unfinished
 
 	$getting_paired = 1 if scalar @INFILES > 1;
 	map {  $_=basename($_) if ($_); } @INFILES;

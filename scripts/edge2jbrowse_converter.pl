@@ -110,7 +110,7 @@ sub main {
 	if( -s $opt{'in-ctg-fa'} ){
 		print "\n# Preparing files for JBrowse with CONTIG-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ctg-coord-dir'}");
-		executeCommand("mkdir -p $opt{'out-ctg-coord-dir'}");
+		executeCommand("mkdir -m 777 -p $opt{'out-ctg-coord-dir'}");
 		executeCommand("cat $opt{gff3out} >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 
 		if( -e $opt{'in-ctg-anno-gff3'} ){
@@ -184,7 +184,7 @@ sub main {
 	if( -e $opt{'in-ref-fa'} ){
 		print "\n# Preparing files for JBrowse with REF-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ref-coord-dir'}/");
-		executeCommand("mkdir -p $opt{'out-ref-coord-dir'}/");
+		executeCommand("mkdir -m 777 -p $opt{'out-ref-coord-dir'}/");
 		executeCommand("cat $opt{gff3out} >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
 		
 		if( -e $opt{'in-ref-gff3'} ){

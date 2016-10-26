@@ -8,8 +8,6 @@ use strict;
 use FindBin qw($RealBin);
 use lib "$RealBin/../../lib";
 use JSON;
-use LWP::UserAgent;
-use HTTP::Request::Common;
 use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
