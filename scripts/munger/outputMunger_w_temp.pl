@@ -261,17 +261,35 @@ sub pull_sampleMetadata {
              			$vars->{SMD_SEQ_CENTER} =$2 if ($1 eq "sequencing_center");
              			$vars->{SMD_SEQUENCER} =$2 if ($1 eq "sequencer");
              			$vars->{SMD_SEQ_DATE} =$2 if ($1 eq "sequencing_date");
-              	}
-			}
+              		}
+		}
         	close CONF;
+		pull_other();
         	if($vars->{SMD_TYPE} eq "human") {
 				pull_travels();
 				pull_symptoms();
-			}
+		}
 
 	} else {
 		$vars->{OUT_SAMPLE_NO_METADATA}   = 1;
 	}
+}
+
+sub pull_other {
+	my $other = "$out_dir/metadata_other.txt";
+	return unless -e $other;
+	open CONF, $other or die "Can't open $other $!";
+        while(<CONF>){
+      		chomp;
+        	next if(/^#/);
+     		if ( /(.*)=(.*)/ ){
+			my $sym;
+			$sym->{SMD_OTHER_F}=$1;
+			$sym->{SMD_OTHER_V}=$2;
+			push @{$vars->{LOOP_SMD_OTHER}}, $sym;
+		}
+	}
+	close CONF;
 }
 
 sub pull_symptoms {

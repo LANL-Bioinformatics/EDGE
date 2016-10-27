@@ -606,8 +606,23 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						</div>
 					</div>
 				</div>
+				<br/><br/>
 
-				
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-d">
+						<b><em>Other</em></b><a href="#popupInfo-other" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
+						<div data-role="popup" id="popupInfo-other" class="ui-content" data-theme="a" style="max-width:350px;">
+							<p>Enter your own metadata as:<br>field1=value1<br>field2=value2<br>field3=value3<br>...<br></p>
+						</div>
+					</div>
+					<div class="ui-body ui-body-a ui-corner-all">
+						<div class="ui-field-contain">
+							<label for="metadata-other">User Defined Metadata</label>
+							<textarea data-mini="true" rows="8" name="metadata-other" id="metadata-other" class="metadata-input"></textarea>
+						</div>
+					</div>
+				</div>
+
 			</div>
 			<br/><br/>
 		</div>
@@ -1418,7 +1433,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<label for="signIn-email" class="ui-hidden-accessible">Email Address</label>
 		<input type="text" name="signIn-email" id="signIn-email" placeholder="Email Address" value="">
 		<label for="signIn-password" class="ui-hidden-accessible">Password</label>
-		<input type="password" name="signIn-password" id="signIn-password" placeholder="password" autocomplete="off" value="">
+		<input type="password" name="signIn-password" id="signIn-password" placeholder="Password" autocomplete="off" value="">
 		<a href="#dlg-invalid-credentials" data-rel="popup"  data-position-to="window" id="signIn-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active" data-overlay-theme="b">Submit</a>
 		<label class="inline-small"><input type="checkbox" data-role="none" name="chck-rememberme" id="chck-rememberme">Remember my email</label>
 		<div class="sign-option-block">

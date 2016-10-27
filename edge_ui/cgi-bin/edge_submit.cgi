@@ -122,7 +122,7 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'edge-taxa-allreads'} =1;
 	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-v,gottcha2-genDB-v,gottcha2-speDB-b,bwa";
 
-        ###sample metadata
+        ###SRA sample metadata
 	$opt{'metadata-study-id'} = $ARGV[3];
 	$opt{'metadata-study-title'} = $ARGV[4];
         $opt{'metadata-sample-name'} = $ARGV[5];
@@ -142,6 +142,8 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'metadata-seq-center'} = $ARGV[19];
 	$opt{'metadata-sequencer'} = $ARGV[20];
 	$opt{'metadata-seq-date'} = $ARGV[21];
+        $opt{"edge-proj-cpu"} = $ARGV[22];
+        $num_cpu = $opt{"edge-proj-cpu"};
         #END
 }
 ###################
@@ -1237,6 +1239,15 @@ sub createSampleMetadataFile {
 			print ROUT "edge-run-id=$id\n";
 			close ROUT;
 		} 
+
+		#user defined metadata
+		if($opt{'metadata-other'}) {
+			my $other_out = "$out_dir/$pname/metadata_other.txt";
+			$other_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_other.txt" if ($username && $password);
+			open OUT,  ">$other_out";
+			print OUT $opt{'metadata-other'};
+			close OUT;
+		}
 	}
 }
 

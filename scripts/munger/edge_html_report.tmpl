@@ -152,6 +152,10 @@
 					<tr><td>Sequencing Center</td><td><TMPL_VAR NAME=SMD_SEQ_CENTER DEFAULT=-></td></tr>
 					<tr><td>Sequencer</td><td><TMPL_VAR NAME=SMD_SEQUENCER DEFAULT=-></td></tr>
 					<tr><td>Sequencing Date</td><td><TMPL_VAR NAME=SMD_SEQ_DATE DEFAULT=-></td></tr>
+
+					<TMPL_LOOP NAME=LOOP_SMD_OTHER>
+						<tr><td><TMPL_VAR NAME=SMD_OTHER_F DEFAULT=-></td><td><TMPL_VAR NAME=SMD_OTHER_V DEFAULT=-></td></tr>
+					</TMPL_LOOP>
 				  </tbody>
 			</table>
 			

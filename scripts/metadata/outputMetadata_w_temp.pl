@@ -18,6 +18,7 @@ my $vars;
 
 eval {
 	&pull_sampleMetadata();
+	&pull_otherMetadata();
 };
 
 output_html();
@@ -41,7 +42,6 @@ sub output_html {
 
 sub pull_sampleMetadata {
 	my $metadata = "$out_dir/metadata_sample.txt";
-
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
@@ -76,7 +76,7 @@ sub pull_sampleMetadata {
       		  }
         	close CONF;
 
-		if($vars->{SMD_TYPE} eq "human") {
+		if($vars->{SMD_TYPE} && $vars->{SMD_TYPE} eq "human") {
 			$vars->{SMD_HOST} = "";
 		}
 		#get list options
@@ -149,5 +149,14 @@ sub setHostCondition {
 		} 
 		push @{$vars->{LOOP_SMD_HOST_CONDITIONS}}, $item;
 	}
+}
+
+sub pull_otherMetadata {
+	my $metadata = "$out_dir/metadata_other.txt";
+	if(-e $metadata) {
+		open my $fh, '<', $metadata or die "error opening $metadata: $!";
+		$vars->{SMD_OTHER}= do { local $/; <$fh> };	
+		close $fh;
+	} 
 }
 

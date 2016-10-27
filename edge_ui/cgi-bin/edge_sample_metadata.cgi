@@ -301,7 +301,14 @@ if( $proj_list->{$pname} ){
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
 			close OUT;
-
+			
+			#user defined metadata
+			if($opt{'metadata-other'}) {
+				my $other_out = "$projDir/metadata_other.txt";
+				open OUT,  ">$other_out";
+				print OUT $opt{'metadata-other'};
+				close OUT;
+			}
 		} else {
 			$msg->{SUBMISSION_STATUS}="failure";
 		}
