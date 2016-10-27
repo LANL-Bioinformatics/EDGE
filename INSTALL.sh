@@ -1838,6 +1838,7 @@ fi
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
+echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1" | crontab -
 
 echo "
 
