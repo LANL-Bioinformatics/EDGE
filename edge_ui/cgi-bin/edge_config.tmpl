@@ -36,6 +36,8 @@ n=<TMPL_VAR NAME=edge-qc-n DEFAULT=0>
 lc=<TMPL_VAR NAME=edge-qc-lc DEFAULT=0.85>
 ## Trim reads with adapters or contamination sequences
 adapter=<TMPL_VAR NAME=edge-qc-adapter DEFAULT=>
+## Trim polyA (>15)
+polyA=<TMPL_VAR NAME=edge-qc-polyA DEFAULT=>
 ## phiX filter, boolean, 1=yes, 0=no
 ## phiX=<TMPL_VAR NAME=edge-qc-phix DEFAULT=0>
 ## Cut # bp from 5 end before quality trimming/filtering 

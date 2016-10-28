@@ -689,6 +689,15 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input data-mini="true" name="edge-qc-adapter" id="edge-qc-adapter" type="text" placeholder="(optional) absolute file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 			</div>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Trim polyA</legend>
+					<input type="radio" data-mini="true" name="edge-qc-polyA" id="edge-qc-polyA1" value="1">
+					<label for="edge-qc-polyA1">On</label>
+					<input type="radio" data-mini="true" name="edge-qc-polyA" id="edge-qc-polyA2" value="0" checked="checked">
+					<label for="edge-qc-polyA2">Off</label>
+				</fieldset>
+			</div>
 			<!--<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>phiX Filter</legend>
@@ -697,7 +706,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<input type="radio" data-mini="true" name="edge-qc-phix" id="edge-qc-phix2" value="0" checked="checked">
 					<label for="edge-qc-phix2">Off</label>
 				</fieldset>
-			</diav>-->
+			</div>-->
 			<div class="ui-field-contain">
 				<label for="edge-qc-5end">Cut #bp from 5'-end</label>
 				<input type="number" name="edge-qc-5end" id="edge-qc-5end" data-mini="true" data-clear-btn="true" value="0">

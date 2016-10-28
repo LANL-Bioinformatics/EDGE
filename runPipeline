@@ -1883,6 +1883,7 @@ sub runQC
     $parameters .= " -q $quality_cutoff -min_L $min_length -avg_q $avg_quality -n $num_N -lc $low_complexity -5end $cut_5_end -3end $cut_3_end";
     $parameters .= " -split_size $split_size -d $outputDir -t $numCPU";
     $parameters .= " -adapter -artifactFile ". $configuration->{"adapter"} if ($configuration->{"adapter"});
+    $parameters .= " -polyA " if ($configuration->{"polyA"});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     
     my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
