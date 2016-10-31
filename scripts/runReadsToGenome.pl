@@ -786,7 +786,7 @@ sub fold {
     }
     close IN;
     close OUT;
-    if ($seq_num<1){die "No seqeucne in your reference file\n";}
+    if ($seq_num<1){die "No sequence in your reference file\n";}
     return ("$tmp/Contig$$.fold");
 }
 

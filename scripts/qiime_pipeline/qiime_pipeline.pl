@@ -219,7 +219,7 @@ if (@paired_files)
         }
         else
         {
-            print ("The seqeucne names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as si
+            print ("The sequence names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as si
 ngle end reads\n");
             push @unpaired_files, $paired_files[$i],$paired_files[$i+1];
             delete $file{basename($paired_files[$i])};

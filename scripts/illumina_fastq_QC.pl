@@ -232,7 +232,7 @@ if (@paired_files)
         }
         else
         {
-            print ("The seqeucne names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as single end reads\n");
+            print ("The sequence names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as single end reads\n");
             push @unpaired_files, $paired_files[$i],$paired_files[$i+1];
             delete $file{basename($paired_files[$i])};
             delete $file{basename($paired_files[$i+1])};
@@ -2317,7 +2317,7 @@ sub filter_adapter
     my @match;
     $mismatchRate = $mismatchRate*100;
     my $adapter;
-    my $adapater_count=0;
+    my $adapter_count=0;
     my $adapter_name;
     my $s_len=length($s);
     my $pos5=0;
@@ -2343,8 +2343,8 @@ sub filter_adapter
         @match = String::Approx::aslice($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
         if (defined $match[0][0])
         {
-            $adapater_count++;
-            if ($adapater_count >1){
+            $adapter_count++;
+            if ($adapter_count >1){
                 last;
             }
             $adapter_name=$key;
@@ -2363,16 +2363,16 @@ sub filter_adapter
             # same adapter sencond match
             my $match = String::Approx::amatch($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
             if ($match){
-                $adapater_count++;
+                $adapter_count++;
                 last;
             }
         }
     }
 
-    if ($adapater_count>1){
+    if ($adapter_count>1){
         ## filter read if there are more than one adapter (or same adapter match twice) in a read
         return (1,"",$pos5,$pos3,$adapter_name);
-    }elsif($adapater_count){
+    }elsif($adapter_count){
         return (1,$s,$pos5,$pos3,$adapter_name);
     }else{
         return (0,$s,$pos5,$pos3,"");

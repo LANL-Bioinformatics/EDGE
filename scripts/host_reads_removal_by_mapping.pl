@@ -127,7 +127,7 @@ sub checkFiles
             }
             else
             {
-                print "The seqeucne names of the paired end reads in $pairedReadsFile[$i],$pairedReadsFile[$i+1] are not matching.\nWill use them as single end reads\n";
+                print "The sequence names of the paired end reads in $pairedReadsFile[$i],$pairedReadsFile[$i+1] are not matching.\nWill use them as single end reads\n";
                 push @unpairedReadsFile, $pairedReadsFile[$i],$pairedReadsFile[$i+1];
                 delete $file{basename($pairedReadsFile[$i])};
                 delete $file{basename($pairedReadsFile[$i+1])};
