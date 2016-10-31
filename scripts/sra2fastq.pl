@@ -31,7 +31,7 @@ my $PLAT_R;
 my $CLEAN;
 my $CONCAT_PREFIX = "output";
 my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy};
-$proxy = "--proxy $proxy " if ($proxy);
+$proxy = "--proxy $proxy" if ($proxy);
 my $gzip;
 
 my $res=GetOptions(
@@ -64,15 +64,16 @@ foreach my $sra ( @ARGV ){
 		$sra_type = "BySample" if $sra_acc_prefix =~ /(SRS|ERS|DRS)/;
 		$sra_type = "ByStudy"  if $sra_acc_prefix =~ /(SRP|ERP|DRP)/;
 		
-		my $base = "ftp://ftp-trace.ncbi.nih.gov";
-		my $path = "$base/sra/sra-instant/reads/$sra_type/sra/$sra_acc_prefix/$sra_acc_first6/$sra/";
+		my $path = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=$sra";
 		
 		print STDERR "The input SRA# is $sra_type.\n";
-		print STDERR "Trying to Retrieve SRA numbers belong to $sra...\n";
+		print STDERR "Trying to Retrieve SRR numbers belong to $sra...\n";
 
-		my $list = `/usr/bin/curl $proxy $path 2>/dev/null`;
-		#my @sra_srr_list = $list =~ /dr-xr-xr-x \d+ ftp\s+anonymous\s+\d+\s+\w+\s+\d+\s+\d+\s+(\w{3}\d+)/g;
-		my @sra_srr_list = $list =~ /ftp\s+anonymous.*(SRR\d+)\n/g;
+		my $list = `/usr/bin/curl $proxy \"$path\" 2>/dev/null`;
+
+		my @sra_srr_list = $list =~ /\n(SRR\d+),/mg;
+
+		print STDERR scalar(@sra_srr_list)," number found.\n";
 	
 		if( @sra_srr_list ){
 			print STDERR "Found SRA runs $sra_type: $sra\n";
@@ -120,7 +121,7 @@ sub getSRAFastq {
 		print STDERR "Paired-end reads found. Deinterleaving...";
 		my $di_flag = system("gzip -dc $OUTDIR/sra2fastq_temp/$sralist.fastq.gz | deinterleave_fastq.sh $OUTDIR/sra2fastq_temp/$sralist.1.fastq.gz $OUTDIR/sra2fastq_temp/$sralist.2.fastq.gz compress");
 		die "ERROR: Failed to deinterleave FASTQ file.\n" if $di_flag > 0;
-		print STDERR "Done";
+		print STDERR "Done.\n";
 		`rm -f $OUTDIR/sra2fastq_temp/$sralist.fastq.gz`;
 
 		return ("$OUTDIR/sra2fastq_temp/$sralist.1.fastq.gz","$OUTDIR/sra2fastq_temp/$sralist.2.fastq.gz");
