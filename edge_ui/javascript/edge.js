@@ -817,9 +817,12 @@ $( document ).ready(function()
         	     //alert('maximum fields reached')
         	}                        
     	});
-  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file').click( function(e) {
+	$("#edge-taxa-custom-db-tool").after($(".btnAdd-edge-taxa-custom-db"));
+	$(".btnAdd-edge-taxa-custom-db").parent().css("display","inline-flex");
+  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file, .btnAdd-edge-taxa-custom-db').click( function(e) {
 		e.preventDefault();
-		var blockClass, blockIDprefix, inputID, label, selectClass;
+		var blockClass, blockIDprefix, inputID, label, selectClass, toolname;
+		var limit=5;
 		if ($(this).hasClass("btnAdd-edge-phylo-ref-file")){
 			selectClass = ".btnAdd-edge-phylo-ref-file";
 			blockClass = ".edge-phylo-ref-file-block";
@@ -838,23 +841,40 @@ $( document ).ready(function()
 			blockIDprefix = "edge-ref-file-block";
 			inputID = "edge-ref-file";
 			label = "Reference Genome";
-                }
+		}else if ($(this).hasClass("btnAdd-edge-taxa-custom-db")){
+			selectClass = ".btnAdd-edge-taxa-custom-db";
+			blockClass = ".edge-taxa-custom-db-block";
+			blockIDprefix = "edge-taxa-custom-db-block";
+			toolname=$("#edge-taxa-custom-db-tool").val();
+			if ($("#"+"custom-"+toolname.toLowerCase()).length){
+				showWarning("The " + toolname + " input field exists");	
+				return;
+			}
+			limit = 10;
+		}
 		// how many "duplicatable" input fields we currently have
 		var num = $(blockClass).length;
+		var Elem = $('#' + blockIDprefix + num );
 		// the numeric ID of the new input field being added	
 		var newNum	= new Number(num + 1);	
 		var newElem = $('#' + blockIDprefix + num ).clone().attr('id', blockIDprefix + newNum);
-		newElem.find('label:first').attr( 'for', inputID + "-" + newNum ).text(label + '(' + newNum + ')');
-		newElem.find('input:first').attr( 'id', inputID + "-" + newNum ).attr('name', inputID);
+		if ($(this).hasClass("btnAdd-edge-taxa-custom-db")){
+			Elem.show();
+			Elem.find('label:first').text(toolname).attr( 'for',"custom-"+toolname.toLowerCase()).css("text-indent","1em");
+			Elem.find('input:first').attr( 'id',"custom-"+toolname.toLowerCase()).attr('name',"custom-"+toolname.toLowerCase());
+		} else {
+			newElem.find('label:first').attr( 'for', inputID + "-" + newNum ).text(label + '(' + newNum + ')');
+			newElem.find('input:first').attr( 'id', inputID + "-" + newNum ).attr('name', inputID);
+		}
 		newElem.find(selectClass).remove();
 		// insert newElem
 		$('#' + blockIDprefix + num).after(newElem);
-			// bind the selector 
-			newElem.find(".edge-file-selector").on( "click", function() {
+		// bind the selector 
+		newElem.find(".edge-file-selector").on( "click", function() {
 			inputFileID = $(this).prevAll().children().prop("id");
 		});
 		// business rule: limit the number of fields to 5
-		if (newNum == 5) {
+		if (newNum == limit) {
 			$(selectClass).addClass('ui-disabled');
 			//alert('maximum fields reached')
 		}   

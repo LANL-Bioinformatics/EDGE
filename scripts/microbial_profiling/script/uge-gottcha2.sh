@@ -12,7 +12,7 @@ ARGUMENTS:
    -o      Output directory
    -p      Output prefix
    -l      Level [genus|species|strain]
-   -k      Database type - bacteria or viruses [bact|viru|both]. Default is "bact".
+   -d      Database
 
 OPTIONS:
    -t      Number of threads. [default is 4]
@@ -37,7 +37,7 @@ OUTPATH=
 LVL="species"
 THREADS=4
 PRE_SPLITRIM=
-DB=$EDGE_HOME/database/GOTTCHA2/
+DB=$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
 
 while getopts "i:o:p:l:d:t:a:q:f:m:s:h" OPTION
 do
@@ -50,7 +50,7 @@ do
            ;;
         l) LVL=$OPTARG
            ;;
-        d) DB+=$OPTARG
+        d) DB=$OPTARG
            ;;
         t) THREADS=$OPTARG
            ;;

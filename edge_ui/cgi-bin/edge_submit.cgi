@@ -900,8 +900,56 @@ sub checkParams {
 		}
 		
 	}
-	if ( $opt{"edge-taxa-sw"} && scalar split(/[\x0]/,$opt{"edge-taxa-enabled-tools"}) < 1 ){
-		&addMessage("PARAMS","edge-taxa-tools","You need to choose at least one tool.");
+	if ( $opt{"edge-taxa-sw"} ){
+ 		&addMessage("PARAMS","edge-taxa-tools","You need to choose at least one tool.") if (scalar split(/[\x0]/,$opt{"edge-taxa-enabled-tools"}) < 1 );
+ 		if ($opt{"custom-bwa"}){
+ 			$opt{"custom-bwa"} = $input_dir."/".$opt{"custom-bwa"} if ($opt{"custom-bwa"} =~ /^\w/);
+ 			&addMessage("PARAMS","custom-bwa","DB file not found") if (! -e $opt{"custom-bwa"});
+ 		}
+ 		if ($opt{"custom-gottcha-spedb-v"}){
+ 			$opt{"custom-gottcha-spedb-v"} = $input_dir."/".$opt{"custom-gottcha-spedb-v"} if ($opt{"custom-gottcha-spedb-v"} =~ /^\w/);
+ 			&addMessage("PARAMS","custom-gottcha-spedb-v","DB file not found") if (! -e $opt{"custom-gottcha-spedb-v"});
+ 		}
+ 		if ($opt{"custom-gottcha-spedb-b"}){
+ 			$opt{"custom-gottcha-spedb-b"} = $input_dir."/".$opt{"custom-gottcha-spedb-b"} if ($opt{"custom-gottcha-spedb-b"} =~ /^\w/);
+ 			&addMessage("PARAMS","custom-gottcha-spedb-b","DB file not found") if (! -e $opt{"custom-gottcha-spedb-b"});
+ 		}
+ 		if ($opt{"custom-gottcha-strdb-v"}){
+ 			$opt{"custom-gottcha-strdb-v"} = $input_dir."/".$opt{"custom-gottcha-strdb-v"} if ($opt{"custom-gottcha-strdb-v"} =~ /^\w/);
+ 			&addMessage("PARAMS","custom-gottcha-strdb-v","DB file not found") if (! -e $opt{"custom-gottcha-strdb-v"});
+ 		}
+ 		if ($opt{"custom-gottcha-strdb-b"}){
+ 			$opt{"custom-gottcha-strdb-b"} = $input_dir."/".$opt{"custom-gottcha-strdb-b"} if ($opt{"custom-gottcha-strdb-b"} =~ /^\w/);
+ 			&addMessage("PARAMS","custom-gottcha-strdb-b","DB file not found") if (! -e $opt{"custom-gottcha-strdb-b"});
+ 		}
+		if ($opt{"custom-gottcha-gendb-v"}){
+			$opt{"custom-gottcha-gendb-v"} = $input_dir."/".$opt{"custom-gottcha-gendb-v"} if ($opt{"custom-gottcha-gendb-v"} =~ /^\w/);
+			&addMessage("PARAMS","custom-gottcha-gendb-v","DB file not found") if (! -e $opt{"custom-gottcha-gendb-v"});
+		}
+		if ($opt{"custom-gottcha-gendb-b"}){
+			$opt{"custom-gottcha-gendb-b"} = $input_dir."/".$opt{"custom-gottcha-gendb-b"} if ($opt{"custom-gottcha-gendb-b"} =~ /^\w/);
+			&addMessage("PARAMS","custom-gottcha-gendb-b","DB file not found") if (! -e $opt{"custom-gottcha-gendb-b"});
+		}
+		if ($opt{"custom-metaphlan"}){
+			$opt{"custom-metaphlan"} = $input_dir."/".$opt{"custom-metaphlan"} if ($opt{"custom-metaphlan"} =~ /^\w/);
+			&addMessage("PARAMS","custom-metaphlan","DB file not found") if (! -e $opt{"custom-metaphlan"});
+		}
+		if ($opt{"custom-kraken"}){
+			$opt{"custom-kraken"} = $input_dir."/".$opt{"custom-kraken"} if ($opt{"custom-kraken"} =~ /^\w/);
+			&addMessage("PARAMS","custom-kraken","DB file not found") if (! -e $opt{"custom-kraken"});
+		}
+		if ($opt{"custom-gottcha2-spedb-b"}){
+			$opt{"custom-gottcha2-spedb-b"} = $input_dir."/".$opt{"custom-gottcha2-spedb-b"} if ($opt{"custom-gottcha2-spedb-b"} =~ /^\w/);
+			&addMessage("PARAMS","custom-gottcha2-spedb-b","DB file not found") if (! -e $opt{"custom-gottcha2-spedb-b"});
+		}
+		if ($opt{"custom-gottcha2-gendb-v"}){
+			$opt{"custom-gottcha2-gendb-v"} = $input_dir."/".$opt{"custom-gottcha2-gendb-v"} if ($opt{"custom-gottcha2-gendb-v"} =~ /^\w/);
+			&addMessage("PARAMS","custom-gottcha2-gendb-v","DB file not found") if (! -e $opt{"custom-gottcha2-gendb-v"});
+		}
+		if ($opt{"custom-gottcha2-spedb-v"}){
+			$opt{"custom-gottcha2-spebd-v"} = $input_dir."/".$opt{"custom-gottcha2-spedb-v"} if ($opt{"custom-gottcha2-spedb-v"} =~ /^\w/);
+			&addMessage("PARAMS","custom-gottcha2-spedb-v","DB file not found") if (! -e $opt{"custom-gottcha2-spedb-v"});
+		}
 	}
 	&addMessage("PARAMS","edge-primer-vaild-sw","Input primer fasta file. You need to turn on the Primer Validation") if ($opt{"edge-primer-valid-file"} && !$opt{"edge-primer-valid-sw"});
 	if ( $opt{"edge-primer-valid-sw"} ){

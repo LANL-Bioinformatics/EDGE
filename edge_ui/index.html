@@ -1062,6 +1062,35 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</select>
 				</fieldset>
 			</div>
+			<div class="edge-right">|<a href="#" id="edge-taxa-toggle" class="edge-additional-options-toggle" > use custom databases </a>|</div>
+ 			<div id="edge-taxa-options" class="edge-additional-options">
+ 				<div class="ui-field-contain input-type-file">
+					<label for="edge-taxa-custom-db-tool" class="select">Custom DB Tool</label>
+					<select name="edge-taxa-custom-db-tool" id="edge-taxa-custom-db-tool" data-mini="true" data-native-menu="false">
+						<option value="GOTTCHA-genDB-b"> GOTTCHA Bacteria Genus</option>
+						<option value="GOTTCHA-speDB-b"> GOTTCHA Bacteria Species </option>
+						<option value="GOTTCHA-strDB-b"> GOTTCHA Bacteria Strain</option>
+						<option value="GOTTCHA-genDB-v"> GOTTCHA Virus Genus</option>
+						<option value="GOTTCHA-speDB-v"> GOTTCHA Virus Species</option>
+						<option value="GOTTCHA-strDB-v"> GOTTCHA Virus Strain</option>
+						<!--
+						<option value="GOTTCHA2-genDB-v"> GOTTCHA2 Virus Genus</option>
+						<option value="GOTTCHA2-speDB-v"> GOTTCHA2 Virus Species</option>
+						<option value="GOTTCHA2-speDB-b"> GOTTCHA2 Bacteria Species </option>
+						-->
+						<option value="BWA" selected="">Reads Mapping (BWA against custom DB)</option>
+						<option value="Metaphlan">MetaPhlAn</option>
+						<option value="Kraken">Kraken</option>
+					</select>
+					<a href="#" class="btnAdd-edge-taxa-custom-db" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
+				</div>
+ 				<div id="edge-taxa-custom-db-block1" class="edge-taxa-custom-db-block ui-field-contain input-type-file" style="display:none">
+					<label for="edge-taxa-custom-db-file-1">Custom Database</label>
+					<input data-mini="true" name="edge-taxa-custom-db-file" id="edge-taxa-custom-db-file-1" type="text" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+					</div>
+				</div>
+			</div>
 
 			<li>Contig-based Taxonomy Classification</li>
 			<div class="ui-field-contain">

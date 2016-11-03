@@ -14,16 +14,18 @@ OPTIONS:
    -o      Output directory
    -p      Output prefix
    -t      Number of threads
+   -d      Database
    -h      help
 EOF
 }
 
+DB=$EDGE_HOME/database/metaphlan/mpa
 FASTQ=
 PREFIX=
 OUTPATH=
 THREADS=24
 
-while getopts "i:o:p:t:h" OPTION
+while getopts "i:o:p:t:d:h" OPTION
 do
      case $OPTION in
         i) FASTQ=$OPTARG
@@ -33,6 +35,8 @@ do
         p) PREFIX=$OPTARG
            ;;
         t) THREADS=$OPTARG
+           ;;
+        d) DB=$OPTARG
            ;;
         h) usage
            exit
@@ -52,7 +56,7 @@ mkdir -p $OUTPATH
 
 set -x;
 #run metaphlan
-time metaphlan.py --bowtie2db $EDGE_HOME/database/metaphlan/mpa --bowtie2out ${OUTPATH}/${PREFIX}.bt2out --nproc ${THREADS} ${FASTQ} ${OUTPATH}/${PREFIX}.out.mpln
+time metaphlan.py --bowtie2db ${DB} --bowtie2out ${OUTPATH}/${PREFIX}.bt2out --nproc ${THREADS} ${FASTQ} ${OUTPATH}/${PREFIX}.out.mpln
 
 #parse mpln
 convert_metaphlan2tabTree.pl < $OUTPATH/$PREFIX.out.mpln > $OUTPATH/$PREFIX.out.tab_tree

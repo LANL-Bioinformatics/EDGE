@@ -999,8 +999,20 @@ sub Reads_taxonomyAssignment
 		$bwaScoreCut = int($bases/$reads*0.8);
 		close ($qcfh);
 	}
-
-	my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl $configuration->{enabledTools} $bwaScoreCut > $outputDir/microbial_profiling.settings.ini 2>$logFile";
+    my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut ";
+    $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if ($configuration->{'custom-bwa-db'});
+    $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if ($configuration->{'custom-metaphlan-db'});
+    $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if ($configuration->{'custom-kraken-db'});
+    $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if ($configuration->{'custom-gottcha-speDB-v'});
+    $cmd0 .= " -gottcha-b-speDB ". $configuration->{'custom-gottcha-speDB-b'} if ($configuration->{'custom-gottcha-speDB-b'});
+    $cmd0 .= " -gottcha-v-strDB ". $configuration->{'custom-gottcha-strDB-v'} if ($configuration->{'custom-gottcha-strDB-v'});
+    $cmd0 .= " -gottcha-b-strDB ". $configuration->{'custom-gottcha-strDB-b'} if ($configuration->{'custom-gottcha-strDB-b'});
+    $cmd0 .= " -gottcha-v-genDB ". $configuration->{'custom-gottcha-genDB-v'} if ($configuration->{'custom-gottcha-genDB-v'});
+    $cmd0 .= " -gottcha-b-genDB ". $configuration->{'custom-gottcha-genDB-b'} if ($configuration->{'custom-gottcha-genDB-b'});
+    $cmd0 .= " -gottcha2-v-genDB ". $configuration->{'custom-gottcha2-genDB-v'} if ($configuration->{'custom-gottcha2-genDB-v'});
+    $cmd0 .= " -gottcha2-b-speDB ". $configuration->{'custom-gottcha2-speDB-b'} if ($configuration->{'custom-gottcha2-speDB-b'});
+    $cmd0 .= " -gottcha2-v-speDB ". $configuration->{'custom-gottcha2-speDB-v'} if ($configuration->{'custom-gottcha2-speDB-v'});
+    $cmd0 .= "> $outputDir/microbial_profiling.settings.ini 2>$logFile"; 
     my $cmd="$RealBin/scripts/microbial_profiling/microbial_profiling.pl $dparam -o $outputDir -s $outputDir/microbial_profiling.settings.ini -c $numCPU $input 2>$logFile";
     if ($noColorLog)
     {
