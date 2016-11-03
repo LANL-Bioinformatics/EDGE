@@ -51,9 +51,11 @@ sub pushSampleMetadata {
 	my $travelFile = "$proj_dir/metadata_travels.txt";
 	my $symptomFile = "$proj_dir/metadata_symptoms.txt";
 	my $pathogensFile = "$proj_dir/pathogens.txt";
+	my $otherFile = "$proj_dir/metadata_other.txt";
 	if(-e $metadataFile) {
 		my $metadata = &getMetadataParams($metadataFile);
 		my $run = &getMetadataParams($runFile);
+		my $other = &getMetadataParams($otherFile);
 
 			#for multiple projects share-metadata-with-bsve action
 			if($run->{'bsve_id'}) {
@@ -78,7 +80,7 @@ sub pushSampleMetadata {
 				#SRA run
 				#$run_host = "SRA";
 			}
-			my $data = $obj->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $run_host, $run_id);
+			my $data = $obj->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $run_host, $run_id, $other->{'lanl_only'});
 
 			print MLG "$action sample metadata\n";
 			print MLG $data."\n" if($sys->{'bsve_api_debug'}) ;
@@ -132,7 +134,7 @@ sub pushSampleMetadata {
 							} elsif ($1 eq "lng") {
 								$lng = $2;
 								my $travel = new Travel($id, "$from ~ $to", $location, $city, $state, $country, $lat, $lng);
-								my $tdata = $travel->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'});
+								my $tdata = $travel->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $other->{'lanl_only'});
 								print MLG "Add travel: ".$tdata."\n" if($sys->{'bsve_api_debug'}) ;
 
 								#submit to WS
@@ -161,7 +163,7 @@ sub pushSampleMetadata {
 						next if(/^#/);
 				     		if ( /(.*)\t(.*)/ ){
 							my $symptom = new Symptom($id, $1, $2);
-							my $sdata = $symptom->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'});
+							my $sdata = $symptom->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $other->{'lanl_only'});
 							print MLG "Add symptom: ".$sdata."\n" if($sys->{'bsve_api_debug'}) ;
 
 							#submit to WS
@@ -193,7 +195,7 @@ sub pushSampleMetadata {
 						$top ++;
 						my @parts = split(/\t/);
 						my $pathogen = new Pathogen($id, $parts[0], $parts[1], $parts[2], $top);
-						my $pdata = $pathogen->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'});
+						my $pdata = $pathogen->toJson($sys->{'bsve_api_key'}, $sys->{'bsve_api_token'}, $other->{'lanl_only'});
 						print MLG "Add pathogen: ".$pdata."\n" if($sys->{'bsve_api_debug'}) ;
 
 						#submit to WS

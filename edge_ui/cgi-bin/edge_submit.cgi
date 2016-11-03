@@ -44,6 +44,7 @@ $um_url ||= "$protocol//$domain/userManagement";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $debug       = $sys->{debug};
 my $request_uri = $ENV{'REQUEST_URI'};
+my $max_num_jobs = $sys->{"max_num_jobs"};
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -144,6 +145,7 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 	$opt{'metadata-seq-date'} = $ARGV[21];
         $opt{"edge-proj-cpu"} = $ARGV[22];
         $num_cpu = $opt{"edge-proj-cpu"};
+        $opt{"metadata-other"} = $ARGV[23];
         #END
 }
 ###################
@@ -668,6 +670,7 @@ sub getProjcode {
 sub availableToRun {
 	my $num_cpu = shift;
 	my $cpu_been_used = 0;
+	return 0 if (scalar (keys %$vital) >= $max_num_jobs);
 	if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
 		foreach my $pid ( keys %$vital ){
 			$cpu_been_used += $vital->{$pid}->{CPU};

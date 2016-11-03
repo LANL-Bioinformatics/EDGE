@@ -15,8 +15,9 @@ sub new {
 }
 
 sub toJson {
-	my ($self, $key, $token) = @_;
+	my ($self, $key, $token, $lanlOnly) = @_;
 	my $json = '{"api_key":"'.$key.'","api_token":"'.$token.'"';
+	$json .= ',"lanl_only":"'.$lanlOnly.'"' if $lanlOnly;
 
 	$json .= ',"metadata_id":"'.$self->{metadata_id}.'"' if $self->{metadata_id};
 	$json .= ',"category":"'.$self->{category}.'"' if $self->{category};

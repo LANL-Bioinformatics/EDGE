@@ -1001,7 +1001,7 @@ sub pull_blast {
 sub pull_sra_download {
 	my $err;
 	$err = `grep -i Failed $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
-	$err .= `grep "SRA runs not found" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
+	$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
 	if ($err){
 		$err =~ s/(http\S+)/<a href=\"$1\"  target=\"_blank\">$1<\/a>/;
 		$vars->{SRADERR} = $err;

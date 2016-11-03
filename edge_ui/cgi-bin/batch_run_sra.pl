@@ -126,9 +126,12 @@ while(<$fh>){
 	}
         close TMP;
 
+        my $cpu = $ARGV[1];
+        $cpu = 12 unless $cpu;
+
 	chdir $RealBin;
 	$cmd = "$RealBin/edge_submit.cgi \"$projname\" \"$sra_id\" \"$projdesc\"";
-	$cmd .= " \"$study_id\" \"$study\" \"$sampleName\" \"$sampleType\" \"$gender\" \"$host\" \"$hostCondition\" \"$source\" \"$collectionDate\" \"$location\" \"$city\" \"$state\" \"$country\" \"$lat\" \"$lng\" \"$experiment\" \"$center\" \"$instrument\" \"$seqDate\" 7";
+	$cmd .= " \"$study_id\" \"$study\" \"$sampleName\" \"$sampleType\" \"$gender\" \"$host\" \"$hostCondition\" \"$source\" \"$collectionDate\" \"$location\" \"$city\" \"$state\" \"$country\" \"$lat\" \"$lng\" \"$experiment\" \"$center\" \"$instrument\" \"$seqDate\" \"$cpu\" \"lanl_only=true\"";
 	#print $cmd,"\n";
 	system($cmd);
 }

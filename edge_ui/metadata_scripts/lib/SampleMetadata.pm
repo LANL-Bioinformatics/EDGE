@@ -34,11 +34,12 @@ sub new {
 }
 
 sub toJson {
-	my ($self, $key, $token, $runHost, $runId) = @_;
+	my ($self, $key, $token, $runHost, $runId, $lanlOnly) = @_;
 	my $json = '{"api_key":"'.$key.'","api_token":"'.$token.'"';
 
 	$json .= ',"run_host":"'.$runHost.'"' if $runHost;
 	$json .= ',"run_id":"'.$runId.'"' if $runId;
+	$json .= ',"lanl_only":"'.$lanlOnly.'"' if $lanlOnly;
 
 	$json .= ',"metadata_id":"'.$self->{metadata_id}.'"' if $self->{metadata_id};
 	$json .= ',"study_id":"'.$self->{study_id}.'"' if $self->{study_id};

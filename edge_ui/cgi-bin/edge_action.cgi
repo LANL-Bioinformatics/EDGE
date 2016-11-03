@@ -75,6 +75,7 @@ my $proj_dir    = abs_path("$out_dir/$pname");  # resolve symlink
 my $proj_rel_dir = "$out_rel_dir/$pname";
 my $list;
 my $permission;
+my $max_num_jobs = $sys->{"max_num_jobs"};
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -191,7 +192,7 @@ if( $action eq 'empty' ){
 		`cp $proj_dir/process.log $proj_dir/process.log.bak`;
 		`echo "\n*** [$time] EDGE_UI: This project has been emptied ***\n" |tee $proj_dir/process.log > $proj_dir/process_current.log`;
 		`grep -a "runPipeline -c" $proj_dir/process.log.bak >> $proj_dir/process.log`;
-		`echo "*** [$time] EDGE_UI: project unstarted ***" >> $proj_dir/process.log`;
+		`echo "*** [$time] EDGE_UI: project unstarted (queued) ***" >> $proj_dir/process.log`;
 
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -792,6 +793,7 @@ sub checkProjVital {
 sub availableToRun {
         my $num_cpu = shift;
         my $cpu_been_used = 0;
+	return 0 if (scalar (keys %$vital) >= $max_num_jobs);
         if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
                 foreach my $pid ( keys %$vital ){
                         $cpu_been_used += $vital->{$pid}->{CPU};
