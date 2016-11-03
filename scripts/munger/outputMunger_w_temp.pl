@@ -15,6 +15,8 @@ $mode         ||= $html_outfile ? "web" : "";
 $html_outfile ||= "$out_dir/HTML_Report/report.html";
 my @out_dir_parts = split('/', $out_dir);
 my $projname = $out_dir_parts[-1];
+my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 
 ## Instantiate the variables
 my $getting_paired=0;
@@ -225,8 +227,6 @@ sub prep_jbrowse_link {
 
 ## sample metadata
 sub pull_sampleMetadata {
-	my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
-	my $sys          = &getSysParamFromConfig($sysconfig);
 	my $metadata = "$out_dir/metadata_sample.txt";
 	if($sys->{edge_sample_metadata} && -s $metadata) {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
@@ -1079,7 +1079,8 @@ sub pull_contig_taxa {
 		push @{$vars->{LOOP_CCPSPE}},$row;
 	}
 	if ( ! -e "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.json" ){
-		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig $out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.csv > $out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.json");
+		my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
+		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig -limit $row_limit $out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.csv > $out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.json");
 	}
 }
 sub pull_taxa {
@@ -1250,7 +1251,8 @@ sub pull_readmapping_contig {
 	$vars->{RMUNMAPPED}    = $vars->{RMUSED} - $vars->{RMMAPPED};
 	$vars->{RMUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMUNMAPPED}/$vars->{RMUSED}*100;
 	if ( ! -e "$out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json"){
-		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table > $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json");
+		my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
+		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig -limit $row_limit $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table > $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json");
 	}
 }
 

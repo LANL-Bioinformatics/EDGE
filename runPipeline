@@ -671,7 +671,8 @@ sub Contigs_taxonomyAssignment
     $cmd="$RealBin/scripts/contig_classification_plot.R $cov_table $tax_assignments_result $prefix";
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);
-	&executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig $tax_lca_result > $prefix.ctg_class.LCA.json");
+    my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig -limit $row_limit $tax_lca_result > $prefix.ctg_class.LCA.json");
     chdir $workingDir;
     &printRunTime($time);
     system("touch $outputDir/ContigsTaxonomy.finished");
@@ -2209,7 +2210,8 @@ sub runReadsToContig
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &executeCommand("awk \'{print \$1\"\\t\"\$4}\' $outputDir/readsToContigs_coverage.table > $outputDir/magnitudes.txt");
-	&executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig  $outputDir/readsToContigs_coverage.table > $outputDir/readsToContigs_coverage.table.json");
+    my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig  -limit $row_limit  $outputDir/readsToContigs_coverage.table > $outputDir/readsToContigs_coverage.table.json");
     &executeCommand("mv $outputDir/Final_contigs.fasta $contigFile") if ( -s "$outputDir/Final_contigs.fasta");
     chdir "$abs_outDir/AssemblyBasedAnalysis/";
     &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contigFile > contigs_stats.txt");  

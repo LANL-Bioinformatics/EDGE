@@ -92,7 +92,7 @@ while(<$fh>){
 sub returnStatus {
 	my $json = "{}";
 	$json = to_json($info) if $info;
-	$json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
+	#$json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
 	print $json;
 	exit;
 }
