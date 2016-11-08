@@ -140,7 +140,7 @@ sub printTable {
 		my $projStatus = $list->{$_}->{PROJSTATUS};
 		my $projDisplay = $list->{$_}->{PROJDISPLAY};
 		my $projID = $list->{$_}->{PROJNAME};
-		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC}\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
+		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC} (alt-click to open in a new tab)\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
 		my $projSubTime = $list->{$_}->{PROJSUBTIME};
 		my $projRunTime = $list->{$_}->{RUNTIME};
 		my $projLastRunTime = $list->{$_}->{LASTRUNTIME};

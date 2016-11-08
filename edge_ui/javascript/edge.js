@@ -1637,8 +1637,12 @@ $( document ).ready(function()
 				$( ".edge-project-page-link").unbind('click').on('click', function(e){
 					e.preventDefault();
 					var pname = $(this).attr("data-pid");
-					updateReport(pname);
-					updateProject(pname);
+					if (e.altKey){
+                                                window.open(location.href.split('#')[0] +"/?proj="+pname);
+                                        }else{
+						updateReport(pname);
+						updateProject(pname);
+					}
 				});
 				$(".tooltip").tooltipster({
 					theme:'tooltipster-light',
@@ -1764,6 +1768,7 @@ $( document ).ready(function()
 					"order": [],
 					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 					"pageLength": 25,
+					"deferRender": true,
 					"responsive": true,
 				});
 				$('#edge-projpage-ckall').on('click',function(){
@@ -1988,7 +1993,7 @@ $( document ).ready(function()
 							var bgClass = "";
 							var displayList = "hiddenProjList"; 
 							var desc = proj_list_obj.DESC || "No description";
-							desc = desc + " ("+pstatus+")";
+							desc = desc + " ("+pstatus+", alt-click to open in a new tab)";
 									
 							switch ( pstatus ) {
 								case "finished":
