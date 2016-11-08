@@ -192,7 +192,7 @@ if( $action eq 'empty' ){
 		`cp $proj_dir/process.log $proj_dir/process.log.bak`;
 		`echo "\n*** [$time] EDGE_UI: This project has been emptied ***\n" |tee $proj_dir/process.log > $proj_dir/process_current.log`;
 		`grep -a "runPipeline -c" $proj_dir/process.log.bak >> $proj_dir/process.log`;
-		`echo "*** [$time] EDGE_UI: project unstarted (queued) ***" >> $proj_dir/process.log`;
+		`echo "*** [$time] EDGE_UI: project unstarted (queued) ***" | tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
