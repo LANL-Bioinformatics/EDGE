@@ -19,9 +19,9 @@ use Digest::MD5 qw(md5_hex);
 use Tie::File;
 
 require "edge_user_session.cgi";
-require "../cluster/clusterWrapper.pl";
+require "$RealBin/../cluster/clusterWrapper.pl";
 ##sample metadata
-require "../metadata_scripts/metadata_api.pl";
+require "$RealBin/../metadata_scripts/metadata_api.pl";
 #END
 
 my $cgi    = CGI->new;
