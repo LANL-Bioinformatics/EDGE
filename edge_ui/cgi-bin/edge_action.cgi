@@ -344,6 +344,7 @@ elsif( $action eq 'rerun' ){
 				$info->{INFO} = "Failed to restart this project. File $cluster_job_script not found.";
 			} else {
 				&updateDBProjectStatus($pname,"running") if ($username && $password);
+				`rm -f $proj_dir/HTML_Report/.complete_report_web`;
 				my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
 				if($error) {
 					$info->{INFO} = "Failed to restart this project: $error";
@@ -1204,6 +1205,7 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Count Fastq"}                    ->{"general"}       = "$proj_dir/QcReads/countFastq.finished";
 	$module_ctl->{"Quality Trim and Filter"}        ->{"general"}       = "$proj_dir/QcReads/runQC.finished";
 	$module_ctl->{"Host Removal"}                   ->{"general"}       = "$proj_dir/HostRemoval/*/run*.finished"; #  system("rm -f $outputDir/run${prefix}Removal.finished");
+	$module_ctl->{"Host Removal"}                   ->{"stats"}         = "$proj_dir/HostRemoval/*";
 	$module_ctl->{"Assembly"}                       ->{"Provided"}      = "$proj_dir/AssemblyBasedAnalysis/processProvideContigs.finished"; 
 	$module_ctl->{"Assembly"}                       ->{"SPAdes"}        = "$proj_dir/AssemblyBasedAnalysis/runSPAdesAssembly.finished"; #system("rm -f $outputDir/runAPAdesAssembly.finished");
 	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
@@ -1225,18 +1227,19 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Specialty Genes Profiling"}      ->{"general"}       = "$proj_dir/.runSpecialtyGenesProfiling.finished";
 	$module_ctl->{"Specialty Genes Profiling"}      ->{"ReadsBased"}    = "$proj_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished";
 	$module_ctl->{"Specialty Genes Profiling"}      ->{"AssemblyBased"} = "$proj_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished";
-	$module_ctl->{"Primer Validation"}              ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
+	$module_ctl->{"Primer Validation"}              ->{"general"}       = "$proj_dir/AssayCheck/pcrContigValidation.txt";
 	$module_ctl->{"Primer Design"}                  ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
 	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
 	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
 
-	my $new_config = &getSysParamFromConfig( "$proj_dir/config.txt" );
-	my $old_config = &getSysParamFromConfig( "$proj_dir/config.txt.bak" );
-
+	my $new_config = &getProjParamFromConfig( "$proj_dir/config.txt" );
+	my $old_config = &getProjParamFromConfig( "$proj_dir/config.txt.bak" );
+	my $diff=0;
 	foreach my $module ( keys %$new_config ){
 		foreach my $param ( keys %{$new_config->{$module}} ){
 			#if one of the parameter in the module changed, reset the whole module
 			if( $new_config->{$module}->{$param} ne $old_config->{$module}->{$param} ){
+				$diff++;
 				foreach my $task ( keys %{$module_ctl->{$module}} ){
 					`rm -f $module_ctl->{$module}->{$task}`;
 				}
@@ -1244,9 +1247,33 @@ sub cleanProjectForNewConfig {
 			}
 		}
 	}
-
-	#remove old config file
-	`rm -f "$proj_dir/config.txt.bak"`;
+	if ($diff){
+		#remove old config file
+		unlink "$proj_dir/config.txt.bak";
+		unlink $module_ctl->{"HTML Report"}->{"general"};
+	}else{
+		$info->{INFO}   =  "There is no changes on the project parameters";
+		&returnStatus();
+	}
 
 	return;
+}
+
+sub getProjParamFromConfig{
+	my $config = shift;
+	my %config_params;
+	open (my $fh, $config) or die $!;
+	my $module;
+	while (<$fh>) {
+		if (/^\#/) { next; }
+		unless (/\w/) { next; }
+		s/^\s+|\s+$//g;
+		chomp;
+		if (/^\[(\w+)\]/) { $module=$1; next; }
+		if ( /^([^=]+)=(.*)/ ){
+			$config_params{$module}->{$1}=$2;
+		}
+	}
+	close $fh;
+	return(\%config_params);
 }

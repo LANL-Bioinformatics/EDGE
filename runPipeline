@@ -2058,15 +2058,20 @@ sub runHostRemoval
     if ( -s "$outputDir/$prefix.1.fastq" && -e "$outputDir/run${prefix}.finished" )
     {
         &lprint ("Host Removal Finished\n");
+        system("ln -sf $outputDir/$prefix.1.fastq $abs_outDir/HostRemoval/hostclean.1.fastq");
+        system("ln -sf $outputDir/$prefix.2.fastq $abs_outDir/HostRemoval/hostclean.2.fastq");
+        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("$outputDir/$prefix.1.fastq $outputDir/$prefix.2.fastq","$outputDir/$prefix.unpaired.fastq");
     }
     elsif ( -s "$outputDir/$prefix.unpaired.fastq" && -e "$outputDir/run${prefix}.finished" )
     {
         &lprint ("Host Removal Finished\n");
+        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("","$outputDir/$prefix.unpaired.fastq");
     }
     system("rm -f $outputDir/run${prefix}Removal.finished");
-    
+    system("rm -f $abs_outDir/HostRemoval/HostRemovalStats.pdf");
+    system("rm -f $abs_outDir/HostRemoval/hostclean*");
   
     
     my $parameters;
