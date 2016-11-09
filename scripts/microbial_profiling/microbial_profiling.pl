@@ -193,7 +193,6 @@ else{
 #run tools
 &_notify("\n[TOOLS]\n\n");
 my @childs;
-my $forkcnt=-1;
 my @toolnames = sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$tools;
 
 if( $tools->{system}->{RUN_TOOLS} ){
@@ -207,41 +206,30 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			my $outdir = "$p_outdir/$idx\_$fnb/$tool";
 			my $prefix = "$fnb";
 			my $log    = "$p_logdir/$fnb-$tool.log";
-			my $ppid = $$;
-			$forkcnt++;
 
-			my $pid = fork();
-			if($pid){
-				push(@childs, $pid);
+			print "Tool ($tool) - PID: $$, starting...\n";
+
+			# skip if tool output exists
+			if( -e "$outdir/.finished" ){
+				&_notify("[RUN_TOOL] [$tool] Result exists. Skipping tool $tool!\n");
+				&_notify("[RUN_TOOL] [$tool] Running time: 00:00:00\n");
+				next;
 			}
-			elsif( $pid == 0 ){
-				sleep 90*$forkcnt;
-				my $usage = &getCpuUsage($ppid);
-				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, retry in every 5-20 seconds...\n" if $forkcnt && $usage>0.8;
-				while( $forkcnt && $usage>0.8 ){
-					sleep rand(15)+5;
-					$usage = &getCpuUsage($ppid);
-				}
-				print "Fork $forkcnt ($tool) - CPU load: $usage, PID: $$, starting...\n";
 
-				# prepare command
-				my $time = time;
-				my $cmd = $tools->{$tool}->{COMMAND};
-				$cmd = &param_replace( $cmd, $file_info, $tools, $idx, $tool );
-				&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
-				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
-				
-				my $code = system("$cmd > $log 2>&1");
+			# prepare command
+			my $time = time;
+			my $cmd = $tools->{$tool}->{COMMAND};
+			$cmd = &param_replace( $cmd, $file_info, $tools, $idx, $tool );
+			&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
+			&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
+			
+			my $code = system("$cmd > $log 2>&1");
 
-				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
-				my $runningtime = &timeInterval($time);
-				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
+			&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
+			my $runningtime = &timeInterval($time);
+			&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
 
-				exit 0;
-			}
-			else{
-				die "Can't fork!";
-			}
+			`touch "$outdir/.finished"`;
 		}
 	}	
 }
