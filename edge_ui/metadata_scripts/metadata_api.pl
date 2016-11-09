@@ -52,7 +52,7 @@ sub pushSampleMetadata {
 	my $symptomFile = "$proj_dir/metadata_symptoms.txt";
 	my $pathogensFile = "$proj_dir/pathogens.txt";
 	my $otherFile = "$proj_dir/metadata_other.txt";
-	if(-e $metadataFile || hasPathogens($pathogensFile)) {
+	if(hasPathogens($pathogensFile)) {
 		my $metadata = &getMetadataParams($metadataFile);
 		my $run = &getMetadataParams($runFile);
 		my $other = &getMetadataParams($otherFile);

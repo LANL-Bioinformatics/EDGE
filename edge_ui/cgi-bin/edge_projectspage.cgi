@@ -208,14 +208,18 @@ sub scanProjToList {
 	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
 	while( defined (my $file = readdir BIN) ) {
 		next if $file eq '.' or $file eq '..';
-		if ( -d "$out_dir/$file" && -r "$out_dir/$file/process.log"  ) {
+		if ( -d "$out_dir/$file") {
 			++$cnt;
 			if ( -e "$out_dir/$file/.AllDone"){
 				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
 				$list->{$cnt}->{PROJSTATUS} = "Complete";
 			}else
 			{
-				$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file");
+				if (-r "$out_dir/$file/process.log" ){
+                                        $list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file")
+                                }else{
+                                        $list->{$cnt}->{PROJSTATUS} = "Unstarted";
+                                }
 				$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
 			}
 			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
