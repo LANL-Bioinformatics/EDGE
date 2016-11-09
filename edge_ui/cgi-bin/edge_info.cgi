@@ -91,20 +91,11 @@ $info->{INFO}->{RUNCPU} = ($runcpu>1)? $runcpu :1;
 
 $info->{INFO}->{PROJLISTNUM} = $edge_projlist_num;
 
-# module on/off
-$info->{INFO}->{UMSYSTEM}= ( $sys->{user_management} )? "true":"false";
-$info->{INFO}->{UPLOAD}  = ( $sys->{user_upload} )?"true":"false";
-$info->{INFO}->{ARCHIVE} = ( -w $sys->{edgeui_archive} ) ? "true":"false";
-$info->{INFO}->{MQC}     = ( $sys->{m_qc} )?"true":"false";
-$info->{INFO}->{MAA}     = ( $sys->{m_assembly_annotation} )?"true":"false";
-$info->{INFO}->{MRBA}    = ( $sys->{m_reference_based_analysis} )?"true":"false";
-$info->{INFO}->{MTC}     = ( $sys->{m_taxonomy_classfication} )?"true":"false";
-$info->{INFO}->{MPA}     = ( $sys->{m_phylogenetic_analysis} )?"true":"false";
-$info->{INFO}->{MSGP}    = ( $sys->{m_specialty_genes_profiling} )?"true":"false";
-$info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
-$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
 
-&returnStatus() if ($init);
+if ($init){
+	&loadInitSetup();
+	&returnStatus();;
+}
 #($umSystemStatus =~ /true/i)? &getUserProjFromDB():&scanNewProjToList();
 
 #check projects vital
@@ -187,7 +178,7 @@ if( scalar @projlist ){
 		#}
 		# update current project status
 		if( -r $log ){
-			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($log);
+			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$rnaPipeline) = &parseProcessLog($log);
 			$list->{$i}->{TIME} ||= $proj_start;
 			$list->{$i}->{TIME} ||= strftime "%F %X", localtime;
 			$list->{$i}->{PID} = $realpid;
@@ -204,10 +195,12 @@ if( scalar @projlist ){
 				$list->{$i}->{STATUS} = "running";
 			}
 			elsif( $p_status =~ /running/ ){
-				# the process log reports it's running, but can't find vital
-				# Unexpected exit detected
-				$list->{$i}->{STATUS} = "failed";
-				`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid $lproj $lprojc). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
+				unless ($rnaPipeline){
+					# the process log reports it's running, but can't find vital
+					# Unexpected exit detecteda
+					$list->{$i}->{STATUS} = "failed";
+					`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid $lproj $lprojc). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
+				}
 			}
 			else{
 				$list->{$i}->{STATUS} = $p_status;
@@ -306,6 +299,7 @@ sub parseProcessLog {
 	my $numcpu;
 	my ($step,$ord,$do,$status);
 	my %map;
+	my $rnaPipeline=0;
 
 	open LOG, $log or die "Can't open $log.";
 	foreach(<LOG>){
@@ -325,9 +319,13 @@ sub parseProcessLog {
 			undef %{$prog};
 			undef %map;
 		}
+		elsif(/runPipeline_rRNA/){
+			$rnaPipeline=1;
+		}
 		elsif( /^cpu=(\d+)$/ ){
 			$numcpu=$1;
 		}
+	
 		elsif( /^projdesc=(.*)/ ){
 			$proj_desc=$1;
 		}
@@ -403,7 +401,7 @@ sub parseProcessLog {
 		}
 	}
 
-	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id);
+	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$rnaPipeline);
 }
 
 sub scanNewProjToList {
@@ -613,21 +611,23 @@ sub getUserProjFromDB{
 		## sample metadata
 		if($sys->{edge_sample_metadata}) {
 			$list->{$id}->{SHOWMETA} = 1;
-			if($sys->{edge_sample_metadata_share2bsve}) {
-				$list->{$id}->{SHAREBSVE} = 1;
-			}
 		}
 		if($username eq  $hash_ref->{owner_email}) {
 			$list->{$id}->{ISOWNER} = 1;
 		}
 		my $metaFile = "$out_dir/$id/metadata_sample.txt";
 		my $runFile = "$out_dir/$id/metadata_run.txt";
+		my $pathogensFile = "$out_dir/$id/pathogens.txt";
 		if(!-e $metaFile) {
 			$metaFile = "$out_dir/$projCode/metadata_sample.txt";
 			$runFile = "$out_dir/$projCode/metadata_run.txt";
+			$pathogensFile = "$out_dir/$projCode/pathogens.txt";
 		}
 		if(-r $metaFile) {
 			$list->{$id}->{HASMETA} = 1;
+		}
+		if($sys->{edge_sample_metadata_share2bsve} && (-e $metaFile || hasPathogens($pathogensFile))) {
+			$list->{$id}->{SHAREBSVE} = 1;
 		}
 		if(-r $runFile) {
 			my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
@@ -637,6 +637,25 @@ sub getUserProjFromDB{
 		## END sample metadata
 		
 	}
+}
+
+sub hasPathogens {
+	my $file = shift;
+	my $top = 0;
+
+	if(-e $file) {
+	    	open (my $fh , $file) or die "No config file $!\n";
+	   	 while (<$fh>) {
+	       	 	chomp;
+			if(/pathogen\thost\(s\)\tdisease/) {
+				next;
+			}
+			$top ++;
+	    	}
+	    	close $fh;
+	}
+
+ 	return $top;
 }
 
 sub getProjInfoFromDB{
@@ -694,6 +713,23 @@ sub getProjID {
     }
   }
   return $projID;
+}
+
+sub loadInitSetup{
+	# module on/off
+	$info->{INFO}->{UMSYSTEM}= ( $sys->{user_management} )? "true":"false";
+	$info->{INFO}->{UPLOAD}  = ( $sys->{user_upload} )?"true":"false";
+	$info->{INFO}->{ARCHIVE} = ( -w $sys->{edgeui_archive} ) ? "true":"false";
+	$info->{INFO}->{MQC}     = ( $sys->{m_qc} )?"true":"false";
+	$info->{INFO}->{MAA}     = ( $sys->{m_assembly_annotation} )?"true":"false";
+	$info->{INFO}->{MRBA}    = ( $sys->{m_reference_based_analysis} )?"true":"false";
+	$info->{INFO}->{MTC}     = ( $sys->{m_taxonomy_classfication} )?"true":"false";
+	$info->{INFO}->{MPA}     = ( $sys->{m_phylogenetic_analysis} )?"true":"false";
+	$info->{INFO}->{MSGP}    = ( $sys->{m_specialty_genes_profiling} )?"true":"false";
+	$info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
+	$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
+	#parameters
+	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 }
 
 sub returnStatus {

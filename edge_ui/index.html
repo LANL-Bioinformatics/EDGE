@@ -141,7 +141,10 @@
 				<li data-role='list-divider'>Sample Metatdata</li>
 				<li data-icon='edit'>     <a id='metadata-edit' class='edge-icon-bg-grey'>Edit</a>
 				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-delete'>Delete</a>
-				<li data-icon='forward'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-submit-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsveadd'>Share with BSVE</a>
+			</ul>
+			<ul data-role="listview" data-inset="true" id="bsve-actions">
+				<li data-role='list-divider'>BSVE</li>
+				<li data-icon='forward'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-submit-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsveadd'>Share metadata/pathogens</a>
 			</ul>
 			<!-- END sample metadata -->
 		</div>
@@ -1540,7 +1543,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 <form id="edge-uploadfile-form" data-ajax="false" enctype="multipart/form-data">
         <div role="main" id="edge-content-uploadfile" class="ui-content edge-content edge-main-page">
                 <h2>Upload files</h2>
-		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">5gb</span>. Allowed File types are fastq, fasta, genbank and text (txt,config,ini) and can be in gzip format. Files will be kept for 7 days.</p>
+		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">5gb</span>. Allowed File types are fastq, fasta, genbank and text (txt,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
         	<div id="uploader">
                     <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
             	</div>
@@ -1615,7 +1618,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				           	<div class="ui-field-contain" id="edgesite-share-metadata-div">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Share Sample Metadata with BSVE? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="This function will allow you to send sample metadata to BSVE database server."></a>
+								<legend>Share Sample Metadata/Pathogens with BSVE? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="This function will allow you to send sample metadata/pathogens to BSVE database server."></a>
 								</legend>
 								<input type="radio" name="edgesite-share-metadata" id="edgesite-share-metadata1" value="yes" checked>
 								<label for="edgesite-share-metadata1">Yes</label>
@@ -1626,7 +1629,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 				           	<div class="ui-field-contain" id="edgesite-autoshare-metadata-div">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Auto Submit Sample Metadata? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Auto Submit: sample metadata will be automatically submitted to BSVE at the end of each run. Otherwise, you have to select project(s)/run(s) and submit sample metadata menually."></a>
+								<legend>Auto Submit Sample Metadata/Pathogens? <a href="#" class="tooltip my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Auto Submit: sample metadata/pathogens will be automatically submitted to BSVE at the end of each run. Otherwise, you have to select project(s)/run(s) and submit sample metadata/pathogens menually."></a>
 								</legend>
 								<input type="radio" name="edgesite-autoshare-metadata" id="edgesite-autoshare-metadata1" value="yes" checked>
 								<label for="edgesite-autoshare-metadata1">Yes</label>

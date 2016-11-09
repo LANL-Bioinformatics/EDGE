@@ -52,7 +52,7 @@ sub pushSampleMetadata {
 	my $symptomFile = "$proj_dir/metadata_symptoms.txt";
 	my $pathogensFile = "$proj_dir/pathogens.txt";
 	my $otherFile = "$proj_dir/metadata_other.txt";
-	if(-e $metadataFile) {
+	if(-e $metadataFile || hasPathogens($pathogensFile)) {
 		my $metadata = &getMetadataParams($metadataFile);
 		my $run = &getMetadataParams($runFile);
 		my $other = &getMetadataParams($otherFile);
@@ -69,6 +69,15 @@ sub pushSampleMetadata {
 			if($study_id =~ /^\d+$/) {
 				$study_id = 'S'.$sys->{'bsve_api_key'}.$metadata->{'study_id'};
 			}
+	
+			#use site location for sample location 
+			$metadata->{'location'} = $sys->{'edgesite-location'} unless $metadata->{'location'};
+			$metadata->{'city'} = $sys->{'edgesite-city'} unless $metadata->{'city'};
+			$metadata->{'state'} = $sys->{'edgesite-state'} unless $metadata->{'state'};
+			$metadata->{'country'} = $sys->{'edgesite-country'} unless $metadata->{'country'};
+			$metadata->{'lat'} = $sys->{'edgesite-lat'} unless $metadata->{'lat'} ;
+			$metadata->{'lng'} = $sys->{'edgesite-lng'} unless $metadata->{'lng'};
+
 			my $obj = new SampleMetadata($run->{'bsve_id'},$study_id,$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
 
 			my $run_id = $run->{'edge-run-id'};
@@ -217,6 +226,25 @@ sub pushSampleMetadata {
 
 	close MLG;
 	return $success;
+}
+
+sub hasPathogens {
+	my $file = shift;
+	my $top = 0;
+
+	if(-e $file) {
+	    	open (my $fh , $file) or die "No config file $!\n";
+	   	 while (<$fh>) {
+	       	 	chomp;
+			if(/pathogen\thost\(s\)\tdisease/) {
+				next;
+			}
+			$top ++;
+	    	}
+	    	close $fh;
+	}
+
+ 	return $top;
 }
 
 sub readConfig

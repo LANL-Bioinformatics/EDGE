@@ -947,10 +947,10 @@ $( document ).ready(function()
 			actionContent = "Do you want to <span id='action_type'>DELETE</span> project "+focusProjRealName+" sample metadata?";
 		}
 		if(action == "metadata-bsveadd") {
-			actionContent = "Do you want to <span id='action_type'>SHARE</span> project "+focusProjRealName+" sample metadata with BSVE?";
+			actionContent = "Do you want to <span id='action_type'>SHARE</span> project "+focusProjRealName+" sample metadata/pathogens with BSVE?";
 		}
 		if(action == "metadata-bsveupdate") {
-			actionContent = "Do you want to <span id='action_type'>UPDATE</span> project "+focusProjRealName+" sample metadata in BSVE?";
+			actionContent = "Do you want to <span id='action_type'>UPDATE</span> project "+focusProjRealName+" sample metadata/pathogens in BSVE?";
 		}
 		//END sample metadata
 
@@ -1655,7 +1655,7 @@ $( document ).ready(function()
 					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> projects " ;
 					//sample metadata
 					if(action === "metadata-bsveadd") {
-						actionContent = "Do you want to <span id='action_type'>SHARE</span> projects' metadata with BSVE?" ;
+						actionContent = "Do you want to <span id='action_type'>SHARE</span> projects' metadata/pathogens with BSVE?" ;
 					}
 					//END sample metadata
 					if ( action === "0" ){
@@ -1710,7 +1710,7 @@ $( document ).ready(function()
 									$( "#edge_integrity_dialog" ).popup("reposition",{positionTo: 'window'});
 									//sample metadata
 									if(action === "metadata-bsveadd") {
-										showWarning('Metadata of projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been shared with BSVE.');
+										showWarning('Metadata/pathogens of projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been shared with BSVE.');
 									} else {
 									//END sample metadata
 										showWarning( 'The ' + action + ' action on project(s) is      complete.' + '<ul>' + projnames.join('\n') + '</ul>');
@@ -1806,6 +1806,7 @@ $( document ).ready(function()
 					$("#edge-content-upload-li").hide();
 				}else{
 					$("#edge-content-upload-li").show();
+					$("#edge-upload-expiration-days").html(obj.INFO.UPLOADEXPIRE);
 				}
 				( obj.INFO.ARCHIVE == "true" )?	$("#action-archive-btn").show():$("#action-archive-btn").hide();
 				
@@ -1951,21 +1952,21 @@ $( document ).ready(function()
 					if(focusProjHasMeta) {
 							$("#action-metadata-delete-btn").show();
 							$("#metadata-edit").attr('data','edit').text("Edit");
-							if(focusProjShareBSVE) {
-								$("#action-metadata-bsve-submit-btn").show();
-								(focusProjMetaBSVE)?
-										$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveupdate').text("Update in BSVE"):
-										$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveadd').text("Share with BSVE");
-							} else {
-								$("#action-metadata-bsve-submit-btn").hide();
-							}
 					} else {
 							$("#metadata-edit").attr('data','edit').text("Add");
 							$("#action-metadata-delete-btn").hide();
-							$("#action-metadata-bsve-submit-btn").hide();
 					}
 				} else {
 					$("#metadata-actions").hide();
+				}
+
+				if(focusProjShareBSVE && (focusProjIsOwner || userType == 'admin')) {
+					$("#bsve-actions").show();
+					(focusProjMetaBSVE)?
+						$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveupdate').text("Update metadata/pathogens"):
+						$("#action-metadata-bsve-submit-btn").attr('data','metadata-bsveadd').text("Share metadata/pathogens");
+				} else {
+					$("#bsve-actions").hide();
 				}
 				//END sample metadata
 

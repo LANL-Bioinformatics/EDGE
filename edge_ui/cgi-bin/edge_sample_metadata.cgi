@@ -154,6 +154,10 @@ if( $sys->{user_management} ){
 	}
 }
 
+my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
+
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $edgeui_output  = $sys->{edgeui_output};
 my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;

@@ -1205,7 +1205,7 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Count Fastq"}                    ->{"general"}       = "$proj_dir/QcReads/countFastq.finished";
 	$module_ctl->{"Quality Trim and Filter"}        ->{"general"}       = "$proj_dir/QcReads/runQC.finished";
 	$module_ctl->{"Host Removal"}                   ->{"general"}       = "$proj_dir/HostRemoval/*/run*.finished"; #  system("rm -f $outputDir/run${prefix}Removal.finished");
-	$module_ctl->{"Host Removal"}                   ->{"stats"}         = "$proj_dir/HostRemoval/*";
+	$module_ctl->{"Host Removal"}                   ->{"stats"}         = "$proj_dir/HostRemoval/HostRemovalStats.pdf";
 	$module_ctl->{"Assembly"}                       ->{"Provided"}      = "$proj_dir/AssemblyBasedAnalysis/processProvideContigs.finished"; 
 	$module_ctl->{"Assembly"}                       ->{"SPAdes"}        = "$proj_dir/AssemblyBasedAnalysis/runSPAdesAssembly.finished"; #system("rm -f $outputDir/runAPAdesAssembly.finished");
 	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";

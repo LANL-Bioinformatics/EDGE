@@ -69,7 +69,7 @@ if ( $username && $password || $um_config == 0){
  		print '<a href="" title="Export Selected Projects Metadata" class="tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-export</a>';
  	}
  	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
- 		print '<a href="" title="Share Selected Projects Metadata with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
+ 		print '<a href="" title="Share Selected Projects Metadata/Pathogens with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
  	}
  	print '</div>';
 }
