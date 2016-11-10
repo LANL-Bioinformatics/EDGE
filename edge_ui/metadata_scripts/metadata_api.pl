@@ -71,12 +71,14 @@ sub pushSampleMetadata {
 			}
 	
 			#use site location for sample location 
-			$metadata->{'location'} = $sys->{'edgesite-location'} unless $metadata->{'location'};
-			$metadata->{'city'} = $sys->{'edgesite-city'} unless $metadata->{'city'};
-			$metadata->{'state'} = $sys->{'edgesite-state'} unless $metadata->{'state'};
-			$metadata->{'country'} = $sys->{'edgesite-country'} unless $metadata->{'country'};
-			$metadata->{'lat'} = $sys->{'edgesite-lat'} unless $metadata->{'lat'} ;
-			$metadata->{'lng'} = $sys->{'edgesite-lng'} unless $metadata->{'lng'};
+			if($metadata->{'study_type'} ne "SRA") {
+				$metadata->{'location'} = $sys->{'edgesite-location'} unless $metadata->{'location'};
+				$metadata->{'city'} = $sys->{'edgesite-city'} unless $metadata->{'city'};
+				$metadata->{'state'} = $sys->{'edgesite-state'} unless $metadata->{'state'};
+				$metadata->{'country'} = $sys->{'edgesite-country'} unless $metadata->{'country'};
+				$metadata->{'lat'} = $sys->{'edgesite-lat'} unless $metadata->{'lat'} ;
+				$metadata->{'lng'} = $sys->{'edgesite-lng'} unless $metadata->{'lng'};
+			}
 
 			my $obj = new SampleMetadata($run->{'bsve_id'},$study_id,$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
 
