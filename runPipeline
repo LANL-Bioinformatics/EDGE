@@ -87,7 +87,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
-unlink "$abs_outDir/writeHTMLReport.finished";
+unlink "$abs_outDir/HTML_Report/writeHTMLReport.finished";
 unlink "$abs_outDir/.AllDone";
 
 # Capture error log
@@ -970,6 +970,7 @@ sub Reads_taxonomyAssignment
     my $outputDir = shift;
     my $input = ($outputDir =~ /Unmap/)?"$outputDir/UnmappedReads.fastq":"$outputDir/allReads.fastq";
     my $logFile = "$outputDir/error.log";
+    my $log = "$outputDir/taxonomyProfiling.log";
     `mkdir -p $outputDir`;
     my $time=time();
     my $dparam=($debug)?"--debug":"" ;
@@ -1025,7 +1026,7 @@ sub Reads_taxonomyAssignment
     {
         &lprint (colored ("[Reads Taxonomy Classification]\n",'yellow'));
     }
-    if ( -e "$outputDir/taxonomyAssignment.finished")
+    if ( -e "$outputDir/taxonomyAssignment.finished" && ($log && !`grep -a -i "Error" $log`))
     {
        &lprint ("Reads Taxonomy Classification Finished\n"); 
        return 0;
@@ -2218,7 +2219,7 @@ sub runReadsToContig
     &executeCommand($command);
     &executeCommand("awk \'{print \$1\"\\t\"\$4}\' $outputDir/readsToContigs_coverage.table > $outputDir/magnitudes.txt");
     my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
-    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig  -limit $row_limit  $outputDir/readsToContigs_coverage.table > $outputDir/readsToContigs_coverage.table.json");
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig -limit $row_limit  $outputDir/readsToContigs_coverage.table > $outputDir/readsToContigs_coverage.table.json");
     &executeCommand("mv $outputDir/Final_contigs.fasta $contigFile") if ( -s "$outputDir/Final_contigs.fasta");
     chdir "$abs_outDir/AssemblyBasedAnalysis/";
     &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contigFile > contigs_stats.txt");  

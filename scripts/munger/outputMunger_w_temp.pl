@@ -1506,7 +1506,7 @@ sub pull_summary {
 	while(<PROC_CUR>) {
 		chomp;
 		#parse input files
-		if( /^\[RUN_TOOL\] \[(.*)\] (COMMAND|Logfile)/ ||  /^Qiime \[.*\]\s+(.*)/ ){
+		if( /^\[RUN_TOOL\] \[(.*)\] (COMMAND|Logfile)/ ||  /^Qiime \[.*\]\s+(.*)/ || /^\[RUN_TOOL\] \[(.*)\] (Result exists)/){
 			$step = $1;
 			next if defined $toolmap{$step};
 			$ord++;
@@ -1514,6 +1514,7 @@ sub pull_summary {
 			$prog->{$ord}->{GNLANALYSIS} = "<span style='margin-left:3em'>$step</span>";
 			$prog->{$ord}->{GNLRUN}      = "On";
 			$prog->{$ord}->{GNLSTATUS}   = "<span class='edge-fg-orange'>Running</span>";
+			$prog->{$ord}->{GNLSTATUS}   = "Skipped (result exists)" if ($2 and $2 =~ /Result exists/);
 		}
 		elsif( /^\[RUN_TOOL\] \[(.*)\] Error occured/){
 			my $ord = $toolmap{$1};
@@ -1521,8 +1522,8 @@ sub pull_summary {
 		}
 		elsif( /^\[RUN_TOOL\] \[(.*)\] Running time: (.*)/){
 			my $ord = $toolmap{$1};
-			$prog->{$ord}->{GNLSTATUS}   = "Complete";
 			$prog->{$ord}->{GNLTIME}     = $2;
+			$prog->{$ord}->{GNLSTATUS}   = "Complete" if ( $prog->{$ord}->{GNLSTATUS} !~ /Error|Skip/i);
 		}
 		elsif(/ERROR|failed/ and $vars->{LOG_qiime_SW}){
 			$prog->{$ord}->{GNLSTATUS}   = "<span class='edge-fg-red'>Error</span>";

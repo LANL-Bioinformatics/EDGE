@@ -204,13 +204,14 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			my $input  = $file_info->{$idx}->{FASTQ};
 			my $fnb    = $file_info->{$idx}->{PREFIX};
 			my $outdir = "$p_outdir/$idx\_$fnb/$tool";
+			my $tool_rep_dir = "$p_repdir/$idx\_$fnb/$tool";
 			my $prefix = "$fnb";
 			my $log    = "$p_logdir/$fnb-$tool.log";
 
 			print "Tool ($tool) - PID: $$, starting...\n";
 
 			# skip if tool output exists
-			if( -e "$outdir/.finished" ){
+			if( -e "$tool_rep_dir/.finished" ){
 				&_notify("[RUN_TOOL] [$tool] Result exists. Skipping tool $tool!\n");
 				&_notify("[RUN_TOOL] [$tool] Running time: 00:00:00\n");
 				next;
@@ -229,7 +230,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			my $runningtime = &timeInterval($time);
 			&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
 
-			`touch "$outdir/.finished"`;
+			`touch "$outdir/.finished"` if !$code;
 		}
 	}	
 }
@@ -280,15 +281,16 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 		print $post_fh "
           mkdir -p $tool_rep_dir
           echo \"====> Copying result list to report directory...\";
-          cp $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
-          cp $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
+          [[ -e $outdir/$prefix.out.list ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
+          [[ -e $outdir/$prefix.krona.html ]] && cp  $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
+          [[ -e $outdir/.finished ]] && cp  $outdir/.finished $tool_rep_dir/.finished;
           if [ -e $outdir/$prefix.sam ]
           then
-            samtools view -b -@ $threads -S $outdir/$prefix.sam -o $tool_rep_dir/$fnb-$tool.bam;
+            samtools view -b -@ $threads -S $outdir/$prefix.sam -o $tool_rep_dir/$fnb-$tool.bam 2>/dev/null;
           fi 
           if [ -e $outdir/$prefix.gottcha.sam ]
           then
-            samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam;
+            samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam 2/dev/null;
           fi 
           if [ -e $outdir/$prefix.gottcha_*.sam ]
           then
@@ -314,7 +316,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 		if( $idx == 1 ){
 			foreach my $rank (("genus","species","strain")){
 				print $post_fh "merge_list_specTaxa_by_tool.pl $p_outdir/*/$tool/*.list -p $fnb --top $heatmap_top -l $rank > $tmpdir/$tool.$rank.heatmap.matrix;\n";
-				print $post_fh "heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$tool.$rank.heatmap.matrix --out $p_repdir/heatmap_TOOL-$tool.$rank.pdf; \n";
+				print $post_fh "heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$tool.$rank.heatmap.matrix --out $p_repdir/heatmap_TOOL-$tool.$rank.pdf  2>/dev/null\n";
 			}
 		}
 		
@@ -339,9 +341,9 @@ merge_list_specTaxa_by_dataset.pl $p_outdir/$idx\_$fnb/*/*.out.list --top $heatm
 wait
 
 echo \"==> Generating heatmaps...\";
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf --title $fnb.genus &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf --title $fnb.species &
-heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf --title $fnb.strain &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.genus.heatmap.matrix   --out $p_repdir/heatmap_DATASET-$fnb.genus.pdf --title $fnb.genus 2>/dev/null &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.species.heatmap.matrix --out $p_repdir/heatmap_DATASET-$fnb.species.pdf --title $fnb.species 2>/dev/null  &
+heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$fnb.strain.heatmap.matrix  --out $p_repdir/heatmap_DATASET-$fnb.strain.pdf --title $fnb.strain 2>/dev/null &
 ";
 	print $post_fh "\nwait\n";
 	print $post_fh "echo \"[END #$idx $fnb]\"\n\n";
