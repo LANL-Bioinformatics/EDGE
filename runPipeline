@@ -87,7 +87,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
-system("touch $outputDir/writeHTMLReport.finished")
+unlink "$abs_outDir/writeHTMLReport.finished";
 unlink "$abs_outDir/.AllDone";
 
 # Capture error log
