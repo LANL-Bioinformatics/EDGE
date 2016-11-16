@@ -1209,7 +1209,6 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Assembly"}                       ->{"Provided"}      = "$proj_dir/AssemblyBasedAnalysis/processProvideContigs.finished"; 
 	$module_ctl->{"Assembly"}                       ->{"SPAdes"}        = "$proj_dir/AssemblyBasedAnalysis/runSPAdesAssembly.finished"; #system("rm -f $outputDir/runAPAdesAssembly.finished");
 	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
-	$module_ctl->{"Assembly"}                       ->{"Idba"}          = "$proj_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
 	$module_ctl->{"Assembly"}                       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/runAssembly.finished";
 	$module_ctl->{"Reads Mapping To Contigs"}       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/readsMappingToContig/runReadsToContig.finished";
 	$module_ctl->{"Reads Mapping To Reference"}     ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
@@ -1269,7 +1268,7 @@ sub getProjParamFromConfig{
 		unless (/\w/) { next; }
 		s/^\s+|\s+$//g;
 		chomp;
-		if (/^\[(\w+)\]/) { $module=$1; next; }
+		if (/^\[(.*)\]/) { $module=$1; next; }
 		if ( /^([^=]+)=(.*)/ ){
 			$config_params{$module}->{$1}=$2;
 		}
