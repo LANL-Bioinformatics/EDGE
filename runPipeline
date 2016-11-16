@@ -87,6 +87,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
+system("touch $outputDir/writeHTMLReport.finished")
 unlink "$abs_outDir/.AllDone";
 
 # Capture error log
@@ -108,6 +109,7 @@ while(<$config_fh>){ if (! /user|edgeui\_/) {print $log_fh $_;}}
 close $config_fh;
 if ( ! -e "$outDir/config.txt"){ `cp $configFile $outDir/config.txt`;}
 
+$numCPU = $configuration->{'cpu'} if ($configuration->{'cpu'});
 
 if (!@referenceGenome and $configuration->{reference})
 {

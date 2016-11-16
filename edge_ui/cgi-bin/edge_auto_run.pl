@@ -23,7 +23,7 @@ exit if ( $ENV{"REQUEST_METHOD"} );
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
-my $out_dir     = $sys->{edgeui_output} || $ARGV[0];
+my $out_dir     = $ARGV[0] || $sys->{edgeui_output};
 my $edge_total_cpu = $sys->{"edgeui_tol_cpu"};
 my $max_num_jobs = $sys->{"max_num_jobs"};
 
@@ -45,23 +45,26 @@ my ($vital, $name2pid, $error);
 &scanNewProjToList();
 
 #autorun
-if( scalar keys %$list && $sys->{edgeui_auto_run} && ! $sys->{cluster} ){
-	my ( $progs, $proj, $projCode, $p_status, $proj_start, $proj_dir, $log, $config );
+if( scalar keys %$list && $sys->{edgeui_auto_run} ){
+	my ( $progs, $proj, $projCode, $p_status, $proj_start, $proj_dir, $log, $config , $domain);
 	my $num_cpu_used = 0;
 	foreach my $i ( sort {$list->{$a}->{TIME} cmp $list->{$b}->{TIME}} keys %$list ) {
 		$proj     = $list->{$i}->{NAME};
 		$projCode = $list->{$i}->{PROJCODE};
 		$proj_dir = $list->{$i}->{PROJDIR};
+		$domain   = $list->{$i}->{PROJDOMAIN}; 
 		my $run=0;
 		#print $list->{$i}->{PROJNAME},"\t$list->{$i}->{TIME}\t$list->{$i}->{STATUS}\n" if  $list->{$i}->{STATUS} ne "finished";
-		$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
-		if($run){
-			#my $cmd="$RealBin/edge_action.cgi $proj rerun '' '' '' '' '' 0 2>> $proj_dir/error.log";
-			chdir $RealBin;
-			my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" "" "" 0 2>> $proj_dir/error.log`;
-			#print STDERR "$json";
-			#print STDERR "$cmd\n";
-			$num_cpu_used += $list->{$i}->{CPU};
+		if ($list->{$i}->{STATUS} eq "unstarted"){
+			$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
+			if($run or $cluster){
+				#my $cmd="$RealBin/edge_action.cgi $proj rerun '' '' '' '' $domain 0 2>> $proj_dir/error.log";
+				chdir $RealBin;
+				my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" "" $domain 0 2>> $proj_dir/error.log`;
+				#print STDERR "$json";
+				#print STDERR "$cmd\n";
+				$num_cpu_used += $list->{$i}->{CPU};
+			}
 		}
 	}
 }
@@ -120,12 +123,13 @@ sub scanNewProjToList {
 				}
 				close $fh;
 			}
-			my ($projname, $projid, $projcode,$projCPU);
+			my ($projname, $projid, $projcode,$projCPU,$runhost);
 			# if the system change from User management on to off. will need parse the project name from config file
 			#  using grep is slow than open file and regrex
 			open (my $fh, $config);
 			while(<$fh>){
 				chomp;
+				$runhost=$1 if (/projrunhost=(.*)/);
 				$projname=$1 if (/projname=(.*)/);
 				$projid=$1 if (/projid=(.*)/);
 				$projcode=$1 if (/projcode=(.*)/);
@@ -134,9 +138,11 @@ sub scanNewProjToList {
 			close $fh;
 			
 			chomp $projname;
-			$list->{$cnt}->{NAME} = $projid ;
+			(my $domain = $runhost) =~ s/https?:\/\///;
+			$list->{$cnt}->{NAME} = $file ;
 			$list->{$cnt}->{PROJNAME} = $projname;
 			$list->{$cnt}->{PROJCODE} = $projcode;
+			$list->{$cnt}->{PROJDOMAIN} = $domain;
 			$list->{$cnt}->{PROJDIR} = "$out_dir/$file";
 			$list->{$cnt}->{CPU} = $projCPU;
 		}

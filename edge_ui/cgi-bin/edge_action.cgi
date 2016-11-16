@@ -40,8 +40,7 @@ my $taxa_for_contig_extract = $opt{taxa};
 my $cptool_for_reads_extract = $opt{cptool};
 my $contig_id = $opt{contigID};
 my $blast_params = $opt{"edge-contig-blast-params"} || " -num_alignments 10 -num_descriptions 10 -evalue 1e-10 " ;
-my $domain	= $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
-my ($webhostname) = $domain =~ /^(\S+?)\./;
+my $domain	= $ENV{'HTTP_HOST'};
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 $ENV{PATH} = "$EDGE_HOME/bin:$ENV{PATH}";
@@ -54,6 +53,7 @@ $shareEmail ||= $ARGV[4];
 $sid        ||= $ARGV[5];
 $domain     ||= $ARGV[6];
 my $umSystemStatus = $ARGV[7];
+my ($webhostname) = $domain =~ /^(\S+?)\./;
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
