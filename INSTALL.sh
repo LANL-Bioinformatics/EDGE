@@ -214,12 +214,13 @@ echo "
 
 install_R()
 {
+local VER=3.3.2
 echo "------------------------------------------------------------------------------
-                           Compiling R 3.2.2
+                           Compiling R $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf R-3.2.2.tar.gz
-cd R-3.2.2
+tar xvzf R-$VER.tar.gz
+cd R-$VER
 ./configure --prefix=$rootdir
 make
 make install
@@ -240,7 +241,7 @@ echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.p
 # need internet for following R packages.
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
 echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R'); biocLite('phyloseq')} " | $rootdir/bin/Rscript -
-echo "library(devtools); options(unzip='internal'); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.1');" | $rootdir/bin/Rscript -
+echo "library(devtools); options(unzip='internal'); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.2');" | $rootdir/bin/Rscript -
 echo "
 ------------------------------------------------------------------------------
                            R packages installed
@@ -269,25 +270,27 @@ echo "
 
 install_BLAST+()
 {
+local VER=2.5.0
 echo "------------------------------------------------------------------------------
-                           Install ncbi-blast-2.2.28+-x64
+                           Install ncbi-blast-$VER+-x64
 ------------------------------------------------------------------------------
 "
-BLAST_ZIP=ncbi-blast-2.2.29+-x64-linux.tar.gz
+BLAST_ZIP=ncbi-blast-$VER+-x64-linux.tar.gz
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
-    BLAST_ZIP=ncbi-blast-2.2.29+-universal-macosx.tar.gz
+    VER=2.2.29
+    BLAST_ZIP=ncbi-blast-$VER+-universal-macosx.tar.gz
 }
 fi
 
 tar xvzf $BLAST_ZIP
-cd ncbi-blast-2.2.29+
+cd ncbi-blast-$VER+
 cp -fR bin/* $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           ncbi-blast-2.2.28+-x64 installed
+                           ncbi-blast-$VER+-x64 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1313,7 +1316,7 @@ else
     then
     {
 	R_VER=`$rootdir/bin/R --version | perl -nle 'print $& if m{version \d+\.\d+}'`;
-	if  ( echo $R_VER | awk '{if($2>="3.2") exit 0; else exit 1}' )
+	if  ( echo $R_VER | awk '{if($2>="3.3") exit 0; else exit 1}' )
 	then
 	{
         	echo "R $R_VER found"
@@ -1373,7 +1376,13 @@ fi
 
 if ( checkSystemInstallation blastn )
 then
-  echo "BLAST+ is found"
+   BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+   if ( echo $BLAST_VER | awk '{if($1>="2.4.0") exit 0; else exit 1}' )
+   then
+     echo "BLAST+ $BLAST_VER found"
+   else
+     install_BLAST+
+   fi
 else
   echo "BLAST+ is not found"
   install_BLAST+
