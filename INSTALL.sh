@@ -488,7 +488,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf gottcha2.tar.gz
 cd gottcha2
-ln -sf $PWD/gottcha.py $rootdir/bin/
+#ln -sf $PWD/gottcha.py $rootdir/bin/
 ln -sf $rootdir/database/GOTTCHA2 ./database
 cd $rootdir/thirdParty
 echo "
