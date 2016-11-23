@@ -244,26 +244,6 @@ if( scalar @projlist ){
 	## END sample metadata
 }
 
-#autorun
-if( scalar keys %$list && $sys->{edgeui_auto_run} ){
-	my ( $progs, $proj, $projCode, $p_status, $proj_start, $proj_dir, $log, $config );
-	my $num_cpu_used = 0;
-	foreach my $i ( sort {$list->{$a}->{TIME} cmp $list->{$b}->{TIME}} keys %$list ) {
-		$proj     = $list->{$i}->{NAME};
-		$projCode = $list->{$i}->{PROJCODE};
-		$proj_dir = "$out_dir/$projCode";
-		my $run=0;
-		$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
-		if($run && ($umSystemStatus eq 'ture'?$sid:1) ){
-			my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" $sid $domain $umSystemStatus 2>> $proj_dir/error.log`;
-			#print STDERR "$json";
-			my $info = decode_json($json);
-			$list->{$i}->{STATUS} = "running" if $info->{STATUS} eq "SUCCESS";
-			$num_cpu_used += $list->{$i}->{CPU};
-		}
-	}
-}
-
 $info->{LIST} = $list if $list;
 
 &returnStatus();

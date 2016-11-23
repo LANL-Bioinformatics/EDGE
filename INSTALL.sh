@@ -1761,14 +1761,18 @@ then
     rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
     ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
 else
-	mkdir $HOME/EDGE_input/
+	mkdir -p $HOME/EDGE_input
+	rm -rf $rootdir/edge_ui/EDGE_input
+	ln -sf $HOME/EDGE_input $rootdir/edge_ui/EDGE_input
 	rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
    	ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
 fi
 if [ ! -d $rootdir/edge_ui/EDGE_output/ ]
 then
    	echo "Setting up EDGE_output/"
-   	mkdir $HOME/EDGE_output
+   	mkdir -p $HOME/EDGE_output
+	rm -rf $rootdir/edge_ui/EDGE_output
+	ln -sf $HOME/EDGE_output $rootdir/edge_ui/EDGE_output
 fi
 
 
@@ -1822,6 +1826,7 @@ fi
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
+echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1" | crontab -
 
 echo "
 

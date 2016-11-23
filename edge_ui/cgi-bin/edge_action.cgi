@@ -40,8 +40,7 @@ my $taxa_for_contig_extract = $opt{taxa};
 my $cptool_for_reads_extract = $opt{cptool};
 my $contig_id = $opt{contigID};
 my $blast_params = $opt{"edge-contig-blast-params"} || " -num_alignments 10 -num_descriptions 10 -evalue 1e-10 " ;
-my $domain	= $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
-my ($webhostname) = $domain =~ /^(\S+?)\./;
+my $domain	= $ENV{'HTTP_HOST'};
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 $ENV{PATH} = "$EDGE_HOME/bin:$ENV{PATH}";
@@ -54,6 +53,7 @@ $shareEmail ||= $ARGV[4];
 $sid        ||= $ARGV[5];
 $domain     ||= $ARGV[6];
 my $umSystemStatus = $ARGV[7];
+my ($webhostname) = $domain =~ /^(\S+?)\./;
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -75,7 +75,7 @@ my $proj_dir    = abs_path("$out_dir/$pname");
 my $proj_rel_dir = "$out_rel_dir/$pname";
 my $list;
 my $permission;
-
+my $max_num_jobs = $sys->{"max_num_jobs"};
 #cluster
 my $cluster 	= $sys->{cluster};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
@@ -181,7 +181,7 @@ if( $action eq 'empty' ){
 		`cp $proj_dir/process.log $proj_dir/process.log.bak`;
 		`echo "\n*** [$time] EDGE_UI: This project has been emptied ***\n" |tee $proj_dir/process.log > $proj_dir/process_current.log`;
 		`grep -a "runPipeline -c" $proj_dir/process.log.bak >> $proj_dir/process.log`;
-		`echo "*** [$time] EDGE_UI: project unstarted ***" >> $proj_dir/process.log`;
+		`echo "*** [$time] EDGE_UI: project unstarted (queued) ***" | tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
 
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -755,6 +755,7 @@ sub checkProjVital {
 sub availableToRun {
         my $num_cpu = shift;
         my $cpu_been_used = 0;
+	return 0 if (scalar (keys %$vital) >= $max_num_jobs);
         if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
                 foreach my $pid ( keys %$vital ){
                         $cpu_been_used += $vital->{$pid}->{CPU};

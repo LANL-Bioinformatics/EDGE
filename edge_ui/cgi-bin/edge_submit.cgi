@@ -42,6 +42,7 @@ $um_url ||= "$protocol//$domain/userManagement";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $debug       = $sys->{debug};
 my $request_uri = $ENV{'REQUEST_URI'};
+my $max_num_jobs = $sys->{"max_num_jobs"};
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -656,6 +657,7 @@ sub getProjcode {
 sub availableToRun {
 	my $num_cpu = shift;
 	my $cpu_been_used = 0;
+	return 0 if (scalar (keys %$vital) >= $max_num_jobs);
 	if( $sys->{edgeui_auto_queue} && $sys->{edgeui_tol_cpu} ){
 		foreach my $pid ( keys %$vital ){
 			$cpu_been_used += $vital->{$pid}->{CPU};
@@ -877,8 +879,8 @@ sub checkParams {
 		}
 		push @refs, @edge_ref_input if @edge_ref_input;
 		$opt{"edge-ref-file"} = join ",", @refs;
-		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( !-e $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
 		
 		if (defined $sys->{edge_ref_genome_file_max} && $num_selected > $sys->{edge_ref_genome_file_max}){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $sys->{edge_ref_genome_file_max}");
