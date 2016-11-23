@@ -1,6 +1,6 @@
 # EDGE Bioinformatics
 
-This is version 1.5 of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
+This is version 1.5.1 of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
