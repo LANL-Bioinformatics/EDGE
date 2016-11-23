@@ -1748,10 +1748,14 @@ $( document ).ready(function()
 				var ProjDataTable = $('#edge-project-page-table').DataTable({
 					"columnDefs": [ {"targets": 0, "orderable": false}],
 					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"order": [],
 					"pageLength": 25,
 					"responsive": true,
 				});
-
+				$('#edge-projpage-ckall').on('click',function(){
+					$(this).toggleClass('selected');
+					$('.edge-projpage-ckb').prop("checked", $(this).hasClass("selected"));
+				});
 				$('#edge-project-page-table tbody').on( 'click', 'tr', function () {
 				    $(this).toggleClass('selected');
 				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
