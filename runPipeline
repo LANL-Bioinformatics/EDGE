@@ -453,7 +453,7 @@ sub runSpecialtyGenesProfiling {
 	`mkdir -p $outputDir`;
 		
 	# AR
-		$cmd = "$rgi_PATH/rgi -i $annotationFAA -t protein -o AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi -n $numCPU 1>>$log 2>&1";
+		$cmd = "cd $outputDir; $rgi_PATH/rgi -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU 1>>$log 2>&1";
 			&lprint ("	Running \n $cmd \n");
 			&executeCommand($cmd);
 		$cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
