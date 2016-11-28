@@ -43,6 +43,24 @@ HEATMAP_DISPLAY_TOP=60
 ;; Tool section:
 ;; Create a section for each tool 
 
+<TMPL_IF NAME="gottcha2-speDB-e-inv">
+[gottcha2-speDB-e-inv]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-invDB>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha2-speDB-e-ptz">
+[gottcha2-speDB-e-ptz]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-ptzDB>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="gottcha2-speDB-e-ptg">
+[gottcha2-speDB-e-ptg]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-ptgDB>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
 <TMPL_IF NAME="gottcha-genDB-b">
 [gottcha-genDB-b]
 COMMAND=uge-gottcha.sh  -i %FASTQ% -s %SPLITRIM_DIR% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-genDB>

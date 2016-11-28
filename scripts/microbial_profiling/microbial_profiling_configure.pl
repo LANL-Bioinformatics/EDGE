@@ -26,6 +26,9 @@ GetOptions(\%opt,
            "gottcha2-v-genDB=s",
            "gottcha2-b-speDB=s",
            "gottcha2-v-speDB=s",
+           "gottcha2-e-invDB=s",
+           "gottcha2-e-ptzDB=s",
+           "gottcha2-e-ptgDB=s",
            'help|h|?'
           );
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
@@ -46,29 +49,26 @@ $opt{"gottcha-b-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_
 $opt{"gottcha2-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.genus.fna";
 $opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna";
 $opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna";
+$opt{"gottcha2-e-invDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna";
+$opt{"gottcha2-e-ptgDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna";
+$opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna";
 
 my @tools = split /,/, $opt{'tools'};
 print STDERR &usage() if !-e $opt{'template'};
 print STDERR &usage() if scalar @tools < 1;
 
+# remove suffix if any to meet the tool db format
+foreach my $db ( keys %opt) { 
+	$opt{"$db"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$// if ($db =~ /bwa-db|gottcha.*DB/ );
+	$opt{"$db"} =~ s/(\.rev)?.\d\.bt2$// if ($db =~ /metaphlan-db/);
+	(my $tmp_filenaem,$opt{"kraken-db"},my $tmp_suffix)=&fileparse($opt{"kraken-db"}) if ($db =~ /kraken-db/);
+	
+}
+
 foreach my $tool ( @tools ){
 	next unless $tool;
 	$opt{"$tool"} = 1;
 }
-
-# remove suffix if any to meet the tool db format
-$opt{'bwa-db'} =~ s/\.?(amb|ann|bwt|fai|pac|sa)$//;
-$opt{"gottcha-v-speDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{"gottcha-b-speDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{"gottcha-v-strDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{"gottcha-b-strDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{"gottcha-v-genDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{"gottcha-b-genDB"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$//;
-$opt{'gottcha2-v-genDB'} =~ s/\.?(amb|ann|bwt|fai|pac|sa)$//;
-$opt{'gottcha2-b-speDB'} =~ s/\.?(amb|ann|bwt|fai|pac|sa)$//;
-$opt{'gottcha2-v-speDB'} =~ s/\.?(amb|ann|bwt|fai|pac|sa)$//;
-$opt{"metaphlan-db"} =~ s/(\.rev)?.\d\.bt2$//;
-(my $tmp_filenaem,$opt{"kraken-db"},my $tmp_suffix)=&fileparse($opt{"kraken-db"});
 
 #print Dumper (\%opt);
 my $template = HTML::Template->new(filename => $opt{'template'},  die_on_bad_params => 0  );
@@ -97,6 +97,9 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -gottcha2-v-genDB   $EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.genus.fna
     -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna
     -gottcha2-v-speDB   $EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
+    -gottcha2-e-invDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna
+    -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna
+    -gottcha2-e-ptgDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna
 
 USAGE
     #
