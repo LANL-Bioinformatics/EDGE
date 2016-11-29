@@ -22,10 +22,13 @@ Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>
 
 ## Citation
 
-[Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform](http://biorxiv.org/content/early/2016/02/21/040477) 
+Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform 
 
-Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bishop-Lilly, Yan Xu, Sanaa Ahmed, Shihai Feng, Vishwesh P. Mokashi, Patrick S. G. Chain
-bioRxiv doi: http://dx.doi.org/10.1101/040477
+Po-E Li; Chien-Chi Lo; Joseph J. Anderson; Karen W. Davenport; Kimberly A. Bishop-Lilly; Yan Xu; Sanaa Ahmed; Shihai Feng; Vishwesh P. Mokashi; Patrick S.G. Chain
+
+Nucleic Acids Research 2016;
+
+[doi: 10.1093/nar/gkw1027] (http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract?keytype=ref&ijkey=KzcEnQzdYkdjPCU)
 
 ## Copyright
 
