@@ -21,7 +21,13 @@ Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil>
 
 ## Citation
 
-Coming soon...
+Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform 
+
+Po-E Li; Chien-Chi Lo; Joseph J. Anderson; Karen W. Davenport; Kimberly A. Bishop-Lilly; Yan Xu; Sanaa Ahmed; Shihai Feng; Vishwesh P. Mokashi; Patrick S.G. Chain
+
+Nucleic Acids Research 2016;
+
+[doi: 10.1093/nar/gkw1027] (http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract?keytype=ref&ijkey=KzcEnQzdYkdjPCU)
 
 ## Copyright
 
