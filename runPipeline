@@ -218,7 +218,7 @@ if ($referenceGenome)
             # retrieve unmapped reads
             ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
 	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads > 0);
-            `ln -sf $outDir/ReadsBasedAnalysis/UnmappedReads $outDir/ReferenceBasedAnalysis/`;
+            `ln -sf $outDir/ReferenceBasedAnalysis/UnmappedReads $outDir/ReadsBasedAnalysis/UnmappedReads` if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
         }
     }
 
@@ -2926,7 +2926,8 @@ sub SNPtree
     #&executeCommand($cmd);
     my $allTreeFile= $treeMaker eq "FastTree"? "${project_name}_all.fasttree" : "RAxML_bestTree.${project_name}_all";
     if ( ! -e "$outputDir/results/$allTreeFile" ){
-        my @errors = `grep ERROR $outputDir/results/error.log`;
+	my $error_log = "$outputDir/results/${project_name}.error";
+	my @errors = (-e $error_log)? `grep -i -a  ERROR $error_log`:"unknown";
 	my $error = join("\n", "  failed", @errors,"\n");
     	system("touch $outputDir/SNPtree.finished");
     	&printRunTime($time);
