@@ -47,7 +47,7 @@ if (!$project_dir_names && !$out_dir){ print "$usage\n";exit;}
 my $EDGE_HOME = $ENV{EDGE_HOME}||Cwd::abs_path("$workingDir/../..");
 my $edge_www="$EDGE_HOME/edge_ui"; 
 ## Instantiate the variables
-$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini";
+$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-metaphlan,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-inv,gottcha2-speDB-e-ptz,gottcha2-speDB-e-ptg,bwa,kraken_mini";
 $html_outfile ||= "$out_dir/compare_project.html";
 my $vars;
 
@@ -146,6 +146,14 @@ sub runMetaComp {
 	my $log = "$out_dir/log.txt";
 	my $tool_list;
 	my $count=0;
+	my %tool_name = (
+		'gottcha2-speDB-b' => 'GOTTCHA2 Bacterial Species',
+		'gottcha2-genDB-v' => 'GOTTCHA2 Viral Genus', 
+		'gottcha2-speDB-v' => 'GOTTCHA2 Viral Species', 
+		'gottcha2-speDB-e-inv' => 'GOTTCHA2 Species Invertebrate',
+		'gottcha2-speDB-e-ptz' => 'GOTTCHA2 Species Protozoa',
+		'gottcha2-speDB-e-ptg' => 'GOTTCHA2 Species Pathogen'
+	);
 	foreach my $tool (split /,/,$tax_tools){
 		my $title;
 		my $plot_filename;
@@ -173,16 +181,20 @@ sub runMetaComp {
 				$count++;
 			}else{
 				$rank= "species";
+				if ($tool =~ /gottcha2-(\w+)DB/){
+					$rank = "species" if ($1 eq "spe");
+					$rank = "genus" if ($1 eq "gen");
+				}
 				my $loop = "LOOP_".uc($tool);
 				$title = uc($tool)." Merged plot ($rank)";
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
-				my $Rscript = ($tool =~/kraken/i)?"merge_and_plot_kraken_assignments.R":"merge_and_plot_${tool}_assignments.R";
+				my $Rscript = ($tool =~/kraken/i)?"merge_and_plot_kraken_assignments.R":($tool=~/gottcha2/i)?"merge_and_plot_gottcha2_assignments.R":"merge_and_plot_${tool}_assignments.R";
 				$cmd = "Rscript $RealBin/$Rscript $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
 				$cmd .= " 1>>$log 2>\&1 ";
 				system($cmd) if (! -s "$plot_filename.pdf");
 				my $tool_res;
 				$tool_res->{CPRANK}=$rank;
-				$tool_res->{CPTOOLNAME}=uc($tool);
+				$tool_res->{CPTOOLNAME}=($tool_name{$tool})?$tool_name{$tool}:uc($tool);
 				$tool_res->{CPTOOLPDF}="${tool}_merged_heatmap.pdf";
 				$tool_res->{CPTOOLSVG}="${tool}_merged_heatmap.svg";
 				push @{$vars->{LOOP_CPTOOL}}, $tool_res;
