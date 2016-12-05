@@ -133,7 +133,7 @@ while(<$sam_fh>)
             $result{$samFields[0]} .= "PCR success! \n" . $reason;
             if ($samFields[6] ne "=")
             {
-                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to differenct input sequences. ($samFields[2] vs $samFields[6])\n";
+                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to different input sequences. ($samFields[2] vs $samFields[6])\n";
             }
             else
             {
