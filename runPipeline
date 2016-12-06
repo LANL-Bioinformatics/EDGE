@@ -722,8 +722,8 @@ sub read_SRAD_Download_dir
     opendir(my $sra_dir_fh,$dir) or die "Cannot read $dir\n";
     my @files = sort grep {/fastq/} readdir($sra_dir_fh);
     closedir $sra_dir_fh;
-    if (`grep -i -a "SRA runs not found" $dir/log.txt`){
-        &lprint("failed. Input SRA accession cannot be found.\n");
+    if (`grep -i -a "ERROR" $dir/log.txt`){
+        &lprint("SRA download failed.\n");
         exit(1);
     }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile)
     {
