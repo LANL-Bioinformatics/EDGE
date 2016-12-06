@@ -727,16 +727,15 @@ sub read_SRAD_Download_dir
     opendir(my $sra_dir_fh,$dir) or die "Cannot read $dir\n";
     my @files = sort grep {/fastq/} readdir($sra_dir_fh);
     closedir $sra_dir_fh;
-    if (!@files && !@pairedReadsFile && !@unpairedReadsFile)
+    if (`grep -i -a "Error" $dir/log.txt`){
+        &lprint("The SRA download failed.\n");
+	exit;
+    }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile)
     {
         &lprint("No fastq file from the SRA download. try again\n");
 	&Download_SRA();
+	return;
         #die "No input\n";
-    }
-    if (`grep -i -a "Error" $dir/log.txt`){
-       `rm -rf $dir/*fastq*`;
-        &lprint("The SRA download failed. try again\n");
-        &Download_SRA();
     }
     my %pair;
     if (scalar(@files)==1)
