@@ -150,7 +150,7 @@ sub getSraFastq {
 	my $platform = $info->{platform};
 	my $library  = $info->{library};
 
-	my $url  = "http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=dload&run_list=$run_acc&format=fastq";
+	my $url  = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=dload&run_list=$run_acc&format=fastq";
 
 	print STDERR "Downloading $url...\n";
 	my $ec = system("$curl $http_proxy -o $OUTDIR/sra2fastq_temp/$run_acc.fastq.gz \"$url\"");
@@ -364,7 +364,7 @@ sub getReadInfo {
 	
 	print STDERR "Retrieving run(s) information from EBI-ENA...\n";
 	
-	$url = "http://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$acc&result=read_run";
+	$url = "https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$acc&result=read_run";
 	print STDERR "Retrieving run acc# from EBI-ENA $url...\n";
 	
 	$web_result = `$curl $http_proxy "$url" 2>/dev/null`;
