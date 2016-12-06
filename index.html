@@ -7,6 +7,7 @@
     <meta name="description" content="EDGE : EDGE bioinformatics">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
     <title>EDGE</title>
   </head>
@@ -20,7 +21,10 @@
 
   ga('create', 'UA-70354817-3', 'auto');
   ga('send', 'pageview');
-
+  
+  $(document).ready(function(){
+	$("a").attr('target', '_blank');
+  });
   </script>
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
@@ -51,9 +55,17 @@ While the design of EDGE was intentionally done to be as simple as possible for 
 </p>	
 <h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's New? </h3>
 <p>
+  Updates 12/05/2016</b>:
+  <ul>
+    <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.1 pre-release.</a>
+    <li>NCBI is <a href="https://www.ncbi.nlm.nih.gov/home/develop/https-guidance.shtml">moving from http to https</a> for security and privacy improvement which caused SRA download feature failed. We have <a href="https://github.com/LANL-Bioinformatics/EDGE/blob/3e799f2b8f2bcd5852560d9574ade3cf167bc7bf/scripts/sra2fastq.pl">updated our script</a> to accommondate the change. In addition, if it failed to download from <a href="https://www.ncbi.nlm.nih.gov/sra">NCBI-SRA</a>, it will try <a href="http://www.ebi.ac.uk/ena">EBI-ENA</a> and <a href="https://trace.ddbj.nig.ac.jp/dra/index.html">DDBJ</a>.  </li>
+    <li>One of the MetaComp requirements udpated its version (cowplot) broken the EDGE installation: update R version from 3.2.2 to 3.3.2 and MetaComp from v1.1 to v1.2</li>
+  </ul>
+</p>
+<p>
   Updates 10/04/2016</b>:
   <ul>
-    <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.0 pre-release.</a>
+    <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.0 release.</a>
     <li>The EDGE documentation has branches with version <a href="https://edge.readthedocs.io/en/v1.5/"> v1.5 </a> and <a href="https://edge.readthedocs.io/en/latest/"> latest </a> for development (active updating)</li>
   </ul>
 </p>
