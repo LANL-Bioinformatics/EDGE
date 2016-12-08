@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="javascript/snowfall.jquery.js"></script>
 
     <title>EDGE</title>
   </head>
@@ -24,6 +25,7 @@
   
   $(document).ready(function(){
 	$("a").attr('target', '_blank');
+	$("#header_wrap").snowfall({deviceorientation : true, round : true, minSize: 1, maxSize:8,  flakeCount : 35});
   });
   </script>
     <!-- HEADER -->
