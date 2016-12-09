@@ -122,7 +122,7 @@ if( $umSystemStatus ){
 	my $valid = verifySession($sid);
 	if($valid){
 		($username,$password,$viewType) = getCredentialsFromSession($sid);
-		my $user_config = $sys->{edgeui_input}."/". md5_hex($username)."/user.properties";
+		my $user_config = $sys->{edgeui_input}."/". md5_hex(lc($username))."/user.properties";
 		&getUserProjFromDB();
 		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
 		$info->{INFO}->{SESSION_STATUS} = "valid";

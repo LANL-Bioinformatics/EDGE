@@ -28,7 +28,7 @@ my $projcode = $configuration->{projcode};
 my $projid = $configuration->{projid};
 my $edge_output= $sys->{edgeui_output};
 my $edge_input=$sys->{edgeui_input};
-my $user_myproject_dir="$edge_input/". md5_hex($username)."/MyProjects";
+my $user_myproject_dir="$edge_input/". md5_hex(lc($username))."/MyProjects";
 my $um_url      = $sys->{edge_user_management_url};
 
 print join("\n","Old/Import project", "project_owner: $owner","project_name: $projname","project_description: $projdesc","\n");

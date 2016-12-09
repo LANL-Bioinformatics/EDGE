@@ -81,7 +81,7 @@ elsif ($action eq "login"){
 	unless( $info->{error} ){
 		my $sid = createSession($username,$password,$info->{type});
 		$info->{SESSION} = $sid;
-		my $user_dir=md5_hex($username);
+		my $user_dir=md5_hex(lc($username));
 		$info->{UserDir} = $user_dir; 
 		my $cronjobs = `crontab -l 2>/dev/null`;
 		$info->{CleanData} = $sys->{edgeui_proj_store_days} if ($sys->{edgeui_proj_store_days} > 0 && $cronjobs =~ /edge_data_cleanup/);

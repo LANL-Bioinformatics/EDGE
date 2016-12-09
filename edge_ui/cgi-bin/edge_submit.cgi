@@ -146,7 +146,7 @@ if( $sys->{user_management} ){
 	}
 	else{
 		($username,$password) = getCredentialsFromSession($sid);
-		$input_dir="$edge_input/". md5_hex($username);  #full path to file
+		$input_dir="$edge_input/". md5_hex(lc($username));  #full path to file
 	}
 }
 
