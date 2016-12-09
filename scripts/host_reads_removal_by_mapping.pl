@@ -153,7 +153,8 @@ sub runMapping
 {
     my $refFile=shift;
     my $outputDir=shift;
-    my $mappingLogFile="$outputDir/$prefix.mapping.log";
+    my $mappingLogFile="$outputDir/$prefix.mappingPE.log";
+    my $mappingLogFile2="$outputDir/$prefix.mappingSE.log";
     my $mappingStatsFile="$outputDir/$prefix.stats.txt";
     my $unalignedNonPairedFile="$outputDir/$prefix.unpaired.fastq";
     my $unalignedMate1File = "$outputDir/$prefix.1.fastq";
@@ -165,6 +166,7 @@ sub runMapping
     my $numTotalReadsUnpaired=0;
     my $numTotalReads=0;
     unlink $mappingLogFile;
+    unlink $mappingLogFile2;
     unlink $unalignedNonPairedFile;
     unlink $unalignedMate1File;
     unlink $unalignedMate2File;
@@ -311,7 +313,7 @@ sub runMapping
       foreach my $queryUnpairedFile (@unpairedReadsFile)
       {
         print $stat_fh $queryUnpairedFile,"\n";
-        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryUnpairedFile 2>$mappingLogFile| ";
+        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryUnpairedFile 2>>$mappingLogFilew| ";
         print " $command\n"; 
         open (my $fh, "$command") or die "$! bwa mem command failed\n";
         open (my $unalignedNonPaired_fh, ">> $unalignedNonPairedFile") or die "$! $unalignedNonPairedFile";
@@ -354,7 +356,7 @@ sub runMapping
         close $unalignedNonPaired_fh;
         close $host_fh if ($outputHost);
       } # foreach (@unpairedReadsFile)
-        $numTotalReadsUnpaired=&parseMappingLog($mappingLogFile);
+        $numTotalReadsUnpaired=&parseMappingLog($mappingLogFile2);
         $print_string .= " Total Unpaired reads: $numTotalReadsUnpaired\n";
         if ($numTotalReadsUnpaired)
         {
