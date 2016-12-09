@@ -87,14 +87,14 @@ elsif ($action eq "login"){
 		$info->{SESSION} = $sid;
 		my $user_dir_old=md5_hex($username);
 		my $user_dir=md5_hex(lc($username));
-		if ( -d "$edge_input/$user_dir_old"){
+		`mkdir -p $edge_input/$user_dir/MyProjects/`;
+		if ( $user_dir_old ne $user_dir && -d "$edge_input/$user_dir_old"){
 			`mv -f $edge_input/$user_dir_old/* $edge_input/$user_dir/`;
 			`rm -rf $edge_input/$user_dir_old`;
 		}
 		$info->{UserDir} = $user_dir; 
 		my $cronjobs = `crontab -l 2>/dev/null`;
 		$info->{CleanData} = $sys->{edgeui_proj_store_days} if ($sys->{edgeui_proj_store_days} > 0 && $cronjobs =~ /edge_data_cleanup/);
-		`mkdir -p $edge_input/$user_dir/MyProjects/`;
 		`ln -sf $edge_input/public/data $edge_input/$user_dir/PublicData` if (! -e "$edge_input/$user_dir/PublicData");a
 		`ln -sf $edge_input/public/projects $edge_input/$user_dir/PublicProjects` if (! -e "$edge_input/$user_dir/PublicProjects");
 	}
