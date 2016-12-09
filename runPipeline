@@ -458,7 +458,7 @@ sub read_SRAD_Download_dir
     {
         foreach (@files)
         {
-            if (/(\S+)_[12]/)
+            if (/(\S+)_?.?[12]/)
             {
                 push @{$pair{$1}}, "$dir/$_";
                 #push @pairedReadsFile, "$dir/$_";

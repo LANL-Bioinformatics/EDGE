@@ -74,7 +74,7 @@ if( $sys->{user_management} ){
 	}
 	else{
 		($username,$password) = getCredentialsFromSession($sid);
-		$input_dir="$edge_input/". md5_hex($username);
+		$input_dir="$edge_input/". md5_hex(lc($username));
 	}
 }
 

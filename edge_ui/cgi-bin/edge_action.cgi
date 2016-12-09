@@ -78,7 +78,7 @@ if ( $sys->{user_management} )
 
 	$real_name=getProjNameFromDB($pname);
 
-	$user_proj_dir = "$input_dir/". md5_hex($username)."/MyProjects/$real_name"."_".$pname;
+	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
 	#separate permission for future uses. A permission module can be added potentially..
 	if( defined $list->{$pname} || $userType =~ /admin/){
 		$permission->{empty} = 1;
@@ -494,7 +494,7 @@ sub shareProject{
                 $info->{STATUS} = "SUCCESS";
                 $info->{INFO} .= " Project $real_name has ${action}d to $email.";
 		foreach (split(',',$email)){
-			my $user_dir =  "$input_dir/". md5_hex($_);
+			my $user_dir =  "$input_dir/". md5_hex(lc($_));
 			my $shared_proj_dir = "$user_dir/SharedProjects/${real_name}_$project";
 			if ( $action eq "share"){
 				`mkdir -p $user_dir/SharedProjects`;

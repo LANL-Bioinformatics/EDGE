@@ -79,7 +79,7 @@ elsif ($action eq "login"){
 	unless( $info->{error} ){
 		my $sid = createSession($username,$password,$info->{type});
 		$info->{SESSION} = $sid;
-		my $user_dir=md5_hex($username);
+		my $user_dir=md5_hex(lc($username));
 		$info->{UserDir} = $user_dir; 
 		`mkdir -p $edge_input/$user_dir/MyProjects/`;
 		`ln -sf $edge_input/public/data $edge_input/$user_dir/PublicData` if (! -e "$edge_input/$user_dir/PublicData");a
