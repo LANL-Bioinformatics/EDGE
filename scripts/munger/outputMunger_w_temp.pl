@@ -606,6 +606,7 @@ sub pull_specialty_gene_profiling {
 			#my $vf_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $vf_reads_output`;
 			my $vf_read_hit_num=`awk 'BEGIN{count=0}\$2>0{count++}END{print count}'  $vf_reads_output`;
 			chomp $vf_read_hit_num;
+			$vf_read_hit_num=$vf_read_hit_num-1;
 			$vars->{SGRVFHIT} = ($vf_read_hit_num)? $vf_read_hit_num : 0;
 		}
 		if ( -e $vf_reads_output_sbhits) {
