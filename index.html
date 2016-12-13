@@ -47,7 +47,7 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is EDGE?</h3>
+<a id="what-is-edge" class="anchor" href="#what-is-edge" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is EDGE?</h3>
 
 <p>
 EDGE bioinformatics was <strong>developed to help biologists process Next Generation Sequencing data</strong> (in the form of <strong>raw FASTQ</strong> files), even if they have little to no bioinformatics expertise. EDGE is a highly integrated and interactive web-based platform that is capable of running many of the standard analyses that biologists require for viral, bacterial/archaeal, and metagenomic samples. EDGE provides the following analytical workflows: <strong>quality trimming and host removal, assembly and annotation, comparisons against known references, taxonomy classification of reads and contigs, whole genome SNP-based phylogenetic analysis, and PCR analysis</strong>. EDGE provides an intuitive web-based interface for user input, allows users to visualize and interact with selected results (e.g. JBrowse genome browser), and generates a final detailed PDF report. Results in the form of tables, text files, graphic files, and PDFs can be downloaded. A user management system allows tracking of an individual’s EDGE runs, along with the ability to share, post publicly, delete, or archive their results.
@@ -55,13 +55,20 @@ EDGE bioinformatics was <strong>developed to help biologists process Next Genera
 <p>
 While the design of EDGE was intentionally done to be as simple as possible for the user, there is still no single ‘tool’ or algorithm that fits all use-cases in the bioinformatics field. Our intent is to provide a detailed panoramic view of your sample from various analytical standpoints, but users are encouraged to have some insight into how each tool or workflow functions, and how the results should best be interpreted.
 </p>	
-<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's New? </h3>
+<h3><a id="news" class="anchor" href="#news" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's New? </h3>
 <p>
   Updates 12/05/2016</b>:
   <ul>
     <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.1 pre-release.</a>
     <li>NCBI is <a href="https://www.ncbi.nlm.nih.gov/home/develop/https-guidance.shtml">moving from http to https</a> for security and privacy improvement which caused SRA download feature failed. We have <a href="https://github.com/LANL-Bioinformatics/EDGE/blob/3e799f2b8f2bcd5852560d9574ade3cf167bc7bf/scripts/sra2fastq.pl">updated our script</a> to accommondate the change. In addition, if it failed to download from <a href="https://www.ncbi.nlm.nih.gov/sra">NCBI-SRA</a>, it will try <a href="http://www.ebi.ac.uk/ena">EBI-ENA</a> and <a href="https://trace.ddbj.nig.ac.jp/dra/index.html">DDBJ</a>.  </li>
     <li>One of the MetaComp requirements udpated its version (cowplot) broken the EDGE installation: update R version from 3.2.2 to 3.3.2 and MetaComp from v1.1 to v1.2</li>
+  </ul>
+</p>
+<p>
+  Updates 11/29/2016</b>:
+  <ul>
+    <li>EDGE manuscript has been published on <em>Nucleic Acids Research</em> (2016). <a href="http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract">See Abstract.</a></li>
+    <li><a href="http://phys.org/news/2016-11-edge-bioinformatics-genomics.html">EDGE news on Phys.org</a></li>
   </ul>
 </p>
 <p>
@@ -100,7 +107,7 @@ While the design of EDGE was intentionally done to be as simple as possible for 
   </ul>
 </p>
 
-<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using EDGE</h3>
+<h3><a id="using-edge" class="anchor" href="#using-edge" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using EDGE</h3>
 <p>
 A demonstration version of EDGE is currently available at <a href="https://bioedge.lanl.gov/edge_ui/">https://bioedge.lanl.gov/edge_ui/</a> with example data sets available to the public to view and/or re-run and also allows EDGE runs of SRA/ENA data. (This webserver <strong>does not currently support upload of data due in part to LANL security regulations</strong>, however local installations are meant to be fully functional.) 
 
@@ -111,12 +118,12 @@ While your project is running you can watch it's progress and system usage using
 For those that want to run EDGE offline, installation instructions can be found in our documentation, which can be accessed <a href="https://edge.readthedocs.io/en/v1.1/index.html">https://edge.readthedocs.io/en/v1.1/index.html</a>. There is also a link to the documentation on the EDGE website. For basic information about EDGE, visit the <a href="https://edge.readthedocs.io/en/v1.1/EDGE_ABCs.html"> EDGE ABC’s</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
 </p>
 
-<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Output</h3>
+<h3><a id="output" class="anchor" href="#output" aria-hidden="true"><span class="octicon octicon-link"></span></a>Output</h3>
 <p>
   Once your project is completed, EDGE will create an output report that contains a brief summary of the run, along with a list of drop down menus that show the EDGE tools used and detailed reports. The final data is listed in these menus and visualized through a tool called Krona, an interactive browser that allows the exploration of hierarchical data with pie charts. You can also see the full data by downloading the report PDF's, found at the bottom of each output section.
 </p>
 
-<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discussions / Bugs Reporting</h3>
+<h3><a id="disscussions" class="anchor" href="#disscussions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discussions / Bugs Reporting</h3>
 
 <p>We have created a mailing list for EDGE users. If you would like to recieve notifications about the updates and join the discussion, please join the mailing list by becoming the member of edge-users groups.</p>
 <p><a href="https://groups.google.com/d/forum/edge-users">EDGE user's google group</a></p>
@@ -124,9 +131,13 @@ For those that want to run EDGE offline, installation instructions can be found 
 <p>We appreciate any feedback or concerns you may have about EDGE. If you encounter any bugs, you can report them to our GitHub issue tracker.</p>
 <p><a href="https://github.com/LANL-Bioinformatics/EDGE/issues">Github issue tracker</a></p>
 
+<h3><a id="citation" class="anchor" href="#citation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Publication</h3>
 
+<strong>Enabling the democratization of the genomics revolution with a fully integrated web-based bioinformatics platform </strong>
+Po-E Li; Chien-Chi Lo; Joseph J. Anderson; Karen W. Davenport; Kimberly A. Bishop-Lilly; Yan Xu; Sanaa Ahmed; Shihai Feng; Vishwesh P. Mokashi; Patrick S.G. Chain
+<em>Nucleic Acids Research</em> 2016; <a href="http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract">doi: 10.1093/nar/gkw1027</a>
 
-<h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h3>
+<h3><a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h3>
 <p>
 Los Alamos National Security, LLC (LANS) owns the copyright to EDGE, which it identifies internally as LA-CC-14-007.  The license is GPLv3.  See <a href="http://www.gnu.org/licenses/gpl-3.0.en.html">LICENSE</a> for the full text.
 </p>
