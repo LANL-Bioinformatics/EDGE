@@ -251,7 +251,7 @@ sub readBatchInput {
 
 	#open python file which is located in scripts. 	
 	#pass in $input_dir as location of xlsx file
-	my @output = `python $path_to_script $excel_file`;
+	my @output = `$EDGE_HOME/bin/python $path_to_script $excel_file`;
    
 	#create a hash
 	my $list;
