@@ -856,7 +856,7 @@ sub check_reference_genome
     }
     if (scalar(@fasta_files)>1)
     {
-        my $cmd = "cat ". join(" ",@fasta_files). "> $referenceGenome";
+        my $cmd = "awk '{print \$0}' ". join(" ",@fasta_files). "> $referenceGenome";
         &executeCommand($cmd);
     }
     else
