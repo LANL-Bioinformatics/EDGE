@@ -1174,7 +1174,7 @@ $( document ).ready(function()
 	var testKronaAnimation;
 	function updateReport(pname) {
 		sessionStorage.focusProjName = pname;
-		if ( $('#edge-project-title').attr("data-pid") == pname && focusProjStatus != "running"){
+		if ( $('#edge-project-title').attr("data-pid") == pname && focusProjStatus != "running" && $('#edge-output-projstatus').text() != "Running"){
 			allMainPage.hide();
 			$( "#edge-content-report" ).show();
 		}
@@ -2144,7 +2144,7 @@ $( document ).ready(function()
 						$("#progressbar-val").css("width",prog_pct+"%").text( obj.INFO.STATUS + " (" + prog_pct+"% done)" );
 					}
 
-					if( obj.INFO.STATUS == "finished" && $('#edge-output-status').text() && $('#edge-output-status').text() != "Complete" ){
+					if( obj.INFO.STATUS == "finished" && $('#edge-output-projstatus').text() && $('#edge-output-projstatus').text() != "Complete" ){
 						updateReport( obj.INFO.NAME );
 					}
 				}
