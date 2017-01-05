@@ -166,7 +166,7 @@ echo "
 
 install_sratoolkit()
 {
-local VER=2.5.4
+local VER=2.8.1
 echo "------------------------------------------------------------------------------
                            Installing sratoolkit.$VER-linux64
 ------------------------------------------------------------------------------
@@ -186,6 +186,8 @@ if [[ -n ${http_proxy} ]]; then
 	proxy_without_protocol=${http_proxy#http://}
         ./bin/vdb-config --proxy $proxy_without_protocol
 fi
+
+ln -sf $HOME/.ncbi $rootdir/.ncbi
 
 cd $rootdir/thirdParty
 echo "
@@ -1348,7 +1350,7 @@ fi
 if ( checkSystemInstallation fastq-dump )
 then
   sratoolkit_VER=`fastq-dump --version | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if  ( echo $sratoolkit_VER | awk '{if($1>="2.5.4") exit 0; else exit 1}' )
+  if  ( echo $sratoolkit_VER | awk '{if($1>="2.8.1") exit 0; else exit 1}' )
   then
     echo "sratoolkit $sratoolkit_VER found"
   else
