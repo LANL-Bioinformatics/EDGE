@@ -313,7 +313,7 @@ sub runMapping
       foreach my $queryUnpairedFile (@unpairedReadsFile)
       {
         print $stat_fh $queryUnpairedFile,"\n";
-        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryUnpairedFile 2>>$mappingLogFilew| ";
+        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryUnpairedFile 2>$mappingLogFile2| ";
         print " $command\n"; 
         open (my $fh, "$command") or die "$! bwa mem command failed\n";
         open (my $unalignedNonPaired_fh, ">> $unalignedNonPairedFile") or die "$! $unalignedNonPairedFile";
