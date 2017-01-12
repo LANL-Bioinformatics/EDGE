@@ -710,6 +710,7 @@ sub Download_SRA
     system("rm -f $outputDir/DownloadSRA.finished");
     my @SRA_ids = split /[:,\s]+/, uc $configuration->{'SRA_id'};
     my $cmd = "perl $RealBin/scripts/sra2fastq.pl --outdir $outputDir --clean ";
+    $cmd = "--download-interface $configuration->{'download_interface'} " if ($configuration->{'download_interface'});
     $cmd .= join (" ",@SRA_ids);
     $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
@@ -3104,11 +3105,12 @@ sub download_reads
     `rm -rf $outputDir`;
      `mkdir -p $outputDir`;
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    my $curl_proxy = ($proxy)?"--proxy $proxy":"";  
+    my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";  
     chdir $outputDir;
     foreach my $url(@urls)
     {
         my $cmd = "curl -OLJ --max-filesize $size_limit $curl_proxy $url";
+	$cmd = "wget --content-disposition $url" if ($configuration->{'download_interface'} =~ /wget/); 
         &lprint (" Running \n $cmd\n");
         &executeCommand($cmd);
     }
@@ -3121,8 +3123,10 @@ sub download_reads
 sub getFilenameFromURLHeader
 {
     my $url = shift;
-    my $curl_proxy = ($proxy)?"--proxy $proxy":"";  
-    my $header=`/usr/bin/curl -sI $curl_proxy $url| grep 'filename' `;
+    my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";  
+    my $header_cmd="/usr/bin/curl -sI $curl_proxy $url| grep \'filename\' ";
+    $header_cmd="/usr/bin/wget -dv -O /dev/null $url 2>&1 | grep \'filename\' " if ($configuration->{'download_interface'} =~ /wget/);
+    my $header = `$header_cmd`;
     my ($filename) = $header =~ /filename=(\S+);/; 
     $filename=~ s/"//g;
     return $filename;
