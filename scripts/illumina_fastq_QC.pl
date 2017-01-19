@@ -2202,7 +2202,7 @@ sub checkQualityFormat {
     my @line;
     my $l;
     my $number;
-    my $offset;
+    my $offset=33;
     # go thorugh the file
     my $first_line=<$fh>;
     if ($first_line !~ /^@/) {$offset=-1; return $offset;}
