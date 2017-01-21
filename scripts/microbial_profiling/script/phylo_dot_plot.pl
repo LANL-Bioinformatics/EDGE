@@ -16,6 +16,7 @@ my %opt;
 my $res=GetOptions(\%opt,
             'input=s',
             'prefix=s',
+            'score=s',
             'scale=s',
             'mode=s',
             'title=s',
@@ -30,7 +31,8 @@ USAGE: $0 --input <TREE_TAB_FILE> --prefix <OUTPUT_PREFIX> [OPTIONS]
                               TAB separator. The first column has to be read counts
                               following by the lineage from upper-rank (broader) to more
                               specific ranks.
-    
+
+    --score  | -l <STRING>    tsv with '[species name]<tab>[score]'
     --prefix | -p <STRING>    file prefix for output
 
 OPTIONS:
@@ -51,6 +53,9 @@ $mode    ||= "log";
 
 my %taxa;
 my @cons_tree;
+my %score_hash;
+my $score_provided = 0;
+$score_provided = 1 if -e $opt{score};
 
 die("[phylo_dot_plot] ERROR: Input file is empty.\n") unless( -s $opt{input} );
 
@@ -64,6 +69,17 @@ while(<TAB>){
 }
 close TAB;
 
+if($score_provided){
+	open TAB, "$opt{score}" or die "Can't open score file: $!\n";
+	while(<TAB>){
+		chomp;
+		my @temp = split /\t/, $_;
+		$score_hash{$temp[0]} = $temp[1];
+		$score_hash{$temp[0]} = "NA" if $temp[1] eq "";
+	}
+	close TAB;
+}
+
 #init a tree
 my $init_tree = IO::String->new(";");
 my $intre = Bio::TreeIO->new( -fh=> $init_tree, -format => 'newick' );
@@ -72,7 +88,7 @@ my $tree = $intre->next_tree();
 #adding and taging tree nodes
 foreach my $ref ( @cons_tree ){
 	my @taxas = @$ref;
-	my $score = shift @taxas;
+	my $cnt = shift @taxas;
 	my $root = $tree->get_root_node;
 
 	my $cur_node = $root;
@@ -96,7 +112,11 @@ foreach my $ref ( @cons_tree ){
 		$cur_node = $taxa_node;
 		$depth++;
 	}
-	$cur_node->add_tag_value("count", $score);
+	my $taxa = $cur_node->id;
+	my $score = "NA";
+	$score = $score_hash{$taxa} if defined $score_hash{$taxa};
+	$cur_node->add_tag_value("count", $cnt);
+	$cur_node->add_tag_value("score", $score);
 }
 
 #draw tree

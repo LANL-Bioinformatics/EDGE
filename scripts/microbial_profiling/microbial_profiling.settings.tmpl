@@ -43,6 +43,12 @@ HEATMAP_DISPLAY_TOP=60
 ;; Tool section:
 ;; Create a section for each tool 
 
+<TMPL_IF NAME="pangia">
+[pangia]
+COMMAND=uge-pangia.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=pangia-db> -b <TMPL_VAR NAME=pangia-bg> -c <TMPL_VAR NAME=pangia-rc> -a <TMPL_VAR NAME=pangia-opts> -r <TMPL_VAR NAME=pangia-ra> -S <TMPL_VAR NAME=pangia-ms> -R <TMPL_VAR NAME=pangia-mr> -B <TMPL_VAR NAME=pangia-mb> -L <TMPL_VAR NAME=pangia-ml>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
 <TMPL_IF NAME="gottcha2-speDB-e-inv">
 [gottcha2-speDB-e-inv]
 COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-invDB>

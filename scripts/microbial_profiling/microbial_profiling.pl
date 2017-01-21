@@ -302,7 +302,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           fi          
 
           echo \"====> Generating phylo_dot_plot for each tool...\";
-          phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree -p $outdir/$prefix.tree -t $fnb-$tool
+          phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree --score $outdir/$prefix.out.tab_tree.score -p $outdir/$prefix.tree -t $fnb-$tool
 		";
 
         print $post_fh "

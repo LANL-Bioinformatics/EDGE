@@ -2,11 +2,11 @@
 use strict;
 use File::Basename;
 use Getopt::Long;
+use JSON;
 use FindBin qw($Bin);
 use lib "$Bin/../../lib";
 use HTML::Template;
-#use Data::Dumper;
-
+#use DataG::Dumper;
 
 my %opt;
 my $EDGE_HOME = "$Bin/../..";
@@ -14,6 +14,7 @@ GetOptions(\%opt,
            "template=s",
            "tools=s",
            "bwaScoreCut=i",
+           "configJson=s",
            "bwa-db=s",
            "metaphlan-db=s",
            "kraken-db=s",
@@ -29,6 +30,7 @@ GetOptions(\%opt,
            "gottcha2-e-invDB=s",
            "gottcha2-e-ptzDB=s",
            "gottcha2-e-ptgDB=s",
+           "pangia-db=s",
            'help|h|?'
           );
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
@@ -53,13 +55,26 @@ $opt{"gottcha2-e-invDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_
 $opt{"gottcha2-e-ptgDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna";
 $opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna";
 
+#PanGIA configs
+my $config_json = readListFromJson($opt{"configJson"});
+$opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$EDGE_HOME/database/PanGIA/NCBI_genomes_111216_p_GRCh38.fa";
+$opt{"pangia-bg"} = "$EDGE_HOME/database/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
+$opt{"pangia-ra"} = $config_json->{"edge-taxa-pangia-ra"} || "READ_COUNT";
+$opt{"pangia-ms"} = $config_json->{"edge-taxa-pangia-ms"} || "0" ;
+$opt{"pangia-mr"} = $config_json->{"edge-taxa-pangia-mr"} || "3" ;
+$opt{"pangia-mb"} = $config_json->{"edge-taxa-pangia-mb"} || "1" ;
+$opt{"pangia-ml"} = $config_json->{"edge-taxa-pangia-ml"} || "50";
+$opt{"pangia-rc"} = $config_json->{"edge-taxa-pangia-rc"} || "R_MAT";
+$opt{"pangia-opts"} = "";
+$opt{"pangia-opts"} = "-ps" if $config_json->{"edge-taxa-pangia-ps-sw"};
+
 my @tools = split /,/, $opt{'tools'};
 print STDERR &usage() if !-e $opt{'template'};
 print STDERR &usage() if scalar @tools < 1;
 
 # remove suffix if any to meet the tool db format
 foreach my $db ( keys %opt) { 
-	$opt{"$db"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$// if ($db =~ /bwa-db|gottcha.*DB/ );
+	$opt{"$db"} =~ s/\.?(amb|ann|bwt|fai|pac|sa|parsedGOTTCHA\.dmp)$// if ($db =~ /bwa-db|gottcha.*DB|pangia/ );
 	$opt{"$db"} =~ s/(\.rev)?.\d\.bt2$// if ($db =~ /metaphlan-db/);
 	(my $tmp_filenaem,$opt{"kraken-db"},my $tmp_suffix)=&fileparse($opt{"kraken-db"}) if ($db =~ /kraken-db/);
 	
@@ -75,6 +90,20 @@ my $template = HTML::Template->new(filename => $opt{'template'},  die_on_bad_par
 #my $template = HTML::Template->new(filename => $opt{'template'}, die_on_bad_params => 1 );
 $template->param( %opt );
 print $template->output();
+
+
+sub readListFromJson {
+    my $json = shift;
+    my $list = {};
+    if( -r $json ){
+         open JSON, $json;
+         flock(JSON, 1);
+         local $/ = undef;
+         $list = decode_json(<JSON>);
+         close JSON;
+    }
+    return $list;
+}
 
 sub usage {
 print <<USAGE;

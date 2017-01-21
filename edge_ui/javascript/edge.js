@@ -1292,6 +1292,11 @@ $( document ).ready(function()
 			var addRecParam = $.param({ 'type': "reconfig", "rec_projcode": focusProjInfo.PROJCODE, "rec_projname": projID })
 		}
 		
+		//PanGIA modification
+		if( $("#edge-pangia-sw") ){
+			addParam += "&edge-taxa-enabled-tools=pangia"
+		}
+		
 		$.ajax({
 			url: "./cgi-bin/edge_submit.cgi",
 			type: "POST",

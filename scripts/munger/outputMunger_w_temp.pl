@@ -606,7 +606,6 @@ sub pull_specialty_gene_profiling {
 			#my $vf_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $vf_reads_output`;
 			my $vf_read_hit_num=`awk 'BEGIN{count=0}\$2>0{count++}END{print count}'  $vf_reads_output`;
 			chomp $vf_read_hit_num;
-			$vf_read_hit_num=$vf_read_hit_num-1;
 			$vars->{SGRVFHIT} = ($vf_read_hit_num)? $vf_read_hit_num : 0;
 		}
 		if ( -e $vf_reads_output_sbhits) {
@@ -1158,10 +1157,9 @@ sub pull_taxa {
 			### tool result
 			next if $temp[2] ne "species";
 			my $tool;
-			$tool->{CPTOOL_CPABU_PMD} = 1 if $toolname =~ /gottcha-/;
-			$tool->{CPTOOL_GOTTCHA2_LINEAR_LEN} = 1 if $toolname =~ /gottcha2-/;
-			$tool->{CPTOOL_GOTTCHA2_LINEAR_DOC} = 1 if $toolname =~ /gottcha2-/;
-
+			$tool->{CPTOOL_CPABU_PMD} = 1 if $toolname =~ /gottcha-/i;
+			$tool->{CPTOOL_GOTTCHA2} = 1 if $toolname =~ /gottcha2-/i;
+			$tool->{CPTOOL_PANGIA} = 1 if $toolname =~ /pangia/i;
 			
 			my $count=0;
 			if (-e $abu_list){
@@ -1174,7 +1172,7 @@ sub pull_taxa {
 					if( $t[0] eq "species"){
 						$res_row->{CPABU_LVL} = $t[0];
 						$res_row->{CPABU_TAX} = ($t[1] =~ /unclassied|unassign/i or $t[1] eq "NA" )? $t[1]:
-									"<a href=\'http://www.ncbi.nlm.nih.gov/genome/?term=\"$t[1]\"\' target='_blank' >$t[1]</a>";
+									"<a href=\'http://www.ncbi.nlm.nih.gov/genome/?term=\"$t[1]\"\' target='_blank'>$t[1]</a>";
 						$res_row->{CPABU_DOWNLOAD_TAX} = $t[1];
 						$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[1];
 					
@@ -1189,6 +1187,15 @@ sub pull_taxa {
 							$res_row->{GOTTCHA2_LINEAR_LEN} = _reformat_val($t[8]);
 							$res_row->{GOTTCHA2_LINEAR_DOC} = sprintf "%.2f", $t[9];
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[10]*100);
+							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
+						}
+						elsif( $toolname =~ /pangia/ ){
+							$res_row->{CPABU_REA} = _reformat_val($t[2]);
+							$res_row->{PANGIA_LINEAR_COV}  = sprintf "%.2f", $t[16];
+							$res_row->{PANGIA_LINEAR_DOC}  = sprintf "%.2f", $t[11];
+							$res_row->{PANGIA_LINEAR_RSNB} = _reformat_val(sprintf "%.2f", $t[7]);
+							$res_row->{PANGIA_LINEAR_SCR}  = $t[13];
+							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[14]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 						}
 						elsif( $toolname =~ /metaphlan/ ){
@@ -1217,6 +1224,7 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
 			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken_mini/;
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
+			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;
 
 			$tool->{CPTOOL}       = $row->{CPTOOL};
 			$tool->{CPTOOL_TREE}  = "$vars->{CPDIR}/1_$reads_type/$row->{CPTOOL}/$reads_type-$row->{CPTOOL}.tree.svg";

@@ -14,6 +14,7 @@ require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
+$ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
 $ENV{HOME} ||= $RealBin;
 
@@ -963,6 +964,7 @@ sub Reads_taxonomyAssignment
     my $pairFile = shift;
     my $unpairFile = shift;
     my $outputDir = shift;
+    my $config_json = "$outputDir/../../config.json";
     my $input = ($outputDir =~ /Unmap/)?"$outputDir/UnmappedReads.fastq":"$outputDir/allReads.fastq";
     my $logFile = "$outputDir/error.log";
     my $log = "$outputDir/taxonomyProfiling.log";
@@ -998,10 +1000,11 @@ sub Reads_taxonomyAssignment
 		$bwaScoreCut = int($bases/$reads*0.8);
 		close ($qcfh);
 	}
-    my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut ";
+    my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut -configJson $config_json"; 
     $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if ($configuration->{'custom-bwa-db'});
     $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if ($configuration->{'custom-metaphlan-db'});
     $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if ($configuration->{'custom-kraken-db'});
+    $cmd0 .= " -pangia-db ". $configuration->{'custom-pangia-db'} if ($configuration->{'custom-pangia-db'});
     $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if ($configuration->{'custom-gottcha-speDB-v'});
     $cmd0 .= " -gottcha-b-speDB ". $configuration->{'custom-gottcha-speDB-b'} if ($configuration->{'custom-gottcha-speDB-b'});
     $cmd0 .= " -gottcha-v-strDB ". $configuration->{'custom-gottcha-strDB-v'} if ($configuration->{'custom-gottcha-strDB-v'});

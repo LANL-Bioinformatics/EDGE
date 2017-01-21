@@ -860,11 +860,15 @@
 							<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 						  	<th data-priority='3'>% Plasmid</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_LEN">
-							<th data-priority='3'>Linear LEN</th>
-							</TMPL_IF>
-							<TMPL_IF NAME="CPTOOL_GOTTCHA2_LINEAR_DOC">
+							<TMPL_IF NAME="CPTOOL_GOTTCHA2">
+							  <th data-priority='3'>Linear LEN</th>
 						  	<th data-priority='3'>Linear DOC</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="CPTOOL_PANGIA">
+						  	<th data-priority='3'>Linear COV</th>
+						  	<th data-priority='3'>Linear DOC</th>
+						  	<th data-priority='3'>RS Norm Reads</th>
+						  	<th data-priority='3'>Score</th>
 							</TMPL_IF>
 						  	<th data-priority='1'>Abundance</th>
 							</tr>
@@ -876,13 +880,17 @@
 								<td><TMPL_VAR NAME=CPABU_TAX DEFAULT=-></td>
 								<td><TMPL_VAR NAME=CPABU_REA DEFAULT=-></td>
 								<TMPL_IF NAME="CPTOOL_CPABU_PMD">
-								<td><TMPL_VAR NAME=CPABU_PMD DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=CPABU_PMD DEFAULT=-></td>
 								</TMPL_IF>
 								<TMPL_IF NAME="GOTTCHA2_LINEAR_LEN">
-								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="GOTTCHA2_LINEAR_DOC">
-								<td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
+								<TMPL_IF NAME="PANGIA_LINEAR_RSNB">
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_COV  DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_DOC  DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_RSNB DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_SCR  DEFAULT=-></td>
 								</TMPL_IF>
 								<td><TMPL_VAR NAME=CPABU_ABU DEFAULT=-></td>
 							</tr>
