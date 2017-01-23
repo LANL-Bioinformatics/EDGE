@@ -808,22 +808,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div id="edge-spades-parameters">
 				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
 				<div class="ui-field-contain">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Metagenome Data<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="metaSPAdes supports only a single paired-end library."></a></legend>
-					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw1" value="1">
-					<label for="edge-spades-mtg-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-spades-mtg-sw" id="edge-spades-mtg-sw2" value="0" checked>
-					<label for="edge-spades-mtg-sw2">No</label>
-				</fieldset>
-				</div>
-				<div class="ui-field-contain">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Single Cell Data</legend>
-					<input type="radio" data-mini="true" name="edge-spades-sc-sw" id="edge-spades-sc-sw1" value="1">
-					<label for="edge-spades-sc-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-spades-sc-sw" id="edge-spades-sc-sw2" value="0" checked>
-					<label for="edge-spades-sc-sw2">No</label>
-				</fieldset>
+					<label for="edge-spades-algorithm">Algorithm</label>
+					<select id="edge-spades-algorithm" data-mini="true" name="edge-spades-algorithm" data-native-menu="false">
+						<option value="default">Default</option>
+						<option value="singlecell">Single-cell (MDA)</option>
+						<option value="metagenome">Metagenome (metaSPAdes)</option>
+						<option value="plasmid">Plasmids (plasmidSPAdes)</option>
+						<option value="rna">RNA (rnaSPAdes)</option>
+					</select>
 				</div>
 				<div class="ui-field-contain input-type-file">
 					<label for="edge-spades-pacbio-file">Pacbio Subreads Fasta/q</label>

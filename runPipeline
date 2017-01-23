@@ -2529,6 +2529,7 @@ sub runAssembly
     if ($assembler =~ /spades/){
         $AssemblerOutDir = "$outputDir/spades";
         $AssemblerContigs = "$AssemblerOutDir/contigs.fasta";
+        $AssemblerContigs = "$AssemblerOutDir/transcripts.fasta" if ($configuration->{SpadesAlgorithm} =~ /rna/);
         $AssemblerLog = "$AssemblerOutDir/spades.log";
         my $pacbio_file = $configuration->{SpadesPacbioFile};
         my $nanopore_file = $configuration->{SpadesNanoporeFile};
@@ -2537,14 +2538,16 @@ sub runAssembly
             my ($p1,$p2) = split /\s+/,$pairFile;
             $cmd .= "--pe1-1 $p1 --pe1-2 $p2 ";
         }     
-        if ($pairFile && $configuration->{SpadesMetagenomeMode}){
-		    # Version 3.7.1 metaSPAdes only support one paired end library.
+        if ($pairFile && $configuration->{SpadesAlgorithm} =~ /metagenome/){
+		    # Version 3.9.1 metaSPAdes only support one paired end library.
             $cmd .= "--meta " ;
         }else{
+            $cmd .= "--sc " if ($configuration->{SpadesAlgorithm} =~/singlecell/);
+            $cmd .= "--rna" if ($configuration->{SpadesAlgorithm} =~ /rna/);
+            $cmd .= "--plasmid " if ($configuration->{SpadesAlgorithm} =~ /plasmid/);
             $cmd .= "--s1 $unpairFile " if (-s $unpairFile);
             $cmd .= "--pacbio $pacbio_file " if ( -s $pacbio_file && (is_fasta($pacbio_file) || is_fastq($pacbio_file)));
             $cmd .= "--nanopore $nanopore_file " if ( -s $nanopore_file && is_fasta($nanopore_file));
-            $cmd .= "--sc " if ($configuration->{SpadesSingleCellMode});
         }
         $cmd .= "-m ". int($mem_limit/(1024*1024));
         

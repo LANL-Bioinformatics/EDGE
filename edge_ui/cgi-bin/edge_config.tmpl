@@ -63,8 +63,8 @@ minContigSize=<TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>
 assembler=<TMPL_VAR NAME=edge-assembler DEFAULT="idba_ud">
 idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=121> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
 ## for spades
-SpadesSingleCellMode=<TMPL_VAR NAME=edge-spades-sc-sw DEFAULT=0>
-SpadesMetagenomeMode=<TMPL_VAR NAME=edge-spades-mtg-sw DEFAULT=0>
+## support algorithm: default, singlecell,metagenome,plasmid,rna
+SpadesAlgorithm=<TMPL_VAR NAME=edge-spades-algorithm DEFAULT=default>
 SpadesPacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
 SpadesNanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
 ## for megahit
