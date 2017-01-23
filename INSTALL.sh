@@ -15,7 +15,7 @@ assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils Rpackages)
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
-taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 )
+taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
 python_packages=( Anaconda2 Anaconda3 )
@@ -54,7 +54,7 @@ echo "
 
 
 install_spades(){
-local VER=3.7.1
+local VER=3.9.1
 echo "------------------------------------------------------------------------------
                            Installing SPAdes $VER
 ------------------------------------------------------------------------------
@@ -499,6 +499,25 @@ echo "
 ------------------------------------------------------------------------------
 "
 }
+
+install_pangia()
+{
+local VER=2.2.0
+echo "------------------------------------------------------------------------------
+                           Installing PANGIA $VER BETA
+------------------------------------------------------------------------------
+"
+tar xvzf pangia-$VER.tar.gz
+cd pangia
+$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           gottcha-2.1 BETA
+------------------------------------------------------------------------------
+"
+}
+
 
 install_metaphlan()
 {
@@ -1607,7 +1626,7 @@ fi
 if ( checkSystemInstallation spades.py )
 then
   spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if ( echo $spades_VER | awk '{if($1>="3.7.1") exit 0; else exit 1}' )
+  if ( echo $spades_VER | awk '{if($1>="3.9.0") exit 0; else exit 1}' )
   then
     echo "SPAdes $spades_VER found"
   else
@@ -1647,6 +1666,34 @@ then
 else
   echo "gottcha.pl  is not found"
   install_gottcha
+fi
+
+if [ -x $rootdir/thirParty/gottcha2/gottcha.py ]
+then
+  gottcha2_VER=`$rootdir/thirParty/gottcha2/gottcha.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
+  if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
+  then
+    echo "GOTTCHA2 $gottcha2_VER is found"
+  else
+    install_gottcha2
+  fi
+else
+  echo "GOTTCHA2 is not found"
+  install_gottcha2
+fi
+
+if [ -x $rootdir/thirParty/pangia/pangia.py ]
+then
+  pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if ( echo $pangia_VER | awk '{if($1>="2.2.0") exit 0; else exit 1}' )
+  then
+    echo "PANGIA $pangia_VER is found"
+  else
+    install_pangia
+  fi
+else
+  echo "PANGIA is not found"
+  install_pangia
 fi
 
 if ( checkLocalInstallation metaphlan.py  )
