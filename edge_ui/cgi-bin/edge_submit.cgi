@@ -11,6 +11,7 @@ use Cwd 'abs_path';
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use JSON;
+use LWP::Simple;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use CGI::Session ( '-ip_match' );
@@ -842,6 +843,8 @@ sub checkParams {
 		}
 		if ( $opt{'edge-sra-sw'}){
 			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'});
+			my $return=&getSRAmetaData($opt{'edge-sra-acc'});
+			&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $opt{'edge-sra-acc'}") if ($return);
 		}else{
 			if (!@edge_input_pe1 && !@edge_input_pe2 && !@edge_input_se){
 				&addMessage("PARAMS","edge-input-pe1-1","Input error.");
@@ -1303,6 +1306,137 @@ sub createSampleMetadataFile {
 			close OUT;
 		}
 	}
+}
+
+sub getSRAmetaData{
+	my $accession=shift;
+	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy};
+	$proxy = "--proxy \'$proxy\' " if ($proxy);
+	my $url="https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$accession&result=read_run&display=report&fields=run_accession,sample_accession,study_accession,study_title,experiment_title,scientific_name,instrument_model,instrument_platform,library_layout,base_count&limit=1000";
+	my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
+	my $web_result = `$cmd`;
+	my @lines = split '\n', $web_result;
+	return 1 if ($#lines == 0);
+        #print STDERR "$#lines run(s) found from EBI-ENA.\n";
+        foreach my $line (@lines){
+		next if $line =~ /^study_accession/;
+                chomp;
+		my @f = split '\t', $line;
+		
+                my $run_acc  = $f[0]; #run_accession
+		my $sample_acc = $f[1]; #sample_accession
+		my $study_acc = $f[2]; #study_accession
+		my $study_title = $f[3]; #study_title
+                my $exp_title  = $f[4]; #experiment_accession
+		my $instrument = $f[6]; #instrument_model
+                my $platform = $f[7]; #instrument_platform
+                my $library  = $f[8]; #library_layout
+		$opt{'metadata-study-id'} = $study_acc;
+		$opt{'metadata-study-title'} = $study_title;
+ 		$opt{'metadata-exp-title'} = $exp_title;
+		$opt{'metadata-sequencer'} = $instrument;
+
+		my $url2 = "http://www.ebi.ac.uk/ena/data/warehouse/search?query=accession=$sample_acc&result=sample&fields=accession,collection_date,country,description,first_public,isolation_source,location,scientific_name,sample_alias,center_name,environment_material,host,host_status,host_sex&display=report";
+		my $cmd2 =  ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url2\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url2\" 2>/dev/null";
+		my $web_result2 = `$cmd2`;
+		my @lines2 = split '\n', $web_result2;
+		my ($sampleType, $host, $collectionDate, $city, $state, $country, $lat, $lng,$seqPlatform, $gender, $hostCondition, $source, $sampleName, $center, $seqDate, $location);
+		foreach my $line2 (@lines2){
+			chomp;
+			next if($line2 =~ /^accession/);
+			next if ($line2 =~ /^\s*$/);
+			my @parts = split /\t/, $line2;
+			$collectionDate = $parts[1];
+			if($collectionDate =~ /\//) {
+				my @its = split /\//, $collectionDate;
+				$collectionDate = $its[1]; 
+			}
+			print STDERR $collectionDate,"\n";;
+			$location = $parts[2];
+			$country = $location;
+			print STDERR $country,"\n";;
+			if($country =~ /(.*):\s*(.*?),\s*(.*)\s*/) {
+ 				$country = $1;
+				$city = $2;
+				$state = $3;
+ 			}       
+			if($country =~ /(.*):\s*(.*)\s*:\s*(.*)\s*/) {
+				$country = $1;
+  				$city = $2;
+   			}       
+			elsif($country =~ /(.*):\s*(.*)\s*/) {
+  				$country = $1;
+   				$state= $2;
+			}
+  			$sampleName = $parts[3];
+ 			$sampleName = $parts[8] unless $sampleName;
+ 			$seqDate = $parts[4];
+   			if($seqDate =~ /\//) {
+   				my @its = split /\//, $seqDate;
+  				$seqDate = $its[1];     
+			}       
+			$source = $parts[5];
+			$source = $parts[10] unless $source;
+			my $latlng = $parts[6];
+			$latlng =~ s/^\s+//;
+			my @its = split /\s+/, $latlng;
+			$lat = $its[0];
+			$lng = $its[2];
+			if($its[1] eq "S") {
+				$lat = -$lat;
+			}
+			if($its[3] eq "W") {
+				$lng = -$lng;
+			}
+			$host = $parts[11];
+			$sampleType = "environmental";
+			my $stype = lc $parts[7];
+			if($stype =~ /human/ || lc($host) =~ /human/ || lc($host) =~ /homo/) {
+				$sampleType = "human";
+			} 
+			elsif($stype =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/ || lc($host) =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/) {
+				$sampleType = "animal";
+			} 
+			$center = $parts[9];
+			$hostCondition = $parts[12];
+			$gender = $parts[13];   
+			#get lat,lng from location
+			if(!$lat && !$lng && $location) {
+				($lat,$lng) = getLatLong($location);
+			}
+			$opt{'metadata-sample-name'} = $sampleName;
+			$opt{'metadata-sample-type'} = $sampleType;
+			$opt{'metadata-host-gender'} = $gender;
+			$opt{'metadata-host'} = $host;
+			$opt{'metadata-host-condition'} = $hostCondition;
+			$opt{'metadata-isolation-source'} = $source;
+			$opt{'metadata-sample-collection-date'} = $collectionDate;
+			$opt{'metadata-sample-location'} = $location;
+			$opt{'locality'} = $city if $city ne "NA";
+ 			$opt{'administrative_area_level_1'} = $state if $state ne "NA";
+ 			$opt{'country'} = $country;
+ 			$opt{'lat'} = $lat;
+			$opt{'lng'} = $lng;
+			$opt{'metadata-seq-date'} = $seqDate;
+ 			$opt{'metadata-seq-center'} = $center;
+			#$opt{"metadata-other"} = "lanl_only=true";
+		}
+	}
+	return 0;
+}
+
+sub getLatLong($){
+	my ($address) = @_;
+	my $format = "json"; #can also to 'xml'
+	my $geocodeapi = "https://maps.googleapis.com/maps/api/geocode/";
+	my $url = $geocodeapi . $format . "?address=" . $address;
+	my $json = get($url);
+	my $d_json = decode_json( $json );
+
+	my $lat = $d_json->{results}->[0]->{geometry}->{location}->{lat};
+	my $lng = $d_json->{results}->[0]->{geometry}->{location}->{lng};
+
+	return ($lat, $lng);
 }
 
 sub saveListToJason {

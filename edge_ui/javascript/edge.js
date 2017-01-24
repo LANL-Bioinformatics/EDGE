@@ -642,12 +642,14 @@ $( document ).ready(function()
 			$( "#edge-sra-input-block" ).fadeIn('fast');
 			$( "#edge-file-input-block" ).hide();
 			$( ".btnAdd-edge-input" ).hide();
+			$( "#edge-sample-metadata" ).hide();
 		}
 		else{
 			$( "#edge-sra-input-block" ).fadeOut('fast');
 			$( "#edge-file-input-block" ).fadeIn('fast');
 			$( ".btnAdd-edge-input" ).fadeIn('fast');
 			$( "#edge-sra-acc" ).val('');
+			$( "#edge-sample-metadata" ).show();
 		}
 	});
 	//
