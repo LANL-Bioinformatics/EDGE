@@ -1854,6 +1854,26 @@ mkdir -p $rootdir/edge_ui/data
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > $rootdir/edge_ui/data/host_list.json
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
 
+echo "Setting up EDGE_input"
+if [ -d $rootdir/edge_ui/EDGE_input/ ]
+then
+    rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
+    ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
+else
+	mkdir -p $HOME/EDGE_input
+	rm -rf $rootdir/edge_ui/EDGE_input
+	ln -sf $HOME/EDGE_input $rootdir/edge_ui/EDGE_input
+	rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
+   	ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
+fi
+if [ ! -d $rootdir/edge_ui/EDGE_output/ ]
+then
+   	echo "Setting up EDGE_output/"
+   	mkdir -p $HOME/EDGE_output
+	rm -rf $rootdir/edge_ui/EDGE_output
+	ln -sf $HOME/EDGE_output $rootdir/edge_ui/EDGE_output
+fi
+
 if [ -f $HOME/.bashrc ]
 then
 {
