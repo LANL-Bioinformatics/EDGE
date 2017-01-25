@@ -31,6 +31,23 @@ $( document ).ready(function()
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
 	
+	if (navigator.onLine){
+		// This key is for LANL only. You need to edit the key=
+		var googleMapApiURL = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places";
+		$.getScript(googleMapApiURL)
+		.done(function( script, textStatus ) {
+			$.getScript("javascript/jquery.geocomplete.js")
+				.done(function( script, textStatus ) {
+					loadGeoCompleteAction();
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( jqxhr, settings, exception );
+			});
+		})
+		.fail(function( jqxhr, settings, exception ) {
+			console.log( jqxhr, settings, exception );
+		});
+ 	}
 	//init page
 	//$("#edge-content-upload-li").hide();
 	$("#edge-phylo-ref-select-ref-div").hide();
@@ -2490,7 +2507,7 @@ $( document ).ready(function()
         		// script call was successful 
         		// data contains the JSON values returned by the cgi script 
         		success: function(data){
-				console.log("sample metadata is " + data.metadata);
+				//console.log("sample metadata is " + data.metadata);
 				if (data.metadata == "on") { // sample_metadata_bsve is on
 					//console.log("is on");
 					$( "#edge-sample-metadata" ).fadeIn('fast');
@@ -2572,11 +2589,13 @@ $( document ).ready(function()
         });
 
 	//geo location
-        $("#geocomplete").geocomplete({
-          map: ".map_canvas",
-          details: "form",
-          types: ["geocode", "establishment"],
-        });
+	function loadGeoCompleteAction(){
+		$("#geocomplete").geocomplete({
+			map: ".map_canvas",
+			details: "form",
+			types: ["geocode", "establishment"],
+		});
+	}
 
 //END sample metatdata	
 });
