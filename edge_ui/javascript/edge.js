@@ -30,6 +30,23 @@ $( document ).ready(function()
 
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
+	if (navigator.onLine){
+		// This key is for LANL only. You need to edit the key=
+		var googleMapApiURL = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places";
+		$.getScript(googleMapApiURL)
+		.done(function( script, textStatus ) {
+			$.getScript("javascript/jquery.geocomplete.js")
+ 				.done(function( script, textStatus ) {
+ 					loadGeoCompleteAction();
+ 				})
+ 				.fail(function( jqxhr, settings, exception ) {
+ 					console.log( jqxhr, settings, exception );
+ 			});
+ 		})
+ 		.fail(function( jqxhr, settings, exception ) {
+ 			console.log( jqxhr, settings, exception );
+ 		});
+  	}
 	
 	//init page
 	//$("#edge-content-upload-li").hide();
@@ -2493,57 +2510,34 @@ $( document ).ready(function()
 	$( '#metadata-travels' ).on("click","#remove-travel",function(){
 		$(this).parent('div').parent('div').remove();
 	});
-	//travel geo location, limit to 10
-	$('#metadata-travels').on('click','#geocomplete-travel-1',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-1"
+
+	function loadGeoCompleteAction(){
+		//travel geo location, limit to 10
+		var geoLimit=10;
+		var travelID;
+		for (var i=1;i<=geoLimit;i++) {
+			var travelID = '#geocomplete-travel-' + i;
+			$('#metadata-travels').on('click',travelID ,function() {
+				var metaTravelID= "#metadata-travel-geo-" + this.id.slice(-1);
+				$(this).geocomplete({
+		  			details: "#metadata-travels " + metaTravelID
+				});
+			});
+		}
+		//geo location
+		$('#metadata-sample-geo').on('click','#metadata-sample-geocomplete',function() {
+			$(this).geocomplete({
+		  		details: "#metadata-sample-geo"
+			});
 		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-2',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-2"
+		//geo location
+		$('#edgesite-geo').on('click','#edgesite-geocomplete',function() {
+			$(this).geocomplete({
+		  		details: "#edgesite-geo"
+			});
 		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-3',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-3"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-4',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-4"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-5',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-5"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-6',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-6"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-7',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-7"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-8',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-8"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-9',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-9"
-		});
-	});
-	$('#metadata-travels').on('click','#geocomplete-travel-10',function() {
-		$(this).geocomplete({
-		  details: "#metadata-travels #metadata-travel-geo-10"
-		});
-	});
+	}
+
 	$('#metadata-travels').on('focus','.metadata-travel-date',function() {
 		$(this).datepicker({
 		      changeMonth: true,
@@ -2582,12 +2576,6 @@ $( document ).ready(function()
 		editSampleMetadata();
 	});
 
-	//geo location
-	$('#metadata-sample-geo').on('click','#metadata-sample-geocomplete',function() {
-		$(this).geocomplete({
-		  details: "#metadata-sample-geo"
-		});
-	});
 
 	//study-title auto complete
 	$(".dblist-study ul").on('click', 'li', function() {
@@ -2777,12 +2765,6 @@ $( document ).ready(function()
 		});
 	});
 
-	//geo location
-	$('#edgesite-geo').on('click','#edgesite-geocomplete',function() {
-		$(this).geocomplete({
-		  details: "#edgesite-geo"
-		});
-	});
 
 	//datepicker
 	$('.metadata-input-date').datepicker({
