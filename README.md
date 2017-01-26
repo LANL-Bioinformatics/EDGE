@@ -1,24 +1,19 @@
 # EDGE Bioinformatics
 
-This is development version of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
+This is version 2.0.0-dev of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-To run EDGE v1.1, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
+To demo EDGE, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
 
-For basic information about EDGE, visit the <a href="href="https://edge.readthedocs.io/en/latest/EDGE_ABCs.html" >EDGE ABC's</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
-
-## Documentation for 
+## Documentation
 
 [ReadTheDocs](http://edge.readthedocs.org)
 
-[PDF](https://readthedocs.org/projects/edge/downloads/pdf/latest/)
+[PDF](https://readthedocs.org/projects/edge/downloads/pdf/develop/)
 
 ## Contact Info
-Chien-Chi Lo: <chienchi@lanl.gov>  
-Paul Li: <po-e@lanl.gov>  
-Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil>  
-Logan Voegtly (HJF/NMRC): <logan.j.voegtly.ctr@mail.mil>  
+Support: The EDGE user's group is a Google group for users and developers: [edge-users@googlegroups.com](mailto:edge-users@googlegroups.com)
 
 ## Citation
 
@@ -28,7 +23,7 @@ Po-E Li; Chien-Chi Lo; Joseph J. Anderson; Karen W. Davenport; Kimberly A. Bisho
 
 Nucleic Acids Research 2016;
 
-[doi: 10.1093/nar/gkw1027] (http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract?keytype=ref&ijkey=KzcEnQzdYkdjPCU)
+[doi: 10.1093/nar/gkw1027](http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract?keytype=ref&ijkey=KzcEnQzdYkdjPCU)
 
 ## Copyright
 

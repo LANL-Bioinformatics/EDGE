@@ -239,11 +239,17 @@ echo "--------------------------------------------------------------------------
                            installing R packages
 ------------------------------------------------------------------------------
 "
-echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript -  
+# echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript -
+tar xzf R_3.3.2_Packages.tgz  
+echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript - 
+echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript - 
+echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript - 
+echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript - 
+rm -r R_3.3.2_Packages/
 # need internet for following R packages.
-echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
-echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R'); biocLite('phyloseq')} " | $rootdir/bin/Rscript -
-echo "library(devtools); options(unzip='internal'); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.3');" | $rootdir/bin/Rscript -
+# echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
+#echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R'); biocLite('phyloseq')} " | $rootdir/bin/Rscript -
+#echo "library(devtools); options(unzip='internal'); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.3');" | $rootdir/bin/Rscript -
 echo "
 ------------------------------------------------------------------------------
                            R packages installed
@@ -509,7 +515,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf pangia-$VER.tar.gz
 cd pangia
-$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
+#$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1043,20 +1049,19 @@ anacondabin=$rootdir/thirdParty/Anaconda2/bin/
 ln -fs $anacondabin/python $rootdir/bin
 ln -fs $anacondabin/pip $rootdir/bin
 ln -fs $anacondabin/conda $rootdir/bin
-wget -q --spider https://pypi.python.org/
-online=$?
-if [[ $online -eq 0 ]]; then
-	$anacondabin/conda install -y biopython
-	$anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3 
-	$anacondabin/pip install matplotlib==1.4.3
-	$anacondabin/pip install qiime xlsx2csv openpyxl
-	$anacondabin/conda install -y --channel https://conda.anaconda.org/bioconda rgi
+	tar -xvzf Anaconda2Packages.tgz
+    $anacondabin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2 
+	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages qiime
+	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
 	matplotlibrc=`$anacondabin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
 	perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-else
-    $anacondabin/conda install biopython-1.67-np110py27_0.tar.bz2
-    echo "Unable to connect to the internet, not able to install qiime or xlsx2csv"
-fi
+	rm -r Anaconda2Packages/
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda2 4.1.1 Installed
@@ -1074,10 +1079,13 @@ if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
     bash Anaconda3-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
 fi
 anacondabin=$rootdir/thirdParty/Anaconda3/bin/
-$anacondabin/pip install CairoSVG2.0.0-rc6.tar.gz
 ln -fs $anacondabin/python3 $rootdir/bin
-ln -fs $anacondabin/cairosvg $rootdir/bin
 
+tar -xvzf Anaconda3Packages.tgz
+$anacondabin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
+$anacondabin/pip install --no-index --find-links=./Anaconda3Packages pymc3
+ln -fs $anacondabin/cairosvg $rootdir/bin
+rm -r Anaconda3Packages/
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda3 4.1.1 Installed
