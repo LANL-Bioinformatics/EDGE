@@ -1000,8 +1000,10 @@ sub pull_blast {
 
 sub pull_sra_download {
 	my $err;
-	$err = `grep -i Failed $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
-	$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
+	if (! -e "$out_dir/SRA_Download/DownloadSRA.finished"){
+		$err = `grep -i Failed $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
+		$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
+	}
 	if ($err){
 		$err =~ s/(http\S+)/<a href=\"$1\"  target=\"_blank\">$1<\/a>/;
 		$vars->{SRADERR} = $err;
@@ -1144,7 +1146,7 @@ sub pull_taxa {
 					$cur_level ||= $temp[0];
 					last if $cur_level ne $temp[0];
 					my $mapped_reads = $toolname =~ /gottcha-/i ? $temp[8] : $temp[2];
-					$creads += $mapped_reads;
+					$creads += $mapped_reads if ($mapped_reads =~ /\d/);
 					$creads = "N/A" if $toolname =~ /metaphlan/i;
 				}
 				close LIST;
@@ -1235,7 +1237,7 @@ sub pull_taxa {
 
 			$tool->{CPTOOL_TREE}  = "" unless -e $tool->{CPTOOL_TREE};
 			$tool->{CPTOOL_KRONA} = "" unless -e $tool->{CPTOOL_KRONA};
-			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa/);
+			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia/);
 
 			push @{$vars->{LOOP_CPTOOL}}, $tool;
 		}
