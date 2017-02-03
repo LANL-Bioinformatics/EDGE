@@ -89,7 +89,6 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
 unlink "$abs_outDir/HTML_Report/writeHTMLReport.finished";
-unlink "$abs_outDir/.AllDone";
 
 # Capture error log
 my $start_time_string=&getTmpNameByTime;
@@ -327,7 +326,7 @@ my $total_run_time=&printRunTime($^T);
 &lprint ("All Done. \n\n");
 
 close $log_fh;
-`echo "$start_time_string\t$total_run_time" > $abs_outDir/.AllDone`;
+`echo "$start_time_string\t$total_run_time" >> $abs_outDir/.AllDone`;
 
 my $mail_subject= "EDGE project $project_name complete";
 my $recipient = $configuration->{projowner};

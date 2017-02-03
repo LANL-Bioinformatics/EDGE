@@ -424,7 +424,6 @@ sub pull_summary {
 	if ($list->{$cnt}->{PROJSTATUS} eq "Complete" && ! -e "$proj_dir/.AllDone"){
 		`echo "$list->{$cnt}->{PROJSUBTIME}\t$run_time" >> $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
 	}
-	unlink "$proj_dir/.AllDone" unless ($list->{$cnt}->{PROJSTATUS} eq "Complete");
 	return $list;
 }
 
