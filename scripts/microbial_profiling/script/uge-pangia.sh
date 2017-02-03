@@ -104,7 +104,7 @@ awk -F\\t '{if(NR>1&&$16==""){out=$1"\t"$2"\t"$14"\t"; { for(i=3;i<=NF;i++){out=
 
 awk -F\\t '{if($1=="species"){print $2"\t"$12}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.tab_tree.score
 
-pangia.py -r $FIELD -s $OUTPATH/$PREFIX.pangia.sam -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
+pangia.py -r $FIELD -s $OUTPATH/$PREFIX.pangia.sam -t $THREADS -d $DB -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

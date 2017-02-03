@@ -281,32 +281,39 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 		print $post_fh "
           mkdir -p $tool_rep_dir
           echo \"====> Copying result list to report directory...\";
-          [[ -e $outdir/$prefix.out.list ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
-          [[ -e $outdir/$prefix.krona.html ]] && cp  $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
-          [[ -e $outdir/.finished ]] && cp  $outdir/.finished $tool_rep_dir/.finished;
-          if [ -e $outdir/$prefix.sam ]
+          [[ -e \"$outdir/$prefix.out.list\" ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
+          [[ -e \"$outdir/$prefix.krona.html\" ]] && cp  $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
+          [[ -e \"$outdir/.finished\" ]] && cp  $outdir/.finished $tool_rep_dir/.finished;
+          if [ -e \"$outdir/$prefix.sam\" ]
           then
             samtools view -b -@ $threads -S $outdir/$prefix.sam -o $tool_rep_dir/$fnb-$tool.bam 2>/dev/null;
           fi 
-          if [ -e $outdir/$prefix.gottcha.sam ]
+          if [ -e \"$outdir/$prefix.gottcha.sam\" ]
           then
             samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam 2/dev/null;
-          fi 
-          if [ -e $outdir/$prefix.gottcha_*.sam ]
+          fi
+          if [ -e \"$outdir/$prefix.pangia.sam\" ] 
           then
-            cp $outdir/$prefix.gottcha_*.sam $tool_rep_dir/;
-          fi 
-          if [ -e $outdir/$prefix.out.read_classification ]
+            cp -f $outdir/$prefix.pangia.sam $tool_rep_dir/;
+	  fi
+          if ls $outdir/$prefix.gottcha_*.sam 1>/dev/null 2>&1
+          then 
+            cp -f $outdir/$prefix.gottcha_*.sam $tool_rep_dir/;
+          fi
+          if [ -e \"$outdir/$prefix.out.read_classification\" ]
           then
             cp $outdir/$prefix.out.read_classification $tool_rep_dir/$fnb-$tool.read_classification
           fi          
 
           echo \"====> Generating phylo_dot_plot for each tool...\";
-          phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree --score $outdir/$prefix.out.tab_tree.score -p $outdir/$prefix.tree -t $fnb-$tool
+          if [ -e \"$outdir/$prefix.out.tab_tree\" ]
+          then
+            phylo_dot_plot.pl -i $outdir/$prefix.out.tab_tree --score $outdir/$prefix.out.tab_tree.score -p $outdir/$prefix.tree -t $fnb-$tool
+          fi
 		";
 
         print $post_fh "
-		  if [ -e $outdir/$prefix.tree.svg ]
+		  if [ -e \"$outdir/$prefix.tree.svg\" ]
 		  then
               cp $outdir/$prefix.tree.svg $tool_rep_dir/$fnb-$tool.tree.svg
 		  fi
@@ -315,8 +322,10 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 		#need to be done once.
 		if( $idx == 1 ){
 			foreach my $rank (("genus","species","strain")){
-				print $post_fh "merge_list_specTaxa_by_tool.pl $p_outdir/*/$tool/*.list -p $fnb --top $heatmap_top -l $rank > $tmpdir/$tool.$rank.heatmap.matrix;\n";
-				print $post_fh "heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$tool.$rank.heatmap.matrix --out $p_repdir/heatmap_TOOL-$tool.$rank.pdf  2>/dev/null\n";
+				if ( ! -e "$p_repdir/heatmap_TOOL-$tool.$rank.pdf" ){
+					print $post_fh "merge_list_specTaxa_by_tool.pl $p_outdir/*/$tool/*.list -p $fnb --top $heatmap_top -l $rank > $tmpdir/$tool.$rank.heatmap.matrix;\n";
+					print $post_fh "heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$tool.$rank.heatmap.matrix --out $p_repdir/heatmap_TOOL-$tool.$rank.pdf  2>/dev/null\n";
+				}
 			}
 		}
 		
@@ -329,14 +338,14 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 
 	print $post_fh "
 echo \"==> Generating Radar Chart...\";
-convert_list2radarChart.pl --level genus   --outdir $p_repdir --outprefix radarchart_DATASET $p_outdir/$idx\_$fnb/*/*.out.list &
-convert_list2radarChart.pl --level species --outdir $p_repdir --outprefix radarchart_DATASET $p_outdir/$idx\_$fnb/*/*.out.list &
-convert_list2radarChart.pl --level strain  --outdir $p_repdir --outprefix radarchart_DATASET $p_outdir/$idx\_$fnb/*/*.out.list &
+convert_list2radarChart.pl --level genus   --outdir $p_repdir --outprefix radarchart_DATASET $fnb_rep_dir/*/*.list.txt &
+convert_list2radarChart.pl --level species --outdir $p_repdir --outprefix radarchart_DATASET $fnb_rep_dir/*/*.list.txt &
+convert_list2radarChart.pl --level strain  --outdir $p_repdir --outprefix radarchart_DATASET $fnb_rep_dir/*/*.list.txt &
 
 echo \"==> Generating matrix for heatmap by tools...\";
-merge_list_specTaxa_by_dataset.pl $p_outdir/$idx\_$fnb/*/*.out.list --top $heatmap_top -l genus   > $tmpdir/$fnb.genus.heatmap.matrix & 
-merge_list_specTaxa_by_dataset.pl $p_outdir/$idx\_$fnb/*/*.out.list --top $heatmap_top -l species > $tmpdir/$fnb.species.heatmap.matrix &
-merge_list_specTaxa_by_dataset.pl $p_outdir/$idx\_$fnb/*/*.out.list --top $heatmap_top -l strain  > $tmpdir/$fnb.strain.heatmap.matrix &
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l genus   > $tmpdir/$fnb.genus.heatmap.matrix & 
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l species > $tmpdir/$fnb.species.heatmap.matrix &
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l strain  > $tmpdir/$fnb.strain.heatmap.matrix &
 
 wait
 
