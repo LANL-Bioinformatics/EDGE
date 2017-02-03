@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use FindBin;
-use lib "$FindBin::Bin/../../../lib";
+use lib "$FindBin::Bin/../../lib";
 use Excel::Writer::XLSX;
 use Getopt::Long;
 use File::Basename;

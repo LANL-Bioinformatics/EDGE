@@ -541,7 +541,8 @@ elsif( $action eq 'getreadsbytaxa'){
 	}
 	# PanGIA Only
 	if( $cptool_for_reads_extract =~ /pangia/i ){
-		$cmd = "$EDGE_HOME/thirdParty/pangia/pangia.py -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+		my $pangia_db_path="$EDGE_HOME/database/PanGIA/";
+		$cmd = "$EDGE_HOME/thirdParty/pangia/pangia.py -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
 
 	$info->{STATUS} = "FAILURE";
