@@ -1313,7 +1313,7 @@ $( document ).ready(function()
 		
 		//PanGIA modification
 		if( $("#edge-pangia-sw") ){
-			addParam += "&edge-taxa-enabled-tools=pangia"
+			//addParam += "&edge-taxa-enabled-tools=pangia"
 		}
 		
 		$.ajax({
