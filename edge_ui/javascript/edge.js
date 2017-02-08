@@ -30,6 +30,17 @@ $( document ).ready(function()
 
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
+	if (typeof localStorage === 'object') {
+	try {
+		localStorage.setItem('localStorage', 1);
+		localStorage.removeItem('localStorage');
+	} catch (e) {
+		Storage.prototype._setItem = Storage.prototype.setItem;
+		Storage.prototype.setItem = function() {};
+		alert('EDGE cannot be loaded. Your web browser does not support storing settings locally. In Safari, the most common cause of this is using "Private Browsing Mode".');
+		document.write('<style type="text/undefined">');
+	}
+	}
 	if (navigator.onLine){
 		// This key is for LANL only. You need to edit the key=
 		var googleMapApiURL = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places";
@@ -58,6 +69,7 @@ $( document ).ready(function()
 		replaceUMurl();
 		$('#edge-project-page-li').text('Public Project List');
 		check_login();
+		updateProject();
 	}
 	
 	$('#edge-user-btn').on("click",function(){
@@ -67,7 +79,7 @@ $( document ).ready(function()
 	edge_ui_init();
 	sync_input(); //sync input with switch
 	integrityCheck();
-	updateProject(focusProjName);
+	//updateProject(focusProjName);
 	
 	allMainPage.hide();
 	$( "#edge-content-home" ).fadeIn();
@@ -197,6 +209,7 @@ $( document ).ready(function()
 							$("#action-share-btn").parent().hide();
 							$("#action-publish-btn").parent().hide();
 							uploadFiles(inputFileDir);
+							updateProject();
 						}
           			} // if
           			else { // user_management is live
