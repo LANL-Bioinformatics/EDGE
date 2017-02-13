@@ -3603,3 +3603,50 @@ sub detectPathogen
     	&lprint ("Pathogen detection finished.\n");
 }
 
+sub RunPiReT
+{
+    my $kingdom = $configuration->{piret_kingdom};
+    my $significant_pvalue = $configuration->{piret_p_value};
+    my $exp_file = $configuration->{piret_exp_design_file};
+    my $working_dir = $configuration->{piret_working_dir};
+    my $test_method = $configuration->{piret_method};
+    my $index_ref = $configuration->{piret_index};
+    my $outputDir = $workingDir;    
+    my $time=time();    
+    
+    if (!$exp_file) {
+    &lprint("ERROR: No mapping file");
+    exit;
+    }
+    
+    # base command for running the pipeline
+    my $cmd="perl $RealBin/thirdParty/PiReT/runPiReT.pl -exp $exp_file -d $working_dir -test_method $test_method -index_ref_bt2 $index_ref ";
+    $cmd  .= "-siginificant_pvalue $significant_pvalue" if ($significant_pvalue);
+    
+    print $cmd; 
+    if ($kingdom eq 'prokaryote')
+    {
+        my $prokaryote_fasta = $configuration->{piret_prokaryote_fasta};
+        my $prokaryote_gff = $configuration->{piret_prokaryote_gff};
+        $cmd .= "-gene_coverage_fasta $prokaryote_fasta -prokaryote_fasta -gff_prokaryote $prokaryote_gff";
+    }
+    elsif ($kingdom eq 'eukarya')
+    {
+        my $eukarya_fasta = $configuration->{piret_eukarya_fasta};
+        my $eukarya_gff = $configuration->{piret_eukarya_gff};
+        $cmd .= "-eukarya_fasta $eukarya_fasta -gff_eukarya $eukarya_gff";
+    }   
+    elsif ($kingdom eq 'both')
+    {
+        my $eukarya_fasta =  $configuration->{piret_eukarya_fasta};
+        my $eukarya_gff = $configuration->{piret_eukarya_gff};
+        my $prokaryote_fasta = $configuration->{piret_prokaryote_fasta};
+        my $prokaryote_gff = $configuration->{piret_prokaryote_gff};
+        $cmd .= "-eukarya_fasta $eukarya_fasta -gff_eukarya $eukarya_gff -gene_coverage_fasta $prokaryote_fasta -prokaryote_fasta $prokaryote_fasta -gff_prokaryote $prokaryote_gff";
+    }
+    &lprint ("  Running \n  $cmd \n");
+    &executeCommand($cmd);  
+    system("touch $outputDir/PiReT.finished");
+    &printRunTime($time);
+    return 0;
+    }
