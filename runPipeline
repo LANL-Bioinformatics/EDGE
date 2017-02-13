@@ -84,7 +84,7 @@ END
 my $configuration=&readConfig($configFile);
 my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 
-&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir});
+&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{piret_working_dir});
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
@@ -148,6 +148,12 @@ if ($configuration->{DoQC})
 {
     ($QCpairFile,$QCunpairFile)=&runQC(\@unpairedReadsFile, \@pairedReadsFile);
 }
+# step to run PiReT
+elsif ($configuration->{DoPiReTAnalysis})
+{
+    &RunPiReT();
+}
+
 else
 {
     ($QCpairFile,$QCunpairFile)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
