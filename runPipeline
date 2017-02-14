@@ -1940,7 +1940,7 @@ sub runQC
     elsif ( -s "$outputDir/QC.unpaired.trimmed.fastq"){
         return("", "$outputDir/QC.unpaired.trimmed.fastq");
     }else{
-        die "No reads remain after QC. Please see $log\n"; 
+        die "failed: No reads remain after QC. Please see $log\n"; 
     }
 }
 
@@ -2197,7 +2197,7 @@ Rscript
     close $Rfh;
     &executeCommand("R --vanilla --slave --silent < $Rscript 2>/dev/null");
     unlink "$Rscript";
-    die "No reads remain after Host Removal. \n" if ( ($total_reads - $total_host)==0);
+    die "failed: No reads remain after Host Removal. \n" if ( ($total_reads - $total_host)==0);
     return 0;
 }
 
