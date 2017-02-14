@@ -35,6 +35,8 @@ my $CLEAN;
 my $FLSZ_R;
 my $RUN_R;
 my $Download_tool='curl';
+my $user_proxy;
+my $no_proxy;
 my $http_proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy};
 my $ftp_proxy = $ENV{FTP_PROXY} || $ENV{ftp_proxy};
 $http_proxy = "--proxy \'$http_proxy\' " if ($http_proxy);
@@ -49,11 +51,18 @@ my $res=GetOptions(
     'filesize-restrict|fr=s' => \$FLSZ_R,
     'runs-restrict|r|rr=s'   => \$RUN_R,
     'download-interface=s'   => \$Download_tool,
+    'proxy'                  => \$user_proxy,
+    'no_proxy'               => \$no_proxy,
     'clean|n'                => \$CLEAN,
     'help|?'        => sub{usage()}
 ) || &usage();
 
 if ( !scalar @ARGV ) { &usage(); }
+
+$http_proxy ="" if $no_proxy;
+$ftp_proxy ="" if $no_proxy;
+$http_proxy = "--proxy \'$user_proxy\' " if ($user_proxy);
+$ftp_proxy = "--proxy \'$user_proxy\' " if ($user_proxy);
 
 my $curl = ($Download_tool =~ /wget/)?  "wget -v -U \"Mozilla/5.0\" ": "curl -A \"Mozilla/5.0\" -L";
 
@@ -99,7 +108,7 @@ foreach my $acc ( @ARGV ){
 		}
 
 		#download FASTQ
-		$dl_status = getSraFastqToolkits( $readInfo->{$acc}->{$run_acc}, $run_acc );
+		$dl_status = getSraFastqToolkits( $readInfo->{$acc}->{$run_acc}, $run_acc ); 
 		$dl_status = getDdbjFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
 		$dl_status = getSraFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
 		$dl_status = getEnaFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
@@ -180,7 +189,7 @@ sub getSraFastqToolkits {
 	my $platform = $info->{platform};
 	my $url      = $info->{url};
 	my $filename = $run_acc;
-						
+	next if (!$url);					
 	print STDERR "Downloading $url...\n";
 	my $cmd = ($Download_tool =~ /wget/)? "$curl -O $OUTDIR/sra2fastq_temp/$filename \"$url\"":
 					"$curl $http_proxy -o $OUTDIR/sra2fastq_temp/$filename \"$url\"";
@@ -289,7 +298,8 @@ sub getDdbjFastq {
 	}
 	print $total_size,"\n";
 
-	if( $total_size == 0 ){
+	if( $total_size < 50 ){
+		`rm $OUTDIR/sra2fastq_temp/${run_acc}*gz`;
 		print STDERR "failed to download FASTQ and convert FASTQ files from DDBJ.\n";
 		return "failed";
 	}
@@ -365,15 +375,19 @@ sub getReadInfo {
 		my $sub_acc  = $f[42]; #submission
 		my $exp_acc  = $f[10]; #experiment_accession
 		my $run_acc  = $f[0];  #run
+		my $size_MB  = $f[7];  
 		my $platform = $f[18]; #platform
 		my $library  = $f[15]; #LibraryLayout
 		my $url      = $f[9];  #download_path
 
+		print STDERR "Run $run_acc has size 0 MB\n" if (!$size_MB);
+	
 		$readInfo->{$acc}->{$run_acc}->{exp_acc}  = $exp_acc;
 		$readInfo->{$acc}->{$run_acc}->{sub_acc}  = $sub_acc;
 		$readInfo->{$acc}->{$run_acc}->{platform} = $platform;
 		$readInfo->{$acc}->{$run_acc}->{library}  = $library;
 		$readInfo->{$acc}->{$run_acc}->{url}      = $url;
+
 	}
 
 	

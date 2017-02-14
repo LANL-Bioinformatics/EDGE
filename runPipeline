@@ -99,7 +99,7 @@ open ( my $log_fh, ">>", $process_log_file) or die "Failed to write $process_log
 open(STDERR, '>&', STDOUT) or die "Can't redirect stderr: $!";
 open(STDERR, '>', $error_log_file) or die "Can't redirect stderr: $!";
 $SIG{__WARN__} = sub {print STDERR @_; &lprint  (@_)};
-$SIG{__DIE__} = sub {print STDERR @_; &lprint  (@_);exit 1};
+$SIG{__DIE__} = sub {print STDERR @_; &lprint  (@_);&send_error_notification();exit 1};
 # print whole running command and config file to process log
 &lprint("\nProject Start: $start_time_string\n");
 print $log_fh qx/ps -o args $$/;
@@ -128,6 +128,8 @@ if (length ($project_name) > 30 && $configuration->{DoAnnotation} && $configurat
 
 #&checkDependedPrograms;
 #&makeDirectory;
+my $download_sra_retry_limit=3;
+my $download_sra_retry=0;
 if ($configuration->{'DoSRADownload'})
 {
 	&Download_SRA();
@@ -709,12 +711,14 @@ sub Download_SRA
     $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
     eval {system($cmd) };
+    $download_sra_retry++;
     &printRunTime($time);
-    &read_SRAD_Download_dir($outputDir);
+    my $flag=&read_SRAD_Download_dir($outputDir);
 
-    
-    system("touch $outputDir/DownloadSRA.finished");
-    return 0;	
+    unless ($flag){
+        system("touch $outputDir/DownloadSRA.finished");
+        return 0;
+    }	
 }
 
 sub read_SRAD_Download_dir
@@ -726,21 +730,27 @@ sub read_SRAD_Download_dir
     if (`grep -i -a "ERROR" $dir/log.txt`){
         &lprint("SRA download failed.\n");
         exit(1);
-    }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile)
-    {
-        &lprint("No fastq file from the SRA download. try again\n");
-        &Download_SRA();
-        return;
-        #die "No input\n";
+    }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile){
+        if( $download_sra_retry <= $download_sra_retry_limit){
+            &lprint("No fastq file from the SRA download. try again\n");
+            &Download_SRA();
+            return 1;
+        }else{
+            die "SRA download failed.\n";
+        }
     }
     my %pair;
     if (scalar(@files)==1)
     {
+        my $rc=&check_sra_filesize("$dir/$files[0]");
+        return 1 if $rc;
         push @unpairedReadsFile, "$dir/$files[0]";
     }else
     {
         foreach (@files)
         {
+            my $rc=&check_sra_filesize("$dir/$_");
+            return 1 if $rc;
             if (/(\S+)_?.?[12]/)
             {
                 push @{$pair{$1}}, "$dir/$_";
@@ -757,6 +767,24 @@ sub read_SRAD_Download_dir
             push @unpairedReadsFile, @{$pair{$sample}};
         }
     }
+}
+
+sub check_sra_filesize
+{
+   my $file = shift;
+   my $size = -s $file;
+   my $minsize = 10000;
+   if($size < $minsize){
+        unlink $file;
+        if($download_sra_retry <= $download_sra_retry_limit) {
+                &lprint("SRA download failed. Or $file is not in fastq format. try again\n");
+                &Download_SRA();
+                return 1;
+        }else{
+                &lprint("SRA download failed. Or $file is not in fastq format.\n");
+                die "SRA download failed.\n";
+        }
+   }
 }
 
 sub check_reference_genome
@@ -1909,9 +1937,10 @@ sub runQC
     {
           return ("$outputDir/QC.1.trimmed.fastq $outputDir/QC.2.trimmed.fastq","$outputDir/QC.unpaired.trimmed.fastq");
     }
-    else
-    {
-          return("", "$outputDir/QC.unpaired.trimmed.fastq");
+    elsif ( -s "$outputDir/QC.unpaired.trimmed.fastq"){
+        return("", "$outputDir/QC.unpaired.trimmed.fastq");
+    }else{
+        die "No reads remain after QC. Please see $log\n"; 
     }
 }
 
@@ -2168,6 +2197,7 @@ Rscript
     close $Rfh;
     &executeCommand("R --vanilla --slave --silent < $Rscript 2>/dev/null");
     unlink "$Rscript";
+    die "No reads remain after Host Removal. \n" if ( ($total_reads - $total_host)==0);
     return 0;
 }
 
@@ -3463,6 +3493,17 @@ sub generateHTMLreport
     &printRunTime($time);
     system("touch $outputDir/writeHTMLReport.finished")
 
+}
+
+sub send_error_notification {
+  my $project_name = $configuration->{projname};;
+  my $mail_subject= "EDGE project $project_name failed";
+  my $recipient = $configuration->{projowner};
+  $recipient = "$recipient,$sys->{email_recipient}" if ($sys->{email_recipient});
+  my $projID= $configuration->{projcode} || $configuration->{projid};
+  my $mail_msg = "EDGE project $project_name (Description: $configuration->{projdesc}) on $configuration->{projrunhost} failed.\n\n";
+  $mail_msg .= `cat $error_log_file`;
+  &sendMail($sys->{cluster_job_notify},$recipient,$mail_subject,$mail_msg) if ($sys->{error_notification} && $recipient);
 }
 
 sub sendMail{
