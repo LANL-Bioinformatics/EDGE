@@ -207,10 +207,10 @@ sub scanProjToList {
 	my $list;
 	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
 	while( defined (my $file = readdir BIN) ) {
-		next if $file eq '.' or $file eq '..';
+		next if $file eq '.' or $file eq '..' or $file eq 'sample_metadata_export';
 		if ( -d "$out_dir/$file"  && -r "$out_dir/$file/config.txt") {
 			++$cnt;
-			if ( -e "$out_dir/$file/.AllDone"){
+			if ( -e "$out_dir/$file/.AllDone" && -e "$out_dir/$file/HTML_Report/writeHTMLReport.finished"){
 				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
 				$list->{$cnt}->{PROJSTATUS} = "Complete";
 			}else
@@ -339,7 +339,7 @@ sub pull_summary {
 	my ($step,$lastline);
 	my $tol_running_sec=0;
 	my $run_time;
-	open(my $sumfh, "<", "$log") or die $!;
+	open(my $sumfh, "<", "$log") or die "unable to open $log: $!";
 	while(<$sumfh>) {
 		chomp;
 
@@ -393,6 +393,7 @@ sub pull_summary {
 			$list->{$cnt}->{$step}->{GNLTIME} = $1;
         	        my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
                 	$tol_running_sec += $h*3600+$m*60+$s;
+			$list->{$cnt}->{PROJSTATUS} = "Unfinished";
 		}
 		elsif( / Running/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
@@ -422,7 +423,7 @@ sub pull_summary {
 	
 	close ($sumfh);
 	if ($list->{$cnt}->{PROJSTATUS} eq "Complete" && ! -e "$proj_dir/.AllDone"){
-		`echo "$list->{$cnt}->{PROJSUBTIME}\t$run_time" >> $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
+		`echo "$list->{$cnt}->{PROJSUBTIME}\t$run_time" > $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
 	}
 	return $list;
 }
