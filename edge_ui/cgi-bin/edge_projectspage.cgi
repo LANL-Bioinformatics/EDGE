@@ -208,7 +208,7 @@ sub scanProjToList {
 	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
 	while( defined (my $file = readdir BIN) ) {
 		next if $file eq '.' or $file eq '..';
-		if ( -d "$out_dir/$file") {
+		if ( -d "$out_dir/$file"  && -r "$out_dir/$file/config.txt") {
 			++$cnt;
 			if ( -e "$out_dir/$file/.AllDone"){
 				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
