@@ -44,9 +44,10 @@ use lib "$Bin/../lib";
 use Parallel::ForkManager;
 use String::Approx;
 
-my $version=1.33;
+my $version=1.35;
 my $debug=0;
 
+$ENV{PATH}="$Bin/../bin:$ENV{PATH}";
 sub Usage {
     my $msg=shift;
     my $short_usage = "perl $0 [options] [-u unpaired.fastq] -p reads1.fastq reads2.fastq -d out_directory";
@@ -71,8 +72,10 @@ print <<"END";
 
             -adapter      <bool> Filter reads with illumina adapter/primers (default: no)
                           -rate   <FLOAT> Mismatch ratio of adapters' length (default: 0.2, allow 20% mismatches)
+                          -polyA  <bool>  Trim poly A ( > 15 ) 
             					
             -artifactFile  <File>    additional artifact (adapters/primers/contaminations) reference file in fasta format 
+
      Filters:
             -min_L        <INT> Trimmed read should have to be at least this minimum length (default:50)
 
@@ -157,6 +160,7 @@ my $qc_only=0;
 my $trim_only=0;
 my $stringent_cutoff=0;
 my $filter_adapter=0;
+my $trim_polyA;
 my $filter_phiX=0;
 my $filterAdapterMismatchRate=0.2;
 my $artifactFile;
@@ -198,6 +202,7 @@ GetOptions("q=i"          => \$opt_q,
            'subset=i'     => \$subsample_num,
            'debug'        => \$debug,
            'adapter'      => \$filter_adapter,
+           'polyA'        => \$trim_polyA,
            'phiX'         => \$filter_phiX,
            'rate=f'       => \$filterAdapterMismatchRate,
            'artifactFile=s'  => \$artifactFile,
@@ -227,7 +232,7 @@ if (@paired_files)
         }
         else
         {
-            print ("The seqeucne names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as single end reads\n");
+            print ("The sequence names of the paired end reads in $paired_files[$i],$paired_files[$i+1] are not matching.\nWill use them as single end reads\n");
             push @unpaired_files, $paired_files[$i],$paired_files[$i+1];
             delete $file{basename($paired_files[$i])};
             delete $file{basename($paired_files[$i+1])};
@@ -371,6 +376,7 @@ my ( $i_file_name, $i_path, $i_suffix );
   
 my ($phiX_id,$phiX_seq) = &read_phiX174 if ($filter_phiX);
 $filter_adapter=1 if ($artifactFile);
+$filter_adapter=1 if ($trim_polyA);
 
 open(my $fastqCount_fh, ">$fastq_count") or die "Cannot write $fastq_count\n";
   foreach my $input (@unpaired_files,@make_paired_paired_files){
@@ -1490,8 +1496,8 @@ sub qc_process {
             (my $adapterFlag, $s_trimmed,$pos5,$pos3, my $adapterID)=&filter_adapter($s,$filterAdapterMismatchRate);
             if ($adapterFlag) 
             {
-                $q_trimmed=substr($q,$pos5,$pos3-$pos5-1);
                 $trim_len=length($s_trimmed);
+                $q_trimmed=($trim_len)?substr($q,$pos5,$pos3-$pos5-1):"";
                 $stats{adapter}->{$adapterID}->{readsNum}++;
                 $stats{adapter}->{$adapterID}->{basesNum} += ($len - $trim_len);
                 $stats{filter}->{adapter}->{readsNum}++;
@@ -1504,7 +1510,7 @@ sub qc_process {
             warn "$h1 sequence length is no equal to quality string length. It will be filtered.\n";
             $drop_1=1;
         }
-        if ($trim_5_end && !$qc_only)
+        if ($trim_5_end && !$qc_only && ($trim_len>=$trim_5_end))
         {
             $s_trimmed=substr($s_trimmed,$trim_5_end);
             $q_trimmed=substr($q_trimmed,$trim_5_end);
@@ -1512,7 +1518,7 @@ sub qc_process {
             $pos5=$pos5 + $trim_5_end;
             
         }
-        if ($trim_3_end && !$qc_only)
+        if ($trim_3_end && !$qc_only && ($trim_len>=$trim_3_end))
         {
             $s_trimmed=substr($s_trimmed,0,$trim_len-$trim_3_end);
             $q_trimmed=substr($q_trimmed,0,$trim_len-$trim_3_end);
@@ -1541,15 +1547,15 @@ sub qc_process {
                my $before_trim_len=$trim_len;
                if ($mode =~ /hard/i)
                {
-                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &hard_trim ($trim_len,$s,$q,$pos5,$pos3);
+                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &hard_trim ($trim_len,$s_trimmed,$q_trimmed,$pos5,$pos3);
                }
                elsif ($mode =~ /BWA_plus/i)
                {
-                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &bwa_trim_plus ($trim_len,$s,$q,$pos5,$pos3);
+                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &bwa_trim_plus ($trim_len,$s_trimmed,$q_trimmed,$pos5,$pos3);
                }
                elsif ($mode =~ /BWA/i)
                {
-                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &bwa_trim ($trim_len,$s,$q,$pos5,$pos3);
+                   ($s_trimmed,$q_trimmed,$pos5,$pos3)= &bwa_trim ($trim_len,$s_trimmed,$q_trimmed,$pos5,$pos3);
                }
                $trim_len=length($q_trimmed);
                $stats{filter}->{qualTrim}->{basesNum}+= ($before_trim_len - $trim_len);
@@ -1626,8 +1632,8 @@ sub qc_process {
                (my $adapterFlag, $r2_s_trimmed,$pos5,$pos3, my $adapterID)=&filter_adapter($r2_s,$filterAdapterMismatchRate);
                if ($adapterFlag) 
                {
-                   $r2_q_trimmed=substr($r2_q,$pos5,$pos3-$pos5-1);
                    $r2_trim_len=length($r2_s_trimmed);
+                   $r2_q_trimmed=($r2_trim_len)?substr($r2_q,$pos5,$pos3-$pos5-1):"";
                    $stats{adapter}->{$adapterID}->{readsNum}++;
                    $stats{adapter}->{$adapterID}->{basesNum} += ($r2_len - $r2_trim_len);
                    $stats{filter}->{adapter}->{readsNum}++;
@@ -1641,14 +1647,14 @@ sub qc_process {
                warn "$r2_h1 sequence length is no equal to quality string length. It will be filtered.\n";
                $drop_2=1;
            }
-           if ($trim_5_end && !$qc_only)
+           if ($trim_5_end && !$qc_only && ($trim_5_end<=$r2_trim_len))
            {
                $r2_s_trimmed=substr($r2_s_trimmed,$trim_5_end);
                $r2_q_trimmed=substr($r2_q_trimmed,$trim_5_end);
                $r2_trim_len = length ($r2_s_trimmed);
                $pos5=$pos5+$trim_5_end;
            }
-           if ($trim_3_end && !$qc_only)
+           if ($trim_3_end && !$qc_only && ($trim_3_end<=$r2_trim_len))
            {
                $r2_s_trimmed=substr($r2_s_trimmed,0,$r2_trim_len-$trim_3_end);
                $r2_q_trimmed=substr($r2_q_trimmed,0,$r2_trim_len-$trim_3_end);
@@ -1676,15 +1682,15 @@ sub qc_process {
                    my $before_trim_len=$r2_trim_len;
                    if ($mode =~ /hard/i)
                    {
-                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&hard_trim ($r2_trim_len,$r2_s,$r2_q,$pos5,$pos3);
+                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&hard_trim ($r2_trim_len,$r2_s_trimmed,$r2_q_trimmed,$pos5,$pos3);
                    }
                    elsif ($mode =~ /BWA_plus/i)
                    {
-                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&bwa_trim_plus ($r2_trim_len,$r2_s,$r2_q,$pos5,$pos3);
+                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&bwa_trim_plus ($r2_trim_len,$r2_s_trimmed,$r2_q_trimmed,$pos5,$pos3);
                    }
                    elsif ($mode =~ /BWA/i)
                    {
-                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&bwa_trim ($r2_trim_len,$r2_s,$r2_q,$pos5,$pos3);
+                       ($r2_s_trimmed, $r2_q_trimmed, $pos5, $pos3)=&bwa_trim ($r2_trim_len,$r2_s_trimmed,$r2_q_trimmed,$pos5,$pos3);
                    }
                    $r2_trim_len=length($r2_q_trimmed);
                    $stats{filter}->{qualTrim}->{basesNum}+= ($before_trim_len - $r2_trim_len);
@@ -2196,7 +2202,7 @@ sub checkQualityFormat {
     my @line;
     my $l;
     my $number;
-    my $offset;
+    my $offset=33;
     # go thorugh the file
     my $first_line=<$fh>;
     if ($first_line !~ /^@/) {$offset=-1; return $offset;}
@@ -2311,6 +2317,8 @@ sub filter_adapter
     my @match;
     $mismatchRate = $mismatchRate*100;
     my $adapter;
+    my $adapter_count=0;
+    my $adapter_name;
     my $s_len=length($s);
     my $pos5=0;
     my $pos3=$s_len+1;
@@ -2327,54 +2335,48 @@ sub filter_adapter
               #"Nextera-junction-adapter-2" => "CTGTCTCTTATACACATCT",
               #"Nextera-junction-adapter-3" => "AGATGTGTATAAGAGACAG"
 	);
-    
+    $adapterSeqs{"polyA"} = "AAAAAAAAAAAAAAAAAAAA" if ($trim_polyA);
+    &read_artifactFile($artifactFile,\%adapterSeqs) if ($artifactFile);
     foreach my $key (keys %adapterSeqs)
     {
         $adapter = $adapterSeqs{$key};
         @match = String::Approx::aslice($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
         if (defined $match[0][0])
         {
+            $adapter_count++;
+            if ($adapter_count >1){
+                last;
+            }
+            $adapter_name=$key;
             my $index=$match[0][0];
             my $match_len=$match[0][1];
             if ( int($s_len/2)-$index < ($match_len/2) )  # longer left
             {
-                 substr($s,$index,$s_len-$index,"");
-                 $pos3=length($s)+1;
+                substr($s,$index,$s_len-$index,"");
+                $pos3=length($s)+1;
             }
             else  #longer right
             {
-                 substr($s,0,$index+$match_len,"");
-                 $pos5=$index+$match_len;
+                substr($s,0,$index+$match_len,"");
+                $pos5=$index+$match_len;
             }
-            return (1,$s,$pos5,$pos3,$key);
-        }
-    }
-    if ($artifactFile)
-    {
-        my $other_adapterSeqs=(&read_artifactFile($artifactFile));
-        foreach my $key (keys %{$other_adapterSeqs})
-        {
-            $adapter = $other_adapterSeqs->{$key};
-            @match = String::Approx::aslice($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
-            if (defined $match[0][0])
-            {
-                my $index=$match[0][0];
-                my $match_len=$match[0][1];
-                if ( int($s_len/2)-$index < ($match_len/2) )  # longer left
-                {
-                    substr($s,$index,$s_len-$index,"");
-                    $pos3=length($s)+1;
-                }
-                else  #longer right
-                {
-                    substr($s,0,$index+$match_len,"");
-                    $pos5=$index+$match_len;
-                }
-                return (1,$s,$pos5,$pos3,$key);
+            # same adapter sencond match
+            my $match = String::Approx::amatch($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
+            if ($match){
+                $adapter_count++;
+                last;
             }
         }
     }
-    return (0,$s,$pos5,$pos3,"");
+
+    if ($adapter_count>1){
+        ## filter read if there are more than one adapter (or same adapter match twice) in a read
+        return (1,"",$pos5,$pos3,$adapter_name);
+    }elsif($adapter_count){
+        return (1,$s,$pos5,$pos3,$adapter_name);
+    }else{
+        return (0,$s,$pos5,$pos3,"");
+    }
 }
 
 sub filter_phiX
@@ -2398,10 +2400,10 @@ sub filter_phiX
 sub read_artifactFile 
 {
      my $file =shift;
+     my $adapter_ref=shift;
      open (ARTIFACT,$file);
      my $id;
      my $seq;
-     my %hash;
      while(<ARTIFACT>)
      {
         chomp;
@@ -2409,7 +2411,7 @@ sub read_artifactFile
         {
            if ($seq)
            { 
-               $hash{$id}=$seq; 
+               $adapter_ref->{$id}=$seq; 
            }
            $seq="";
            $id=$1;
@@ -2421,10 +2423,10 @@ sub read_artifactFile
      }
      if ($seq)
      { 
-        $hash{$id}=$seq; 
+        $adapter_ref->{$id}=$seq; 
      }
      close ARTIFACT;
-     return \%hash;
+     return $adapter_ref;
 }
 
 sub read_phiX174
