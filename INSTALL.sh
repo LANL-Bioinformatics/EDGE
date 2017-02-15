@@ -747,20 +747,21 @@ echo "
 
 install_kronatools()
 {
+local VER=2.6.1
 echo "------------------------------------------------------------------------------
-               Installing KronaTools-2.6
+               Installing KronaTools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf KronaTools-2.6.tar.gz
-cd KronaTools-2.6/KronaTools
+tar xvzf KronaTools-$VER.tar.gz
+cd Krona-$VER/KronaTools
 perl install.pl --prefix $rootdir --taxonomy $rootdir/database/Krona_taxonomy
 #./updateTaxonomy.sh --local
 cp $rootdir/scripts/microbial_profiling/script/ImportBWA.pl scripts/
-ln -sf $rootdir/thirdParty/KronaTools-2.6/KronaTools/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
+ln -sf $rootdir/thirdParty/KronaTools-$VER/KronaTools/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                        KronaTools-2.6 Installed
+                        KronaTools-$VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1887,14 +1888,14 @@ then
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bashrc
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bashrc
-  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/bin/Anaconda2/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/scripts" >> $HOME/.bashrc
   echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 else
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bash_profile
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bash_profile
-  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/bin/Anaconda2/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/scripts" >> $HOME/.bashrc
   echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 fi
