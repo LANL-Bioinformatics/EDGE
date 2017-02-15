@@ -86,8 +86,8 @@ while(<STDIN>)
 	my $name = $fields[5];
 	$name =~ s/^ +//;
     
-    my $rank = getTaxRank($taxID);
-    my $depth = getTaxDepth($taxID);
+    my $rank = getTaxRank($taxID)||'no rank';
+    my $depth = getTaxDepth($taxID)||'10';
     
     $rank = "unclassified" if $taxID == 0;
     $rank = "root" if $taxID == 1;

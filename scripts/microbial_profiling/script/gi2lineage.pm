@@ -150,8 +150,8 @@ sub taxid2rank {
 	
     my @rank;
 	my $taxID = $id;
-    my $rank = getTaxRank($taxID);
-    my $name = getTaxName($taxID);
+    my $rank = getTaxRank($taxID) || 'no rank';
+    my $name = getTaxName($taxID) || '';;
 
     return $name if $r =~ /^strain$/i;
     
@@ -354,7 +354,7 @@ sub getTaxParent
 	
 	do
 	{
-		$taxID = $taxParents[$taxID];
+		$taxID = $taxParents[$taxID] || 1;
 	}
 	while ( $taxID > 1 && $taxRanks[$taxID] eq 'no rank');
 	
