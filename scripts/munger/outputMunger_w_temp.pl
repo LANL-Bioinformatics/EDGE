@@ -361,7 +361,7 @@ sub getSysParamFromConfig {
 
 sub pull_assy {
 	my $err;
-	$err = `grep failed $out_dir/AssemblyBasedAnalysis/assembly.log` if (-e "$out_dir/AssemblyBasedAnalysis/assembly.log");
+	$err = `grep failed $out_dir/AssemblyBasedAnalysis/assembly.log | sed -e 's/\$/<br>/'` if (-e "$out_dir/AssemblyBasedAnalysis/assembly.log");
 	if ($err){
 		chomp $err;
 		$vars->{ASSYERR} = $err;
@@ -454,7 +454,7 @@ sub pull_contigmapping {
 
 sub pull_anno {
 	my $err;
-	$err = `grep "No contigs" $out_dir/AssemblyBasedAnalysis/Annotation/Annotation.log` if (-e "$out_dir/AssemblyBasedAnalysis/Annotation/Annotation.log");
+	$err = `grep "No contigs" $out_dir/AssemblyBasedAnalysis/Annotation/Annotation.log | sed -e 's/\$/<br>/'` if (-e "$out_dir/AssemblyBasedAnalysis/Annotation/Annotation.log");
 	if ($err){
 		$vars->{ANOERR} = $err;
 	}
@@ -478,9 +478,10 @@ sub pull_anno {
 
 sub pull_qc {
 	my $err;
-	$err = `grep -i 'ERROR\\|invalid' $out_dir/QcReads/QC.log` if ( -e "$out_dir/QcReads/QC.log");
+	$err = `grep -i 'ERROR\\|invalid' $out_dir/QcReads/QC.log | sed -e 's/\$/<br>/'` if ( -e "$out_dir/QcReads/QC.log");
 	if ($err){
-		$vars->{QCERR} = "$err\nPlease check QC.log\n";
+		$out_dir =~ /.*(EDGE_output.*)/;
+		$vars->{QCERR} = "$err"."Please check <a target='new_window' data-ajax='false' href='$1/QcReads/QC.log’>QC.log</a>.";
 	}
 	return unless -e "$out_dir/QcReads/QC.stats.txt";
 	open(my $qcfh, "<", "$out_dir/QcReads/QC.stats.txt") or die $!;
@@ -1001,8 +1002,8 @@ sub pull_blast {
 sub pull_sra_download {
 	my $err;
 	if (! -e "$out_dir/SRA_Download/DownloadSRA.finished"){
-		$err = `grep -i Failed $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
-		$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
+		$err = `grep -i Failed $out_dir/SRA_Download/log.txt | sed -e 's/\$/<br>/'` if (-e "$out_dir/SRA_Download/log.txt");
+		$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt | sed -e 's/\$/<br>/'` if (-e "$out_dir/SRA_Download/log.txt");
 	}
 	if ($err){
 		$err =~ s/(http\S+)/<a href=\"$1\"  target=\"_blank\">$1<\/a>/;
