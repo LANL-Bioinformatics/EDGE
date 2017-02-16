@@ -70,7 +70,8 @@ executeCommand("split_sam_by_lines.pl --line 20000 --input temp$$/$FILENAME.mapp
 
 $period = &timeInterval($time);
 print "[$period] Classifying contigs\n";
-executeCommand("parallel --results temp$$/${PREFIX}_para_log -j $THREADS 'seq_coverage.pl --input {}' ::: temp$$/*.part* > $PREFIX.ctg_class.csv 2>>$PREFIX.log");
+executeCommand("cd temp$$; parallel --results ${PREFIX}_para_log -j $THREADS 'seq_coverage.pl --input {}' ::: *.part* > ../$PREFIX.ctg_class.csv 2>>../$PREFIX.log");
+#executeCommand("parallel --results temp$$/${PREFIX}_para_log -j $THREADS 'seq_coverage.pl --input {}' ::: temp$$/*.part* > $PREFIX.ctg_class.csv 2>>$PREFIX.log");
 
 $period = &timeInterval($time);
 print "[$period] Reporting unclassified contigs\n";
