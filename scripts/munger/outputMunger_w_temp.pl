@@ -1059,6 +1059,8 @@ sub pull_contig_taxa {
 			$vars->{CCPNTCB} = $2;
 			$vars->{CCPNCC}  = $3; 
 			$vars->{CCPNCCB} = $4;
+			$vars->{CCPNCCUB} = &_reformat_val($2 - $4 - $6);
+			$vars->{CCPNCCUB} = ($vars->{CCPNCCUB})? " ( + unclassified $vars->{CCPNCCUB} )" : "";
 			$vars->{CCPNUC}  = $5;
 			$vars->{CCPNUCB} = $6;
 		}
