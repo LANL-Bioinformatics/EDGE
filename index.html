@@ -7,6 +7,7 @@
     <meta name="description" content="EDGE : EDGE bioinformatics">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/edge.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <!--<script src="javascripts/snowfall.jquery.js"></script>-->
     <script type="text/javascript" src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
@@ -55,10 +56,19 @@ EDGE bioinformatics was <strong>developed to help biologists process Next Genera
 </p>
 <p>
 While the design of EDGE was intentionally done to be as simple as possible for the user, there is still no single ‘tool’ or algorithm that fits all use-cases in the bioinformatics field. Our intent is to provide a detailed panoramic view of your sample from various analytical standpoints, but users are encouraged to have some insight into how each tool or workflow functions, and how the results should best be interpreted.
-</p>	
+</p>
+
 <h3><a id="news" class="anchor" href="#news" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's New? </h3>
 <p>
-  Updates 12/05/2016</b>:
+  <b>Updates 02/28/2017:</b>
+  <ul>
+    <li><a href="http://www.nature.com/news/how-bioinformatics-tools-are-bringing-genetic-analysis-to-the-masses-1.21545">[nature.com] How bioinformatics tools are bringing genetic analysis to the masses</a></li>
+    <li><a href="https://www.genomeweb.com/informatics/lanls-edge-offers-easy-use-bioinformatics-pipelines-microbial-sequence-analysis">[genomeweb.com] LANL's EDGE Offers Easy-to-Use Bioinformatics Pipelines for Microbial Sequence Analysis</a></li>
+    <li><a href="http://www.santafenewmexican.com/news/health_and_science/science-on-the-hill-bringing-the-power-of-genetic-research/article_6fb24d7e-5079-5155-b5f3-363c0c064cd0.html">[santafenewmexican.com] Science on the Hill-Bringing the power of genetic research to an office near you</a></li>
+  </ul>
+</p>
+<p>
+  Updates 12/05/2016:
   <ul>
     <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.1 pre-release.</a>
     <li>NCBI is <a href="https://www.ncbi.nlm.nih.gov/home/develop/https-guidance.shtml">moving from http to https</a> for security and privacy improvement which caused SRA download feature failed. We have <a href="https://github.com/LANL-Bioinformatics/EDGE/blob/3e799f2b8f2bcd5852560d9574ade3cf167bc7bf/scripts/sra2fastq.pl">updated our script</a> to accommondate the change. In addition, if it failed to download from <a href="https://www.ncbi.nlm.nih.gov/sra">NCBI-SRA</a>, it will try <a href="http://www.ebi.ac.uk/ena">EBI-ENA</a> and <a href="https://trace.ddbj.nig.ac.jp/dra/index.html">DDBJ</a>.  </li>
@@ -66,14 +76,14 @@ While the design of EDGE was intentionally done to be as simple as possible for 
   </ul>
 </p>
 <p>
-  Updates 11/29/2016</b>:
+  Updates 11/29/2016:
   <ul>
     <li>EDGE manuscript has been published on <em>Nucleic Acids Research</em> (2016). <a href="http://nar.oxfordjournals.org/content/early/2016/11/28/nar.gkw1027.abstract">See Abstract.</a></li>
-    <li><a href="http://phys.org/news/2016-11-edge-bioinformatics-genomics.html">EDGE news on Phys.org</a></li>
+    <li><a href="https://www.eurekalert.org/pub_releases/2016-11/danl-ebb112916.php">EDGE news on eurekalert.org</a></li>
   </ul>
 </p>
 <p>
-  Updates 10/04/2016</b>:
+  Updates 10/04/2016:
   <ul>
     <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases"> v1.5.0 release.</a>
     <li>The EDGE documentation has branches with version <a href="https://edge.readthedocs.io/en/v1.5/"> v1.5 </a> and <a href="https://edge.readthedocs.io/en/develop/"> develop </a> for development (active updating)</li>
@@ -81,14 +91,14 @@ While the design of EDGE was intentionally done to be as simple as possible for 
 </p>
 <p>
 <p>
-  Updates 06/08/2016</b>:
+  Updates 06/08/2016:
   <ul>
     <li>EDGE development branch on <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/devel">GitHub.</a> and its <a href="https://figshare.com/articles/EDGE-poster-SFAF_pdf/3406246">Poster</a></li>
     <li>The EDGE documentation has branches with version <a href="https://edge.readthedocs.io/en/v1.1/"> v1.1 </a> and <a href="https://edge.readthedocs.io/en/develop/"> develop </a> for development (active updating)</li>
   </ul>
 </p>
 <p>
-  Updates 03/08/2016</b>:
+  Updates 03/08/2016:
   <ul>
     <li><a href="https://github.com/LANL-Bioinformatics/EDGE/commit/fca9f97ca27d8d9f3541ecd5eaa4ac6b283f086b">fix bugs: batch submit point to wrong path. Escape symbol characters.</a></li>
     <li><a href="https://github.com/LANL-Bioinformatics/EDGE/commit/64a9618b76a15764021b420f49c34de635c80611">fix bug: run the EDGE through command line with absoulte path.</a></li>
@@ -98,9 +108,9 @@ While the design of EDGE was intentionally done to be as simple as possible for 
   </ul>
 </p>
 <p>
-  Update 11/09/2015</b>:
+  Update 11/09/2015:
   <ul><li><a href="https://edge.readthedocs.org/en/v1.1/installation.html#edge-vmware-ovf-image">EDGE v1.1 Virtual Machine Image</a></li></ul>
-  Updates 10/15/2015</b>:
+  Updates 10/15/2015:
   <ul>
     <li>Version 1.1 source code released</li>
     <li>Have Docker image ready. See <a href="https://hub.docker.com/r/chienchilo/bioedge/">DOCKER HUB</a></li>
