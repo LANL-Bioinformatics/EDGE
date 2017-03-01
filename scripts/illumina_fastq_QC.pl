@@ -70,7 +70,7 @@ print <<"END";
       
             -3end         <INT> Cut # bp from 3 end before quality trimming/filtering 
 
-            -adapter      <bool> Filter reads with illumina adapter/primers (default: no)
+            -adapter      <bool> Trim reads with illumina adapter/primers (default: no)
                           -rate   <FLOAT> Mismatch ratio of adapters' length (default: 0.2, allow 20% mismatches)
                           -polyA  <bool>  Trim poly A ( > 15 ) 
             					
@@ -120,6 +120,8 @@ print <<"END";
  
             -trim_only    <bool> No quality report. Output trimmed reads only.
 
+            -replace_to_N_q  <INT>  For NextSeq data, to replace base G to N when below this quality score (default:0, off)
+
             -debug        <bool> keep intermediate files
 END
 exit(1);
@@ -139,6 +141,8 @@ my $ascii;
 my $mode="BWA_plus";
 my $N_num_cutoff=2;
 my $replace_N;
+my $replace_to_N_q=0;
+my $is_NextSeq=0;
 my $out_offset=33;
 my $low_complexity_cutoff_ratio=0.85;
 my $subfile_size=1000000;
@@ -199,6 +203,7 @@ GetOptions("q=i"          => \$opt_q,
            'substitute'   => \$replace_N,
            'qc_only'      => \$qc_only,
            'trim_only'    => \$trim_only,
+           'replace_to_N_q=i' => \$replace_to_N_q,
            'subset=i'     => \$subsample_num,
            'debug'        => \$debug,
            'adapter'      => \$filter_adapter,
@@ -392,9 +397,10 @@ open(my $fastqCount_fh, ">$fastq_count") or die "Cannot write $fastq_count\n";
      if (! $ascii){$ascii = &checkQualityFormat($reads1_file)}
 
      # check NextSeq platform
-     if( &is_NextSeq($reads1_file) and $opt_q < 16){
-	$opt_q = 16;
-	warn "The input looks like NextSeq data and the quality level (-q) is adjusted to 16 for trimming.\n";
+     if( &is_NextSeq($reads1_file) and $opt_q < 20){
+        $is_NextSeq=1;
+	$opt_q = 20;
+	warn "The input looks like NextSeq data and the quality level (-q) is adjusted to $opt_q for trimming.\n";
      }else{ $opt_q = $orig_opt_q;}
 
     #split
@@ -1985,6 +1991,9 @@ sub get_base_and_quality_info
          $seq{qual}->{$pos}->{$q_digit}++;
          $total_q += $q_digit; 
          my $base=uc(substr($s,$pos-$start_pos,1));
+         if ($q_digit < $replace_to_N_q and $is_NextSeq and $base eq "G"){
+             substr($new_s,$pos-$start_pos,1,"N");
+         }
          $a_Base++ if ($base =~ /A/);  
          $t_Base++ if ($base =~ /T/);  
          $c_Base++ if ($base =~ /C/);  
