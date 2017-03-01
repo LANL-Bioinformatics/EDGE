@@ -67,11 +67,12 @@ sub checkQualityFormat {
     my $l;
     my $number;
     my $offset;
+    my $line_num=0;
     # go thorugh the file
     my $first_line=<FQ>;
     if ($first_line !~ /^@/) {$offset=-1; return $offset;}
     OUTER:while(<FQ>){
-      
+      $line_num++;
       # if it is the line before the quality line
       if($_ =~ /^\+/){
     
@@ -82,10 +83,15 @@ sub checkQualityFormat {
         $number = ord($line[$i]); # get the number represented by the ascii char
       
         # check if it is sanger or illumina/solexa, based on the ASCII image at http://en.wikipedia.org/wiki/FASTQ_format#Encoding
-        if($number > 74){ # if solexa/illumina
+        if($number > 104){
+          $offset=33;  # pacbio CCS reads
+          last OUTER;
+        }
+        elsif($number > 74){ # if solexa/illumina
           $offset=64;
           #die "This file is solexa/illumina format\n"; # print result to terminal and die
-          last OUTER; 
+          # read a few more quality line to make sure the offset 
+          last OUTER if ($line_num > 100);
         }elsif($number < 59){ # if sanger
           $offset=33;
           #die "This file is sanger format\n"; # print result to terminal and die
