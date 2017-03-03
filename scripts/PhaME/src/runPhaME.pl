@@ -12,7 +12,7 @@ $|=1;
 
 # set up environments
 $ENV{PATH}="$RealBin:$RealBin/../ext/bin:$ENV{PATH}";
-$ENV{PERL5LIB} = "$ENV{PERL5LIB}:$RealBin/../lib:$RealBin/../ext/lib/perl5";
+$ENV{PERL5LIB} = ($ENV{PERL5LIB})?"$ENV{PERL5LIB}:$RealBin/../lib:$RealBin/../ext/lib/perl5":"$RealBin/../lib:$RealBin/../ext/lib/perl5";
 
 =head
 
@@ -173,6 +173,7 @@ my $snpdir=$outdir.'/snps';
 my $gapdir=$outdir.'/gaps';
 my $statdir=$outdir.'/stats';
 my $summary=$outdir.'/'."$project\_summaryStatistics.txt";
+`mkdir -p $snpdir $gapdir $statdir`;
 
 if ($time==1 && $check==0 && $data!=7){
    open(ALL,">$workdir/working_list.txt")||die "$!";
@@ -362,7 +363,7 @@ if ($read_mapping==1){
    }
    elsif ($time==1){
       my $tempdir=$outdir.'/temp/';
-      `cp $reference $tempdir`;
+      `mkdir -p $tempdir; cp $reference $tempdir`;
       &print_timeInterval($runtime,"Mapping reads to reference\n");
       my $end=PhaME::readsMapping($workdir,$bindir,"$workdir/reads_list.txt",$threads,$name,$error,$logfile);
       &print_timeInterval($runtime,"$end\n");
