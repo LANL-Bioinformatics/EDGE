@@ -170,7 +170,7 @@ if ($edge_qiime_input_dir){
 	@edge_input_pe1 = @{$pe1_file_r};
 	@edge_input_pe2 = @{$pe2_file_r};
 	@edge_input_se = @{$se_file_r};
-	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir";
+	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
 	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
 }
 
