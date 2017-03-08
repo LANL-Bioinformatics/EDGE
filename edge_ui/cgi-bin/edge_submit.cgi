@@ -157,6 +157,7 @@ if ($edge_qiime_input_dir){
 	@edge_input_pe2 = @{$pe2_file_r};
 	@edge_input_se = @{$se_file_r};
 	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir";
+	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
 }
 
 # Reconfig
@@ -1038,12 +1039,14 @@ sub parse_qiime_mapping_files{
 				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
 			}elsif(! /^#/){
 				my @array = split /\t/,$_;
-				my @files = map { "$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
+				my @files = map { "$input_dir/$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
+					&addMessage("PARAMS","edge-qiime-mapping-file-input1","File $array[$file_column_index] not exist") if (! -e $files[0]);
 				}else{
 					push @pe1_files,$files[0];
 					push @pe2_files,$files[1];
+					&addMessage("PARAMS","edge-qiime-mapping-file-input1","File $array[$file_column_index] not exist") if (! -e $files[0] || ! -e $files[1]);
 				}
 			}
 		}
