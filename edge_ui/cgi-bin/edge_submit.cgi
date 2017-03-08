@@ -1101,13 +1101,15 @@ sub parse_qiime_mapping_files{
 	my @pe1_files;
 	my @pe2_files;
 	my @se_files;
-	if ( ! -d "$input_dir/$qiime_dir" ){
+	if ( ! -d "$input_dir/$qiime_dir" && ! -d "$qiime_dir"){
 		my $msg = "ERROR: the input $qiime_dir directroy does not exist or isn't a directory\n";
 		exit(1);
 	}
 	foreach my $f (@{$mapping_files}){
+		$f = "$input_dir/$f" if ($f =~ /^\w/);
+		my $file_path = "$input_dir/$qiime_dir" if ($qiime_dir =~ /^\w/);
 		my $file_column_index;
-		open (my $fh, "$input_dir/$f") or die "Cannot read $f\n";
+		open (my $fh, "$f") or die "Cannot read $f\n";
 		while(<$fh>){
 			chomp;
 			next if (/^\n/);
@@ -1116,7 +1118,7 @@ sub parse_qiime_mapping_files{
 				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
 			}elsif(! /^#/){
 				my @array = split /\t/,$_;
-				my @files = map { "$input_dir/$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
+				my @files = map { "$file_path/$_" } split /,|\s+/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
 					&addMessage("PARAMS","edge-qiime-mapping-file-input1","File $array[$file_column_index] not exist") if (! -e $files[0]);
