@@ -1008,10 +1008,13 @@ ln -fs $anacondabin/conda $rootdir/bin
 wget -q --spider https://pypi.python.org/
 online=$?
 if [[ $online -eq 0 ]]; then
-    $anacondabin/conda install -y biopython
-    $anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3
-    $anacondabin/pip install qiime xlsx2csv
+	$anacondabin/conda install -y biopython
+	$anacondabin/conda install -yc anaconda mysql-connector-python=2.0.3
+	$anacondabin/pip install qiime xlsx2csv
 	$anacondabin/conda install -y --channel https://conda.anaconda.org/bioconda rgi
+	$anacondabin/conda install -y matplotlib=2.0.0
+        matplotlibrc=`$anacondabin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+        perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
 else
     $anacondabin/conda install biopython-1.67-np110py27_0.tar.bz2
     echo "Unable to connect to the internet, not able to install qiime or xlsx2csv"
