@@ -451,27 +451,26 @@ elsif( $action eq 'tarproj'){
 		&returnStatus();
 	}
 
-	my $tarFile = "$proj_dir/$real_name.tgz";
+	my $tarFile = "$out_dir/$real_name.zip";
 	my $tarDir =  "$proj_dir";
 	if ($username && $password){
-		$tarFile = "$proj_dir/${real_name}_$pname.tgz";
+		$tarFile = "$out_dir/${real_name}_$pname.zip";
 		$tarDir = "$proj_dir/../${real_name}_$pname";
 	}
-	my $tarLink = ($username && $password)? "$proj_rel_dir/${real_name}_$pname.tgz":"$proj_rel_dir/$real_name.tgz";
+	my $tarLink = ($username && $password)? "$proj_rel_dir/${real_name}_$pname.zip":"$proj_rel_dir/$real_name.zip";
 	$tarLink =~ s/^\///;
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to tar project $real_name $tarLink $tarFile $tarDir";
 	#chdir $proj_dir;
 	if ( ! -e "$proj_dir/.tarfinished" || ! -e $tarFile){
 		`ln -s $proj_dir $tarDir` if ($username && $password);
-		my $cmd = "tar --exclude=\"*gz\" --exclude=\"*.sam\" --exclude=\"*.bam\" --exclude=\"*.fastq\" -cvzf $tarFile  $tarDir/* ;  touch $proj_dir/.tarfinished ";	
+		my $cmd = "zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
 		my $pid;
 		if (@ARGV){
 			$pid=`$cmd`;
 		}else{
-			$pid = open TARPROJ, "-|", $cmd or die $!;
+			$pid = open TARPROJ, "|-", $cmd or die $!;
 			close TARPROJ;
-			$pid++;
 		}
 		if( $pid ){
 			unlink $tarDir if ($username && $password);
@@ -479,6 +478,8 @@ elsif( $action eq 'tarproj'){
 			$info->{INFO}   = "$real_name compressed file is ready to ";
 			$info->{LINK}	= "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
 		}else{
+			#child
+			close STDOUT;
 			$info->{INFO}   = "Project $real_name tar file existed";
 		}
 	}else{

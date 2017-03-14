@@ -94,8 +94,8 @@ sub checkProjTarFile{
 	my $proj_realname = $vars->{PROJNAME};
 	my $projID = $vars->{PROJID} || $projname;
 	$vars->{OUT_GET_DOWNLOAD} = 0 if $vars->{PROJSTATUS} ne "Complete";
-	my $tarFile1 = "$out_dir/$proj_realname.tgz";
-	my $tarFile2 = "$out_dir/${proj_realname}_$projID.tgz";
+	my $tarFile1 = "$out_dir/$proj_realname.zip";
+	my $tarFile2 = "$out_dir/${proj_realname}_$projID.zip";
 	if (-e "$out_dir/.tarfinished" and (-e $tarFile1 or -e $tarFile2)){
 		$vars->{OUT_DOWNLOAD} = 1;
 		$vars->{OUT_GET_DOWNLOAD} = 0;
