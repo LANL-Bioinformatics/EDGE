@@ -481,7 +481,7 @@ sub pull_qc {
 	$err = `grep -i 'ERROR\\|invalid' $out_dir/QcReads/QC.log | sed -e 's/\$/<br>/'` if ( -e "$out_dir/QcReads/QC.log");
 	if ($err){
 		$out_dir =~ /.*(EDGE_output.*)/;
-		$vars->{QCERR} = "$err"."Please check <a target='new_window' data-ajax='false' href='$1/QcReads/QC.log’>QC.log</a>.";
+		$vars->{QCERR} = "$err"."Please check <a target='new_window' data-ajax='false' href='$1/QcReads/QC.log'>QC.log</a>.";
 	}
 	return unless -e "$out_dir/QcReads/QC.stats.txt";
 	open(my $qcfh, "<", "$out_dir/QcReads/QC.stats.txt") or die $!;
