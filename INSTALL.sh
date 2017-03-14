@@ -1058,6 +1058,7 @@ ln -fs $anacondabin/conda $rootdir/bin
 	$anacondabin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
 	$anacondabin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
 	$anacondabin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages qiime
 	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
 	matplotlibrc=`$anacondabin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
