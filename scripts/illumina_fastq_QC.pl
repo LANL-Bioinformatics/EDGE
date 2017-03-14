@@ -44,7 +44,7 @@ use lib "$Bin/../lib";
 use Parallel::ForkManager;
 use String::Approx;
 
-my $version=1.35;
+my $version=1.36;
 my $debug=0;
 
 $ENV{PATH}="$Bin/../bin:$ENV{PATH}";
@@ -2320,7 +2320,7 @@ sub split_fastq {
 
    }
    my $average_len = $total_seq_length/$seq_num;
-   if ( $average_len < $opt_min_L) { print "ERROR: The input ($file_name) average length $average_len < minimum cutoff length(opt_min_L) $opt_min_L\n."; }
+   if ( $average_len < $opt_min_L) { print "ERROR: The input ($file_name) average length $average_len < minimum cutoff length(opt_min_L) $opt_min_L.\n"; }
    close ($fh)  or die( "Cannot close file : $!");
    close (OUTFILE) or die( "Cannot close file : $!") if (! eof OUTFILE);
    return ($seq_num,$total_seq_length,@subfiles);
