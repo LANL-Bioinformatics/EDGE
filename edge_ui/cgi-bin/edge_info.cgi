@@ -417,7 +417,6 @@ sub scanNewProjToList {
 			$list->{$cnt}->{NAME} = $file ;
 			$list->{$cnt}->{TIME} =  strftime "%F %X",localtime((stat("$config"))[9]); 
 			$list->{$cnt}->{STATUS} = "unknown";
-			$list->{$cnt}->{STATUS} = "running" if $name2pid->{$file};
 			if ( -r "$processLog"){
 				open (my $fh, $processLog);
 				while(<$fh>){
@@ -433,6 +432,7 @@ sub scanNewProjToList {
 				}
 				close $fh;
 			}
+			$list->{$cnt}->{STATUS} = "running" if $name2pid->{$file};
 			my $projname = $file;
 			# if the system change from User management on to off. will need parse the project name from config file
 			#  using grep is slow than open file and regrex

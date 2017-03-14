@@ -2423,13 +2423,15 @@ $( document ).ready(function()
 				}
 				else if( $('#'+key).prop('type') == "select-multiple" ){
 					var arr = value.split("\u0000");
-					if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
-						$.each( arr, function(i, val) {
-							$('#'+key)
-							  .append($("<option></option>")
-							  .attr("value", val)
-							  .text(val));
-						});
+					if(arr.length > $('#'+key).children('option').length){
+						if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
+							$.each( arr, function(i, val) {
+								$('#'+key)
+							  	.append($("<option></option>")
+							  	.attr("value", val)
+							  	.text(val));
+							});
+						}
 					}
 					
 					$('#'+key).val(arr)
