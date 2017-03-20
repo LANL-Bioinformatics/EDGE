@@ -544,6 +544,7 @@ sub runQiimeAnalysis{
     my $pe_orientation=$configuration->{qiime_paired_reads_orientation} || "fr"; 
     my $barcode_len=$configuration->{qiime_barcode_len} || 6;
     my $quality_cutoff=$configuration->{qiime_q_threshold} || 3;
+    my $phred_offset=$configuration->{qiime_phred_offset} || 33;
     my $min_reads_q_fraction=$configuration->{qiime_min_per_read_length_fraction} || 0.5;
     my $min_otu_size=$configuration->{qiime_minimum_otu_size} || 2;
     my $seq_max_n=$configuration->{qiime_max_n} || 1;
@@ -575,7 +576,7 @@ sub runQiimeAnalysis{
     $cmd .= " -UPARSE " if($UPARSE_opt);
     $cmd .= " -filter_taxa $negative_taxa " if($negative_taxa);
     $cmd .= " -substract_NTC $ntc_list " if($ntc_list);
-    #$cmd .= " -phred_offset 33 ";
+    $cmd .= " -phred_offset $phred_offset ";
    # $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
     &executeCommand($cmd);
