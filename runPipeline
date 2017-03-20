@@ -198,7 +198,7 @@ my $annotateProgram=$configuration->{annotateProgram}||"prokka";
 
 if ($referenceGenome)
 {
-    my ($r2gBam,$r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,$referenceGenome);
+    my ($r2gBam,$r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
     my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);
 
     if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
@@ -815,9 +815,11 @@ sub check_reference_genome
         close $fh;
         if (scalar(@files) == $check_value)
         {
-            foreach my $file (@files)
+            for my $i  (0..$#files)
             {
+                my $file = $files[$i];
                 my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+                $referenceGenome_r->[$i] = "$outputDir/$file_name.fasta";
                 $check_value-- if ($previous_run_ref{$file_name});
             }
         }
@@ -841,9 +843,11 @@ sub check_reference_genome
     unlink $referenceGBK;
     unlink $gff3File;
     unlink $file_list;
-    foreach my $file (@files)
+    for my $file_i (0..$#files)
     {
+         my $file = $files[$file_i];
          my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+         my $ref_fasta_file="$outputDir/$file_name.fasta";
          &executeCommand("echo $file_name >> $file_list");
          if (is_genbank($file))
          {
@@ -851,26 +855,26 @@ sub check_reference_genome
              &lprint ("Converting $file_name Genbank to Fasta and GFF\n");
              if ($file_suffix =~ /gz/)
              {
-                 &executeCommand("gunzip -c $file | genbank2fasta.pl - > $outputDir/$file_name.fasta");
+                 &executeCommand("gunzip -c $file | genbank2fasta.pl - > $ref_fasta_file");
                  &executeCommand("gunzip -c $file >> $referenceGBK");
              }
              else
              {
-                 &executeCommand("genbank2fasta.pl $file > $outputDir/$file_name.fasta");
+                 &executeCommand("genbank2fasta.pl $file > $ref_fasta_file");
                  &executeCommand("cat $file >> $referenceGBK");
              }	
-             push @fasta_files,  "$outputDir/$file_name.fasta";
          }
          if (is_fasta($file))
          {
              $format{"fasta"}++;
-             if ($file_suffix =~ /gz/)
-             {
-                 &executeCommand("gunzip -c $file > $outputDir/$file_name");
-                 $file = "$outputDir/$file_name" ;
+             if ($file_suffix =~ /gz/){
+                 &executeCommand("gunzip -c $file > $ref_fasta_file");
+             }else{
+                 &executeCommand("cp $file $ref_fasta_file");
              }
-             push @fasta_files,  $file;
          }
+         $referenceGenome_r->[$file_i] = $ref_fasta_file;
+         push @fasta_files,  $ref_fasta_file;
     }
     &executeCommand("genbank2gff3.pl -e 3 --outdir stdout $referenceGBK > $gff3File") if ( -s $referenceGBK);
     if ( scalar (keys %format) > 1)
@@ -1359,7 +1363,7 @@ sub runAnnotation
     }
     if ($annotateProgram =~ /prokka/i)
     {
-	$tax_kingdom = "Bacteria --metagenome " if ($tax_kingdom =~ /Metagenome/i);
+        $tax_kingdom = "Bacteria --metagenome " if ($tax_kingdom =~ /Metagenome/i);
         $cmd = "$RealBin/bin/prokka --quiet --force --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
     }
     &lprint (" Running \n $cmd\n");
@@ -2125,8 +2129,7 @@ sub runHostRemoval
         system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("$outputDir/$prefix.1.fastq $outputDir/$prefix.2.fastq","$outputDir/$prefix.unpaired.fastq");
     }
-    else
-    {
+    elsif( -s "$outputDir/$prefix.unpaired.fastq" ){
         system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("","$outputDir/$prefix.unpaired.fastq");
     }
@@ -2267,7 +2270,8 @@ sub runReadsToGenome
 {
     my $pairFile=shift;
     my $unpairFile=shift;
-    my $referenceFile = shift;
+    my $referenceFile_r = shift;
+    my $referenceFiles = join(" ",@$referenceFile_r);
     my $time=time();
     my $outPrefix = "readsToRef";
     my $outputDir= "$outDir/ReadsBasedAnalysis/readsMappingToRef";
@@ -2296,7 +2300,7 @@ sub runReadsToGenome
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFile";
+    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
 	$r2g_aligner_options =~ s/-p\s*\d+//;
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2g_aligner_options . "'";
@@ -2309,13 +2313,16 @@ sub runReadsToGenome
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
+    &executeCommand("cat $outputDir/*.vcf > $outVCF");
+    &executeCommand("samtools cat -o $outBam $outputDir/*bam");
     if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
         `echo "Extract mapped reads" >> $log`;
         $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped $outBam >>$log ";
         &executeCommand($command);
     }
-
+    &executeCommand("echo -n \"Total Unmapped:\" >>$log");
+    &executeCommand("samtools view -f 4 $outBam | wc -l | awk '{print \$1}'>>$log");
     &printRunTime($time);
     system("touch $outputDir/runReadsToGenome.finished");
     return ($outBam,$outVCF,$outGap);
@@ -2592,6 +2599,7 @@ sub runAssembly
             $cmd .= "-1 $p1 -2 $p2 ";
         }
         $cmd .= "-r $unpairFile " if (-s $unpairFile);
+        $cmd .= " 2>&1 ";
     }
     &lprint ("  Running\n  $cmd\n");
     eval{ system($cmd);};

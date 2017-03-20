@@ -39,6 +39,7 @@ my $sid = $opt{sid};
 my $taxa_for_contig_extract = $opt{taxa};
 my $cptool_for_reads_extract = $opt{cptool};
 my $contig_id = $opt{contigID};
+my $reference_id = $opt{refID};
 my $blast_params = $opt{"edge-contig-blast-params"} || " -num_alignments 10 -num_descriptions 10 -evalue 1e-10 " ;
 my $domain	= $ENV{'HTTP_HOST'};
 my $EDGE_HOME = $ENV{EDGE_HOME};
@@ -142,6 +143,8 @@ if ( $umSystemStatus )
 		$permission->{tarproj} = 1;
 		$permission->{getcontigbytaxa} = 1;
 		$permission->{getreadsbytaxa} = 1;
+		$permission->{getcontigbyref} = 1;
+		$permission->{getreadsbyref} = 1;
 		$permission->{metadata} = 1;
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
@@ -480,12 +483,67 @@ elsif( $action eq 'tarproj'){
 		}else{
 			#child
 			close STDOUT;
-			$info->{INFO}   = "Project $real_name tar file existed";
 		}
 	}else{
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO}   = "$real_name compressed file is ready to ";
 		$info->{LINK}   = "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
+	}
+}
+elsif( $action eq 'getcontigbyref'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	my $identity_cutoff=85;	
+	my $assemble_outdir="$proj_dir/AssemblyBasedAnalysis";
+	my $mapping_outdir="$assemble_outdir/contigMappingToRef";
+	my $relative_mapping_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/contigMappingToRef" ;
+	(my $out_fasta_name = $reference_id) =~ s/[ .']/_/;
+	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
+	my $cmd = "awk '\$7>=$identity_cutoff && \$12==\"$reference_id\" {print \$13}'  $mapping_outdir/contigsToRef.coords | $EDGE_HOME/scripts/get_seqs.pl - $assemble_outdir/${real_name}_contigs.fa > $mapping_outdir/$out_fasta_name";
+	$info->{STATUS} = "FAILURE";
+	$info->{INFO}   = "Failed to extract mapping to $reference_id contig fasta";
+	
+	if (  -s  "$mapping_outdir/$out_fasta_name.fasta"){
+		$info->{STATUS} = "SUCCESS";
+		$info->{PATH} = "$relative_mapping_outdir/$out_fasta_name";
+	}else{
+		my $pid = open EXTRACTCONTIG, "-|", $cmd or die $!;
+		close EXTRACTCONTIG;
+		$pid++;
+
+		if( $pid ){
+			$info->{STATUS} = "SUCCESS";
+			$info->{PATH} = "$relative_mapping_outdir/$out_fasta_name";
+		}
+	}
+}
+elsif( $action eq 'getreadsbyref'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	my $mapping_outdir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
+	my $relative_mapping_outdir= "$proj_rel_dir/ReferenceBasedAnalysis/readsMappingToRef" ;
+	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/;
+	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -prefix $reference_id.mapped $reference_id.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
+	$info->{STATUS} = "FAILURE";
+	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
+	
+	if (  -s  "$mapping_outdir/$out_fastq_name"){
+		$info->{STATUS} = "SUCCESS";
+		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
+	}else{
+		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
+		close EXTRACTREADS;
+		$pid++;
+
+		if( $pid ){
+			$info->{STATUS} = "SUCCESS";
+			$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
+		}
 	}
 }
 elsif( $action eq 'getcontigbytaxa'){
