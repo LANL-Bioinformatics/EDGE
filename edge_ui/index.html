@@ -1348,6 +1348,15 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				<li>Reads Filters</li>
 				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Quality Offset<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The ascii offset to use when decoding phred scores (either 33 or 64). Offset 64 is used for old illumina Fastq file."></a></legend>
+						<input type="radio" data-mini="true" name="edge-qiime-phred-offset" id="edge-qiime-phred-offset1" value="33" checked="checked">
+						<label for="edge-qiime-phred-offset1">Phred+33</label>
+						<input type="radio" data-mini="true" name="edge-qiime-phred-offset" id="edge-qiime-phred-offset2" value="64">
+						<label for="edge-qiime-phred-offset2">Phred+64</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain">
 					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="19">
 				</div>
