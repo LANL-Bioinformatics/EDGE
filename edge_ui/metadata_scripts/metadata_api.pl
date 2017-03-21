@@ -3,6 +3,7 @@
 use strict;
 use JSON;
 use LWP::UserAgent;
+use LWP::Protocol::https;
 use HTTP::Request::Common;
 use FindBin qw($RealBin);
 use lib "$RealBin/edge_ui/metadata_scripts/lib";
