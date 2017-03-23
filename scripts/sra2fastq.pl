@@ -109,8 +109,8 @@ foreach my $acc ( @ARGV ){
 
 		#download FASTQ
 		$dl_status = getSraFastqToolkits( $readInfo->{$acc}->{$run_acc}, $run_acc ); 
-		$dl_status = getDdbjFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
 		$dl_status = getSraFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
+		$dl_status = getDdbjFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
 		$dl_status = getEnaFastq( $readInfo->{$acc}->{$run_acc}, $run_acc ) if $dl_status eq 'failed';
 		die "ERROR: Please check your internet connection.\n" if $dl_status eq 'failed';
 
@@ -189,7 +189,7 @@ sub getSraFastqToolkits {
 	my $platform = $info->{platform};
 	my $url      = $info->{url};
 	my $filename = $run_acc;
-	next if (!$url);					
+
 	print STDERR "Downloading $url...\n";
 	my $cmd = ($Download_tool =~ /wget/)? "$curl -O $OUTDIR/sra2fastq_temp/$filename \"$url\"":
 					"$curl $http_proxy -o $OUTDIR/sra2fastq_temp/$filename \"$url\"";
