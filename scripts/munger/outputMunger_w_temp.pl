@@ -336,7 +336,7 @@ sub pull_contigmapping {
 	$vars->{CMMAPPEDPCT} = sprintf "%.2f", $vars->{CMMAPPED}/$vars->{CMREADS}*100;
 
 	return unless -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table";
-	my $ref_display_limit = 30;
+	my $ref_display_limit = 100;
 	my ($tol_ref_number, $tol_ref_hashit) = (0,0);
 	my $cnt=0;
 	open(my $reffh, "<", "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table") or die $!;
@@ -351,6 +351,7 @@ sub pull_contigmapping {
 					$refinfo->{"CMREF$idx"}=$temp[$i];
 				}
 				$refinfo->{"CMREFNAME"}=$refname->{$temp[0]};
+				$refinfo->{"CMREFMAPPEDPCT"}= sprintf "%.2f", $temp[3]/$vars->{CMREADS}*100;
 				push @{$vars->{LOOP_CMREF}}, $refinfo;
 			}
 			$tol_ref_hashit++ if $temp[3];
@@ -538,6 +539,7 @@ sub pull_specialty_gene_profiling {
 			#my $vf_read_hit_num=`awk 'BEGIN{a=0}{a=a+\$3}END{print a}' $vf_reads_output`;
 			my $vf_read_hit_num=`awk 'BEGIN{count=0}\$2>0{count++}END{print count}'  $vf_reads_output`;
 			chomp $vf_read_hit_num;
+			$vf_read_hit_num=$vf_read_hit_num-1;
 			$vars->{SGRVFHIT} = ($vf_read_hit_num)? $vf_read_hit_num : 0;
 		}
 		if ( -e $vf_reads_output_sbhits) {
@@ -935,7 +937,6 @@ sub pull_blast {
 sub pull_sra_download {
 	my $err;
 	$err = `grep Failed $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
-	$err .= `grep "ERROR" $out_dir/SRA_Download/log.txt` if (-e "$out_dir/SRA_Download/log.txt");
 	if ($err){
 		$err =~ s/(http\S+)/<a href=\"$1\"  target=\"_blank\">$1<\/a>/;
 		$vars->{SRADERR} = $err;
@@ -1193,15 +1194,15 @@ sub pull_readmapping_ref {
 	
 	my ($tol_ref_number, $tol_ref_hashit, $tol_ref_len, $tol_mapped_bases, $tol_non_gap_bases) = (0,0,0,0,0);
 	my ($tol_snps, $tol_indels)= (0,0);
-	my $ref_display_limit = 30;
+	my $ref_display_limit = 100;
 	my $ref_display_limit_plot = 4;
 	my $ref;
 
 	open(my $reffh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt") or die $!;
 	while(<$reffh>) {
-		if ($_ =~ /^(\d+) \+ \d+ in total/) 	{ $vars->{RMREFUSED} = $1; next; }
-		if ($_ =~ /^(\d+) \+ \d+ duplicates/) 	{ $vars->{RMREFDUPS} = $1; next; }
-		if ($_ =~ /^(\d+) \+ \d+ mapped/) 		{ $vars->{RMREFMAPPED} = $1; $vars->{RMREFUNMAPPED} = $vars->{RMREFUSED} - $vars->{RMREFMAPPED}; next; }
+	#	if ($_ =~ /^(\d+) \+ \d+ in total/) 	{ $vars->{RMREFUSED} = $1; next; }
+	#	if ($_ =~ /^(\d+) \+ \d+ duplicates/) 	{ $vars->{RMREFDUPS} = $1; next; }
+	#	if ($_ =~ /^(\d+) \+ \d+ mapped/) 		{ $vars->{RMREFMAPPED} = $1; $vars->{RMREFUNMAPPED} = $vars->{RMREFUSED} - $vars->{RMREFMAPPED}; next; }
 	
 		next if( /^Ref/ );
 		my @temp = split /\t/, $_;
@@ -1209,12 +1210,13 @@ sub pull_readmapping_ref {
 			my $refinfo;
 			$tol_ref_number++;
 			$tol_ref_hashit++ if $temp[3];
-			$tol_ref_len += $temp[1];
-			$tol_mapped_bases += $temp[1] * $temp[5];
-			$tol_non_gap_bases += $temp[1] - $temp[8];
-			$tol_snps += $temp[9];
-			$tol_indels += $temp[10];
+			#$tol_ref_len += $temp[1];
+			#$tol_mapped_bases += $temp[1] * $temp[5];
+			#$tol_non_gap_bases += $temp[1] - $temp[8];
+			#$tol_snps += $temp[9];
+			#$tol_indels += $temp[10];
 			next if $temp[3] == 0;
+			$refinfo->{"RMREFMAPPEDPCT"} = sprintf "%.2f", $temp[3]/$NUM_READS_FOR_DOWNSTREAM*100;
 			for my $i (0 .. $#temp) {
 				my $idx = $i+1;
 				
@@ -1225,10 +1227,10 @@ sub pull_readmapping_ref {
 		}
 	}
 	close($reffh);
-	$vars->{RMAVEFOLD} = sprintf "%.2f", $tol_mapped_bases/$tol_ref_len;
-	$vars->{RMREFCOV} = sprintf "%.2f", $tol_non_gap_bases/$tol_ref_len*100;
-	$vars->{RMSNPS} = $tol_snps;
-	$vars->{RMINDELS} = $tol_indels;	
+	#$vars->{RMAVEFOLD} = sprintf "%.2f", $tol_mapped_bases/$tol_ref_len;
+	#$vars->{RMREFCOV} = sprintf "%.2f", $tol_non_gap_bases/$tol_ref_len*100;
+	#$vars->{RMSNPS} = $tol_snps;
+	#$vars->{RMINDELS} = $tol_indels;	
 
 	my $cnt=0;
 	foreach my $n ( sort {$ref->{$b}->{RMREFT5} <=> $ref->{$a}->{RMREFT5}} keys %$ref )
@@ -1242,12 +1244,13 @@ sub pull_readmapping_ref {
 		$plot_info->{RMREF_PLOT_FOLDPATH} = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/Coverage_plots/readsToRef_${pid}_coverage_histogram.png";
 		push @{$vars->{LOOP_RMREF_PLOT}}, $plot_info if $cnt < $ref_display_limit_plot;
 		
-		last if ++$cnt == 30;
+		last if ++$cnt == $ref_display_limit;
 	}
-
-	$vars->{RMREFMAPPEDPCT}   = sprintf "%.2f", $vars->{RMREFMAPPED}/$vars->{RMREFUSED}*100;
-	$vars->{RMREFUNMAPPED}    = $vars->{RMREFUSED} - $vars->{RMREFMAPPED};
-	$vars->{RMREFUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMREFUNMAPPED}/$vars->{RMREFUSED}*100;
+	my $total_unmapped_reads = `grep "Total Unmapped" $out_dir/ReadsBasedAnalysis/readsMappingToRef/mapping.log | awk -F":" '{print \$2}' `;
+	$vars->{RMREFUNMAPPED} = ($total_unmapped_reads)?$total_unmapped_reads:"0";
+	#$vars->{RMREFMAPPEDPCT}   = sprintf "%.2f", $vars->{RMREFMAPPED}/$vars->{RMREFUSED}*100;
+	#$vars->{RMREFUNMAPPED}    = $vars->{RMREFUSED} - $vars->{RMREFMAPPED};
+	$vars->{RMREFUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMREFUNMAPPED}/$NUM_READS_FOR_DOWNSTREAM*100;
 	$vars->{RMREFTOLREF}      = $tol_ref_number;
 	$vars->{RMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{RMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;

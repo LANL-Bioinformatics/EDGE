@@ -444,7 +444,7 @@
 				<li><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					<ol>
 						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
-							<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+							<!--<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 							  <thead>
 								<tr>
 								  <th data-priority='1'>Analysis</th>
@@ -459,7 +459,7 @@
 								<tr><td>SNPs</td><td><TMPL_VAR NAME=RMSNPS DEFAULT=-></td></tr>
 								<tr><td>InDels</td><td><TMPL_VAR NAME=RMINDELS DEFAULT=-></td></tr>
 							  </tbody>
-							</table>
+							</table>-->
 
 							<TMPL_IF NAME="RMREFTOLREFHASHIT">
 							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
@@ -470,6 +470,7 @@
 								  <th data-priority='2'>Length</th>
 								  <th data-priority='5'>GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
+								  <th data-priority='3'>Mapped Reads%</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
 								  <th data-priority='3'>Fold std.</th>
@@ -486,7 +487,8 @@
 									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
-									<td><TMPL_VAR NAME=RMREFT4 DEFAULT=-></td>
+									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
+									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
 									<td><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
@@ -630,6 +632,7 @@
 						  <th data-priority='2'>Length</th>
 						  <th data-priority='3'>GC%</th>
 						  <th data-priority='1'>Mapped Contigs</th>
+						  <th data-priority='3'>Mapped Contigs%</th>
 						  <th data-priority='2'>Base Coverage</th>
 						  <th data-priority='5'>Avg Fold</th>
 						  <th data-priority='4'>Gaps</th>
@@ -645,7 +648,8 @@
 							<td><TMPL_VAR NAME=CMREFNAME DEFAULT=-></td>
 							<td><TMPL_VAR NAME=CMREF2 DEFAULT=-></td>
 							<td><TMPL_VAR NAME=CMREF3 DEFAULT=->%</td>
-							<td><TMPL_VAR NAME=CMREF4 DEFAULT=-></td>
+							<td><a href="#" class="edge-get-c2g-contigs"><TMPL_VAR NAME=CMREF4 DEFAULT=-></a></td>
+							<td><TMPL_VAR NAME=CMREFMAPPEDPCT DEFAULT=->%</td>
 							<td><TMPL_VAR NAME=CMREF5 DEFAULT=->%</td>
 							<td><TMPL_VAR NAME=CMREF6 DEFAULT=->X</td>
 							<td><TMPL_VAR NAME=CMREF7 DEFAULT=-></td>

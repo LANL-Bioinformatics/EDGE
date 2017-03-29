@@ -817,7 +817,7 @@ sub checkParams {
 			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_se[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( is_fastq($edge_input_se[$i]) );
+			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_se[$i] && is_fastq($edge_input_se[$i]) );
 		}
 		foreach my $i (0..$#edge_input_pe1){
 			my $id = "edge-input-pe-block".($1 + 1);
