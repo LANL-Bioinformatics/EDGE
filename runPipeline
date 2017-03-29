@@ -2273,6 +2273,7 @@ sub runReadsToGenome
     my $unpairFile=shift;
     my $referenceFile_r = shift;
     my $referenceFiles = join(" ",@$referenceFile_r);
+    my $referenceCount = scalar(@$referenceFile_r);
     my $time=time();
     my $outPrefix = "readsToRef";
     my $outputDir= "$outDir/ReadsBasedAnalysis/readsMappingToRef";
@@ -2298,6 +2299,10 @@ sub runReadsToGenome
     }
     system("rm -f $outputDir/runReadsToGenome.finished");
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outGap";
+    unlink "$outVCF";
+    unlink "$outBam";
+    
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
@@ -2315,8 +2320,14 @@ sub runReadsToGenome
     &executeCommand($command);
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
     &executeCommand("cat $outputDir/*.vcf > $outVCF");
-    &executeCommand("samtools cat -o $outBam $outputDir/*bam");
-    if ($configuration->{r2g_extract_mapped}){
+	# Added by Logan, Allows for one reference to be run.
+	if ($referenceCount == 1){
+		&executeCommand("cp $outputDir/*bam $outBam");
+	}
+	else{
+		&executeCommand("samtools cat -o $outBam $outputDir/*bam");
+    }
+	if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
         `echo "Extract mapped reads" >> $log`;
         $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped $outBam >>$log ";
