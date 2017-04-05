@@ -879,7 +879,7 @@ sub checkParams {
 			@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};
 			map { 	my @tmp= `ls -d $EDGE_HOME/database/NCBI_genomes/$_*`; 
 				chomp @tmp;  
-				my @gfiles = `ls $tmp[0]/*gbk`; 
+				my @gfiles = `ls $tmp[0]/*gbk $tmp[0]/*gbff 2>/dev/null`; 
 				chomp @gfiles; 
 				push @refs,@gfiles;
 			    } @refsl;
