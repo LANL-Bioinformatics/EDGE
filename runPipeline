@@ -1070,7 +1070,7 @@ sub Reads_taxonomyAssignment
     &executeCommand($cmd); 
     
     $cmd = "$RealBin/scripts/svg2pdf $outputDir/report/*/*/*svg  2>>$logFile";
-    &executeCommand($cmd);
+    &executeCommand("$cmd || true");
     #unlink $input;
     system("touch $outputDir/taxonomyAssignment.finished");
     &printRunTime($time);

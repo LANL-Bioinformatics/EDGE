@@ -747,17 +747,17 @@ echo "
 
 install_kronatools()
 {
-local VER=2.6.1
+local VER=2.7
 echo "------------------------------------------------------------------------------
                Installing KronaTools-$VER
 ------------------------------------------------------------------------------
 "
 tar xvzf KronaTools-$VER.tar.gz
-cd Krona-$VER/KronaTools
+cd KronaTools-$VER
 perl install.pl --prefix $rootdir --taxonomy $rootdir/database/Krona_taxonomy
 #./updateTaxonomy.sh --local
 cp $rootdir/scripts/microbial_profiling/script/ImportBWA.pl scripts/
-ln -sf $rootdir/thirdParty/KronaTools-$VER/KronaTools/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
+ln -sf $rootdir/thirdParty/KronaTools-$VER/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1057,7 +1057,8 @@ ln -fs $anacondabin/conda $rootdir/bin
 	$anacondabin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
 	$anacondabin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
 	$anacondabin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2 
+	$anacondabin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
+	$anacondabin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
 	$anacondabin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages qiime
 	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
@@ -1862,7 +1863,7 @@ cd $rootdir
 
 mkdir -p $rootdir/edge_ui/data
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > $rootdir/edge_ui/data/host_list.json
-perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
+#perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
 
 echo "Setting up EDGE_input"
 if [ -d $rootdir/edge_ui/EDGE_input/ ]
