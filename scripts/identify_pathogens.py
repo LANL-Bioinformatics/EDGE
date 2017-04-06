@@ -85,28 +85,29 @@ def main(argv):
      #print 'user is ', user
      #print 'passwd is ', passwd
      #open file, grab strain names in list
+     btaxa = []
+     vtaxa = []
+     taxa = []
      with open(infile_name) as tabfile: 
           taxreader = csv.reader(tabfile, delimiter="\t")
-          btaxa = ''
-          vtaxa = ''
           for row in taxreader:
                #print "row = ", row
                if row[0] == 'DATASET':
                     continue
                elif row[1] == 'gottcha-strDB-b' and row[2] == 'strain':
-                    btaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    btaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                elif row[1] == 'gottcha-speDB-b' and row[2] == 'species':
-                    btaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    btaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                elif row[1] == 'gottcha-genDB-b' and row[2] == 'genus':
-                    btaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    btaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                elif row[1] == 'gottcha-strDB-v' and row[2] == 'strain':
-                    vtaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    vtaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                     #print "strain vtaxa = ", vtaxa
                elif row[1] == 'gottcha-speDB-v' and row[2] == 'species':
-                    vtaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    vtaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                     #print "species vtaxa = ", vtaxa
                elif row[1] == 'gottcha-genDB-v' and row[2] == 'genus':
-                    vtaxa = (row[3], row[4], row[5], row[6], row[7]) #need to make this dynamic in terms of number of elements
+                    vtaxa.extend([row[3], row[4], row[5], row[6], row[7]]) #need to make this dynamic in terms of number of elements
                     #print "genus vtaxa = ", vtaxa
                else:
                     print "no rows match 'gottcha-xxxDB-x' and 'strain, species or genus': ", row[1], row[2], row[3], row[4], row[5], row[6], row[7]
@@ -127,6 +128,8 @@ def main(argv):
 
                     #print "line 124 taxa line = ", i
                     #if the line contains weird characters, such as '/', remove those characters
+                    if "N/A" in i:
+                        continue
                     if '/' in i:
                          i = i.replace('/', '')
                     #split pathogen name into genus and species in case strain is not in pathogenDB
@@ -163,13 +166,16 @@ def main(argv):
                                    cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
                                    #grab data from cursor
                                    pdata = cursor.fetchone()
-                                   pathogen_name =  pdata[0]
-                                   host =  pdata[4]
-                                   disease =  pdata[6]
-				   cursor.close()
-                                   #write to file
-                                   if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
-                                        outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
+                                   if pdata is None:
+                                       print "No host info or diease info for pathogen: ", i
+                                   else:
+                                       pathogen_name =  pdata[0]
+                                       host =  pdata[4]
+                                       disease =  pdata[6]
+				       cursor.close()
+                                       #write to file
+                                       if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
+                                           outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
 
                          else: #found genus and species so grab pathogen name, host and disease, check if host includes 
                          #human and if so write to file
@@ -180,29 +186,35 @@ def main(argv):
                               #print "line 169 pathogen id = ", path_PK
                               cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
                               pdata = cursor.fetchone()
-                              #print "line 172 pdata = ", pdata
-                              pathogen_name =  pdata[0]
-                              #print "line 170 pathogen name = ", pathogen_name
-                              host =  pdata[4]
-                              disease =  pdata[6]
 			      cursor.close()
-                              #write to file
-                              if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
-                                   outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
+                              #print "line 172 pdata = ", pdata
+                              if pdata is None:
+                                  print "No host info or diease info for pathogen: ", i 
+                              else:
+                                  pathogen_name =  pdata[0]
+                                  #print "line 170 pathogen name = ", pathogen_name
+                                  host =  pdata[4]
+                                  disease =  pdata[6]
+                                  #write to file
+                                  if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
+                                      outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
                     else: #found entire pathogen name so grab pathogen name, host and disease, check if host includes human and if so write to file
                          #print "line 177 pathogen name = ", pathogen_name
                          #cursor.execute("""SELECT id FROM pathogen WHERE genome_name = %s""", (i,))
                          #path_PK = cursor.fetchone()[0]
                          path_PK = row[0]
                          cursor.execute(""" select p.genome_name, p.id, ph.host_pathogen_id, ph.host_id, h.name, pd.disease_pathogen_id, d.disease_name from pathogen p, pathogen_host ph, pathogen_disease pd,host h, disease d where p.id = %s and p.id = ph.host_pathogen_id and ph.host_id = h.id and p.id = pd.disease_pathogen_id and pd.disease_id = d.id LIMIT 0, 1""", (path_PK,))
-                         pdata = cursor.fetchone()
-                         pathogen_name =  pdata[0]
-                         host =  pdata[4]
-                         disease =  pdata[6]
-			 cursor.close()
-                         #write to file
-                         if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
-                              outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
+                         pdata = cursor.fetchone() 
+                         if pdata is None:
+                             print "No host info or diease info for pathogen: ", i
+                         else:
+                             pathogen_name =  pdata[0]
+                             host =  pdata[4]
+                             disease =  pdata[6]
+			     cursor.close()
+                             #write to file
+                             if 'Homo sapiens' in host and 'None' not in disease and 'Unknown' not in disease:
+                                 outfile.write(pathogen_name+"\t"+host+"\t"+disease+"\n")
           except my.Error as e:
                print >> sys.stderr, "MySQL error: ", e
           except:
