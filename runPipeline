@@ -1689,6 +1689,7 @@ pdf(file = "$readsMappingToContigStatsPDF",width = 10, height = 8)
  
 readsMappingToContigStats<-readLines("$outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.alnstats.txt")
 readsMappingToContigStats<-gsub("-?nan","0",readsMappingToContigStats,ignore.case = TRUE)
+readsMappingToContigStats<-gsub("\\t"," ",readsMappingToContigStats,ignore.case = TRUE)
 plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
 for (i in 1:length(readsMappingToContigStats)){
    text(0,1-0.07*i,readsMappingToContigStats[i],adj=0,font=2)
