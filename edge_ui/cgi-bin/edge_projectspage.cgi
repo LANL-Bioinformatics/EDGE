@@ -34,6 +34,7 @@ my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
 $um_url ||= "$protocol//$domain/userManagement";
 
+my $cluster     = $sys->{cluster};
 # session check
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
@@ -278,9 +279,9 @@ sub getUserProjFromDB{
 			$display = "no";
 		}
 		next if ($status =~ /delete/i);
-		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log");
-		my $proj_dir=(-r "$out_dir/$projCode/process.log")?"$out_dir/$projCode":"$out_dir/$id";
-		my $processlog = "$proj_dir/process.log";
+		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && ! $cluster);
+		my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
+		my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
 		if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
 			$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
 			$status=($status =~ /finished/i)?"Complete":"Archived";
@@ -288,6 +289,11 @@ sub getUserProjFromDB{
 			$list->{$id}->{PROJSUBTIME}=$created_time;
 			$list->{$id}->{RUNTIME}="";
 			$status="Unstarted";
+		}elsif( $status =~ /in process/i){
+                        $list->{$id}->{PROJSUBTIME}=$created_time;
+                        $list=&pull_summary($processlog,$id,$list,$proj_dir);
+                        $list->{$id}->{RUNTIME}="";
+                        $status="In process";
 		}else{
 			$list=&pull_summary($processlog,$id,$list,$proj_dir);
 		}

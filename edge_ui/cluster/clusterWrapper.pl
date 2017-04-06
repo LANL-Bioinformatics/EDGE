@@ -85,6 +85,30 @@ sub checkProjVital_cluster {
 				$name2pid->{$proj} = $pid;
 			}
 		}
+		# pending jobs
+		if (ref($joblist->{job_info}->{job_list}) eq "HASH"){
+                        @jobs = ($joblist->{job_info}->{job_list});
+                }elsif(ref($joblist->{job_info}->{job_list}) eq "ARRAY"){
+                        @jobs = @{$joblist->{job_info}->{job_list}};
+                }
+                foreach my $job (@jobs) {
+                        $pid = $job->{JB_job_number};
+                        $jobName = $job->{JB_name};
+                        $stat = $job->{state}[1];
+                        if($stat eq 'Eqw') {
+                                $stat = "Cluster Job Error.";
+                        }
+                        $numcpu = $job->{slots};
+
+                        if($jobName =~ /^$cluster_job_prefix(.*)/) {
+                                $proj = $1;
+                                $vital->{$pid}->{PROJ} = $proj;
+                                $vital->{$pid}->{CPU} = $numcpu;
+                                $vital->{$pid}->{STAT} = $stat;
+                                $name2pid->{$proj} = $pid;
+                        }
+                }
+
 	}
 	return ($vital,$name2pid,$error);
 }
