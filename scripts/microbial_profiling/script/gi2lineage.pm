@@ -8,6 +8,7 @@
 # 04/2013 v0.1
 #
 # Changes log:
+# 04/07/2017 - Add getAccFromSeqID, getTaxIDFromAcc acc2taxID acc2name acc2rank acc2lineage
 # 04/04/2014 - Add taxid2lineage method
 #
 # 10/29/2013 - fixed bug retrieving GI>536870909 (2GB limitation)
@@ -35,6 +36,10 @@ use Cwd 'abs_path';
 ############
 our @EXPORT = qw
 (
+    acc2taxID
+    acc2name
+    acc2rank
+    acc2lineage
     gi2taxID
     gi2name
     gi2rank
@@ -48,6 +53,8 @@ our @EXPORT = qw
     getTaxName
     getTaxDepth
     getTaxIDFromGI
+    getTaxIDFromAcc
+    getAccFromSeqID
     getTaxParent
     loadTaxonomy
     loadUpdatedGI
@@ -59,6 +66,7 @@ our @EXPORT = qw
 
 my $libPath = `ktGetLibPath`;
 my $taxonomyDir = "$libPath/../taxonomy";
+my $fileTaxByAcc = 'all.accession2taxid.sorted';
 my $DEBUG=0;
 
 #################
@@ -69,9 +77,70 @@ my @taxParents  ;
 my @taxRanks    ;
 my @taxNames    ;
 my %updatedGI   ;
+my %taxIDByAcc  ;
 my %taxIDByGI   ;
 my $taxIDByGIStr;
+my %invalidAccs ;
+my %missingAccs ;
 
+#################################################################
+# sub: acc2taxID
+# function: input a Accession number and return its taxomomy ID.
+# argument: <accession>
+# return: <taxomomy id>
+#################################################################
+sub acc2taxID {
+    checkTaxonomy();
+    my ($acc) = @_;
+	return getTaxIDFromAcc($acc);
+}
+#################################################################
+# sub: acc2name
+# function: input a Accession number and return its taxomomy.
+# argument: <accession>
+# return: <taxomomy>
+#################################################################
+sub acc2name {
+	checkTaxonomy();
+	my ($acc) = @_;
+	my $taxID = getTaxIDFromAcc($acc);
+	my $name = getTaxName($taxID);
+	return $name;
+}
+#################################################################
+# sub: acc2rank
+# function: convert gi to a specific rank
+# argument: <accession>, <RANK>
+# return: <taxomomy>
+# example:
+#      ac2rank("NC_000964","genus")
+#      return: Bacillus
+#################################################################
+sub acc2rank {
+	checkTaxonomy();
+	my ($acc,$r) = @_;
+
+	my @rank;
+	my $taxID = getTaxIDFromAcc($acc);
+	my $rank = getTaxRank($taxID);
+	my $name = getTaxName($taxID);
+
+	return "root" if $taxID == 1;
+	return "root" if $r eq "root";
+	return $name if $r =~ /^strain$/i;
+
+	while( $taxID ){
+		if( uc($rank) eq uc($r) ){
+			return $name;
+		}
+    		last if $name eq 'root';
+
+		$taxID = getTaxParent($taxID);
+		$rank = getTaxRank($taxID);
+		$name = getTaxName($taxID);
+	}
+	return "";
+}
 #################################################################
 # sub: gi2taxID
 # function: input a GI number and return its taxomomy ID.
@@ -265,6 +334,11 @@ sub gi2lineage {
     &id2lineage($id,$print_all_rank,$print_strain,$replace_space2underscore,"gi");
 }
 
+sub acc2lineage {
+    my ($id,$print_all_rank,$print_strain,$replace_space2underscore) = @_;
+    &id2lineage($id,$print_all_rank,$print_strain,$replace_space2underscore,"acc");
+}
+
 sub id2lineage {
     checkTaxonomy();
 	my ($id,$print_all_rank,$print_strain,$replace_space2underscore,$input_type) = @_;
@@ -300,6 +374,9 @@ sub id2lineage {
     }
     elsif( $input_type eq 'gi' ){
 	    $taxID = getTaxIDFromGI($id);
+    }
+    elsif ( $input_type eq 'acc'){
+            $taxID = getTaxIDFromAcc($id);
     }
 
     my $rank = getTaxRank($taxID);
@@ -411,6 +488,111 @@ sub getTaxIDFromGI
 
 	return $taxIDByGI{$gi};
 }
+
+sub getTaxIDFromAcc
+{
+	my ($acc) = @_;
+	
+	if ( $acc =~ /^\d+$/ )
+	{
+		return $acc;
+	}
+	
+	$acc =~ s/\.\d+$//;
+	
+	if ( defined $taxIDByAcc{$acc} )
+	{
+		return $taxIDByAcc{$acc};
+	}
+	
+	my $size = -s "$taxonomyDir/$fileTaxByAcc";
+	my $accCur="";
+	my $taxID;
+	
+	if ( ! open ACC, "<$taxonomyDir/$fileTaxByAcc" )
+	{
+		print "ERROR: Sorted accession to taxID list not found. Was updateAccessions.sh run?\n";
+		exit 1;
+	}
+	
+	my $min = 0;
+	my $max = $size;
+	while ( $acc ne $accCur && $min < $max )
+	{
+		my $posNew = int(($min + $max) / 2);
+		
+		seek ACC, $posNew, 0;
+		
+		if ( $posNew != $min )
+		{
+			<ACC>; # eat up to newline
+		}
+		
+		my $line = <ACC>;
+		
+		my $accNew;
+		($accNew, $taxID) = split /\t/, $line;
+		
+		if ( $acc gt $accNew && $accCur ne $accNew && $accNew )
+		{
+			if ( $accNew )
+			{
+				$posNew = tell ACC;
+			}
+			
+			$min = $posNew;
+			
+			if ( $min >= $max )
+			{
+				$max = $min + 1;
+			}
+		}
+		else
+		{
+			$max = $posNew;
+		}
+		
+		$accCur = $accNew;
+	}
+	
+	close ACC;
+
+	chomp $taxID;
+	
+	if ( $accCur ne $acc )
+	{
+		$missingAccs{$acc} = 1;
+		$taxID = 0;
+	}
+	
+	$taxIDByAcc{$acc} = $taxID;
+	
+	return $taxIDByAcc{$acc};
+}
+
+sub getAccFromSeqID
+{
+	my ($seqID) = @_;
+	
+	$seqID =~ /^>?(\S+)/;
+	
+	my $acc = $1;
+	
+	if ( $acc =~ /\|/ )
+	{
+		$acc = (split /\|/, $acc)[3];
+	}
+	
+	if ( $acc !~ /^\d+$/ && $acc !~ /^[A-Z]+_?[A-Z]*\d+(\.\d+)?$/ )
+	{
+		$invalidAccs{$acc} = 1;
+		return undef;
+	}
+	
+	return $acc;
+}
+
+
 
 sub loadUpdatedGI
 {
