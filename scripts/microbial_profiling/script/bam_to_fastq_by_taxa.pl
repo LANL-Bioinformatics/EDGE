@@ -88,9 +88,9 @@ while(<IN>)
   next if ($opt_passfilter and ($array[1] & 512));
 
   if ($mapped_ref_name){
-    my ($gi) = $array[2] =~ /gi\|(\d+)/;
-    my $gi_to_name = gi2rank($gi,lc($rank));
-    next if ( lc($gi_to_name) ne lc($mapped_ref_name));
+    my $acc = getAccFromSeqID($array[2]);
+    my $acc_to_name = acc2rank($acc,lc($rank));
+    next if ( lc($acc_to_name) ne lc($mapped_ref_name));
   }
   if ($fastq_file){
     $reads_id{$array[0]}=1;

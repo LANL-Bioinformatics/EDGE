@@ -23,6 +23,9 @@
 #
 
 use strict;
+use FindBin qw($Bin);
+use lib $Bin;
+use gi2lineage;
 
 my $list;
 my $score_cutoff = $ARGV[0];
@@ -37,7 +40,9 @@ while(<STDIN>)
 	unless( $flag & 4 )
 	{
 		next if $as < $score_cutoff && $score_cutoff > 0;
-		my ($gi) = $seqid =~ /gi\|(\d+)/;
+		#my ($gi) = $seqid =~ /gi\|(\d+)/;
+		my $acc = getAccFromSeqID($seqid);
+		my $gi = $acc;
 		$list->{$gi}->{MAPPED} ||= 0;
 		$list->{$gi}->{MAPPED}++;
 		if( !$xs || $as>$xs ){

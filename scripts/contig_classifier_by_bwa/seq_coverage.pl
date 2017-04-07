@@ -108,8 +108,9 @@ while(<INPUT>)
         die "ERROR: unknown input format.\n";
     }
 
-    my ($gi) = $sid =~ /gi\|(\d+)/;
-    my $taxid = gi2taxID($gi);
+    #my ($gi) = $sid =~ /gi\|(\d+)/;
+    my $acc = getAccFromSeqID($sid);
+    my $taxid = acc2taxID($acc);
     $length->{$qid}=$qlen;
     $seq->{$qid}->{$taxid}->{"$qstart..$qend"}=$dist;
 	$cov->{$qid}->{$cnt}->{$taxid}="$qstart..$qend";

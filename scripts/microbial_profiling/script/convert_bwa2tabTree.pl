@@ -34,7 +34,7 @@ while(<STDIN>)
 	next if /^#/;
 	next if /^$/;
 
-	#0 GI
+	#0 Accession
 	#1 Length
 	#2 GC%
 	#3 Avg_fold
@@ -46,16 +46,16 @@ while(<STDIN>)
 
 	my @fields = split /\t/, $_;
 
-	if ( $fields[0] eq "GI" ){
+	if ( $fields[0] eq "Accession" ){
 		@headers = @fields[0..7];
 		next;
 	}
 
-	my $gi = $fields[0];
-	my $taxID = getTaxIDFromGI($gi);
+	my $acc = $fields[0];
+	my $taxID = getTaxIDFromAcc($acc);
 
     unless ( $taxID ){
-	    print STDERR "[WARNING] Can't find GI#$gi: $fields[8]\n";
+	    print STDERR "[WARNING] Can't find Accession#$acc: $fields[8]\n";
         next;
     }
 
@@ -64,7 +64,7 @@ while(<STDIN>)
 
     my $upper_rank_name="root";
     foreach my $rank ( sort {$major_level{$a}<=>$major_level{$b}} keys %major_level ){
-        my $name = gi2rank($gi,$rank);
+        my $name = acc2rank($acc,$rank);
         $name ||= "no rank - $upper_rank_name";
         $name =~ s/([\(\),:])//g;
         push @ranks, $name;

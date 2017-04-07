@@ -31,7 +31,7 @@ my $numCPU = 4;
 my $version = "0.3";
 
 my $EDGE_HOME = $ENV{EDGE_HOME};
-$EDGE_HOME ||= "$RealBin/../..";
+$EDGE_HOME ||= "$RealBin/..";
 
 GetOptions(
    'c=s'      => \$contig,
@@ -89,7 +89,7 @@ my $annotation="$outputDir/annotation.txt";
 if ($genomes || $genomesFiles)
 {
     $updateSNP=1;
-	my $list = &readListFromJson($ref_json_file); 
+	#my $list = &readListFromJson($ref_json_file); 
 	#my @ref_list = keys %$list;
 	$refdir = "$outputDir_abs_path/reffiles";
 	`mkdir -p $refdir`;
@@ -109,7 +109,7 @@ if ($genomes || $genomesFiles)
 				chomp $line;
 				#my @ref_name = grep { /$line/ } @ref_list;
 				#&extract_ref_seq($ref_name[0],$list,$refdir,$a_fh);
-				&extract_ref_seq($line,$list,$refdir,$a_fh);
+				&extract_ref_seq($line,$refdir,$a_fh);
 			}
 			close $fh;
 		}
@@ -120,7 +120,7 @@ if ($genomes || $genomesFiles)
 			{
 				#my @ref_name = grep { /$name/ } @ref_list;
 				#&extract_ref_seq($ref_name[0],$list,$refdir,$a_fh);
-				&extract_ref_seq($name,$list,$refdir,$a_fh);
+				&extract_ref_seq($name,$refdir,$a_fh);
 			}
 		}	
 		close $a_fh;
@@ -144,7 +144,7 @@ if ($genomes || $genomesFiles)
 	if($reference){
 		my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$reference*`;
 		chomp @tmpl;
-                my @gfiles = `ls -S $tmpl[0]/*gbk`;
+                my @gfiles = `ls -S $tmpl[0]/*gbk $tmpl[0]/*gbff 2>/dev/null`;
 		my @gfffiles;
 		foreach my $gbk (@gfiles){
 			chomp $gbk;
@@ -270,30 +270,23 @@ sub readListFromJson {
 
 sub extract_ref_seq {
 	my $name=shift;
-	my $list=shift;
+	#my $list=shift;
 	my $dir=shift;
 	my $annotion_fh=shift;
 	my $out_file = "$dir/$name.fna";
-	open (my $g_fh, ">$out_file") or die "Cannot write $out_file";
-	print $g_fh ">$name\n";
-	my $seq;
-	my $count=0;
-	foreach my $acc (@{$list->{$name}})
-	{
-		my $get = `grep $acc $bwa_index_id_map`;
+	my @tmpl = `ls -d $EDGE_HOME/database/NCBI_genomes/$name*`;
+	chomp @tmpl;
+	my @gfiles = `ls -S $tmpl[0]/*gbk $tmpl[0]/*gbff 2>/dev/null`;
+	foreach my $gbk (@gfiles){
+		chomp $gbk;
+		my ($gbk_basename,$gbk_path,$gbk_suffix)=fileparse($gbk,qr/\.[^.]*/);
+		my $acc = ($gbk_basename =~ /^(GC[FA]_\d+\.\d)/)? $1 : $gbk_basename;
+		system("$EDGE_HOME/scripts/genbank2fasta.pl $gbk >> $out_file");
+		my $get = `grep ">" $out_file | head -n 1 | sed -e 's/>//'`;
 		my @ref= split /\s+/,$get;
-		my $extract_id = shift @ref;
-		my ($gi) = $extract_id =~ /gi\|(\d+)/;
 		my $ref_name= join(" ",@ref);
-		my @seq = `samtools faidx $NCBI_bwa_genome_index \"$extract_id\"`;
-		shift @seq;  # remove first line
-		$seq .= join("",@seq);
-		print $annotion_fh "$name\t".$ref_name."\thttp://www.ncbi.nlm.nih.gov/nuccore/$gi\n" if ($ref_name !~ /plasmid/);
-		$count++;
+		print $annotion_fh "$name\t".$ref_name."\thttp://www.ncbi.nlm.nih.gov/nuccore/$acc\n" if ($ref_name !~ /plasmid/);
 	}
-	$seq =~ s/\s//g;
-	print $g_fh $seq."\n";
-	close $g_fh;
 }
 
 sub usage {
