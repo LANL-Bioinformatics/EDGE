@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use utf8;
+use Encode qw(encode_utf8);
 use JSON;
 use LWP::UserAgent;
-use LWP::Protocol::https;
 use HTTP::Request::Common;
 use FindBin qw($RealBin);
 use lib "$RealBin/edge_ui/metadata_scripts/lib";
@@ -81,7 +82,7 @@ sub pushSampleMetadata {
 				$metadata->{'lng'} = $sys->{'edgesite-lng'} unless $metadata->{'lng'};
 			}
 
-			my $obj = new SampleMetadata($run->{'bsve_id'},$study_id,$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
+			my $obj = new SampleMetadata($run->{'bsve_id'},$metadata->{'sra_run_accession'},$study_id,$metadata->{'study_title'},$metadata->{'study_type'},$metadata->{'sample_name'},$metadata->{'sample_type'},$metadata->{'host'}, $metadata->{'host_condition'}, $metadata->{'gender'}, $metadata->{'age'}, $metadata->{'isolation_source'}, $metadata->{'collection_date'}, $metadata->{'location'},$metadata->{'city'}, $metadata->{'state'}, $metadata->{'country'}, $metadata->{'lat'}, $metadata->{'lng'}, $metadata->{'experiment_title'}, $metadata->{'sequencing_center'}, $metadata->{'sequencer'}, $metadata->{'sequencing_date'});
 
 			my $run_id = $run->{'edge-run-id'};
 			$run_id = $configuration->{'projid'} unless $run_id;
@@ -323,15 +324,16 @@ sub apiWS_service {
 	} else {
 		$req = PUT $url;
 	}
-	$req->header('Content-Type' => 'application/json');
-	$req->header('Accept' => 'application/json');
+	$data = encode_utf8($data);
+	$req->header('Content-Type' => 'application/json;charset=UTF-8');
+	$req->header('Accept' => 'application/json;charset=UTF-8');
 	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
 	$req->header( "Content-Length" => length($data) );
 	$req->content($data);
 
 	my $response = $browser->request($req);
 	my $result_json = $response->decoded_content;
-
+#print STDERR "$result_json\n";
 	my $wsinfo =  from_json($result_json);
 	if ($result_json =~ /\"error_msg\":"(.*)"/) {
 		$wsinfo->{error}=$1;

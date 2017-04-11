@@ -105,49 +105,30 @@ $opt{"edge-sg-length-options"} = $sb_min_len/100;
 #####  Chienchi add for batch sra submit #######
 my $batch_sra_run=0;
 if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
-	$batch_sra_run=1;
-	$sys->{user_management}=0;
-	$opt{'edge-proj-name'} = $pname;
-	$opt{'edge-sra-sw'} =1;
-	$opt{'edge-sra-acc'} = $ARGV[1];
-	$opt{'edge-proj-desc'} = $ARGV[2];
-	$opt{'edge-qc-sw'} =1;
-	$opt{'edge-qc-q'} = 5; 
-	$opt{'edge-qc-minl'} = 50; 
-	$opt{'edge-qc-avgq'} = 0; 
-	$opt{'edge-qc-n'} = 0; 
-	$opt{'edge-qc-lc'} = 0.85; 
-	$opt{'edge-qc-5end'} = 0; 
-	$opt{'edge-qc-3end'} = 0; 
+        $batch_sra_run=1;
+        $sys->{user_management}=0;
+        $opt{'edge-proj-name'} = $pname;
+        $opt{'edge-sra-sw'} =1;
+        $opt{'edge-sra-acc'} = $ARGV[1];
+        $opt{'edge-proj-desc'} = $ARGV[2];
+        $opt{'edge-qc-sw'} =1;
+        $opt{'edge-qc-q'} = 5;
+        $opt{'edge-qc-minl'} = 30;
+        $opt{'edge-qc-avgq'} = 0;
+        $opt{'edge-qc-n'} = 0;
+        $opt{'edge-qc-lc'} = 0.85;
+        $opt{'edge-qc-5end'} = 0;
+        $opt{'edge-qc-3end'} = 0;
 
-	$opt{'edge-assembly-sw'}=0;
-	$opt{'edge-taxa-allreads'} =1;
-	$opt{'edge-taxa-enabled-tools'}="gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-v,gottcha2-genDB-v,gottcha2-speDB-b,bwa";
+        $opt{'edge-assembly-sw'}=0;
+        $opt{'edge-taxa-allreads'} =1;
+        $opt{'edge-taxa-enabled-tools'}="gottcha2-speDB-v,gottcha2-speDB-b,bwa,pangia";
+        if(-e $ARGV[3]) {
+                $opt{"metadata-other-file"} = $ARGV[3];
+        } else {
+                $opt{"metadata-other"} = $ARGV[3];
+        }
 
-        ###SRA sample metadata
-	$opt{'metadata-study-id'} = $ARGV[3];
-	$opt{'metadata-study-title'} = $ARGV[4];
-        $opt{'metadata-sample-name'} = $ARGV[5];
-        $opt{'metadata-sample-type'} = $ARGV[6];
-	$opt{'metadata-host-gender'} = $ARGV[7];
-	$opt{'metadata-host'} = $ARGV[8];
-	$opt{'metadata-host-condition'} = $ARGV[9];
-	$opt{'metadata-isolation-source'} = $ARGV[10];
-	$opt{'metadata-sample-collection-date'} = $ARGV[11];
-	$opt{'metadata-sample-location'} = $ARGV[12];
-	$opt{'locality'} = $ARGV[13] if $ARGV[13] ne "NA";
-	$opt{'administrative_area_level_1'} = $ARGV[14] if $ARGV[14] ne "NA";
-	$opt{'country'} = $ARGV[15];
-	$opt{'lat'} = $ARGV[16];
-	$opt{'lng'} = $ARGV[17];
-	$opt{'metadata-exp-title'} = $ARGV[18];
-	$opt{'metadata-seq-center'} = $ARGV[19];
-	$opt{'metadata-sequencer'} = $ARGV[20];
-	$opt{'metadata-seq-date'} = $ARGV[21];
-        $opt{"edge-proj-cpu"} = $ARGV[22];
-        $num_cpu = $opt{"edge-proj-cpu"};
-        $opt{"metadata-other"} = $ARGV[23];
-        #END
 }
 ###################
 
@@ -1242,6 +1223,7 @@ sub createSampleMetadataFile {
 			my $metadata_out = "$out_dir/$pname/metadata_sample.txt";
 			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_sample.txt" if ($username && $password);
 			open OUT,  ">$metadata_out";
+                        print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
 
 			my $id = $opt{'metadata-study-id'};
 			$id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"` unless $id;
@@ -1336,6 +1318,7 @@ sub getSRAmetaData{
 		my $instrument = $f[6]; #instrument_model
                 my $platform = $f[7]; #instrument_platform
                 my $library  = $f[8]; #library_layout
+                $opt{'metadata-sra-run-acc'} = $run_acc;
 		$opt{'metadata-study-id'} = $study_acc;
 		$opt{'metadata-study-title'} = $study_title;
  		$opt{'metadata-exp-title'} = $exp_title;
@@ -1358,21 +1341,6 @@ sub getSRAmetaData{
 			}
 			print STDERR $collectionDate,"\n";;
 			$location = $parts[2];
-			$country = $location;
-			print STDERR $country,"\n";;
-			if($country =~ /(.*):\s*(.*?),\s*(.*)\s*/) {
- 				$country = $1;
-				$city = $2;
-				$state = $3;
- 			}       
-			if($country =~ /(.*):\s*(.*)\s*:\s*(.*)\s*/) {
-				$country = $1;
-  				$city = $2;
-   			}       
-			elsif($country =~ /(.*):\s*(.*)\s*/) {
-  				$country = $1;
-   				$state= $2;
-			}
   			$sampleName = $parts[3];
  			$sampleName = $parts[8] unless $sampleName;
  			$seqDate = $parts[4];
@@ -1396,7 +1364,7 @@ sub getSRAmetaData{
 			$host = $parts[11];
 			$sampleType = "environmental";
 			my $stype = lc $parts[7];
-			if($stype =~ /human/ || lc($host) =~ /human/ || lc($host) =~ /homo/) {
+			if($stype =~ /human|homo/ || lc($host) =~ /human|homo/) {
 				$sampleType = "human";
 			} 
 			elsif($stype =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/ || lc($host) =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/) {
@@ -1405,10 +1373,8 @@ sub getSRAmetaData{
 			$center = $parts[9];
 			$hostCondition = $parts[12];
 			$gender = $parts[13];   
-			#get lat,lng from location
-			if(!$lat && !$lng && $location) {
-				($lat,$lng) = getLatLong($location);
-			}
+  			($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
+
 			$opt{'metadata-sample-name'} = $sampleName;
 			$opt{'metadata-sample-type'} = $sampleType;
 			$opt{'metadata-host-gender'} = $gender;
@@ -1424,28 +1390,54 @@ sub getSRAmetaData{
 			$opt{'lng'} = $lng;
 			$opt{'metadata-seq-date'} = $seqDate;
  			$opt{'metadata-seq-center'} = $center;
-			#$opt{"metadata-other"} = "lanl_only=true";
+
 		}
 	}
 	return 0;
 }
 
-sub getLatLong($){
-	my ($address) = @_;
+sub getGeocode($){
+	my ($lat,$lng,$location) = @_;
+	my ($rlat, $rlng, $city, $state, $country);
 	my $format = "json"; #can also to 'xml'
 	my $geocodeapi = "https://maps.googleapis.com/maps/api/geocode/";
-	my $url = $geocodeapi . $format . "?address=" . $address;
-	my $json = get($url);
-	#print STDERR $json;
-	my ($lat, $lng) = ("","");
-	if ($json){
+	my $url;
+	if($lat && $lng) {
+		$url = $geocodeapi . $format . "?latlng=" . $lat.",".$lng;
+	} elsif($location) {
+		$url = $geocodeapi . $format . "?address=" . $location;
+	}
+	if($url) {
+		my $json = get($url);
 		my $d_json = decode_json( $json );
-		$lat = $d_json->{results}->[0]->{geometry}->{location}->{lat};
-		$lng = $d_json->{results}->[0]->{geometry}->{location}->{lng};
+
+		$rlat = $d_json->{results}->[0]->{geometry}->{location}->{lat};
+		$rlng = $d_json->{results}->[0]->{geometry}->{location}->{lng};
+	
+		if(!$location) {
+			$location = $d_json->{results}->[0]->{formatted_address};
+		}
+  
+	   for my $address_component (@{ $d_json->{results}[0]{address_components} }) {
+	     if ( $address_component->{types}[0] eq "locality") {
+	       $city = $address_component->{long_name};
+	     }
+
+	     if ( $address_component->{types}[0] eq "administrative_area_level_1") {
+	       $state = $address_component->{long_name};
+	     }
+
+	     if ( $address_component->{types}[0] eq "country") {
+	       $country = $address_component->{long_name};
+	     }
+	   }
 	}
 
-	return ($lat, $lng);
+        $rlat = $lat unless $rlat;
+        $rlng = $lng unless $rlng;
+	return ($rlat, $rlng, $city, $state, $country, $location);
 }
+#################
 
 sub saveListToJason {
 	my ($list, $file) = @_;

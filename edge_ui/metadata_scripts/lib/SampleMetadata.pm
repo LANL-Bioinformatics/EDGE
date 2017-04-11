@@ -6,6 +6,7 @@ sub new {
 	my $class = shift;
 	my $self = {
 		metadata_id 			=> shift,
+		sra_run_accession		=> shift,
 		study_id	 			=> shift,
 		study_title 			=> shift,
 		study_type 			=> shift,
@@ -42,9 +43,11 @@ sub toJson {
 	$json .= ',"lanl_only":"'.$lanlOnly.'"' if $lanlOnly;
 
 	$json .= ',"metadata_id":"'.$self->{metadata_id}.'"' if $self->{metadata_id};
+	$json .= ',"sra_run_accession":"'.$self->{sra_run_accession}.'"' if $self->{sra_run_accession};
 	$json .= ',"study_id":"'.$self->{study_id}.'"' if $self->{study_id};
 	$json .= ',"study_title":"'.$self->{study_title}.'"' if $self->{study_title};
 	$json .= ',"study_type":"'.$self->{study_type}.'"' if $self->{study_type};
+	$self->{sample_name} =~ s/"/\\"/g;
 	$json .= ',"sample_name":"'.$self->{sample_name}.'"' if $self->{sample_name};
 	$json .= ',"sample_type":"'.$self->{sample_type}.'"' if $self->{sample_type};
 	$json .= ',"host":"'.$self->{host}.'"' if $self->{host};
