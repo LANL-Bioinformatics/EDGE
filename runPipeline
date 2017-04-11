@@ -308,9 +308,20 @@ my $conversion_cmd_array_ref = &MergeReport();
 #&updateProjectHTML($outDir,$start_time_string) if ($configuration->{DoHTMLReport});
 
 ##pathogen detection 
-my $taxonomy_summary = "$taxonomy_report_dir/summary.txt";
-if($sys->{edge_pathogen_detection} && -e $taxonomy_summary) {
-	&detectPathogen($taxonomy_summary);
+my $blist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-b/allReads-gottcha2-speDB-b.list.txt";
+my $vlist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-v/allReads-gottcha2-speDB-v.list.txt";
+
+if(!-e $blist || !-e $vlist) {
+   $blist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-b/allReads-gottcha-speDB-b.list.txt";
+   $vlist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-v/allReads-gottcha-speDB-v.list.txt";
+}
+
+
+if($sys->{edge_pathogen_detection} && -e $blist && -e $vlist) {
+	&detectPathogen($blist, $vlist);
+}else{
+	&lprint ("File $blist not found\n");
+	&lprint ("File $vlist not found\n");
 }
 ##END pathogen detection
 ##sample metadata submission
@@ -2274,7 +2285,9 @@ sub runReadsToGenome
     my $unpairFile=shift;
     my $referenceFile_r = shift;
     my $referenceFiles = join(" ",@$referenceFile_r);
+#    print STDERR scalar(@$referenceFile_r)."\n";
     my $referenceCount = scalar(@$referenceFile_r);
+#    print STDERR $referenceCount."\t".$referenceFiles."\n";
     my $time=time();
     my $outPrefix = "readsToRef";
     my $outputDir= "$outDir/ReadsBasedAnalysis/readsMappingToRef";
@@ -2321,6 +2334,7 @@ sub runReadsToGenome
     &executeCommand($command);
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
     &executeCommand("cat $outputDir/*.vcf > $outVCF");
+#	exit;
 	# Added by Logan, Allows for one reference to be run.
 	if ($referenceCount == 1){
 		&executeCommand("cp $outputDir/*bam $outBam");
@@ -3653,13 +3667,14 @@ sub lprint {
 
 sub detectPathogen
 {
-	my $summary =shift;
+	my $bl = shift;
+	my $vl = shift;
 	my $log = "$outDir/pathogenDetect.log";
 	my $dbhost = $sys->{pathogen_dbhost};
 	my $dbname = $sys->{pathogen_dbname};
 	my $dbuser = $sys->{pathogen_dbuser};
 	my $dbpasswd = $sys->{pathogen_dbpasswd};
-	my $cmd="python $RealBin/scripts/identify_pathogens.py -i $summary -o $outDir/pathogens.txt -d $dbhost -n $dbname -u $dbuser -p $dbpasswd 2>\&1 1>$log";
+	my $cmd="python $RealBin/scripts/identify_pathogens.py -b $bl -v $vl -o $outDir/pathogens.txt -d $dbhost -n $dbname -u $dbuser -p $dbpasswd 2>\&1 1>$log";
     	&lprint ("\n Running \n $cmd\n");
    	eval{system("$cmd");};
     	&lprint ("Pathogen detection finished.\n");
