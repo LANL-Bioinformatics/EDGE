@@ -311,11 +311,12 @@ my $conversion_cmd_array_ref = &MergeReport();
 my $blist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-b/allReads-gottcha2-speDB-b.list.txt";
 my $vlist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-v/allReads-gottcha2-speDB-v.list.txt";
 
-if(!-e $blist || !-e $vlist) {
+if(!-e $blist) {
    $blist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-b/allReads-gottcha-speDB-b.list.txt";
+}
+if(!-e $vlist) {
    $vlist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-v/allReads-gottcha-speDB-v.list.txt";
 }
-
 
 if($sys->{edge_pathogen_detection} && -e $blist && -e $vlist) {
 	&detectPathogen($blist, $vlist);
