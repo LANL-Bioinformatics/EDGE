@@ -100,7 +100,7 @@ if ($cleanupTargetDir) {
 		$tmpfilePath = $targetDir . DIRECTORY_SEPARATOR . $file;
 
 		// If temp file is current file proceed to the next
-		if ($tmpfilePath == "{$filePath}.part") {
+		if ($tmpfilePath == "{$filePath}.part" || $file == '.' || $file == '..') {
 			continue;
 		}
 
@@ -145,7 +145,7 @@ if (!$chunks || $chunk == $chunks - 1) {
 	// Strip the temp .part suffix off 
 	$fileType = mime_content_type("{$filePath}.part");
 	if(preg_match("/text/i", $fileType)){
-		system("sed 's/\r//' \"{$filePath}.part\" >$filePath");
+		system("perl -pe 's/\r\n|\n|\r/\n/g' \"{$filePath}.part\" >$filePath");
 		unlink("{$filePath}.part");
 	}else{
 		rename("{$filePath}.part", $filePath);

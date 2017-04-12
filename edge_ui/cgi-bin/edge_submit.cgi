@@ -1112,6 +1112,7 @@ sub parse_qiime_mapping_files{
 		}
 		close $fh;
 	}
+	&addMessage("PARAMS","edge-qiime-mapping-file-input1","No fastq input in the qiime mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
 	return (\@pe1_files,\@pe2_files,\@se_files);
 }
 
