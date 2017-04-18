@@ -443,29 +443,29 @@ sub scanNewProjToList {
 			#}
 			chomp $projname;
 			$list->{$cnt}->{PROJNAME} = $projname;
-		}
 
-		## sample metadata
-		if($sys->{edge_sample_metadata}) {
-			$list->{$cnt}->{SHOWMETA} = 1;
-			$list->{$cnt}->{ISOWNER} = 1;
-		}
-		my $metaFile = "$out_dir/$file/metadata_sample.txt";
-		my $runFile = "$out_dir/$file/metadata_run.txt";
-		my $pathogensFile = "$out_dir/$file/pathogens.txt";
-		if(-r $metaFile) {
-			$list->{$cnt}->{HASMETA} = 1;
-		} 
+			## sample metadata
+			if($sys->{edge_sample_metadata}) {
+				$list->{$cnt}->{SHOWMETA} = 1;
+				$list->{$cnt}->{ISOWNER} = 1;
+			}
+			my $metaFile = "$out_dir/$file/metadata_sample.txt";
+			my $runFile = "$out_dir/$file/metadata_run.txt";
+			my $pathogensFile = "$out_dir/$file/pathogens.txt";
+			if(-r $metaFile) {
+				$list->{$cnt}->{HASMETA} = 1;
+			} 
 
-		if($sys->{edge_sample_metadata_share2bsve} && hasPathogens($pathogensFile)) {
-			$list->{$cnt}->{SHAREBSVE} = 1;
+			if($sys->{edge_sample_metadata_share2bsve} && hasPathogens($pathogensFile)) {
+				$list->{$cnt}->{SHAREBSVE} = 1;
+			}
+			if(-r $runFile) {
+				my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
+				chomp $bsveId;
+				$list->{$cnt}->{METABSVE} = $bsveId;
+			}
+			## END sample metadata
 		}
-		if(-r $runFile) {
-			my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
-			chomp $bsveId;
-			$list->{$cnt}->{METABSVE} = $bsveId;
-		}
-		## END sample metadata
 	}
 	closedir(BIN);
 }

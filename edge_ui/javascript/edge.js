@@ -2013,7 +2013,7 @@ $( document ).ready(function()
 		
 					var listIdOrder = Object.keys(obj.LIST);
 					listIdOrder.sort(
- 						firstBy(function(a,b){ return obj.LIST[b].TIME < obj.LIST[a].TIME ? -1 : obj.LIST[b].TIME > obj.LIST[a].TIME; })
+						firstBy(function(a,b){ return new Date(obj.LIST[b].TIME.replace(/-/g,"/")) - new Date(obj.LIST[a].TIME.replace(/-/g,"/"))})
  						.thenBy(function(a,b){ return obj.LIST[b].NAME < obj.LIST[a].NAME ? -1 : obj.LIST[b].NAME > obj.LIST[a].NAME; })
  					);
 					if (projListNumShow == 0){ projListNumShow = 9999999;}
