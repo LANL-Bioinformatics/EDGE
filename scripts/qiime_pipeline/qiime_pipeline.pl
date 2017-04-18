@@ -419,7 +419,8 @@ sub heatmap
     my $dir = shift;
     my $otu_tree=shift;
     my $outputFile="$dir/heatmap.pdf";
-    my $cmd="make_otu_heatmap.py -i $biom -o $outputFile -t $otu_tree"; 
+    my $cmd="make_otu_heatmap.py -i $biom -o $outputFile "; 
+    $cmd .= " -t $otu_tree " if (-e "$otu_tree");
     if (-e "$outputFile")
     {
         &lprint("\nHeatMap generated\n");
