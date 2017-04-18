@@ -928,7 +928,8 @@ sub core_diversity_analysis
     my ($mapping_file_r,$categories)=&get_catetory_from_mapping_file($merge_mapping_file);
     $categories = "-c $categories " if ($categories);
     #my $cmd = "core_diversity_analyses.py --recover_from_failure -i $biom -o $outputDir -m $merge_mapping_file -e $sampling_depth -t $reference_tree $parameter_file -aO $CPUs";
-    my $cmd = "core_diversity_analyses.py $options -i $biom -o $outputDir -m $merge_mapping_file -e $sampling_depth $categories -t $rep_set_tre $parameter_file -aO $CPUs";
+    my $cmd = "core_diversity_analyses.py $options -i $biom -o $outputDir -m $merge_mapping_file -e $sampling_depth $categories $parameter_file -aO $CPUs";
+    $cmd .= " -t $rep_set_tre " if ($options !~ /nonphylogenetic_diversity/i);
     my $return=&process_cmd($cmd,"Perform Diversity Analysis and Taxanomy Summary",$DieCatch);
     if ($return)
     {
