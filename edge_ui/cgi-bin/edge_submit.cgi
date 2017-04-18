@@ -527,14 +527,14 @@ sub runPipeline_cluster {
 		}else{
 			for (0..$#edge_input_pe1)
 			{
-				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] ";
+				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] \\\n";
 			}
 		
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		$process_parameters .= " -p $paired_files " if ($paired_files);
-		$process_parameters .= " -u $single_files " if ($single_files);
+		$process_parameters .= " -p $paired_files " if ($paired_files && $pipeline ne 'qiime');
+		$process_parameters .= " -u $single_files " if ($single_files && $pipeline ne 'qiime');
 
 		my $cmd = "$EDGE_HOME/runPipeline $process_parameters > $proj_dir/process_current.log";
 
