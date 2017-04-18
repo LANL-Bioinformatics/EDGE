@@ -146,7 +146,7 @@ if( $sys->{user_management} ){
 }
 
 # Qiime dir submit
-if ($edge_qiime_input_dir){
+if ($edge_qiime_input_dir && $pipeline eq "qiime"){
 	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
 	@edge_input_pe1 = @{$pe1_file_r};
 	@edge_input_pe2 = @{$pe2_file_r};
@@ -455,14 +455,14 @@ sub runPipeline {
 		}else{
 			for (0..$#edge_input_pe1)
 			{
-				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] ";
+				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] \\\n";
 			}
 		
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		$process_parameters .= " -p $paired_files " if ($paired_files);
-		$process_parameters .= " -u $single_files " if ($single_files);
+		$process_parameters .= " -p $paired_files " if ($paired_files && $pipeline ne 'qiime');
+		$process_parameters .= " -u $single_files " if ($single_files && $pipeline ne 'qiime');
 
 		my $cmd = "$EDGE_HOME/runPipeline $process_parameters > $proj_dir/process_current.log &";
 
@@ -852,6 +852,51 @@ sub checkParams {
 			}
 		}
 	}
+
+	if ($pipeline eq "qiime"){
+		$opt{"edge-qiime-sw"} =1;
+		$opt{"edge-qc-sw"} =0;
+		$opt{"edge-hostrm-sw"} =0;
+		$opt{"edge-assembly-sw"} = 0;
+		$opt{"edge-ref-sw"} = 0;
+		$opt{"edge-taxa-sw"} = 0;
+		$opt{"edge-contig-taxa-sw"} = 0;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-phylo-sw"} = 0 ;
+		$opt{"edge-primer-valid-sw"} = 0 ;
+		$opt{"edge-primer-adj-sw"} = 0 ;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-jbroswe-sw"} = 0 ;
+		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input"} if defined $opt{"edge-qiime-barcode-fq-file-input"};
+		foreach my $i (0..$#edge_qiime_barcode_input){
+			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);
+			$edge_qiime_barcode_input[$i] =~ s/ //g;
+			$edge_qiime_barcode_input[$i] = "$input_dir/$edge_qiime_barcode_input[$i]" if ($edge_qiime_barcode_input[$i] =~ /^\w/);
+			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_barcode_input[$i]});
+			$files{$edge_qiime_barcode_input[$i]}=1;
+			if ($edge_qiime_barcode_input[$i]  && -e $edge_qiime_barcode_input[$i]){
+				&addMessage("PARAMS","$id","Input error. FASTQ format required") if ( ! is_fastq($edge_qiime_barcode_input[$i]));
+			}else{
+				&addMessage("PARAMS","$id","Input error. Please check the file path.");
+				
+			}
+		}
+		&addMessage("PARAMS", "edge-qiime-barcode-length","Invalid input. Natural number required.") unless $opt{"edge-qiime-barcode-length"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-phred-quality-threshold", "Invalid input. Input should in range 0-41.") unless ( $opt{"edge-qiime-phred-quality-threshold"} >= 0 && $opt{"edge-qiime-phred-quality-threshold"} <=41 );
+		&addMessage("PARAMS", "edge-qiime-max-n","Invalid input. Natural number required.") unless $opt{"edge-qiime-max-n"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-min-per-read-length-fraction","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-min-per-read-length-fraction"} >=0 && $opt{"edge-qiime-min-per-read-length-fraction"} <=1 );
+		&addMessage("PARAMS", "edge-qiime-minimum-otu-size","Invalid input. Natural number required.") unless $opt{"edge-qiime-minimum-otu-size"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-similarity","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-similarity"} >=0 && $opt{"edge-qiime-similarity"} <=1 );
+		&addMessage("PARAMS", "edge-qiime-sampling-depth","Invalid input. Natural number required.") unless $opt{"edge-qiime-sampling-depth"}=~ /^\d+$/;
+
+		
+	} else {##sample metadata
+		if ( $sys->{edge_sample_metadata} ){
+			#&addMessage("PARAMS", "country", "Metadata sample location country or lat&lng required.") unless ( $opt{'country'} || ($opt{'lat'} && $opt{'lng'})); 
+			#&addMessage("PARAMS", "edge-pg-collection-date", "Metadata sample collection date is required.") unless ( $opt{'edge-pg-collection-date'} ); 
+			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
+		} 
+	}
 	
 	#tool parameters
 	if ( $opt{"edge-ref-sw"}){
@@ -1028,50 +1073,6 @@ sub checkParams {
                         &addMessage("PARAMS","edge-phylo-ref-select","Please select/add at least three genomes") if defined $opt{"edge-phylo-ref-select"};
                         &addMessage("PARAMS","edge-phylo-ref-file-1","Please select/add at least three genomes") if (defined $opt{"edge-phylo-ref-file"});
                 }
-	}
-	if ($pipeline eq "qiime"){
-		$opt{"edge-qiime-sw"} =1;
-		$opt{"edge-qc-sw"} =0;
-		$opt{"edge-hostrm-sw"} =0;
-		$opt{"edge-assembly-sw"} = 0;
-		$opt{"edge-ref-sw"} = 0;
-		$opt{"edge-taxa-sw"} = 0;
-		$opt{"edge-contig-taxa-sw"} = 0;
-		$opt{"edge-anno-sw"} = 0 ;
-		$opt{"edge-phylo-sw"} = 0 ;
-		$opt{"edge-primer-valid-sw"} = 0 ;
-		$opt{"edge-primer-adj-sw"} = 0 ;
-		$opt{"edge-anno-sw"} = 0 ;
-		$opt{"edge-jbroswe-sw"} = 0 ;
-		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input"} if defined $opt{"edge-qiime-barcode-fq-file-input"};
-		foreach my $i (0..$#edge_qiime_barcode_input){
-			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);
-			$edge_qiime_barcode_input[$i] =~ s/ //g;
-			$edge_qiime_barcode_input[$i] = "$input_dir/$edge_qiime_barcode_input[$i]" if ($edge_qiime_barcode_input[$i] =~ /^\w/);
-			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_barcode_input[$i]});
-			$files{$edge_qiime_barcode_input[$i]}=1;
-			if ($edge_qiime_barcode_input[$i]  && -e $edge_qiime_barcode_input[$i]){
-				&addMessage("PARAMS","$id","Input error. FASTQ format required") if ( ! is_fastq($edge_qiime_barcode_input[$i]));
-			}else{
-				&addMessage("PARAMS","$id","Input error. Please check the file path.");
-				
-			}
-		}
-		&addMessage("PARAMS", "edge-qiime-barcode-length","Invalid input. Natural number required.") unless $opt{"edge-qiime-barcode-length"}=~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qiime-phred-quality-threshold", "Invalid input. Input should in range 0-41.") unless ( $opt{"edge-qiime-phred-quality-threshold"} >= 0 && $opt{"edge-qiime-phred-quality-threshold"} <=41 );
-		&addMessage("PARAMS", "edge-qiime-max-n","Invalid input. Natural number required.") unless $opt{"edge-qiime-max-n"}=~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qiime-min-per-read-length-fraction","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-min-per-read-length-fraction"} >=0 && $opt{"edge-qiime-min-per-read-length-fraction"} <=1 );
-		&addMessage("PARAMS", "edge-qiime-minimum-otu-size","Invalid input. Natural number required.") unless $opt{"edge-qiime-minimum-otu-size"}=~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qiime-similarity","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-similarity"} >=0 && $opt{"edge-qiime-similarity"} <=1 );
-		&addMessage("PARAMS", "edge-qiime-sampling-depth","Invalid input. Natural number required.") unless $opt{"edge-qiime-sampling-depth"}=~ /^\d+$/;
-
-		
-	} else {##sample metadata
-		if ( $sys->{edge_sample_metadata} ){
-			#&addMessage("PARAMS", "country", "Metadata sample location country or lat&lng required.") unless ( $opt{'country'} || ($opt{'lat'} && $opt{'lng'})); 
-			#&addMessage("PARAMS", "edge-pg-collection-date", "Metadata sample collection date is required.") unless ( $opt{'edge-pg-collection-date'} ); 
-			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
-		} 
 	}
 }
 
