@@ -418,6 +418,7 @@ $( document ).ready(function()
 	}
 	$('.edge-get-c2g-contigs, .edge-get-r2g-reads').on('click',function(){
 		var ReferenceID = $(this).closest('tr').find('td:eq(0)').text();
+		var ReferenceFile = $(this).closest('tr').find('td:eq(0)').attr("data-reffile");
 		var type, action;
 		if ($(this).hasClass("edge-get-c2g-contigs")){
 			type='contigs';
@@ -436,7 +437,7 @@ $( document ).ready(function()
 				type: "POST",
 				dataType: "json",
 				cache: false,
-				data: { "proj" : focusProjName, "action": action, "refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
+				data: { "proj" : focusProjName, "action": action, "reffile":ReferenceFile,"refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
 				beforeSend: function(){
 					$.mobile.loading( "show", {
 						text: "Extract Contigs Fasta...",
