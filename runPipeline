@@ -198,11 +198,11 @@ my $annotateProgram=$configuration->{annotateProgram}||"prokka";
 
 if ($referenceGenome)
 {
-    my ($r2gBam,$r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
+    my ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
     my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);
 
     if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
-        ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
+        ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
     }
     if( $configuration->{MapUnmappedReads} ){
         &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads > 0);
@@ -218,7 +218,7 @@ if ($referenceGenome)
         else
         {
             # retrieve unmapped reads
-            ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads($r2gBam);
+            ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
 	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads > 0);
             `ln -sf $outDir/ReferenceBasedAnalysis/UnmappedReads $outDir/ReadsBasedAnalysis/UnmappedReads` if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
         }
@@ -1223,9 +1223,12 @@ sub ContigsBlast
 
 sub retrieveUnmappedReads
 {
-    my $bamFile=shift;
+    my $referenceFile_r=shift;
+    my @referenceFiles = @$referenceFile_r;
+    my $referenceCount = scalar(@referenceFiles);
     my $time=time();
     my $outputDir="$outDir/ReferenceBasedAnalysis/UnmappedReads";
+    my $refmapping_outdir="$outDir/ReferenceBasedAnalysis/readsMappingToRef";
     my $log = "$outputDir/log.txt";
     my $unmappedSingle="$outputDir/singleEnd.fastq";
     my $unmappedPaired_1="$outputDir/pairedEnd.1.fastq";
@@ -1250,7 +1253,7 @@ sub retrieveUnmappedReads
     }
     else
     {
-       &lprint ("  Retrieveing unmapped reads", "\n");
+       &lprint ("  Retrieving unmapped reads\n");
        system("rm -f $outputDir/retrieveUnmappedReads.finished");
     }
 
@@ -1260,40 +1263,45 @@ sub retrieveUnmappedReads
     {
         open ($pe_fh1,">$unmappedPaired_1") or die "cannot open $unmappedPaired_1 to write\n";
         open ($pe_fh2,">$unmappedPaired_2") or die "cannot open $unmappedPaired_2 to write\n";
-        &executeCommand("samtools view -f 4 $bamFile | sort -T $outputDir -k 1 > $outputDir/unmapped.sam"); 
     }
-    else
-    {
-        &executeCommand("samtools view -f 4 $bamFile > $outputDir/unmapped.sam"); 
-    }
-    open (my $fh, "$outputDir/unmapped.sam") or die "cannot open $outputDir/unmapped.sam\n";
-    while (<$fh>)
-    {
-        chomp;
-        my @samFields=split /\t/,$_;
-        if ($samFields[1] & 1)  # paired reads
+    my %filter;
+    foreach my $file (@referenceFiles){
+        my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+        my $bamFile = "$refmapping_outdir/$file_name.sort.bam";
+        &executeCommand("samtools view -f 4 $bamFile | sort -T $outputDir -k 1,1 > $outputDir/unmapped.sam");
+        open (my $fh, "$outputDir/unmapped.sam") or die "cannot open $outputDir/unmapped.sam\n";
+        while (<$fh>)
         {
-            if (($samFields[1] & 4) && ($samFields[1] & 8))   # both unmapped
+            chomp;
+            my @samFields=split /\t/,$_;
+            my $R1_R2 = 1;
+            $R1_R2 = 2 if ($samFields[1] & 128);
+            my $unique_id=$samFields[0]."_$R1_R2";
+            $filter{$unique_id}++;
+            next if ($filter{$unique_id} != $referenceCount);
+
+            if ($samFields[1] & 1)  # paired reads
             {
-                $NumOfunmappedPaired = $NumOfunmappedPaired + 1 ;
-                print $pe_fh1 "@".$samFields[0]."/1\n".$samFields[9]."\n+\n".$samFields[10]."\n" if ($samFields[1] & 64);
-                print $pe_fh2 "@".$samFields[0]."/2\n".$samFields[9]."\n+\n".$samFields[10]."\n" if ($samFields[1] & 128);
+                if (($samFields[1] & 4) && ($samFields[1] & 8))   # both unmapped
+                {
+                    $NumOfunmappedPaired = $NumOfunmappedPaired + 1 ;
+                    print $pe_fh1 "@".$samFields[0]."/1\n".$samFields[9]."\n+\n".$samFields[10]."\n" if ($samFields[1] & 64);
+                    print $pe_fh2 "@".$samFields[0]."/2\n".$samFields[9]."\n+\n".$samFields[10]."\n" if ($samFields[1] & 128);
+                }
+                else{
+                    # the other mate mapped, do we need to keep this?
+                    $NumOfunmappedSingle++;
+                    print $se_fh "@".$samFields[0]."\n".$samFields[9]."\n+\n".$samFields[10]."\n";
+                }
             }
-            else
-            {
-                # the other mate mapped, do we need to keep this?
-                $NumOfunmappedSingle++;
-                print $se_fh "@".$samFields[0]."\n".$samFields[9]."\n+\n".$samFields[10]."\n";
+            else{ # single end reads
+                    # original from single end reads and unmapped. Could be after QC SE reads.
+                    $NumOfunmappedSingle++;
+                    print $se_fh "@".$samFields[0]."/1\n".$samFields[9]."\n+\n".$samFields[10]."\n";
             }
         }
-        else # single end reads
-        { 
-            # original from single end reads and unmapped. Could be after QC SE reads.
-            $NumOfunmappedSingle++;
-            print $se_fh "@".$samFields[0]."/1\n".$samFields[9]."\n+\n".$samFields[10]."\n";
-        }       
+        close $fh;
     }
-    close $fh;
     close $se_fh;
     &lprint ("  Unmapped reads:\n");
     &lprint ("    Paired End: $NumOfunmappedPaired\n");
@@ -2293,7 +2301,6 @@ sub runReadsToGenome
     my $outPrefix = "readsToRef";
     my $outputDir= "$outDir/ReadsBasedAnalysis/readsMappingToRef";
     my $log="$outputDir/mapping.log";
-    my $outBam = "$outputDir/$outPrefix.sort.bam";
     my $outVCF = "$outputDir/$outPrefix.vcf";
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
@@ -2307,16 +2314,15 @@ sub runReadsToGenome
     {
         &lprint (colored ("[Reads Mapping To Reference]\n",'yellow'));
     }
-    if ( -s "$outputDir/$outPrefix.sort.bam" && -e "$outputDir/runReadsToGenome.finished" )
+    if ( -e "$outputDir/runReadsToGenome.finished" )
     {
        &lprint ("Reads Mapping to Reference Finished\n");
-       return ($outBam,$outVCF,$outGap);
+       return ($outVCF,$outGap);
     }
     system("rm -f $outputDir/runReadsToGenome.finished");
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     unlink "$outGap";
     unlink "$outVCF";
-    unlink "$outBam";
     
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
@@ -2335,25 +2341,22 @@ sub runReadsToGenome
     &executeCommand($command);
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
     &executeCommand("cat $outputDir/*.vcf > $outVCF");
-#	exit;
-	# Added by Logan, Allows for one reference to be run.
-	if ($referenceCount == 1){
-		&executeCommand("cp $outputDir/*bam $outBam");
-	}
-	else{
-		&executeCommand("samtools cat -o $outBam $outputDir/*bam");
-    }
-	if ($configuration->{r2g_extract_mapped}){
+    
+    if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
         `echo "Extract mapped reads" >> $log`;
-        $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped $outBam >>$log ";
-        &executeCommand($command);
+         foreach my $file (@$referenceFile_r){
+            my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+            my $bamFile = "$outputDir/$file_name.sort.bam";
+            $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped_to_$file_name $bamFile >>$log ";
+            &executeCommand($command);
+        }
     }
     &executeCommand("echo -n \"Total Unmapped:\" >>$log");
-    &executeCommand("samtools view -f 4 $outBam | wc -l | awk '{print \$1}'>>$log");
+    &executeCommand("$RealBin/scripts/count_unmapped.pl $outputDir/*bam >>$log");
     &printRunTime($time);
     system("touch $outputDir/runReadsToGenome.finished");
-    return ($outBam,$outVCF,$outGap);
+    return ($outVCF,$outGap);
 }
 
 sub runContigToGenome
