@@ -403,6 +403,72 @@ $( document ).ready(function()
 			}
 		});
 	});
+
+	var table_row_limit = 10;
+	if ($('.edge-get-r2g-reads').length > table_row_limit ){
+		$('.edge-get-r2g-reads').closest('table').DataTable({
+			"order": [],
+			"pageLength": table_row_limit,
+			"deferRender": true,
+			"responsive": true,
+		});
+	}
+	if ($('.edge-get-c2g-contigs').length > table_row_limit){
+		$('.edge-get-c2g-contigs').closest('table').DataTable({
+			"order": [],
+			"pageLength": table_row_limit,
+			"deferRender": true,
+			"responsive": true,
+		});
+	}
+	$('.edge-get-c2g-contigs, .edge-get-r2g-reads').on('click',function(){
+		var ReferenceID = $(this).closest('tr').find('td:eq(0)').text();
+		var ReferenceFile = $(this).closest('tr').find('td:eq(0)').attr("data-reffile");
+		var type, action;
+		if ($(this).hasClass("edge-get-c2g-contigs")){
+			type='contigs';
+			action='getcontigbyref';
+		}
+		else if ($(this).hasClass("edge-get-r2g-reads")){
+			type='reads';
+			action='getreadsbyref';
+		}
+		var actionContent = "Do you want to extract mapped to " + ReferenceID + " " + type + " ?<br/>";
+		$("#edge_confirm_dialog_content").html(actionContent);
+		$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
+		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+			$.ajax({
+				url: "./cgi-bin/edge_action.cgi",
+				type: "POST",
+				dataType: "json",
+				cache: false,
+				data: { "proj" : focusProjName, "action": action, "reffile":ReferenceFile,"refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
+				beforeSend: function(){
+					$.mobile.loading( "show", {
+						text: "Extract Contigs Fasta...",
+						textVisible: 1,
+						html: ""
+					});
+				},
+				complete: function() {
+				},
+				success: function(data){
+					$.mobile.loading( "hide");
+					if( data.STATUS == "SUCCESS" ){
+                                        	//console.log(edge_path,data.PATH);
+						window.open(edge_path + data.PATH);
+					}else{
+						showMSG(data.INFO);
+					}
+				},
+				error: function(data){
+					$.mobile.loading( "hide");
+					showMSG("ACTION FAILED: Please try again or contact your system administrator.");
+				}
+			});
+		});
+	});
+
 	$('#edge-get-contigs-by-taxa').on('change',function(){
 		var taxa = $(this).val();
 		if(taxa == "0" ){

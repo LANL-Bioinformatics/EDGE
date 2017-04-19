@@ -247,7 +247,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 my $Rscript = "$tmp/Rscript$$";
 open (my $pdf_fh, ">$Rscript") or die "Cannot write $Rscript\n";
 print $pdf_fh "pdf(file=\"$plotsPdf\",width=10,height=8); \n";
-my $stats_print_string_head = "\nRef\tRef_len\tRef_GC%\tMapped_reads\tRef_recovery%\tAvg_fold(x)\tFold_std\tNum_of_Gap\tTotal_Gap_bases";
+my $stats_print_string_head = "Ref\tRef_len\tRef_GC%\tMapped_reads\tRef_recovery%\tAvg_fold(x)\tFold_std\tNum_of_Gap\tTotal_Gap_bases";
 $stats_print_string_head .= "\tNum_of_SNPs\tNum_of_INDELs" if (!$no_snp);
 `echo  "$stats_print_string_head" > $final_stats_output`;
 
@@ -395,13 +395,17 @@ for my $ref_file_i ( 0..$#ref_files){
 			($snp_num , $indel_num)= &SNP_INDEL_COUNT("$vcf_output","$ref_name");
 			$stats_print_string .= $snp_num ."\t". $indel_num;
 		}
-		`echo  -e "\n${stats_print_string_head}\n$stats_print_string" >> $stats_output`;
+		if ($num_ref>1){
+			`echo  -e "$stats_print_string" >> $stats_output`;
+		}else{
+			`echo  -e "\n${stats_print_string_head}\n$stats_print_string" >> $stats_output`;
+		}
 		#$stats_print_string="";  
 		# pdf
 		my $R_pdf_script=&plot_coverage($coverage_output,$WindowCoverage_output,$ref_window_gc,$gap_output,$prefix,$ref_name,$ref_desc,"","");
  
 		$hash_ref->{pdfRscript} .= $R_pdf_script;
-		$hash_ref->{stats_print_string} .= $stats_print_string;
+		$hash_ref->{stats_print_string} .= $stats_print_string."\n";
 		# png
 		&plot_coverage($coverage_output,$WindowCoverage_output,$ref_window_gc,$gap_output,$prefix,$ref_name,$ref_desc,$histogram,$coverage_plot);
 

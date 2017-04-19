@@ -78,12 +78,21 @@ eval {
 output_html();
 #print STDOUT "end output html\n";
 sub pull_referenceName {
-	if( -e "$out_dir/Reference/reference.fasta" ){
-		#try to parse ref name
-		my @fasta_header =`grep "^>" $out_dir/Reference/reference.fasta`;
-		foreach (@fasta_header){
-			chomp $_;
-			$refname->{$1}=$2 if ($_ =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ );
+	if( -e "$out_dir/Reference/ref_list.txt" ){
+		open (my $fh, "$out_dir/Reference/ref_list.txt") or die "Cannot open ref_list.txt";
+		while(my $ref=<$fh>){
+			next if (!$ref);
+			chomp $ref;
+			#try to parse ref name
+			next if ( ! -e "$out_dir/Reference/$ref.fasta");
+			my @fasta_header =`grep "^>" $out_dir/Reference/$ref.fasta`;
+			foreach my $header (@fasta_header){
+				chomp $header;
+				if ($header =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ ){
+					$refname->{$1}->{desc}=$2;
+					$refname->{$1}->{file}=$ref;
+				}
+			}
 		}
 	}
 }
@@ -350,7 +359,8 @@ sub pull_contigmapping {
 					my $idx = $i+1;
 					$refinfo->{"CMREF$idx"}=$temp[$i];
 				}
-				$refinfo->{"CMREFNAME"}=$refname->{$temp[0]};
+				$refinfo->{"CMREFNAME"}=$refname->{$temp[0]}->{desc};
+				$refinfo->{"CMREFFILE"}=$refname->{$temp[0]}->{file};
 				$refinfo->{"CMREFMAPPEDPCT"}= sprintf "%.2f", $temp[3]/$vars->{CMREADS}*100;
 				push @{$vars->{LOOP_CMREF}}, $refinfo;
 			}
@@ -1222,7 +1232,8 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]};
+			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
+			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			$ref->{$temp[0]}=$refinfo;
 		}
 	}
@@ -1277,7 +1288,8 @@ sub pull_readmapping_ref {
 				my $idx = $i+1;
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]};
+			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
+			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			$ref->{$temp[0]}=$refinfo;
 			push @{$vars->{LOOP_RMREF_UMR}}, $refinfo;
 			$tol_um_org++;

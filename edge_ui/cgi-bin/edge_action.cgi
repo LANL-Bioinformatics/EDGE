@@ -40,6 +40,7 @@ my $taxa_for_contig_extract = $opt{taxa};
 my $cptool_for_reads_extract = $opt{cptool};
 my $contig_id = $opt{contigID};
 my $reference_id = $opt{refID};
+my $reference_file_prefix = $opt{reffile} || $reference_id ; 
 my $blast_params = $opt{"edge-contig-blast-params"} || " -num_alignments 10 -num_descriptions 10 -evalue 1e-10 " ;
 my $domain	= $ENV{'HTTP_HOST'};
 my $EDGE_HOME = $ENV{EDGE_HOME};
@@ -506,7 +507,7 @@ elsif( $action eq 'getreadsbyref'){
 	my $relative_mapping_outdir= "$proj_rel_dir/ReferenceBasedAnalysis/readsMappingToRef" ;
 	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/;
 	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
-	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -prefix $reference_id.mapped $reference_id.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $reference_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
 	
@@ -514,7 +515,7 @@ elsif( $action eq 'getreadsbyref'){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
 	}else{
-		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
+		my $pid = open EXTRACTREADS, "|-", $cmd or die $!;
 		close EXTRACTREADS;
 		$pid++;
 
