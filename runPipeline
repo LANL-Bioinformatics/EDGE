@@ -3322,6 +3322,7 @@ sub is_paired
         my $seq2=<$fh2>;
         my $q_id2=<$fh2>;
         my $q_seq2=<$fh2>;
+        last if (!$id1 || !$id2);
         my ($name1) = $id1 =~ /(\S+)/; 
         $name1 =~ s/\.\d$//;
         $name1 =~ s/\/\d$//;
