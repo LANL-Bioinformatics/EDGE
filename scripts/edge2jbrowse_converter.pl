@@ -9,6 +9,7 @@
 
 use strict;
 use Getopt::Long;
+use File::Basename;
 use FindBin qw($Bin);
 
 $ENV{PATH} = "$Bin:$ENV{EDGE_HOME}/edge_ui/JBrowse/bin:/$ENV{PATH}";
@@ -31,7 +32,7 @@ my $res=GetOptions(\%opt,
     'in-orf-vf-gff3=s',         #AssemblyBasedAnalysis/SpecialtyGenes/With_VF_markers_hit
     'in-ctg-adj-primer-gff3=s',  #AssayCheck/PCR.design.primers.gff3
     'in-read2ctg-bam=s',         #AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam
-    'in-read2ref-bam=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam
+    'in-read2ref-dir=s',         #ReadsBasedAnalysis/readsMappingToRef
     'in-primer2ctg-bam=s',       #AssayCheck/pcrContigValidation.bam
     'in-primer2ref-bam=s',       #AssayCheck/pcrRefValidation.bam
     'in-read2ref-vcf=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
@@ -65,7 +66,7 @@ $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.pr
 $opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
 $opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.gff";
 $opt{'in-read2ctg-bam'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam";
-$opt{'in-read2ref-bam'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam";
+$opt{'in-read2ref-dir'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef";
 $opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 $opt{'in-primer2ctg-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrContigValidation.bam";
 $opt{'in-primer2ref-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrRefValidation.bam";
@@ -182,6 +183,7 @@ sub main {
 
 	#generate jb tracks using REF as coordinates
 	if( -e $opt{'in-ref-fa'} ){
+		my $ref_name=&pull_referenceName($opt{'proj_outdir'});
 		print "\n# Preparing files for JBrowse with REF-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ref-coord-dir'}/");
 		executeCommand("mkdir -m 777 -p $opt{'out-ref-coord-dir'}/");
@@ -225,32 +227,38 @@ sub main {
 			}
 		}
 
-		if( -e $opt{'in-read2ref-bam'} ){
-			my $mapped_num = `samtools idxstats $opt{'in-read2ref-bam'} | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
-			chomp $mapped_num;
-			if( $mapped_num ){
-				print "#  - Adding read2ref BAM track...";
-				executeCommand("samtools view -F4 -h $opt{'in-read2ref-bam'} | samtools view -bS - > $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam");
-				executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort");
-				executeCommand("samtools index $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort.bam");
-				executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
-				print "Done.\n";
+		if( -d $opt{'in-read2ref-dir'} ){
+			my @refseqs_id = keys %{$ref_name};
+			foreach my $acc ( @refseqs_id ){
+				my $file_prefix = $ref_name->{$acc}->{file};
+				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
+				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
+				chomp $mapped_num;
+				if( $mapped_num ){
+					print "#  - Adding read2ref $acc BAM track...";
+					executeCommand("samtools view -F4 -bh $bam $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort 2>/dev/null");
+					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
+					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort.bam");
+					executeCommand("sed -e 's/%%BAMFILENAME%%/$file_prefix.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					#executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
+					#unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
+					print "Done.\n";
 	
-				print "#  - Adding BigWig track...";
-				executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort.bam");
-				executeCommand("add-track-json.pl $opt{'ref-coord-bw-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				print "Done.\n";
+					print "#  - Adding BigWig $acc track...";
+					executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort.bam");
+					executeCommand("sed -e 's/%%BWFILENAME%%/$file_prefix.mapped.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					print "Done.\n";
 	
-				print "#  - Adding read2ref VCF track...";
-				executeCommand("bgzip -c $opt{'in-read2ref-vcf'} > $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-	   			executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-				executeCommand("add-track-json.pl $opt{'ref-coord-vcf-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				print "Done.\n";
+				}
+				else{
+					print STDERR "ReadsToRef: No mapped reads to $acc. Skip converting BAM to tracks.\n";
+				}
 			}
-			else{
-				print STDERR "ReadsToRef: No mapped reads. Skip converting BAM to tracks.\n";
-			}
+					print "#  - Adding read2ref VCF track...";
+					executeCommand("bgzip -c $opt{'in-read2ref-vcf'} > $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
+	   				executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
+					executeCommand("add-track-json.pl $opt{'ref-coord-vcf-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
+					print "Done.\n";
 		}
 		
 		print "#  - Indexing features...";
@@ -637,6 +645,28 @@ sub encode {
 	return $str;
 }
 
+sub pull_referenceName {
+	my $out_dir = shift;
+	my $refname;
+        if( -e "$out_dir/Reference/ref_list.txt" ){
+                open (my $fh, "$out_dir/Reference/ref_list.txt") or die "Cannot open ref_list.txt";
+                while(my $ref=<$fh>){
+                        next if (!$ref);
+                        chomp $ref;
+			next if ( ! -e "$out_dir/Reference/$ref.fasta");
+                        my @fasta_header =`grep "^>" $out_dir/Reference/$ref.fasta`;
+                        foreach my $header (@fasta_header){
+                                chomp $header;
+                                if ($header =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ ){
+                                        $refname->{$1}->{desc}=$2;
+                                        $refname->{$1}->{file}=$ref;
+                                }
+                        }
+                }
+        }
+	return $refname;
+}
+
 sub executeCommand 
 {
     my $command = shift;
@@ -673,7 +703,7 @@ $0 [OPTIONS]
     --in-ctg-adj-primer-gff3  AssayCheck/PCR.design.primers.gff3
     --in-read2ctg-bam         AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam
                               (.bai is required in the same directory)
-    --in-read2ref-bam         ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam
+    --in-read2ref-dir         ReadsBasedAnalysis/readsMappingToRef/
                               (.bai is required in the same directory)
     --in-read2ref-vcf         ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
     --gff3out                 edge_analysis.gff3
