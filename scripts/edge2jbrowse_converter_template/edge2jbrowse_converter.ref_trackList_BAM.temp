@@ -1,14 +1,14 @@
     {
-       "label" : "BAM",
+       "label" : "BAM_%%REFID%%",
        "track": "BAM",
        "category" : "Reads Based Analysis",
-       "key" : "Mapping Reads to Reference",
+       "key" : "Mapping Reads to %%REFID%%",
        "chunkSizeLimit" : 15000000,
        "maxHeight" : 1000,
        "style" : {
           "height" : 7
        },
-       "urlTemplate" : "readsToRef.mapped.sort.bam",
+       "urlTemplate" : "%%BAMFILENAME%%",
        "storeClass" : "JBrowse/Store/SeqFeature/BAM",
        "type" : "JBrowse/View/Track/Alignments2"
     }
