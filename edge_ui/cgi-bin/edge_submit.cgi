@@ -461,8 +461,10 @@ sub runPipeline {
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		$process_parameters .= " -p $paired_files " if ($paired_files && $pipeline ne 'qiime');
-		$process_parameters .= " -u $single_files " if ($single_files && $pipeline ne 'qiime');
+		unless ($pipeline eq 'qiime' &&  -d $edge_qiime_input_dir){
+ 			$process_parameters .= " -p $paired_files " if ($paired_files);
+ 			$process_parameters .= " -u $single_files " if ($single_files);
+ 		}
 
 		my $cmd = "$EDGE_HOME/runPipeline $process_parameters > $proj_dir/process_current.log &";
 
@@ -533,8 +535,10 @@ sub runPipeline_cluster {
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		$process_parameters .= " -p $paired_files " if ($paired_files && $pipeline ne 'qiime');
-		$process_parameters .= " -u $single_files " if ($single_files && $pipeline ne 'qiime');
+		unless ($pipeline eq 'qiime' &&  -d $edge_qiime_input_dir){
+ 			$process_parameters .= " -p $paired_files " if ($paired_files);
+ 			$process_parameters .= " -u $single_files " if ($single_files);
+ 		}
 
 		my $cmd = "$EDGE_HOME/runPipeline $process_parameters > $proj_dir/process_current.log";
 
