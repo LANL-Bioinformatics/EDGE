@@ -53,8 +53,8 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info )
 		my $fmt_h = $workbook->add_format( align => 'center', bg_color => '#D9D9D9', size => 12 );
 		my $fmt_b = $workbook->add_format( size => 12 );
 	
-		next unless -e "$p_outdir/$count\_$fnb/$tool/$fnb.out.list";	
-		my @data = &csv2array( "$p_outdir/$count\_$fnb/$tool/$fnb.out.list" );
+		next unless -e "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt";	
+		my @data = &csv2array( "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt" );
 		&worksheet_set_column_wid( $worksheet, @data );
 
 		my @header = shift @data;
@@ -88,8 +88,8 @@ foreach my $tool ( sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$t
 		my $fmt_h = $workbook->add_format( align => 'center', bg_color => '#D9D9D9', size => 12 );
 		my $fmt_b = $workbook->add_format( size => 12 );
 	
-		next unless -e "$p_outdir/$count\_$fnb/$tool/$fnb.out.list";
-		my @data = &csv2array( "$p_outdir/$count\_$fnb/$tool/$fnb.out.list" );
+		next unless -e "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt";
+		my @data = &csv2array( "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt" );
 		&worksheet_set_column_wid( $worksheet, @data );
 
 		my @header = shift @data;
