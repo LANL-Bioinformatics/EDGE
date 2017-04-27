@@ -1315,7 +1315,7 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			$refinfo->{"RMREFT1"}="<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refinfo->{'RMREFT1'}'>$refinfo->{'RMREFT1'}</a>" if ($refinfo->{'RMREFT1'}=~/\w{1,4}_?\d+/);
+			$refinfo->{"RMREFTID"}=($refinfo->{'RMREFT1'}=~/\w{1,4}_?\d+/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refinfo->{'RMREFT1'}'>$refinfo->{'RMREFT1'}</a>":$refinfo->{'RMREFT1'};
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			$ref->{$temp[0]}=$refinfo;
