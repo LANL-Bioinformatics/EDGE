@@ -175,6 +175,8 @@ foreach my $ref (keys  %reference){
   $reference{$ref}->{mappedCount} = $mapped_contig_count;
   $variantCount_r->{$ref}->{INDELs} = $variantCount_r->{$ref}->{INDELs} || 0;
   $variantCount_r->{$ref}->{SNPs} = $variantCount_r->{$ref}->{SNPs} || 0;
+  system("mummerplot --fat -png $prefix.delta -r $ref --large  --prefix ${prefix}_${ref}_dotplot") if (`which gnuplot 2>/dev/null`);
+  system("rm -f ${prefix}_${ref}_dotplot.*plot ${prefix}_${ref}_dotplot.gp ${prefix}_${ref}_dotplot.filter");
 }
 
 foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mappedCount}} keys %reference)

@@ -714,6 +714,7 @@ cp show-coords $rootdir/bin/.
 cp show-snps $rootdir/bin/.
 cp mgaps $rootdir/bin/.
 cp delta-filter $rootdir/bin/.
+cp mummerplot $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1901,8 +1902,20 @@ else
   echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 fi
+# Check for existing sys.properties file before regenerating a new one from original
+if [ -e $rootdir/edge_ui/sys.properties ] 
+then
+{
+	cp $rootdir/edge_ui/sys.properties $rootdir/edge_ui/sys.properties.bak
+	cp $rootdir/edge_ui/sys.properties.original $rootdir/edge_ui/sys.properties
+}
+else
+{
+	cp $rootdir/edge_ui/sys.properties.original $rootdir/edge_ui/sys.properties
+}
+fi
 
-sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
+sed -i 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
 
@@ -1910,7 +1923,7 @@ TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]
 then
 {
-	sed -i.bak 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/sys.properties
+	sed -i 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/sys.properties
 	DEFAULT_CPU=`echo -n $((TOLCPU/3))`;
 	if [ $DEFAULT_CPU -lt 1 ]
 	then
