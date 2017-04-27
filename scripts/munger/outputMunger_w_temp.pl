@@ -430,6 +430,7 @@ sub pull_contigmapping {
 					$refinfo->{"CMREF$idx"}=$temp[$i];
 				}
 				$refinfo->{"CMREFNAME"}=$refname->{$temp[0]}->{desc};
+				$refinfo->{"CMREF1"}="<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refinfo->{'CMREF1'}'>$refinfo->{'CMREF1'}</a>" if ($refinfo->{'CMREF1'}=~/\w{1,4}_?\d+/);
 				$refinfo->{"CMREFFILE"}=$refname->{$temp[0]}->{file};
 				$refinfo->{"CMREFMAPPEDPCT"}= sprintf "%.2f", $temp[3]/$vars->{CMREADS}*100;
 				push @{$vars->{LOOP_CMREF}}, $refinfo;
@@ -1314,6 +1315,7 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
+			$refinfo->{"RMREFT1"}="<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refinfo->{'RMREFT1'}'>$refinfo->{'RMREFT1'}</a>" if ($refinfo->{'RMREFT1'}=~/\w{1,4}_?\d+/);
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			$ref->{$temp[0]}=$refinfo;
