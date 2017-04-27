@@ -2844,7 +2844,7 @@ sub rename_filter_fasta
     $max_seq_number ||= 100000;
     my $serial_id= "0" x length($max_seq_number);
     my $id_info;
-    open (my $fh, "$fasta") or die "Cannot open $fasta\n";
+    my ($fh,$pid)=open_file($fasta);
     open (my $ofh, "> $output") or die "Cannot write $output\n";
     open (my $ofh2, "> $contig_for_annotation" ) or die "Cannot write $contig_for_annotation\n";
     $/ = ">";
