@@ -1279,6 +1279,7 @@ $( document ).ready(function()
 						.done(function( script, textStatus ) {
 						//	console.log( "edge-output.js loaded: " + textStatus );
 							var projName = $('#edge-output-projname').html();
+							if(!projName){projName = $('#edge-content-report > h2').first().html();}
 							var sep = (umSystemStatus)? ' /':'';
 							$('#edge-project-title').html( projName+sep);
 							$('#edge-project-title').attr("data-pid", pname);
