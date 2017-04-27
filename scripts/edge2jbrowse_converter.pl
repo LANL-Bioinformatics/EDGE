@@ -262,7 +262,7 @@ sub main {
 		}
 		
 		print "#  - Indexing features...";
-		executeCommand("generate-names.pl --out $opt{'out-ref-coord-dir'}");	
+		executeCommand("generate-names.pl --hashBits 16 --out $opt{'out-ref-coord-dir'}");	
 		print "Done.\n";
 	}
 
