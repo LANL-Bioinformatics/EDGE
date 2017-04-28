@@ -4,7 +4,7 @@ This is version 1.5.1 of EDGE Bioinformatics, a product of Los Alamos National L
 
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
-To demo EDGE, go to https://bioedge.lanl.gov/edge_ui/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.io. It is also linked at the bottom of the EDGE homepage.
+To demo EDGE, go to https://bioedge.lanl.gov/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.io. It is also linked at the bottom of the EDGE homepage.
 
 ## Documentation
 
