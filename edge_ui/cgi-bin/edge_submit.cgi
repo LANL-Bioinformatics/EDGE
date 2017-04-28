@@ -1033,6 +1033,7 @@ sub checkParams {
 			&addMessage("PARAMS","edge-assembled-contig-file", "File not found. Please check the contig file input.") if ( ! -e $opt{"edge-assembled-contig-file"});
 			&addMessage("PARAMS","edge-assembled-contig-file", "Invalid input. Fasta format required.") if ( -e $opt{"edge-assembled-contig-file"} && ! is_fasta($opt{"edge-assembled-contig-file"}));
 		}else{
+			$opt{"edge-assembled-contig-file"}="";
 			$opt{"edge-spades-pacbio-file"} = $input_dir."/".$opt{"edge-spades-pacbio-file"} if ($opt{"edge-spades-pacbio-file"} =~ /^\w/);
 			&addMessage("PARAMS", "edge-spades-pacbio-file", "Invalid input. Fasta/q format required..") if ( -e $opt{"edge-spades-pacbio-file"} && ! is_fasta($opt{"edge-spades-pacbio-file"}) && ! is_fastq($opt{"edge-spades-pacbio-file"}));
 			 $opt{"edge-spades-nanopore-file"} = $input_dir."/".$opt{"edge-spades-nanopore-file"} if ( $opt{"edge-spades-nanopore-file"} =~ /^\w/);
