@@ -599,7 +599,9 @@ sub getUserProjFromDB{
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
 		my $created = $hash_ref->{created};
-		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && !$cluster);
+		my $proj_dir = (-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
+		next if (! -r "$proj_dir/process.log" && !$cluster);
+		next if ($cluster && ! -r "$proj_dir/clusterSubmit.sh");
 		next if ( $status =~ /delete/i);
 		$list->{$id}->{NAME} = $id;
 		$list->{$id}->{PROJNAME} = $project_name;
@@ -619,14 +621,9 @@ sub getUserProjFromDB{
 		if($username eq  $hash_ref->{owner_email}) {
 			$list->{$id}->{ISOWNER} = 1;
 		}
-		my $metaFile = "$out_dir/$id/metadata_sample.txt";
-		my $runFile = "$out_dir/$id/metadata_run.txt";
-		my $pathogensFile = "$out_dir/$id/pathogens.txt";
-		if(!-e $metaFile) {
-			$metaFile = "$out_dir/$projCode/metadata_sample.txt";
-			$runFile = "$out_dir/$projCode/metadata_run.txt";
-			$pathogensFile = "$out_dir/$projCode/pathogens.txt";
-		}
+		my $metaFile = "$proj_dir/metadata_sample.txt";
+		my $runFile = "$proj_dir/metadata_run.txt";
+		my $pathogensFile = "$proj_dir/pathogens.txt";
 		if(-r $metaFile) {
 			$list->{$id}->{HASMETA} = 1;
 		}
