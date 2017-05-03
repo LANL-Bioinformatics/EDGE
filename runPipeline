@@ -850,9 +850,9 @@ sub check_reference_genome
              }else{
                  &executeCommand("cp $file $ref_fasta_file");
              }
-             $referenceGenome_r->[$file_i] = $ref_fasta_file;
-             push @fasta_files,  $file;
          }
+         $referenceGenome_r->[$file_i] = $ref_fasta_file;
+         push @fasta_files,  $file;
     }
     &executeCommand("genbank2gff3.pl -e 3 --outdir stdout $referenceGBK > $gff3File") if ( -s $referenceGBK);
     if ( scalar (keys %format) > 1)
