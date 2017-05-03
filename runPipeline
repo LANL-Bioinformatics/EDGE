@@ -852,7 +852,7 @@ sub check_reference_genome
              }
          }
          $referenceGenome_r->[$file_i] = $ref_fasta_file;
-         push @fasta_files,  $file;
+         push @fasta_files,  $ref_fasta_file;
     }
     &executeCommand("genbank2gff3.pl -e 3 --outdir stdout $referenceGBK > $gff3File") if ( -s $referenceGBK);
     if ( scalar (keys %format) > 1)
@@ -861,7 +861,7 @@ sub check_reference_genome
     }
     if (scalar(@fasta_files)>1)
     {
-        my $cmd = "cat ". join(" ",@fasta_files). "> $referenceGenome";
+        my $cmd = "awk '{print \$0}' ". join(" ",@fasta_files). "> $referenceGenome";
         &executeCommand($cmd);
     }
     else
