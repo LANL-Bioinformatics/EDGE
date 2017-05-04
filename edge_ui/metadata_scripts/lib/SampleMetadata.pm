@@ -55,7 +55,7 @@ sub toJson {
 	$json .= ',"gender":"'.$self->{gender}.'"' if $self->{gender};
 	$json .= ',"age":"'.$self->{age}.'"' if $self->{age};
 	$json .= ',"isolation_source":"'.$self->{isolation_source}.'"' if $self->{isolation_source};
-	$json .= ',"collection_date":"'.$self->{collection_date}.'"' if $self->{collection_date};
+	$json .= ',"collection_date":"'.formatDate($self->{collection_date}).'"' if $self->{collection_date};
 	$json .= ',"location":"'.$self->{location}.'"' if $self->{location};
 	$json .= ',"city":"'.$self->{city}.'"' if $self->{city};
 	$json .= ',"state":"'.$self->{state}.'"' if $self->{state};
@@ -65,11 +65,24 @@ sub toJson {
 	$json .= ',"experiment_title":"'.$self->{experiment_title}.'"' if $self->{experiment_title};
 	$json .= ',"sequencing_center":"'.$self->{sequencing_center}.'"' if $self->{sequencing_center};
 	$json .= ',"sequencer":"'.$self->{sequencer}.'"' if $self->{sequencer};
-	$json .= ',"sequencing_date":"'.$self->{sequencing_date}.'"' if $self->{sequencing_date};
+	$json .= ',"sequencing_date":"'.formatDate($self->{sequencing_date}).'"' if $self->{sequencing_date};
 	
 	$json .="}";
 
 	return $json;
+}
+
+sub formatDate {
+	my $date = shift;
+	if($date =~ /^[0-9]{4}$/) {
+		$date = "$date-01-01";
+	}elsif($date =~ /^[0-9]{4}-[0-9]{2}$/) {
+		$date = "$date-01";
+	}
+	if($date !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) {
+		$date = '';
+	}
+	return $date;
 }
 
 1;
