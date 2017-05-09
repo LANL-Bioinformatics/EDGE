@@ -39,6 +39,8 @@ eval {
 #	print STDOUT "qc\n";
 	&pull_assy();
 #	print STDOUT "assay\n";
+	&pull_host_rev();
+#	print STDOUT "host rev\n";
 	&pull_anno();
 #	print STDOUT "anno\n";
 	&pull_referenceName();
@@ -49,8 +51,6 @@ eval {
 #	print STDOUT "read mapping ref\n";
 	&pull_contigmapping();
 #	print STDOUT "contig mapping\n";
-	&pull_host_rev();
-#	print STDOUT "host rev\n";
 	&pull_taxa();
 #	print STDOUT "taxa\n";
 	&pull_contig_taxa();
@@ -517,7 +517,7 @@ sub pull_qc {
 		if ($_ =~ /^Reads Length:\s(.+)/) { $vars->{BEFOREMRL} = $1; next; }
 	}
 	close ($qcfh);
-	$NUM_READS_FOR_DOWNSTREAM = $vars->{AFTERREADS};
+	$NUM_READS_FOR_DOWNSTREAM = ($vars->{AFTERREADS} =~ m/(\d+)/);
 }
 
 sub pull_fastqCount {
@@ -545,7 +545,7 @@ sub pull_host_rev {
 			my $hr;
 			$hr->{HRTITLE}=$1;
 			$hr->{HRVALUE}=$2;
-			$NUM_READS_FOR_DOWNSTREAM = $2 if $1 eq "Total non-host reads";
+			$NUM_READS_FOR_DOWNSTREAM = ($hr->{HRVALUE} =~ m/(\d+)/) if $1 eq "Total non-host reads";
 			push @{$vars->{LOOP_HR}}, $hr;
 		}
 	}

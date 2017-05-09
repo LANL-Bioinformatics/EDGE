@@ -320,7 +320,7 @@ if(!-e $vlist) {
 
 if($sys->{edge_pathogen_detection} && -e $blist && -e $vlist) {
 	&detectPathogen($blist, $vlist);
-}else{
+}elsif($sys->{edge_pathogen_detection}){
 	&lprint ("File $blist not found\n");
 	&lprint ("File $vlist not found\n");
 }
