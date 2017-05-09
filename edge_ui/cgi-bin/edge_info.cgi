@@ -690,8 +690,9 @@ sub getProjInfoFromDB{
 	my $status = $hash_ref->{status};
 	my $created = $hash_ref->{created};
 	my $projtype = ($hash_ref->{isPublished})?"publish":"false";
-	#next if (! -r "$out_dir/$id/process.log");
-	#next if ( $status =~ /delete/i);
+	my $proj_dir = (-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
+        return if (! -r "$proj_dir/process.log");
+        return if ( $status =~ /delete/i);
 	$list->{$id}->{NAME} = $id;
 	$list->{$id}->{PROJNAME} = $project_name;
 	$list->{$id}->{PROJCODE} = $projCode;
