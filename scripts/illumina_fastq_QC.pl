@@ -73,6 +73,9 @@ print <<"END";
             -adapter      <bool> Trim reads with illumina adapter/primers (default: no)
                           -rate   <FLOAT> Mismatch ratio of adapters' length (default: 0.2, allow 20% mismatches)
                           -polyA  <bool>  Trim poly A ( > 15 ) 
+                          -keepshort  turn on this will keep short portion of reads instead of keep longer portion of reads
+                          -keep5end   keep 5' end (conflict with -keepshort and -keep3end)
+                          -keep3end   keep 3' end (conflict with -keepshort and -keep5end)
             					
             -artifactFile  <File>    additional artifact (adapters/primers/contaminations) reference file in fasta format 
 
@@ -164,6 +167,9 @@ my $qc_only=0;
 my $trim_only=0;
 my $stringent_cutoff=0;
 my $filter_adapter=0;
+my $keep_short_after_adapter_trim=0;
+my $keep_5end_after_adapter_trim=0;
+my $keep_3end_after_adapter_trim=0;
 my $trim_polyA;
 my $filter_phiX=0;
 my $filterAdapterMismatchRate=0.2;
@@ -207,6 +213,9 @@ GetOptions("q=i"          => \$opt_q,
            'subset=i'     => \$subsample_num,
            'debug'        => \$debug,
            'adapter'      => \$filter_adapter,
+           'keepshort'    => \$keep_short_after_adapter_trim,
+           'keep5end'     => \$keep_5end_after_adapter_trim,
+           'keep3end'     => \$keep_3end_after_adapter_trim,
            'polyA'        => \$trim_polyA,
            'phiX'         => \$filter_phiX,
            'rate=f'       => \$filterAdapterMismatchRate,
@@ -397,10 +406,12 @@ open(my $fastqCount_fh, ">$fastq_count") or die "Cannot write $fastq_count\n";
      if (! $ascii){$ascii = &checkQualityFormat($reads1_file)}
 
      # check NextSeq platform
-     if( &is_NextSeq($reads1_file) and $opt_q < 20){
-        $is_NextSeq=1;
-	$opt_q = 20;
-	warn "The input looks like NextSeq data and the quality level (-q) is adjusted to $opt_q for trimming.\n";
+     $is_NextSeq = ( &is_NextSeq($reads1_file) )?1:0;
+     if( $is_NextSeq ){
+        if ($orig_opt_q < 20){
+	  $opt_q = 20;
+	  warn "The input looks like NextSeq data and the quality level (-q) is adjusted to $opt_q for trimming.\n";
+        }
      }else{ $opt_q = $orig_opt_q;}
 
     #split
@@ -2365,15 +2376,33 @@ sub filter_adapter
             $adapter_name=$key;
             my $index=$match[0][0];
             my $match_len=$match[0][1];
-            if ( int($s_len/2)-$index < ($match_len/2) )  # longer left
-            {
-                substr($s,$index,$s_len-$index,"");
-                $pos3=length($s)+1;
-            }
-            else  #longer right
-            {
-                substr($s,0,$index+$match_len,"");
-                $pos5=$index+$match_len;
+            if ($keep_5end_after_adapter_trim){
+                    substr($s,$index,$s_len-$index,"");
+                    $pos3=length($s)+1;
+            }elsif($keep_3end_after_adapter_trim){
+                    substr($s,0,$index+$match_len,"");
+                    $pos5=$index+$match_len;
+            }else{
+                if ( int($s_len/2)-$index < ($match_len/2) )  # longer left
+                {
+                    if ($keep_short_after_adapter_trim){
+                        substr($s,0,$index+$match_len,"");
+                        $pos5=$index+$match_len;
+                    }else{
+                        substr($s,$index,$s_len-$index,"");
+                        $pos3=length($s)+1;
+                    }
+                }
+                else  #longer right
+                {
+                    if ($keep_short_after_adapter_trim){
+                        substr($s,$index,$s_len-$index,"");
+                        $pos3=length($s)+1;
+                    }else{
+                        substr($s,0,$index+$match_len,"");
+                        $pos5=$index+$match_len;
+                    }
+                }
             }
             # same adapter sencond match
             my $match = String::Approx::amatch($adapter, ["i", "S ${mismatchRate}% I 0 D 0"], $s);
