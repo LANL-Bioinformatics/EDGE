@@ -89,6 +89,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
 unlink "$abs_outDir/HTML_Report/writeHTMLReport.finished";
+&setProxy if $sys->{proxy};
 
 # Capture error log
 my $start_time_string=&getTmpNameByTime;
@@ -3690,3 +3691,9 @@ sub detectPathogen
    	eval{system("$cmd");};
     	&lprint ("Pathogen detection finished.\n");
 }
+sub setProxy{
+        $proxy = $sys->{proxy};
+        $ENV{http_proxy} = $proxy;
+        $ENV{https_proxy} = $proxy;
+}
+
