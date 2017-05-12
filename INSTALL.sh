@@ -822,19 +822,20 @@ echo "
 
 install_perl_parallel_forkmanager()
 {
+local VER=1.19
 echo "------------------------------------------------------------------------------
-               Installing Perl Module Parallel-ForkManager-1.03
+               Installing Perl Module Parallel-ForkManager-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf Parallel-ForkManager-1.03.tar.gz
-cd Parallel-ForkManager-1.03
+tar xvzf Parallel-ForkManager-$VER.tar.gz
+cd Parallel-ForkManager-$VER
 perl Makefile.PL
 make
 cp -fR blib/lib/* $rootdir/lib/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                        Parallel-ForkManager-1.03 Installed
+                        Parallel-ForkManager-$VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1749,7 +1750,13 @@ fi
 #if [ -f $rootdir/lib/Parallel/ForkManager.pm ]
 if ( checkPerlModule Parallel::ForkManager )
 then
-  echo "Perl Parallel::ForkManager is found"
+  Parallel_ForManager_installed_VER=`perl -e "use lib '$rootdir/lib'; use Parallel::ForkManager; print \\\$Parallel::ForkManager::VERSION;"`
+  if  ( echo $Parallel_ForManager_installed_VER | awk '{if($1>="1.03") exit 0; else exit 1}' )
+  then
+    echo "Perl Parallel::ForkManager $Parallel_ForManager_installed_VER is found"
+  else 
+    install_perl_parallel_forkmanager
+  fi
 else
   echo "Perl Parallel::ForkManager is not found"
   install_perl_parallel_forkmanager
