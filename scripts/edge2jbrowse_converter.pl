@@ -657,7 +657,7 @@ sub pull_referenceName {
                         my @fasta_header =`grep "^>" $out_dir/Reference/$ref.fasta`;
                         foreach my $header (@fasta_header){
                                 chomp $header;
-                                if ($header =~ /^>(\S+)\s+(.+[a-zA-Z0-9])[^a-zA-Z0-9]?$/ ){
+                                if ($header =~ /^>(\S+)\s*(.*)$/ ){
                                         $refname->{$1}->{desc}=$2;
                                         $refname->{$1}->{file}=$ref;
                                 }
