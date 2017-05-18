@@ -9,7 +9,7 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$PATH:$rootdir/bin/
+export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
@@ -19,9 +19,28 @@ taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
 python_packages=( Anaconda2 Anaconda3 )
-all_tools=( "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
+pipeline_tools=( targetedNGS )
+all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_targetedNGS(){
+local VER=0.2.0
+echo "------------------------------------------------------------------------------
+                           Installing targetedNGS $VER
+------------------------------------------------------------------------------
+"
+tar xvzf targetedNGS.tgz
+cd targetngs
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/targetngs $rootdir/bin/targetedNGS
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           targetedNGS $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_idba()
 {
 echo "------------------------------------------------------------------------------
@@ -1196,6 +1215,11 @@ print_tools_list()
    do
            echo "* $i"
    done
+   echo -e "\nPipeline_Tools"
+   for i in "${pipeline_tools[@]}"
+   do
+           echo "* $i"
+   done
 }
 
 
@@ -1277,6 +1301,13 @@ then
         done
         echo -e "Python_Packages installed.\n"
         exit 0 ;;
+      Pipeline_Tools)
+        for tool in "${pipeline_tools[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Pipeline_Tools installed.\n"
+        exit 0 ;;
       force)
         for tool in "${all_tools[@]}"
         do
@@ -1284,7 +1315,7 @@ then
         done
         ;;
       *)
-        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" )
+        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" || containsElement "$f" "${pipeline_tools[@]}" )
         then
             install_$f
         else
@@ -1737,6 +1768,20 @@ then
 else
   echo "FastTreeMP is not found"
   install_FastTree
+fi
+
+if ( checkLocalInstallation targetedNGS )
+then
+  targetedNGS_VER=`targetedNGS -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
+  if  ( echo $targetedNGS_VER | awk '{if($1>="0.2.0") exit 0; else exit 1}' )
+  then
+    echo "targetedNGS is found"
+  else
+   install_targetedNGS
+  fi
+else
+  echo "targetedNGS is not found"
+  install_targetedNGS
 fi
 
 if ( checkSystemInstallation raxmlHPC-PTHREADS )
