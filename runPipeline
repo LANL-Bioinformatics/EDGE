@@ -84,7 +84,7 @@ END
 my $configuration=&readConfig($configFile);
 my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 
-&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir});
+&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir});
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
@@ -135,8 +135,10 @@ if ($configuration->{'DoSRADownload'})
 {
 	&Download_SRA();
 }
-if ($configuration->{qiime_input_dir}){
-	my ($pe_files_r,$se_files_r)=&parse_qiime_mapping_file();
+if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir}){
+	my $dir_input=$configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir};
+        my $mapping_files=$configuration->{qiime_mapping_file} || $configuration->{targetedNGS_sample_file};
+	my ($pe_files_r,$se_files_r)=&parse_qiime_mapping_file($dir_input,$mapping_files);
 	@pairedReadsFile=@{$pe_files_r};
 	@unpairedReadsFile=@{$se_files_r};
 }
@@ -158,6 +160,10 @@ else
 
 if ($configuration->{'DoQiimeAnalysis'}){
 	&runQiimeAnalysis(\@unpairedReadsFile, \@pairedReadsFile);
+}
+
+if ($configuration->{DoTargetedNGS}){
+        &runTargetedNGS();
 }
 
 if ($configuration->{DoHostRemoval})
@@ -491,10 +497,10 @@ sub runSpecialtyGenesProfiling {
 
 
 sub parse_qiime_mapping_file{
-    my $qiime_dir=$configuration->{qiime_input_dir};
-    my $mapping_files=$configuration->{qiime_mapping_file};
-	my @unpariedFiles;
-	my @pairedFiles;
+    my $qiime_dir=shift;
+    my $mapping_files=shift;
+    my @unpariedFiles;
+    my @pairedFiles;
     if ( ! -d "$qiime_dir" ){
             my $msg = "ERROR: the input $qiime_dir directroy does not exist or isn't a directory\n";
             exit(1);
@@ -523,6 +529,73 @@ sub parse_qiime_mapping_file{
 	return (\@pairedFiles,\@unpariedFiles);
 }
 
+
+sub runTargetedNGS{
+    my $time=time();
+    my $outputDir="$outDir/TargetedNGS";
+    my $log="$outputDir/log.txt";
+    if ($noColorLog)
+    {
+        &lprint ("[TargetedNGS analysis]\n");
+    }
+    else
+    {
+        &lprint (colored ("[TargetedNGS analysis]\n",'yellow'));
+    }
+    if ( -e "$outputDir/runTargetedNGS.finished" )
+    {
+       &lprint ("TargetedNGS analysis Finished\n"); 
+       return 0;
+    }  
+    `mkdir -p $outputDir`;
+    my $targetedNGS_ref=$configuration->{targetedNGS_ref};
+    my $targetedNGS_mode=$configuration->{targetedNGS_mode} || "PE";
+    my $targetedNGS_input_dir=$configuration->{targetedNGS_input_dir};
+    my $targetedNGS_sample_file=$configuration->{targetedNGS_sample_file};
+    my $targetedNGS_q_cutoff=$configuration->{targetedNGS_q_cutoff} || 0.8145 ;
+    my $targetedNGS_depth_cutoff=$configuration->{targetedNGS_depth_cutoff} || 1000;
+    my $targetedNGS_expectedCoverage=$configuration->{targetedNGS_expectedCoverage};
+    my $targetedNGS_expectedIdentity=$configuration->{targetedNGS_expectedIdentity};
+    my $targetedNGS_expectedBaseQ=$configuration->{targetedNGS_expectedBaseQ};
+    my $targetedNGS_expectedMapQ=$configuration->{targetedNGS_expectedMapQ};
+    my $targetedNGS_coverageWeight=$configuration->{targetedNGS_coverageWeight};
+    my $targetedNGS_identityWeight=$configuration->{targetedNGS_identityWeight};
+    my $targetedNGS_baseqWeight=$configuration->{targetedNGS_baseqWeight};
+    my $targetedNGS_mapqWeight=$configuration->{targetedNGS_mapqWeight};
+
+    if (!$targetedNGS_sample_file){
+        &lprint("ERROR: targetedNGS analysis No sample file");
+        exit;
+    }
+    if (!$targetedNGS_ref){
+        &lprint("ERROR: targetedNGS analysis No reference file");
+        exit;
+    }
+    if (!$targetedNGS_input_dir){
+        &lprint("ERROR: targetedNGS analysis No input directory");
+        exit;
+    }
+
+    my $cmd = "$RealBin/bin/targetedNGS/targetedNGS  --ref $targetedNGS_ref --indir $targetedNGS_input_dir --samples $targetedNGS_sample_file --cpus  $numCPU --outdir $outputDir --prefix $project_name --force " ;
+    $cmd .= "--q_cutoff $targetedNGS_q_cutoff ";
+    $cmd .= "--depth_cutoff $targetedNGS_depth_cutoff ";
+    $cmd .= "--mode $targetedNGS_mode ";
+    $cmd .= "--expectedCoverage $targetedNGS_expectedCoverage " if ($targetedNGS_expectedCoverage);
+    $cmd .= "--expectedIdentity $targetedNGS_expectedIdentity " if ($targetedNGS_expectedIdentity);
+    $cmd .= "--expectedBaseQ $targetedNGS_expectedBaseQ " if ($targetedNGS_expectedBaseQ);
+    $cmd .= "--expectedMapQ $targetedNGS_expectedMapQ " if ($targetedNGS_expectedMapQ);
+    $cmd .= "--coverageWeight $targetedNGS_coverageWeight " if ($targetedNGS_coverageWeight);
+    $cmd .= "--identityWeight $targetedNGS_identityWeight " if ($targetedNGS_identityWeight);
+    $cmd .= "--baseqWeight $targetedNGS_baseqWeight " if ($targetedNGS_baseqWeight);
+    $cmd .= "--mapqWeight $targetedNGS_mapqWeight " if ($targetedNGS_mapqWeight);
+    $cmd .= "1>$log 2>&1";
+    
+    &lprint ("  Running \n  $cmd \n");
+    &executeCommand($cmd);
+    my $run_time = &printRunTime($time);
+    system("touch $outputDir/runTargetedNGS.finished");
+    return 0;
+} 
 
 sub runQiimeAnalysis{
     my $unpairedFile=shift;

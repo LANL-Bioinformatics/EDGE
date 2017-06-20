@@ -91,6 +91,7 @@ MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
 r2g_extract_mapped=<TMPL_VAR NAME=edge-r2g-getmapped-sw DEFAULT=0>
 r2g_extract_unmapped=<TMPL_VAR NAME=edge-r2g-getunmapped-sw DEFAULT=0>
 
+
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
 DoReadsTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
@@ -143,6 +144,7 @@ annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
 [ProPhage Detection]
 DoProPhageDetection=auto
 
+<TMPL_IF NAME=edge-phylo-sw>
 [Phylogenetic Analysis]
 DoSNPtree=<TMPL_VAR NAME=edge-phylo-sw DEFAULT=0>
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
@@ -159,6 +161,7 @@ treeMaker=<TMPL_VAR NAME=edge-phylo-tree DEFAULT=FastTree>
 SNP_SRA_ids=<TMPL_VAR NAME=edge-phylo-sra-acc DEFAULT=>
 PhaMEbootstrap=<TMPL_VAR NAME=edge-phylo-bootstrap-sw DEFAULT=1>
 PhaMEbootstrap_num=<TMPL_VAR NAME=edge-phylo-bootstrap-num DEFAULT=100>
+</TMPL_IF>
 
 <TMPL_IF NAME=edge-sg-sw>
 [Specialty Genes Profiling]
@@ -175,6 +178,7 @@ DoPrimerValidation=<TMPL_VAR NAME=edge-primer-valid-sw DEFAULT=0>
 maxMismatch=<TMPL_VAR NAME=edge-primer-valid-mm DEFAULT=1>
 primer=<TMPL_VAR NAME=edge-primer-valid-file>
 
+<TMPL_IF NAME=edge-primer-adj-sw>
 [Primer Design]
 ## boolean, 1=yes, 0=no
 DoPrimerDesign=<TMPL_VAR NAME=edge-primer-adj-sw DEFAULT=0>
@@ -190,6 +194,7 @@ len_max=<TMPL_VAR NAME=edge-primer-adj-len-max DEFAULT=27>
 tm_diff=<TMPL_VAR NAME=edge-primer-adj-df DEFAULT=5>
 ## display # top results for each target
 top=<TMPL_VAR NAME=edge-primer-adj-num DEFAULT=5>
+</TMPL_IF>
 
 [Generate JBrowse Tracks]
 DoJBrowse=<TMPL_VAR NAME=edge-jbroswe-sw DEFAULT=1>
@@ -215,6 +220,24 @@ qiime_filter_taxa=<TMPL_VAR NAME=edge-qiime-filter-taxa>
 qiime_substract_ntc=<TMPL_VAR NAME=edge-qiime-substract-ntc>
 </TMPL_IF>
 
+<TMPL_IF NAME=edge-targetedngs-sw>
+[TargetedNGS analysis]
+DoTargetedNGS=<TMPL_VAR NAME=edge-targetedngs-sw DEFAULT=0>
+targetedNGS_ref=<TMPL_VAR NAME=edge-targetedngs-ref>
+targetedNGS_input_dir=<TMPL_VAR NAME=edge-targetedngs-dir-input>
+targetedNGS_sample_file=<TMPL_VAR NAME=edge-targetedngs-samplefile>
+targetedNGS_q_cutoff=<TMPL_VAR NAME=edge-targetedngs-q-cutoff DEFAULT=0.8145>
+targetedNGS_depth_cutoff=<TMPL_VAR NAME=edge-targetedngs-depth-cutoff DEFAULT=1000>
+targetedNGS_mode=<TMPL_VAR NAME=edge-targetedngs-mode DEFAULT=PE>
+targetedNGS_expectedCoverage=<TMPL_VAR NAME=edge-targetedngs-ec DEFAULT=1>
+targetedNGS_expectedIdentity=<TMPL_VAR NAME=edge-targetedngs-eid DEFAULT=1>
+targetedNGS_expectedBaseQ=<TMPL_VAR NAME=edge-targetedngs-ebq DEFAULT=37>
+targetedNGS_expectedMapQ=<TMPL_VAR NAME=edge-targetedngs-emq DEFAULT=60>
+targetedNGS_coverageWeight=<TMPL_VAR NAME=edge-targetedngs-cw DEFAULT=0.25>
+targetedNGS_identityWeight=<TMPL_VAR NAME=edge-targetedngs-iw DEFAULT=0.25>
+targetedNGS_baseqWeight=<TMPL_VAR NAME=edge-targetedngs-bw DEFAULT=0.25>
+targetedNGS_mapqWeight=<TMPL_VAR NAME=edge-targetedngs-mw DEFAULT=0.25>
+</TMPL_IF>
 
 [HTML Report]
 DoHTMLReport=1
