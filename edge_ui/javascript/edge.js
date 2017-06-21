@@ -546,6 +546,7 @@ $( document ).ready(function()
 				$('#edge-user-btn').unbind("click").on("click",function(){
 					$('#signInForm').popup('open');
 				});
+				$('#edge-project-title').html("");
 				FileTree(inputFileDir);
                                 //destory file upload 
                                 var uploader = $("#uploader").pluploadQueue({
