@@ -98,6 +98,7 @@ DoReadsTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=<TMPL_VAR NAME=edge-taxa-allreads DEFAULT=0>
 enabledTools=<TMPL_VAR NAME=edge-taxa-enabled-tools DEFAULT="bwa">
+splitrim-minq=<TMPL_VAR NAME=splitrim-minq DEFAULT=20>
 custom-gottcha-genDB-b=<TMPL_VAR NAME=custom-gottcha-gendb-b>
 custom-gottcha-speDB-b=<TMPL_VAR NAME=custom-gottcha-spedb-b>
 custom-gottcha-strDB-b=<TMPL_VAR NAME=custom-gottcha-strdb-b>

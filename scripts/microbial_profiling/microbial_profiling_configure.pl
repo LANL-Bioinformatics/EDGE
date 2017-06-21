@@ -31,6 +31,7 @@ GetOptions(\%opt,
            "gottcha2-e-ptzDB=s",
            "gottcha2-e-ptgDB=s",
            "pangia-db=s",
+           "splitrim-minq=i",
            'help|h|?'
           );
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
@@ -39,6 +40,7 @@ if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
 $opt{'template'}        = $opt{'template'}||$ARGV[0]||"$Bin/microbial_profiling.settings.tmpl";
 $opt{'tools'}           ||= $ARGV[1];
 $opt{'bwaScoreCut'}     ||= 30;
+$opt{'splitrim-minq'}   ||= 20;
 $opt{'bwa-db'}          ||= "$EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna";
 $opt{"metaphlan-db"}    ||= "$EDGE_HOME/database/metaphlan/mpa";
 $opt{"kraken-db"}       ||= "$EDGE_HOME/database/minikraken/database.idx";

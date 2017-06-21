@@ -936,6 +936,7 @@ sub checkParams {
 	}
 	if ( $opt{"edge-taxa-sw"} ){
  		&addMessage("PARAMS","edge-taxa-tools","You need to choose at least one tool.") if (scalar split(/[\x0]/,$opt{"edge-taxa-enabled-tools"}) < 1 );
+		&addMessage("PARAMS", "splitrim-minq",          "Invalid input. Natural number required.")     unless $opt{"splitrim-minq"}    =~ /^\d+$/;
  		if ($opt{"custom-bwa"}){
  			$opt{"custom-bwa"} = $input_dir."/".$opt{"custom-bwa"} if ($opt{"custom-bwa"} =~ /^\w/);
  			&addMessage("PARAMS","custom-bwa","DB file not found") if (! -e $opt{"custom-bwa"});

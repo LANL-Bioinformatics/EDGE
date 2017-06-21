@@ -290,7 +290,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           fi 
           if [ -e \"$outdir/$prefix.gottcha.sam\" ]
           then
-            samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam 2/dev/null;
+            samtools view -b -@ $threads -S $outdir/$prefix.gottcha.sam -o $tool_rep_dir/$fnb-$tool.bam 2>/dev/null;
           fi
           if [ -e \"$outdir/$prefix.pangia.sam\" ] 
           then
@@ -443,21 +443,21 @@ sub prepSequence {
 		$path = "." unless $path;
 
 		#splitrim
-		my ($TRIM_FIXL, $TRIM_MINQ) = (30,20);
-		if( $SPLITRIM_DIR ){
-			if( !-s "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/${fnb}_splitrim.fastq" ){
-				&_verbose("[PREP_SEQ] SPLITRIM_DIR not found! Generate SPLITRIM_DIR: $p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/\n");
-				my $fastq =  $file_info->{$count}->{FASTQ};
-				my $cmd = "$ENV{EDGE_HOME}/thirdParty/gottcha/bin/splitrim --inFile=$fastq --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$fnb --outPath=$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ} > /dev/null 2>&1";
-				my $exe = system($cmd);
-				die "Can't not generate splitrim directory.\n" if $exe;
-				$file_info->{$count}->{SPLITRIM_DIR} = "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}";
-			}	
-			else{
-				&_verbose("[PREP_SEQ] SPLITRIM_DIR: "."$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}"."\n");
-			}
-			$file_info->{$count}->{SPLITRIM_DIR} = "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}";
-		}
+		#my ($TRIM_FIXL, $TRIM_MINQ) = (30,20);
+		#if( $SPLITRIM_DIR ){
+		#	if( !-s "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/${fnb}_splitrim.fastq" ){
+		#		&_verbose("[PREP_SEQ] SPLITRIM_DIR not found! Generate SPLITRIM_DIR: $p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/\n");
+		#		my $fastq =  $file_info->{$count}->{FASTQ};
+		#		my $cmd = "$ENV{EDGE_HOME}/thirdParty/gottcha/bin/splitrim --inFile=$fastq --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$fnb --outPath=$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ} > /dev/null 2>&1";
+		#		my $exe = system($cmd);
+		#		die "Can't not generate splitrim directory.\n" if $exe;
+		#		$file_info->{$count}->{SPLITRIM_DIR} = "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}";
+		#	}	
+		#	else{
+		#		&_verbose("[PREP_SEQ] SPLITRIM_DIR: "."$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}"."\n");
+		#	}
+		#	$file_info->{$count}->{SPLITRIM_DIR} = "$p_seqdir/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}";
+		#}
 
 		#convert FASTQ to FASTA
 		if( !defined $file_info->{$count}->{FASTA} && $FASTA ){

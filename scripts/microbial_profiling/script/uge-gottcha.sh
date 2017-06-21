@@ -98,7 +98,7 @@ mkdir -p $OUTPATH
 # splitrim 1st FASTQ FILE
 if [[ -z "$PRE_SPLITRIM" && ! -s "$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/${PREFIX}_splitrim.fastq" ]]
 then
-	`$EDGE_HOME/thirdParty/gottcha/bin/splitrim --inFile=$FASTQ --ascii=$TRIM_ASCI --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$PREFIX --outPath=$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}`
+	$EDGE_HOME/thirdParty/gottcha/bin/splitrim --inFile=$FASTQ --ascii=$TRIM_ASCI --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$PREFIX --outPath=$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}
 else
 	echo "[TRIM] Skip splitrim step...";
 fi
