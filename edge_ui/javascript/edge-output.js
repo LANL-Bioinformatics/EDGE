@@ -51,6 +51,49 @@ $( document ).ready(function()
 		});
 	});
 	//data Table
+	$('.edge-output-direct-datatable').removeClass("ui-table-reflow ui-table");
+	$('.edge-output-direct-datatable').each(function(){
+		var dom=this;;
+		var json_table_file = $(this).attr('data-src');
+		var dataTableDom = 'lfrtip';
+		$.ajax( {
+			cache:false,
+			url: json_table_file,
+			dataType:"json",
+			beforeSend: function(){
+				//$('#edge-output-datatable-spinner').addClass("edge-sp edge-sp-circle");;
+			},
+			complete: function(){
+			},
+			success:function(json){
+				var datatable=$(dom).DataTable( {
+					"data":json.data,
+					"columns":json.columns,
+					"dom":dataTableDom,
+					"processing": true,
+					"deferRender": true,
+					"scrollX": true,
+					"destroy": true,
+					"rowCallback": function( nRow, aData, iDisplayIndex ) {
+						//$('td', nRow).attr('nowrap','nowrap');
+						//return nRow;
+					},
+					"drawCallback": function(settings) {
+						//contigBlast(tablelinkdom);
+					},
+					"initComplete": function(settings, json) {
+					//	$('#edge-output-datatable-spinner').removeClass("edge-sp edge-sp-circle");;
+					}
+				});
+			},
+			error:function(x,t,m){
+				//$('#edge-output-datatables-dialog').popup('close');
+				showMSG("ACTION FAILED: "+ t + "  Please try again or contact your system administrator." );
+			}
+		});
+		
+	});
+
 	var gap_depth_cut_off=0
 	$('.edge-output-datatables').on('click',function(){
 		var json_table_file = $(this).attr('data-src');

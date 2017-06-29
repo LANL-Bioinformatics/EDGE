@@ -78,6 +78,7 @@
                         <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
 			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE</a></li>
 			<li><a href="#edge-qiime-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run Qiime</a></li>
+			<li><a href="#edge-targetedngs-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run TargetedNGS</a></li>
 			<li id="edge-projet-list-li" data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed ui-li-static ui-body-inherit">
 				<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
 				<a href="" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
@@ -230,6 +231,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<h2>Input Your Sample</h2>
 		<p class="edge-main-pipeline-input">EDGE requires <b>Illumina FASTQ</b> sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences.</p>
 		<p class="edge-qiime-pipeline-input">The <a href="http://qiime.org/tutorials/open_reference_illumina_processing.html" target="_blank">Qiime</a> pipeline requires sequence data files in FASTQ format and a <a href="http://qiime.org/documentation/file_formats.html" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.</p>
+		<p class="edge-targetedngs-pipeline-input">The <a href="https://chienchilo.bitbucket.io/targetedNGS/" target="_blank">TargetedNGS</a> is a pipeline for assay design evaluation. </p>
 		<div data-role="collapsible-set">
 
 			<div data-role="collapsible" id="edge-input-sequence" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
@@ -254,7 +256,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<label for="edge-qiime-at-sw3">Fungal ITS</label>
 						</fieldset>
 					</div>
-					<div class="ui-field-contain">
+					<div class="ui-field-contain edge-qiime-pipeline-input edge-main-pipeline-input">
 						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Input from NCBI Sequence Reads Archive(SRA)</legend>
 							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
@@ -262,6 +264,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
 							<label for="edge-sra-sw2">No</label>
 						</fieldset>
+						<div class="ui-field-contain" id="edge-sra-input-block">
+							<label for="edge-sra-acc">SRA Accession</label>
+							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
+							<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
+						</div>
 					</div>
 					<div id="edge-file-input-block">
 						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
@@ -309,27 +316,29 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							</div>	
 						</div>
 					</div> 
-					<div id="edge-sra-input-block">
-						<div class="ui-field-contain">
-							<label for="edge-sra-acc">SRA Accession</label>
-							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
-						</div>
-						<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
-					</div>
-					<div class="edge-qiime-pipeline-input">
+					<div class="edge-qiime-pipeline-input edge-targetedngs-pipeline-input">
 						<div id="edge-qiime-pipeline-dir-input" class="ui-field-contain input-type-file">
 							<label for="edge-qiime-reads-dir-input">Directory<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID."></a></label>
 							<input data-mini="true" type="text" name="edge-qiime-reads-dir-input" id="edge-qiime-reads-dir-input" placeholder="absolute dir path/select dir">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">Dir</a></div>
 						</div>
 					</div>
-					<div class="edge-qiime-pipeline-input">
+					<div class="edge-qiime-pipeline-input edge-targetedngs-pipeline-input">
 						<p class="edge-center">Mapping File:</p>
 						<div id="edge-qiime-pipeline-input-block1" class="ui-field-contain input-type-file edge-qiime-pipeline-input-block">
 							<label for="edge-qiime-mapping-file-input1">Mapping File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-mapping-file-tooltip"></a></label>
 							<input data-mini="true" type="text" name="edge-qiime-mapping-file-input[]" id="edge-qiime-mapping-file-input1" placeholder="absolute file path/select file">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
 							<a href="#" class="btnDel-edge-input" data-role="button" data-icon="delete" data-iconpos="notext">Delete</a></div>
+						</div>
+					</div>
+					<div class="edge-targetedngs-pipeline-input">
+						<div class="ui-field-contain input-type-file">
+							<label for="edge-targetedngs-ref-file">Targeted Amplicon Reference<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-targetedngs-ref-file-tooltip"></a></label>
+							<input type="text" data-mini="true" name="edge-targetedngs-ref-file" id="edge-targetedngs-ref-file" placeholder="absolute FASTA file path/select file">
+							<div class="edge-file-selector">
+								<a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
+							</div>
 						</div>
 					</div>
 
@@ -1405,6 +1414,66 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				</ol>
 
+			</div>
+		</div><!-- edge-qiime-pipeline parameters -->
+		<div class="edge-targetedngs-pipeline-input">
+			<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">
+				<h4>Parameters</h4>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Mode</legend>
+						<input type="radio" data-mini="true" name="edge-targetedngs-mode" id="edge-targetedngs-mode1" value="PE" checked="checked">
+						<label for="edge-targetedngs-mode1">Paired-End</label>
+						<input type="radio" data-mini="true" name="edge-targetedngs-mode" id="edge-targetedngs-mode2" value="SE">
+						<label for="edge-targetedngs-mode2">Single-End</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-targetedngs-q-cutoff">Quality Calculation Cutoff<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Quality Calculation = linear coverage * identity * (uBaseQ / 37) * (uMapQ / 60)"></a></label>
+					<input type="range" name="edge-targetedngs-q-cutoff" id="edge-targetedngs-q-cutoff" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.8145" step=".01">
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-targetedngs-depth-cutoff">Depth Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Depth of coverage cutoff"></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-targetedngs-depth-cutoff" id="edge-targetedngs-depth-cutoff" min="100" max="50000" value="1000">
+				</div>
+
+			<div class="edge-right">|<a href="#" id="edge-targetedngs-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
+				<div id="edge-targetedngs-options" class="edge-additional-options">
+					<p class="edge_tool_note">The following parameters will affect how the Quality Calcuation derived. The four weight parameters should sum up to 1. Mouse over the label to see the notes.</p>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-ec">Expected Coverage<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Usually, the targeted amplicon is expected covered 100% (1) "></a></label>
+						<input type="range" name="edge-targetedngs-ec" id="edge-targetedngs-ec" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="1" step=".01">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-eid">Expected Identity<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Usually, the targeted amplicon is expected identity 100% (1) "></a></label>
+						<input type="range" name="edge-targetedngs-eid" id="edge-targetedngs-eid" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="1" step=".01">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-ebq">Expected BaseQ<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The base quality is in Phred Quaitly Score. Illumina reads base quality is range from 1 to 41. Default is 37 which means 2 in 10000 of incorrect base call or 99.98% accuracy"></a></label>
+						<input type="range" name="edge-targetedngs-ebq" id="edge-targetedngs-ebq" data-mini="true" data-highlight="true" min="1" max="41" value="37" step="1">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-emq">Expected Mapping Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="MAPping Quality. It equals −10 log10 Pr{mapping position is wrong}, rounded to the nearest integer. A value 255 indicates that the mapping quality is not available. Default is 60 which means 99.9999% accuracy."></a></label>
+						<input type="range" name="edge-targetedngs-emq" id="edge-targetedngs-emq" data-mini="true" data-highlight="true" min="0" max="255" value="60" step="1">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-cw">Coverage Weight</label>
+						<input type="range" name="edge-targetedngs-cw" id="edge-targetedngs-cw" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.25" step=".01">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-iw">Identity Weight</label>
+						<input type="range" name="edge-targetedngs-iw" id="edge-targetedngs-iw" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.25" step=".01">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-bw">BaseQ Weight</label>
+						<input type="range" name="edge-targetedngs-bw" id="edge-targetedngs-bw" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.25" step=".01">
+					</div>
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-mw">MapQ Weight</label>
+						<input type="range" name="edge-targetedngs-mw" id="edge-targetedngs-mw" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.25" step=".01">
+					</div>
+					
+				</div>
 			</div>
 		</div>
 

@@ -730,6 +730,7 @@ sub loadInitSetup{
 	$info->{INFO}->{MSGP}    = ( $sys->{m_specialty_genes_profiling} )?"true":"false";
 	$info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
 	$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
+	$info->{INFO}->{MTARGETEDNGS}  = ( $sys->{m_targetedngs} )?"true":"false";
 	#parameters
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 }

@@ -94,12 +94,12 @@
 				  <td>Output Directory</td>
 				  <td><a id="edge-proj-outdir" href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 				</tr>
-				<TMPL_UNLESS NAME="LOG_qiime_SW">
+				<TMPL_IF NAME="SHOW_PDF_REPORT">
 				<tr>
 				  <td>PDF Report</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/final_report.pdf'>final_report.pdf</a></td>
 				</tr>
-				</TMPL_UNLESS>
+				</TMPL_IF>
 				<tr>
 				  <td>Process log</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/process.log'>process.log</a></td>
@@ -1466,6 +1466,32 @@
 			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/analysis'> Diversity analysis result </a>
 			</p>
 			
+		</div>
+		</TMPL_IF>
+		<TMPL_IF NAME="OUT_targetedNGS_SW">
+                <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+                	<h4>TargetedNGS analysis</h4>
+			<TMPL_IF NAME="ERROR_targetedNGS">
+			<p class="error"><TMPL_VAR NAME=ERROR_targetedNGS></p>
+			</TMPL_IF>
+			<ol>
+                                <li><span class="li-report-content-title">Mapping Stats</span><div class="li-report-content">
+					<table data-role="none" id="edge-targetedngs-runstats" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNRUNSTATS>'></table>
+				</li>
+                                <li><span class="li-report-content-title">Sample Plot</span><div class="li-report-content">
+				<div style="border: 1px solid #ddd; height:800px;">
+					<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=TNSPLOT>'>[fullwindow]</a></span>
+					<iframe data-src='<TMPL_VAR NAME=TNSPLOT>'>Your browser does not support iframes</iframe>
+				</div>
+				</li>
+                                <li><span class="li-report-content-title">Report</span><div class="li-report-content">
+					<table data-role="none" id="edge-targetedngs-report" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNREPROT>'></table>
+				</li>
+				<p class='extra-text-link'>Link to
+				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNMAPPINGSTATS>'> Sample Stats </a>
+				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/TargetedNGS'> Directory </a>
+				</p>
+			</ol>
 		</div>
 		</TMPL_IF>
 

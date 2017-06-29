@@ -155,6 +155,16 @@ if ($edge_qiime_input_dir && $pipeline eq "qiime"){
 	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
 }
 
+# TargetedNGS dir submit
+if ($edge_qiime_input_dir && $pipeline eq "targetedngs" ){
+	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
+	@edge_input_pe1 = @{$pe1_file_r};
+	@edge_input_pe2 = @{$pe2_file_r};
+	@edge_input_se = @{$se_file_r};
+	$opt{"edge-targetedngs-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
+}
+
 # Reconfig
 if( $opt{"type"} eq "reconfig" ){
 	if ($username && $password){
@@ -398,7 +408,8 @@ sub createConfig {
 			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g if $opt{"edge-taxa-sw"};
 			$opt{'edge-sra-acc'} = uc $opt{'edge-sra-acc'};
 			$opt{'edge-phylo-sra-acc'} = uc $opt{'edge-phylo-sra-acc'};
-			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files;
+			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files && $pipeline eq "qiime";
+			$opt{'edge-targetedngs-samplefile'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files && $pipeline eq "targetedngs";
 			$opt{'edge-qiime-barcode-fq-files'} = join ",", @edge_qiime_barcode_input if @edge_qiime_barcode_input;
 
 			$opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-input-excel"});
@@ -901,7 +912,35 @@ sub checkParams {
 			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
 		} 
 	}
-	
+	if ($pipeline eq "targetedngs"){
+		$opt{"edge-targetedngs-sw"} =1;
+		$opt{"edge-qc-sw"} =0;
+		$opt{"edge-hostrm-sw"} =0;
+		$opt{"edge-assembly-sw"} = 0;
+		$opt{"edge-ref-sw"} = 0;
+		$opt{"edge-taxa-sw"} = 0;
+		$opt{"edge-contig-taxa-sw"} = 0;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-phylo-sw"} = 0 ;
+		$opt{"edge-primer-valid-sw"} = 0 ;
+		$opt{"edge-primer-adj-sw"} = 0 ;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-jbroswe-sw"} = 0 ;
+		$opt{"edge-targetedngs-ref-file"} = $input_dir."/".$opt{"edge-targetedngs-ref-file"} if ($opt{"edge-targetedngs-ref-file"} =~ /^\w/);
+        
+		&addMessage("PARAMS", "edge-targetedngs-ref-file","File not found. Please check the file path.") if ( $opt{"edge-targetedngs-ref-file"} && ! -e $opt{"edge-targetedngs-ref-file"} );
+		&addMessage("PARAMS","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{""} >=0 && $opt{""} <=1 );
+		&addMessage("PARAMS", "edge-targetedngs-depth-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-depth-cutoff"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-targetedngs-ebq","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-ebq"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-targetedngs-emq","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-emq"}=~ /^\d+$/;
+		&addMessage("PARAMS","edge-targetedngs-ec","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-ec"} >=0 && $opt{"edge-targetedngs-ec"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-eid","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-eid"} >=0 && $opt{"edge-targetedngs-eid"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-cw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-cw"} >=0 && $opt{"edge-targetedngs-cw"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-iw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-iw"} >=0 && $opt{"edge-targetedngs-iw"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-bw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-bw"} >=0 && $opt{"edge-targetedngs-bw"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-mw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-mw"} >=0 && $opt{"edge-targetedngs-mw"} <=1 );
+		&addMessage("PARAMS","edge-targetedngs-cw","Sum up the four weight parameters must be equal to 1.") unless ( $opt{"edge-targetedngs-cw"} + $opt{"edge-targetedngs-iw"} +  $opt{"edge-targetedngs-bw"}  + $opt{"edge-targetedngs-mw"} == 1);
+	}
 	#tool parameters
 	if ( $opt{"edge-ref-sw"}){
 		my (@refs,@refsl,$num_selected);
@@ -1119,7 +1158,7 @@ sub parse_qiime_mapping_files{
 		}
 		close $fh;
 	}
-	&addMessage("PARAMS","edge-qiime-mapping-file-input1","No fastq input in the qiime mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
+	&addMessage("PARAMS","edge-qiime-mapping-file-input1","No fastq input in the mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
 	return (\@pe1_files,\@pe2_files,\@se_files);
 }
 

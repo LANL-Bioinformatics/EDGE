@@ -69,6 +69,7 @@ eval {
 #	print STDOUT "blast\n";
 	&pull_sra_download();
 #	print STDOUT "sra download\n";
+	&pull_targetedNGS();
 	&prep_jbrowse_link();
 #	print STDOUT "jbrowse link\n";
 	&checkImageReady();
@@ -79,6 +80,37 @@ eval {
 #print STDOUT "start output html \n";
 output_html();
 #print STDOUT "end output html\n";
+#
+#
+sub pull_targetedNGS {
+	my $output_dir = "$out_dir/TargetedNGS";
+	return unless -e "$output_dir/runTargetedNGS.finished";
+	my $proj_realname = $vars->{PROJNAME};
+	my (@errs,$errs); 
+	@errs = `grep ERROR $output_dir/log.txt` if ( -e "$output_dir/log.txt");
+	$errs = join ("<br/>\n",@errs) if (@errs);
+
+	$vars->{ERROR_targetedNGS}   = "$errs" if ($errs);
+	
+	$vars->{TNDIR}   = "$output_dir";
+	$vars->{TNSPLOT} = "$output_dir/reports/testTargetedNGS_sample_plot.html" if ( -e "$output_dir/reports/testTargetedNGS_sample_plot.html" );
+	my $stats_report = "$output_dir/stats/$proj_realname.report.txt";
+	my $run_stats = "$output_dir/stats/$proj_realname.run_stats.txt";
+	my $mapping_stats = "$output_dir/stats/$proj_realname.mapping_stats.txt";
+	$vars->{TNREPROT}       = "$stats_report.json";
+	$vars->{TNMAPPINGSTATS} = "$mapping_stats.json";
+	$vars->{TNRUNSTATS}       = "$run_stats.json";;
+	if ( ! -e "$stats_report.json" ){
+                system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir $stats_report > $stats_report.json");
+        }
+	if ( ! -e "$run_stats.json" ){
+                system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir $run_stats > $run_stats.json");
+        }
+	if ( ! -e "$mapping_stats.json" ){
+                system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir $mapping_stats > $mapping_stats.json");
+        }
+}
+
 sub pull_referenceName {
 	if( -e "$out_dir/Reference/ref_list.txt" ){
 		open (my $fh, "$out_dir/Reference/ref_list.txt") or die "Cannot open ref_list.txt";
@@ -215,6 +247,8 @@ sub check_analysis {
 	$vars->{OUT_PA_D_SW}  = 1 if -e "$out_dir/AssayCheck/PCR.design.primers.txt";
 	$vars->{OUT_AB_SW}    = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished" and -s "$out_dir/AssemblyBasedAnalysis/Blast/ContigsForBlast");
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
+	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/TargetedNGS/runTargetedNGS.finished");
+	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} )? "" : 1;
 	$vars->{OUT_SG_SW}    = 1 if (-e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" or -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" );
 	$vars->{OUT_OSG_SW}   = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
 	$vars->{OUT_RSG_SW}   = 1 if ( -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
@@ -517,7 +551,7 @@ sub pull_qc {
 		if ($_ =~ /^Reads Length:\s(.+)/) { $vars->{BEFOREMRL} = $1; next; }
 	}
 	close ($qcfh);
-	($NUM_READS_FOR_DOWNSTREAM) = $vars->{AFTERREADS} =~ m/(\d+)/;
+	$NUM_READS_FOR_DOWNSTREAM = ($vars->{AFTERREADS} =~ m/(\d+)/);
 }
 
 sub pull_fastqCount {
@@ -545,7 +579,7 @@ sub pull_host_rev {
 			my $hr;
 			$hr->{HRTITLE}=$1;
 			$hr->{HRVALUE}=$2;
-			($NUM_READS_FOR_DOWNSTREAM) = $hr->{HRVALUE} =~ m/(\d+)/ if $1 eq "Total non-host reads";
+			$NUM_READS_FOR_DOWNSTREAM = ($hr->{HRVALUE} =~ m/(\d+)/) if $1 eq "Total non-host reads";
 			push @{$vars->{LOOP_HR}}, $hr;
 		}
 	}

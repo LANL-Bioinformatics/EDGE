@@ -81,6 +81,7 @@ while(<$fh>){
 		$array[0]="<a href='JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA&loc=$array[0]%3A$start..$end' target='_blank'>$array[0]</a>" if ($projname);
 	}
 	foreach my $i (0..$#array){
+		$array[$i] = ($array[$i] =~ /\d+\.\d+/)? sprintf("%.4f",$array[$i]):$array[$i];
 		$data->{$headers[$i]}=$array[$i];
 	}
 	push @{$info->{data}},$data;

@@ -44,6 +44,7 @@ GetOptions("u=s{,}"           => \@unpairedReadsFile,
            "debug"            => \$debug,
            "data_cleanup"     => \$data_cleanup,
            "version"          => sub{printVersion()},
+           "tools"            => sub{printEDGETools()},
            "help|?"           => sub{Usage()} );
 
 
@@ -534,6 +535,9 @@ sub runTargetedNGS{
     my $time=time();
     my $outputDir="$outDir/TargetedNGS";
     my $log="$outputDir/log.txt";
+    my $stats_report = "$outputDir/stats/$project_name.report.txt";
+    my $run_stats = "$outputDir/stats/$project_name.run_stats.txt";
+    my $mapping_stats = "$outputDir/stats/$project_name.mapping_stats.txt";
     if ($noColorLog)
     {
         &lprint ("[TargetedNGS analysis]\n");
@@ -592,6 +596,12 @@ sub runTargetedNGS{
     
     &lprint ("  Running \n  $cmd \n");
     &executeCommand($cmd);
+
+    # covert tab file to json for GUI display
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $stats_report > $stats_report.json");
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $run_stats > $run_stats.json");
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $mapping_stats > $mapping_stats.json");
+
     my $run_time = &printRunTime($time);
     system("touch $outputDir/runTargetedNGS.finished");
     return 0;
@@ -3518,6 +3528,11 @@ sub executeCommand
 sub printVersion 
 {
     print basename($0), " version: $version\n";
+    exit;
+}
+
+sub printEDGETools{
+    executeCommand("edge_tools_version.pl");
     exit;
 }
 

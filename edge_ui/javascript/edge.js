@@ -108,6 +108,7 @@ $( document ).ready(function()
 		$('#edge-form-reset').closest('.ui-btn').show();
 		$("#edge-submit-info" ).children().remove();
 		$(".edge-main-pipeline-input").hide();
+		$(".edge-targetedngs-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").show();
 		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
 		$('.edge-input-se-block').hide();
@@ -117,6 +118,37 @@ $( document ).ready(function()
 		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
 		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
 		integrityCheck();
+		$("#edge-content-pipeline" ).fadeIn("fast", function(){
+			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
+				showWarning("Please login to run EDGE.");
+			}
+		});
+		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+	});
+	$( "a[href=#edge-targetedngs-pipeline]" ).on( "click", function(){
+		allMainPage.hide();
+		pipeline="targetedngs";
+		toggle_input_fields("enable");
+		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
+		$('#edge-form-submit').closest('.ui-btn').show();
+		$('#edge-form-reset').closest('.ui-btn').show();
+		$("#edge-submit-info" ).children().remove();
+		$(".edge-qiime-pipeline-input").hide();
+		$(".edge-main-pipeline-input").hide();
+		$(".edge-targetedngs-pipeline-input").show();
+		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		$('.edge-input-se-block').hide();
+		$('#edge-qiime-pipeline-input-block1').siblings('p').hide();
+		$('.edge-input-pe-block').hide();
+		$('#btnAdd-edge-input-pe').hide();
+		$('#btnAdd-edge-input-se').hide();
+		$('#edge-qiime-pipeline-dir-input').show();
+		$("#edge-qiime-mapping-file-tooltip").tooltipster(
+			'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+		);
+		$("#edge-targetedngs-ref-file-tooltip").tooltipster(
+			'content', $('<span>Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/targeted_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
+		);
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				showWarning("Please login to run EDGE.");
@@ -1892,6 +1924,7 @@ $( document ).ready(function()
 					$("#edge-primer-sw").closest('div[data-role="collapsible"]').hide();
 				}
 				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
+				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();
 				
 				if( String(obj.INFO.UMSYSTEM) != String(localStorage.umStatus) ){
 					check_user_management();
@@ -2347,8 +2380,9 @@ $( document ).ready(function()
 		$("#edge-submit-info" ).children().remove();
 		$("#edge-file-input-block").children().show();
 		$(".btnAdd-edge-input").children().show();
-		$(".edge-main-pipeline-input").show();
+		$(".edge-targetedngs-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").hide();
+		$(".edge-main-pipeline-input").show();
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				showWarning("Please login to run EDGE.");
