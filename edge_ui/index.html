@@ -661,9 +661,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</h4>
 			<div class="edge-tabs" >
-				<div class="ui-grid-a">
-					<div class="ui-block-a"><a href="#" data-id="edge-qc-parameters" class="ui-btn ui-mini ui-btn-active"> a. Quality Trim and Filter</a></div>
-					<div class="ui-block-b"><a href="#" data-id="edge-hostrm-parameters" class="ui-btn ui-mini">b. Host Removal</a></div>
+				<div class="ui-grid-b">
+					<div class="ui-block-a"><a href="#" data-id="edge-qc-parameters" class="ui-btn ui-mini ui-btn-active">Quality Trim and Filter</a></div>
+					<div class="ui-block-b"><a href="#" data-id="edge-joinpe-parameters" class="ui-btn ui-mini">Stitch Paired-End Reads</a></div>
+					<div class="ui-block-c"><a href="#" data-id="edge-hostrm-parameters" class="ui-btn ui-mini">Host Removal</a></div>
 				</div>
 			</div>
 			<div id="edge-qc-parameters">
@@ -729,6 +730,25 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input type="number" name="edge-qc-3end" id="edge-qc-3end" data-mini="true" data-clear-btn="true" value="0">
 			</div>
 			</div> <!--edge-qc-parameters-->
+			<div id="edge-joinpe-parameters">
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Run Stitch PE Reads</legend>
+					<input type="radio" data-mini="true" name="edge-joinpe-sw" id="edge-joinpe-sw1" value="1">
+					<label for="edge-joinpe-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-joinpe-sw" id="edge-joinpe-sw2" value="0" checked="checked">
+					<label for="edge-joinpe-sw2">No</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-joinpe-maxdiff">N-percent Max Difference</label>
+				<input type="number" name="edge-joinpe-maxdiff" id="edge-joinpe-maxdiff" data-mini="true" data-clear-btn="true" value="8" max="100">
+			</div>
+			<div class="ui-field-contain">
+				<label for="edge-joinpe-minoverlap">N-minimum Overlap</label>
+				<input type="number" name="edge-joinpe-minoverlap" id="edge-joinpe-minoverlap" data-mini="true" data-clear-btn="true" value="6" max="150">
+			</div>
+			</div>
 			<div id="edge-hostrm-parameters">
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">

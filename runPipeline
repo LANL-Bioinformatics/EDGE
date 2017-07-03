@@ -159,6 +159,10 @@ else
     ($QCpairFile,$QCunpairFile)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
 }
 
+if ($configuration->{DoJoinPE}){
+    ($QCpairFile,$QCunpairFile)=&runJoinPE($QCpairFile,$QCunpairFile);
+}
+
 if ($configuration->{'DoQiimeAnalysis'}){
 	&runQiimeAnalysis(\@unpairedReadsFile, \@pairedReadsFile);
 }
@@ -606,6 +610,47 @@ sub runTargetedNGS{
     system("touch $outputDir/runTargetedNGS.finished");
     return 0;
 } 
+
+sub runJoinPE{
+    my $pairedFile=shift;
+    my $unpairedFile=shift;
+    my $time=time();
+    my $outputDir="$outDir/QcReads";
+    my $log="$outputDir/JoinPE.log";
+
+    my $maxDiffPerc = $configuration->{"fastqjoin-maxdiff"} || 8;
+    my $minOverlap = $configuration->{"fastqjoin-minoverlap"} || 6;
+    `mkdir -p $outputDir`;
+    if ($noColorLog)
+    {
+        &lprint ("[Join PE Reads]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Join PE Reads]\n",'yellow'));
+    }
+    if (! $pairedFile){
+        &lprint(" No Paired End Reads. Skip\n");
+        return($pairedFile,$unpairedFile);
+    }
+    if ( -e "$outputDir/reads.join.fastq" && -e "$outputDir/runJoinPE.finished"){
+        &lprint("Join PE Reads Finished\n");
+        return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+    }
+    my $command = "fastq-join -r $outputDir/mergeLen_dist.txt -p $maxDiffPerc -m $minOverlap $pairedFile -o $outputDir/reads.\%.fastq > $log";
+    &lprint ("  Running \n  $command \n");
+    &executeCommand($command);
+    system("touch $outputDir/runJoinPE.finished");
+    &printRunTime($time);
+    if ( -s "$outputDir/reads.join.fastq"){
+        if($unpairedFile){
+            &executeCommand("cat $outputDir/reads.join.fastq >> $unpairedFile");
+        }else{
+            $unpairedFile = "$outputDir/reads.join.fastq";
+        }
+    }
+    return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+}
 
 sub runQiimeAnalysis{
     my $unpairedFile=shift;

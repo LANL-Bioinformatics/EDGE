@@ -853,6 +853,9 @@ sub checkParams {
 				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
 			}
 		}
+		if ( $opt{'edge-joinpe-sw'}  && (!@edge_input_pe1 or !@edge_input_pe2) ){
+			&addMessage("PARAMS", "edge-joinpe-sw2", "No Paired End Reads input for PE Stitch");
+		}
 		if ($pipeline eq "qiime"){
 			&addMessage("PARAMS","edge-qiime-mapping-file-input1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
@@ -1056,6 +1059,10 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
+	}
+	if ( $opt{"edge-joinpe-sw"}){
+		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;
+		&addMessage("PARAMS", "edge-joinpe-minoverlap",  "Invalid input. Natural number required")  unless $opt{"edge-joinpe-minoverlap"} =~ /^\d+$/;
 	}
 	if ( $opt{"edge-hostrm-sw"} ){
 		$opt{"edge-hostrm-file"} = $input_dir."/".$opt{"edge-hostrm-file"} if ($opt{"edge-hostrm-file"} =~ /^\w/);

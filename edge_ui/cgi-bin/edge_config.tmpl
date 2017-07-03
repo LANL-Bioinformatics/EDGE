@@ -45,6 +45,13 @@ polyA=<TMPL_VAR NAME=edge-qc-polyA DEFAULT=>
 ## Cut # bp from 3 end before quality trimming/filtering 
 3end=<TMPL_VAR NAME=edge-qc-3end DEFAULT=0>
 
+<TMPL_IF NAME=edge-joinpe-sw>
+[Join PE Reads]
+DoJoinPE=<TMPL_VAR NAME=edge-joinpe-sw DEFAULT=0>
+fastqjoin-maxdiff=<TMPL_VAR NAME=edge-joinpe-maxdiff DEFAULT=8>
+fastqjoin-minoverlap=<TMPL_VAR NAME=edge-joinpe-minoverlap DEFAULT=6>
+</TMPL_IF>
+
 [Host Removal]
 ## boolean, 1=yes, 0=no
 DoHostRemoval=<TMPL_VAR NAME=edge-hostrm-sw DEFAULT=0>

@@ -37,6 +37,7 @@ eval {
 #	print STDOUT "fastqcount\n";
 	&pull_qc();
 #	print STDOUT "qc\n";
+	&pull_joinPE();
 	&pull_assy();
 #	print STDOUT "assay\n";
 	&pull_host_rev();
@@ -230,6 +231,7 @@ sub output_html {
 sub check_analysis {
 	$vars->{OUT_GET_DOWNLOAD} = 1 if $mode eq "web";
 	$vars->{OUT_QC_SW}    = 1 if -e "$out_dir/QcReads/runQC.finished";
+	$vars->{OUT_JP_SW}    = 1 if -e "$out_dir/QcReads/runJoinPE.finished";
 	$vars->{OUT_HR_SW}    = 1 if -e "$out_dir/HostRemoval/hostclean.stats.txt";
 	$vars->{OUT_AS_SW}    = 1 if (glob "$out_dir/AssemblyBasedAnalysis/*.finished");
 	$vars->{OUT_AS_PC_SW} = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/processProvideContigs.finished");
@@ -552,6 +554,22 @@ sub pull_qc {
 	}
 	close ($qcfh);
 	$NUM_READS_FOR_DOWNSTREAM = ($vars->{AFTERREADS} =~ m/(\d+)/);
+}
+
+sub pull_joinPE {
+	my $joinPElog="$out_dir/QcReads/JoinPE.log";
+	return unless -e $joinPElog;
+	my ($input_pe,$joined_pe);
+	open(my $jpe_fh,"<",$joinPElog) or die $!;
+	while(<$jpe_fh>){
+		chomp;
+		if (/Total reads:\s+(\d+)/)   { $vars->{JPETPE}=$1; next;  }
+		if (/Total joined:\s+(\d+)/)   { $vars->{JPEJPE}=$1; next;  }
+		if (/Average join len:\s+(\S+)/)   { $vars->{JPEAVG}=$1; next;  }
+		if (/Stdev join len:\s+(\S+)/)   { $vars->{JPESTD}=$1; next;  }
+	}
+	close $jpe_fh;
+	$NUM_READS_FOR_DOWNSTREAM = $NUM_READS_FOR_DOWNSTREAM - $vars->{JPEJPE};
 }
 
 sub pull_fastqCount {

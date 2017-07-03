@@ -281,7 +281,28 @@
 			</p>
 			</li>
 			</TMPL_IF>
-
+			<TMPL_IF NAME="OUT_JP_SW">
+			<li><span class="li-report-content-title">Stitch Paired-End Reads</span><div class="li-report-content">
+				<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				  <thead>
+					<tr>
+					  <th data-priority='1'></th>
+					  <th data-priority='2'>Stats</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr><td>Total PE Reads</td><td><TMPL_VAR NAME=JPETPE DEFAULT=-> x 2</td></tr>
+					<tr><td>Total Joined Reads</td><td><TMPL_VAR NAME=JPEJPE DEFAULT=-></td></tr>
+					<tr><td>Average Joined Length</td><td><TMPL_VAR NAME=JPEAVG DEFAULT=-></td></tr>
+					<tr><td>Stdev Joined Length</td><td><TMPL_VAR NAME=JPESTD DEFAULT=-></td></tr>
+				  </tbody>
+				</table>
+			</div>
+			<p class='extra-text-link'>Link to
+				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads'> Directory </a>
+			</p>
+			</li>
+			</TMPL_IF>
 			<TMPL_IF NAME="OUT_HR_SW">
 			<li><span class="li-report-content-title">Host Removal and Filter</span><div class="li-report-content">
 				<p>Host file: <TMPL_VAR NAME=HOSTFILE DEFAULT=->.</p>

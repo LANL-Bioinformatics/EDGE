@@ -1480,7 +1480,7 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-qc-sw']").on("change", function(){
 			if ( $(this).val() == 0 ){
-				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-hostrm-sw']:checked").val()==0 ){
+				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-hostrm-sw']:checked").val()==0 && $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
 					showWarning("At least one function needs to be turned on!");
 					$( "#edge-qc-sw1" ).click().checkboxradio("refresh");
 				}
@@ -1488,9 +1488,17 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-hostrm-sw']").on("change", function(){
 			if ( $(this).val() == 0 ){
-				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-qc-sw']:checked").val()==0 ){
+				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-qc-sw']:checked").val()==0 && (":radio[name='edge-joinpe-sw']:checked").val()==0){
 					showWarning("At least one function needs to be turned on!");
 					$( "#edge-hostrm-sw1" ).click().checkboxradio("refresh");
+				}
+			}
+		});
+		$(":radio[name='edge-joinpe-sw']").on("change", function(){
+			if ( $(this).val() == 0 ){
+				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-qc-sw']:checked").val()==0 && (":radio[name='edge-hostrm-sw']:checked").val()==0){
+					showWarning("At least one function needs to be turned on!");
+					$( "#edge-joinpe-sw1" ).click().checkboxradio("refresh");
 				}
 			}
 		});
