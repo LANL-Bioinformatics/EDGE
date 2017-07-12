@@ -231,6 +231,7 @@ sub main {
 			my @refseqs_id = keys %{$ref_name};
 			foreach my $acc ( @refseqs_id ){
 				my $file_prefix = $ref_name->{$acc}->{file};
+				$acc =~ s/\W/\_/g;
 				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				chomp $mapped_num;
