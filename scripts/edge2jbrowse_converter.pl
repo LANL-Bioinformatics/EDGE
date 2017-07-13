@@ -237,17 +237,17 @@ sub main {
 				chomp $mapped_num;
 				if( $mapped_num ){
 					print "#  - Adding read2ref $acc BAM track...";
-					executeCommand("samtools view -F4 -bh $bam $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort 2>/dev/null");
+					executeCommand("samtools view -F4 -bh $bam $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$acc.mapped.sort 2>/dev/null");
 					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
-					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort.bam");
-					executeCommand("sed -e 's/%%BAMFILENAME%%/$file_prefix.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
+					executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 					#executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
 					#unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
 					print "Done.\n";
 	
 					print "#  - Adding BigWig $acc track...";
-					executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort.bam");
-					executeCommand("sed -e 's/%%BWFILENAME%%/$file_prefix.mapped.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
+					executeCommand("sed -e 's/%%BWFILENAME%%/$acc.mapped.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 					print "Done.\n";
 	
 				}
