@@ -111,6 +111,7 @@ $( document ).ready(function()
 		$(".edge-targetedngs-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").show();
 		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		$('#edge-fastq-input-block').show();
 		$('.edge-input-se-block').hide();
 		$('.edge-input-pe-block').show();
 		$('#edge-qiime-pipeline-dir-input').hide();
@@ -698,23 +699,48 @@ $( document ).ready(function()
 		var optionsID = id.replace('toggle','options');
 		$( "#" + optionsID ).toggle();
 	});
-	//ncbi sra input
+	//input source
 	$( "#edge-sra-input-block" ).hide();
-	$( ":radio[name='edge-sra-sw']" ).on("change",function(){
-		if ( $(this).val() == 1 ){
+	$( "#edge-fasta-input-block" ).hide();
+	$( ":radio[name='edge-inputS-sw']" ).on("change",function(){
+		inputSourceCheck(this);
+	});
+
+	function inputSourceCheck(obj){
+		if ( $(obj).val() == "sra" ){
+			$( "#edge-fasta-input-block").hide();
+			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
-			$( "#edge-file-input-block" ).hide();
 			$( ".btnAdd-edge-input" ).hide();
 			$( "#edge-sample-metadata" ).hide();
+			$( '#edge-input-contig-file').val('');
+			$( '#edge-fastq-input-block').find('input').val('');
+			$( ".edge-fastq-options").show();
+			$( "a[data-id=edge-assembly-parameters]" ).click();
 		}
-		else{
-			$( "#edge-sra-input-block" ).fadeOut('fast');
-			$( "#edge-file-input-block" ).fadeIn('fast');
+		if ( $(obj).val() == "fastq"){
+			$( "#edge-sra-input-block" ).hide();
+			$( "#edge-fasta-input-block").hide();
 			$( ".btnAdd-edge-input" ).fadeIn('fast');
+			$( '#edge-fastq-input-block').fadeIn('fast');
 			$( "#edge-sra-acc" ).val('');
 			$( "#edge-sample-metadata" ).show();
+			$( '#edge-input-contig-file').val('');
+			$( ".edge-fastq-options").show();
+			$( "a[data-id=edge-assembly-parameters]" ).click();
 		}
-	});
+		if ( $(obj).val() == "fasta"){
+			$( "#edge-sra-input-block" ).hide();
+			$( '#edge-fastq-input-block').hide();
+			$( "#edge-fasta-input-block").fadeIn('fast');
+			$( ".btnAdd-edge-input" ).hide();
+			$( "#edge-sra-acc" ).val('');
+			$( "#edge-sample-metadata" ).hide();
+			$( '#edge-fastq-input-block').find('input').val('');
+			$( ".edge-fastq-options").hide();
+			$( "a[data-id=edge-annotation-parameters]" ).click();
+		}
+	}
 	//
 	/*
     	// batch input 
@@ -1472,8 +1498,8 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-primer-adj-sw']").on("change", function(){
 			if ( $(this).val() == 1 ){
-				if ( $( "#edge-assembly-sw" ).val() == 0 ){
-					showWarning("Primer design function can only be performed when assembly function turns on.");
+				if ( $( "#edge-assembly-sw" ).val() == 0 && !$( "#edge-input-contig-file").val() ){
+					showWarning("Primer design function can only be performed when assembly function turns on or with contig input.");
 					$( "#edge-primer-adj-sw2" ).prop('checked',true);
 				}
 			}
@@ -1624,8 +1650,8 @@ $( document ).ready(function()
 	function toggle_input_fields( act ){
 		if( act == "reconfig" ){
 			$('#edge-proj-name').prop("disabled", true);
-			$('input[id^="edge-sra-"]').prop("disabled", true);
-			$('input[name="edge-sra-sw"]').prop("disabled", true).checkboxradio("refresh");
+			$('input[id^="edge-inputS-"]').prop("disabled", true);
+			$('input[name="edge-inputS-sw"]').prop("disabled", true).checkboxradio("refresh");
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
 			$('#edge-batch-input-excel-1').prop("disabled", true);
 			$('input[id^="edge-input-"]').prop("disabled", true);
@@ -1634,8 +1660,8 @@ $( document ).ready(function()
 		}
 		else{
 			$('#edge-proj-name').prop("disabled", false);
-			$('input[id^="edge-sra-"]').prop("disabled", false);
-			$('input[name="edge-sra-sw"]').prop("disabled", false).checkboxradio("refresh");
+			$('input[id^="edge-inputS-"]').prop("disabled", false);
+			$('input[name="edge-inputS-sw"]').prop("disabled", false).checkboxradio("refresh");
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
 			$('#edge-batch-input-excel-1').prop("disabled", false);
 			$('input[id^="edge-input-"]').prop("disabled", false);
@@ -2386,11 +2412,12 @@ $( document ).ready(function()
 		$('#edge-form-submit').closest('.ui-btn').show();
 		$('#edge-form-reset').closest('.ui-btn').show();
 		$("#edge-submit-info" ).children().remove();
-		$("#edge-file-input-block").children().show();
+		$("#edge-fastq-input-block").children().show();
 		$(".btnAdd-edge-input").children().show();
 		$(".edge-targetedngs-pipeline-input").hide();
 		$(".edge-qiime-pipeline-input").hide();
 		$(".edge-main-pipeline-input").show();
+		inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				showWarning("Please login to run EDGE.");

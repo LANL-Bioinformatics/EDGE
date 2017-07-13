@@ -28,6 +28,7 @@ my $outDir;
 my $numCPU=8;
 my $configFile;
 my @referenceGenome;
+my $inputContigs;
 my $noColorLog=0;
 my $primerFile;
 my $proxy=$ENV{HTTP_PROXY}||$ENV{http_proxy};
@@ -37,6 +38,7 @@ GetOptions("u=s{,}"           => \@unpairedReadsFile,
            "p=s{,}"           => \@pairedReadsFile,
            "o=s"              => \$outDir,
            "ref=s{,}"         => \@referenceGenome,
+           "contigs=s"        => \$inputContigs,
            "primer=s"         => \$primerFile,
            "cpu=i"            => \$numCPU,
            "config|c=s"       => \$configFile,
@@ -59,6 +61,8 @@ sub Usage
             -u            Unpaired reads, Single end reads in fastq
             
             -p            Paired reads in two fastq files and separate by space
+
+            -contigs      Contig Fasta File.
 
             -c            Config File
      Output:
@@ -85,7 +89,7 @@ END
 my $configuration=&readConfig($configFile);
 my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 
-&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir});
+&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir}  or $configuration->{inputContigs} or $inputContigs );
 &Usage("Missing output directory path.") unless ($outDir);
 `mkdir -p $outDir`;
 my $abs_outDir=Cwd::abs_path("$outDir");
@@ -113,6 +117,8 @@ if ( ! -e "$outDir/config.txt"){ `cp $configFile $outDir/config.txt`;}
 
 $numCPU = $configuration->{'cpu'} if ($configuration->{'cpu'});
 
+$inputContigs = $configuration->{inputContigs} unless $inputContigs;
+
 if (!@referenceGenome and $configuration->{reference})
 {
 	if (scalar @{$configuration->{reference}}){
@@ -138,7 +144,7 @@ if ($configuration->{'DoSRADownload'})
 }
 if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir}){
 	my $dir_input=$configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir};
-        my $mapping_files=$configuration->{qiime_mapping_file} || $configuration->{targetedNGS_sample_file};
+	my $mapping_files=$configuration->{qiime_mapping_file} || $configuration->{targetedNGS_sample_file};
 	my ($pe_files_r,$se_files_r)=&parse_qiime_mapping_file($dir_input,$mapping_files);
 	@pairedReadsFile=@{$pe_files_r};
 	@unpairedReadsFile=@{$se_files_r};
@@ -154,7 +160,7 @@ if ($configuration->{DoQC})
 {
     ($QCpairFile,$QCunpairFile)=&runQC(\@unpairedReadsFile, \@pairedReadsFile);
 }
-else
+elsif(@unpairedReadsFile or @pairedReadsFile)
 {
     ($QCpairFile,$QCunpairFile)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
 }
@@ -168,7 +174,7 @@ if ($configuration->{'DoQiimeAnalysis'}){
 }
 
 if ($configuration->{DoTargetedNGS}){
-        &runTargetedNGS();
+	&runTargetedNGS();
 }
 
 if ($configuration->{DoHostRemoval})
@@ -188,15 +194,14 @@ if ($configuration->{DoHostRemoval})
 my $contigFile;
 my $contig_for_annotation_file;
 my $contig_size_for_annotation=$configuration->{contig_size_cut_for_annotation}||700;
-if ($configuration->{DoAssembly})
+if ($configuration->{assembledContigs} || $inputContigs){
+	($contigFile,$contig_for_annotation_file)=&processProvideContigs();
+}
+if ($configuration->{DoAssembly} && ($QCpairFile or $QCunpairFile))
 {
-    if ($configuration->{assembledContigs}){
-            ($contigFile,$contig_for_annotation_file)=&processProvideContigs();
-    }else{
-        my $assembler = $configuration->{assembler};
-        ($contigFile,$contig_for_annotation_file)=&runAssembly($QCpairFile,$QCunpairFile,$assembler);
-    }
-    &runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and $configuration->{DoReadsMappingContigs});
+	my $assembler = $configuration->{assembler};
+	($contigFile,$contig_for_annotation_file)=&runAssembly($QCpairFile,$QCunpairFile,$assembler) if (!$configuration->{assembledContigs});
+	&runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and $configuration->{DoReadsMappingContigs});
 }
 
 my $tax_kingdom=$configuration->{kingdom};
@@ -210,34 +215,38 @@ my $annotateProgram=$configuration->{annotateProgram}||"prokka";
 
 if ($referenceGenome)
 {
-    my ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
+    my ($r2gVCF,$r2gGap);
     my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);
 
-    if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
-        ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
-    }
-    if( $configuration->{MapUnmappedReads} ){
-        &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads > 0);
-    }
+    if ($QCpairFile or $QCunpairFile){
+        ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
 
-    # taxonomy analysis
-    if ($configuration->{DoReadsTaxonomy})
-    {
-        if ($configuration->{AllReads})
-        {
-            &Reads_taxonomyAssignment($QCpairFile,$QCunpairFile,"$outDir/ReadsBasedAnalysis/Taxonomy");
+        if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
+            ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
         }
-        else
+        if( $configuration->{MapUnmappedReads} ){
+            &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if (!$numOfunmappedReads > 0);
+        }
+    
+        # taxonomy analysis
+        if ($configuration->{DoReadsTaxonomy})
         {
-            # retrieve unmapped reads
-            ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
-	    &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads > 0);
-            `ln -sf $outDir/ReferenceBasedAnalysis/UnmappedReads $outDir/ReadsBasedAnalysis/UnmappedReads` if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
+            if ($configuration->{AllReads})
+            {
+                &Reads_taxonomyAssignment($QCpairFile,$QCunpairFile,"$outDir/ReadsBasedAnalysis/Taxonomy");
+            }
+            else
+            {
+                # retrieve unmapped reads
+                ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
+	        &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if (!$numOfunmappedReads > 0);
+                `ln -sf $outDir/ReferenceBasedAnalysis/UnmappedReads $outDir/ReadsBasedAnalysis/UnmappedReads` if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
+            }
         }
     }
 
     my ($unusedContigFasta,$c2g_SNP_INDEL_file,$c2g_Gap);
-    if ($configuration->{DoAssembly} and $contigFile)
+    if ( -s $contigFile)
     {
         ($unusedContigFasta,$c2g_SNP_INDEL_file,$c2g_Gap)=&runContigToGenome($contigFile,$referenceGenome);
         #blast nr on novel contigs/regions
@@ -251,8 +260,10 @@ if ($referenceGenome)
 }
 else # reference unknown 
 {
-    # Reads taxonomy
-    &Reads_taxonomyAssignment($QCpairFile,$QCunpairFile,"$outDir/ReadsBasedAnalysis/Taxonomy") if ($configuration->{DoReadsTaxonomy});
+    if ($QCpairFile or $QCunpairFile){
+        # Reads taxonomy
+        &Reads_taxonomyAssignment($QCpairFile,$QCunpairFile,"$outDir/ReadsBasedAnalysis/Taxonomy") if ($configuration->{DoReadsTaxonomy});
+    }
     #blast nt for contigs taxonomy
     &ContigsBlast($contigFile,'nt') if ($configuration->{DoBlast});
 }
@@ -263,7 +274,7 @@ if ($configuration->{DoContigsTaxonomy} and $contigFile)
     &Contigs_taxonomyAssignment($contigFile);
 }
 
-if ($configuration->{DoAssembly} and $contigFile )
+if ( -s $contigFile )
 {
     #not sure if it is Virus, use size of references to determine the kingdoma (580K is smallest Prok,Mycoplasma)
     my $contigTotalSize=0;
@@ -298,7 +309,7 @@ if ($primerFile and $configuration->{DoPrimerValidation})
     $pcrCheckFailure=&pcrValidation($primerFile,$contigFile, $referenceGenome);
 }
 
-if ($configuration->{DoAssembly} and $contigFile)
+if ( -s $contigFile)
 {
     #primer Design for Assay Failure and Novel pathgen
     if ($pcrCheckFailure == 1 || $configuration->{DoPrimerDesign})  
@@ -444,7 +455,7 @@ sub runSpecialtyGenesProfiling {
 
     }
 	# Reads Based Analysis
-	if ($configuration->{DoReadsSpecialtyGenes} and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
+	if ($configuration->{DoReadsSpecialtyGenes} and $wgs_reads and ! -e "$outDir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
     {
 		my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
 		my $log = "$outputDir/log.txt";
@@ -1636,7 +1647,7 @@ sub pcrValidation
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $command = "perl $RealBin/scripts/pcrValidation/validate_primers.pl -prefix pcrContigValidation -ref $contigFile -primer $primerFile -mismatch $numOfMismatch -threads $numCPU -output $outputDir ";
-    if ($configuration->{DoAssembly} and $contigFile)
+    if ( -s $contigFile)
     {
         &lprint (" Running \n $command\n");
         open (my $contigPCR_fh, "$command |") or die "$!";
@@ -1812,28 +1823,30 @@ text(0,nextPos-0.22,\"Inputs:\",adj=0,font=2)
 Rscript
 }
 
+if ( -e $count_file_list){ 
 print $Rfh <<Rscript;
 popViewport(0)
 input<-read.table(file=\"$count_file_list\")
 pushViewport(viewport(x=0.35, y=input_pos))
 #grid.table(input,show.rownames = FALSE,cols=c(\"Inputs\",\"Reads\",\"Bases\",\"Avg_Len\"),show.box = TRUE)
 grid.table(input,cols=c(\"Inputs\",\"Reads\",\"Bases\",\"Avg_Len\"))
-
-popViewport(0)
-
-tmp<-dev.off()
-
 Rscript
-
+}else{
+print $Rfh <<Rscript
+popViewport(0)
+tmp<-dev.off()
+Rscript
+}
 
 if ($configuration->{DoHostRemoval}){
     $mergeFiles .= $hostReomvalPDF.",";
 }
 
-if ($contigFile and $configuration->{DoReadsMappingContigs})
-{
-    $mergeFiles .= $contigStatsPDF.",".$readsMappingToContigStatsPDF.",".$readsMappingToContigPDF.",";
-
+if ($contigFile and $configuration->{DoReadsMappingContigs}){
+	$mergeFiles .= $contigStatsPDF.",";
+}
+if ( -e "$outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.alnstats.txt"){
+    $mergeFiles .= $readsMappingToContigStatsPDF.",".$readsMappingToContigPDF.",";
 print $Rfh <<Rscript;
 pdf(file = "$readsMappingToContigStatsPDF",width = 10, height = 8)
  
@@ -1869,7 +1882,7 @@ title("Mapping Contigs to Reference")
 tmp<-dev.off()
 Rscript
     }
-
+    if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt"){
     $mergeFiles .= $readsMappingToRefStatsPDF.",".$readsMappingToRefPDF.",";
 print $Rfh <<Rscript;
 pdf(file = "$readsMappingToRefStatsPDF",width = 10, height = 8)
@@ -1883,6 +1896,7 @@ for (i in 1:length(readsMappingToRefStats)){
 title("Mapping Reads to Reference")
 tmp<-dev.off()
 Rscript
+    }
 }
 
 
@@ -1955,9 +1969,14 @@ unlink $InputLogPDF;
  push @conversions, "convert -density 120 -flatten ${contigMappingToRefPDF}[0] $imagesDir/contigsMappingToRef_coverage.png" if (-e $contigMappingToRefPDF);
  push @conversions, "convert -density 120 -flatten ${readsMappingToRefPDF}[0] $imagesDir/readsMappingToRef_fold_histogram.png" if (-e $readsMappingToRefPDF);
  push @conversions, "convert -density 120 -flatten ${readsMappingToRefPDF}[1] $imagesDir/readsMappingToRef_coverage.png" if (-e $readsMappingToRefPDF);
- push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
- push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[4] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
- push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[5] $imagesDir/contigClassification_phylum_scatterplot.png" if ( -e "$contigTaxonomyPDF");
+ if ($inputContigs){
+        push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[2] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
+        push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
+ }else{
+ 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
+ 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[4] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
+ 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[5] $imagesDir/contigClassification_phylum_scatterplot.png" if ( -e "$contigTaxonomyPDF");
+ }
  foreach my $file(split /,/, $taxonomyPDFfiles) 
  {
      next if ($file eq $contigTaxonomyPDF);
@@ -2078,10 +2097,10 @@ sub runQC
     my $parameters;
     $parameters .= " -p $_ " foreach (@pairedFile);
     $parameters .= " -u $_ " foreach (@unpairedFile);
-    $parameters .= " -q $quality_cutoff -min_L $min_length -avg_q $avg_quality -n $num_N -lc $low_complexity -5end $cut_5_end -3end $cut_3_end";
-    $parameters .= " -split_size $split_size -d $outputDir -t $numCPU";
-    $parameters .= " -adapter -artifactFile ". $configuration->{"adapter"} if ($configuration->{"adapter"});
-    $parameters .= " -polyA " if ($configuration->{"polyA"});
+    $parameters .= " -q $quality_cutoff --min_L $min_length --avg_q $avg_quality -n $num_N --lc $low_complexity --5end $cut_5_end --3end $cut_3_end";
+    $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
+    $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if ($configuration->{"adapter"});
+    $parameters .= " --polyA " if ($configuration->{"polyA"});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     
     my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
@@ -2527,7 +2546,7 @@ sub runContigToGenome
 
 sub processProvideContigs 
 {
-    my $providedContigFile=$configuration->{assembledContigs};
+    my $providedContigFile=$configuration->{assembledContigs} || $inputContigs;
     my $time=time();
     my $outputDir="$abs_outDir/AssemblyBasedAnalysis";
     my $contig_file= "$outputDir/${project_name}_contigs.fa";
@@ -2558,6 +2577,11 @@ sub processProvideContigs
         &lprint("failed: The provided contigs file is not in FASTA format. Will skip downstream assembly based analysis. \n") 
     }
     &lprint ("Process Provided Contigs Finished\n");
+    if ($inputContigs){
+        chdir "$abs_outDir/AssemblyBasedAnalysis/";
+        &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contig_file > contigs_stats.txt");
+        chdir $workingDir;
+    }
     system("touch $outputDir/processProvideContigs.finished");
     &printRunTime($time);
     return ($contig_file, $contig_for_annotation);
@@ -3385,6 +3409,11 @@ sub checkFileAndDir
             }
 	}
     }
+    if ($inputContigs =~ /^[http|ftp]/i){
+        push @download_url, $inputContigs;
+        my $filename = &getFilenameFromURLHeader($inputContigs);
+        $inputContigs = "$outDir/DownloadedReads/$filename";
+    }
     if (scalar(@download_url)>0)
     {
         &download_reads(@download_url);
@@ -3431,6 +3460,15 @@ sub checkFileAndDir
               }
             } @unpairedReadsFile;
     }
+    if ($inputContigs){
+        if (is_file_empty($inputContigs)){
+            Usage("Please check contigs fasta input at flag --contigs.\n    $inputContigs doesn't not exist or empty.");
+        }
+        if ( ! is_fasta($inputContigs)){
+            Usage("$inputContigs is not in fasta format");
+        }
+    }
+
     return (@make_paired_paired_files);
 }
 

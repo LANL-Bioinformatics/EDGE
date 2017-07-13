@@ -799,29 +799,29 @@ sub checkParams {
 		foreach my $i (0..$#edge_input_pe1){
 			my $id = "edge-input-pe1-". ($i + 1);
 			$edge_input_pe1[$i] =~ s/ //g;
-			$edge_input_pe1[$i] = "$input_dir/$edge_input_pe1[$i]" if ($edge_input_pe1[$i] =~ /^\w/);
+			$edge_input_pe1[$i] = "$input_dir/$edge_input_pe1[$i]" if ($edge_input_pe1[$i] =~ /^\w/ && $edge_input_pe1[$i] !~ /^[http|ftp]/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe1[$i]});
 			$files{$edge_input_pe1[$i]}=1;
 			if ($edge_input_pe1[$i] &&  $edge_input_pe1[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_pe1[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( is_fastq($edge_input_pe1[$i]) );
+			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe1[$i] && is_fastq($edge_input_pe1[$i]) );
 		}
 		foreach my $i (0..$#edge_input_pe2){
 			my $id = "edge-input-pe2-". ($i + 1);
 			$edge_input_pe2[$i] =~ s/ //g;
-			$edge_input_pe2[$i] = "$input_dir/$edge_input_pe2[$i]" if ($edge_input_pe2[$i] =~ /^\w/);
+			$edge_input_pe2[$i] = "$input_dir/$edge_input_pe2[$i]" if ($edge_input_pe2[$i] =~ /^\w/ && $edge_input_pe2[$i] !~ /^[http|ftp]/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe2[$i]});
 			$files{$edge_input_pe2[$i]}=1;
 			if ($edge_input_pe2[$i] &&  $edge_input_pe2[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_pe2[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( is_fastq($edge_input_pe2[$i]) );
+			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe2[$i] && is_fastq($edge_input_pe2[$i]));
 		}
 		foreach my $i (0..$#edge_input_se){
 			my $id = "edge-input-se". ($i + 1);
 			$edge_input_se[$i] =~ s/ //g;
-			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/);
+			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/ && $edge_input_se[$i] !~ /^[http|ftp]/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_se[$i]});
 			$files{$edge_input_se[$i]}=1;
 			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_se[$i]){
@@ -838,25 +838,37 @@ sub checkParams {
 				&addMessage("PARAMS","$id","Input error. Pair-1 and Pair-2 are identical.");
 			}
 		}
+		if ($opt{'edge-inputS-sw'} eq "fasta"){
+			$opt{'edge-input-contig-file'} = "$input_dir/$opt{'edge-input-contig-file'}" if ($opt{'edge-input-contig-file'} =~/^\w/);
+			&addMessage("PARAMS",'edge-input-contig-file',"Invalid input. Fasta format required") if ( -e $opt{'edge-input-contig-file'} && ! is_fasta($opt{'edge-input-contig-file'}));
+ 			$opt{"edge-qc-sw"}       = 0;
+ 			$opt{'edge-joinpe-sw'}   = 0;
+ 			$opt{"edge-hostrm-sw"}   = 0;
+ 			$opt{"edge-assembly-sw"} = 0;
+ 			$opt{"edge-taxa-sw"}     = 0;
+			$opt{"edge-ref-sw"}      = 0;
+                        $opt{"edge-reads-sg-sw"} = 0;
+ 		}
+		$opt{'edge-sra-sw'} = 1 if ($opt{'edge-inputS-sw'} eq "sra");
 		if ( $opt{'edge-sra-sw'}){
 			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'});
 			my $return=&getSRAmetaData($opt{'edge-sra-acc'});
 			&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $opt{'edge-sra-acc'}") if ($return);
-		}else{
+		}
+		if ($opt{'edge-inputS-sw'} eq "fastq"){
 			if (!@edge_input_pe1 && !@edge_input_pe2 && !@edge_input_se){
 				&addMessage("PARAMS","edge-input-pe1-1","Input error.");
 				&addMessage("PARAMS","edge-input-pe2-1","Input error.");
 				&addMessage("PARAMS","edge-input-se1","Input error.");
-			}
-			if ($pipeline eq "qiime" && @edge_input_pe1 && @edge_input_se){
-
-				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
 			}
 		}
 		if ( $opt{'edge-joinpe-sw'}  && (!@edge_input_pe1 or !@edge_input_pe2) ){
 			&addMessage("PARAMS", "edge-joinpe-sw2", "No Paired End Reads input for PE Stitch");
 		}
 		if ($pipeline eq "qiime"){
+			if (@edge_input_pe1 && @edge_input_se){
+				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
+			}
 			&addMessage("PARAMS","edge-qiime-mapping-file-input1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
 				my $id = "edge-qiime-mapping-file-input". ($i + 1);
@@ -874,6 +886,7 @@ sub checkParams {
 	if ($pipeline eq "qiime"){
 		$opt{"edge-qiime-sw"} =1;
 		$opt{"edge-qc-sw"} =0;
+		$opt{'edge-joinpe-sw'}   = 0;
 		$opt{"edge-hostrm-sw"} =0;
 		$opt{"edge-assembly-sw"} = 0;
 		$opt{"edge-ref-sw"} = 0;
@@ -881,6 +894,7 @@ sub checkParams {
 		$opt{"edge-contig-taxa-sw"} = 0;
 		$opt{"edge-anno-sw"} = 0 ;
 		$opt{"edge-phylo-sw"} = 0 ;
+		$opt{"edge-sg-sw"} = 0;
 		$opt{"edge-primer-valid-sw"} = 0 ;
 		$opt{"edge-primer-adj-sw"} = 0 ;
 		$opt{"edge-anno-sw"} = 0 ;
@@ -918,6 +932,7 @@ sub checkParams {
 	if ($pipeline eq "targetedngs"){
 		$opt{"edge-targetedngs-sw"} =1;
 		$opt{"edge-qc-sw"} =0;
+		$opt{'edge-joinpe-sw'}   = 0;
 		$opt{"edge-hostrm-sw"} =0;
 		$opt{"edge-assembly-sw"} = 0;
 		$opt{"edge-ref-sw"} = 0;

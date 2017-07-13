@@ -215,7 +215,7 @@ if ($contig)
 
 $data_type = 1 if ( !(@pair_read || $single_end_read) && $contig && (!$genomes||!$genomesFiles)) ;
 $data_type = 2 if ( (@pair_read || $single_end_read) && !$contig && (!$genomes||!$genomesFiles)) ;
-$data_type = 3 if ( !(@pair_read || $single_end_read) && $contig && ($genomes||$$genomesFiles)) ;
+$data_type = 3 if ( !(@pair_read || $single_end_read) && $contig && ($genomes||$genomesFiles)) ;
 $data_type = 4 if ((@pair_read || $single_end_read) && !$contig && ($genomes||$genomesFiles)) ;
 $data_type = 5 if ((@pair_read || $single_end_read) && $contig && (!$genomes||!$genomesFiles)) ;
 $data_type = 6 if ((@pair_read || $single_end_read) && $contig && ($genomes||$genomesFiles)) ;

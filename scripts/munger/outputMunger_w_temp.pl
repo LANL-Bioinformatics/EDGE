@@ -235,6 +235,7 @@ sub check_analysis {
 	$vars->{OUT_HR_SW}    = 1 if -e "$out_dir/HostRemoval/hostclean.stats.txt";
 	$vars->{OUT_AS_SW}    = 1 if (glob "$out_dir/AssemblyBasedAnalysis/*.finished");
 	$vars->{OUT_AS_PC_SW} = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/processProvideContigs.finished");
+	$vars->{OUT_CONLY_SW} = 1 if ($vars->{OUT_AS_PC_SW} && ! -e "$out_dir/QcReads/fastqCount.txt");
 	#$vars->{OUT_AS_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
 	$vars->{OUT_AN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
 	$vars->{OUT_RA_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
@@ -1494,6 +1495,10 @@ sub pull_summary {
 		if (/^assembledContigs=(.*)/){
 			$vars->{ASSEMBLEDCONTIG}=$1;
 		}
+		if (/^inputContigs=(.*)/){
+			push @INFILES, $1;
+			$vars->{INPUTCONTIG}=$1;
+		}
 		if( /^\[(.*)\]/ ){
 			my $step = $1;
 			if( $step eq "project" or $step eq "system"){
@@ -1630,8 +1635,10 @@ sub pull_summary {
 	map {  $_=basename($_) if ($_); } @INFILES;
 	$vars->{INFILES} = join ", ", @INFILES;
 	my @HOST_FILES;
-	map {  if ($_){ my $host=basename($_); push @HOST_FILES,$host;}} split /\,/, $vars->{HOSTFILE};
-	$vars->{HOSTFILE} = join ", ", @HOST_FILES;
+	if ($vars->{HOSTFILE}){
+		map {  if ($_){ my $host=basename($_); push @HOST_FILES,$host;}} split /\,/, $vars->{HOSTFILE};
+		$vars->{HOSTFILE} = join ", ", @HOST_FILES;
+	}
 	
 	foreach my $ord ( sort {$a<=>$b} keys %$prog ){
 		next if $prog->{$ord}->{GNLSTATUS} eq "Skipped";

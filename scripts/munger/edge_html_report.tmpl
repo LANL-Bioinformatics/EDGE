@@ -206,7 +206,8 @@
 		</div>
 	</TMPL_IF>
 <!-- END sample metatdata -->	
-
+		
+		<TMPL_UNLESS NAME=OUT_CONLY_SW>
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<TMPL_IF NAME="SRADERR">
 			<p class="error"><TMPL_VAR NAME=SRADERR></p>
@@ -337,7 +338,7 @@
 			</TMPL_IF>
 			</ol>
 		</div>
-
+		</TMPL_UNLESS>
 		<TMPL_IF NAME="OUT_AS_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>Assembly and Annotation</h4>
@@ -391,6 +392,7 @@
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis'> Directory </a></p>
 					</TMPL_UNLESS>
 				</div></li>
+				<TMPL_UNLESS NAME="OUT_CONLY_SW">
 				<li><span class="li-report-content-title">Assembly Validation by Read Mapping</span><div class="li-report-content">
 					<TMPL_UNLESS NAME="ASSYERR">
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
@@ -440,6 +442,7 @@
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/readsMappingToContig'> Directory </a></p>
 					</TMPL_UNLESS>
 				</div></li>
+				</TMPL_UNLESS>
 				<TMPL_IF NAME="OUT_AN_SW">
 				<li><span class="li-report-content-title">Annotation</span><div class="li-report-content">
 					<TMPL_IF NAME="ANOERR">
@@ -1053,12 +1056,14 @@
 						<img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/contigClassification_phylum_barplot2.png" alt="Contigs Classification at Phylum Level">
 						</a>
 						</div>
+						<TMPL_UNLESS NAME="OUT_CONLY_SW">
 						<div class="ui-block-c">
 						<span class="iframe_label">Scatter Plot<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/contigClassification_phylum_scatterplot.png'>[full]</a></span>
 						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
 						<img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/contigClassification_phylum_scatterplot.png" alt="Contigs Classification at Phylum Level">
 						</a>
 						</div>
+						</TMPL_UNLESS>
 					</div>
 					</TMPL_IF>
 					<div class="ui-field-contain">

@@ -196,10 +196,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<h2>Implementation</h2>
 		<p>
 			<ul>
-			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>Illumina FASTQ data</b> (there is currently limited capability of incorporating PacBio and Oxford Nanopore data into the Assembly module)</li>
+			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>Illumina FASTQ data</b> or <b>Contig FASTA data</b> (there is currently limited capability of incorporating PacBio and Oxford Nanopore data into the Assembly module)</li>
 			<li>The EDGE bioinformatics web-based graphic user interface is primarily implemented using the JQuery Mobile javascript framework and HTML5 on the client-side, and implements perl CGI using Apache or Python on the server-side</li>
 			<li>The current version of EDGE pipeline has been extensively tested on Linux platforms with Ubuntu 14.04 and CentOS 6/7 operation system and will only work on 64bit Linux environments</li>
-			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 16GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
+			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 24GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
 			</ul>
 		</p>
 		<h2>Download & Updates</h2>
@@ -229,7 +229,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 <form id="edge-run-pipeline-form" autocomplete='off'>
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
 		<h2>Input Your Sample</h2>
-		<p class="edge-main-pipeline-input">EDGE requires <b>Illumina FASTQ</b> sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences.</p>
+		<p class="edge-main-pipeline-input">EDGE requires <b>Illumina FASTQ</b> sequence data files in FASTQ format or <b>Contigs</b> sequence data file in FASTA format. EDGE allows both paired-end and single-end sequences.</p>
 		<p class="edge-qiime-pipeline-input">The <a href="http://qiime.org/tutorials/open_reference_illumina_processing.html" target="_blank">Qiime</a> pipeline requires sequence data files in FASTQ format and a <a href="http://qiime.org/documentation/file_formats.html" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.</p>
 		<p class="edge-targetedngs-pipeline-input">The <a href="https://chienchilo.bitbucket.io/targetedNGS/" target="_blank">TargetedNGS</a> is a pipeline for assay design evaluation. </p>
 		<div data-role="collapsible-set">
@@ -256,42 +256,52 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<label for="edge-qiime-at-sw3">Fungal ITS</label>
 						</fieldset>
 					</div>
-					<div class="ui-field-contain edge-qiime-pipeline-input edge-main-pipeline-input">
+					<div class="ui-field-contain edge-main-pipeline-input">
 						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Input from NCBI Sequence Reads Archive(SRA)</legend>
-							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw1" value="1">
-							<label for="edge-sra-sw1">Yes</label>
-							<input type="radio" data-mini="true" name="edge-sra-sw" id="edge-sra-sw2" value="0" checked="checked">
-							<label for="edge-sra-sw2">No</label>
+						<legend>Input Source</legend>
+							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw1" value="fastq" checked="checked">
+							<label for="edge-inputS-sw1">READS / FASTQ</label>
+							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw2" value="fasta">
+							<label for="edge-inputS-sw2">CONTIGS / FASTA</label>
+							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw3" value="sra">
+							<label for="edge-inputS-sw3">NCBI SRA</label>
 						</fieldset>
+					</div>
+
+					<div class="edge-main-pipeline-input">
 						<div class="ui-field-contain" id="edge-sra-input-block">
 							<label for="edge-sra-acc">SRA Accession</label>
 							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
 							<p class="edge_tool_note"> (Internet requried) Input SRA accessions support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*). ex: <a href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR1553609" target="_blank">SRR1553609</a></p>
 						</div>
-					</div>
-					<div id="edge-file-input-block">
-						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-						<legend>Reads Type</legend>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="pe" checked="checked">
-							<label for="edge-qiime-rt-sw1">Paired Reads</label>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="se">
-							<label for="edge-qiime-rt-sw2">Unpaired Reads</label>
-							<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="dedir">
-							<label for="edge-qiime-rt-sw3">De-multiplexed Reads Dir</label>
-						</fieldset>
-						
-						<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-						<legend>Reads Orientation<a href="#" class="tooltip ui-btn  ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-pro-tooltip"></a></legend>
-							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
-							<label for="edge-qiime-pro-sw1">FR</label>
-							<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
-							<label for="edge-qiime-pro-sw2">RF</label>
-						</fieldset>
-						
-						<p class="edge-center edge-main-pipeline-input">Sequencing Reads:</p>
 
+						<div class="ui-field-contain input-type-file" id="edge-fasta-input-block">
+							<label for="edge-input-contig-file">Contig Fasta File</label>
+							<input type="text" data-mini="true" name="edge-input-contig-file" id="edge-input-contig-file" placeholder="absolute file path/select file">
+							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+						</div>
+					</div>
+
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
+					<legend>Reads Type</legend>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="pe" checked="checked">
+						<label for="edge-qiime-rt-sw1">Paired Reads</label>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="se">
+						<label for="edge-qiime-rt-sw2">Unpaired Reads</label>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="dedir">
+						<label for="edge-qiime-rt-sw3">De-multiplexed Reads Dir</label>
+					</fieldset>
+					
+					<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
+					<legend>Reads Orientation<a href="#" class="tooltip ui-btn  ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-pro-tooltip"></a></legend>
+						<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
+						<label for="edge-qiime-pro-sw1">FR</label>
+						<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
+						<label for="edge-qiime-pro-sw2">RF</label>
+					</fieldset>
 						
+					<div id="edge-fastq-input-block">
+						<p class="edge-center edge-main-pipeline-input">Sequencing Reads:</p>
 						<div id="edge-input-pe-block1" class="edge-input-pe-block"> 
 							<div class="ui-field-contain input-type-file">
 								<label for="edge-input-pe1-1">Pair-1 FASTQ File</label>
@@ -651,7 +661,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		   <a href="#" id="edge-all-close-btn">close all sections</a>.
 		</p>
 		<div class="edge-main-pipeline-input">
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" class="edge-fastq-options">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-pp-sw" name="edge-pp-sw" data-role="slider" data-mini="true">
@@ -662,6 +672,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</h4>
 			<div class="edge-tabs" >
 				<div class="ui-grid-b">
+					
 					<div class="ui-block-a"><a href="#" data-id="edge-qc-parameters" class="ui-btn ui-mini ui-btn-active">Quality Trim and Filter</a></div>
 					<div class="ui-block-b"><a href="#" data-id="edge-joinpe-parameters" class="ui-btn ui-mini">Stitch Paired-End Reads</a></div>
 					<div class="ui-block-c"><a href="#" data-id="edge-hostrm-parameters" class="ui-btn ui-mini">Host Removal</a></div>
@@ -794,11 +805,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</h4>
 			<div class="edge-tabs">
 				<div class="ui-grid-a">
-					<div class="ui-block-a"><a href="#" data-id="edge-assembly-parameters" class="ui-btn ui-mini ui-btn-active"> a. Assembly</a></div>
-					<div class="ui-block-b"><a href="#" data-id="edge-annotation-parameters" class="ui-btn ui-mini">b. Annotation</a></div>
+					<div class="ui-block-a edge-fastq-options"><a href="#" data-id="edge-assembly-parameters" class="ui-btn ui-mini ui-btn-active"> Assembly</a></div>
+					<div class="ui-block-b"><a href="#" data-id="edge-annotation-parameters" class="ui-btn ui-mini">Annotation</a></div>
 				</div>
 			</div>
-			<div id="edge-assembly-parameters">
+			<div id="edge-assembly-parameters" class="edge-fastq-options">
 			<div class="ui-field-contain">
                         	<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Bypass Assembly And Use Pre-assembled Contigs</legend>
@@ -969,7 +980,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</div>
 
-			<div class="ui-field-contain" id="edge-r2g-aligner-sw">
+			<div class="ui-field-contain edge-fastq-options" id="edge-r2g-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Reads Aligner</legend>
 					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner1" value="bowtie" checked="checked">
@@ -980,11 +991,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			<div class="edge-right">|<a href="#" id="edge-r2g-toggle" class="edge-additional-options-toggle"> additional options </a>|</div>
 			<div id="edge-r2g-options" class="edge-additional-options">
-				<div class="ui-field-contain">
+				<div class="ui-field-contain edge-fastq-options">
 					<label for="edge-r2g-aligner-options">Aligner Options<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options"></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2g-aligner-options" id="edge-r2g-aligner-options" placeholder="(optional)">
 				</div>
-				<div class="ui-field-contain">
+				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Identify Unmapped Reads</legend>
 						<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read1" value="1" checked="checked">
@@ -1004,7 +1015,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</fieldset>
 				</div>
 				<p class="edge_tool_note">EDGE will try to classify reads and contigs that are unmapped to references by mapping them to NCBI RefSeq database.</p>
-				<div class="ui-field-contain">
+				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Extract Mapped Reads</legend>
 						<input type="radio" name="edge-r2g-getmapped-sw" id="edge-r2g-getmapped1" value="1">
@@ -1013,7 +1024,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<label for="edge-r2g-getmapped2">No</label>
 					</fieldset>
 				</div>
-				<div class="ui-field-contain">
+				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Extract Unmapped Reads</legend>
 						<input type="radio" name="edge-r2g-getunmapped-sw" id="edge-r2g-getunmapped1" value="1">
@@ -1036,9 +1047,9 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</h4>
 			<ol type="a">
-			<li>Read-based Taxonomy Classification</li>
-			<p class="edge_tool_note">EDGE will use all reads by default. You can change the behavior to use reads that are unmapped to the reference if Reference-based Analysis is on.</p>
-			<div class="ui-field-contain">
+			<li class="edge-fastq-options">Read-based Taxonomy Classification</li>
+			<p class="edge_tool_note edge-fastq-options">EDGE will use all reads by default. You can change the behavior to use reads that are unmapped to the reference if Reference-based Analysis is on.</p>
+			<div class="ui-field-contain edge-fastq-options">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Always Use All Reads</legend>
 					<input type="radio" data-mini="true" name="edge-taxa-allreads" id="edge-taxa-allreads1" value="1" checked="checked">
@@ -1047,7 +1058,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-taxa-allreads2">No</label>
 				</fieldset>
 			</div>
-			<div class="ui-field-contain" id="edge-taxa-tool-select">
+			<div class="ui-field-contain edge-fastq-options" id="edge-taxa-tool-select">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, Kraken and reads mapping to NCBI RefSeq using BWA."></a></legend>
 					<label for="edge-taxa-enabled-tools" class="select">Run With Following Databases</label>
@@ -1091,13 +1102,13 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</select>
 				</fieldset>
 			</div>
-			<div class="edge-right">|<a href="#" id="edge-taxa-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
+			<div class="edge-right edge-fastq-options">|<a href="#" id="edge-taxa-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
  			<div id="edge-taxa-options" class="edge-additional-options">
-				<div class="ui-field-contain">
+				<div class="ui-field-contain edge-fastq-options">
 					<label for="edge-qc-q">Splitrim Quality Level<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Splitrim is used for GOTTCHA classification"></a></label>
 					<input type="number" name="splitrim-minq" id="splitrim-minq" data-mini="true" data-clear-btn="true" value="20">
 				</div>
- 				<div class="ui-field-contain input-type-file">
+ 				<div class="ui-field-contain input-type-file edge-fastq-options">
 					<label for="edge-taxa-custom-db-tool" class="select">Custom DB Tool</label>
 					<select name="edge-taxa-custom-db-tool" id="edge-taxa-custom-db-tool" data-mini="true" data-native-menu="false">
 						<option value="GOTTCHA-genDB-b"> GOTTCHA Bacteria Genus</option>
@@ -1234,9 +1245,9 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</h4>
 			<ol type="a">
-			<li>Read-based Specialty Gene Analysis</li>
-				<p class="edge_tool_note">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search the reads for Antibiotic Resistance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
-				<div class="ui-field-contain">
+			<li class="edge-fastq-options">Read-based Specialty Gene Analysis</li>
+				<p class="edge_tool_note edge-fastq-options">EDGE will use <a href="http://huttenhower.sph.harvard.edu/shortbred" target="_blank">ShortBRED</a> to search the reads for Antibiotic Resistance genes from <a href="http://ardb.cbcb.umd.edu/" target="_blank">ARDB</a> and <a href="http://www.dantaslab.org/resfams/" target="_blank">Resfams</a> and for Virulence genes from <a href="http://www.mgc.ac.cn/VFs/main.htm" target="_blank">VFDB.</a></p>
+				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Reads Specialty Genes Profiling</legend>
 						<input type="radio" data-mini="true" name="edge-reads-sg-sw" id="edge-reads-sg-sw1" value="1" checked="checked">
