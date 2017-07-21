@@ -767,10 +767,10 @@ sub checkParams {
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^[http|ftp]/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^[http|ftp]/i && ! -e $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^[http|ftp]/i && ! -e $se);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^http|ftp/i && ! -e $se);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
     	}
 	}else{  ## Single project input
@@ -799,10 +799,10 @@ sub checkParams {
 		foreach my $i (0..$#edge_input_pe1){
 			my $id = "edge-input-pe1-". ($i + 1);
 			$edge_input_pe1[$i] =~ s/ //g;
-			$edge_input_pe1[$i] = "$input_dir/$edge_input_pe1[$i]" if ($edge_input_pe1[$i] =~ /^\w/ && $edge_input_pe1[$i] !~ /^[http|ftp]/i);
+			$edge_input_pe1[$i] = "$input_dir/$edge_input_pe1[$i]" if ($edge_input_pe1[$i] =~ /^\w/ && $edge_input_pe1[$i] !~ /^http|ftp/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe1[$i]});
 			$files{$edge_input_pe1[$i]}=1;
-			if ($edge_input_pe1[$i] &&  $edge_input_pe1[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_pe1[$i]){
+			if ($edge_input_pe1[$i] &&  $edge_input_pe1[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe1[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
 			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe1[$i] && is_fastq($edge_input_pe1[$i]) );
@@ -810,10 +810,10 @@ sub checkParams {
 		foreach my $i (0..$#edge_input_pe2){
 			my $id = "edge-input-pe2-". ($i + 1);
 			$edge_input_pe2[$i] =~ s/ //g;
-			$edge_input_pe2[$i] = "$input_dir/$edge_input_pe2[$i]" if ($edge_input_pe2[$i] =~ /^\w/ && $edge_input_pe2[$i] !~ /^[http|ftp]/i);
+			$edge_input_pe2[$i] = "$input_dir/$edge_input_pe2[$i]" if ($edge_input_pe2[$i] =~ /^\w/ && $edge_input_pe2[$i] !~ /^http|ftp/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe2[$i]});
 			$files{$edge_input_pe2[$i]}=1;
-			if ($edge_input_pe2[$i] &&  $edge_input_pe2[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_pe2[$i]){
+			if ($edge_input_pe2[$i] &&  $edge_input_pe2[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe2[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
 			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe2[$i] && is_fastq($edge_input_pe2[$i]));
@@ -821,17 +821,17 @@ sub checkParams {
 		foreach my $i (0..$#edge_input_se){
 			my $id = "edge-input-se". ($i + 1);
 			$edge_input_se[$i] =~ s/ //g;
-			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/ && $edge_input_se[$i] !~ /^[http|ftp]/i);
+			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/ && $edge_input_se[$i] !~ /^http|ftp/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_se[$i]});
 			$files{$edge_input_se[$i]}=1;
-			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_se[$i]){
+			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^http|ftp/i  && ! -e $edge_input_se[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
 			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_se[$i] && is_fastq($edge_input_se[$i]) );
 		}
 		foreach my $i (0..$#edge_input_pe1){
 			my $id = "edge-input-pe-block".($1 + 1);
-			if( (-e $edge_input_pe1[$i] && $edge_input_pe2[$i] !~ /^[http|ftp]/i  && ! -e $edge_input_pe2[$i]) || ($edge_input_pe1[$i] !~ /^[http|ftp]/i  && !-e $edge_input_pe1[$i] && -e $edge_input_pe2[$i]) ){
+			if( (-e $edge_input_pe1[$i] && $edge_input_pe2[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe2[$i]) || ($edge_input_pe1[$i] !~ /^http|ftp/i  && !-e $edge_input_pe1[$i] && -e $edge_input_pe2[$i]) ){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
 			if ($edge_input_pe1[$i] eq $edge_input_pe2[$i]){
@@ -876,7 +876,7 @@ sub checkParams {
 				$edge_qiime_mapping_files[$i] = "$input_dir/$edge_qiime_mapping_files[$i]" if ($edge_qiime_mapping_files[$i] =~ /^\w/);
 				&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_mapping_files[$i]});
 				$files{$edge_qiime_mapping_files[$i]}=1;
-				if ($edge_qiime_mapping_files[$i] &&  $edge_input_se[$i] !~ /^[http|ftp]/i  && ! -e $edge_qiime_mapping_files[$i]){
+				if ($edge_qiime_mapping_files[$i] &&  $edge_input_se[$i] !~ /^http|ftp/i  && ! -e $edge_qiime_mapping_files[$i]){
 					&addMessage("PARAMS","$id","Input error. Please check the file path.");
 				}
 			}

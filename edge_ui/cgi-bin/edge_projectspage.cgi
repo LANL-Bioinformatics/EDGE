@@ -291,11 +291,11 @@ sub getUserProjFromDB{
 			$status="Unstarted";
 		}elsif( $status =~ /in process/i){
                         $list->{$id}->{PROJSUBTIME}=$created_time;
-                        $list=&pull_summary($processlog,$id,$list,$proj_dir);
+                        $list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
                         $list->{$id}->{RUNTIME}="";
                         $status="In process";
 		}else{
-			$list=&pull_summary($processlog,$id,$list,$proj_dir);
+			$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
 		}
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});

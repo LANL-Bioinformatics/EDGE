@@ -91,7 +91,7 @@ if ($time==2){
             $snpsfile="$snpdir/$reference\_$_"."s.snps";
             $gapsfile= "$gapdir/$reference\_$_"."s.gaps";
          }
-         if (/(.+)_p|sread/){
+         if (/(.+)_pread|sread/){
             $snpsfile="$snpdir/$reference\_$1.vcf";
             $gapsfile=glob "$gapdir/$reference\_$1\_$reference*.gaps"; 
          }
