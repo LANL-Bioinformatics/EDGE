@@ -466,9 +466,9 @@ elsif( $action eq 'tarproj'){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to tar project $real_name $tarLink $tarFile $tarDir";
 	#chdir $proj_dir;
-	if ( ! -e "$proj_dir/.tarfinished" || ! -e $tarFile){
+	if ( ! -e "$proj_dir/.tarfinished" || ! -e "$proj_dir/${real_name}_$pname.zip"){
 		`ln -s $proj_dir $tarDir` if ($username && $password);
-		my $cmd = "zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
+		my $cmd = "cd $out_dir; zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
 		my $pid;
 		if (@ARGV){
 			$pid=`$cmd`;
