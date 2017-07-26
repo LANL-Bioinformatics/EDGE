@@ -469,21 +469,11 @@ elsif( $action eq 'tarproj'){
 	if ( ! -e "$proj_dir/.tarfinished" || ! -e "$proj_dir/${real_name}_$pname.zip"){
 		`ln -s $proj_dir $tarDir` if ($username && $password);
 		my $cmd = "cd $out_dir; zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
-		my $pid;
-		if (@ARGV){
-			$pid=`$cmd`;
-		}else{
-			$pid = open TARPROJ, "|-", $cmd or die $!;
-			close TARPROJ;
-		}
-		if( $pid ){
+		if ( system($cmd) == 0 ){
 			unlink $tarDir if ($username && $password);
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "$real_name compressed file is ready to ";
 			$info->{LINK}	= "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
-		}else{
-			#child
-			close STDOUT;
 		}
 	}else{
 		$info->{STATUS} = "SUCCESS";
@@ -537,7 +527,7 @@ elsif( $action eq 'getreadsbyref'){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
 	}else{
-		my $pid = open EXTRACTREADS, "|-", $cmd or die $!;
+		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
 		close EXTRACTREADS;
 		$pid++;
 
