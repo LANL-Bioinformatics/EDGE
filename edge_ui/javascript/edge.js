@@ -2290,7 +2290,7 @@ $( document ).ready(function()
                             max_file_size :  maxFileSize,
                             // Specify what files to browse for
                             mime_types: [
-                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,genbank,gb,txt,text,config,ini,xls,xlsx"},
+                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,text,config,ini,xls,xlsx"},
                                     {title : "application/x-gzip", extensions : "gz"},
                             ]
                     },
