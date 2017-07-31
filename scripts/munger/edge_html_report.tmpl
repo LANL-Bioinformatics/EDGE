@@ -1501,19 +1501,18 @@
 			<p class="error"><TMPL_VAR NAME=ERROR_targetedNGS></p>
 			</TMPL_IF>
 			<ol>
-                                <li><span class="li-report-content-title">Mapping Stats</span><div class="li-report-content">
-					<table data-role="none" id="edge-targetedngs-runstats" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNRUNSTATS>'></table>
+                                <li><span class="li-report-content-title">Report</span><div class="li-report-content">
+					<p><TMPL_VAR NAME=TNNPT> Targeted Amplicons were found Positive from <TMPL_VAR NAME=TNNPS> Samples.</p>
+					<table data-role="none" id="edge-targetedngs-report" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNREPROT>'></table>
 				</li>
                                 <li><span class="li-report-content-title">Sample Plot</span><div class="li-report-content">
 				<div style="border: 1px solid #ddd; height:800px;">
-					<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=TNSPLOT>'>[fullwindow]</a></span>
+					<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=TNSPLOT>'>[fullwindow]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNSPLOT>'>[By Samples]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNTPLOT>'>[By Target]</a></span>
 					<iframe data-src='<TMPL_VAR NAME=TNSPLOT>'>Your browser does not support iframes</iframe>
 				</div>
 				</li>
-                                <li><span class="li-report-content-title">Report</span><div class="li-report-content">
-					<table data-role="none" id="edge-targetedngs-report" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNREPROT>'></table>
-				</li>
 				<p class='extra-text-link'>Link to
+				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNRUNSTATS>'> Mapping Stats </a>
 				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNMAPPINGSTATS>'> Sample Stats </a>
 				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/TargetedNGS'> Directory </a>
 				</p>

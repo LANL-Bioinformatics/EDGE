@@ -28,7 +28,7 @@ my $outDir;
 my $numCPU=8;
 my $configFile;
 my @referenceGenome;
-my $inputContigs;
+my $inputContigs="";
 my $noColorLog=0;
 my $primerFile;
 my $proxy=$ENV{HTTP_PROXY}||$ENV{http_proxy};
@@ -569,6 +569,7 @@ sub runTargetedNGS{
     `mkdir -p $outputDir`;
     my $targetedNGS_ref=$configuration->{targetedNGS_ref};
     my $targetedNGS_mode=$configuration->{targetedNGS_mode} || "PE";
+    my $targetedNGS_platform=$configuration->{targetedNGS_platform} || "illumina";
     my $targetedNGS_input_dir=$configuration->{targetedNGS_input_dir};
     my $targetedNGS_sample_file=$configuration->{targetedNGS_sample_file};
     my $targetedNGS_q_cutoff=$configuration->{targetedNGS_q_cutoff} || 0.8145 ;
@@ -599,6 +600,8 @@ sub runTargetedNGS{
     $cmd .= "--q_cutoff $targetedNGS_q_cutoff ";
     $cmd .= "--depth_cutoff $targetedNGS_depth_cutoff ";
     $cmd .= "--mode $targetedNGS_mode ";
+    $cmd .= "--align_options \'-x ont2d\' " if ($targetedNGS_platform =~ /ont2d/);
+    $cmd .= "--align_options \'-x pacbio\' " if ($targetedNGS_platform =~ /pacbio/);
     $cmd .= "--expectedCoverage $targetedNGS_expectedCoverage " if ($targetedNGS_expectedCoverage);
     $cmd .= "--expectedIdentity $targetedNGS_expectedIdentity " if ($targetedNGS_expectedIdentity);
     $cmd .= "--expectedBaseQ $targetedNGS_expectedBaseQ " if ($targetedNGS_expectedBaseQ);

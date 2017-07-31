@@ -118,6 +118,9 @@ $( document ).ready(function()
 		$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
 		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
 		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
+		$("#edge-qiime-mapping-file-tooltip").tooltipster(
+			'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
+		);
 		integrityCheck();
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
@@ -148,7 +151,7 @@ $( document ).ready(function()
 			'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
 		);
 		$("#edge-targetedngs-ref-file-tooltip").tooltipster(
-			'content', $('<span>Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/targeted_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
+			'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/targeted_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
 		);
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
@@ -637,9 +640,6 @@ $( document ).ready(function()
 		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
 	);
 	
-	$("#edge-qiime-mapping-file-tooltip").tooltipster(
-		'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
-	);
 	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
 		'content', $('<span>If the barcode has been removed from reads fastq file (demultiplexd.), please provide corresponding fastq file containing the barcode reads for each amplicon sequence. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
@@ -1643,6 +1643,25 @@ $( document ).ready(function()
 				$('#edge-qiime-pipeline-dir-input').show();
 				$('#btnAdd-edge-input-pe').hide();
 				$('#btnAdd-edge-input-se').hide();
+			}
+		});
+		$(":radio[name='edge-targetedngs-platform']").on("change", function(){
+			if($('#edge-targetedngs-platform1').is(':checked')){
+				$('#edge-targetedngs-mode1').closest('div').show();
+				$('#edge-targetedngs-mode2').prop("checked",false).checkboxradio("refresh");
+				$('#edge-targetedngs-mode1').prop("checked",true).checkboxradio("refresh");
+				$('#edge-targetedngs-eid').val('1').slider("refresh");
+				$('#edge-targetedngs-ebq').val('37').slider("refresh");
+				$('#edge-targetedngs-emq').val('60').slider("refresh");
+			}
+			if($('#edge-targetedngs-platform2').is(':checked')){
+				$('#edge-targetedngs-mode1').closest('div').hide();
+				$('#edge-targetedngs-mode2').prop("checked",true).checkboxradio("refresh");
+				$('#edge-targetedngs-mode1').prop("checked",false).checkboxradio("refresh");
+				$('#edge-targetedngs-eid').val('0.95').slider("refresh");
+				$('#edge-targetedngs-ebq').val('12').slider("refresh");
+				$('#edge-targetedngs-emq').val('50').slider("refresh");
+				
 			}
 		});
 	}

@@ -35,6 +35,11 @@ $( document ).ready(function()
 			$(this).after(jb);
 		}
 	});
+	$( "#edge-content-report a.iframe_data_src" ).on("click",function(){
+		var src = $(this).attr("data-src");
+		$(this).siblings(':first').attr("href",src);
+		$(this).parent().next('iframe').attr("src",src);
+	});
 
 	// directory file tree
 	var dir;
@@ -75,6 +80,9 @@ $( document ).ready(function()
 					"scrollX": true,
 					"destroy": true,
 					"rowCallback": function( nRow, aData, iDisplayIndex ) {
+						if ( aData.Determination== "Positive" ) {
+							$(nRow).addClass('edge-fg-red');
+						}
 						//$('td', nRow).attr('nowrap','nowrap');
 						//return nRow;
 					},

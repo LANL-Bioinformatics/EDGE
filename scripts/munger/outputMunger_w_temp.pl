@@ -95,6 +95,7 @@ sub pull_targetedNGS {
 	
 	$vars->{TNDIR}   = "$output_dir";
 	$vars->{TNSPLOT} = "$output_dir/reports/testTargetedNGS_sample_plot.html" if ( -e "$output_dir/reports/testTargetedNGS_sample_plot.html" );
+	$vars->{TNTPLOT} = "$output_dir/reports/testTargetedNGS_target_plot.html" if ( -e "$output_dir/reports/testTargetedNGS_target_plot.html" );
 	my $stats_report = "$output_dir/stats/$proj_realname.report.txt";
 	my $run_stats = "$output_dir/stats/$proj_realname.run_stats.txt";
 	my $mapping_stats = "$output_dir/stats/$proj_realname.mapping_stats.txt";
@@ -110,6 +111,9 @@ sub pull_targetedNGS {
 	if ( ! -e "$mapping_stats.json" ){
                 system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir $mapping_stats > $mapping_stats.json");
         }
+	my $report_numbers_line = `grep "Targeted Amplicons were found" $output_dir/log.txt`;
+	if($report_numbers_line =~ /(\d+) Targeted/){$vars->{TNNPT} = $1;}else{$vars->{TNNPT}=0;};
+	if($report_numbers_line =~ /(\d+) Samples/){$vars->{TNNPS}=$1;}else{$vars->{TNNPS}=0;}
 }
 
 sub pull_referenceName {
