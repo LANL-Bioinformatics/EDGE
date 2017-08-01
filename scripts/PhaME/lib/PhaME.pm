@@ -88,8 +88,8 @@ if ($time==2){
          my $snpsfile= "$snpdir/$reference\_$_.snps";
          my $gapsfile= "$gapdir/$reference\_$_.gaps";
          if (/contig/){
-            $snpsfile="$snpdir/$reference\_$_"."s.snps";
-            $gapsfile= "$gapdir/$reference\_$_"."s.gaps";
+            $snpsfile="$snpdir/$reference\_$_.snps";
+            $gapsfile= "$gapdir/$reference\_$_.gaps";
          }
          if (/(.+)_pread|sread/){
             $snpsfile="$snpdir/$reference\_$1.vcf";

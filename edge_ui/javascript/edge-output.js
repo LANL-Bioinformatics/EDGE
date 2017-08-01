@@ -2,6 +2,7 @@ $( document ).ready(function()
 {
 	var projdir = $('#edge-proj-outdir').attr('dir-src');
 	var focusProjName = $('#edge-output-projname').attr("data-pid");
+	var projRealname = $('#edge-output-projname').text();
 
 	$( "#edge-out-expand-all" ).on("click", function(){
 		$( "#edge-content-report > div[data-role='collapsible']" ).collapsible( "option", "collapsed", false );
@@ -323,7 +324,7 @@ $( document ).ready(function()
 	});
 */
 	//snp tree
-	function snptree(url, treetype, svg){
+	function snptree(url, treetype, svg, name){
 		$.get(url, function(data) {
 			var dataObject = {
 				phyloxml: data,
@@ -336,8 +337,8 @@ $( document ).ready(function()
 			
 			//draw tree
 			var phylocanvas = new Smits.PhyloCanvas( dataObject, svg, w, h, treetype );
-			$("#"+svg).find('tspan:contains("_contig")').css('fill', 'blue');
-			$("#"+svg).find('tspan:contains("read")').css('fill', '#FF0033');
+			$("#"+svg).find("tspan:contains('"+ name + "')").css('fill', '#FF0033');
+			$("#"+svg).find("tspan:contains('" + name + "_contig')").css('fill', 'blue');
 
 			//reset height for rectangular tree
 			var otu;
@@ -389,20 +390,20 @@ $( document ).ready(function()
 	$( "#edge-content-report .output-phylo" ).each(function(){
 		var url = $(this).prev().children().first().attr("href");
 		var svgid = $(this).attr("id");
-		snptree(url, "circular", svgid);
+		snptree(url, "circular", svgid, projRealname);
 	});
 
 
 	$("#edge-content-report a.sp-circ-btn").on("click", function(){
 		var url = $(this).parent().children().first().attr("href");
 		var svgid = $(this).parent().next().attr("id");
-		snptree(url, "circular", svgid);
+		snptree(url, "circular", svgid, projRealname);
 	});
 	
 	$("#edge-content-report a.sp-rect-btn").on("click", function(){
 		var url = $(this).parent().children().first().attr("href");
 		var svgid = $(this).parent().next().attr("id");
-		snptree(url, "rectangular", svgid);
+		snptree(url, "rectangular", svgid, projRealname);
 	});
 
 	$("#edge-content-report a.sp-full-btn").on("click", function(){
