@@ -13,7 +13,7 @@ export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
-utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils Rpackages)
+utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils omics-pathway-viewer Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
@@ -23,6 +23,23 @@ pipeline_tools=( targetedNGS )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_omics-pathway-viewer(){
+local VER=0.3
+echo "------------------------------------------------------------------------------
+                           Installing omics-pathway-viewer $VER
+------------------------------------------------------------------------------
+"
+tar xvzf omics-pathway-viewer.tgz
+cp $rootdir/thirdParty/omics-pathway-viewer/scripts/opaver_anno.pl $rootdir/bin/opaver_anno.pl
+cp -fR $rootdir/thirdParty/omics-pathway-viewer/opaver_web $rootdir/edge_ui/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           omics-pathway-viewer $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_targetedNGS(){
 local VER=0.2.0
 echo "------------------------------------------------------------------------------
@@ -1592,7 +1609,7 @@ fi
 if ( checkSystemInstallation bowtie2 )
 then
   bowtie_VER=`bowtie2 --version | grep bowtie | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-  if  ( echo $bowtie_VER | awk '{if($1>="2.2.4") exit 0; else exit 1}' )
+  if  ( echo $bowtie_VER | awk '{if($2>="2.2.4") exit 0; else exit 1}' )
   then 
     echo "bowtie2 $bowtie_VER found"
   else
@@ -1759,7 +1776,7 @@ fi
 if ( checkSystemInstallation FastTreeMP )
 then
   FastTree_VER=`FastTreeMP  2>&1 | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-  if  ( echo $FastTree_VER | awk '{if($1>="2.1.8") exit 0; else exit 1}' )
+  if  ( echo $FastTree_VER | awk '{if($2>="2.1.8") exit 0; else exit 1}' )
   then
     echo "FastTreeMP is found"
   else
@@ -1773,7 +1790,7 @@ fi
 if ( checkLocalInstallation targetedNGS )
 then
   targetedNGS_VER=`targetedNGS -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
-  if  ( echo $targetedNGS_VER | awk '{if($1>="0.2.0") exit 0; else exit 1}' )
+  if  ( echo $targetedNGS_VER | awk '{if($2>="0.2.0") exit 0; else exit 1}' )
   then
     echo "targetedNGS is found"
   else
@@ -1783,6 +1800,21 @@ else
   echo "targetedNGS is not found"
   install_targetedNGS
 fi
+
+if ( checkLocalInstallation opaver_anno.pl )
+then
+  opaver_VER=`opaver_anno.pl -h | perl -nle 'print $1 if m{Version: v(\d+\.\d+)}'`;
+  if  ( echo $opaver_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+  then
+    echo "omics-pathwar-viewer is found"
+  else
+   install_omics-pathway-viewer
+  fi
+else
+  echo "omics-pathway-viewer is not found"
+  install_omics-pathway-viewer
+fi
+
 
 if ( checkSystemInstallation raxmlHPC-PTHREADS )
 then

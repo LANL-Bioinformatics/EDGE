@@ -476,6 +476,13 @@
 							<img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/annotation_stats_plots.png" alt="Annotation Stats">
 							</a>
 						</div>
+						<TMPL_IF NAME="ANOKEGG">
+						<div class="ui-block-b">
+							<a data-ajax=false href="<TMPL_VAR NAME=ANOKEGG>" target="_blank">
+							<img class="preview_img" data-src="images/kegg_map.png" alt="KEGG_MAP">
+							</a>
+						</div>
+						</TMPL>
 					</div>
 					
 					<p>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>

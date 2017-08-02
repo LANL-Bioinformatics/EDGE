@@ -527,6 +527,9 @@ sub pull_anno {
 		}
 	}
 	close $anno;
+	my @kegg_maps = `ls $out_dir/AssemblyBasedAnalysis/Annotation/kegg_map/*png 2>/dev/null`; 
+	chomp @kegg_maps;
+	$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname" if (scalar(@kegg_maps)>0);
 }
 
 sub pull_qc {

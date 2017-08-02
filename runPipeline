@@ -1558,8 +1558,16 @@ sub runAnnotation
              warn "NO CDS was found\n";
         }
     }
+    &lprint (" Generating annotation plot\n");
     &executeCommand("$RealBin/scripts/plot_gff3_stats.pl --input $outputDir_abs_path/$project_name.gff --title $project_name --prefix $outputDir_abs_path/annotation_stats --outfmt PDF 1>$gff_plot_log 2>\&1");
 	
+    if ( &check_server_up("http://rest.kegg.jp/")){
+        &lprint (" Generating KEGG MAP\n");
+        my $basename = basename($outputDir_abs_path);
+        &executeCommand("$RealBin/bin/opaver_anno.pl -g $outputDir_abs_path/$project_name.gff -o $outputDir_abs_path/kegg_map -p $project_name > $kegg_map_log 2>\&1");
+        &executeCommand("ln -sf $outputDir_abs_path/kegg_map $RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
+
+    }
     # RATT features stats. 
     if ( ! -e "$outputDir/$project_name.txt"){
 	`awk '\$1 ~ /CDS|RNA/ {print \$1": "\$2}' $gff_plot_log > $outputDir/$project_name.txt`;
@@ -3595,6 +3603,7 @@ sub check_server_up {
     my $url = shift;
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
+    $ua->env_proxy;
     my $up=0;
     my $response = $ua->get($url);
 
