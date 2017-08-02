@@ -1167,6 +1167,7 @@ sub parse_qiime_mapping_files{
 				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
 			}elsif(! /^#/){
 				my @array = split /\t/,$_;
+				$array[$file_column_index] =~ tr/"//d;
 				my @files = map { "$file_path/$_" } split /,|\s+/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;

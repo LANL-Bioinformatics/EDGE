@@ -1040,6 +1040,7 @@ sub parse_mapping_files{
             }elsif(! /^#/){
                 my @array = split /\t/,$_;
 		$array[0] =~ s/[^a-zA-Z0-9]/\./g;
+		$array[$file_column_index] =~ tr/"//d;
                 $id_file->{$array[0]}=$array[$file_column_index];
 		my @files = map { "$dir/$_" } split /,|\s+/,$array[$file_column_index];
 		$id_file->{$array[0]}="$dir/$array[$file_column_index]" if (scalar(@files)==1);

@@ -532,6 +532,7 @@ sub parse_qiime_mapping_file{
                         ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
                 }elsif(! /^#/){
                         my @array = split /\t/,$_;
+			$array[$file_column_index] =~ tr/"//d;
                         my @files = map { "$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
                         if (scalar(@files) % 2){
                                 push @unpariedFiles,@files;
@@ -1011,7 +1012,8 @@ sub check_reference_genome
              &lprint ("Converting $file_name Genbank to Fasta and GFF\n");
              if ($file_suffix =~ /gz/)
              {
-                 &executeCommand("gunzip -c $file | genbank2fasta.pl - > $ref_fasta_file");
+		 &executeCommand("gunzip -c $file > $outputDir/$file_name.gbk");
+                 &executeCommand("genbank2fasta.pl $outputDir/$file_name.gbk > $ref_fasta_file");
                  &executeCommand("gunzip -c $file >> $referenceGBK");
              }
              else
