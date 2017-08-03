@@ -82,7 +82,7 @@ gottcha.py -r READ_COUNT -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --da
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$4"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv >> $OUTPATH/$PREFIX.out.list
 
-gottcha.py -r READ_COUNT -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
+gottcha.py -r READ_COUNT --database $DB -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

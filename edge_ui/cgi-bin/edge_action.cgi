@@ -357,7 +357,7 @@ elsif( $action eq 'rerun' ){
 					$info->{STATUS} = "SUCCESS";
 					$info->{INFO}   = "Project $real_name has been restarted (JOB ID: $job_id).";
 					$info->{PID}    = $job_id;
-					`echo "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+					`echo "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***" |tee -a $proj_dir/process.log > $proj_dir/process_current.log`;
 				}
 			}
 		} else {
@@ -375,7 +375,7 @@ elsif( $action eq 'rerun' ){
 			my $run = &availableToRun($numcpu);
 			if (!$run){
 				 my $time = strftime "%F %X", localtime;
-				`echo "\n*** [$time] EDGE_UI: This project is queued. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+				`echo "\n*** [$time] EDGE_UI: This project is queued. ***" |tee -a $proj_dir/process.log > $proj_dir/process_current.log`;
 				`echo "$cmd" >> $proj_dir/process.log`;
 				`echo "\n*** [$time] EDGE_UI: Project unstarted ***" >> $proj_dir/process.log`;
 				$info->{INFO} = "The server does not have enough CPU available to run this job. The job is queued";
