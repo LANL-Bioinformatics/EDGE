@@ -156,13 +156,14 @@ if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir}
 
 my $count_file_list= "$outDir/QcReads/fastqCount.txt";
 my ($QCpairFile,$QCunpairFile);
-if ($configuration->{DoQC})
-{
-    ($QCpairFile,$QCunpairFile)=&runQC(\@unpairedReadsFile, \@pairedReadsFile);
-}
-elsif(@unpairedReadsFile or @pairedReadsFile)
+if(@unpairedReadsFile or @pairedReadsFile)
 {
     ($QCpairFile,$QCunpairFile)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
+}
+
+if ($configuration->{DoQC})
+{
+    ($QCpairFile,$QCunpairFile)=&runQC($QCpairFile,$QCunpairFile);
 }
 
 if ($configuration->{DoJoinPE}){
@@ -2076,13 +2077,13 @@ sub readConfig
 
 sub runQC 
 {
-    my $unpairedFile=shift;
     my $pairedFile=shift;
+    my $unpairedFile=shift;
     my $time=time();
     my $outputDir="$outDir/QcReads";
     my $log = "$outputDir/QC.log";
-    my @unpairedFile= @$unpairedFile;
-    my @pairedFile= @$pairedFile;
+    #my @unpairedFile= @$unpairedFile;
+    #my @pairedFile= @$pairedFile;
     my $quality_cutoff = $configuration->{"q"} || 5;
     my $min_length = $configuration->{"min_L"} || 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
@@ -2112,15 +2113,15 @@ sub runQC
     }
     system("rm -f $outputDir/runQC.finished");
     my $parameters;
-    $parameters .= " -p $_ " foreach (@pairedFile);
-    $parameters .= " -u $_ " foreach (@unpairedFile);
+    $parameters .= " -p $pairedFile " if ($pairedFile);
+    $parameters .= " -u $unpairedFile " if ( -s $unpairedFile);
     $parameters .= " -q $quality_cutoff --min_L $min_length --avg_q $avg_quality -n $num_N --lc $low_complexity --5end $cut_5_end --3end $cut_3_end";
     $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
     $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if ($configuration->{"adapter"});
     $parameters .= " --polyA " if ($configuration->{"polyA"});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
-    
-    my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
+    my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1"
+    #my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &printRunTime($time);

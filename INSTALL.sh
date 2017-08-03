@@ -10,10 +10,11 @@ cd thirdParty
 mkdir -p $rootdir/bin
 
 export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
+export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
 assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
-utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils omics-pathway-viewer Rpackages )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils omics-pathway-viewer Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
@@ -23,6 +24,24 @@ pipeline_tools=( targetedNGS )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_FaQCs(){
+local VER=2.02
+echo "------------------------------------------------------------------------------
+                           Installing FaQCs $VER
+------------------------------------------------------------------------------
+"
+tar xvzf FaQCs-$VER.tar.gz
+cd FaQCs
+make
+cp -f FaQCs $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           FaQCs $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_omics-pathway-viewer(){
 local VER=0.3
 echo "------------------------------------------------------------------------------
@@ -1425,6 +1444,20 @@ then
 else
   echo "bedtools is not found"
   install_bedtools 
+fi
+
+if ( checkSystemInstallation FaQCs )
+then
+  FaQCs_VER=`FaQCs --version 2>\&1| awk '{print $2}'`;
+  if  ( echo $FaQCs_VER | awk '{if($1>="2.02") exit 0; else exit 1}' )
+  then
+    echo "FaQCs $FaQCs_VER found"
+  else
+    install_FaQCs
+  fi
+else
+  echo "FaQCs is not found"
+  install_FaQCs
 fi
 
 if ( checkSystemInstallation fastq-dump )
