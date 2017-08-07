@@ -1034,6 +1034,7 @@ sub parse_mapping_files{
 	while(<$fh>){
             chomp;
             next if (/^\n/);
+            next unless (/\S/);
             if (/SampleID/){
                 my @header = split /\t/,$_;
                 ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
