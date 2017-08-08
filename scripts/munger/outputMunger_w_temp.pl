@@ -94,8 +94,8 @@ sub pull_targetedNGS {
 	$vars->{ERROR_targetedNGS}   = "$errs" if ($errs);
 	
 	$vars->{TNDIR}   = "$output_dir";
-	$vars->{TNSPLOT} = "$output_dir/reports/testTargetedNGS_sample_plot.html" if ( -e "$output_dir/reports/testTargetedNGS_sample_plot.html" );
-	$vars->{TNTPLOT} = "$output_dir/reports/testTargetedNGS_target_plot.html" if ( -e "$output_dir/reports/testTargetedNGS_target_plot.html" );
+	$vars->{TNSPLOT} = "$output_dir/reports/${proj_realname}_sample_plot.html" if ( -e "$output_dir/reports/${proj_realname}_sample_plot.html" );
+	$vars->{TNTPLOT} = "$output_dir/reports/${proj_realname}_target_plot.html" if ( -e "$output_dir/reports/${proj_realname}_target_plot.html" );
 	my $stats_report = "$output_dir/stats/$proj_realname.report.txt";
 	my $run_stats = "$output_dir/stats/$proj_realname.run_stats.txt";
 	my $mapping_stats = "$output_dir/stats/$proj_realname.mapping_stats.txt";

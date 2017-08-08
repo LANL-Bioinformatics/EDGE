@@ -294,7 +294,7 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
             line.set_linewidth(3)
 
     if cb_l > 0.0:
-        axcolor = fig.add_axes([0,-0.1,1.0,cb_l])
+        axcolor = fig.add_axes([0,-0.04,1.0,cb_l])
         cbar = fig.colorbar(im, cax=axcolor, orientation='horizontal')
         cbar.ax.tick_params(labelsize=label_font_size-3)
         if cm_ticks:
@@ -439,7 +439,7 @@ def hclust(  fin, fout, title,
 
     heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, sample_labels, feat_labels, label_font_size, -cm_h*8.0/ysize, cm_h*0.8*8.0/ysize, flabelon, slabelon, cm_ticks, gridon, ydend_offset+0.02*8.0/ysize )
     if title:
-        fig.suptitle(title,x=0,y=1.18,fontsize=label_font_size,ha='left')
+        fig.suptitle(title,x=xsize+0.5,y=1.18,fontsize=label_font_size,ha='left')
 
     fig.savefig(    fout, bbox_inches='tight',
                     pad_inches = pad_inches,

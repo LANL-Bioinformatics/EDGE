@@ -1513,10 +1513,12 @@
 					<table data-role="none" id="edge-targetedngs-report" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNREPROT>'></table>
 				</li>
                                 <li><span class="li-report-content-title">Sample Plot</span><div class="li-report-content">
+				<TMPL_IF NAME=TNSPLOT>
 				<div style="border: 1px solid #ddd; height:800px;">
 					<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=TNSPLOT>'>[fullwindow]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNSPLOT>'>[By Samples]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNTPLOT>'>[By Target]</a></span>
 					<iframe data-src='<TMPL_VAR NAME=TNSPLOT>'>Your browser does not support iframes</iframe>
 				</div>
+				</TMPL_IF>
 				</li>
 				<p class='extra-text-link'>Link to
 				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNRUNSTATS>'> Mapping Stats </a>
