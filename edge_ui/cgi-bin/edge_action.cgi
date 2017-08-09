@@ -527,6 +527,9 @@ elsif( $action eq 'getreadsbyref'){
 	if (  -s  "$mapping_outdir/$out_fastq_name"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
+	}elsif( ! -e "$mapping_outdir/$reference_file_prefix.sort.bam"){
+                $info->{INFO}   = "The result bam does not exist.";
+                $info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else{
 		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
 		close EXTRACTREADS;

@@ -63,7 +63,7 @@ if( $sys->{user_management} && $pname !~ /\D/ && $sid ){
 		$html;
 		exit 0;
 	}
-	$projDir = (-d "$edgeui_output/$pname")? "$edgeui_output/$pname": $relpath ."/". $proj_code; 
+	$projDir = (-d "$edgeui_output/$pname")? "$relpath/$pname": $relpath ."/". $proj_code; 
 }
 if( !$sys->{user_management} || !$username ){
 	if ( -e "$edgeui_output/$pname/config.txt"){
