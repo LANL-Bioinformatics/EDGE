@@ -2589,7 +2589,7 @@ sub processProvideContigs
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     if (is_fasta($providedContigFile))
     {
-        my $contig_number = `grep -c \">\" $providedContigFile`;
+        my $contig_number = ($providedContigFile=~/\.gz$/i )? `zcat | grep -c \">\" $providedContigFile`:`grep -c \">\" $providedContigFile`;
         chomp $contig_number;
         ($contig_file, $contig_for_annotation)=&rename_filter_fasta($providedContigFile,$outputDir,$contig_min_length,$contig_number);
     }else
