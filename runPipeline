@@ -415,11 +415,11 @@ sub runSpecialtyGenesProfiling {
     my $VFDB_ini="$RealBin/scripts/specialty_genes/mysql.ini";
     if ($noColorLog)
     {
-        &lprint ("[Specialty Genes Profiling]\n");
+        &lprint ("[Specialty Genes Analysis]\n");
     }
     else
     {
-        &lprint (colored ("[Specialty Genes Profiling]\n",'yellow'));
+        &lprint (colored ("[Specialty Genes Analysis]\n",'yellow'));
     }
     if ($configuration->{DoReadsSpecialtyGenes} and $configuration->{DoORFsSpecialtyGenes})
     {
@@ -438,7 +438,7 @@ sub runSpecialtyGenesProfiling {
 	}
 	if ($specialtyGenesDone)
 	{
-		&lprint ("Specialty Genes Profiling Finished\n");
+		&lprint ("Specialty Genes Analysis Finished\n");
 		return;
 	}
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";

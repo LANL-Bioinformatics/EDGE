@@ -1165,10 +1165,10 @@
 
 		<TMPL_IF NAME="OUT_SG_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>Specialty Genes Profiling</h4>
+			<h4>Specialty Genes Analysis</h4>
 			<ol>
 				<TMPL_IF NAME="OUT_RSG_SW">
-					<li><span class="li-report-content-title">Reads Specialty Genes Profiling</span><div class="li-report-content">
+					<li><span class="li-report-content-title">Reads Specialty Genes Analysis</span><div class="li-report-content">
 						<table data-role='table' class='output-table ui-responsive'>
 						  <thead>
 							<tr>
@@ -1266,19 +1266,19 @@
 					</div></li> <!-- Reads SG Profiling -->
 			</TMPL_IF> <!-- OUT_RSG_SW -->
 			<TMPL_IF NAME="OUT_OSG_SW">
-				<li><span class="li-report-content-title">ORFs Specialty Genes Profiling</span>
+				<li><span class="li-report-content-title">CDSs Specialty Genes Analysis</span>
 					<div class="li-report-content">
 						<table data-role='table' class='output-table ui-responsive'>
 						  <thead>
 						    <tr>
-						      <th data-priority='1'>ORFs</th>
+						      <th data-priority='1'>CDSs</th>
 						      <th data-priority='2'>Stats</th>
 						    </tr>
 						  </thead>
 						  <tbody>
-						    <tr><td>Total ORFs Analyzed</td><td><TMPL_VAR NAME=ANOCDS DEFAULT=-></td></tr>
-						    <tr><td>ORF RGI AR Hits</td><td><TMPL_VAR NAME=SGOARHIT DEFAULT=-></td></tr>
-						    <tr><td>VF ORF Hits</td><td><TMPL_VAR NAME=SGOVFHIT DEFAULT=-> (<TMPL_VAR NAME=SGOVFPERC DEFAULT=->%)</td></tr>
+						    <tr><td>Total CDSs Analyzed</td><td><TMPL_VAR NAME=ANOCDS DEFAULT=-></td></tr>
+						    <tr><td>CDS RGI AR Hits</td><td><TMPL_VAR NAME=SGOARHIT DEFAULT=-></td></tr>
+						    <tr><td>VF CDS Hits</td><td><TMPL_VAR NAME=SGOVFHIT DEFAULT=-> (<TMPL_VAR NAME=SGOVFPERC DEFAULT=->%)</td></tr>
 						  </tbody>
 						</table>
 						<TMPL_IF NAME=SGOARHIT>
@@ -1310,7 +1310,7 @@
 													<td><TMPL_VAR NAME=CUTOFF DEFAULT=-></td>
 													<td><TMPL_VAR NAME=PASSEVALUE DEFAULT=-></td>
 													<td><TMPL_VAR NAME=EVALUE DEFAULT=-></td>
-													<td><TMPL_VAR NAME=ORFID DEFAULT=-></td>
+													<td><TMPL_VAR NAME=CDSID DEFAULT=-></td>
 												
 													<td><TMPL_VAR NAME=SNPS DEFAULT=-></td>
 													<td><TMPL_VAR NAME=AROCATEGORIES DEFAULT=-></td>
@@ -1379,7 +1379,7 @@
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/SpecialtyGenes/'> Directory </a>
 						</p>
 						
-				</div></li> <!-- ORF Specialty Genes -->
+				</div></li> <!-- CDS Specialty Genes -->
 			</TMPL_IF> <!-- OUT_OSG_SW -->
 		</ol>
 	</div> <!-- Specialty Gene Profiling -->
