@@ -1165,10 +1165,10 @@
 
 		<TMPL_IF NAME="OUT_SG_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>Specialty Genes Analysis</h4>
+			<h4>Gene Family Analysis</h4>
 			<ol>
 				<TMPL_IF NAME="OUT_RSG_SW">
-					<li><span class="li-report-content-title">Reads Specialty Genes Analysis</span><div class="li-report-content">
+					<li><span class="li-report-content-title">Reads Gene Family Analysis</span><div class="li-report-content">
 						<table data-role='table' class='output-table ui-responsive'>
 						  <thead>
 							<tr>
@@ -1266,7 +1266,7 @@
 					</div></li> <!-- Reads SG Profiling -->
 			</TMPL_IF> <!-- OUT_RSG_SW -->
 			<TMPL_IF NAME="OUT_OSG_SW">
-				<li><span class="li-report-content-title">CDSs Specialty Genes Analysis</span>
+				<li><span class="li-report-content-title">CDSs Gene Family Analysis</span>
 					<div class="li-report-content">
 						<table data-role='table' class='output-table ui-responsive'>
 						  <thead>
@@ -1379,7 +1379,7 @@
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/SpecialtyGenes/'> Directory </a>
 						</p>
 						
-				</div></li> <!-- CDS Specialty Genes -->
+				</div></li> <!-- CDS Gene Family -->
 			</TMPL_IF> <!-- OUT_OSG_SW -->
 		</ol>
 	</div> <!-- Specialty Gene Profiling -->
