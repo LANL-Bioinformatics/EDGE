@@ -41,6 +41,7 @@ my $bowtie_options="-p 4 -a ";
 my $snap_options="-t 4 -M ";
 my $cov_cut_off=80;
 my $aligner="bwa";
+my $gen_consensus=1;
 my ($window_size, $step_size);
 #my ($window_size, $step_size)=(1000,200);
 my $pacbio_bwa_option="-b5 -q2 -r1 -z10 "; 
@@ -66,6 +67,7 @@ GetOptions(
             'bowtie_options=s' => \$bowtie_options,
             'snap_options=s'  => \$snap_options,
             'pacbio' => \$pacbio,
+            'consensus' => \$gen_consensus,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
             'no_plot'   => \$no_plot,
@@ -341,17 +343,6 @@ for my $ref_file_i ( 0..$#ref_files){
 	## generate genome coverage plots and histograms 
 	print "Generate genome coverage plots and histograms...\n";
 
-	my $pileup_cmd = "samtools mpileup -A -BQ0 -d10000000 -f  $ref_file $bam_output ";
-	# build base coverage hash
-	open (my $pileup_fh,"$pileup_cmd | ") or die "$! no $pileup_output";
-	my %base_hash;
-	while (<$pileup_fh>)
-	{
-		chomp;
-		my ($id ,$pos,$ref_base, $cov, $seq, $qual)=split /\t/;
-		$base_hash{$id}->{$pos}=$cov;
-	}
-	close $pileup_fh;
 
 
 
@@ -359,7 +350,7 @@ for my $ref_file_i ( 0..$#ref_files){
 	my $num_ref=0;
 	my $ref_hash=&get_ref_info($ref_file,$ref_window_gc);
 	$ref_hash=&mapped_reads_per_contigs($bam_output,$ref_hash);
-	&get_consensus($bcf_output, $ref_hash ,$consensusSeq) if ( -e "$bcf_output");
+	&get_consensus($bcf_output, $ref_hash ,$consensusSeq) if ( -e "$bcf_output" && $gen_consensus);
 
 
 	system("mkdir -p $outDir/Coverage_plots") if (! $no_plot);
@@ -378,6 +369,20 @@ for my $ref_file_i ( 0..$#ref_files){
 		my $gap_output="$outDir/${prefix}_${ref_name}.gap.coords";
 		my $coverage_plot="$outDir/Coverage_plots/${prefix}_${ref_name}_base_coverage.png";
 		my $histogram="$outDir/Coverage_plots/${prefix}_${ref_name}_coverage_histogram.png";
+
+		
+		my $pileup_cmd = "samtools mpileup -A -BQ0 -d10000000 -r $ref_name -f  $ref_file $bam_output ";
+		# build base coverage hash
+		open (my $pileup_fh,"$pileup_cmd | ") or die "$! no $pileup_output";
+		my %base_hash;
+		while (<$pileup_fh>)
+		{
+			chomp;
+			my ($id ,$pos,$ref_base, $cov, $seq, $qual)=split /\t/;
+			$base_hash{$pos}=$cov;
+		}
+		close $pileup_fh;
+
 		$stats_print_string .= &window_size_coverage($coverage_output,$WindowCoverage_output,\%base_hash,$gap_output,$ref_name,$ref_len);
   
 		my $properpair_coverage_output;
@@ -676,8 +681,8 @@ sub window_size_coverage {
    open ($window_cov_out_fh, ">$WindowCoverage_output") or die "$! $WindowCoverage_output\n";
    for (1..$ref_len)
    {
-      if ($base_hash->{$ref_name}->{$_}){
-         $pos_cov=$base_hash->{$ref_name}->{$_};
+      if ($base_hash->{$_}){
+         $pos_cov=$base_hash->{$_};
          if ($coverage_output)
          {
             print $cov_out_fh $_,"\t",$pos_cov,"\n";
@@ -939,6 +944,7 @@ Usage: perl $0
                -ref                      reference sequences file in fasta format
                -pre                      output files' prefix (default "ReadsMapping")
                -d                        output directory
+               -consensus                <bool> output consensus fasta file (default: on)
                -aligner                  bwa or bowtie or snap (default: bwa)
                -bwa_options <String>     bwa options
                                          type "bwa aln" to see options
