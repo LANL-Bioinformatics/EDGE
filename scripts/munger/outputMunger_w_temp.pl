@@ -1422,7 +1422,7 @@ sub pull_readmapping_ref {
 	{
 		open(my $reffh, "<", "$out_dir/ReferenceBasedAnalysis/UnmappedReads/UnmappedReads_coverage.txt") or die $!;
 		while(<$reffh>) {
-			next if( /^GI/ );
+			next if( /^GI|^Acc/ );
 			last if $tol_um_org == 5;
 			my @temp = split /\t/, $_;
 			my $refinfo;
