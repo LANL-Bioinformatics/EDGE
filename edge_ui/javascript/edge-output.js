@@ -44,7 +44,7 @@ $( document ).ready(function()
 
 	// directory file tree
 	var dir;
-	var loc = window.location.pathname;
+	var loc = window.location.pathname.replace("//","/");
 	var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 	$('#edge-outputfile-dialog').popup({ positionTo: "window"});
 	$('.edge-outputfile-tree').on('click',function(){
@@ -88,6 +88,7 @@ $( document ).ready(function()
 						//return nRow;
 					},
 					"drawCallback": function(settings) {
+						$(dom).css({"width":"100%"});
 						//contigBlast(tablelinkdom);
 					},
 					"initComplete": function(settings, json) {
