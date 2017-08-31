@@ -809,6 +809,8 @@ sub substract_no_template_control {
 	&process_cmd($cmd,"Convert OTU Table to Biom");	
 	$cmd="biom summarize-table -i $biom -o $biom_summary ";
 	&process_cmd($cmd,"Generating Biom Table Summmary") if (! -e $biom_summary);
+	$cmd="biom summarize-table --qualitative -i $biom -o $biom_summary.otu ";
+	&process_cmd($cmd,"Generating Biom Table Summmary") if (! -e "$biom_summary.otu");
 	system("mv $otu_table $old_otu_table");
 	system("mv $new_otu_table $otu_table");
 	return ($new_biom);
@@ -825,6 +827,8 @@ sub determine_sampling_depth_and_otu_table
     my $otu_table_cmd="biom convert -i $biom -o $otu_tables --to-tsv --header-key=\"taxonomy\"";
     &process_cmd($otu_table_cmd,"Generating OTUs table") if (! -e $otu_tables);
     &process_cmd($cmd,"Generating Biom Table Summmary") if (! -e $biom_summary);
+    $cmd="biom summarize-table --qualitative -i $biom -o $biom_summary.otu ";
+    &process_cmd($cmd,"Generating Biom Table Summmary") if (! -e "$biom_summary.otu");
     ($sampling_depth,$num_sample)=&get_depth_cutoff_from_biom_summary_table($biom_summary);
     return ($sampling_depth, $num_sample,$otu_tables);
 }
