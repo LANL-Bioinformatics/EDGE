@@ -168,6 +168,10 @@ sub getSraFastq {
 	my $cmd = ($Download_tool =~ /wget/)?"$curl -O $OUTDIR/sra2fastq_temp/$run_acc.fastq.gz \"$url\"":"$curl $http_proxy -o $OUTDIR/sra2fastq_temp/$run_acc.fastq.gz \"$url\"";
 	my $ec = system("$cmd");
 
+	if( $ec > 0 ){
+		print STDERR "Failed to download SRA file from $url.\n";
+		return "failed";
+	}
 	#Deinterleaving if paired-end reads
 	if( $platform =~ /illu/i && $library =~ /pair/i ){
 		print STDERR "Paired-end reads found. Deinterleaving...";
