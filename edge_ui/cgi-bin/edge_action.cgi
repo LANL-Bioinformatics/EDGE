@@ -137,8 +137,8 @@ if ( $umSystemStatus )
 		$permission->{interrupt} = 1;
 		$permission->{rerun} = 1;
 		$permission->{archive} = 1;
-		$permission->{share} = 1;
-		$permission->{unshare} = 1;
+		$permission->{share} = 1 if (defined $list->{$pname});
+		$permission->{unshare} = 1 if (defined $list->{$pname});
 		$permission->{publish} = 1;
 		$permission->{unpublish} = 1;
 		$permission->{tarproj} = 1;
