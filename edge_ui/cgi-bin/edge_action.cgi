@@ -111,6 +111,7 @@ if ( ($memUsage > 99 or $cpuUsage > 99) and $action ne 'interrupt' and !$cluster
 my $real_name = $pname;
 my $projCode;
 my $projStatus;
+my $projOwnerEmail;
 my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export');
 my $user_proj_dir = "$input_dir/tmp";
 if ( $umSystemStatus )
@@ -126,7 +127,7 @@ if ( $umSystemStatus )
 	
 	$list = &getUserProjFromDB("owner");
 
-	($real_name,$projCode,$projStatus)= &getProjNameFromDB($pname) if ($action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($action ne 'compare' && $action ne 'metadata-export');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
 	#separate permission for future uses. A permission module can be added potentially..
@@ -137,8 +138,8 @@ if ( $umSystemStatus )
 		$permission->{interrupt} = 1;
 		$permission->{rerun} = 1;
 		$permission->{archive} = 1;
-		$permission->{share} = 1;
-		$permission->{unshare} = 1;
+		$permission->{share} = 1 if (defined $list->{$pname});
+		$permission->{unshare} = 1 if (defined $list->{$pname});
 		$permission->{publish} = 1;
 		$permission->{unpublish} = 1;
 		$permission->{tarproj} = 1;
@@ -887,8 +888,9 @@ sub getProjNameFromDB{
         );
         # Encode the data structure to JSON
         my $data = to_json(\%data);
+	my $service= ($userType =~ /admin/i)? "WS/user/admin/getProjects" :"WS/project/getInfo";
         #w Set the request parameters
-        my $url = $um_url ."WS/project/getInfo";
+        my $url = $um_url . $service;
         my $browser = LWP::UserAgent->new;
         my $req = PUT $url;
         $req->header('Content-Type' => 'application/json');
@@ -906,7 +908,7 @@ sub getProjNameFromDB{
 		 $info->{INFO} .= $result->{error_msg}."\n";;
 	}
 	else{
-		return ($result->{name} , $result->{code}, $result->{status});
+		return ($result->{name} , $result->{code}, $result->{status} , $result->{owner_email});
 	}
 }
 
@@ -1064,6 +1066,7 @@ sub shareProject{
 	$email =~ s/ //g;
 	# avoid share to owner self.
 	$email = join(',', grep (!/$username/, split(',',$email)));
+	$email = join(',', grep (!/$projOwnerEmail/, split(',',$email))) if ($projOwnerEmail);
 	my %data = (
                 email => $username,
                 password => $password,
