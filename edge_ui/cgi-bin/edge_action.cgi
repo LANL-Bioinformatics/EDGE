@@ -903,6 +903,7 @@ sub getProjNameFromDB{
         my $result_json = $response->decoded_content;
 	#print $result_json if (@ARGV);
         my $result =  from_json($result_json);
+	$result = shift @$result if (ref($result) eq "ARRAY");
 	if ($result->{error_msg})
 	{
 		 $info->{INFO} .= $result->{error_msg}."\n";;
