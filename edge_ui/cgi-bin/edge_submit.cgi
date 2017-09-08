@@ -977,6 +977,7 @@ sub checkParams {
 			for my $i (0..$#edge_ref_input){
 				$edge_ref_input[$i] = $input_dir."/".$edge_ref_input[$i] if ($edge_ref_input[$i]=~ /^\w/);
 				my $id = 'edge-ref-file-'. ($i + 1);
+				&addMessage("PARAMS",$id,"Reference not found. Please check the input referecne.") unless ( -e $edge_ref_input[$i]);
 				&addMessage("PARAMS",$id,"Invalid input. Fasta or Genbank format required") if ( -e $edge_ref_input[$i] && ! is_fasta($edge_ref_input[$i]) && ! is_genbank($edge_ref_input[$i]));
 			}
 			$num_selected += scalar(@edge_ref_input);
@@ -1128,6 +1129,7 @@ sub checkParams {
 			for my $i (0..$#edge_phylo_ref_input){
 				$edge_phylo_ref_input[$i] = $input_dir."/".$edge_phylo_ref_input[$i] if ($edge_phylo_ref_input[$i]=~ /^\w/);
 				my $id = 'edge-phylo-ref-file-'. ($i + 1);
+				&addMessage("PARAMS",$id,"Reference not found. Please check the input referecne.") unless ( -e $edge_phylo_ref_input[$i]);
 				&addMessage("PARAMS",$id,"Invalid input. Fasta format required") if ( -e $edge_phylo_ref_input[$i] && ! is_fasta($edge_phylo_ref_input[$i]) );
 			}
 		}
