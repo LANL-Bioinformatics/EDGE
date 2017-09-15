@@ -507,7 +507,6 @@ sub runSpecialtyGenesProfiling {
        		&executeCommand($cmd);
        	system("touch $outputDir/runSpecialtyGenesProfiling.finished");
     }
-    
     &printRunTime($time);
     return 0;	
 }
@@ -1489,7 +1488,7 @@ sub runAnnotation
     my $outFNA="$outputDir_abs_path/$project_name.fna";
     my $log = "$outputDir/Annotation.log"; 
     my $gff_plot_log = "$outputDir/plot_gff3.log"; 
-    my $kegg_map_log = "$outputDir/kegg_map/kegg_map.log";
+    my $kegg_map_log = "$outputDir/kegg_map.log";
    
     my $cmd;
     if ($noColorLog)
