@@ -193,6 +193,7 @@ sub output_html {
 	#$vars->{ERRORLOG}   = "$out_dir/error.log";
 	$vars->{PROJNAME} ||= $projname;
 	$vars->{PROJID} ||= $projname;
+	$vars->{DIRECTLINK} = "?proj=$projname";
 	#reformat number with thousand separator
 	foreach my $var ( keys %$vars ){
 		next if ($var eq "PROJID");
@@ -1263,7 +1264,8 @@ sub pull_taxa {
 							$res_row->{CPABU_REA} = _reformat_val($t[2]);
 							$res_row->{GOTTCHA2_LINEAR_LEN} = _reformat_val($t[8]);
 							$res_row->{GOTTCHA2_LINEAR_DOC} = sprintf "%.2f", $t[9];
-							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[10]*100);
+							$res_row->{GOTTCHA2_ROLLUP_DOC} = sprintf "%.2f", $t[10];
+							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[11]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 						}
 						elsif( $toolname =~ /pangia/ ){

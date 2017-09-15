@@ -71,18 +71,20 @@ do
 done
 
 ## path
+RELABD_COL="ROLLUP_DOC"
 export PATH=$EDGE_HOME/thirdParty/gottcha2:$EDGE_HOME/bin:$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
 
 mkdir -p $OUTPATH
 
 set -xe;
 
-gottcha.py -r READ_COUNT -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha.py -r $RELABD_COL -m full -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
 
+awk -F\\t '{if($NF=="" || $NF=="NOTE"){print $_}}' $OUTPATH/$PREFIX.full.tsv | cut -f -10 > $OUTPATH/$PREFIX.summary.tsv
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$4"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv >> $OUTPATH/$PREFIX.out.list
 
-gottcha.py -r READ_COUNT --database $DB -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
+gottcha.py -r $RELABD_COL --database $DB -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

@@ -108,6 +108,10 @@
 				  <td>Error log</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/error.log'>error.log</a></td>
 				</tr>
+				<tr>
+				  <td>Direct access</td>
+				  <td><a data-ajax='false' href='<TMPL_VAR NAME=DIRECTLINK DEFAULT=->'>link</a></td>
+				</tr>
 			  </tbody>
 			</table>
 		</div>
@@ -898,6 +902,7 @@
 							<TMPL_IF NAME="CPTOOL_GOTTCHA2">
 							  <th data-priority='3'>Linear LEN</th>
 						  	<th data-priority='3'>Linear DOC</th>
+						  	<th data-priority='3'>Rollup DOC</th>
 							</TMPL_IF>
 							<TMPL_IF NAME="CPTOOL_PANGIA">
 						  	<th data-priority='3'>Linear COV</th>
@@ -920,6 +925,7 @@
 								<TMPL_IF NAME="GOTTCHA2_LINEAR_LEN">
 								    <td><TMPL_VAR NAME=GOTTCHA2_LINEAR_LEN DEFAULT=-></td>
 								    <td><TMPL_VAR NAME=GOTTCHA2_LINEAR_DOC DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=GOTTCHA2_ROLLUP_DOC DEFAULT=-></td>
 								</TMPL_IF>
 								<TMPL_IF NAME="PANGIA_LINEAR_RSNB">
 								    <td><TMPL_VAR NAME=PANGIA_LINEAR_COV  DEFAULT=-></td>
