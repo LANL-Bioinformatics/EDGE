@@ -67,7 +67,7 @@ GetOptions(
             'bowtie_options=s' => \$bowtie_options,
             'snap_options=s'  => \$snap_options,
             'pacbio' => \$pacbio,
-            'consensus' => \$gen_consensus,
+            'consensus=i' => \$gen_consensus,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
             'no_plot'   => \$no_plot,
@@ -944,7 +944,7 @@ Usage: perl $0
                -ref                      reference sequences file in fasta format
                -pre                      output files' prefix (default "ReadsMapping")
                -d                        output directory
-               -consensus                <bool> output consensus fasta file (default: on)
+               -consensus                <bool> output consensus fasta file (default: on, set 0 to turn off)
                -aligner                  bwa or bowtie or snap (default: bwa)
                -bwa_options <String>     bwa options
                                          type "bwa aln" to see options
