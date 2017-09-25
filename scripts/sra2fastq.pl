@@ -218,7 +218,7 @@ sub getSraFastqToolkits {
 	$options .= "--split-files " if $platform =~ /illu/i;
 	$options .= "--split-files -B " if $platform =~ /solid/;
 	print STDERR "Running fastq-dump with options $options...\n";
-	$ec = system("fastq-dump $options --outdir '$OUTDIR/sra2fastq_temp' $OUTDIR/sra2fastq_temp/$filename");
+	$ec = system("fastq-dump $options --outdir '$OUTDIR/sra2fastq_temp' $OUTDIR/sra2fastq_temp/$filename 2>/dev/null");
 	
 	if( $ec > 0 ){
 		print STDERR "Failed to run fastq-dump from $OUTDIR/sra2fastq_temp/$filename.\n";
