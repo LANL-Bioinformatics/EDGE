@@ -255,11 +255,13 @@ sub main {
 					print STDERR "ReadsToRef: No mapped reads to $acc. Skip converting BAM to tracks.\n";
 				}
 			}
-					print "#  - Adding read2ref VCF track...";
-					executeCommand("bgzip -c $opt{'in-read2ref-vcf'} > $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-	   				executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-					executeCommand("add-track-json.pl $opt{'ref-coord-vcf-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-					print "Done.\n";
+			if ( -e $opt{'in-read2ref-vcf'} ){
+				print "#  - Adding read2ref VCF track...";
+				executeCommand("bgzip -c $opt{'in-read2ref-vcf'} > $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
+	   			executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
+				executeCommand("add-track-json.pl $opt{'ref-coord-vcf-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
+				print "Done.\n";
+			}
 		}
 		
 		print "#  - Indexing features...";

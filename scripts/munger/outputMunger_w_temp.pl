@@ -1352,6 +1352,7 @@ sub pull_readmapping_ref {
 	my $ref_display_limit = 100;
 	my $ref_display_limit_plot = 4;
 	my $ref;
+	my $proj_realname = $vars->{PROJNAME};
 
 	open(my $reffh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt") or die $!;
 	while(<$reffh>) {
@@ -1361,7 +1362,7 @@ sub pull_readmapping_ref {
 	
 		next if( /^Ref/ );
 		my @temp = split /\t/, $_;
-		if( scalar @temp == 11 ){
+		if( scalar @temp > 8){
 			my $refinfo;
 			$tol_ref_number++;
 			$tol_ref_hashit++ if $temp[3];
@@ -1377,9 +1378,12 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			$refinfo->{"RMREFTID"}=($refinfo->{'RMREFT1'}=~/\w{1,4}_?\d+/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refinfo->{'RMREFT1'}'>$refinfo->{'RMREFT1'}</a>":$refinfo->{'RMREFT1'};
+			my $refid=$refinfo->{'RMREFT1'};
+			$refinfo->{"RMREFTID"}=($refid=~/\w{1,4}_?\d+/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
+			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$refid.html";
+			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 			$ref->{$temp[0]}=$refinfo;
 		}
 	}
@@ -1388,7 +1392,7 @@ sub pull_readmapping_ref {
 	#$vars->{RMREFCOV} = sprintf "%.2f", $tol_non_gap_bases/$tol_ref_len*100;
 	#$vars->{RMSNPS} = $tol_snps;
 	#$vars->{RMINDELS} = $tol_indels;	
-
+	
 	my $cnt=0;
 	foreach my $n ( sort {$ref->{$b}->{RMREFT5} <=> $ref->{$a}->{RMREFT5}} keys %$ref )
 	{
@@ -1414,7 +1418,7 @@ sub pull_readmapping_ref {
 	$vars->{RMREFSNPFILE}     = 0;
 	$vars->{RMREFSNPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
 	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
-
+	$vars->{RMREFVARCALL}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 	## display unmapped reads mapping to RefSeq
 	my $tol_um_org=0;
 

@@ -2472,6 +2472,7 @@ sub runReadsToGenome
     my $outVCF = "$outputDir/$outPrefix.vcf";
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
+    my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
     `mkdir -p $outputDir`;
     `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
     if ($noColorLog)
@@ -2495,7 +2496,7 @@ sub runReadsToGenome
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles";
+    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
 	$r2g_aligner_options =~ s/-p\s*\d+//;
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2g_aligner_options . "'";
@@ -2503,13 +2504,28 @@ sub runReadsToGenome
 	$r2g_aligner_options =~ s/-t\s*\d+//;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
     }
-
+    $parameters .= " -no_snp " if ($variant_call == 0);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
-    &executeCommand("cat $outputDir/*.vcf > $outVCF");
-    
+    &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
+    if ($configuration->{r2g_get_consensus}){
+        my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 10;
+        my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
+        my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
+        my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
+        my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
+	foreach my $file (@$referenceFile_r){
+            my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+            my $bamFile = "$outputDir/$file_name.sort.bam";
+            $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $file -o ${file_name}_consensus --temp=consensus_tmp";
+            $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ";
+            &lprint ("  Running \n  $command \n");
+            &executeCommand($command);
+            &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
+	}
+    }
     if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
         `echo "Extract mapped reads" >> $log`;

@@ -555,6 +555,9 @@
 								<tr>
 								  <th data-priority='1'>Reference</th>
 								  <th data-priority='6'>Name</th>
+							          <TMPL_IF NAME="RMREFCONSENSUS">
+								  <th data-priority='3'>Consensus</th>
+							          </TMPL_IF>
 								  <th data-priority='2'>Length</th>
 								  <th data-priority='5'>GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
@@ -564,8 +567,10 @@
 								  <th data-priority='3'>Fold std.</th>
 								  <th data-priority='4'>Gaps</th>
 								  <th data-priority='5'>Gap bases</th>
+							          <TMPL_IF NAME=RMREFVARCALL>
 								  <th data-priority='4'>SNPs</th>
 								  <th data-priority='4'>INDELs</th>
+							          </TMPL_IF>
 								</tr>
 							  </thead>
 							  <tbody>
@@ -574,6 +579,9 @@
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
+							          	<TMPL_IF NAME="RMREFCONSENSUS">
+									<td><a href="<TMPL_VAR NAME=RMREFCONSENSUS>" target="_blank">Consensus View</a></td>
+							          	</TMPL_IF>
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
 									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
 									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
@@ -582,8 +590,10 @@
 									<td><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
 									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
+							          	<TMPL_IF NAME=RMREFVARCALL>
 									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>							
+							          	</TMPL_IF>
 								</tr>
 								</TMPL_LOOP>
 							  </tbody>

@@ -988,6 +988,24 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-r2g-aligner2">BWA mem</label>
 				</fieldset>
 			</div>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Variant Call <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-variantcall-tooltip" ></a></legend>
+					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw1" value="1" checked="checked">
+					<label for="edge-r2g-variantcall-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw2" value="0">
+					<label for="edge-r2g-variantcall-sw2">No</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Consensus Fasta <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Generated consensus Fasta from the mapping result. See additional for parameters" ></a></legend>
+					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw1" value="1">
+					<label for="edge-r2g-getconsensus-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw2" value="0" checked="checked">
+					<label for="edge-r2g-getconsensus-sw2">No</label>
+				</fieldset>
+			</div>
 			<div class="edge-right">|<a href="#" id="edge-r2g-toggle" class="edge-additional-options-toggle"> additional options </a>|</div>
 			<div id="edge-r2g-options" class="edge-additional-options">
 				<div class="ui-field-contain edge-fastq-options">
@@ -1031,6 +1049,29 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<input type="radio" name="edge-r2g-getunmapped-sw" id="edge-r2g-getunmapped2" value="0" checked="checked">
 						<label for="edge-r2g-getunmapped2">No</label>
 					</fieldset>
+				</div>
+				<div id="edge-r2g-con-options">
+				<p class="edge-center">Consensue Generation Options</p>
+				<div class="ui-field-contain">
+					<label for="edge-r2g-con-min-mapQ">Minimum mapQ<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum mapping quality for a read to be used in the pileup generation." ></a></label>
+					<input type="number" name="edge-r2g-con-min-mapQ" id="edge-r2g-con-min-mapQ" data-mini="true" data-clear-btn="true" value="10" max="255">
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-r2g-con-min-cov">Minimum Coverage<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum level of coverage required to avoid an N in the consensus." ></a></label>
+					<input type="number" name="edge-r2g-con-min-cov" id="edge-r2g-con-min-cov" data-mini="true" data-clear-btn="true" value="5">
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-r2g-con-max-cov">Maximum Coverage<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum per base coverage to be used in the pileup generation." ></a></label>
+					<input type="number" name="edge-r2g-con-max-cov" id="edge-r2g-con-max-cov" data-mini="true" data-clear-btn="true" value="300">
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-r2g-con-min-baseQ">Minimum baseQ<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum base quality for a base to be used in the evalution of the consensus." ></a></label>
+					<input type="number" name="edge-r2g-con-min-baseQ" id="edge-r2g-con-min-baseQ" data-mini="true" data-clear-btn="true" value="20" max="41">
+				</div>
+				<div class="ui-field-contain">
+					<label for="edge-r2g-con-alt_prop">Alternate Base Ratio<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Requires that a greater proportion of the reads (than this threshold) must support an alternative for the consensus to be changed." ></a></label>
+					<input type="range" name="edge-r2g-con-alt_prop" id="edge-r2g-con-alt_prop" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
+				</div>
 				</div>
 			</div>
 		</div>

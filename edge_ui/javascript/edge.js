@@ -633,6 +633,9 @@ $( document ).ready(function()
 	$('.edge-aligner-options').tooltipster(
 		'content', $('<span>Click <a href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#usage" target="_blank">Bowtie2 options</a> or <a href="http://bio-bwa.sourceforge.net/bwa.shtml#3" target="_blank">BWA mem options</a> for detail.</span>')
 	);
+	$('#edge-variantcall-tooltip').tooltipster(
+		'content', $('<span>EDGE will use samtools/bcftools (version 0.1.20) to call variants. <a href="http://samtools.sourceforge.net/mpileup.shtml" target="_blank">Detailed.</a></span>')
+	);
 	$('#edge-megahit-preset-l').tooltipster(
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr><tr><td>bulk</td><td>Experimental; assembly of standard bulk sequencing with sufficient depth</td></tr><tr><td>single-cell</td><td>Experimental; single-cell sequence assembly</td></tr></table></span>')
 	);
@@ -1659,9 +1662,8 @@ $( document ).ready(function()
 				$('#edge-targetedngs-mode2').prop("checked",true).checkboxradio("refresh");
 				$('#edge-targetedngs-mode1').prop("checked",false).checkboxradio("refresh");
 				$('#edge-targetedngs-eid').val('0.95').slider("refresh");
-				$('#edge-targetedngs-ebq').val('12').slider("refresh");
 				$('#edge-targetedngs-emq').val('50').slider("refresh");
-				
+				$('#edge-targetedngs-ebq').val('12').slider("refresh");
 			}
 		});
 	}
@@ -1688,8 +1690,8 @@ $( document ).ready(function()
 			$('#edge-qiime-reads-dir-input').prop("disabled", false);
 		}
 	}
-
 	function sync_input( type ) {	//disable inputs for default tools
+		
 		$( ".edge-collapsible-options > select" ).each( function() {
 			var inputOpt = $(this).parents('div[data-role="collapsible"]');
 			$(inputOpt).find("input").prop("disabled", false);
@@ -1699,7 +1701,7 @@ $( document ).ready(function()
 			if( $(this).val()==0 ){
 				//$(inputOpt).find( "input:radio[value=1]" ).not("[name='edge-taxa-allreads']").prop("checked",false).checkboxradio( "refresh" );
 				//$(inputOpt).find( "input:radio[value=0]" ).not("[name='edge-taxa-allreads']").prop("checked",true).checkboxradio( "refresh" );
-				$(inputOpt).find( "input:radio").checkboxradio( "refresh" );
+				$(inputOpt).find("input:radio").checkboxradio( "refresh" );
 				$(inputOpt).find("input").prop("disabled", true);
 				$(inputOpt).find(".input-type-file select").prop("disabled", true);
 				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');

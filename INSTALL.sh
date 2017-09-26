@@ -20,10 +20,27 @@ taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
 python_packages=( Anaconda2 Anaconda3 )
-pipeline_tools=( targetedNGS )
+pipeline_tools=( targetedNGS reference-based_assembly )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_reference-based_assembly(){
+echo "------------------------------------------------------------------------------
+                           Installing reference-based_assembly package
+------------------------------------------------------------------------------
+"
+tar xvzf reference-based_assembly.tgz
+cd reference-based_assembly
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/reference-based_assembly $rootdir/bin/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           reference-based_assembly package installed
+------------------------------------------------------------------------------
+"
+}
+
 install_FaQCs(){
 local VER=2.02
 echo "------------------------------------------------------------------------------
@@ -1818,6 +1835,14 @@ then
 else
   echo "FastTreeMP is not found"
   install_FastTree
+fi
+
+if ( checkLocalInstallation reference-based_assembly )
+then
+    echo "reference-based_assembly is found"
+else
+    echo "reference-based_assembly is not found"
+    install_reference-based_assembly
 fi
 
 if ( checkLocalInstallation targetedNGS )
