@@ -555,10 +555,10 @@
 								<tr>
 								  <th data-priority='1'>Reference</th>
 								  <th data-priority='6'>Name</th>
-							          <TMPL_IF NAME="RMREFCONSENSUS">
+								  <th data-priority='2'>Length</th>
+							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
 								  <th data-priority='3'>Consensus</th>
 							          </TMPL_IF>
-								  <th data-priority='2'>Length</th>
 								  <th data-priority='5'>GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
 								  <th data-priority='3'>Mapped Reads%</th>
@@ -579,8 +579,8 @@
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
-							          	<TMPL_IF NAME="RMREFCONSENSUS">
-									<td><a href="<TMPL_VAR NAME=RMREFCONSENSUS>" target="_blank">Consensus View</a></td>
+							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
+									<td><a href="<TMPL_VAR NAME=RMREFCONSENSUS>" target="_blank">View</a></td>
 							          	</TMPL_IF>
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
 									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
