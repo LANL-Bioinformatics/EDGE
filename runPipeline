@@ -1565,7 +1565,7 @@ sub runAnnotation
 	
     if ( &check_server_up("http://rest.kegg.jp/")){
         &lprint (" Generating KEGG MAP\n");
-        my $basename = basename($outputDir_abs_path);
+        my $basename = basename($abs_outDir);
         &executeCommand("$RealBin/bin/opaver_anno.pl -g $outputDir_abs_path/$project_name.gff -o $outputDir_abs_path/kegg_map -p $project_name > $kegg_map_log 2>\&1");
         &executeCommand("ln -sf $outputDir_abs_path/kegg_map $RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
 
