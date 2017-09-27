@@ -2511,6 +2511,7 @@ sub runReadsToGenome
     &executeCommand("cat $outputDir/*.gap.coords > $outGap");
     &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
     if ($configuration->{r2g_get_consensus}){
+        my $consensus_log = "$outputDir/consensus.log";
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 10;
         my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
@@ -2520,7 +2521,7 @@ sub runReadsToGenome
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
             $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $file -o ${file_name}_consensus --temp=consensus_tmp";
-            $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ";
+            $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
