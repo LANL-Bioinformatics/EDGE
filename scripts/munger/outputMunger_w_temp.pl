@@ -1379,7 +1379,7 @@ sub pull_readmapping_ref {
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
 			my $refid=$refinfo->{'RMREFT1'};
-			$refinfo->{"RMREFTID"}=($refid=~/\w{1,4}_?\d+/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
+			$refinfo->{"RMREFTID"}=($refid=~/^\w{1,4}_?\d+$/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$refid.html";
