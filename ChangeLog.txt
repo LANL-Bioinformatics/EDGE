@@ -38,6 +38,15 @@
 36. Using RGI for Specialty Genes Detection module
 37. Added max_num_jobs to allow control over how many jobs can be submitted
 38. Add error_notification switch 
+39. Allow manual proxy setup
+40. Add TargetedNGS pipeline
+41. Add script to print tool version
+42. Add contig only input function
+43. Add omics pathway viewer tool 
+44. Update FaQCs to version 2.02. speed up 10x
+45. Support gz on provided contig file
+46. Reduce memory usge for runReadsToGenome to large/many Genomes
+47. Add consensus pipeline
 
 GUI update:
 1. Add NCBI link for reads to reference accession
@@ -65,15 +74,22 @@ GUI update:
 23. Update Specialty Genes Detection module result display
 24. Performance improvement for listing projects and project report
 25. Add edge site information form when first time EDGE use for metadata usage
+26. Add TargetedNGS pipeline
+27. Add splitrim minimum quality level option.
+28. Add Stitch Paired End Reads function in Pre-processing module
+29. Add Contig only Input for EDGE and GUI button
+30. Allow gbff extension upload
+31. Add KEGG plot from prokka result
+32. Add Options for Consensus pipeline
 
 New Databases;
-GOTTCHA2: euk-pathogen, euk-protozoa, euk-invertbrate
+GOTTCHA2: RefSeq-Release81.Virus, RefSeq-Release81.Bacteria
 PanGIA: NCBI_genomes_111216_p_GRCh38.fa 
 Host bwa index:  pig, sheep, cow, monkey, hamster. and goat.
 
 Bugs fixes: resume taxanomy profiling result excel report,  JBrowse Error reading name store, qiime input check, download project zip file.
              tax id not exist in the NCBI taxonomy dump, trim 5 end and trim 3 end does not work, concatenate reference fasta with newline,
-             Multiple genome reference input check , dynamic search box on dialog and popup
+             Multiple genome reference input check , dynamic search box on dialog and popup, etc.
 
 -- Version 1.5
 2016/08/25
