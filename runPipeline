@@ -7,6 +7,7 @@ use LWP::UserAgent;
 use Term::ANSIColor;
 use POSIX qw(strftime);
 use Cwd;
+use threads;
 use FindBin qw($RealBin);
 use lib "$RealBin/lib";
 #use File::Tee qw(tee);
