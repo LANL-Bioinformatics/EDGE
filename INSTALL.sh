@@ -42,7 +42,7 @@ echo "
 }
 
 install_FaQCs(){
-local VER=2.02
+local VER=2.03
 echo "------------------------------------------------------------------------------
                            Installing FaQCs $VER
 ------------------------------------------------------------------------------
@@ -1466,7 +1466,7 @@ fi
 if ( checkSystemInstallation FaQCs )
 then
   FaQCs_VER=`FaQCs --version 2>\&1| awk '{print $2}'`;
-  if  ( echo $FaQCs_VER | awk '{if($1>="2.02") exit 0; else exit 1}' )
+  if  ( echo $FaQCs_VER | awk '{if($1>="2.03") exit 0; else exit 1}' )
   then
     echo "FaQCs $FaQCs_VER found"
   else
