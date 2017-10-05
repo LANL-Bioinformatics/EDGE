@@ -86,7 +86,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info )
 	
 			#print top # results
 			my $count=0;
-			foreach my $taxa ( sort {$result->{$fnb}->{$tool}->{$lvl}->{$b} <=> $result->{$fnb}->{$tool}->{$lvl}->{$a}} keys %{$result->{$fnb}->{$tool}->{$lvl}} ){
+			foreach my $taxa ( sort {$result->{$fnb}->{$tool}->{$lvl}->{$b} <=> $result->{$fnb}->{$tool}->{$lvl}->{$a} or $a cmp $b } keys %{$result->{$fnb}->{$tool}->{$lvl}} ){
 				print "\t$taxa";
 				last if $count++ == $opt{top}-1;
 			}
