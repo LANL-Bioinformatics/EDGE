@@ -1567,9 +1567,12 @@ sub runAnnotation
     if ( &check_server_up("http://rest.kegg.jp/")){
         &lprint (" Generating KEGG MAP\n");
         my $basename = basename($abs_outDir);
-        &executeCommand("$RealBin/bin/opaver_anno.pl -g $outputDir_abs_path/$project_name.gff -o $outputDir_abs_path/kegg_map -p $project_name > $kegg_map_log 2>\&1");
-        &executeCommand("ln -sf $outputDir_abs_path/kegg_map $RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
-
+        eval { system("$RealBin/bin/opaver_anno.pl -g $outputDir_abs_path/$project_name.gff -o $outputDir_abs_path/kegg_map -p $project_name > $kegg_map_log 2>\&1"); };
+        my @kegg_maps = `ls $outputDir_abs_path/kegg_map/*png 2>/dev/null`;
+        chomp @kegg_maps;
+        if (scalar(@kegg_maps)>0){
+            &executeCommand("ln -sf $outputDir_abs_path/kegg_map $RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
+        }
     }
     # RATT features stats. 
     if ( ! -e "$outputDir/$project_name.txt"){
