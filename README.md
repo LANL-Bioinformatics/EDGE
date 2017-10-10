@@ -2,6 +2,8 @@
 
 This is version 2.0.0-dev of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
 
+The development version is for developer previews and not intended for normal use. User can use it to get a preview of the latest work but you may find some glitches and something not work as expected. Please feel free to open an [issue](https://github.com/LANL-Bioinformatics/EDGE/issues) on the github if you have any. 
+
 EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
 
 To demo EDGE, go to https://bioedge.lanl.gov/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
