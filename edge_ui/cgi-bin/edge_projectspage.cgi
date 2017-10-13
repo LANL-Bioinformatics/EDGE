@@ -265,7 +265,7 @@ sub getUserProjFromDB{
                 $list->{INFO}->{ERROR}=$1;
                 return;
         }
-        my $array_ref =  from_json($result_json);
+        my $array_ref =  decode_json($result_json);
 	#print Dumper ($array_ref) if @ARGV;
 	foreach my $hash_ref (@$array_ref)
 	{

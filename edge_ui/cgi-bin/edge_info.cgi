@@ -549,7 +549,7 @@ sub updateDBProjectStatus{
 
         my $response = $browser->request($req);
         my $result_json = $response->decoded_content;
-        my $result =  from_json($result_json);
+        my $result =  decode_json($result_json);
 	if (! $result->{status})
 	{
 		$info->{INFO}->{ERROR}="Update Project status in database failed.";
@@ -591,7 +591,7 @@ sub getUserProjFromDB{
 		$info->{INFO}->{ERROR}=$1;
 		return;
 	}
-	my $array_ref =  from_json($result_json);
+	my $array_ref =  decode_json($result_json);
 	foreach my $hash_ref (@$array_ref)
 	{
 		my $id = $hash_ref->{id};
@@ -682,7 +682,7 @@ sub getProjInfoFromDB{
     my $response = $browser->request($req);
     my $result_json = $response->decoded_content;
 	#print $result_json if (@ARGV);
-	my $hash_ref = from_json($result_json);
+	my $hash_ref = decode_json($result_json);
 
 	my $id = $hash_ref->{id};
 	my $project_name = $hash_ref->{name};
