@@ -2165,17 +2165,19 @@ sub countFastq
     }
     if (-e "$outputDir/countFastq.finished")
     {
-        &lprint ("Count Fastq Finished\n");
         if ( -s $all_R1_fastq && -e $all_SE_fastq)
         {
+            &lprint ("Count Fastq Finished\n");
             return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq");
         }
         elsif ( -s $all_R1_fastq )
         {
+            &lprint ("Count Fastq Finished\n");
             return ("$all_R1_fastq $all_R2_fastq","");
         }
-        else
+        elsif ( -s $all_SE_fastq )
         {
+            &lprint ("Count Fastq Finished\n");
             return("","$all_SE_fastq");
         }
     }
