@@ -49,5 +49,6 @@ echo "EDGE HOME Dir: $EDGE_HOME";
 perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog -p $rootdir/../Ecoli_10x.1.fastq $rootdir/../Ecoli_10x.2.fastq || true
 
 rm -rf $rootdir/TestOutput/QcReads
+rm -f $EDGE_HOME/scripts/specialty_genes/mysql.ini
 
 test_result;
