@@ -42,7 +42,7 @@ echo "
 }
 
 install_FaQCs(){
-local VER=2.03
+local VER=2.05
 echo "------------------------------------------------------------------------------
                            Installing FaQCs $VER
 ------------------------------------------------------------------------------
@@ -580,7 +580,7 @@ echo "
 
 install_pangia()
 {
-local VER=2.2.2
+local VER=2.3.2
 echo "------------------------------------------------------------------------------
                            Installing PANGIA $VER BETA
 ------------------------------------------------------------------------------
@@ -1466,7 +1466,7 @@ fi
 if ( checkSystemInstallation FaQCs )
 then
   FaQCs_VER=`FaQCs --version 2>\&1| awk '{print $2}'`;
-  if  ( echo $FaQCs_VER | awk '{if($1>="2.03") exit 0; else exit 1}' )
+  if  ( echo $FaQCs_VER | awk '{if($1>="2.05") exit 0; else exit 1}' )
   then
     echo "FaQCs $FaQCs_VER found"
   else
@@ -1796,7 +1796,7 @@ fi
 if [ -x $rootdir/thirParty/pangia/pangia.py ]
 then
   pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if ( echo $pangia_VER | awk '{if($1>="2.2.0") exit 0; else exit 1}' )
+  if ( echo $pangia_VER | awk '{if($1>="2.3.2") exit 0; else exit 1}' )
   then
     echo "PANGIA $pangia_VER is found"
   else

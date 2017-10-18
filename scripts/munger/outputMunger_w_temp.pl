@@ -1276,6 +1276,7 @@ sub pull_taxa {
 							$res_row->{PANGIA_LINEAR_SCR}  = $t[13];
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[14]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
+							$res_row->{PANGIA_VIS_LINK} = "pangia-vis?r=pangia-vis/data/$projname.tsv";
 						}
 						elsif( $toolname =~ /metaphlan/ ){
 							$res_row->{CPABU_REA} = "N/A";
@@ -1315,6 +1316,10 @@ sub pull_taxa {
 			$tool->{CPTOOL_TREE}  = "" unless -e $tool->{CPTOOL_TREE};
 			$tool->{CPTOOL_KRONA} = "" unless -e $tool->{CPTOOL_KRONA};
 			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia/);
+
+			if( $row->{CPTOOL}=~/pangia/ && `ps -e | grep bokeh` ){
+				$tool->{CPTOOL_PANGIA_TSV} = "$projname.tsv";
+			}
 
 			push @{$vars->{LOOP_CPTOOL}}, $tool;
 		}

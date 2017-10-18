@@ -978,6 +978,9 @@
 					</div>
 
 						<p class='extra-text-link'>Link to 
+							<TMPL_IF NAME="CPTOOL_PANGIA_TSV">
+							|<a data-ajax='false' href='/pangia-vis?r=pangia-vis/data/<TMPL_VAR NAME=CPTOOL_PANGIA_TSV DEFAULT=blank.tsv>'> PanGIA-VIS </a>
+							</TMPL_IF>
 							|<a data-ajax='false' href='<TMPL_VAR NAME=CPTOOL_ABU DEFAULT=->'> Abundance </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=CPTOOL_DIR DEFAULT=->'> Directory </a>
 							</p>
