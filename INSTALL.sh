@@ -15,7 +15,7 @@ export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_
 assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils omics-pathway-viewer Rpackages )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
@@ -24,6 +24,23 @@ pipeline_tools=( targetedNGS reference-based_assembly )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_diamond(){
+local VER=0.9.10
+echo "------------------------------------------------------------------------------
+                           Installing diamond aligner
+------------------------------------------------------------------------------
+"
+tar xvzf diamond-linux64.tar.gz
+rm -f diamond_manual.pdf
+mv -f diamond $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           diamond aligner installed
+------------------------------------------------------------------------------
+"
+}
+
 install_reference-based_assembly(){
 echo "------------------------------------------------------------------------------
                            Installing reference-based_assembly package
@@ -1683,6 +1700,20 @@ then
 else
   echo "RAPSearch2 is not found"
   install_RAPSearch2
+fi
+
+if ( checkSystemInstallation diamond )
+then
+  diamond_VER=`diamond --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+.\d+)}'`;
+  if  ( echo $diamond_VER | awk '{if($1>="0.9.10") exit 0; else exit 1}' )
+  then
+    echo "diamond $diamond_VER found"
+  else
+    install_diamond
+  fi
+else
+  echo "diamond is not found"
+  install_diamond
 fi
 
 if ( checkLocalInstallation bwa )
