@@ -1201,6 +1201,7 @@ sub Reads_taxonomyAssignment
     $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if ($configuration->{'custom-metaphlan-db'});
     $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if ($configuration->{'custom-kraken-db'});
     $cmd0 .= " -pangia-db ". $configuration->{'custom-pangia-db'} if ($configuration->{'custom-pangia-db'});
+    $cmd0 .= " -diamond-db ". $configuration->{'custom-diamond-db'} if ($configuration->{'custom-diamond-db'});
     $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if ($configuration->{'custom-gottcha-speDB-v'});
     $cmd0 .= " -gottcha-b-speDB ". $configuration->{'custom-gottcha-speDB-b'} if ($configuration->{'custom-gottcha-speDB-b'});
     $cmd0 .= " -gottcha-v-strDB ". $configuration->{'custom-gottcha-strDB-v'} if ($configuration->{'custom-gottcha-strDB-v'});

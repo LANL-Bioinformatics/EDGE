@@ -69,9 +69,15 @@ set +e;
 #generate out.list
 convert_krakenRep2list.pl < $OUTPATH/$PREFIX.report.csv > $OUTPATH/$PREFIX.out.list
 convert_krakenRep2tabTree.pl < $OUTPATH/$PREFIX.report.csv > $OUTPATH/$PREFIX.out.tab_tree
+
+# Make Krona plot
+ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+
+# This is old 101817. See above for current Krona plot creation (consistent with the method used for other tools).
 #generate krona plot
-cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$5\"\t\"\$4}" > $OUTPATH/$PREFIX.out.krona
-ktImportTaxonomy -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
+#cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$5\"\t\"\$4}" > $OUTPATH/$PREFIX.out.krona
+#ktImportTaxonomy -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
+
 #preparing megan CSV file
 cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$2\"\t\"\$4}" > $OUTPATH/$PREFIX.out.megan
 

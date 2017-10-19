@@ -77,8 +77,14 @@ cd -;
 #parse mpln
 convert_metascope2list.pl < $OUTPATH/$PREFIX.metascope.log > $OUTPATH/$PREFIX.out.list
 convert_list2tabTree.pl < $OUTPATH/$PREFIX.out.list > $OUTPATH/$PREFIX.out.tab_tree
-cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$5\"\t\"\$4}" > $OUTPATH/$PREFIX.out.krona
-ktImportTaxonomy -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
+
+# Make Krona plot
+ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+
+# Not used 101817.
+# cat $OUTPATH/$PREFIX.out.list | awk -F\\t "{if(\$4>0 && \$4!=\"ASSIGNED\") print \$5\"\t\"\$4}" > $OUTPATH/$PREFIX.out.krona
+# This is the old way to make Krona plots. See above for current way (consistent with other methods)
+#ktImportTaxonomy -t 1 -s 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
 
 set +x;
 echo "";
