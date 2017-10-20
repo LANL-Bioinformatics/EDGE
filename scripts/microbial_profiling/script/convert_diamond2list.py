@@ -83,7 +83,8 @@ def parsing():
 					res_rollup[rank][tid]["ASGN"] = 0
 					res_rollup[rank][tid]["NAME"] = name
 
-		sys.stderr.write( "[INFO] Processing %s read classifications...\r"%cnt )
+		if ( cnt % 1000 == 0):
+			sys.stderr.write( "[INFO] Processing %s read classifications...\r"%cnt )
 	
 	return cnt
 

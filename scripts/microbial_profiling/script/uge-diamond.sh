@@ -75,7 +75,7 @@ python $EDGE_HOME/scripts/microbial_profiling/script/convert_diamond2list.py -tp
 # Convert for krona plot and generate taxon-based krona plot. Use -s 2 flag for ignoring abundance data and splitting wedge size evenly among all listed taxa (if taxa are listed >1 time,
 # then they will get a larger wedge. This is the same as ktImportText using the tab_tree file.
 # Use flag -m 2 to scale the wedge size to each taxa's relative abundance (better matches the table output in EDGE and the dendrogram.
-python $EDGE_HOME/scripts/microbial_profiling/script/convert_diamond2krona.py -i $OUTPATH/$PREFIX.out.list > $OUTPATH/$PREFIX.out.krona
+#python $EDGE_HOME/scripts/microbial_profiling/script/convert_diamond2krona.py -i $OUTPATH/$PREFIX.out.list > $OUTPATH/$PREFIX.out.krona
 
 # Not used. See below for Krona plot making. An alternative way to make the krona plots.
 #ktImportTaxonomy -t 1 -m 2 -o $OUTPATH/$PREFIX.krona.html $OUTPATH/$PREFIX.out.krona
