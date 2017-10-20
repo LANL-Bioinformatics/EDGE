@@ -949,6 +949,7 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-targetedngs-ref-file","File not found. Please check the file path.") if ( $opt{"edge-targetedngs-ref-file"} && ! -e $opt{"edge-targetedngs-ref-file"} );
 		&addMessage("PARAMS","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{""} >=0 && $opt{""} <=1 );
 		&addMessage("PARAMS", "edge-targetedngs-depth-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-depth-cutoff"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-targetedngs-len-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-len-cutoff"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-targetedngs-ebq","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-ebq"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-targetedngs-emq","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-emq"}=~ /^\d+$/;
 		&addMessage("PARAMS","edge-targetedngs-ec","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-ec"} >=0 && $opt{"edge-targetedngs-ec"} <=1 );

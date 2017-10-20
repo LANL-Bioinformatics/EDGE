@@ -602,6 +602,7 @@ sub runTargetedNGS{
     my $cmd = "$RealBin/bin/targetedNGS/targetedNGS  --ref $targetedNGS_ref --indir $targetedNGS_input_dir --samples $targetedNGS_sample_file --cpus  $numCPU --outdir $outputDir --prefix $project_name --force " ;
     $cmd .= "--q_cutoff $targetedNGS_q_cutoff ";
     $cmd .= "--depth_cutoff $targetedNGS_depth_cutoff ";
+    $cmd .= "--len_cutoff $targetedNGS_len_cutoff ";
     $cmd .= "--mode $targetedNGS_mode ";
     $cmd .= "--align_options \'-x ont2d\' " if ($targetedNGS_platform =~ /ont2d/);
     $cmd .= "--align_options \'-x pacbio\' " if ($targetedNGS_platform =~ /pacbio/);

@@ -1517,6 +1517,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 			<div class="edge-right">|<a href="#" id="edge-targetedngs-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
 				<div id="edge-targetedngs-options" class="edge-additional-options">
+					<div class="ui-field-contain">
+						<label for="edge-targetedngs-len-cutoff">Read Length Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Read length (bp) cutoff"></a></label>
+						<input type="number" data-mini="true" data-clear-btn="true" name="edge-targetedngs-len-cutoff" id="edge-targetedngs-len-cutoff" min="1" max="500" value="100">
+					</div>
+
 					<p class="edge_tool_note">The following parameters will affect how the Quality Calcuation derived. The four weight parameters should sum up to 1. Mouse over the label to see the notes.</p>
 					<div class="ui-field-contain">
 						<label for="edge-targetedngs-ec">Expected Coverage<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Usually, the targeted amplicon is expected covered 100% (1) "></a></label>
