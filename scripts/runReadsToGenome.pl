@@ -373,17 +373,17 @@ for my $ref_file_i ( 0..$#ref_files){
 		
 		my $pileup_cmd = "samtools mpileup -A -BQ0 -d10000000 -r $ref_name -f  $ref_file $bam_output ";
 		# build base coverage hash
-		open (my $pileup_fh,"$pileup_cmd | ") or die "$! no $pileup_output";
-		my %base_hash;
+		my @base_array= (0) x $ref_len;
+		open (my $pileup_fh,"$pileup_cmd | ") or die "$! no $pileup_cmd";
 		while (<$pileup_fh>)
 		{
 			chomp;
 			my ($id ,$pos,$ref_base, $cov, $seq, $qual)=split /\t/;
-			$base_hash{$pos}=$cov;
+			$base_array[$pos-1]=$cov;
 		}
 		close $pileup_fh;
 
-		$stats_print_string .= &window_size_coverage($coverage_output,$WindowCoverage_output,\%base_hash,$gap_output,$ref_name,$ref_len);
+		$stats_print_string .= &window_size_coverage($coverage_output,$WindowCoverage_output,\@base_array,$gap_output,$ref_name,$ref_len);
   
 		my $properpair_coverage_output;
 		my $unproperpair_coverage_output;
@@ -647,7 +647,7 @@ sub window_size_coverage {
    # given output files names and a hash for each ref name and for each base;
    # output coverage per base/window_size per ref. output gap per ref. 
    # return statistiacl numbers, genome recovery, fold coveage, fold coverage std, gap number, gap total bases.  
-   my ($coverage_output,$WindowCoverage_output,$base_hash,$gap_output,$ref_name,$ref_len)=@_;
+   my ($coverage_output,$WindowCoverage_output,$base_array,$gap_output,$ref_name,$ref_len)=@_;
    #$window_size= ($ref_len>1000)? int($ref_len/1000)+10:10;
    $window_size= int($ref_len/500)||2;
    $step_size = int($window_size/5)||1;
@@ -681,8 +681,8 @@ sub window_size_coverage {
    open ($window_cov_out_fh, ">$WindowCoverage_output") or die "$! $WindowCoverage_output\n";
    for (1..$ref_len)
    {
-      if ($base_hash->{$_}){
-         $pos_cov=$base_hash->{$_};
+      if ($base_array->[$_ - 1]){
+         $pos_cov=$base_array->[$_ - 1];
          if ($coverage_output)
          {
             print $cov_out_fh $_,"\t",$pos_cov,"\n";
@@ -704,7 +704,7 @@ sub window_size_coverage {
             push @gap_array, $_;
          }
       }
-      push @cov_array,$pos_cov;
+      #push @cov_array,$pos_cov;
       $cov_sum += $pos_cov;
       $step_sum += $pos_cov;
       if (($_ % $step_size)==0)
@@ -745,7 +745,7 @@ sub window_size_coverage {
            $gap_count++;
            $gap_total_len += $gap_length;
        }
-       my ($std_cov,$avg_cov)= &standard_deviation(@cov_array);
+       my ($std_cov,$avg_cov)= &standard_deviation($base_array);
        my $percent_genome_coverage = sprintf ("%.4f",$covered_base_num/$ref_len*100);
        my $fold = sprintf ("%.2f",$avg_cov);
        my $fold_std = sprintf ("%.2f",$std_cov);
@@ -758,21 +758,21 @@ sub window_size_coverage {
 }
 
 sub standard_deviation {
-  my(@numbers) = @_;
+  my($numbers) = @_;
   # Step 1, find the mean of the numbers
   my $total1 = 0;
-  foreach my $num (@numbers) {
+  foreach my $num (@$numbers) {
     $total1 += $num;
   }
-  my $mean1 = $total1 / (scalar @numbers);
+  my $mean1 = $total1 / (scalar @$numbers);
 
   # Step 2, find the mean of the squares of the differences
   # between each number and the mean
   my $total2 = 0;
-  foreach my $num (@numbers) {
+  foreach my $num (@$numbers) {
     $total2 += ($mean1-$num)**2;
   }
-  my $mean2 = $total2 / (scalar @numbers);
+  my $mean2 = $total2 / (scalar @$numbers);
 
   # Step 3, standard deviation is the square root of the
   # above mean
