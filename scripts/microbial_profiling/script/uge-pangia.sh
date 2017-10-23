@@ -43,8 +43,8 @@ BG_JSON=
 BG_JSON_OPT=
 READ_COND="R_MAT"
 THREADS=4
-OPTIONS="-sb"
-FIELD="READ_COUNT"
+OPTIONS="-sb -se"
+FIELD="READ_COUNT_RNR"
 MIN_SCORE=0
 MIN_READ=3
 MIN_RSNB=1
@@ -98,13 +98,16 @@ fi
 
 pangia.py -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
 
+# prepare pangia-vis
+DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
+cp $OUTPATH/$PREFIX.report.tsv $EDGE_HOME/thirdParty/pangia/pangia-vis/data/$DIRMD5.tsv
 
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1&&$16==""){out=$1"\t"$2"\t"$14"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.report.tsv >> $OUTPATH/$PREFIX.out.list
 
 awk -F\\t '{if($1=="species"){print $2"\t"$12}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.tab_tree.score
 
-pangia.py -r $FIELD -s $OUTPATH/$PREFIX.pangia.sam -t $THREADS -d $DB -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
+cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -d $DB > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
