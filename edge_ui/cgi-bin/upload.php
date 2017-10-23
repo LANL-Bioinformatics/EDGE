@@ -57,6 +57,28 @@ $edge_config=read_config(__DIR__."/../sys.properties");
 // Settings
 //$targetDir = ini_get("upload_tmp_dir") . DIRECTORY_SEPARATOR . "plupload";
 //$targetDir = 'uploads';
+
+// if userManagement is on, request sesssion id.
+if (!empty($edge_config["user_management"])){
+	$session_return="false";
+	$sid="";
+	if (isset($_REQUEST["sid"])){
+		$sid=$_REQUEST["sid"];
+		//$session_return=shell_exec("ls /tmp/*$sid");
+	}else{
+		die('{"jsonrpc" : "2.0", "error" : {"code": 401, "message": "Invalid Session."}, "id" : "id"}');
+		exit("Session Invalid");
+	}
+	//if (!empty($session_return) && ! preg_match("/$sid/i", $session_return)){
+	//	die('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Invalid Session."}, "id" : "id"}');
+	//	exit("Session Invalid");
+	//}
+}
+
+if (empty($_REQUEST["targetDir"])) {
+	exit("No target");
+}
+
 $domain=explode(".",$_SERVER['HTTP_HOST']);
 $targetDir=$edge_config["edgeui_input"]."/$domain[0]";
 if (file_exists("$targetDir")) {
