@@ -5,9 +5,6 @@
 #$ -j y
 
 
-# This is still the default for Kraken as a template.
-
-
 set -e;
 
 usage(){
@@ -26,7 +23,12 @@ EOF
 }
 
 FASTQ=
-REFDB=$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.faa.dmnd
+# This is the database without many viral sequences (only bacteria phages)
+#REFDB=$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.faa.dmnd
+
+# This is the database with the NCBI viral database sequences added
+REFDB=$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
+
 PREFIX=
 OUTPATH=
 THREADS=16
