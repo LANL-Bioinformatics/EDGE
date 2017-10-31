@@ -573,6 +573,7 @@ sub runTargetedNGS{
     my $targetedNGS_ref=$configuration->{targetedNGS_ref};
     my $targetedNGS_mode=$configuration->{targetedNGS_mode} || "PE";
     my $targetedNGS_platform=$configuration->{targetedNGS_platform} || "illumina";
+    my $targetedNGS_len_cutoff=$configuration->{targetedNGS_len_cutoff} || 100;
     my $targetedNGS_input_dir=$configuration->{targetedNGS_input_dir};
     my $targetedNGS_sample_file=$configuration->{targetedNGS_sample_file};
     my $targetedNGS_q_cutoff=$configuration->{targetedNGS_q_cutoff} || 0.8145 ;

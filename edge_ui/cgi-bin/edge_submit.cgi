@@ -862,7 +862,7 @@ sub checkParams {
 				&addMessage("PARAMS","edge-input-se1","Input error.");
 			}
 		}
-		if ( $opt{'edge-joinpe-sw'}  && (!@edge_input_pe1 or !@edge_input_pe2) ){
+		if ( $opt{'edge-joinpe-sw'}  && (!@edge_input_pe1 or !@edge_input_pe2) && !$opt{'edge-sra-sw'} ){
 			&addMessage("PARAMS", "edge-joinpe-sw2", "No Paired End Reads input for PE Stitch");
 		}
 		if ($pipeline eq "qiime"){
