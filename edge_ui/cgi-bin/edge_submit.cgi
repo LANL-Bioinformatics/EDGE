@@ -805,7 +805,7 @@ sub checkParams {
 			if ($edge_input_pe1[$i] &&  $edge_input_pe1[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe1[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe1[$i] && is_fastq($edge_input_pe1[$i]) );
+			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe1[$i] && is_fastq($edge_input_pe1[$i]) || $edge_input_pe1[$i] =~ /^http|ftp/i );
 		}
 		foreach my $i (0..$#edge_input_pe2){
 			my $id = "edge-input-pe2-". ($i + 1);
@@ -816,7 +816,7 @@ sub checkParams {
 			if ($edge_input_pe2[$i] &&  $edge_input_pe2[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe2[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe2[$i] && is_fastq($edge_input_pe2[$i]));
+			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe2[$i] && is_fastq($edge_input_pe2[$i]) || $edge_input_pe2[$i] =~ /^http|ftp/i );
 		}
 		foreach my $i (0..$#edge_input_se){
 			my $id = "edge-input-se". ($i + 1);
@@ -827,7 +827,7 @@ sub checkParams {
 			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^http|ftp/i  && ! -e $edge_input_se[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
 			}
-			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_se[$i] && is_fastq($edge_input_se[$i]) );
+			 &addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_se[$i] && is_fastq($edge_input_se[$i]) || $edge_input_se[$i] =~ /^http|ftp/i );
 		}
 		foreach my $i (0..$#edge_input_pe1){
 			my $id = "edge-input-pe-block".($1 + 1);
@@ -840,7 +840,7 @@ sub checkParams {
 		}
 		if ($opt{'edge-inputS-sw'} eq "fasta"){
 			$opt{'edge-input-contig-file'} = "$input_dir/$opt{'edge-input-contig-file'}" if ($opt{'edge-input-contig-file'} =~/^\w/);
-			&addMessage("PARAMS",'edge-input-contig-file',"Invalid input. Fasta format required") if ( -e $opt{'edge-input-contig-file'} && ! is_fasta($opt{'edge-input-contig-file'}));
+			&addMessage("PARAMS",'edge-input-contig-file',"Invalid input. Fasta format required") if ( -e $opt{'edge-input-contig-file'} && ! is_fasta($opt{'edge-input-contig-file'}) && $opt{'edge-input-contig-file'} !~ /^http|ftp/i );
  			$opt{"edge-qc-sw"}       = 0;
  			$opt{'edge-joinpe-sw'}   = 0;
  			$opt{"edge-hostrm-sw"}   = 0;

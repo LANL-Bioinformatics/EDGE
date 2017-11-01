@@ -3399,7 +3399,7 @@ sub download_reads
     foreach my $url(@urls)
     {
         my $cmd = "curl -OLJ --max-filesize $size_limit $curl_proxy $url";
-        $cmd = "wget --content-disposition $url" if ($configuration->{'download_interface'} =~ /wget/); 
+        $cmd = "wget --content-disposition $url" if ($sys->{'download_interface'} =~ /wget/); 
         &lprint (" Running \n $cmd\n");
         &executeCommand($cmd);
     }
@@ -3414,9 +3414,14 @@ sub getFilenameFromURLHeader
     my $url = shift;
     my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";
     my $header_cmd="/usr/bin/curl -sI $curl_proxy $url| grep \'filename\' ";
-    $header_cmd="/usr/bin/wget -dv -O /dev/null $url 2>&1 | grep \'filename\' " if ($configuration->{'download_interface'} =~ /wget/);
+    $header_cmd="/usr/bin/wget -dv -O /dev/null $url 2>&1 | grep \'filename\' " if ($sys->{'download_interface'} =~ /wget/);
     my $header = `$header_cmd`;
-    my ($filename) = $header =~ /filename=(\S+);/; 
+    my $filename;
+    if ($header){
+        ($filename) = $header =~ /filename=(\S+);/;
+    }else{
+        ($filename) = $url =~ /.*\/(.*)$/;
+    }
     $filename=~ s/"//g;
     return $filename;
 }
