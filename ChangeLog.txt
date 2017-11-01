@@ -1,5 +1,5 @@
 -- Version devel
-2017/09/28
+2017/11/01
 1. Add mummerplot for contig to reference dotplot
 2. Add .gz support for provided contigs fasta
 3. Convert upload text file newlines to UNIX format.
@@ -47,6 +47,8 @@
 45. Support gz on provided contig file
 46. Reduce memory usge for runReadsToGenome to large/many Genomes
 47. Add consensus pipeline
+48. Add Diamond aligner version 0.9.10
+49. Use JSON::XS to speed json decoding 
 
 GUI update:
 1. Add NCBI link for reads to reference accession
@@ -81,10 +83,13 @@ GUI update:
 30. Allow gbff extension upload
 31. Add KEGG plot from prokka result
 32. Add Options for Consensus pipeline
+33. Add Diamond protein based taxonomy classifier
+34. Add security check for uploading files, need session id and targetDir
 
 New Databases;
 GOTTCHA2: RefSeq-Release81.Virus, RefSeq-Release81.Bacteria
 PanGIA: NCBI_genomes_111216_p_GRCh38.fa 
+Diamond: RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
 Host bwa index:  pig, sheep, cow, monkey, hamster. and goat.
 
 Bugs fixes: resume taxanomy profiling result excel report,  JBrowse Error reading name store, qiime input check, download project zip file.
