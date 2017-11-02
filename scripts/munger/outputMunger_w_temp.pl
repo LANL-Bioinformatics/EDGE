@@ -241,9 +241,10 @@ sub check_analysis {
 	$vars->{OUT_AS_SW}    = 1 if (glob "$out_dir/AssemblyBasedAnalysis/*.finished");
 	$vars->{OUT_AS_PC_SW} = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/processProvideContigs.finished");
 	$vars->{OUT_CONLY_SW} = 1 if ($vars->{OUT_AS_PC_SW} && ! -e "$out_dir/QcReads/fastqCount.txt");
-	#$vars->{OUT_AS_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/runIdbaAssembly.finished";
+	$vars->{OUT_C2G_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
 	$vars->{OUT_AN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
-	$vars->{OUT_RA_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
+	$vars->{OUT_R2G_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
+	$vars->{OUT_RA_SW}    = 1 if $vars->{OUT_C2G_SW} || $vars->{OUT_R2G_SW};
 	$vars->{OUT_UM_CP_SW} = 1 if -e "$out_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
 	$vars->{OUT_AL_CP_SW} = 1 if -e "$out_dir/ReadsBasedAnalysis/Taxonomy/taxonomyAssignment.finished";
 	$vars->{OUT_RCP_SW}   = 1 if $vars->{OUT_UM_CP_SW} || $vars->{OUT_AL_CP_SW}; 

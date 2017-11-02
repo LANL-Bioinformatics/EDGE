@@ -961,7 +961,7 @@ sub checkParams {
 		&addMessage("PARAMS","edge-targetedngs-cw","Sum up the four weight parameters must be equal to 1.") unless ( $opt{"edge-targetedngs-cw"} + $opt{"edge-targetedngs-iw"} +  $opt{"edge-targetedngs-bw"}  + $opt{"edge-targetedngs-mw"} == 1);
 	}
 	#tool parameters
-	if ( $opt{"edge-ref-sw"}){
+	if ( $opt{"edge-ref-sw"} || $opt{'edge-inputS-sw'} eq "fasta" ){
 		my (@refs,@refsl,$num_selected);
 		if( defined $opt{"edge-ref-file-fromlist"}){
 			@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};

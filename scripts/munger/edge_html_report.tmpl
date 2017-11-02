@@ -526,9 +526,9 @@
 		<TMPL_IF NAME="OUT_RA_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>Reference-Based Analysis</h4>
-			
 			<!--<p>Reference file: <TMPL_VAR NAME=REFFILE></p>-->
 			<ol>
+			<TMPL_IF NAME="OUT_R2G_SW">
 				<li><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					<ol>
 						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
@@ -700,8 +700,9 @@
 						</div></li>
 					</ol>
 				</div></li>
+				</TMPL_IF>
 
-				<TMPL_IF NAME="OUT_AS_SW">
+				<TMPL_IF NAME="OUT_C2G_SW">
 				<li><span class="li-report-content-title">Contigs Mapped to Reference(s)</span><div class="li-report-content">
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 					  <thead>
