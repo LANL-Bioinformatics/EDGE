@@ -839,14 +839,13 @@ sub checkParams {
 			}
 		}
 		if ($opt{'edge-inputS-sw'} eq "fasta"){
-			$opt{'edge-input-contig-file'} = "$input_dir/$opt{'edge-input-contig-file'}" if ($opt{'edge-input-contig-file'} =~/^\w/);
+			$opt{'edge-input-contig-file'} = "$input_dir/$opt{'edge-input-contig-file'}" if ($opt{'edge-input-contig-file'} =~/^\w/ && $opt{'edge-input-contig-file'} !~ /^http|ftp/i);
 			&addMessage("PARAMS",'edge-input-contig-file',"Invalid input. Fasta format required") if ( -e $opt{'edge-input-contig-file'} && ! is_fasta($opt{'edge-input-contig-file'}) && $opt{'edge-input-contig-file'} !~ /^http|ftp/i );
  			$opt{"edge-qc-sw"}       = 0;
  			$opt{'edge-joinpe-sw'}   = 0;
  			$opt{"edge-hostrm-sw"}   = 0;
  			$opt{"edge-assembly-sw"} = 0;
  			$opt{"edge-taxa-sw"}     = 0;
-			$opt{"edge-ref-sw"}      = 0;
                         $opt{"edge-reads-sg-sw"} = 0;
  		}
 		$opt{'edge-sra-sw'} = 1 if ($opt{'edge-inputS-sw'} eq "sra");
@@ -961,7 +960,7 @@ sub checkParams {
 		&addMessage("PARAMS","edge-targetedngs-cw","Sum up the four weight parameters must be equal to 1.") unless ( $opt{"edge-targetedngs-cw"} + $opt{"edge-targetedngs-iw"} +  $opt{"edge-targetedngs-bw"}  + $opt{"edge-targetedngs-mw"} == 1);
 	}
 	#tool parameters
-	if ( $opt{"edge-ref-sw"} || $opt{'edge-inputS-sw'} eq "fasta" ){
+	if ( $opt{"edge-ref-sw"} ){
 		my (@refs,@refsl,$num_selected);
 		if( defined $opt{"edge-ref-file-fromlist"}){
 			@refsl = split /[\x0]/, $opt{"edge-ref-file-fromlist"};
@@ -991,6 +990,7 @@ sub checkParams {
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
 		}
+		$opt{"edge-ref-sw"} = 0 if ($opt{'edge-inputS-sw'} eq "fasta");
 		
 	}
 	if ( $opt{"edge-taxa-sw"} ){
