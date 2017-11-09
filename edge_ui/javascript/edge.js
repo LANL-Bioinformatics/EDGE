@@ -2515,7 +2515,7 @@ $( document ).ready(function()
 				}
 				else if( $('#'+key).prop('type') == "select-multiple" ){
 					var arr = value.split("\u0000");
-					if(arr.length > $('#'+key).children('option').length){
+					if(arr.length >= $('#'+key).children('option').length){
 						if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
 							$.each( arr, function(i, val) {
 								$('#'+key)
