@@ -2527,14 +2527,19 @@ sub runReadsToGenome
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
 	foreach my $file (@$referenceFile_r){
+            `mkdir -p $outputDir/consensus_tmp`;
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
-            $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $file -o ${file_name}_consensus --temp=consensus_tmp";
+            &executeCommand("sed -e 's/[\\|\\.]/_/g'  $file > $outputDir/consensus_tmp/${file_name}.fa");
+            $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
             $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
-            &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
+            &executeCommand("mv -f $outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam $outputDir/");
+            &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
 	}
+        &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
+        
     }
     if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads

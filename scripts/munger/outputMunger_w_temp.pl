@@ -128,8 +128,13 @@ sub pull_referenceName {
 			foreach my $header (@fasta_header){
 				chomp $header;
 				if ($header =~ /^>(\S+)\s*(.*)$/ ){
-					$refname->{$1}->{desc}=$2;
-					$refname->{$1}->{file}=$ref;
+					my $acc=$1;
+					my $desc=$2;
+					my $orig_acc=$acc;
+					$acc =~ s/\W/\_/g;
+					$refname->{$acc}->{acc}=$orig_acc;
+					$refname->{$acc}->{desc}=$desc;
+					$refname->{$acc}->{file}=$ref;
 				}
 			}
 		}
@@ -1384,11 +1389,11 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			my $refid=$refinfo->{'RMREFT1'};
-			$refinfo->{"RMREFTID"}=($refid=~/^\w{1,4}_?\d+$/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
+			my $refid=$refname->{$temp[0]}->{acc};
+			$refinfo->{"RMREFTID"}=($refid=~/^\w{1,4}_?\w+\.?\d*$/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
-			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$refid.html";
+			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
 			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";

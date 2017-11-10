@@ -76,6 +76,7 @@ $opt{'ctg-coord-bam-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jb
 $opt{'ctg-coord-primer-conf'}  ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ctg_trackList_PCR.temp";
 $opt{'ref-coord-conf'}         ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_conf.temp";
 $opt{'ref-coord-bam-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_BAM.temp";
+$opt{'ref-coord-con-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_CON.temp";
 $opt{'ref-coord-vcf-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_VCF.temp";
 $opt{'ref-coord-primer-conf'}  ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_PCR.temp";
 $opt{'ref-coord-bw-conf'}      ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_BW.temp";
@@ -167,7 +168,7 @@ sub main {
 		}
 		
 		print "#  - Indexing features...";
-		executeCommand("generate-names.pl --out $opt{'out-ctg-coord-dir'}");
+		executeCommand("generate-names.pl --hashBits 16 --out $opt{'out-ctg-coord-dir'}");
 		print "Done.\n";
 	}
 
@@ -233,6 +234,7 @@ sub main {
 				my $file_prefix = $ref_name->{$acc}->{file};
 				$acc =~ s/\W/\_/g;
 				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
+				my $bam_nodup = "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				chomp $mapped_num;
 				if( $mapped_num ){
@@ -244,7 +246,15 @@ sub main {
 					#executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
 					#unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
 					print "Done.\n";
-	
+					
+					if ( -e $bam_nodup ){
+						print "#  - Adding read2refc$acc Consensus Coverage track...";
+						executeCommand("samtools view -F4 -bh $bam_nodup $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort 2>/dev/null");
+						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
+						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+						print "Done.\n";
+					}
+					
 					print "#  - Adding BigWig $acc track...";
 					executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
 					executeCommand("sed -e 's/%%BWFILENAME%%/$acc.mapped.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
