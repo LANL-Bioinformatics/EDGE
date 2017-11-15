@@ -715,7 +715,9 @@ sub fix_mapping_file {
 			my @array = split /\t/,$_;
 			$array[0] =~ s/[^a-zA-Z0-9]/\./g;
 			if ($miss_barcode){ splice @array, 1, 0, ''; $validate_options{"-b"}=1;}
+					else{ $array[1] =~ s/\s+//g;}
 			if ($miss_primer){ splice @array, 2, 0, ''; $validate_options{"-p"}=1;}
+					else{ $array[2] =~ s/\s+//g;}
 			if ($miss_desc){ splice @array, -1, 0, 'NA';}
 			print $ofh join("\t",@array),"\n";
 		}
