@@ -17,7 +17,7 @@ For basic information about EDGE, visit the <a href="https://edge.readthedocs.io
 ## Contact Info
 Chien-Chi Lo: <chienchi@lanl.gov>  
 Paul Li: <po-e@lanl.gov>  
-Joe Anderson (DTRA/NMRC): <joseph.j.anderson2.civ@mail.mil> 
+Patrick Chain: <pchain@lanl.gov>
 
 ## Citation
 
