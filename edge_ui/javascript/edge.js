@@ -1552,6 +1552,10 @@ $( document ).ready(function()
 					$("#edge-contig-taxa-sw1").prop("checked",false).checkboxradio("refresh");
 					$("#edge-contig-taxa-sw2").prop("checked",true).checkboxradio("refresh");
 				}
+				if ( $( "#edge-orfs-sg-sw1" ).is(':checked') ){
+					$( "#edge-orfs-sg-sw1" ).prop("checked",false).checkboxradio("refresh");
+					$( "#edge-orfs-sg-sw2" ).prop("checked",true).checkboxradio("refresh");
+				}
 			}
 		});
 		$(":radio[name='edge-anno-sw']").on("change", function(){
@@ -1564,7 +1568,7 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-orfs-sg-sw']").on("change", function(){
 			if ( $(this).val() == 1 ){
-				if ( $( "#edge-anno-sw2" ).is(':checked') ){
+				if ( $( "#edge-anno-sw2" ).is(':checked') || $("#edge-assembly-sw").val() == 0 ){
 					showWarning("ORFs Specialty Gene Profiling function can only be performed when annotation function turns on.");
 					$( "#edge-orfs-sg-sw2" ).prop('checked',true);
 				}

@@ -1144,6 +1144,10 @@ sub checkParams {
                         &addMessage("PARAMS","edge-phylo-ref-file-1","Please select/add at least three genomes") if (defined $opt{"edge-phylo-ref-file"});
                 }
 	}
+	if (!$opt{"edge-sg-sw"}){
+		$opt{"edge-reads-sg-sw"} = 0;
+		$opt{"edge-orfs-sg-sw"} = 0;
+	}
 }
 
 
