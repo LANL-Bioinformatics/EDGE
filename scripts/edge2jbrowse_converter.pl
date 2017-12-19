@@ -40,7 +40,7 @@ my $res=GetOptions(\%opt,
     'ctg-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ctg_coord_conf
     'ctg-coord-bam-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ctg-coord-primer-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
-    'ref-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ref_coord_conf
+    'ref-coord-conf=s',          #\$pDGE_HOME/script/edge2jbrowse_converter.ref_coord_conf
     'ref-coord-bam-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ref-coord-vcf-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ref-coord-primer-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
@@ -55,6 +55,7 @@ my $debug = $opt{debug} ? 1 : 0;
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
 
 # setting up default values
+my $repeat_track_size_cutoff = 20000000; #~20M;
 $opt{'proj_outdir'}            ||= ".";
 $opt{'in-phage-finder'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Prophage/phageFinder_summary.txt";
 $opt{'in-ctg2ref-coords'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.coords";
@@ -83,6 +84,7 @@ $opt{'ref-coord-bw-conf'}      ||= "$Bin/edge2jbrowse_converter_template/edge2jb
 $opt{'gff3out'}                ||= "$opt{'outdir'}/edge_analysis.gff3";
 $opt{'out-ctg-coord-dir'}      ||= "$opt{'outdir'}/ctg_tracks";
 $opt{'out-ref-coord-dir'}      ||= "$opt{'outdir'}/ref_tracks";
+
 
 &main();
 
@@ -145,7 +147,12 @@ sub main {
 			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes' --trackLabel 'Virulence' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
 		}
 		print "Done.\n";
-
+		if (  -s $opt{'in-ctg-fa'} < $repeat_track_size_cutoff ){
+			print "#  - adding repeats tracks...";
+			executeCommand("get_repeat_coords.pl -o $opt{outdir}/contigs_repeats.txt $opt{'in-ctg-fa'} > $opt{outdir}/contigs_repeats.log  2>&1");
+			executeCommand("flatfile-to-json.pl --gff  $opt{outdir}/contigs_repeats.txt.gff3 --key 'Repeat' --trackLabel 'REPEAT' --metadata '{\"category\": \"Annotation\"}' --compress --out $opt{'out-ctg-coord-dir'} --className feature5 --arrowheadClass null");
+			print "Done.\n";
+		}
 		#add read2ctg BAM track
 		if( -e $opt{'in-read2ctg-bam'} ){
 			print "#  - Adding read2ctg BAM track...";
@@ -211,7 +218,13 @@ sub main {
 		executeCommand("ln -s $opt{'in-ref-fa'} $opt{'out-ref-coord-dir'}/reference.fasta");
 		executeCommand("biodb-to-json.pl --compress --conf $opt{'out-ref-coord-dir'}/edge2jbrowse_converter.ref_conf --out $opt{'out-ref-coord-dir'}");
 		print "Done.\n";
-	
+		
+		if (  -s $opt{'in-ref-fa'} < $repeat_track_size_cutoff ){
+			print "#  - adding repeats tracks...";
+			executeCommand("get_repeat_coords.pl -o $opt{outdir}/ref_repeats.txt $opt{'in-ref-fa'} >  $opt{outdir}/ref_repeats.log  2>&1" );
+			executeCommand("flatfile-to-json.pl --gff  $opt{outdir}/ref_repeats.txt.gff3 --key 'Repeat' --trackLabel 'REPEAT' --metadata '{\"category\": \"Annotation\"}' --compress --out  $opt{'out-ref-coord-dir'} --className feature5 --arrowheadClass null");
+			print "Done.\n";
+		}
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ref-bam'} ){
 			print "#  - Adding pcrValidation track...";
