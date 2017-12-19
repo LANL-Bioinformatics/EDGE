@@ -437,11 +437,12 @@ echo "
 
 install_JBrowse()
 {
+local VER=1.12.3
 echo "------------------------------------------------------------------------------
-                           Installing JBrowse-1.11.6
+                           Installing JBrowse-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf JBrowse-1.11.6.tar.gz
+tar xvzf JBrowse-$VER.tar.gz
 if [ -e $rootdir/edge_ui/JBrowse/data ]
 then
   mv $rootdir/edge_ui/JBrowse/data $rootdir/edge_ui/JBrowse_olddata
@@ -451,7 +452,7 @@ then
   rm -rf $rootdir/edge_ui/JBrowse
 fi
 
-mv JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
+mv JBrowse-$VER $rootdir/edge_ui/JBrowse
 cd $rootdir/edge_ui/JBrowse
 ./setup.sh
 if [ -e $rootdir/edge_ui/JBrowse_olddata ]
@@ -465,7 +466,7 @@ cd $rootdir/thirdParty
 #ln -sf $rootdir/thirdParty/JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
 echo "
 ------------------------------------------------------------------------------
-                           JBrowse-1.11.6 installed
+                           JBrowse-$VER installed
 ------------------------------------------------------------------------------
 "
 }
