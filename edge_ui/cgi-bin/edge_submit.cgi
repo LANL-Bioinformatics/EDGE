@@ -848,6 +848,7 @@ sub checkParams {
  			$opt{"edge-taxa-sw"}     = 0;
                         $opt{"edge-reads-sg-sw"} = 0;
  		}
+		
 		$opt{'edge-sra-sw'} = 1 if ($opt{'edge-inputS-sw'} eq "sra");
 		if ( $opt{'edge-sra-sw'}){
 			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'});
@@ -1167,7 +1168,12 @@ sub parse_qiime_mapping_files{
 		$f = "$input_dir/$f" if ($f =~ /^\w/);
 		my $file_path = "$input_dir/$qiime_dir" if ($qiime_dir =~ /^\w/);
 		my $file_column_index;
-		open (my $fh, "$f") or die "Cannot read $f\n";
+		my $fh;
+		if ($f =~ /xlsx$/){
+			open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+		}else{
+			open ($fh, "$f") or die "Cannot read $f\n";
+		}
 		while(<$fh>){
 			chomp;
 			next if (/^\n/);

@@ -20,7 +20,7 @@ use lib "$RealBin/../lib/";
 #use File::Tee qw(tee);
 use Data::Dumper;
 
-my $version=0.4;
+my $version=0.5;
 my $Qiime_version="v1.9.1";
 my $debug=0;
 
@@ -703,10 +703,15 @@ sub fix_mapping_file {
     my @fix_mapping_files;
     my %validate_options;
     foreach my $f (@$files){
-	my $basename = basename($f);
-	open (my $fh, $f) or die "Cannot open $f\n";
-	open (my $ofh, ">$outDir/$basename") or die "Cannot write $outDir/$basename\n";
-	push @fix_mapping_files, "$outDir/$basename";
+        my ($basename,$path,$suffix) = fileparse($f,qr/\.[^.]*/);
+        my $fh;
+        if ($f =~ /xlsx$/){
+            open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+        }else{
+            open ($fh, $f) or die "Cannot open $f\n";
+        }
+        open (my $ofh, ">$outDir/$basename.txt") or die "Cannot write $outDir/$basename.txt\n";
+        push @fix_mapping_files, "$outDir/$basename.txt";
 	my @header; #SampleID  BarcodeSequence  LinkerPrimerSequence Description
 	my $miss_barcode=0;
 	my $miss_primer=0;
@@ -1031,7 +1036,7 @@ sub update_index_html
         else
         {
             if ($_ =~ /bar_charts|area_charts/){
-                 my ($file)= $_ =~ /href=\"\.(\S+)\"\s/;
+                 my ($file)= $_ =~ /href=\"\.(\S+)\"\s/; 
                  $file = "$outDir/analysis$file";
                  next if ( ! -e "$file");
             }
@@ -1054,7 +1059,12 @@ sub parse_mapping_files{
     }
     foreach my $f (@{$mapping_files}){
         my $file_column_index;
-        open (my $fh, $f) or die "Cannot read $f\n";
+        my $fh;
+	if ($f =~ /xlsx$/){
+            open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+        }else{
+            open ($fh, $f) or die "Cannot read $f\n";
+        }
 	while(<$fh>){
             chomp;
             next if (/^\n/);

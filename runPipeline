@@ -524,7 +524,12 @@ sub parse_qiime_mapping_file{
     }
     foreach my $f (split /,/,$mapping_files){
             my $file_column_index;
-            open (my $fh, $f) or die "Cannot read $f\n";
+            my $fh;
+            if ($f =~ /xlsx$/){
+                open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+            }else{
+                open ($fh, $f) or die "Cannot read $f\n";
+            }
             while(<$fh>){
                 chomp;
                 next if (/^\n/);
