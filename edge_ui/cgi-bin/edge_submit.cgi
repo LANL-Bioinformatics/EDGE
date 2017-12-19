@@ -898,6 +898,8 @@ sub checkParams {
 		$opt{"edge-primer-adj-sw"} = 0 ;
 		$opt{"edge-anno-sw"} = 0 ;
 		$opt{"edge-jbroswe-sw"} = 0 ;
+		my @chartTypes=split /[\x0]/, $opt{"edge-qiime-taxa-charttype"};
+		$opt{"edge-qiime-taxa-charttype"} = join(",", @chartTypes);
 		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input"} if defined $opt{"edge-qiime-barcode-fq-file-input"};
 		foreach my $i (0..$#edge_qiime_barcode_input){
 			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);

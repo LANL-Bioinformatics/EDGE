@@ -710,6 +710,7 @@ sub runQiimeAnalysis{
     my $UPARSE_opt=$configuration->{qiime_UPARSE};
     my $barcode_files=$configuration->{qiime_barcode_file};
     my $mapping_files=$configuration->{qiime_mapping_file};
+    my $chart_type=$configuration->{qiime_chart_type} || "area,bar";
     
     if (!$mapping_files){
 	&lprint("ERROR: No mapping file");
@@ -732,6 +733,7 @@ sub runQiimeAnalysis{
     $cmd .= " -filter_taxa $negative_taxa " if($negative_taxa);
     $cmd .= " -substract_NTC $ntc_list " if($ntc_list);
     $cmd .= " -phred_offset $phred_offset ";
+    $cmd .= " -chart_type $chart_type ";
    # $cmd .= " 1>$log 2>&1 ";
     &lprint ("  Running \n  $cmd \n");
     &executeCommand($cmd);

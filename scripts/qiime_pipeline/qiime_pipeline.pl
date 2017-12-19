@@ -25,7 +25,7 @@ my $Qiime_version="v1.9.1";
 my $debug=0;
 
 my $working_dir = getcwd;
-my $EDGE_HOME = abs_path("$working_dir/../../");
+my $EDGE_HOME =($ENV{EDGE_HOME})? $ENV{EDGE_HOME}: abs_path("$RealBin/../../");
 # set up environments
 $ENV{PATH}= "$EDGE_HOME/thirdParty/Anaconda2/bin:/scratch-218819/apps/anaconda2/bin:$RealBin/scripts/:$ENV{PATH}";
 
@@ -114,6 +114,11 @@ Usage: $short_usage
                           output of the 'biom summarize-table' command to decide
                           on this value.[default: 1000]
 
+            -chart_type   This is the type of chart to plot (i.e. pie, bar or
+                          area). The user has the ability to plot multiple
+                          types, by using a comma-separated list (e.g. area,pie)
+                          [default: area,bar]
+
             -c            <INT> # of CPUs to run the script (default:4 )
 
             -t            <STRING>  Project title
@@ -146,6 +151,7 @@ my $negative_taxa;
 my $ntc_list;
 my $UPARSE_opt;
 my $target_ref;
+my $chartType="area,bar";
 #my $db_path="/mnt/lustre/refdb/usrdb/Qiime";
 #my $reference_seqs="$db_path/gg_13_8_otus/rep_set/94_otus.fasta";
 #my $reference_tree="$db_path/gg_13_8_otus/trees/94_otus.tree";
@@ -173,6 +179,7 @@ GetOptions(
            "barcode_type=s"  => \$barcode_len,
            "q=i"          => \$quality_cutoff,
            "phred_offset=i" => \$phred_offset,
+           "chart_type=s" => \$chartType,
            "e=i"          => \$sampling_depth_cutoff,
            "c|cpu=i"      => \$CPUs,
            "debug"        => \$debug,
@@ -271,6 +278,7 @@ my $core_diveristy_options="--recover_from_failure";
 
 `echo \"pick_otus:similarity $similarity\" > $parameter_file`;
 `echo \"pick_otus:enable_rev_strand_match True\" >> $parameter_file`;
+`echo plot_taxa_summary:chart_type $chartType >>$parameter_file`;
 
 my $silva_version=119;
 if ($target_ref =~ /SILVA/i){
@@ -368,6 +376,10 @@ system("cp $rep_set_tre $analysis_outputDir/rep_set.tre");
 system("gzip -fc $biom > $analysis_outputDir/table.biom.gz");
 #system("gzip -fc $otu_tables > $analysis_outputDir/OTUs.table.txt.gz");
 system("cp $otu_tables $analysis_outputDir/OTUs.table.txt");
+if ($num_sample>50){
+	# only plot area chart when large samples
+	`sed -i 's/plot_taxa_summary:chart_type [a-Z,A-Z]*/plot_taxa_summary:chart_type area/' $parameter_file`;
+}
 if ($num_sample>1)
 {
     &core_diversity_analysis($biom,$sampling_depth,$analysis_outputDir,$rep_set_tre,$core_diveristy_options);
@@ -996,10 +1008,11 @@ sub update_index_html
     open (my $ofh, ">$index") or die "Cannot write $index\n";
     while(<$fh>)
     {
+        chomp;
         if (/^<table/)
         {
             print $ofh "<h1>Project: $title</h1>\n";
-            print $ofh $_;
+            print $ofh $_,"\n";
         }
         elsif(/Master/)
         {
@@ -1017,7 +1030,12 @@ sub update_index_html
         }
         else
         {
-            print $ofh $_;
+            if ($_ =~ /bar_charts|area_charts/){
+                 my ($file)= $_ =~ /href=\"\.(\S+)\"\s/;
+                 $file = "$outDir/analysis$file";
+                 next if ( ! -e "$file");
+            }
+            print $ofh $_,"\n";
         }
     }
     close $fh;
