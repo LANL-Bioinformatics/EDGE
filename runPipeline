@@ -2742,6 +2742,7 @@ sub runAssembly
     my $AssemblerContigs;
     my $AssemblerLog;
     my $final_contig_file= "$outputDir/${project_name}_contigs.fa";
+    my $final_contig_fastG_file= "$outputDir/${project_name}_contigs.fastg";
     my $log = "$outputDir/assembly.log";
     my $contig_min_length = $configuration->{minContigSize}||200;
     my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
@@ -2869,6 +2870,16 @@ sub runAssembly
             return;
         }
         $AssemblerContigs = $intermediate_contigs[0];
+    }
+
+    ## get assembly graph file (fastG or GFA) for Bandage 
+    if ($assembler =~ /megahit/){
+        my $largest_kmer=`head -n 1 $AssemblerContigs | perl -ne '/^>k(\\d+)\\_/; print \$1;'`;
+        &executeCommand("megahit_toolkit contig2fastg $largest_kmer $AssemblerOutDir/intermediate_contigs/k$largest_kmer.contigs.fa  > $final_contig_fastG_file");
+    }elsif($assembler =~ /spades/){
+        my ($file_name, $file_path, $file_suffix)=fileparse("$AssemblerContigs", qr/\.[^.]*/);
+        &executeCommand("mv -f $file_path/assembly_graph.fastg $final_contig_fastG_file");
+        &executeCommand("mv -f $file_path/assembly_graph_with_scaffolds.gfa $outputDir/assembly_graph_with_scaffolds.gfa");
     }
 
     # rename contigs id by project name
