@@ -3145,4 +3145,256 @@ $( document ).ready(function()
 		$("#"+ $(this).attr("data-id")).show();
 	});
 //END EDGE tabs
+
+//EDGE REPORTS
+	$( "a[href=#edge-report-pipeline]" ).on( "click", function(){
+		if (umSystemStatus && localStorage.sid == ""){
+			showWarning("Please login to create a new report.");
+			return;
+		}
+		updateReportFormPage('user');
+	});
+
+	function updateReportFormPage(view) {
+		$.ajax({
+			url: "./cgi-bin/edge_projects_report.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: {'umSystem':umSystemStatus,'userType':'user','view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'form'},
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				console.log(data);
+				allMainPage.hide();
+				$( "#edge-projects-report-page" ).html(data);
+				$( "#edge-projects-report-page" ).show();
+
+				var ProjDataTable = $('#edge-report-form-table').DataTable({
+					"columnDefs": [ {"targets": 0, "orderable": false}],
+					"order": [],
+					"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+					"pageLength": 5,
+					"deferRender": true,
+					"responsive": true,
+				});
+				
+				$('#edge-reportform-ckall').on('click',function(){
+					$(this).toggleClass('selected');
+					$('.edge-reportform-ckb').prop("checked", $(this).hasClass("selected"));
+				});
+				$('#edge-report-form-table tbody').on( 'click', 'tr', function () {
+				    $(this).toggleClass('selected');
+				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
+				} );
+				$( ".edge-report-form-link").unbind('click').on('click', function(e){
+					e.preventDefault();
+					var pname = $(this).attr("data-pid");
+					if (e.altKey){
+                                                window.open(location.href.split('#')[0] +"/?proj="+pname);
+                                        }else{
+						updateReport(pname);
+						updateProject(pname);
+					}
+				});
+				
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+				$( "#edge-projects-report-page .edge-report-form-block" ).enhanceWithin();
+
+				$.getScript( "./javascript/edge-projects-report.js" )
+					.done(function( script, textStatus ) {
+					//	console.log( "edge-output.js loaded: " + textStatus );
+					})
+					.fail(function( jqxhr, settings, exception ) {
+						console.log( jqxhr, settings, exception );
+					});
+			},
+			error: function(data){
+				//console.log(data);
+				$.mobile.loading( "hide" );
+				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the report. Please REFRESH the page and try again.");
+				$( "#edge_integrity_dialog" ).popup('open');
+			}
+		});
+	};
+
+	$("#edge-report-list").on("click",function(){
+		if (umSystemStatus && localStorage.sid == ""){
+			showWarning("Please login to access report list.");
+			return;
+		}
+		updateReportListPage('user');
+	});
+
+	var reportActionErrors;
+	function updateReportListPage(view) {
+		$.ajax({
+			url: "./cgi-bin/edge_projects_report.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: {'umSystem':umSystemStatus,'userType':userType,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'list'},
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				//console.log(data);
+				allMainPage.hide();
+				
+				$( "#edge-projects-report-page" ).html(data);
+				$( "#edge-projects-report-page" ).show();
+				$( "#edge-projects-report-page" ).enhanceWithin();
+
+				var ProjDataTable = $('#edge-reports-page-table').DataTable({
+					"columnDefs": [ {"targets": 0, "orderable": false}],
+					"order": [],
+					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"pageLength": 25,
+					"deferRender": true,
+					"responsive": true,
+				});
+				$('#edge-reportlistpage-ckall').on('click',function(){
+					$(this).toggleClass('selected');
+					$('.edge-reportlist-ckb').prop("checked", $(this).hasClass("selected"));
+				});
+				$('#edge-reports-page-table tbody').on( 'click', 'tr', function () {
+				    $(this).toggleClass('selected');
+				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
+				} );
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+				$("#edge-reportlist-action").children('a').on("click", function(){
+					var action = $(this).text();
+					var actionContent = "Do you want to <span id='action_type'>"+action.toUpperCase()+"</span> reports " ;
+					
+					if ( action === "0" ){
+						return;
+					}
+					if ( $('[name="edge-reportlist-ckb"]:checked').length === 0 ){
+							showWarning("There are no reports selected.");
+							return;
+					}
+						
+					var reportnames=[];
+					var reportids=[];
+					$('[name="edge-reportlist-ckb"]:checked').each(function( event ) {
+						reportnames.push("<li>"+$(this).closest('td').next('td').find('.edge-reportpage-link').text()+"</li>");
+						reportids.push($(this).closest('td').next('td').find('.edge-reportpage-link').attr('data-rid'));
+					});
+					actionContent += '<ul>' + reportnames.join('\n') + '</ul>';
+					var focusReportCodes = reportids.join();
+					$("#edge_confirm_dialog_content").html(actionContent);
+					$( "#edge_confirm_dialog" ).enhanceWithin().popup('open');
+					if ( action === "share" || action === "unshare"){
+						setUserList("report-"+action,focusReportCodes);
+					}
+					$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+						reportActionErrors = '';
+						var actionRequest=[];
+						for (var i = 0; i < reportids.length; i++) { 
+							$.mobile.loading( "show", {
+								text: "Executing "+ action.toUpperCase()  + " command...",
+								textVisible: 1,
+								html: ""});
+							report_actionConfirm(action,reportnames[i],reportids[i],actionRequest);
+						}
+						// wait for all ajax request done
+						$.when.apply(null,actionRequest).done(function(){
+							$( "#edge_integrity_dialog" ).popup('close');
+							$( "#edge_integrity_dialog_header" ).text("Message");
+							$( "#edge_integrity_dialog" ).popup("reposition",{positionTo: 'window'});
+									
+							showWarning( 'The ' + action + ' action on report(s) is      complete.' + '<ul>' + reportnames.join('\n') + '</ul><p>'+reportActionErrors+'</p>');									
+							updateReportListPage( "user");
+									
+						});
+					});
+				});
+			},
+			error: function(data){
+				console.log(data);
+				$.mobile.loading( "hide" );
+				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the report. Please REFRESH the page and try again.");
+				$( "#edge_integrity_dialog" ).popup('open');
+			}
+		});
+	};
+
+	function report_actionConfirm(action,reportName, reportId, request) {
+		var userChkArray=[];
+		$('#edge-userList .ui-checkbox').children('label').each(function(){
+			if($(this).hasClass('ui-checkbox-on')){
+				userChkArray.push($(this).next().val());
+			}
+		});
+		var shareEmail = userChkArray.join(',');
+		var myAjaxRequest= $.ajax({
+			url: "./cgi-bin/edge_projects_report.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { 'umSystem':umSystemStatus,'protocol': location.protocol, 'sid':localStorage.sid,"shareEmail" :shareEmail,"action": action, "report" : reportName, "report_id":reportId },
+			beforeSend: function(){
+				if (!request){
+					$.mobile.loading( "show", {
+						text: "Executing "+ action.toUpperCase() +" command...",
+						textVisible: 1,
+						html: ""
+					});
+				}
+			},
+			complete: function() {
+				page.find( ".edge-action-panel" ).panel( "close" );
+			},
+			success: function(data){
+				$.mobile.loading( "hide" );
+				if( data.STATUS == "SUCCESS" ){
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					showWarning(data.INFO);
+				}
+				else{
+					reportActionErrors += data.INFO;
+					showWarning(data.INFO);
+				}
+				//reload report list if project list page is loaded
+				if( $("#edge-reportlist-page").is(":visible") && !request){
+					updateReportListPage( "user");
+				}
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+
+			}
+		});
+		if (request){
+			request.push(myAjaxRequest);
+		}
+	};
+
+//END EDGE REPORTS
 });

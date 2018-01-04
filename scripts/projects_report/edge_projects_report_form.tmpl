@@ -1,0 +1,189 @@
+<h2>New Report</h2>
+
+<form id="edge-report-form" class="edge-main-pipeline-input">
+	<div id="edge-report-form-block" class="edge-report-form-block"> 
+		<div class="ui-field-contain">
+			<label for="edge-report-name">Report Name</label>
+			<input type="text" data-mini="true" data-clear-btn="false" name="edge-report-name" id="edge-report-name" maxlength="30" placeholder="(required)">
+		</div>
+		<div class="ui-field-contain">
+			<label for="edge-report-desc">Description</label>
+			<input type="text" data-mini="true" data-clear-btn="false" name="edge-report-desc" id="edge-report-desc" maxlength="30" placeholder="(optional)">
+		</div>
+
+		<br>
+			<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" class="edge-report-projectinfo" data-collapsed="false">
+				<h4>
+					<div class="ui-field-contain edge-collapsible-options">
+						<label for="edge-pp-sw">Choose Files/Figures/Stats for the Report</label>
+					</div>
+				</h4>
+				<p class="edge_tool_note">(please check all that apply):</p>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Project/Run Information</legend>
+						<input type="checkbox" name="checkbox-report-1-1" id="checkbox-report-1-1" data-mini="true">
+						<label for="checkbox-report-1-1">Run Name</label>
+						<input type="checkbox" name="checkbox-report-1-2" id="checkbox-report-1-2" data-mini="true">
+						<label for="checkbox-report-1-2">Description</label>
+						<input type="checkbox" name="checkbox-report-1-3" id="checkbox-report-1-3" data-mini="true">
+						<label for="checkbox-report-1-3">Input Files</label>
+						<input type="checkbox" name="checkbox-report-1-4" id="checkbox-report-1-4" data-mini="true">
+						<label for="checkbox-report-1-4">Sample Metadata</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain report-metadata-list" id="report-metadata-list">
+				    <label for="metadata-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="metadata-list" id="metadata-list" data-mini="true">
+					<option value="">Sample Metadata Fields</option>
+					<option value="sample-name">Sample Name</option>
+					<option value="sample-type">Sample Type</option>
+					<option value="host">Host</option>
+					<option value="isolation-source">Isolation Source</option>
+					<option value="collection-date">Collection Date</option>
+					<option value="location">Location</option>
+					<option value="sequencing-center">Sequencing Center</option>
+					<option value="sequencer">Sequencer</option>
+					<option value="sequencing-date">Sequencing Date</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+						<legend>Pre-processing</legend>
+						<input type="checkbox" name="checkbox-report-2-1" id="checkbox-report-2-1" data-mini="true">
+						<label for="checkbox-report-2-1">Table of stats</label>
+						<input type="checkbox" name="checkbox-report-2-2" id="checkbox-report-2-2" data-mini="true">
+						<label for="checkbox-report-2-2">Figures/Files</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain report-preprocess-stats-list" id="report-preprocess-stats-list">
+				    <label for="preprocess-stats-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="preprocess-stats-list" id="preprocess-stats-list" data-mini="true">
+					<option value="">Pre-processing Stats</option>
+					<option value="raw-reads">Raw Reads</option>
+					<option value="quality-trimming">Quality Trimming</option>
+					<option value="host-removal-filter">Host Removal and Filter</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain report-preprocess-figure-list" id="report-preprocess-figure-list">
+				    <label for="preprocess-figure-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="preprocess-figure-list" id="preprocess-figure-list" data-mini="true">
+					<option value="">Pre-processing Figures/Files</option>
+					<option value="quality-trimming">Quality Trimming</option>
+					<option value="host-removal-filter">Host Removal and Filter</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+						<legend>Assembly and Annotation</legend>
+						<input type="checkbox" name="checkbox-report-3-1" id="checkbox-report-3-1" data-mini="true">
+						<label for="checkbox-report-3-1">Table of stats</label>
+						<input type="checkbox" name="checkbox-report-3-2" id="checkbox-report-3-2" data-mini="true">
+						<label for="checkbox-report-3-2">Figures/Files</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain report-aa-stats-list" id="report-aa-stats-list">
+				    <label for="aa-stats-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="aa-stats-list" id="aa-stats-list" data-mini="true">
+					<option value="">Assembly and Annotation Stats</option>
+					<option value="assembly">De Novo Assembly</option>
+					<option value="read-mapping">Read Mapping</option>
+					<option value="annotation">Annotation</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain report-aa-figure-list" id="report-aa-figure-list">
+				    <label for="aa-figure-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="aa-figure-list" id="aa-figure-list" data-mini="true">
+					<option value="">Assembly and Annotation Figures/Files</option>
+					<option value="assembly">De Novo Assembly</option>
+					<option value="read-mapping">Read Mapping</option>
+					<option value="annotation">Annotation</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+						<legend>Reference-Based Analysis</legend>
+						<input type="checkbox" name="checkbox-report-4-1" id="checkbox-report-4-1" data-mini="true">
+						<label for="checkbox-report-4-1">Table of stats</label>
+						<input type="checkbox" name="checkbox-report-4-2" id="checkbox-report-4-2" data-mini="true">
+						<label for="checkbox-report-4-2">Figures/Files</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain report-ref-stats-list" id="report-ref-stats-list">
+				    <label for="ref-stats-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="ref-stats-list" id="ref-stats-list" data-mini="true">
+					<option value="">Reference-Based Analysis Stats</option>
+					<option value="mapped-reads">Mapped Reads</option>
+					<option value="mapped-contigs">Mapped Contigs</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain report-ref-figure-list" id="report-ref-figure-list">
+				    <label for="ref-figure-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="ref-figure-list" id="ref-figure-list" data-mini="true">
+					<option value="">Reference-Based Analysis Figures/Files</option>
+					<option value="mapped-reads">Mapped Reads</option>
+					<option value="mapped-contigs">Mapped Contigs</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+						<legend>Taxonomy Classification</legend>
+						<input type="checkbox" name="checkbox-report-5-1" id="checkbox-report-5-1" data-mini="true">
+						<label for="checkbox-report-5-1">Table of stats</label>
+						<input type="checkbox" name="checkbox-report-5-2" id="checkbox-report-5-2" data-mini="true">
+						<label for="checkbox-report-5-2">Figures/files</label>
+						<input type="checkbox" name="checkbox-report-5-3" id="checkbox-report-5-3" data-mini="true">
+						<label for="checkbox-report-5-3">Tools</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain report-tax-stats-list" id="report-tax-stats-list">
+				    <label for="tax-stats-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="tax-stats-list" id="tax-stats-list" data-mini="true">
+					<option value="">Taxonomy Classification Stats</option>
+					<option value="read">Read Based</option>
+					<option value="assembly">Assembly Based</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain report-tax-figure-list" id="report-tax-figure-list">
+				    <label for="tax-figure-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="tax-figure-list" id="tax-figure-list" data-mini="true">
+					<option value="">Taxonomy Classification Figures</option>
+					<option value="read">Read Based</option>
+					<option value="assembly">Assembly Based</option>
+				    </select>
+				</div>
+				<div class="ui-field-contain report-tax-tool-list" id="report-tax-tool-list">
+				    <label for="tax-tool-select-multiple-1"></label>
+				    <select multiple="multiple" data-native-menu="false" name="tax-tool-list" id="tax-tool-list" data-mini="true">
+					<option value="">Taxonomy Classification Tools</option>
+					<option value="gottcha-b-species">GOTTCHA (bacterial species database)</option>
+					<option value="gottcha-v-species">GOTTCHA (viral species database)</option>
+					<option value="gottcha2-b-species">GOTTCHA2 (bacterial species database)</option>
+					<option value="gottcha2-v-species">GOTTCHA2 (viral species database)</option>
+					<option value="pangia">PanGIA</option>	
+					<option value="metaphlan">Metaphlan</option>
+					<option value="bwa">BWA (reads mapping)</option>
+					<option value="kraken-mini">Kraken (mini database)</option>
+					<option value="diamond">Diamond</option>			
+				    </select><br>
+					<div class="ui-field-contain">
+						<label for="tax-tool-pangia-score">PanGIA confidence score</label>
+						<input type="range" name="tax-tool-pangia-score" id="tax-tool-pangia-score" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.90" step=".01">
+					</div>
+				</div>
+			</div>
+	</div>
+
+	<br>
+	<h4><font color='#4985b8'>Choose Projects for the Report</font></h4>
+	<PROJECT-LIST PLACEHOLDER>
+
+	<br><br>
+	<div class="edge-center">
+		<input data-mini="true" type="button" id="edge-projects-report-form-submit" data-inline="true" class="edge-center" value="Create New Report">
+		<input data-mini="true" type="button" id="edge-projects-report-form-cancel" data-inline="true" class="edge-center" value="Cancel">
+	</div>
+</form><!-- end edge-report -->
+
+
+

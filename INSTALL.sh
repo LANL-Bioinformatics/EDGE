@@ -2054,10 +2054,17 @@ else
 fi
 if [ ! -d $rootdir/edge_ui/EDGE_output/ ]
 then
-   	echo "Setting up EDGE_output/"
+   	echo "Setting up EDGE_output"
    	mkdir -p $HOME/EDGE_output
 	rm -rf $rootdir/edge_ui/EDGE_output
 	ln -sf $HOME/EDGE_output $rootdir/edge_ui/EDGE_output
+fi
+if [ ! -d $rootdir/edge_ui/EDGE_report/ ]
+then
+   	echo "Setting up EDGE_report"
+   	mkdir -p $HOME/EDGE_report
+	rm -rf $rootdir/edge_ui/EDGE_report
+	ln -sf $HOME/EDGE_report $rootdir/edge_ui/EDGE_report
 fi
 
 if [ -f $HOME/.bashrc ]

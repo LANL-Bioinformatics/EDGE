@@ -180,6 +180,21 @@ elsif ($action eq "share" || $action eq "unshare"){
 		$info->{error} = "Invalid session.\n";
 	}
 }
+elsif ($action eq "report-share" || $action eq "report-unshare"){
+	my $valid = verifySession($sid);
+	
+	if( $valid ){
+		my $service = "WS/user/admin/getUsers"; 
+		%data = (
+		    	admin_email => $edgeui_admin,
+		    	admin_password => $edgeui_adminpw,
+    	    	);
+	    	my $data = to_json(\%data);
+	    	&um_service($um_url,$data,$service);
+	} else{
+		$info->{error} = "Invalid session.\n";
+	}
+}
 
 #$info->{SUCCESS} = "login is successful";
 #$info->{error}  = "username or password is wrong";
