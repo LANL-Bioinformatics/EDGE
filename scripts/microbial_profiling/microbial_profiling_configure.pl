@@ -62,14 +62,14 @@ $opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.
 #PanGIA configs
 my $config_json = readListFromJson($opt{"configJson"});
 $opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$EDGE_HOME/database/PanGIA/NCBI_genomes_111216_p_GRCh38.fa";
-$opt{"pangia-bg"} = "$EDGE_HOME/database/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
+$opt{"pangia-bg"} = "-b $EDGE_HOME/database/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
 $opt{"pangia-ra"} = $config_json->{"edge-taxa-pangia-ra"} || "READ_COUNT";
 $opt{"pangia-ms"} = $config_json->{"edge-taxa-pangia-ms"} || "0" ;
 $opt{"pangia-mr"} = $config_json->{"edge-taxa-pangia-mr"} || "3" ;
 $opt{"pangia-mb"} = $config_json->{"edge-taxa-pangia-mb"} || "1" ;
 $opt{"pangia-ml"} = $config_json->{"edge-taxa-pangia-ml"} || "50";
 $opt{"pangia-rc"} = $config_json->{"edge-taxa-pangia-rc"} || "R_MAT";
-$opt{"pangia-opts"} = "";
+#$opt{"pangia-opts"} = "";
 $opt{"pangia-opts"} = "-ps" if $config_json->{"edge-taxa-pangia-ps-sw"};
 
 my @tools = split /,/, $opt{'tools'};
