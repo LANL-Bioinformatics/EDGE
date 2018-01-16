@@ -1206,7 +1206,8 @@
 						</table>
 						<TMPL_IF NAME=SGRARHIT>
 								<span class="li-report-content-title">Antibiotics Resistance Gene Markers</span>
-								<table id="sgrar-table" data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+								<!--<table id="sgrar-table" data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>-->
+								<table id="sgrar-table" data-role='none' class='output-table display SGtable' width="100%" cellspacing="0">
 									<thead>
 										<tr>
 										<th data-priority='1'>Family</th>
@@ -1241,17 +1242,23 @@
 						
 								</div><!-- Grid Block -->
 								<div data-role='main' class="ui-content" id='sgrvf'>
-									<h4>VF INFO<h4>
-									<ul data-role='listview'>
+									<div data-role="fieldcontain" class='edge-right'>expand |<a data-ajax='false' href='#' class='edge-sgout-expand-all'> all </a>|<a data-ajax='false' href='#' class='edge-sgout-expand-none'> none </a>
+										<div class="ui-filterable">
+											<input id="edge-sgrvf-list" data-mini="true" data-type="search" placeholder="filter">
+										</div>
+									</div>
+									<ul data-filter="true" data-input="#edge-sgrvf-list" class="edge-sgout-loop-li">
 										<TMPL_LOOP NAME=LOOP_SGRVF_CLASS_RES>
-										<li><div data-role='collapsible'> <!-- Class -->
-											<h4>VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></h4>
-											<ul data-role='listview'> <!-- Class -->
+										<li><span class='li-report-content-title'> <!-- Class -->
+											VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></span>
+											<ul class='li-report-content'> <!-- Class -->
 												<TMPL_LOOP NAME=LOOP_VF_RES>
-												<li><div data-role='collapsible'> <!-- VF -->
-													<h4>Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></h4>
-														<table data-role='table' class='output-table ui-responsive'>
+												<li><span class='li-report-content-title'> <!-- VF -->
+													Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></span>
+													<div class='li-report-content'>
+														<table data-role="none" cellspacing="0" class='output-table display SGtable' width="100%">
 															<thead>
+																<tr>
 																<th>VF Gene</th>
 																<th>VF Number</th>
 																<th>Accession</th>
@@ -1259,6 +1266,7 @@
 																<th>Typically Found On</th>
 																<th>Found In</th>
 																<th>VFDB Info</th>
+																</tr>
 															</thead>
 															<TMPL_LOOP NAME=LOOP_DETAIL_RES>
 															<tr>
@@ -1272,10 +1280,11 @@
 															</tr>
 															</TMPL_LOOP>
 														</table>
-												</div></li><!-- VF -->
+													</div>
+												</li><!-- VF -->
 												</TMPL_LOOP>
 											</ul><!-- Class -->
-										</div></li><!-- Class -->
+										</li><!-- Class -->
 										</TMPL_LOOP>
 									</ul>
 								</div> <!-- VF Lists -->
@@ -1304,16 +1313,23 @@
 						  </tbody>
 						</table>
 						<TMPL_IF NAME=SGOARHIT>
-							<span class="li-report-content-title"><h3>Antibiotic Resistance Genes</span>
-							 <div class="li-report-content">
-								 <div data-role='main' class="ui-content" id='sgoar'>
-									<ul data-role='listview'>
-									<h4>AR INFO</h4>
+							<ul><li><span class="li-report-content-title">Antibiotic Resistance Gene</span>
+							<div class="li-report-content" id='sgoar'>
+								<div data-role="fieldcontain" class='edge-right'>expand |<a data-ajax='false' href='#' class='edge-sgout-expand-all'> all </a>|<a data-ajax='false' href='#' class='edge-sgout-expand-none'> none </a>
+									<div class="ui-filterable">
+										<input id="edge-sgoar-list" data-mini="true" data-type="search" placeholder="filter">
+									</div>
+
+								</div>
+								<ul data-filter="true" data-input="#edge-sgoar-list" class="edge-sgout-loop-li">
 									<TMPL_LOOP NAME=LOOP_SGOAR_CAT_RES>
-									<li><div data-role='collapsible'> <!-- VF -->
-										<h4>AR Category: <strong><TMPL_VAR NAME=ARCATEGORY DEFAULT=AR></strong> Number of Genes: <strong><TMPL_VAR NAME=ARCATEGORY_COUNT DEFAULT=0></strong></h4>
-											<table data-role='table' class='output-table ui-responsive'>
+									<li><span class='li-report-content-title'> <!-- VF -->
+										 AR Category: <strong><TMPL_VAR NAME=ARCATEGORY DEFAULT=AR></strong> Number of Genes: <strong><TMPL_VAR NAME=ARCATEGORY_COUNT DEFAULT=0></strong></span>
+										<div class="li-report-content">
+											<table data-role="none" cellspacing="0" class='output-table display SGtable' width="100%">
+											<!--<table data-role='table' class='output-table ui-responsive'>-->
 												<thead>
+													<tr>
 													<th>ARO Name</th>
 													<th>Confidence</th>
 													
@@ -1324,7 +1340,9 @@
 													<th>SNPs</th>
 													<th>ARO Categories</th>
 													<th>Other Hits</th>
+													</tr>
 												</thead>
+												<tbody>
 												<TMPL_LOOP NAME=LOOP_DETAIL_RES>
 												<tr>
 													<td><TMPL_VAR NAME=BESTHIT DEFAULT=-></td>
@@ -1339,15 +1357,17 @@
 													<td><TMPL_VAR NAME=OTHERHITS DEFAULT=-></td>
 												</tr>
 												</TMPL_LOOP>
+												</tbody>
 											</table>
-									</div></li><!-- VF -->
+										</div>
+									</li><!-- VF -->
 									</TMPL_LOOP>
-									</ul>
-								</div>
+								</ul>
 							</div>
+							</li>
 						</TMPL_IF> <!-- SGOARHIT -->
 						<TMPL_IF NAME=SGOVFHIT>
-							<span class="li-report-content-title"><h3>Virulence Genes</h3></span>
+							<li><span class="li-report-content-title">Virulence Genes</span>
 							<div class="li-report-content">
 								<div class="ui-grid-a ui-responsive edge-taxa-report">	
 									<div class="ui-block-b krona_ploti" style="border: 1px solid #ddd; height:400px;">
@@ -1357,16 +1377,21 @@
 									</div> <!-- Krona Block -->
 								</div> <!-- Grid Block-->
 								<div data-role='main' class="ui-content" id='sgovf'>
-									<h4>VF INFO</h4>
-									<ul data-role='listview'><!-- Genus -->
+									<div data-role="fieldcontain" class='edge-right'>expand |<a data-ajax='false' href='#' class='edge-sgout-expand-all'> all </a>|<a data-ajax='false' href='#' class='edge-sgout-expand-none'> none </a>
+										<div class="ui-filterable">
+											<input id="edge-sgovf-list" data-mini="true" data-type="search" placeholder="filter">
+										</div>
+									</div>
+									<ul data-filter="true" data-input="#edge-sgovf-list" class="edge-sgout-loop-li"><!-- Genus -->	
 										<TMPL_LOOP NAME=LOOP_SGOVF_CLASS_RES>
-										<li><div data-role='collapsible'> <!-- Class -->
-											<h4>VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></h4>
-											<ul data-role='listview'> <!-- Class -->
+										<li><span class='li-report-content-title'> <!-- Class -->
+											VF Class: <strong><TMPL_VAR NAME=VFCLASS DEFAULT=CLASS></strong> Number of Genes: <strong><TMPL_VAR NAME=VFCLASS_COUNT DEFAULT=0></strong></span>
+											<ul class="li-report-content"> <!-- Class -->
 												<TMPL_LOOP NAME=LOOP_VF_RES>
-												<li><div data-role='collapsible'> <!-- VF -->
-													<h4>Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></h4>
-														<table data-role='table' class='output-table ui-responsive'>
+												<li><span class='li-report-content-title'> <!-- VF -->
+													Virulence Factor: <strong><TMPL_VAR NAME=VFVF DEFAULT=VF></strong> Number of Genes: <strong><TMPL_VAR NAME=VFVF_COUNT DEFAULT=0></strong></span>
+													<div class="li-report-content">
+														<table data-role="none" class='output-table SGtable display' width="100%">
 															<thead>
 																<th>VF Gene</th>
 																<th>VF Number</th>
@@ -1375,6 +1400,7 @@
 																<th>Found In</th>
 																<th>VFDB Info</th>
 															</thead>
+															<tbody>
 															<TMPL_LOOP NAME=LOOP_DETAIL_RES>
 															<tr>
 																<td><TMPL_VAR NAME=VFGENE DEFAULT=-></td>
@@ -1385,15 +1411,18 @@
 																<td><TMPL_VAR NAME=VFVFDBINFO DEFAULT=-></td>
 															</tr>
 															</TMPL_LOOP>
+															</tbody>
 														</table>
-												</div></li><!-- VF -->
+													</div>
+												</li><!-- VF -->
 												</TMPL_LOOP>
 											</ul><!-- Class -->
-										</div></li><!-- Class -->
+										</li><!-- Class -->
 										</TMPL_LOOP>
 									</ul>
 								</div> <!-- VF Lists -->
 							</div> <!-- Virulence Gene Markers -->
+							</li>
 						</TMPL_IF> <!-- SGOVFHIT -->
 				
 						<p class='extra-text-link'>Link to 
