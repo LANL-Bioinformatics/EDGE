@@ -461,8 +461,8 @@ sub runPipeline {
     	
     	
 		if ($opt{"edge-batch-input-excel"}){
-			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
-    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
+			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"} ||  $projlist->{$pname}->{"q1"}=~ /^http|ftp/i);
+    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"} ||  $projlist->{$pname}->{"s"}=~ /^http|ftp/i);
 		}else{
 			for (0..$#edge_input_pe1)
 			{
@@ -535,8 +535,8 @@ sub runPipeline_cluster {
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
  	   	if ($opt{"edge-batch-input-excel"}){
-    		$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"});
-    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"});
+    		$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"} ||  $projlist->{$pname}->{"q1"}=~ /^http|ftp/i);
+    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"} || $projlist->{$pname}->{"s"}=~  /^http|ftp/i);
 		}else{
 			for (0..$#edge_input_pe1)
 			{
@@ -750,9 +750,9 @@ sub checkParams {
 	if (  $opt{"edge-batch-input-excel"} ){ ## batch input
 		my %namesUsed;
 		foreach my $pname (keys %{$projlist}){
-			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/);
-    		$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/);
-    		$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}" if ($projlist->{$pname}->{"s"} =~ /^\w/);
+			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
+    		$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
+    		$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}" if ($projlist->{$pname}->{"s"} =~ /^\w/ && $projlist->{$pname}->{"s"} !~ /^http|ftp/i);
     		my $pe1=$projlist->{$pname}->{"q1"};
     		my $pe2=$projlist->{$pname}->{"q2"};
 			my $se=$projlist->{$pname}->{"s"};
@@ -767,11 +767,11 @@ sub checkParams {
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname.") if (-f $pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname.") if (-f $pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if (-f $se && $se !~ /^http|ftp/i && ! -e $se);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file path of $pname.") if (! -f $se && ! -f $pe1 && ! -f $pe2);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if ($se && $se !~ /^http|ftp/i && ! -e $se);
+    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2);
     	}
 	}else{  ## Single project input
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
