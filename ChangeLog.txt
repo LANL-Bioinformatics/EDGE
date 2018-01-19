@@ -1,5 +1,5 @@
 -- Version devel
-2017/11/01
+2018/01/16
 1. Add mummerplot for contig to reference dotplot
 2. Add .gz support for provided contigs fasta
 3. Convert upload text file newlines to UNIX format.
@@ -16,7 +16,7 @@
 14. QC: raise the opt_q=20 if data is NextSeq
 15. Wrap R packages and Python (Anaconda2 and Anaconda3) Packages for no internet installation.
 16. Add PanGIA Bioinformatics Pipeline
-17. Update SPAdes from 3.7.1 to 3.9.1 
+17. Update SPAdes from 3.7.1 to 3.11.1 
 18. R version 2.15.3 to 3.3.2
 19. Add metagenome option for prokka annotation 
 20. Add wget as download interface for sra/file download
@@ -43,12 +43,16 @@
 41. Add script to print tool version
 42. Add contig only input function
 43. Add omics pathway viewer tool 
-44. Update FaQCs to version 2.02. speed up 10x
+44. Update FaQCs to version 2.06. speed up 10x
 45. Support gz on provided contig file
 46. Reduce memory usge for runReadsToGenome to large/many Genomes
 47. Add consensus pipeline
 48. Add Diamond aligner version 0.9.10
 49. Use JSON::XS to speed json decoding 
+50. Add meta data in EXCEL(xlsx format) support for qiime pipeline
+51. Add consensus JBrowse Track. 
+52. Update JBrowse from 1.11.6 to 1.12.3. 
+53. Add find repeats (self_nucmer) script and add JBrowse tracks for repeats
 
 GUI update:
 1. Add NCBI link for reads to reference accession
@@ -85,6 +89,9 @@ GUI update:
 32. Add Options for Consensus pipeline
 33. Add Diamond protein based taxonomy classifier
 34. Add security check for uploading files, need session id and targetDir
+35. Add chart_type option for qiime pipeline
+36. Add multiple projects report pipeline
+36. Redesign the Gene Family module output table.
 
 New Databases;
 GOTTCHA2: RefSeq-Release81.Virus, RefSeq-Release81.Bacteria
