@@ -1048,7 +1048,7 @@ sub check_reference_genome
              if ($file_suffix =~ /gz/){
                  &executeCommand("gunzip -c $file > $ref_fasta_file");
              }else{
-                 &executeCommand("cp $file $ref_fasta_file");
+                 &executeCommand("awk 'NF > 0 {print \$0}' $file > $ref_fasta_file");
              }
          }
          $referenceGenome_r->[$file_i] = $ref_fasta_file;
