@@ -644,6 +644,7 @@ sub runJoinPE{
 
     my $maxDiffPerc = $configuration->{"fastqjoin-maxdiff"} || 8;
     my $minOverlap = $configuration->{"fastqjoin-minoverlap"} || 6;
+    my $useJoinedPEonly = ($configuration->{"fastqjoin-usejoined-only"})? $configuration->{"fastqjoin-usejoined-only"} : "0";
     `mkdir -p $outputDir`;
     if ($noColorLog)
     {
@@ -659,7 +660,11 @@ sub runJoinPE{
     }
     if ( -e "$outputDir/reads.join.fastq" && -e "$outputDir/runJoinPE.finished"){
         &lprint("Join PE Reads Finished\n");
-        return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+        if ($useJoinedPEonly){
+            return ("","$unpairedFile");
+        }else{
+            return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+        }
     }
     my $command = "fastq-join -r $outputDir/mergeLen_dist.txt -p $maxDiffPerc -m $minOverlap $pairedFile -o $outputDir/reads.\%.fastq > $log";
     &lprint ("  Running \n  $command \n");
@@ -667,13 +672,17 @@ sub runJoinPE{
     system("touch $outputDir/runJoinPE.finished");
     &printRunTime($time);
     if ( -s "$outputDir/reads.join.fastq"){
-        if($unpairedFile){
+        if($unpairedFile && !$useJoinedPEonly){
             &executeCommand("cat $outputDir/reads.join.fastq >> $unpairedFile");
         }else{
             $unpairedFile = "$outputDir/reads.join.fastq";
         }
     }
-    return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+    if ($useJoinedPEonly){
+        return ("","$unpairedFile");
+    }else{
+        return ("$outputDir/reads.un1.fastq $outputDir/reads.un2.fastq","$unpairedFile");
+    }
 }
 
 sub runQiimeAnalysis{
