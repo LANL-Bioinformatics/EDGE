@@ -38,8 +38,14 @@ sub check_tools{
 		},
 		'samtools' => {
 			GETVER  => "samtools 2>\&1| grep 'Version'",
-			REGEXP  => qr/Version:\s+(\d+\.\d+\.\d+)/,
+			REGEXP  => qr/Version:\s+(\d+\.\d+\.?\d*)/,
 			CITATION  => "Li, H., et al. (2009) The Sequence Alignment/Map format and SAMtools, Bioinformatics, 25, 2078-2079.",
+			LICENSE => "MIT"
+		},
+		'bcftools' => {
+			GETVER  => "bcftools 2>\&1| grep 'Version'",
+			REGEXP  => qr/Version:\s+(\d+\.\d+\.?\d*)/,
+			CITATION  => "Li H (2011), A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data, Bioinformatics 27(21) 2987-93.",
 			LICENSE => "MIT"
 		},
 		'BWA' => {
@@ -323,6 +329,12 @@ sub check_tools{
 			REGEXP => qr/(\d+\.\d+\.\d+)/,
 			CITATION => "Caporaso et al. (2010) QIIME allows analysis of high-throughput community sequencing data. Nat Methods. 2010 May;7(5):335-6",
 			LICENSE => "GPLv2"
+		},
+		'minimap2' => {
+			GETVER  => "minimap2 --version",
+			REGEXP  => qr/(\d+\.\d+\.?\d*)-/,
+			CITATION  => "Li, H. (2017). Minimap2: fast pairwise alignment for long nucleotide sequences. arXiv:1708.01492",
+			LICENSE => "MIT"
 		},
 		'TargetedNGS' => {
 			GETVER => "../thirdParty/targetngs/targetedNGS -v",

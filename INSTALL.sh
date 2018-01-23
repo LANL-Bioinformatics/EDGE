@@ -14,8 +14,8 @@ export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_
 
 assembly_tools=( idba spades megahit )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit ea-utils omics-pathway-viewer Rpackages )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer Rpackages )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
@@ -331,9 +331,9 @@ echo "--------------------------------------------------------------------------
 # echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript -
 tar xzf R_3.3.2_Packages.tgz  
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
-echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
-echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
-echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
+echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 rm -r R_3.3.2_Packages/
 # need internet for following R packages.
 # echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
@@ -769,6 +769,24 @@ echo "
 "
 }
 
+install_minimap2()
+{
+local VER=2.7
+echo "------------------------------------------------------------------------------
+                           Compiling minimap2 $VER
+------------------------------------------------------------------------------
+"
+tar xvzf minimap2-${VER}_x64-linux.tgz
+cd minimap2-${VER}_x64-linux
+cp minimap2 $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           minimap2 compiled
+------------------------------------------------------------------------------
+"
+}
+
 install_RAPSearch2()
 {
 local VER=2.23
@@ -859,19 +877,41 @@ echo "
 
 install_samtools()
 {
+local VER=1.6
 echo "------------------------------------------------------------------------------
-                           Compiling samtools 0.1.19
+                           Compiling samtools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf samtools-0.1.19.tar.gz
-cd samtools-0.1.19
-make CFLAGS='-g -fPIC -Wall -O2'
-cp samtools $rootdir/bin/.
-cp bcftools/bcftools $rootdir/bin/.
+tar xvzf samtools-$VER.tar.gz
+cd samtools-1.6
+#make CFLAGS='-g -fPIC -Wall -O2'
+./configure --prefix=$rootdir
+make
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           samtools compiled
+                           samtools $VER compiled
+------------------------------------------------------------------------------
+"
+}
+
+install_bcftools()
+{
+local VER=1.6
+echo "------------------------------------------------------------------------------
+                           Compiling bcftools-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf bcftools-$VER.tar.gz
+cd bcftools-1.6
+./configure --prefix=$rootdir
+make
+make install
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           bcftools $VER compiled
 ------------------------------------------------------------------------------
 "
 }
@@ -1717,6 +1757,20 @@ else
   install_diamond
 fi
 
+if ( checkSystemInstallation minimap2 )
+then
+  minimap2_VER=`minimap2 --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  if  ( echo $minimap2_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
+  then
+    echo "minimap2 $minimap2_VER found"
+  else
+    install_minimap2
+  fi
+else
+  echo "minimap2 is not found"
+  install_minimap2
+fi
+
 if ( checkLocalInstallation bwa )
 then
   echo "bwa is found"
@@ -1727,10 +1781,36 @@ fi
 
 if ( checkLocalInstallation samtools )
 then
-  echo "samtools is found"
+  samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+.\d+)}'`;
+  if [ -z "$samtools_installed_VER" ]
+  then
+      samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`; 
+  fi
+  if  ( echo $samtools_installed_VER | awk '{if($1>=1.3) exit 0; else exit 1}' )
+  then
+      echo "samtools is found"
+  else
+      echo "samtools is not found"
+      install_samtools
 else
-  echo "samtools is not found"
   install_samtools
+fi
+
+if ( checkLocalInstallation bcftools )
+then
+  bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+.\d+)}'`;
+  if [ -z "$bcftools_installed_VER" ]
+  then
+      bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`;
+  fi
+  if  ( echo $bcftools_installed_VER | awk '{if($1>=1.3) exit 0; else exit 1}' )
+  then
+      echo "bcftools is found"
+  else
+      echo "bcftools is not found"
+      install_bcftools
+else
+  install_bcftools
 fi
 
 if ( checkLocalInstallation nucmer )
@@ -2061,8 +2141,8 @@ then
 fi
 if [ ! -d $rootdir/edge_ui/EDGE_report/ ]
 then
-   	echo "Setting up EDGE_report"
-   	mkdir -p $HOME/EDGE_report
+	echo "Setting up EDGE_report"
+	mkdir -p $HOME/EDGE_report
 	rm -rf $rootdir/edge_ui/EDGE_report
 	ln -sf $HOME/EDGE_report $rootdir/edge_ui/EDGE_report
 fi
