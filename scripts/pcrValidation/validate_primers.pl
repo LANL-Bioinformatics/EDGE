@@ -45,7 +45,7 @@ if ( ! -e "$ref_file.bwt")
 
 # run bwa mapping
 system("bwa mem -t $numCPUs -p -k 5 -A 1 -B 1 -O 3 -E 1 -T 5 -v 1 $ref_file $primerRenameFile > $outDir/$prefix.sam 2>/dev/null");
-system("samtools view -huS $outDir/$prefix.sam | samtools sort - $outDir/$prefix");
+system("samtools view -huS $outDir/$prefix.sam | samtools sort -T $outDir -O BAM -o $outDir/$prefix.bam -" );
 system("rm $ref_file.*") if (-e "$ref_file.bwt");
         
 open (my $sam_fh, "$outDir/$prefix.sam") or die "Cannot read $outDir/$prefix.sam\n";
@@ -133,7 +133,7 @@ while(<$sam_fh>)
             $result{$samFields[0]} .= "PCR success! \n" . $reason;
             if ($samFields[6] ne "=")
             {
-                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to different input sequences. ($samFields[2] vs $samFields[6])\n";
+                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to differenct input sequences. ($samFields[2] vs $samFields[6])\n";
             }
             else
             {

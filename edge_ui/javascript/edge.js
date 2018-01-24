@@ -79,14 +79,18 @@ $( document ).ready(function()
 	edge_ui_init();
 	sync_input(); //sync input with switch
 	integrityCheck();
+	//foldLeftPanel();
 	//updateProject(focusProjName);
 	
 	allMainPage.hide();
 	$( "#edge-content-home" ).fadeIn();
+	//$( "#edge-content-intro" ).fadeIn();
 	
 	$( "a[href=#edge-content-home]" ).on( "click", function(){
 		allMainPage.hide();
 		$( "#edge-content-home" ).fadeIn();
+		//$( "#edge-content-intro" ).fadeIn();
+		//foldLeftPanel();
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
@@ -634,7 +638,7 @@ $( document ).ready(function()
 		'content', $('<span>Click <a href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#usage" target="_blank">Bowtie2 options</a> or <a href="http://bio-bwa.sourceforge.net/bwa.shtml#3" target="_blank">BWA mem options</a> for detail.</span>')
 	);
 	$('#edge-variantcall-tooltip').tooltipster(
-		'content', $('<span>EDGE will use samtools/bcftools (version 0.1.20) to call variants. <a href="http://samtools.sourceforge.net/mpileup.shtml" target="_blank">Detailed.</a></span>')
+		'content', $('<span>EDGE will use samtools/bcftools (version 1.6) to call variants. <a href="http://www.htslib.org/workflow/#mapping_to_variant" target="_blank">Detailed.</a></span>')
 	);
 	$('#edge-megahit-preset-l').tooltipster(
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr><tr><td>bulk</td><td>Experimental; assembly of standard bulk sequencing with sufficient depth</td></tr><tr><td>single-cell</td><td>Experimental; single-cell sequence assembly</td></tr></table></span>')
@@ -1263,7 +1267,11 @@ $( document ).ready(function()
 			$( "#edge-navmenu-panel" ).css("width","25%");
 		}
 	});
-
+	function foldLeftPanel(){
+		$( "#panel-folder-btn" ).removeClass("ui-icon-carat-l").addClass("ui-icon-carat-r");
+		$( "#edge-navmenu-panel" ).animate({ "left": "-="+w+"px" }, "fast" );
+		$( "#edge-navmenu-panel" ).css("width","0px");
+	}
 	//update report
 	var testKronaAnimation;
 	function updateReport(pname) {

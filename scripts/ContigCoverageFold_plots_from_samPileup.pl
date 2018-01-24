@@ -139,7 +139,7 @@ foreach my $id (sort {$seq_hash{$b}->{len}<=>$seq_hash{$a}->{len}}  keys %seq_ha
      $total_fold += $fold;
      $total_covered_base += $covered_base;
      $total_base += $len;
-     if ($cov_cut_off>0 and $cov > $cov_cut_off){ 
+     if ($cov_cut_off>0 and $cov >= $cov_cut_off){ 
        my $seq = $seq_hash{$id}->{seq};
        $seq =~ s/(.{80})/$1\n/g; 
        chomp $seq;
@@ -152,7 +152,7 @@ foreach my $id (sort {$seq_hash{$b}->{len}<=>$seq_hash{$a}->{len}}  keys %seq_ha
            $seq_hash{$id}->{GC} * 100,
            $each_id_avg_fold,
            $within_contig_sd,
-           $cov) if ($cov > $cov_cut_off);
+           $cov) if ($cov >= $cov_cut_off);
            
      if ($seq_hash{$id}->{len} > $len_cut_off){      
        #print OUT3 1+$end,"\t", $end+$seq_hash{$id}->{len},"\n";
@@ -173,7 +173,7 @@ printf "Avg_coverage_fold:\t%.4f\n", $avg_cov_fold;
 printf "Coverage:\t%.4f%%\n", $coverage;
 
 
-open (Rscript, ">/tmp/Rscript$$");
+open (Rscript, ">$path/Rscript$$");
 
   print Rscript "
 #jpeg(filename=\"${file_name}_base_coverage.jpg\",width=1024,height=640,quality=100)
@@ -248,8 +248,8 @@ tmp<-dev.off();
 quit();
 ";
 
-  if (system ("R --vanilla --slave --silent < /tmp/Rscript$$ 2>/dev/null")) {warn "$!\n"};
-  unlink "/tmp/Rscript$$";
+  if (system ("R --vanilla --slave --silent < $path/Rscript$$ 2>/dev/null")) {warn "$!\n"};
+  unlink "$path/Rscript$$";
   unlink "Rplots.pdf" if ( -e "Rplots.pdf");
 
 

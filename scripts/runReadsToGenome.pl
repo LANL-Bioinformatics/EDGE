@@ -1,9 +1,9 @@
 #! /usr/bin/env perl
 # required: 1. R
-#           2. samtools 0.1.19
+#           2. samtools >1.1
 #           3. bwa 0.6 
 #           4. bowtie2
-#           5. bcftools  (from samtools package)
+#           5. bcftools > 1.1 
 #           6. vcfutils.pl  (from samtools package)
 #           7. snap
 #     input: paired reads files: forward.fasta/q and reverse.fasta/q
@@ -19,6 +19,7 @@
 # 20110617 window size coverage plot
 # 20120112 add -aligner
 # 20120327 add proper and unproper paired comparision plot and -plot_only flag
+# 20180123 use samtools 1.6 and bcftools 1.6 
 
 use Getopt::Long;
 use File::Basename;
@@ -37,6 +38,7 @@ my $file_long="";
 my $singleton="";
 my $paired_files="";
 my $bwa_options="-t 4 ";
+my $minimap2_options="-t 4 ";
 my $bowtie_options="-p 4 -a ";
 my $snap_options="-t 4 -M ";
 my $cov_cut_off=80;
@@ -50,6 +52,13 @@ my $plot_only=0;
 my $skip_aln=0;
 my $no_plot=0;
 my $no_snp=0;
+my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
+# varinat filter
+my $min_alt_bases=3;  # minimum number of alternate bases
+my $max_depth=1000000; # maximum read depth
+my $min_depth=7; #minimum read depth
+my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
+
 
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
  
@@ -66,8 +75,14 @@ GetOptions(
             'bwa_options=s' => \$bwa_options,
             'bowtie_options=s' => \$bowtie_options,
             'snap_options=s'  => \$snap_options,
+            'minimap2_options=s'  => \$minimap2_options,
             'pacbio' => \$pacbio,
             'consensus=i' => \$gen_consensus,
+            'min_indel_candidate_depth' => \$min_indel_candidate_depth,
+            'min_alt_bases' => \$min_alt_bases,
+            'max_depth' => \$max_depth,
+            'min_depth' => \$min_depth,
+            'snp_gap_filter' => \$snp_gap_filter,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
             'no_plot'   => \$no_plot,
@@ -111,13 +126,11 @@ if (! -e $outDir)
      mkdir $outDir;
 }
 my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
+my ($minimap2_threads)= $minimap2_options =~ /-t (\d+)/;
 my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
 my ($snap_threads)= $snap_options =~ /-t (\d+)/;
 my $samtools_threads;
-$samtools_threads = $bwa_threads if ($aligner =~ /bwa/); 
-$samtools_threads = $bowtie_threads if ($aligner =~ /bowtie/); 
-$samtools_threads = $snap_threads if ($aligner =~ /snap/); 
-$samtools_threads = 1 if (!$samtools_threads);
+$samtools_threads = $bwa_threads || $bowtie_threads || $snap_threads || $minimap2_threads || 1; 
 
 my @bam_outputs;
 for my $ref_file_i ( 0..$#ref_files ){
@@ -145,7 +158,15 @@ for my $ref_file_i ( 0..$#ref_files ){
     		$ref_file=&fold($ref_file);
     		`snap-aligner index $ref_file $ref_file.snap -bSpace `;
 	}
+	elsif ($aligner =~ /minimap2/i ){
+    		# fold sequence in 100 bp per line (samtools cannot accept > 65535 bp one line sequence)
+    		$ref_file=&fold($ref_file);
+    		`minimap2 -d $tmp/$ref_file_name.mmi $ref_file `;
+	}
 	$ref_files[$ref_file_i]=$ref_file;
+	## index reference sequence 
+	`samtools faidx $ref_file`;
+
 	if ($file_long)
 	{
    		print "Mapping long reads to $ref_file_name\n";
@@ -156,11 +177,11 @@ for my $ref_file_i ( 0..$#ref_files ){
   		{
      			if ($pacbio){
 				# `bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem -x pacbio $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - | samtools sort -m 1G -@ $samtools_threads  - $outDir/LongReads$$ `;
+				`bwa mem -x pacbio $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - `;
      			}
 			else{
 				#`bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -m 1G -@ $samtools_threads - $outDir/LongReads$$`;
+				`bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam`;
 			}
 		#my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
   		#`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
@@ -168,7 +189,12 @@ for my $ref_file_i ( 0..$#ref_files ){
 		elsif ($aligner =~ /snap/i){
 			`snap-aligner single $ref_file.snap $file_long -o $outDir/LongReads$$.sam $snap_options`;
 		}
-		`samtools view -@ $samtools_threads -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$` if ( -s "$outDir/LongReads$$.sam");
+		elsif ($aligner =~ /minimap2/i){
+			`minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
+		}
+
+
+		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/LongReads$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam` if ( -s "$outDir/LongReads$$.sam");
 	}
 	if ($paired_files){
 		print "Mapping paired end reads to $ref_file_name\n";
@@ -185,12 +211,15 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa sampe -a 100000 $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS -| samtools sort -m 1G -@ $samtools_threads - $outDir/paired$$ `;
+			`bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS -| samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam `;
 		}
 		elsif ($aligner =~ /snap/i){
 			`snap-aligner paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
 		}
-		`samtools view -@ $samtools_threads -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$` if (-s "$outDir/paired$$.sam");
+		elsif ($aligner =~ /minimap2/i){
+			`minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
+		}
+		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/paired$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
 	}
 
 	if ($singleton){
@@ -207,12 +236,15 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $singleton |samtools view -@ $samtools_threads -ubS - | samtools sort -m 1G -@ $samtools_threads  - $outDir/singleton$$ `;
+			`bwa mem $bwa_options $ref_file $singleton |samtools view -@ $samtools_threads -ubS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam `;
 		}
 		elsif($aligner =~ /snap/i){
-			`snap-aligner single $ref_file.snap $file_long -o $outDir/singleton$$.sam $snap_options`;
+			`snap-aligner single $ref_file.snap $singleton -o $outDir/singleton$$.sam $snap_options`;
 		}
-		`samtools view -@ $samtools_threads -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$` if (-s "$outDir/singleton$$.sam");
+		elsif ($aligner =~ /minimap2/i){
+			`minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+		}
+		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
 	}
 
 	# merge bam files if there are different file type, paired, single end, long..
@@ -284,12 +316,8 @@ for my $ref_file_i ( 0..$#ref_files){
 		## SNP call
 		if (!$no_snp){
 			print "SNPs/Indels call on $ref_file_name\n";
-			`samtools mpileup -Augf $ref_file $bam_output | bcftools view -bcg - > $bcf_output 2>/dev/null`;
-			`bcftools view $bcf_output 2>/dev/null | bcftools view -v -S - 2>/dev/null | vcfutils.pl varFilter -d7 -D10000 > $vcf_output`; 
-		}
-		## index reference sequence 
-		if (! -e "$ref_file.fai"){
-			`samtools faidx $ref_file`; 
+			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call -cO b - > $bcf_output 2>/dev/null`;
+			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth > $vcf_output`;
 		}
 
 		## index BAM file 
@@ -945,9 +973,9 @@ Usage: perl $0
                -pre                      output files' prefix (default "ReadsMapping")
                -d                        output directory
                -consensus                <bool> output consensus fasta file (default: on, set 0 to turn off)
-               -aligner                  bwa or bowtie or snap (default: bwa)
+               -aligner                  bwa or bowtie or snap or minimap2 (default: bwa)
                -bwa_options <String>     bwa options
-                                         type "bwa aln" to see options
+                                         type "bwa mem" to see options
                                          default: "-t 4 "
                                          -t        <int> number of threads [4] 
                                          -I        the input is in the Illumina 1.3+ FASTQ-like format
@@ -959,11 +987,21 @@ Usage: perl $0
                                          --phred64    qualities are Phred+64
                -snap_options             snap options
                                          type "snap paired" to see options
+               -minimap2_options         type "minimap2" to see options
+                                         default: "-t 4 "
                -skip_aln                 <bool> skip the alignment steps, assume bam files were generated 
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off
                -no_snp                   <bool> default: off
-               -debug                    <bool> default: off 
+               -debug                    <bool> default: off
+	
+               # Variant Filter parameters
+               -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
+               -min_alt_bases            minimum number of alternate bases [3]
+               -max_depth                maximum read depth [1000000]
+               -min_depth                minimum read depth [7]
+               -snp_gap_filter           SNP within INT bp around a gap to be filtered [3]
+		 
 
 Synopsis:
       perl $0 -p 'reads1.fastq reads2.fastq' -u sinlgeton.fastq -long pyroSeq.fasta -ref reference.fasta -pre ReadsMapping -d /outputPath/

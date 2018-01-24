@@ -140,13 +140,13 @@ sub main {
 		executeCommand("prepare-refseqs.pl --fasta $opt{'in-ctg-fa'} --out $opt{'out-ctg-coord-dir'} --key 'Contig sequence'");
 		executeCommand("ln -s $opt{'in-ctg-fa'} $opt{'out-ctg-coord-dir'}/contigs.fa");
 		executeCommand("biodb-to-json.pl --compress --quiet --conf $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf --out $opt{'out-ctg-coord-dir'}");
+		print "Done.\n";
 		if (-e $opt{'in-orf-ar-gff3'}){
 			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-ar-gff3'} --key 'Antibiotics Resistance Genes' --trackLabel 'AR' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
 		}
 		if (-e $opt{'in-orf-vf-gff3'}){
 			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes' --trackLabel 'Virulence' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
 		}
-		print "Done.\n";
 		if (  -s $opt{'in-ctg-fa'} < $repeat_track_size_cutoff ){
 			print "#  - adding repeats tracks...";
 			executeCommand("get_repeat_coords.pl -o $opt{outdir}/contigs_repeats.txt $opt{'in-ctg-fa'} > $opt{outdir}/contigs_repeats.log  2>&1");
@@ -157,7 +157,7 @@ sub main {
 		if( -e $opt{'in-read2ctg-bam'} ){
 			print "#  - Adding read2ctg BAM track...";
 			executeCommand("samtools view -F4 -h $opt{'in-read2ctg-bam'} | samtools view -bS - > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
-			executeCommand("samtools sort $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort");
+			executeCommand("samtools sort -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
 			unlink "$opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam";
@@ -168,7 +168,7 @@ sub main {
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ctg-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort $opt{'in-primer2ctg-bam'} $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort");
+			executeCommand("samtools sort -O BAM -o $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam -T $opt{outdir} $opt{'in-primer2ctg-bam'}");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-primer-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
 			print "Done.\n";
@@ -228,7 +228,7 @@ sub main {
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ref-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort $opt{'in-primer2ref-bam'} $opt{'out-ref-coord-dir'}/pcrRefValidation.sort");
+			executeCommand("samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam $opt{'in-primer2ref-bam'}");
 			executeCommand("samtools index $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam");
 			my $mapped_num = `samtools idxstats $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 			chomp $mapped_num;
@@ -252,7 +252,7 @@ sub main {
 				chomp $mapped_num;
 				if( $mapped_num ){
 					print "#  - Adding read2ref $acc BAM track...";
-					executeCommand("samtools view -F4 -bh $bam $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$acc.mapped.sort 2>/dev/null");
+					executeCommand("samtools view -F4 -bh $bam $acc 2>/dev/null | samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null");
 					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
 					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
 					executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
@@ -262,7 +262,7 @@ sub main {
 					
 					if ( -e $bam_nodup ){
 						print "#  - Adding read2refc$acc Consensus Coverage track...";
-						executeCommand("samtools view -F4 -bh $bam_nodup $acc 2>/dev/null | samtools sort -  $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort 2>/dev/null");
+						executeCommand("samtools view -F4 -bh $bam_nodup $acc 2>/dev/null | samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
 						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
 						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 						print "Done.\n";
