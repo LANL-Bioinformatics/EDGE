@@ -492,7 +492,7 @@ elsif( $action eq 'getcontigbyref'){
 	my $assemble_outdir="$proj_dir/AssemblyBasedAnalysis";
 	my $mapping_outdir="$assemble_outdir/contigMappingToRef";
 	my $relative_mapping_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/contigMappingToRef" ;
-	(my $out_fasta_name = $reference_id) =~ s/[ .']/_/;
+	(my $out_fasta_name = $reference_id) =~ s/[ .']/_/g;
 	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
 	my $cmd = "awk '\$7>=$identity_cutoff && \$12==\"$reference_id\" {print \$13}'  $mapping_outdir/contigsToRef.coords | $EDGE_HOME/scripts/get_seqs.pl - $assemble_outdir/${real_name}_contigs.fa > $mapping_outdir/$out_fasta_name";
 	$info->{STATUS} = "FAILURE";
@@ -519,9 +519,10 @@ elsif( $action eq 'getreadsbyref'){
 	}
 	my $mapping_outdir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
 	my $relative_mapping_outdir= "$proj_rel_dir/ReferenceBasedAnalysis/readsMappingToRef" ;
-	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/;
+	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/g;
+	(my $correct_ref_id = $reference_id) =~ s/\W/\_/g;
 	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
-	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $reference_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
 	
