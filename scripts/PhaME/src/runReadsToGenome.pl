@@ -38,6 +38,7 @@ my ($file1, $file2, $paired_files,$prefix, $ref_file, $outDir,$file_long,$single
 my $bwa_options="-t 4 ";
 my $bowtie_options="-p 8 -a";
 my $snap_options="-t 4 -M ";
+my $minimap2_options="-t 4 ";
 my $aligner="bwa";
 my ($window_size, $step_size)=(1000,200);
 my $pacbio_bwa_option="-b5 -q2 -r1 -z10 "; 
@@ -55,11 +56,14 @@ GetOptions(
    'd=s'              => \$outDir,
    'bwa_options=s'    => \$bwa_options,
    'bowtie_options=s' => \$bowtie_options,
+   'minimap2_options=s'  => \$minimap2_options,
    'snap_options=s'   => \$snap_options,
    'pacbio'           => \$pacbio,
    'debug'            => \$debug,
    'help|?',          sub {Usage()}
 );
+
+my $tmp = "$outDir";
 
 ## input check ##
 unless ( -e $ref_file && $outDir) { &Usage;}
@@ -85,7 +89,8 @@ if (! -e $outDir){mkdir $outDir;}
 my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
 my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
 my ($snap_threads)= $snap_options =~ /-t (\d+)/;
-my $samtools_threads = $bwa_threads || $bowtie_threads || $snap_threads ||"1";
+my ($minimap2_threads)= $minimap2_options =~ /-t (\d+)/;
+my $samtools_threads = $bwa_threads || $bowtie_threads || $snap_threads || $minimap2_threads || "1";
 my ($ref_file_name, $ref_file_path, $ref_file_suffix)=fileparse("$ref_file", qr/\.[^.]*/);
 
 # index reference
@@ -104,6 +109,14 @@ elsif ($aligner =~ /snap/i){
    $ref_file=&fold($ref_file);
    `snap index $ref_file $ref_file.snap `;
 }
+elsif ($aligner =~ /minimap2/i ){
+     # fold sequence in 100 bp per line (samtools cannot accept > 65535 bp one line sequence)
+    $ref_file=&fold($ref_file);
+    `minimap2 -d $tmp/$ref_file_name.mmi $ref_file `;
+}
+
+## index reference sequence 
+`samtools faidx $ref_file`; 
 
 if ($file_long){
    print "Mapping long reads\n";
@@ -115,7 +128,10 @@ if ($file_long){
   #`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
    }
    elsif ($aligner =~ /snap/i){`snap single $ref_file.snap $file_long -o $outDir/LongReads$$.sam $snap_options`;}
-   `samtools view -@ $samtools_threads -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/LongReads$$.bam - `;
+   elsif ($aligner =~ /minimap2/i){
+          `minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
+   }
+   `samtools view -t $ref_file.fai -@ $samtools_threads -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/LongReads$$.bam - `;
 }
 if ($paired_files){
    print "Mapping paired end reads\n";
@@ -128,7 +144,10 @@ if ($paired_files){
       `bwa sampe -t $bwa_threads -a 100000 $ref_file /tmp/reads_1_$$.sai /tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
    }
    elsif ($aligner =~ /snap/i){`snap paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;}
-   `samtools view -@ $samtools_threads -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/paired$$.bam -`;
+   elsif ($aligner =~ /minimap2/i){
+      `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
+   }
+   `samtools view -t $ref_file.fai -@ $samtools_threads -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/paired$$.bam -`;
 }
 
 if ($singleton){
@@ -141,7 +160,10 @@ if ($singleton){
       `bwa samse -n 50 -t $bwa_threads $ref_file /tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
     }
     elsif($aligner =~ /snap/i){`snap single $ref_file.snap $file_long -o $outDir/singleton$$.sam $snap_options`;}
-    `samtools view -@ $samtools_threads -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/singleton$$.bam -`;
+    elsif ($aligner =~ /minimap2/i){
+        `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+    }
+    `samtools view -t $ref_file.fai -@ $samtools_threads -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads -O BAM -T $outDir -o $outDir/singleton$$.bam -`;
 }
 
 # merge bam files if there are different file type, paired, single end, long..
@@ -167,8 +189,6 @@ elsif($file_long){
    `mv $outDir/LongReads$$.bam $bam_output`;
 }
 
-## index reference sequence 
-`samtools faidx $ref_file`; 
 
 ## index BAM file 
 `samtools index $bam_output $bam_index_output`; 

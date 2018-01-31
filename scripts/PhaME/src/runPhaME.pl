@@ -47,6 +47,7 @@ my $outdir;
 my $project;
 my $rsignal=0;
 my $reference;
+my $aligner="bowtie";
 my $name;
 my $path;
 my $suffix;
@@ -97,6 +98,7 @@ while (<CTL>){
       if (! -e $outdir){`mkdir -p $outdir`;}
    }
    if (/project\s*=\s*(\S+)\s*#{0,1}.*$/){$project=$1;}
+   if (/aligner\s*=\s*(\S+)\s*#{0,1}.*$/){$aligner=$1;}
    if (/reference\s*=\s*(0|1)\s*#{0,1}.*$/){$rsignal=$1;}
    if ($rsignal==1 && /reffile\s*=\s*(\S+)\s*#{0,1}.*$/){$reference="$refdir/$1";}
    elsif($rsignal==0){
@@ -358,14 +360,14 @@ if ($read_mapping==1){
       $mappingGaps=PhaME::identifyGaps($outdir,"$workdir/fasta_list.txt",$name,"map",$project);
       PhaME::removeGaps($bindir,$reference,$mappingGaps);
       &print_timeInterval($runtime,"Mapping reads to reference\n");
-      my $end=PhaME::readsMapping($workdir,$bindir,"$workdir/reads_list.txt",$threads,$name,$error,$logfile);
+      my $end=PhaME::readsMapping($workdir,$bindir,"$workdir/reads_list.txt",$threads,$name,$error,$aligner,$logfile);
       &print_timeInterval($runtime,"$end\n");
    }
    elsif ($time==1){
       my $tempdir=$outdir.'/temp/';
       `mkdir -p $tempdir; cp $reference $tempdir`;
       &print_timeInterval($runtime,"Mapping reads to reference\n");
-      my $end=PhaME::readsMapping($workdir,$bindir,"$workdir/reads_list.txt",$threads,$name,$error,$logfile);
+      my $end=PhaME::readsMapping($workdir,$bindir,"$workdir/reads_list.txt",$threads,$name,$error,$aligner,$logfile);
       &print_timeInterval($runtime,"$end\n");
    }
 }

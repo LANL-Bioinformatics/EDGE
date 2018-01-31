@@ -431,6 +431,7 @@ my $list=shift;
 my $thread=shift;
 my $name=shift;
 my $error=shift;
+my $aligner=shift;
 my $log=shift;
 my $outdir=$indir."/results";
 my $reference= $outdir.'/temp/'.$name.'.fna';
@@ -438,7 +439,7 @@ my $type;
 
 if(!-e $reference || -z $reference){ $reference = $indir.'/files/'.$name.'.fna';}
 print "\n";
-my $map="runReadsMapping.pl -r $reference -q $indir -d $outdir -t $thread -l $list -a bowtie 2>>$error >> $log\n\n";
+my $map="runReadsMapping.pl -r $reference -q $indir -d $outdir -t $thread -l $list -a $aligner 2>>$error >> $log\n\n";
 print $map;
 if (system ($map)){die "Error running $map.\n";}
 

@@ -179,6 +179,7 @@ if ($temp=~/pread/i){
 elsif ($temp=~/sread/i){
    $prefix.="\_$name";
    my $bowtie_command= "runReadsToGenome.pl -u $read -ref $reference -pre $prefix -d $outdir -aligner $aligner" ;
+    $$bowtie_command= "runReadsToGenome.pl -long $read -ref $reference -pre $prefix -d $outdir -aligner $aligner" if ($aligner =~ /minimap/);
 #   print "READ1:  $read1\n$bowtie_command\n\n\n";
    push (@command,$bowtie_command);
 }elsif ($temp=~/_read/i){
