@@ -1810,6 +1810,7 @@ then
   else
       echo "bcftools is not found"
       install_bcftools
+  fi
 else
   install_bcftools
 fi
