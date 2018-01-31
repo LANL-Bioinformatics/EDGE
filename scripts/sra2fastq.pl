@@ -104,7 +104,8 @@ foreach my $acc ( @ARGV ){
 		#check platform
 		my $platform = $readInfo->{$acc}->{$run_acc}->{platform};
 		if( $PLAT_R && $platform !~ /$PLAT_R/i ){
-			die "ERROR: $readInfo->{$acc}->{$run_acc}->{platform} platfrom detected. Only $PLAT_R is allowed.\n";
+			warn "WARN: $readInfo->{$acc}->{$run_acc}->{platform} platfrom detected. Only $PLAT_R is allowed.\n";
+			next;
 		}
 
 		#download FASTQ
