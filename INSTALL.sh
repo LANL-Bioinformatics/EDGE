@@ -1792,6 +1792,7 @@ then
   else
       echo "samtools is not found"
       install_samtools
+  fi
 else
   install_samtools
 fi
