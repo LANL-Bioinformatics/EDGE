@@ -1303,14 +1303,20 @@ sub cleanProjectForNewConfig {
 	my $old_config = &getProjParamFromConfig( "$proj_dir/config.txt.bak" );
 	my $diff=0;
 	foreach my $module ( keys %$new_config ){
-		foreach my $param ( keys %{$new_config->{$module}} ){
+		foreach my $param ( sort keys %{$new_config->{$module}} ){
 			#if one of the parameter in the module changed, reset the whole module
 			if( $new_config->{$module}->{$param} ne $old_config->{$module}->{$param} ){
 				$diff++;
 				foreach my $task ( keys %{$module_ctl->{$module}} ){
 					`rm -f $module_ctl->{$module}->{$task}`;
 				}
-				last;
+				if($param =~ /^custom-(\w+)-/){
+					`rm -f $proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/$1*/.finished $proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/$1*/.finished`;
+				}elsif($param =~ /^splitrim/ ){
+					`rm -f $proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/gottcha-*/.finished $proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/gottcha-*/.finished`;
+				}else{
+					last;
+				}
 			}
 		}
 	}
