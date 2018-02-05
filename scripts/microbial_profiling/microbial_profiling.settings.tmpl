@@ -160,6 +160,6 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="diamond">
 [diamond]
-COMMAND=uge-diamond.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS%
+COMMAND=uge-diamond.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME="diamond-db">
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF> 

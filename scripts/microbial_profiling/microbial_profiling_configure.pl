@@ -31,7 +31,7 @@ GetOptions(\%opt,
            "gottcha2-e-ptzDB=s",
            "gottcha2-e-ptgDB=s",
            "pangia-db=s",
-           "diamond=s",
+           "diamond-db=s",
            "splitrim-minq=i",
            'help|h|?'
           );
