@@ -302,6 +302,9 @@
 					<tr><td>Stdev Joined Length</td><td><TMPL_VAR NAME=JPESTD DEFAULT=-></td></tr>
 				  </tbody>
 				</table>
+				<TMPL_IF NAME="JOINEDPEONLY">
+					<p class="error">Use only joined reads for downstream analysis</p>
+				</TMPL_IF>
 			</div>
 			<p class='extra-text-link'>Link to
 				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads'> Directory </a>
