@@ -693,7 +693,7 @@ sub window_size_coverage {
    my @gap_array;
    my $gap_count=0;
    my $gap_total_len=0;
-   my $covered_base_num;
+   my $covered_base_num=0;
    my @cov_array;
    my $stats_return;
    my $cov_out_fh;
@@ -774,7 +774,7 @@ sub window_size_coverage {
            $gap_total_len += $gap_length;
        }
        my ($std_cov,$avg_cov)= &standard_deviation($base_array);
-       my $percent_genome_coverage = sprintf ("%.4f",$covered_base_num/$ref_len*100);
+       my $percent_genome_coverage = sprintf ("%.4f",$ccovered_base_numovered_base_num/$ref_len*100);
        my $fold = sprintf ("%.2f",$avg_cov);
        my $fold_std = sprintf ("%.2f",$std_cov);
        $stats_return = $percent_genome_coverage."\t".$fold."\t".$fold_std."\t".$gap_count."\t".$gap_total_len."\t";      
