@@ -1539,7 +1539,14 @@ $( document ).ready(function()
 				}
 			}
 		});
-
+		$(":radio[name='edge-joinpe-usejoined-only']").on("change", function(){
+			if ( $(this).val() == 1 ){
+				if ( $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
+					showWarning("Please turn on Run Stitch PE Reads");
+					$("#edge-joinpe-usejoined-only2").click().checkboxradio("refresh");
+				}
+			}
+		});
 		$("#edge-assembly-sw").on("change", function(){
 			if ( $(this).val() == 0 ){
 				/*if ( $( "#edge-anno-sw1" ).is(':chekced') ){

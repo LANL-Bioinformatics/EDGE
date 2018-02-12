@@ -51,7 +51,7 @@ GetOptions(
             'c=f'   => \$cov_cut_off, 
             'bwa_options=s' => \$bwa_options,
             'bowtie_options=s' => \$bowtie_options,
-            'minimap2_options' => \$minimap2_options,
+            'minimap2_options=s' => \$minimap2_options,
             'skip_aln'  => \$skip_aln,
             'pacbio'  => \$pacbio,
             'help|?',  sub {Usage()}

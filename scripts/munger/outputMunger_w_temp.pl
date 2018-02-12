@@ -585,6 +585,7 @@ sub pull_joinPE {
 	}
 	close $jpe_fh;
 	$NUM_READS_FOR_DOWNSTREAM = $NUM_READS_FOR_DOWNSTREAM - $vars->{JPEJPE};
+	$NUM_READS_FOR_DOWNSTREAM = $vars->{JPEJPE} if ($vars->{JOINEDPEONLY});
 }
 
 sub pull_fastqCount {
@@ -1525,6 +1526,9 @@ sub pull_summary {
 		if (/^inputContigs=(.*)/){
 			push @INFILES, $1;
 			$vars->{INPUTCONTIG}=$1;
+		}
+		if (/^fastqjoin-usejoined-only=(.*)/){
+			$vars->{JOINEDPEONLY}=$1;
 		}
 		if( /^\[(.*)\]/ ){
 			my $step = $1;
