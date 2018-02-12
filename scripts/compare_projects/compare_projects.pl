@@ -47,7 +47,7 @@ if (!$project_dir_names && !$out_dir){ print "$usage\n";exit;}
 my $EDGE_HOME = $ENV{EDGE_HOME}||Cwd::abs_path("$workingDir/../..");
 my $edge_www="$EDGE_HOME/edge_ui"; 
 ## Instantiate the variables
-$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-metaphlan,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-inv,gottcha2-speDB-e-ptz,gottcha2-speDB-e-ptg,bwa,kraken_mini";
+$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-metaphlan,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-inv,gottcha2-speDB-e-ptz,gottcha2-speDB-e-ptg,bwa,kraken_mini,pangia,diamond";
 $html_outfile ||= "$out_dir/compare_project.html";
 my $vars;
 
@@ -196,7 +196,9 @@ sub runMetaComp {
 				$tool_res->{CPRANK}=$rank;
 				$tool_res->{CPTOOLNAME}=($tool_name{$tool})?$tool_name{$tool}:uc($tool);
 				$tool_res->{CPTOOLPDF}="${tool}_merged_heatmap.pdf";
-				$tool_res->{CPTOOLSVG}="${tool}_merged_heatmap.svg";
+				$tool_res->{CPTOOLSVG}="${tool}_merged_heatmap.svg" if ( -e "$out_dir/${tool}_merged_heatmap.svg");
+				$tool_res->{CPTOOLANCHOR}="edge-compare-${tool}";
+				$vars->{ANCHARLINK} .= "<a data-ajax='false' href='compare_project.html#edge-compare-${tool}'> ${tool} </a>|";
 				push @{$vars->{LOOP_CPTOOL}}, $tool_res;
 				$count++;
 			}

@@ -609,5 +609,19 @@ $( document ).ready(function()
 		$( "#edge_integrity_dialog_content" ).html(dialog_content);
 		$( "#edge_integrity_dialog" ).popup('open');
 	}
+	// scroll top
+	$(window).scroll(function() {
+                if ($(this).scrollTop()>600) {
+                        $('#scroll-up-btn:hidden').stop(true, true).fadeIn();
+                } else {
+                        $('#scroll-up-btn').stop(true, true).fadeOut();
+                }
+        });
+        $('#scroll-up-btn').on('click',function(){
+                $('html, body').stop().animate({
+                        scrollTop: 0
+                }, 300, 'linear');
+                return false;
+        });
 });
 //# sourceURL=edge-output.js

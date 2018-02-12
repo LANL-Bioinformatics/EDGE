@@ -75,37 +75,53 @@
 			    	    <label for="edge-compare-rt-choose-rank-c">Strain</label>
 			    	</fieldset>
 				</div>
+				<TMPL_IF NAME=ANCHARLINK>
+					<p style="text-align: right;font-size: 0.85em;" class="edge-compare-output edge-compare-species"><TMPL_VAR NAME=ANCHARLINK></p>
+				</TMPL_IF>
+				<ul>
 				<TMPL_LOOP NAME=LOOP_CPTOOL>
 				<TMPL_IF NAME=GOTTCHA>
 				<TMPL_LOOP NAME=LOOP_GOTTCHA> 
-				<div class="ui-grid-a edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
-					<TMPL_IF NAME=CPKINGDOMB>
-					<div class="ui-responsive ui-block-a">
-						<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMB> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBPDF >'> [PDF] </a></span>
-						<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLBSVG >'></img>
-						</a>
+				<li class="edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
+					<span class="li-report-content-title">GOTTCHA</span>
+					<div class="ui-grid-a ui-responsive">
+						<TMPL_IF NAME=CPKINGDOMB>
+						<div class="ui-block-a">
+							<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMB> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBPDF >'> [PDF] </a></span>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLBSVG >'></img>
+							</a>
+						</div>
+						</TMPL_IF>
+						<TMPL_IF NAME=CPKINGDOMV>
+						<div class="ui-block-b">
+							<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMV> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVPDF >'> [PDF] </a></span>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLVSVG >'></img>
+							</a>
+						</div>
+						</TMPL_IF>
 					</div>
-					</TMPL_IF>
-					<TMPL_IF NAME=CPKINGDOMV>
-					<div class="ui-responsive  ui-block-b">
-						<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMV> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVPDF >'> [PDF] </a></span>
-						<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLVSVG >'></img>
-						</a>
-					</div>
-					</TMPL_IF>
-				</div>
+				</li>
 				</TMPL_LOOP>
 				<TMPL_ELSE>
-				<div class="ui-grid-a edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
-					<div class="ui-responsive ui-block-a">
-						<span class="iframe_label"><TMPL_VAR NAME=CPTOOLNAME><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLPDF >'> [PDF] </a></span>
-						<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLSVG >'></img>
-						</a>
+				<li class="edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>" id="<TMPL_VAR NAME=CPTOOLANCHOR>">
+					<span class="li-report-content-title"><TMPL_VAR NAME=CPTOOLNAME></span>
+					<div class="ui-grid-a">
+						<div class="ui-responsive ui-block-a">
+							<span class="iframe_label"><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLPDF >'> [PDF] </a></span>
+							<TMPL_IF NAME=CPTOOLSVG>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLSVG >'></img>
+							</a>
+							<TMPL_ELSE>
+							<p>No Assignments.</p>
+							</TMPL_IF>
+						
+						</div>
 					</div>
-				</div>
+				</li>
 				</TMPL_IF>
 				</TMPL_LOOP>
-		</div</li>
+				</ul>
+		</div></li>
 		</ol>
 
 		<div data-role="popup" id="popup-general-svg" data-overlay-theme="b" data-theme="b" data-corners="false">
@@ -130,6 +146,7 @@
 
 
 	<div data-role='footer' data-position='fixed' data-tap-toggle='false' class='edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup' role='contentinfo'>
+		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class='edge-footer-logo'>
 			<img src='images/logo_DTRA.png'/>
 			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
