@@ -333,8 +333,8 @@ tar xzf R_3.3.2_Packages.tgz
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp-1.0.2.tgz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "install.packages(c(\"MetaComp-1.0.2.tgz\"), repos = NULL, type=\"source\")" | $rootdir/bin/Rscript --no-init-file  - 
 rm -r R_3.3.2_Packages/
 # need internet for following R packages.
 # echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
