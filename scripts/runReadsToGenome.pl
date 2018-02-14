@@ -564,19 +564,25 @@ if ($histogram_png){
 }
 
 sub mapped_reads_per_contigs {
-  my $bam_output=shift;
-  my $ref_hash_r=shift;
-  open (my $idx_fh, "samtools idxstats $bam_output |") or die "$!\n";
-  while (<$idx_fh>)
-  {
-      chomp;
-      my ($id,$len, $mapped,$unmapped)=split /\t/,$_;
-      next if ($id eq '*');
-      $id=~ s/\//_/g;
-      $ref_hash_r->{$id}->{reads}=$mapped;
-  }
-  close $idx_fh;
-  return $ref_hash_r;
+ 	my $bam_output=shift;
+ 	my $ref_hash_r=shift;
+  	my %filter;
+	open (my $sam_fh, "samtools view -F 4 $bam_output | ") or die "Cannot read $bam_output";
+	while(<$sam_fh>){
+		chomp;
+		my @samFields=split /\t/,$_;
+		my $R1_R2 = 1;
+		$R1_R2 = 2 if ($samFields[1] & 128);
+		my $unique_id=$samFields[0]."_$R1_R2";
+		my $ref_id=$samFields[2];
+		$ref_id=~ s/\//_/g;
+		next if ($ref_id eq '*');
+		next if ($filter{$ref_id}{$unique_id});
+		$filter{$ref_id}{$unique_id}++;
+		$ref_hash_r->{$ref_id}->{reads}++;
+	}
+	close $sam_fh;
+	return $ref_hash_r;
 }
 
 sub get_ref_info 
