@@ -2111,7 +2111,7 @@ sub runQC
     my $quality_cutoff = $configuration->{"q"} || 5;
     my $min_length = $configuration->{"min_L"} || 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
-    my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 2;
+    my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 10;
     my $low_complexity = $configuration->{"lc"} || 0.85;
     my $cut_3_end = ($configuration->{"3end"})? $configuration->{"3end"}: 0;
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
@@ -2458,6 +2458,10 @@ sub runReadsToContig
     }elsif($configuration->{r2c_aligner} =~ /bwa/){
 	$r2c_aligner_options =~ s/-t\s*\d+//;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
+    }elsif($configuration->{r2c_aligner} =~ /minimap/){
+        $parameters =~ s/-u /-long /;
+        $r2c_aligner_options =~ s/-t\s*\d+//;
+        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
     }
 
     my $command = "perl $RealBin/scripts/runReadsToContig.pl $parameters 1>$log 2>\&1 ";
@@ -2528,7 +2532,12 @@ sub runReadsToGenome
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
 	$r2g_aligner_options =~ s/-t\s*\d+//;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
+    }elsif($configuration->{r2g_aligner} =~ /minimap/){
+	$parameters =~ s/-u /-long /;
+        $r2g_aligner_options =~ s/-t\s*\d+//;
+        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
     }
+
     $parameters .= " -no_snp " if ($variant_call == 0);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
     &lprint ("  Running \n  $command \n");
@@ -3171,7 +3180,7 @@ sub SNPtree
      $cmd .= "-reference $SNPrefName " if ($SNPrefName);
      $cmd .= "-p $pair_read " if ($pair_read);
      $cmd .= "-c $contig " if ($contig); 
-     $cmd .= "-s $single_end_read " if ( -s $single_end_read); 
+     $cmd .= "-s $single_end_read " if ( $single_end_read && -s $single_end_read); 
      $cmd .= "  >> $log"; 
     &lprint (" Prepare SNP phylogeny\n"); 
     &lprint (" Running \n $cmd\n");

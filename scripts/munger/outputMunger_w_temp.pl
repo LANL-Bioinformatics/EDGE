@@ -1341,12 +1341,17 @@ sub pull_readmapping_contig {
 	while(<$rmfh>) {
 		if ($_ =~ /^(\d+) \+ \d+ in total/) 	{ $vars->{RMUSED} = $1; next; }
 		if ($_ =~ /^(\d+) \+ \d+ duplicates/) 	{ $vars->{RMDUPS} = $1; next; }
+		if ($_ =~ /^(\d+) \+ \d+ secondary/)    { $vars->{RMSECOND} = $1 ; next; }
+		if ($_ =~ /^(\d+) \+ \d+ supplementary/)        { $vars->{RMSUPPLEMENT} = $1; next; }
 		if ($_ =~ /^(\d+) \+ \d+ mapped/) 		{ $vars->{RMMAPPED} = $1; $vars->{RMUNMAPPED} = $vars->{RMUSED} - $vars->{RMMAPPED}; next; }
 		if ($_ =~ /^Avg_coverage_fold:\t(\d+\.\d+)/)	{ $vars->{RMAVECOV} = $1; next; }
 		if ($_ =~ /^Coverage:\t(\d+\.\d+\%)/)	{ $vars->{RMTOTALCOV} = $1; next; }
 	}
 	close($rmfh);
-	
+	$vars->{RMSECOND} ||= 0;
+	$vars->{RMSUPPLEMENT} ||= 0;
+	$vars->{RMMAPPED} = $vars->{RMMAPPED} - $vars->{RMSECOND} - $vars->{RMSUPPLEMENT};
+	$vars->{RMUSED} = $vars->{RMUSED} - $vars->{RMSECOND} - $vars->{RMSUPPLEMENT};
 	$vars->{RMMAPPEDPCT}   = sprintf "%.2f", $vars->{RMMAPPED}/$vars->{RMUSED}*100;
 	$vars->{RMUNMAPPED}    = $vars->{RMUSED} - $vars->{RMMAPPED};
 	$vars->{RMUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMUNMAPPED}/$vars->{RMUSED}*100;

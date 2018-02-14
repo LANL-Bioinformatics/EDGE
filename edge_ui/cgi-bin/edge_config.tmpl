@@ -31,7 +31,7 @@ min_L=<TMPL_VAR NAME=edge-qc-minl DEFAULT=50>
 ##Average quality cutoff
 avg_q=<TMPL_VAR NAME=edge-qc-avgq DEFAULT=0>
 ##"N" base cutoff.  Trimmed read has more than this number of continuous base "N" will be discarded. 
-n=<TMPL_VAR NAME=edge-qc-n DEFAULT=0>
+n=<TMPL_VAR NAME=edge-qc-n DEFAULT=10>
 ##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence
 lc=<TMPL_VAR NAME=edge-qc-lc DEFAULT=0.85>
 ## Trim reads with adapters or contamination sequences
@@ -82,7 +82,7 @@ megahit_preset=<TMPL_VAR NAME=edge-megahit-preset DEFAULT=meta>
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
-## support bowtie or bwa
+## support bowtie or bwa or minimap2
 r2c_aligner=<TMPL_VAR NAME=edge-r2c-aligner DEFAULT="bowtie">
 r2c_aligner_options=<TMPL_VAR NAME=edge-r2c-aligner-options>
 r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
@@ -90,7 +90,7 @@ r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
 [Reads Mapping To Reference]
 # Reads mapping to reference
 DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
-## support bowtie or bwa
+## support bowtie or bwa or minimap2
 r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bowtie">
 r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
 window_size=1000

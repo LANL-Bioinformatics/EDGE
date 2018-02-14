@@ -635,7 +635,7 @@ $( document ).ready(function()
 		'content', $('<span>(Internet requried) Input SRA accessions (comma separate for > 1 input) support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*).</span>')
 	);
 	$('.edge-aligner-options').tooltipster(
-		'content', $('<span>Click <a href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#usage" target="_blank">Bowtie2 options</a> or <a href="http://bio-bwa.sourceforge.net/bwa.shtml#3" target="_blank">BWA mem options</a> for detail.</span>')
+		'content', $('<span>Click <a href="http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#usage" target="_blank">Bowtie2</a> | <a href="http://bio-bwa.sourceforge.net/bwa.shtml#3" target="_blank">BWA mem</a> | <a href="https://lh3.github.io/minimap2/minimap2.html" target="_blank">Minimap2</a> for detail.</span> ')
 	);
 	$('#edge-variantcall-tooltip').tooltipster(
 		'content', $('<span>EDGE will use samtools/bcftools (version 1.6) to call variants. <a href="http://www.htslib.org/workflow/#mapping_to_variant" target="_blank">Detailed.</a></span>')

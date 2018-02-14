@@ -719,7 +719,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			<div class="ui-field-contain">
 				<label for="edge-qc-n">"N" Base Cutoff<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Trimmed read has more than this number of continuous base 'N' will be discarded." ></a></label>
-				<input type="number" name="edge-qc-n" id="edge-qc-n" data-mini="true" data-clear-btn="true" value="0">
+				<input type="number" name="edge-qc-n" id="edge-qc-n" data-mini="true" data-clear-btn="true" value="10">
 			</div>
 			<div class="ui-field-contain">
 				<label for="edge-qc-lc">Low Complexity Filter<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum fraction of mono-/di-nucleotide sequence" ></a></label>
@@ -783,7 +783,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-joinpe-usejoined-only1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-joinpe-usejoined-only" id="edge-joinpe-usejoined-only2" value="0" checked="checked">
 					<label for="edge-joinpe-usejoined-only2">No</label>
-				 </fieldset>
+				</fieldset>
 			</div>
 			</div>
 			<div id="edge-hostrm-parameters">
@@ -908,11 +908,13 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			
 			<div class="ui-field-contain" id="edge-r2c-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Validation Aligner</legend>
+					<legend>Validation Aligner<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE use default setting of the aligner. Bowtie2 default is for global alignment and BWA mem algorithm will do local alignment. If users would like to overwrite the setting, users can use 'Aligner Options' to do so. For example, use “–local” to run bowtie2 with local alignment mode. Or, use “-x ont2d” to run BWA mem with Nanopore reads."></a></legend>
 					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner1" value="bowtie" checked="checked">
 					<label for="edge-r2c-aligner1">Bowtie 2</label>
 					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner2" value="bwa">
 					<label for="edge-r2c-aligner2">BWA mem</label>
+					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner3" value="minimap2">
+					<label for="edge-r2c-aligner3">Minimap2</label>
 				</fieldset>
 			</div>
 
@@ -1008,11 +1010,13 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 			<div class="ui-field-contain edge-fastq-options" id="edge-r2g-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Reads Aligner</legend>
+					<legend>Reads Aligner<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE use default setting of the aligner. Bowtie2 default is for global alignment and BWA mem algorithm will do local alignment. If users would like to overwrite the setting, users can use 'Aligner Options' to do so. For example, use “–local” to run bowtie2 with local alignment mode. Or, use “-x ont2d” to run BWA mem with Nanopore reads."></a></legend>
 					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner1" value="bowtie" checked="checked">
 					<label for="edge-r2g-aligner1">Bowtie 2</label>
 					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner2" value="bwa">
 					<label for="edge-r2g-aligner2">BWA mem</label>
+					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner3" value="minimap2">
+					<label for="edge-r2g-aligner3">Minimap2</label>
 				</fieldset>
 			</div>
 			<div class="ui-field-contain edge-fastq-options">
@@ -1042,9 +1046,9 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Identify Unmapped Reads</legend>
-						<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read1" value="1" checked="checked">
+						<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read1" value="1">
 						<label for="edge-ref-unmapped-read1">Yes</label>
-						<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read2" value="0">
+						<input type="radio" data-mini="true" name="edge-ref-unmapped-read-class" id="edge-ref-unmapped-read2" value="0" checked="checked">
 						<label for="edge-ref-unmapped-read2">No</label>
 					</fieldset>
 				</div>
