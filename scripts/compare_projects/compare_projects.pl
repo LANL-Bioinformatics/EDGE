@@ -165,7 +165,7 @@ sub runMetaComp {
 				$rank = "strain" if ($1 eq "str");
 				$title = "GOTTCHA Merged plot ($rank)";
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
-				$cmd = "Rscript $RealBin/merge_and_plot_gottcha_assignments.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
+				$cmd = "Rscript $RealBin/merge_and_plot.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename gottcha";
 				$cmd .= " 1>>$log 2>\&1 ";
 				system($cmd) if (! -s "$plot_filename.pdf");
 				$tool_list->{GOTTCHA}->{$rank}->{CPRANK}=$rank;
@@ -188,8 +188,8 @@ sub runMetaComp {
 				my $loop = "LOOP_".uc($tool);
 				$title = uc($tool)." Merged plot ($rank)";
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
-				my $Rscript = ($tool =~/kraken/i)?"merge_and_plot_kraken_assignments.R":($tool=~/gottcha2/i)?"merge_and_plot_gottcha2_assignments.R":"merge_and_plot_${tool}_assignments.R";
-				$cmd = "Rscript $RealBin/$Rscript $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename";
+				my $tool_for_Rscript = ($tool =~/kraken/i)?"kraken":($tool=~/gottcha2/i)?"gottcha2":"$tool";
+				$cmd = "Rscript $RealBin/merge_and_plot.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename $tool_for_Rscript";
 				$cmd .= " 1>>$log 2>\&1 ";
 				system($cmd) if (! -s "$plot_filename.pdf");
 				my $tool_res;
