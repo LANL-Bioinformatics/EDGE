@@ -607,10 +607,11 @@ echo "--------------------------------------------------------------------------
 tar xvzf pangia-$VER.tar.gz
 cd pangia
 #$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
+#$rootdir/thirdParty/Anaconda3/bin/conda install bokeh==0.12.10
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           gottcha-2.1 BETA
+                           pangia-$VER BETA
 ------------------------------------------------------------------------------
 "
 }
@@ -2205,6 +2206,7 @@ fi
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
 (crontab -l ; echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1") | crontab -
+(crontab -l ; echo "*/5 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
 
 echo "
 
