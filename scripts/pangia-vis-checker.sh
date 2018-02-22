@@ -1,5 +1,6 @@
 #!/bin/bash
 
+EDGE_HOME=$( cd $(dirname $0)/.. ; pwd -P )
 BOKEH_URL="http://localhost:5100/pangia-vis?r=pangia-vis/data/test.tsv"
 BOKEH_LOG=$EDGE_HOME/edge_ui/bokeh.log
 minimumsize=10240
