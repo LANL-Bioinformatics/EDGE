@@ -22,6 +22,7 @@ $( document ).ready(function()
 	var inputLogObj = {};
 	var inputFileID;
 	var inputFileDir  = "/public/";
+	var upFileType= "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,config,xls,xlsx";
 	//var username;
 	//var password;
 	var userType;
@@ -239,6 +240,7 @@ $( document ).ready(function()
 							$( "a[href=#edge-content-pipeline]" ).hide();
 							$( "a[href=#edge-content-uploadfile]" ).hide();
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
+							$( "a[href=#edge-targetngsed-pipeline]" ).hide();
 							$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
 						}else{
 							// no configuration to use User management
@@ -1952,6 +1954,7 @@ $( document ).ready(function()
 				}else{
 					$("#edge-content-upload-li").show();
 					$("#edge-upload-expiration-days").html(obj.INFO.UPLOADEXPIRE);
+					upFileType = obj.INFO.UPLOADFILEEXT;
 				}
 				( obj.INFO.ARCHIVE == "true" )?	$("#action-archive-btn").show():$("#action-archive-btn").hide();
 				
@@ -2310,7 +2313,7 @@ $( document ).ready(function()
                 var uploader = $("#uploader").pluploadQueue({
                     // General settings
                     runtimes : 'html5,flash,silverlight,html4',
-                    url : './cgi-bin/upload.php?targetDir='+userDir+target+'&sid='+localStorage.sid,
+                    url : './cgi-bin/edge_upload.php?targetDir='+userDir+target+'&sid='+localStorage.sid,
 
                     // User can upload no more then 20 files in one go (sets multiple_queues to false)
                     max_file_count: 20,
@@ -2330,7 +2333,7 @@ $( document ).ready(function()
                             max_file_size :  maxFileSize,
                             // Specify what files to browse for
                             mime_types: [
-                                    {title : "text/plain", extensions : "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,text,config,ini,xls,xlsx"},
+                                    {title : "text/plain", extensions : upFileType},
                                     {title : "application/x-gzip", extensions : "gz"},
                             ]
                     },
