@@ -25,6 +25,9 @@ my $sid         = $opt{'sid'}|| $ARGV[5];
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
+for my $checkName ( keys %opt){
+	&stringSanitization($opt{$checkName});
+}
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -453,4 +456,11 @@ sub ref_merger {
 		$r1->{$key} = $r2->{$key};
 	}
 	return $r1;
+}
+
+sub stringSanitization{
+	my $str=shift;
+	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
+		print "Content-Type: text/html\n\n", "Invalid characters detected\n\n";
+	}
 }

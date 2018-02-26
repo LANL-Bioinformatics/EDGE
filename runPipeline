@@ -2066,6 +2066,7 @@ sub readConfig
         if (/=/)
         {
             my ($key,$value)=split /=/,$_;
+             &stringSanitization($value);
             if ( defined $value)
             {
                $value =~ s/\"//g;
@@ -3511,8 +3512,9 @@ sub checkFileAndDir
     }
     if (@pairedReadsFile)
     {
-        map { if(is_file_empty($_)){ Usage("Please check paired data input at flag -p.\n    $_ doesn't not exist or empty.");}
-	      if( ! is_fastq($_)){Usage("$_ is not in fastq format"); }
+        map { &stringSanitization($_);
+              if(is_file_empty($_)){ Usage("Please check paired data input at flag -p.\n    $_ doesn't not exist or empty.");}
+	      if( ! is_fastq($_)){ unlink $_; Usage("$_ is not in fastq format. File Removed."); }
               $file{basename($_)}=1; } @pairedReadsFile;
         #make pair in a new array 'read1_1 read1_2', 'read2_1 read2_2' ...
         for(my$i=0;$i<=$#pairedReadsFile;$i=$i+2)
@@ -3533,7 +3535,8 @@ sub checkFileAndDir
 	
     if (@unpairedReadsFile)
     {
-        map { if(is_file_empty($_))
+        map { &stringSanitization($_);
+	      if(is_file_empty($_))
               { 
                   Usage("Please check unpaired data input at flag -u.\n    $_ doesn't not exist or empty.");
               } 
@@ -3546,17 +3549,20 @@ sub checkFileAndDir
                   $file{basename($_)}=1;
               }
 	      if ( ! is_fastq($_))
-              {
-                  Usage("$_ is not in fastq format"); 
+              { 
+                  unlink $_;
+                  Usage("$_ is not in fastq format. File Removed."); 
               }
             } @unpairedReadsFile;
     }
     if ($inputContigs){
+	&stringSanitization($inputContigs);
         if (is_file_empty($inputContigs)){
             Usage("Please check contigs fasta input at flag --contigs.\n    $inputContigs doesn't not exist or empty.");
         }
         if ( ! is_fasta($inputContigs)){
-            Usage("$inputContigs is not in fasta format");
+            unlink $inputContigs;
+            Usage("$inputContigs is not in fasta format. File Removed.");
         }
     }
 
@@ -3961,3 +3967,10 @@ sub setProxy{
         $ENV{https_proxy} = $proxy;
 }
 
+sub stringSanitization{
+	my $str=shift;
+	if($str =~ /[\`\|\;\&\$\>\<\!]/){
+		&lprint("Invalid characters detected\n");
+		&lprint(" $str\n\n");
+	}
+}

@@ -10,7 +10,7 @@ my $info; # info to return
 my $cgi     = CGI->new;
 my %opt     = $cgi->Vars();
 my $queries = $opt{'query'} || $ARGV[0];
-
+&stringSanitization($queries);
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -69,4 +69,11 @@ sub getSysParamFromConfig {
         }
         close CONF;
         return $sys;
+}
+sub stringSanitization{
+	my $str=shift;
+        if ($str =~ /[\`\|\;\&\$\>\<\!]/){
+		$info->{INFO} = "Invalid characters detected.";
+		&returnStatus();
+	}
 }

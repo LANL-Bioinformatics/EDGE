@@ -29,6 +29,10 @@ my $domain       = $ENV{'HTTP_HOST'};
 $domain ||= "edgeset.lanl.gov";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
+for my $checkName (@pname,$sid,$protocol,$action){
+	&stringSanitization($checkName);
+}
+
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -283,4 +287,12 @@ sub returnStatus {
     $json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
     print $cgi->header('application/json'), $json;
     exit;
+}
+
+sub stringSanitization{
+	my $str=shift;
+	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
+		$info->{INFO} = "Invalid characters detected.";
+		&returnStatus();
+	}
 }

@@ -146,6 +146,7 @@ if( $sys->{user_management} ){
 }
 
 # Qiime dir submit
+&addMessage("PARAMS","edge-qiime-reads-dir-input","Invalid characters detected") if ($edge_qiime_input_dir =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
 if ($edge_qiime_input_dir && $pipeline eq "qiime"){
 	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
 	@edge_input_pe1 = @{$pe1_file_r};
@@ -244,8 +245,8 @@ if($cluster) {
 
 #adjust to call python script and pass in path as variable for python
 sub readBatchInput {
-
 	my $excel_file = $opt{"edge-batch-input-excel"};
+	&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected") if ($excel_file =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
 	$excel_file="$input_dir/".$excel_file if ($excel_file =~ /^\w/);
 	
 	if ( ! -f $excel_file){
@@ -781,7 +782,6 @@ sub checkParams {
 			next if $param eq "edge-proj-desc";
 			next if $param eq "username";
 			next if $param eq "password";
-			next if $param =~ /aligner-options/;
 			##sample metadata
 			next if $param =~ /metadata/;
 			next if $param =~ /edgesite/;
@@ -791,7 +791,10 @@ sub checkParams {
 			next if $param eq "lat";
 			next if $param eq "lng";
 			next if $param eq "keywords";
-
+			if ($param =~ /aligner-options/){
+				 &addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\|\;\&\$\>\<\!\#]/;
+			};
+			
 			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
@@ -851,7 +854,7 @@ sub checkParams {
 		
 		$opt{'edge-sra-sw'} = 1 if ($opt{'edge-inputS-sw'} eq "sra");
 		if ( $opt{'edge-sra-sw'}){
-			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'});
+			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'} || $opt{'edge-sra-acc'} =~ /[^a-zA-Z0-9\-_\.]/);
 			my $return=&getSRAmetaData($opt{'edge-sra-acc'});
 			&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $opt{'edge-sra-acc'}") if ($return);
 		}
@@ -1312,9 +1315,11 @@ sub createSampleMetadataFile {
                         print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
 
 			my $id = $opt{'metadata-study-id'};
+			$opt{'metadata-study-title'} =~ s/["']//g;
 			$id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"` unless $id;
 			print OUT "study_id=$id\n";
 			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
+			$opt{'metadata-study-type'} =~ s/["']//g;
 			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
 			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); 
 			if($batch_sra_run) {
@@ -1333,13 +1338,16 @@ sub createSampleMetadataFile {
 					}
 					print OUT "host=human\n";
 				} else {
+					$opt{'metadata-host'} =~ s/["']//g;
 					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
 					print OUT "host=".$opt{'metadata-host'}."\n";
 				}
 				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
+				$opt{'metadata-host-condition'} =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			} else {
+				$opt{'metadata-isolation-source'}  =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			}
@@ -1352,8 +1360,10 @@ sub createSampleMetadataFile {
 			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
 			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
 			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
+			$opt{'metadata-seq-center'} =~ s/["']//g;
 			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
 			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
+			$opt{'metadata-sequencer'} =~ s/["']//g;
 			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );

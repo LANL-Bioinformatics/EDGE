@@ -56,6 +56,12 @@ $sid        ||= $ARGV[5];
 $domain     ||= $ARGV[6];
 my $umSystemStatus = $ARGV[7];
 my ($webhostname) = $domain =~ /^(\S+?)\./;
+for my $checkName ($pname,$new_proj_name,$contig_id,$reference_id,$reference_file_prefix,$cptool_for_reads_extract){
+	&stringSanitization($checkName,2);
+}
+&stringSanitization($blast_params,1);
+&stringSanitization($taxa_for_contig_extract);
+&stringSanitization($new_proj_desc);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -775,6 +781,7 @@ elsif( $action eq 'metadata-export'){
 #END sample metadata
 elsif($action eq 'define-gap-depth'){
 	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;
+	&stringSanitization($gap_depth_cutoff,2);
 	my $gap_out_dir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
 	my $gap_outfile="$gap_out_dir/readsToRef_d$gap_depth_cutoff.gaps";
 	my $gff_file="$proj_dir/Reference/reference.gff";
@@ -870,6 +877,22 @@ sub availableToRun {
         return 1;
 }
 
+sub stringSanitization{
+	my $str=shift;
+	my $level=shift;
+	my $dirtybit=0;
+	if ($level > 1 && $str =~ /[\`\{\}\(\)\<\>\&\*\'\|\=\?\;\[\]\$\#\~\!\"\%\\\:\+\/\ ]/){
+		$dirtybit=1;
+	}elsif ($level && $str =~ /[\`\{\}\(\)\<\>\&\*\'\|\=\?\;\[\]\$\#\~\!\"\%\^\:\+]/){
+		$dirtybit=1;
+	}elsif($str =~ /[\`\|\;\&\$\>\<\!\#]/){
+		$dirtybit=1;
+	}
+	if ($dirtybit){
+		$info->{INFO} = "Invalid characters detected  \'$str\'.";
+		&returnStatus();
+	}
+																				}
 
 sub returnStatus {
 	my $json = "{}";

@@ -6,7 +6,7 @@ use POSIX qw(strftime);
 use LWP::Simple; # from CPAN
 use JSON qw( decode_json ); # from CPAN
 
-
+exit if ( $ENV{"REQUEST_METHOD"} );
 if (!@ARGV){ print "$0 [ bsve_sra_tsv_dir | file | ebi ]\n"; exit;}
 
 my $date_string = strftime "%Y-%m-%d", localtime;

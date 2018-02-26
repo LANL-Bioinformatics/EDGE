@@ -21,6 +21,10 @@ $EDGE_HOME ||= "$RealBin/../..";
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 
+for my $checkName ( keys %opt){
+        &stringSanitization($opt{$checkName});
+}
+
 ##db settings
 my $host=$sys->{edge_dbhost};
 my $db=$sys->{edge_dbname};
@@ -398,6 +402,12 @@ sub getSysParamFromConfig {
 	}
 	close CONF;
 	return $sys;
+}
+sub stringSanitization{
+        my $str=shift;
+        if($str =~ /[\`\|\;\&\$\>\<\!]/){
+                print "Content-Type: text/html\n\n", "Invalid characters detected\n\n";
+        }
 }
 
 1;

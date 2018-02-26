@@ -54,6 +54,10 @@ $ENV{REMOTE_ADDR} = $ip if $ip;
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-dev-master.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
+for my $checkName ( keys %opt){
+        &stringSanitization($opt{$checkName});
+}
+
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -742,4 +746,10 @@ sub returnStatus {
 	print $cgi->header('application/json'), $json;
 	exit;
 }
-
+sub stringSanitization{
+	my $str=shift;
+	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
+		$info->{INFO} = "Invalid characters detected.";
+		&returnStatus();
+	}
+}

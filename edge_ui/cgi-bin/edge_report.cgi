@@ -39,6 +39,10 @@ $ENV{REMOTE_ADDR} = $ip if $ip;
 my $domain      = $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
+for my $checkName ( keys %opt){
+	&stringSanitization($opt{$checkName});
+}
+exit if (!$pname);
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -230,3 +234,9 @@ sub getProjID {
   return $projID;
 }
 
+sub stringSanitization{
+	my $str=shift;
+	if($str =~ /[\`\|\;\&\$\>\<\!]/){
+		print "Content-Type: text/html\n\n", "Invalid characters detected\n\n";
+	}
+}
