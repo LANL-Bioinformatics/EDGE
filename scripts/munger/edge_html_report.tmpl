@@ -50,6 +50,9 @@
 			Project Status: <span id="edge-output-projstatus"><TMPL_VAR NAME=PROJSTATUS DEFAULT=-></span><br/>
 			Total Analysis Run Time: <TMPL_VAR NAME=RUNTIME DEFAULT=-><br/>
 			Last Run Time: <TMPL_VAR NAME=LASTRUNTIME DEFAULT=-><br/>
+			<TMPL_IF NAME="PROJOWNER">
+			Owner:  <TMPL_VAR NAME=PROJOWNER DEFAULT=-><br/>
+			</TMPL_IF>
 		</p>
 
 		<div class='edge-right'>expand |<a data-ajax='false' href='#' id='edge-out-expand-all'> all </a>|<a data-ajax='false' href='#' id='edge-out-expand-none'> none </a>| sections</div>

@@ -1519,6 +1519,10 @@ sub pull_summary {
 			$vars->{SPDB} = $1;
 			next;
 		}
+		if (/projowner=(.*)/){
+			$vars->{PROJOWNER} = $1;
+			next;
+		}
 		if (/^kingdom=(.*)/){
 			$kingdom = $1;
 		}
@@ -1648,6 +1652,7 @@ sub pull_summary {
 			my $ord = $toolmap{$1};
 			$prog->{$ord}->{GNLTIME}     = $2;
 			$prog->{$ord}->{GNLSTATUS}   = "Complete" if ( $prog->{$ord}->{GNLSTATUS} !~ /Error|Skip/i);
+			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>";
 		}
 		elsif(/ERROR|failed/ and $vars->{LOG_qiime_SW}){
 			$prog->{$ord}->{GNLSTATUS}   = "<span class='edge-fg-red'>Error</span>";
