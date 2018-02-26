@@ -795,7 +795,7 @@ sub checkParams {
 				 &addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\|\;\&\$\>\<\!\#]/;
 			};
 			
-			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
+			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
 		#check input sequence
@@ -974,6 +974,7 @@ sub checkParams {
 				chomp @tmp;  
 				my @gfiles = `ls $tmp[0]/*gbk $tmp[0]/*gbff 2>/dev/null`; 
 				chomp @gfiles; 
+				&addMessage("PARAMS","edge-ref-file-fromlist","Cannot file genbank for $_. The NCBI_genomes are not be synced with Ref_list.json file.") if (!@gfiles);
 				push @refs,@gfiles;
 			    } @refsl;
 			$num_selected = scalar(@refsl);
