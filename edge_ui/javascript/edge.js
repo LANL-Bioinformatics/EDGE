@@ -240,7 +240,7 @@ $( document ).ready(function()
 							$( "a[href=#edge-content-pipeline]" ).hide();
 							$( "a[href=#edge-content-uploadfile]" ).hide();
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
-							$( "a[href=#edge-targetngsed-pipeline]" ).hide();
+							$( "a[href=#edge-targetedngs-pipeline]" ).hide();
 							$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
 						}else{
 							// no configuration to use User management
@@ -1641,7 +1641,7 @@ $( document ).ready(function()
 			}
 		});
 		
-		$('.edge-input-se-block').hide();
+		//$('.edge-input-se-block').hide();
 		$('#edge-qiime-pipeline-dir-input').hide();
 		$('#btnAdd-edge-input-se').hide();
 		$(":radio[name='edge-qiime-rt-sw']").on("change", function(){
@@ -1692,6 +1692,7 @@ $( document ).ready(function()
 	function toggle_input_fields( act ){
 		if( act == "reconfig" ){
 			$('#edge-proj-name').prop("disabled", true);
+			$('input[id="edge-sra-acc"]').prop("disabled", true);
 			$('input[id^="edge-inputS-"]').prop("disabled", true);
 			$('input[name="edge-inputS-sw"]').prop("disabled", true).checkboxradio("refresh");
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
@@ -1702,6 +1703,7 @@ $( document ).ready(function()
 		}
 		else{
 			$('#edge-proj-name').prop("disabled", false);
+			$('input[id="edge-sra-acc"]').prop("disabled", false);
 			$('input[id^="edge-inputS-"]').prop("disabled", false);
 			$('input[name="edge-inputS-sw"]').prop("disabled", false).checkboxradio("refresh");
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
@@ -2479,21 +2481,8 @@ $( document ).ready(function()
 		focusProjConfigFile = focusProjConfigFile + "?_=" + ts;
 
 		$.getJSON( focusProjConfigFile, function( data ) {
-			//loading pipeline
-			if( data['pipeline'] == "EDGE" ){
-				setRunEdge();
-				toggle_input_fields( "reconfig" );
-				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
-				$('#edge-form-submit').closest('.ui-btn').hide();
-				$('#edge-form-reset').closest('.ui-btn').hide();
-			}
-			else if( data['pipeline'] == "qiime" ){
-				$( "a[href=#edge-qiime-pipeline]" ).click();
-				toggle_input_fields( "reconfig" );
-				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
-				$('#edge-form-submit').closest('.ui-btn').hide();
-				$('#edge-form-reset').closest('.ui-btn').hide();
-			}
+			// show all hidden input to be reconfiged
+			$( "#edge-content-pipeline").find("div[id^='edge']:hidden").show();
 
 			//clean multiple input blocks
 			$( "div[id^='edge'][class$='-block']" ).not("[id$='-block1']").remove();
@@ -2519,6 +2508,7 @@ $( document ).ready(function()
 					sync_input()
 				}
 				else if(  $("input:radio[name="+key+"]").is(':radio') ){
+					$("input:radio[name="+key+"]").off('change');
 					if( $("input:radio[name="+key+"]:checked").val() != value ){
 						$("input:radio[name="+ key +"][value="+ value  +"]").prop('checked', true)
 						$("input:radio[name="+key+"]").checkboxradio("refresh");
@@ -2565,6 +2555,31 @@ $( document ).ready(function()
 					$('#'+key).val(value);
 				}
 			});	
+
+			//loading pipeline
+			if( data['pipeline'] == "EDGE" ){
+				setRunEdge();
+				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+				$('#edge-form-submit').closest('.ui-btn').hide();
+				$('#edge-form-reset').closest('.ui-btn').hide();
+			}
+			else if( data['pipeline'] == "qiime" ){
+				$( "a[href=#edge-qiime-pipeline]" ).click();
+				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+				$('#edge-form-submit').closest('.ui-btn').hide();
+				$('#edge-form-reset').closest('.ui-btn').hide();
+			}else if( data['pipeline'] == "targetedngs" ){
+				$( "a[href=#edge-targetedngs-pipeline]" ).click();
+				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+				$('#edge-form-submit').closest('.ui-btn').hide();
+				$('#edge-form-reset').closest('.ui-btn').hide();
+			}
+			// trigger all change / clicks
+			toggle_input_fields( "reconfig" );
+			integrityCheck();
+			$( "#edge-content-pipeline").find( "div[id^='edge']" ).trigger('change');
+			$( ".edge-additional-options-toggle" ).trigger('click');
+			$(".edge-tabs").find("a").trigger('click');
 		});
 	}
 	
