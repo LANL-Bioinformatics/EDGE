@@ -599,15 +599,29 @@ echo "
 
 install_pangia()
 {
-local VER=2.3.2
+local VER=2.4.1
 echo "------------------------------------------------------------------------------
                            Installing PANGIA $VER BETA
 ------------------------------------------------------------------------------
 "
+if [ -e $rootdir/thirdPart/pangia/pangia-vis/data ]
+then
+  mv $rootdir/thirdPart/pangia/pangia-vis/data $rootdir/thirdPart/pangia-vis-data
+fi
+if [ -e $rootdir/thirdPart/pangia ]
+then
+  rm -rf $rootdir/thirdPart/pangia
+fi
+
 tar xvzf pangia-$VER.tar.gz
 cd pangia
+if [ -e $rootdir/thirdPart/pangia-vis-data ]
+then
+  cp -f $rootdir/thirdPart/pangia-vis-data/* $rootdir/thirdPart/pangia/pangia-vis/data/
+rm -rf $rootdir/thirdPart/pangia-vis-data
+fi 
+
 #$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
-#$rootdir/thirdParty/Anaconda3/bin/conda install bokeh==0.12.10
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1222,6 +1236,8 @@ tar -xvzf Anaconda3Packages.tgz
 $anacondabin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 $anacondabin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 ln -fs $anacondabin/cairosvg $rootdir/bin
+$anacondabin/conda update -y conda
+$anacondabin/conda install -y bokeh==0.12.10
 rm -r Anaconda3Packages/
 echo "
 ------------------------------------------------------------------------------

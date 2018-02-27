@@ -96,15 +96,31 @@ then
     BG_JSON_OPT="-lb $BG_JSON"
 fi
 
-pangia.py -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
+pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
 
 # prepare pangia-vis
 DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
+MERGED_SAM_DIR=$OUTPATH/${PREFIX}_tmp/merged_sam
+PVIS_DATA=$EDGE_HOME/thirdParty/pangia/pangia-vis/data/
+
+mkdir -p $PVIS_DATA/$DIRMD5
+
 cp $OUTPATH/$PREFIX.report.tsv $EDGE_HOME/thirdParty/pangia/pangia-vis/data/$DIRMD5.tsv
+
+# generate scaled-down genome depth files for PanGIA-VIS, save to $OUTPATH/pangia-vis then symlink to global pangia-vis
+find $MERGED_SAM_DIR -type f -name '*.depth' | cut -d"|" -f3 | sort | uniq > $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
+parallel "$EDGE_HOME/thirdParty/pangia/pangia-vis/scripts/depth_scale_down.py $MERGED_SAM_DIR/*\|{}\|*.depth > $PVIS_DATA/$DIRMD5/{}.depth.scaledown" :::: $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
+
+
+# remove temporary files
+find $OUTPATH/${PREFIX}_tmp -type f -exec rm {} +
+rm -rf $OUTPATH/${PREFIX}_tmp
+
 
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1&&$16==""){out=$1"\t"$2"\t"$14"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.report.tsv >> $OUTPATH/$PREFIX.out.list
 
+# prepare lineage and score files
 awk -F\\t '{if($1=="species"){print $2"\t"$12}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.tab_tree.score
 
 cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -d $DB > $OUTPATH/$PREFIX.out.tab_tree

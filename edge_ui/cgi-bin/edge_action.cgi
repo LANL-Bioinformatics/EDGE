@@ -286,8 +286,9 @@ elsif( $action eq 'delete' ){
 		}
 		`rm -rf $proj_dir`;
 		`rm -rf $out_dir/$pname`;
-		`rm -f $input_dir/../JBrowse/data/$pname $input_dir/../JBrowse/data/$projCode`;
-		`rm -f $input_dir/../opaver_web/data/$pname $input_dir/../opaver_web/data/$projCode`;
+		`rm -f $www_root/JBrowse/data/$pname $www_root/JBrowse/data/$projCode`;
+		`rm -f $www_root/opaver_web/data/$pname $www_root/opaver_web/data/$projCode`;
+		`rm -rf $www_root/../thirdParty/pangia/pangia-vis/data/$projCode`;
 		if( !-e $proj_dir && !-e "$out_dir/$pname" ){
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "Project $real_name has been deleted.";
