@@ -52,8 +52,18 @@
 //		$.getScript('javascript/social.js', function() {});
 //	});
 </script>
+<noscript>
+	<style type="text/css">
+		#loading {display:none;}
+	</style>
+	<div class='edge-home'>
+		<h2 style="position:inherit; padding-left:20px;"class="edge-header">EDGE bioinformatics</h2>
+	</div>
+	<div class="noscriptmsg">We're sorry, but EDGE doesn't work properly without JavaScript enabled. JavaScript must be enabled in order for you to use EDGE. However, it seems JavaScript is either disabled or not supported by your browser. To use EDGE, enable JavaScript by changing your browser options, then <a href="">try again</a>.
+	</div>
+</noscript>
 
-<div data-role="page" class="edge-demos edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active" data-url="" tabindex="0" style="padding-bottom: 82px;">
+<div id="loading" data-role="page" class="edge-demos edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active" data-url="" tabindex="0" style="padding-bottom: 82px;">
 
 	<div data-role="header" class="edge-header ui-header ui-bar-inherit">
 		<div class="edge-logo">
