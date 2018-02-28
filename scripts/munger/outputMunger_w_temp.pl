@@ -1647,7 +1647,6 @@ sub pull_summary {
 		elsif( /^\[RUN_TOOL\] \[(.*)\] Error occured/){
 			my $ord = $toolmap{$1};
 			$prog->{$ord}->{GNLSTATUS}   = "<span class='edge-fg-red'>Error</span>";
-			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>";
 		}
 		elsif( /^\[RUN_TOOL\] \[(.*)\] Running time: (.*)/){
 			my $ord = $toolmap{$1};
