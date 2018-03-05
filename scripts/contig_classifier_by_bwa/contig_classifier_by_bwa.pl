@@ -62,7 +62,7 @@ else{
 
 $period = &timeInterval($time);
 print "[$period] Filtering unmapped contigs\n";
-executeCommand("samtools view -F4 -XS temp$$/$FILENAME.sam > temp$$/$FILENAME.mapped.sam 2>>$PREFIX.log");
+executeCommand("samtools view -F4  temp$$/$FILENAME.sam > temp$$/$FILENAME.mapped.sam 2>>$PREFIX.log");
 
 $period = &timeInterval($time);
 print "[$period] Splitting SAM file\n";
