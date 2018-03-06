@@ -60,7 +60,7 @@ class PluploadHandler
                 'file_name' => isset($_REQUEST['name']) ? $_REQUEST['name'] : false,
                 'allow_extensions' => false,
                 'delay' => 0, // in seconds
-                'cb_sanitize_file_name' => array($this, 'sanitize_file_name'),
+                'cb_sanitize_file_name' => array($this, 'sanitizeFileName'),
                 'cb_check_file' => false,
                 'cb_filesize' => array($this, 'filesize'),
                 'error_strings' => array(
@@ -134,7 +134,7 @@ class PluploadHandler
             }
 
             // no  dot
-            if (preg_match('/\./',$conf['target_dir'])){
+            if ( preg_match('/[^A-Za-z0-9_\/]/',$conf['target_dir'])){
 	        throw new Exception('', PLUPLOAD_SECURITY_ERR);
             }
 

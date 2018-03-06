@@ -13,7 +13,7 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
-$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin/";
+$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
@@ -87,7 +87,7 @@ END
 }
 &Usage("Missing Configuration File.") unless ($configFile);
 ## Global hash reference for configurations.
-my $configuration=&readConfig($configFile);
+my $configuration=&readEDGEConfig($configFile);
 my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 
 &Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir}  or $configuration->{inputContigs} or $inputContigs );
@@ -2054,7 +2054,7 @@ sub getSysParams {
         return $sys;
 }
 
-sub readConfig
+sub readEDGEConfig
 {
     my $file=shift;
     my %hash;
@@ -3970,7 +3970,8 @@ sub setProxy{
 sub stringSanitization{
 	my $str=shift;
 	if($str =~ /[\`\|\;\&\$\>\<\!]/){
-		&lprint("Invalid characters detected\n");
-		&lprint(" $str\n\n");
+		print STDERR "Invalid characters detected\n";
+		print STDERR" $str\n\n";
+		exit;
 	}
 }

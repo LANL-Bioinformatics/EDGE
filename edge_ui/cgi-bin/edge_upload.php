@@ -34,7 +34,7 @@ if (!empty($edge_config["user_management"])){
         //}
 }
 
-if (empty($_REQUEST["targetDir"])) {
+if (empty($_REQUEST["targetDir"]) || $_REQUEST["targetDir"] == "/" ) {
         exit("No target");
 }
 
@@ -53,7 +53,8 @@ $maxFileAge = $maxDay * 24 * 60 * 60; // Temp file age in maxday days
 $ph = new PluploadHandler(array(
 	'target_dir' => $targetDir,
 	'allow_extensions' => $fileExt,
-	'max_file_age' => $maxFileAge
+	'max_file_age' => $maxFileAge,
+	'cb_check_file' => true
 ));
 $ph->sendNoCacheHeaders();
 $ph->sendCORSHeaders();
