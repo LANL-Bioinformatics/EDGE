@@ -53,6 +53,7 @@ while(<STDIN>)
 		#print STDERR "Processing GI:$gi TAXID:$taxID NAME:'$fields[8]'...\n";
 
 		$rank = getTaxRank($taxID);
+		$rank ||= "no rank";
 		$rank = "strain" if $rank eq "no rank";
 		$name = getTaxName($taxID);
 
