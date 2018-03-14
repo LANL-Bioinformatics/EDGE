@@ -527,7 +527,7 @@ class PluploadHandler
      */
     protected function sanitizeFileName($filename)
     {
-        $special_chars = array("?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}");
+        $special_chars = array("?", "[", "]", "..", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}");
         $filename = str_replace($special_chars, '', $filename);
         $filename = preg_replace('/[\s-]+/', '-', $filename);
         $filename = trim($filename, '.-_');

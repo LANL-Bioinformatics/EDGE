@@ -7,16 +7,41 @@ function read_config($configFile){
         while (!feof($file_handle) ) {
                 $line_of_text = fgets($file_handle);
                 $line_of_text=rtrim($line_of_text);
+                if (preg_match("/system/",$line_of_text)){
+                	$system_file=1;
+                }
                 if (preg_match("/=/",$line_of_text)){
                         $parts = explode('=', $line_of_text);
                         $array["$parts[0]"] = $parts[1];
                 }
         }
         fclose($file_handle);
+        if (empty($system_file)){ 
+        	exit("Incorrect system file");
+        }
         return $array;
 }
 
+function check_uploadFile($input){
+		$file_type = mime_content_type($input);
+		$line_of_text="";
+        if (preg_match("/-gzip/",$file_type)){
+                $file_handle = gzopen($input, "rb");
+        }else{
+                $file_handle = fopen($input, "rb");
+        }
+
+        $line_of_text = fgets($file_handle);
+        if (preg_match("/^>|^@|project|ID|^LOCUS|xml/",$line_of_text)){
+                return true;
+        }else{
+                return false;
+        }
+}
+
 $edge_config=read_config(__DIR__."/../sys.properties");
+
+//if($argv[1]){if(check_uploadFile($argv[1])){echo "OK"."\n";} exit;}
 
 if (!empty($edge_config["user_management"])){
         $session_return="false";
@@ -54,7 +79,7 @@ $ph = new PluploadHandler(array(
 	'target_dir' => $targetDir,
 	'allow_extensions' => $fileExt,
 	'max_file_age' => $maxFileAge,
-	'cb_check_file' => true
+	'cb_check_file' => 'check_uploadFile'
 ));
 $ph->sendNoCacheHeaders();
 $ph->sendCORSHeaders();
