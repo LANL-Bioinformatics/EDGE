@@ -14,7 +14,7 @@ if [[ $(cat $BOKEH_LOG | grep -E 'NoneType|No active exception') ]]; then
 	echo "[$DATETIME] [WARNING] Stale Bokeh server detected. Restarting..."
 
 	# stop current bokeh
-	if [[ $(ps aux | grep 'serve pangia-vis' | awk '$11!~/^grep/ {print $2}') ]]; then
+	if [[ $(ps auxww | grep 'serve pangia-vis' | awk '$11!~/^grep/ {print $2}') ]]; then
  		$SUDO kill -9 $(ps aux | grep 'serve pangia-vis' | awk '$11!~/^grep/ {print $2}');
 	fi
         
