@@ -123,7 +123,7 @@ awk -F\\t '{if(NR>1&&$16==""){out=$1"\t"$2"\t"$14"\t"; { for(i=3;i<=NF;i++){out=
 # prepare lineage and score files
 awk -F\\t '{if($1=="species"){print $2"\t"$12}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.tab_tree.score
 
-cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -d $DB > $OUTPATH/$PREFIX.out.tab_tree
+cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -dp ${DB%/*}  > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

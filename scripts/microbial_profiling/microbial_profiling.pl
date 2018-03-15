@@ -295,7 +295,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           fi
           if [ -e \"$outdir/$prefix.pangia.sam\" ] 
           then
-            cp -f $outdir/* $tool_rep_dir/;
+            cp -rf $outdir/* $tool_rep_dir/;
 	  fi
           if ls $outdir/$prefix.gottcha_*.sam 1>/dev/null 2>&1
           then 
