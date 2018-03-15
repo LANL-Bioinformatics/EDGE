@@ -17,6 +17,7 @@ my @out_dir_parts = split('/', $out_dir);
 my $projname = $out_dir_parts[-1];
 my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+my $www_root    = $sys->{edgeui_wwwroot};
 
 ## Instantiate the variables
 my $getting_paired=0;
@@ -269,6 +270,7 @@ sub check_analysis {
 }
 
 sub prep_jbrowse_link {
+	`ln -s $out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
 	$vars->{JB_CTG_ANNO}     = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA";
 	$vars->{JB_CTG_ANNO_BAM} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM"; 
 	$vars->{JB_CTG_ANNO_PCR} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR"; 
@@ -536,7 +538,10 @@ sub pull_anno {
 	close $anno;
 	my @kegg_maps = `ls $out_dir/AssemblyBasedAnalysis/Annotation/kegg_map/*png 2>/dev/null`; 
 	chomp @kegg_maps;
-	$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname" if (scalar(@kegg_maps)>0);
+	if (scalar(@kegg_maps)>0){
+		$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname";
+		`ln -s $out_dir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
+	}
 }
 
 sub pull_qc {
@@ -1276,14 +1281,16 @@ sub pull_taxa {
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 						}
 						elsif( $toolname =~ /pangia/ ){
-							$res_row->{CPABU_REA} = _reformat_val($t[2]);
-							$res_row->{PANGIA_LINEAR_COV}  = sprintf "%.2f", $t[16];
-							$res_row->{PANGIA_LINEAR_DOC}  = sprintf "%.2f", $t[11];
+							$res_row->{CPABU_REA} = _reformat_val($t[5]);
+							$res_row->{PANGIA_LINEAR_RNR}  = _reformat_val(sprintf "%.2f", $t[6]);
 							$res_row->{PANGIA_LINEAR_RSNB} = _reformat_val(sprintf "%.2f", $t[7]);
+							$res_row->{PANGIA_LINEAR_DC}   = sprintf "%.2f", $t[11];
+							$res_row->{PANGIA_LINEAR_RSDC} = sprintf "%.2f", $t[10];
+							$res_row->{PANGIA_LINEAR_GC}   = sprintf "%.2f", $t[9];
 							$res_row->{PANGIA_LINEAR_SCR}  = $t[13];
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[14]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
-							$res_row->{PANGIA_VIS_LINK} = "pangia-vis?r=pangia-vis/data/$projname.tsv";
+							#$res_row->{PANGIA_VIS_LINK} = "pangia-vis?r=pangia-vis/data/$projname.tsv";
 						}
 						elsif( $toolname =~ /metaphlan/ ){
 							$res_row->{CPABU_REA} = "N/A";
@@ -1324,7 +1331,13 @@ sub pull_taxa {
 			$tool->{CPTOOL_KRONA} = "" unless -e $tool->{CPTOOL_KRONA};
 			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia/);
 
-			if( $row->{CPTOOL}=~/pangia/ && `ps -e | grep bokeh` ){
+			if( $row->{CPTOOL}=~/pangia/ ){
+				my $sys_pvis_dir="$ENV{'EDGE_HOME'}/thirdParty/pangia/pangia-vis/data";
+				my $proj_pvis_dir="$www_root/$tool->{CPTOOL_DIR}/pangia-vis";
+				if( !-e "$sys_pvis_dir/$projname.tsv" && -e "$proj_pvis_dir/$projname.tsv" ){
+					`ln -s $proj_pvis_dir/* $sys_pvis_dir`;
+				}
+								
 				$tool->{CPTOOL_PANGIA_TSV} = "$projname.tsv";
 			}
 
