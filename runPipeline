@@ -136,7 +136,7 @@ if (length ($project_name) > 30 && $configuration->{DoAnnotation} && $configurat
 }
 
 #&checkDependedPrograms;
-#&makeDirectory;
+
 my $download_sra_retry_limit=3;
 my $download_sra_retry=0;
 if ($configuration->{'DoSRADownload'})
@@ -522,6 +522,7 @@ sub parse_qiime_mapping_file{
             my $msg = "ERROR: the input $qiime_dir directroy does not exist or isn't a directory\n";
             exit(1);
     }
+    my $header_flag=0;
     foreach my $f (split /,/,$mapping_files){
             my $file_column_index;
             my $fh;
@@ -535,6 +536,7 @@ sub parse_qiime_mapping_file{
                 next if (/^\n/);
                 next unless (/\S/);
                 if (/SampleID/){
+                        $header_flag=1;
                         my @header = split /\t/,$_;
                         ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
                 }elsif(! /^#/){
@@ -549,6 +551,7 @@ sub parse_qiime_mapping_file{
                 }
             }
             close $fh;
+            die "Incorrect metadata mapping file\n" if (!$header_flag);
     }
 	return (\@pairedFiles,\@unpariedFiles);
 }
@@ -596,7 +599,7 @@ sub runTargetedNGS{
         &lprint("ERROR: targetedNGS analysis No sample file");
         exit;
     }
-    if (!$targetedNGS_ref){
+    if (!$targetedNGS_ref || !is_fasta($targetedNGS_ref)){
         &lprint("ERROR: targetedNGS analysis No reference file");
         exit;
     }
@@ -742,7 +745,7 @@ sub runQiimeAnalysis{
     $cmd .= " -m $mapping_files ";
     $cmd .= " -pe_orientation $pe_orientation " if (@pairedFile);
     $cmd .= " -barcode_type $barcode_len -q $quality_cutoff -n $seq_max_n -min_per_read_length_fraction $min_reads_q_fraction -min_otu_size $min_otu_size -similarity $similarity -e $sampling_depth_cutoff ";
-    $cmd .= " -b $barcode_files " if ($barcode_files);
+    $cmd .= " -b $barcode_files " if ($barcode_files && is_fastq($barcode_files));
     $cmd .= " -UPARSE " if($UPARSE_opt);
     $cmd .= " -filter_taxa $negative_taxa " if($negative_taxa);
     $cmd .= " -substract_NTC $ntc_list " if($ntc_list);
@@ -1041,15 +1044,16 @@ sub check_reference_genome
                  &executeCommand("genbank2fasta.pl $file > $ref_fasta_file");
                  &executeCommand("cat $file >> $referenceGBK");
              }	
-         }
-         if (is_fasta($file))
-         {
+         }elsif (is_fasta($file)){
              $format{"fasta"}++;
              if ($file_suffix =~ /gz/){
                  &executeCommand("gunzip -c $file > $ref_fasta_file");
              }else{
                  &executeCommand("awk 'NF > 0 {print \$0}' $file > $ref_fasta_file");
              }
+         }else{
+         	&lprint("The reference input doesn't looks like in genbank or fasta format. Will skip analysis modules require reference genomes\n");
+         	return($referenceGenome,$referenceGBK,$gff3File);
          }
          $referenceGenome_r->[$file_i] = $ref_fasta_file;
          push @fasta_files,  $ref_fasta_file;
@@ -1215,20 +1219,20 @@ sub Reads_taxonomyAssignment
 	}
     my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut -configJson $config_json"; 
     $cmd0 .= " -splitrim-minq ". $configuration->{'splitrim-minq'} if ($configuration->{'splitrim-minq'});
-    $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if ($configuration->{'custom-bwa-db'});
-    $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if ($configuration->{'custom-metaphlan-db'});
-    $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if ($configuration->{'custom-kraken-db'});
-    $cmd0 .= " -pangia-db ". $configuration->{'custom-pangia-db'} if ($configuration->{'custom-pangia-db'});
-    $cmd0 .= " -diamond-db ". $configuration->{'custom-diamond-db'} if ($configuration->{'custom-diamond-db'});
-    $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if ($configuration->{'custom-gottcha-speDB-v'});
-    $cmd0 .= " -gottcha-b-speDB ". $configuration->{'custom-gottcha-speDB-b'} if ($configuration->{'custom-gottcha-speDB-b'});
-    $cmd0 .= " -gottcha-v-strDB ". $configuration->{'custom-gottcha-strDB-v'} if ($configuration->{'custom-gottcha-strDB-v'});
-    $cmd0 .= " -gottcha-b-strDB ". $configuration->{'custom-gottcha-strDB-b'} if ($configuration->{'custom-gottcha-strDB-b'});
-    $cmd0 .= " -gottcha-v-genDB ". $configuration->{'custom-gottcha-genDB-v'} if ($configuration->{'custom-gottcha-genDB-v'});
-    $cmd0 .= " -gottcha-b-genDB ". $configuration->{'custom-gottcha-genDB-b'} if ($configuration->{'custom-gottcha-genDB-b'});
-    $cmd0 .= " -gottcha2-v-genDB ". $configuration->{'custom-gottcha2-genDB-v'} if ($configuration->{'custom-gottcha2-genDB-v'});
-    $cmd0 .= " -gottcha2-b-speDB ". $configuration->{'custom-gottcha2-speDB-b'} if ($configuration->{'custom-gottcha2-speDB-b'});
-    $cmd0 .= " -gottcha2-v-speDB ". $configuration->{'custom-gottcha2-speDB-v'} if ($configuration->{'custom-gottcha2-speDB-v'});
+    $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if (-e $configuration->{'custom-bwa-db'});
+    $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if (-e $configuration->{'custom-metaphlan-db'});
+    $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if (-e $configuration->{'custom-kraken-db'});
+    $cmd0 .= " -pangia-db ". $configuration->{'custom-pangia-db'} if (-e $configuration->{'custom-pangia-db'});
+    $cmd0 .= " -diamond-db ". $configuration->{'custom-diamond-db'} if (-e $configuration->{'custom-diamond-db'});
+    $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if (-e $configuration->{'custom-gottcha-speDB-v'});
+    $cmd0 .= " -gottcha-b-speDB ". $configuration->{'custom-gottcha-speDB-b'} if (-e $configuration->{'custom-gottcha-speDB-b'});
+    $cmd0 .= " -gottcha-v-strDB ". $configuration->{'custom-gottcha-strDB-v'} if (-e $configuration->{'custom-gottcha-strDB-v'});
+    $cmd0 .= " -gottcha-b-strDB ". $configuration->{'custom-gottcha-strDB-b'} if (-e $configuration->{'custom-gottcha-strDB-b'});
+    $cmd0 .= " -gottcha-v-genDB ". $configuration->{'custom-gottcha-genDB-v'} if (-e $configuration->{'custom-gottcha-genDB-v'});
+    $cmd0 .= " -gottcha-b-genDB ". $configuration->{'custom-gottcha-genDB-b'} if (-e $configuration->{'custom-gottcha-genDB-b'});
+    $cmd0 .= " -gottcha2-v-genDB ". $configuration->{'custom-gottcha2-genDB-v'} if (-e $configuration->{'custom-gottcha2-genDB-v'});
+    $cmd0 .= " -gottcha2-b-speDB ". $configuration->{'custom-gottcha2-speDB-b'} if (-e $configuration->{'custom-gottcha2-speDB-b'});
+    $cmd0 .= " -gottcha2-v-speDB ". $configuration->{'custom-gottcha2-speDB-v'} if (-e $configuration->{'custom-gottcha2-speDB-v'});
     $cmd0 .= " > $outputDir/microbial_profiling.settings.ini 2>$logFile"; 
     my $cmd="$RealBin/scripts/microbial_profiling/microbial_profiling.pl $dparam -o $outputDir -s $outputDir/microbial_profiling.settings.ini -c $numCPU $input 2>$logFile";
     if ($noColorLog)
@@ -2036,9 +2040,11 @@ return (\@conversions);
 sub getSysParams {
         my $config = shift;
         my $sys;
+        my $flag=0;
         open CONF, $config or die "Can't open $config: $!";
         while(<CONF>){
                 if( /^\[system\]/ ){
+                        $flag=1;
                         while(<CONF>){
                                 chomp;
                                 last if /^\[/;
@@ -2051,6 +2057,7 @@ sub getSysParams {
                 last;
         }
         close CONF;
+        die "Incorrect system file\n" if (!$flag);
         return $sys;
 }
 
@@ -2059,6 +2066,8 @@ sub readEDGEConfig
     my $file=shift;
     my %hash;
     open (my $fh , $file) or die "No config file $!\n";
+    my $head=<$fh>;
+    if ($head !~ /project/i){ die "Incorrect config file\n"};
     while (<$fh>)
     {
         chomp;
@@ -2142,7 +2151,7 @@ sub runQC
     $parameters .= " -u $unpairedFile " if ( -s $unpairedFile);
     $parameters .= " -q $quality_cutoff --min_L $min_length --avg_q $avg_quality -n $num_N --lc $low_complexity --5end $cut_5_end --3end $cut_3_end";
     $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
-    $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if ($configuration->{"adapter"});
+    $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}));
     $parameters .= " --polyA " if ($configuration->{"polyA"});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
@@ -2297,6 +2306,10 @@ sub runHostRemoval
         &lprint (colored ("[Host Removal]\n $prefix\n",'yellow'));
     }
     
+    if ( ! -e $host){
+    	&lprint("No host file input. Skip anaylysis");
+    	return($pairFile,$unpairFile);
+    }
     my $host_index_dir=$outputDir;
     unless (  -e "$host.bwt" or ($host =~ /edge_ui/ and -w $host))
     {
@@ -2650,7 +2663,7 @@ sub processProvideContigs
         ($contig_file, $contig_for_annotation)=&rename_filter_fasta($providedContigFile,$outputDir,$contig_min_length,$contig_number);
     }else
     {
-        &lprint("failed: The provided contigs file is not in FASTA format. Will skip downstream assembly based analysis. \n") 
+        &lprint("failed: The provided contigs file is not in FASTA format. Will skip downstream assembly based analysis. \n") ;
     }
     &lprint ("Process Provided Contigs Finished\n");
     if ($inputContigs){
@@ -2845,7 +2858,7 @@ sub runAssembly
             $cmd .= "--plasmid " if ($configuration->{SpadesAlgorithm} =~ /plasmid/);
             $cmd .= "--s1 $unpairFile " if (-s $unpairFile);
             $cmd .= "--pacbio $pacbio_file " if ( -s $pacbio_file && (is_fasta($pacbio_file) || is_fastq($pacbio_file)));
-            $cmd .= "--nanopore $nanopore_file " if ( -s $nanopore_file && is_fasta($nanopore_file));
+            $cmd .= "--nanopore $nanopore_file " if ( -s $nanopore_file && (is_fasta($nanopore_file) || is_fastq($nanopore_file)));
         }
         $cmd .= "-m ". int($mem_limit/(1024*1024));
         
@@ -2897,8 +2910,8 @@ sub runAssembly
         &executeCommand("megahit_toolkit contig2fastg $largest_kmer $AssemblerOutDir/intermediate_contigs/k$largest_kmer.contigs.fa  > $final_contig_fastG_file");
     }elsif($assembler =~ /spades/){
         my ($file_name, $file_path, $file_suffix)=fileparse("$AssemblerContigs", qr/\.[^.]*/);
-        &executeCommand("mv -f $file_path/assembly_graph.fastg $final_contig_fastG_file");
-        &executeCommand("mv -f $file_path/assembly_graph_with_scaffolds.gfa $outputDir/assembly_graph_with_scaffolds.gfa");
+        &executeCommand("mv -f $file_path/assembly_graph.fastg $final_contig_fastG_file") if ( -e "$file_path/assembly_graph.fastg");
+        &executeCommand("mv -f $file_path/assembly_graph_with_scaffolds.gfa $outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
     }
 
     # rename contigs id by project name
@@ -3391,29 +3404,6 @@ sub fastaAllSize
     return ($baseCount);
 }
 
-sub makeDirectory
-{
-    if ($configuration->{DoAssembly})
-    {
-     #   `mkdir -p $outDir/AssemblyBasedAnalysis`;
-        #`mkdir -p $outDir/AssemblyBasedAnalysis/contigMappingToRef` if ($referenceGenome);
-        #`mkdir -p $outDir/AssemblyBasedAnalysis/readsMappingToContig`;
-        #`mkdir -p $outDir/AssemblyBasedAnalysis/Annotation` if ($configuration->{DoAnnotation});
-        #`mkdir -p $outDir/AssemblyBasedAnalysis/Indels` if ($referenceGenome);
-    #`mkdir -p $outDir/AssemblyBasedAnalysis/Prophage`;
-       # `mkdir -p $outDir/AssemblyBasedAnalysis/Blast` if (!$referenceGenome);
-    }
-    #mkdir "$outDir/InputReads" if ( ! -e  "$outDir/InputReads");
-    #`mkdir -p $outDir/QcReads`;
-    #`mkdir -p $outDir/ReadsBasedAnalysis`; 
-    #`mkdir -p $outDir/ReadsBasedAnalysis/Taxonomy` if (! $referenceGenome && $configuration->{DoReadsTaxonomy}); 
-    #`mkdir -p $outDir/ReadsBasedAnalysis/UnmappedReads` if ( $referenceGenome); 
-    #`mkdir -p $outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy` if ($referenceGenome && $configuration->{DoReadsTaxonomy}); 
-    # mkdir "$outDir/ReadsBasedAnalysis/UnmappedReads/Assembly" if ( ! -e "$outDir/UnmappedReads/Assembly"); 
-    #`mkdir -p $outDir/Reference` if ( $referenceGenome);  
-    #`mkdir -p $outDir/SNP_Phylogeny` if ($configuration->{DoSNPtree});
-}
-
 sub download_reads
 {
     my @urls = @_;
@@ -3513,9 +3503,10 @@ sub checkFileAndDir
     if (@pairedReadsFile)
     {
         map { &stringSanitization($_);
+	      if ($file{$_}) {Usage("The file, $_,has been used in the paired end data (duplicated)");}
               if(is_file_empty($_)){ Usage("Please check paired data input at flag -p.\n    $_ doesn't not exist or empty.");}
 	      if( ! is_fastq($_)){ unlink $_; Usage("$_ is not in fastq format. File Removed."); }
-              $file{basename($_)}=1; } @pairedReadsFile;
+              $file{$_}=1; } @pairedReadsFile;
         #make pair in a new array 'read1_1 read1_2', 'read2_1 read2_2' ...
         for(my$i=0;$i<=$#pairedReadsFile;$i=$i+2)
         {
@@ -3527,8 +3518,8 @@ sub checkFileAndDir
             {
                 &lprint("The sequence names of the paired end reads in $pairedReadsFile[$i],$pairedReadsFile[$i+1] are not matching.\nWill use them as single end reads\n");
                 push @unpairedReadsFile, $pairedReadsFile[$i],$pairedReadsFile[$i+1];
-                delete $file{basename($pairedReadsFile[$i])};
-                delete $file{basename($pairedReadsFile[$i+1])};
+                delete $file{$pairedReadsFile[$i]};
+                delete $file{$pairedReadsFile[$i+1]};
             }
         }
     }
@@ -3540,13 +3531,13 @@ sub checkFileAndDir
               { 
                   Usage("Please check unpaired data input at flag -u.\n    $_ doesn't not exist or empty.");
               } 
-              if ($file{basename($_)}) 
+              if ($file{$_}) 
               {
                   Usage("The single end file, $_,has been used in the paired end data or duplicated");
               }
               else
               {
-                  $file{basename($_)}=1;
+                  $file{$_}=1;
               }
 	      if ( ! is_fastq($_))
               { 
@@ -3969,7 +3960,7 @@ sub setProxy{
 
 sub stringSanitization{
 	my $str=shift;
-	if($str =~ /[\`\|\;\&\$\>\<\!]/){
+	if($str =~ /[^0-9a-zA-Z\"\,\-\_\^\@\=\:\\\.\/\+ ]/){
 		print STDERR "Invalid characters detected\n";
 		print STDERR" $str\n\n";
 		exit;

@@ -111,6 +111,7 @@ $( document ).ready(function()
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
 		$('#edge-form-submit').closest('.ui-btn').show();
 		$('#edge-form-reset').closest('.ui-btn').show();
+		$('#edge-form-reset').click();
 		$("#edge-submit-info" ).children().remove();
 		$(".edge-main-pipeline-input").hide();
 		$(".edge-targetedngs-pipeline-input").hide();
@@ -141,6 +142,7 @@ $( document ).ready(function()
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
 		$('#edge-form-submit').closest('.ui-btn').show();
 		$('#edge-form-reset').closest('.ui-btn').show();
+		$('#edge-form-reset').click();
 		$("#edge-submit-info" ).children().remove();
 		$(".edge-qiime-pipeline-input").hide();
 		$(".edge-main-pipeline-input").hide();
@@ -389,8 +391,14 @@ $( document ).ready(function()
 			cache: false,
 			data: $.param(response) + '&' + $.param({"action": "sociallogin",'protocol': location.protocol, 'sid': localStorage.sid}),
 			success: function(data){
-				if (data.error){
-					showWarning("Failed to use "+ response.network +"  acoount to login in. Please check server error log for detail.");
+				if (data.social_acc){
+					$('#signUpBtn').click();
+					$('#signUpForm iframe').contents().find("#register-form input[name='firstname']").val(data.social_fn);
+					$('#signUpForm iframe').contents().find("#register-form input[name='lastname']").val(data.social_ln);
+					$('#signUpForm iframe').contents().find("#register-form input[name='email']").val(data.social_acc);
+				}
+				else if (data.error){
+					showWarning("Failed to use "+ response.network +"  acoount to login in." + data.error + "Please check server error log for detail.");
 				}else{
 					data.username = data.email;
 					login(data);
@@ -997,7 +1005,9 @@ $( document ).ready(function()
 	
 	$( "#edge-form-reset" ).on( "click", function() {
 		page.find("form")[0].reset();
-		 $('.ui-select select').val('').selectmenu('refresh');
+		//$('.ui-select select').val('').selectmenu('refresh');
+		$('.ui-select select').selectmenu('refresh',true);
+		$('#edge-proj-cpu').val(localStorage.runCPU);
 		sync_input();
 	});
 
@@ -1180,7 +1190,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : focusProjName, "action": action, "userType":userType, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':localStorage.sid, "rename_project": rename_project, "project_description": project_description},
+			data: { "proj" : focusProjName, "action": action, "shareEmail" :shareEmail,'protocol': location.protocol, 'sid':localStorage.sid, "rename_project": rename_project, "project_description": project_description},
 			beforeSend: function(){
 				if (!request){
 					$.mobile.loading( "show", {
@@ -1767,7 +1777,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'userType':userType,'view':view,'protocol': location.protocol, 'sid':localStorage.sid},
+			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
@@ -1844,16 +1854,21 @@ $( document ).ready(function()
 							if ( action === "compare" || action === 'metadata-export'){
 								actionConfirm(action,focusProjCodes);
 							}else{
-								var actionRequest=[];
-								for (var i = 0; i < projids.length; i++) { 
-									$.mobile.loading( "show", {
-										text: "Executing "+ action.toUpperCase()  + " command...",
-										textVisible: 1,
-										html: ""});
-									actionConfirm(action,projids[i],actionRequest);
-								}
+								//loop with 200 ms delay
+								(function actionLoop (i) {
+									setTimeout(function () {
+										$.mobile.loading( "show", {
+											text: "Executing "+ action.toUpperCase()  + " command...",
+											textVisible: 1,
+											html: ""});
+										actionConfirm(action,projids[i-1]);
+										if (--i) {                  // If i > 0, keep going
+											actionLoop(i);  // Call the loop again
+										}
+									}, 200);
+								})(projids.length);
 								// wait for all ajax request done
-								$.when.apply(null,actionRequest).done(function(){
+								setTimeout(function(){
 									$( "#edge_integrity_dialog" ).popup('close');
 									$( "#edge_integrity_dialog_header" ).text("Message");
 									$( "#edge_integrity_dialog" ).popup("reposition",{positionTo: 'window'});
@@ -1866,7 +1881,7 @@ $( document ).ready(function()
 									}
 									updateProjectsPage( $("#edge-project-page-li").data( "mode") );
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
-								});
+								},500*projids.length);
 							}
 						});
 					}
@@ -2009,6 +2024,7 @@ $( document ).ready(function()
 					check_user_management();
 				}
 				$('#edge-proj-cpu').val(obj.INFO.RUNCPU);
+				localStorage.runCPU = obj.INFO.RUNCPU;
 			},
 			error: function(data){
 				showWarning("Failed to initialized EDGE GUI interface. Please check server error log for detail.");
@@ -2456,6 +2472,7 @@ $( document ).ready(function()
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
 		$('#edge-form-submit').closest('.ui-btn').show();
 		$('#edge-form-reset').closest('.ui-btn').show();
+		$('#edge-form-reset').click();
 		$("#edge-submit-info" ).children().remove();
 		$("#edge-fastq-input-block").children().show();
 		$(".btnAdd-edge-input").children().show();
@@ -2875,7 +2892,7 @@ $( document ).ready(function()
 			dataType: "json",
 			cache: false,
 			//data: $( "#edge-run-pipeline-form" ).serialize(),
-			data: ( $("#edgesite-form").serialize() +'&'+ $.param({'sid':localStorage.sid, 'userType':userType,'action':'edgesite-save' })),
+			data: ( $("#edgesite-form").serialize() +'&'+ $.param({'sid':localStorage.sid,'action':'edgesite-save' })),
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "submitting...",
@@ -3194,7 +3211,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'userType':'user','view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'form'},
+			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'form'},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
@@ -3279,7 +3296,7 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'userType':userType,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'list'},
+			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'list'},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",

@@ -21,9 +21,7 @@ $EDGE_HOME ||= "$RealBin/../..";
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 
-for my $checkName ( keys %opt){
-        &stringSanitization($opt{$checkName});
-}
+&stringSanitization(\%opt);
 
 ##db settings
 my $host=$sys->{edge_dbhost};
@@ -387,9 +385,11 @@ exit;
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -401,13 +401,17 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 sub stringSanitization{
-        my $str=shift;
-        if($str =~ /[\`\|\;\&\$\>\<\!]/){
-                print "Content-Type: text/html\n\n", "Invalid characters detected\n\n";
+	my $opt=shift;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
+			print "Content-Type: text/html\n\n", "Invalid characters detected \'$str\'.\n\n";
         }
+	}
 }
 
 1;

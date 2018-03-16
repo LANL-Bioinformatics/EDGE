@@ -38,10 +38,8 @@ my $ip          = $ARGV[5];
 $ENV{REMOTE_ADDR} = $ip if $ip;
 my $domain      = $ENV{'HTTP_HOST'}|| 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
+&stringSanitization(\%opt);
 
-for my $checkName ( keys %opt){
-	&stringSanitization($opt{$checkName});
-}
 exit if (!$pname);
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -164,9 +162,11 @@ sub scanProjToList {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -178,6 +178,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -235,8 +236,32 @@ sub getProjID {
 }
 
 sub stringSanitization{
-	my $str=shift;
-	if($str =~ /[\`\|\;\&\$\>\<\!]/){
-		print "Content-Type: text/html\n\n", "Invalid characters detected\n\n";
+	my $opt=shift;
+	my $dirtybit=0;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username" || $key eq "shareEmail"){
+			my @email = split(',',$str);
+			map { $dirtybit =1  if ! &emailValidate($_); } @email;
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			print "Content-Type: text/html\n\n", "Invalid characters detected \'$str\'.\n\n";
+		}
 	}
 }
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	my $domain   = qr/[a-z0-9.-]+/;
+	my $regex = $email =~ /^$username\@$domain$/;
+	return $regex;
+}
+

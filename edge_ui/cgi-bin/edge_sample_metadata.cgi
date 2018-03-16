@@ -13,22 +13,22 @@ my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
 my $sid         = $opt{'sid'};
-my $userType         = $opt{'userType'};
+my $userType;
 my $prealname = $opt{projname};
 my $action = $opt{'action'};
+my $info;
 
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 
-for my $checkName ($pname,$sid,$userType,$prealname,$action){
-	&stringSanitization($checkName);
-}
+&stringSanitization(\%opt);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
+my $um_url      = $sys->{edge_user_management_url};
 
-my $info;
+
 if ($action eq "check"){
 	if ($sys->{edge_sample_metadata}){
 		$info->{metadata} = "on";
@@ -52,6 +52,10 @@ if($action eq "edgesite-save") {
 			my $json = encode_json($msg);
 			print $cgi->header('application/json'), $json;
 			exit;
+		}else{
+			my ($username,$password) = getCredentialsFromSession($sid);
+			my $user_info=&getUserInfo($username,$password,$msg);
+			$userType=$user_info->{type};
 		}
 		if($userType ne "admin") {
 			
@@ -262,11 +266,9 @@ if( $proj_list->{$pname} ){
 			#sample metadata
 			my $metadata_out = "$projDir/metadata_sample.txt";
 			open OUT,  ">$metadata_out";
-			$opt{'metadata-study-title'} =~ s/["']//g;
 			my $id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"`;
 			print OUT "study_id=$id\n";
 			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} );
-			$opt{'metadata-study-type'} =~ s/["']//g;
 			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
 			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); ; 
 			print OUT "sample_name=".$opt{'metadata-sample-name'}."\n" if ( $opt{'metadata-sample-name'} ); 
@@ -282,18 +284,15 @@ if( $proj_list->{$pname} ){
 					}
 					print OUT "host=human\n";
 				} else {
-					$opt{'metadata-host'} =~ s/["']//g;
 					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
 					print OUT "host=".$opt{'metadata-host'}."\n";
 					`rm -f $travel_out`;
 					`rm -f $symptom_out`;
 				}
 				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
-				$opt{'metadata-isolation-source'} =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			} else {
-				$opt{'metadata-isolation-source'}  =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 				`rm -f $travel_out`;
@@ -308,10 +307,8 @@ if( $proj_list->{$pname} ){
 			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
 			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
 			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
-			$opt{'metadata-seq-center'} =~ s/["']//g;
 			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
 			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
-			$opt{'metadata-sequencer'} =~ s/["']//g;
 			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
@@ -347,6 +344,36 @@ if( $proj_list->{$pname} ){
 exit;
 
 ######################################################
+sub getUserInfo {
+	my $username=shift;
+	my $password=shift;
+	my $msg=shift;
+        my $service = "WS/user/getInfo";
+        my $url = $um_url .$service;
+        my %user_info;
+        my %data = (
+                email => $username,
+                password => $password
+        );
+        my $data = to_json(\%data);
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+        $req->header( "Content-Length" => length($data) );
+        $req->content($data);
+
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+        print $result_json,"\n" if (@ARGV);
+        if ($result_json =~ /\"error_msg\":"(.*)"/){
+		$msg->{ERROR}=$1;
+                return;
+        }
+        my $tmp_r = from_json($result_json);
+        $user_info{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
+        return \%user_info;
+}
 
 sub scanProjToList {
 	my $out_dir = shift;
@@ -381,9 +408,11 @@ sub scanProjToList {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -395,6 +424,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -408,9 +438,16 @@ sub returnStatus {
 }
 
 sub stringSanitization{
-	my $str=shift;	
-	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
-		$info->{INFO} = "Invalid characters detected.";
-		&returnStatus();
+	my $opt=shift;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		if ($key =~ /metadata|edgesite|locality|administrative|country|lat|lng/){
+			$opt->{$key} =~ s/[`";']/ /g;
+			next;
+		}
+		if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
 	}
 }

@@ -17,7 +17,7 @@ my %opt   = $cgi->Vars();
 my $username    = $opt{'username'}|| $ARGV[0];
 my $password    = $opt{'password'}|| $ARGV[1];
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[2];
-my $userType    = $opt{'userType'}|| $ARGV[3];
+my $userType;
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
@@ -25,7 +25,7 @@ my $action = lc($opt{action});
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-prod.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $info;
-
+&stringSanitization(\%opt);
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -46,6 +46,8 @@ if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
 	if($valid){
 		($username,$password) = getCredentialsFromSession($sid);
+		my $user_info=&getUserInfo($username,$password);
+		$userType=$user_info->{type};
 	}
 }
 
@@ -362,9 +364,11 @@ sub printTable {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -376,6 +380,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -718,7 +723,35 @@ sub addReport2DB{
 	my $new_name =  $info->{"code"};
 	return $new_name;
 }
+sub getUserInfo {
+	my $username=shift;
+	my $password=shift;
+        my $service = "WS/user/getInfo";
+	my $url = $um_url .$service;
+	my %user_info;
+	my %data = (
+		email => $username,
+		password => $password
+	);
+	my $data = to_json(\%data);
+	my $browser = LWP::UserAgent->new;
+	my $req = PUT $url;
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	$req->header( "Content-Length" => length($data) );
+	$req->content($data);
 
+	my $response = $browser->request($req);
+	my $result_json = $response->decoded_content;
+	print $result_json,"\n" if (@ARGV);
+ 	if ($result_json =~ /\"error_msg\":"(.*)"/){
+		print "Content-Type: text/html\n\n", "Fail to get user info\n\n";
+		exit;
+	}
+	my $tmp_r = from_json($result_json);
+	$user_info{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
+	return \%user_info;
+}
 sub getReportsFromDB{
 	my $type = shift;
 	my $list;
@@ -836,4 +869,37 @@ sub shareReport{
                 $info->{INFO} .= " $action Report $report_name to $email failed. $result->{error_msg}";
 	}
 }
+
+sub stringSanitization{
+	my $opt=shift;
+	my $dirtybit=0;
+	foreach my $key (keys %$opt){
+		my $str = $opt->{$key};
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username" or $key eq "shareEmail"){
+			my @email = split(',',$str);
+			map { $dirtybit =1  if ! &emailValidate($_); } @email;
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			next if $key eq "edge-report-desc";
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\_\@\-\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
+	}
+}
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	my $domain   = qr/[a-z0-9.-]+/;
+	my $regex = $email =~ /^$username\@$domain$/;
+	return $regex;
+}
+
 

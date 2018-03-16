@@ -33,7 +33,7 @@ my $new_proj_name = $opt{rename_project};  #getting project name input value fro
 my $new_proj_desc = $opt{project_description};  #getting project description input value from edge.js
 my $action = lc($opt{action});
 my $shareEmail = $opt{shareEmail};
-my $userType = $opt{userType}||"user";
+my $userType;
 my $protocol = $opt{protocol}||"http:";
 my $sid = $opt{sid};
 my $taxa_for_contig_extract = $opt{taxa};
@@ -56,12 +56,8 @@ $sid        ||= $ARGV[5];
 $domain     ||= $ARGV[6];
 my $umSystemStatus = $ARGV[7];
 my ($webhostname) = $domain =~ /^(\S+?)\./;
-for my $checkName ($pname,$new_proj_name,$contig_id,$reference_id,$reference_file_prefix,$cptool_for_reads_extract){
-	&stringSanitization($checkName,2);
-}
-&stringSanitization($blast_params,1);
-&stringSanitization($taxa_for_contig_extract);
-&stringSanitization($new_proj_desc);
+my $info;
+&stringSanitization(\%opt);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -77,7 +73,6 @@ my $runhost	= $sys->{"edge-proj-runhost"} || "$protocol//$domain";
 $um_url	      ||= "$protocol//$domain/userManagement";
 $out_dir      ||= "/tmp"; #for security
 $umSystemStatus ||= $sys->{user_management} if (! @ARGV);
-my $info;
 (my $out_rel_dir = $out_dir) =~ s/$www_root//;
 my $proj_dir    = abs_path("$out_dir/$pname");  # resolve symlink
 my $proj_rel_dir = "$out_rel_dir/$pname";
@@ -132,7 +127,8 @@ if ( $umSystemStatus )
 	}
 	
 	$list = &getUserProjFromDB("owner");
-
+	my $user_info=&getUserInfo();
+	$userType=$user_info->{type};
 	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($action ne 'compare' && $action ne 'metadata-export');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
@@ -288,7 +284,7 @@ elsif( $action eq 'delete' ){
 		`rm -rf $out_dir/$pname`;
 		`rm -f $www_root/JBrowse/data/$pname $www_root/JBrowse/data/$projCode`;
 		`rm -f $www_root/opaver_web/data/$pname $www_root/opaver_web/data/$projCode`;
-		`rm -rf $www_root/../thirdParty/pangia/pangia-vis/data/$projCode`;
+		`rm -rf $www_root/../thirdParty/pangia/pangia-vis/data/$projCode*`;
 		if( !-e $proj_dir && !-e "$out_dir/$pname" ){
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "Project $real_name has been deleted.";
@@ -782,7 +778,6 @@ elsif( $action eq 'metadata-export'){
 #END sample metadata
 elsif($action eq 'define-gap-depth'){
 	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;
-	&stringSanitization($gap_depth_cutoff,2);
 	my $gap_out_dir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
 	my $gap_outfile="$gap_out_dir/readsToRef_d$gap_depth_cutoff.gaps";
 	my $gff_file="$proj_dir/Reference/reference.gff";
@@ -826,9 +821,11 @@ elsif($action eq 'define-gap-depth'){
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0; 
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -840,6 +837,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -851,7 +849,7 @@ sub killProcess {
 }
 
 sub checkProjVital {
-	my $ps = `ps aux | grep run[P]`;
+	my $ps = `ps auxww | grep run[P]`;
 	my $vital;
 	my $name2pid;
 	my @line = split "\n", $ps;
@@ -879,21 +877,36 @@ sub availableToRun {
 }
 
 sub stringSanitization{
-	my $str=shift;
-	my $level=shift;
+	my $opt=shift;
 	my $dirtybit=0;
-	if ($level > 1 && $str =~ /[\`\{\}\(\)\<\>\&\*\'\|\=\?\;\[\]\$\#\~\!\"\%\\\:\+\/\ ]/){
-		$dirtybit=1;
-	}elsif ($level && $str =~ /[\`\{\}\(\)\<\>\&\*\'\|\=\?\;\[\]\$\#\~\!\"\%\^\:\+]/){
-		$dirtybit=1;
-	}elsif($str =~ /[\`\|\;\&\$\>\<\!\#]/){
-		$dirtybit=1;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username" || $key eq "shareEmail"){
+			my @email = split(',',$str);
+			map { $dirtybit =1  if ! &emailValidate($_); } @email;
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			next if $key eq "project_description";
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
 	}
-	if ($dirtybit){
-		$info->{INFO} = "Invalid characters detected  \'$str\'.";
-		&returnStatus();
-	}
-																				}
+}
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	my $domain   = qr/[a-z0-9.-]+/;
+	my $regex = $email =~ /^$username\@$domain$/;
+	return $regex;
+}
 
 sub returnStatus {
 	my $json = "{}";
@@ -987,9 +1000,9 @@ sub renameProject{
 		}
 	}
 	if ($info->{STATUS} eq "SUCCESS"){
-     		system("sed -i.bak 's/projname=[[:graph:]]*/projname=$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $config_file") if ( -e $config_file); 
-     		system("sed -i.bak 's/$real_name/$project_name/; s/projdesc=[[:graph:]]*/projdesc=$project_description/;' $process_log") if ( -e $process_log);
-		system("sed -i.bak 's/edge-proj-name\" : \"[[:graph:]]*\"/edge-proj-name\" : \"$project_name\"/; s/edge-proj-desc\" : \"[[:graph:]]*\"/edge-proj-desc\" : \"$project_description\"/;' $config_json") if ( -e $config_json);
+		system("sed -i.bak 's/projname=[[:graph:]]*/projname=$project_name/; s/projdesc=[[:print:]]*/projdesc=$project_description/;' $config_file") if ( -e $config_file);
+		system("sed -i.bak 's/$real_name/$project_name/; s/projdesc=[[:print:]]*/projdesc=$project_description/;' $process_log") if ( -e $process_log);
+		system("sed -i.bak 's/edge-proj-name\" : \"[[:graph:]]*\"/edge-proj-name\" : \"$project_name\"/; s/edge-proj-desc\" : \"[[:print:]]*\"/edge-proj-desc\" : \"$project_description\"/;' $config_json") if ( -e $config_json);
 		if (!$umSystemStatus){
 			 `mv $proj_dir $out_dir/$project_name`;
 			$proj_dir = "$out_dir/$project_name";
@@ -1231,7 +1244,33 @@ sub getUserProjFromDB{
 	}
 	return $list;
 }
+sub getUserInfo {
+        my $service = "WS/user/getInfo";
+	my $url = $um_url .$service;
+	my %user_info;
+ 	my %data = (
+		email => $username,
+ 		password => $password
+	);
+	my $data = to_json(\%data);
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+	$req->header( "Content-Length" => length($data) );
+	$req->content($data);
 
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+ 	print $result_json,"\n" if (@ARGV);
+	if ($result_json =~ /\"error_msg\":"(.*)"/){
+		$list->{INFO}->{ERROR}=$1;
+		return;
+	}
+	my $tmp_r = from_json($result_json);
+	$user_info{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
+	return \%user_info; 
+}
 sub scanProjToList{
 	my $out_dir = shift;
 	my $pname = shift;

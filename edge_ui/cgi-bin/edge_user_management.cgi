@@ -29,9 +29,10 @@ my $domain       = $ENV{'HTTP_HOST'};
 $domain ||= "edgeset.lanl.gov";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
-for my $checkName (@pname,$sid,$protocol,$action){
-	&stringSanitization($checkName);
-}
+my $info;
+my %data;
+
+&stringSanitization(\%opt);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -47,8 +48,7 @@ my $sessionValid = 0;
 $protocol ||= "http:";
 $um_url ||= "$protocol//$domain/userManagement";
 #print Dumper (\%ENV);
-my $info;
-my %data;
+
 
 #check session
 if( $sys->{user_management} ){
@@ -136,7 +136,7 @@ elsif ($action eq "sociallogin"){
                 email => $social_email,
 		password => $auto_pass
 	);
-	if ($info->{$social_email}){
+	if ($info->{$social_email} and $info->{$social_email} =~ /yes/i){
 		$info={};
 		#try to login 
 		my $data = to_json(\%data);
@@ -151,13 +151,12 @@ elsif ($action eq "sociallogin"){
 			&um_service($um_url,$data,"WS/user/getInfo");
 		}
 		$info->{password} = $auto_pass;
-	}else{	# no existing account, auto register user by user social login info
-		$data{firstname} = $social_fn;
-		$data{lastname} = $social_ln;
-		my $data = to_json(\%data);
-		&um_service($um_url,$data,"WS/user/register");
-		&um_service($um_url,$data,"WS/user/getInfo");
-		$info->{password} = $auto_pass;
+	}elsif($info->{$social_email}){
+		$info->{error} = "The existing account is not active.";
+	}else{	# no existing account, redirect to register user page by user social login info
+		$info->{social_acc} = $social_email;
+		$info->{social_fn} = $social_fn;
+		$info->{social_ln} = $social_ln;
 	}
 }
 elsif ($action eq "share" || $action eq "unshare"){
@@ -208,9 +207,11 @@ elsif ($action eq "report-share" || $action eq "report-unshare"){
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -222,6 +223,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -273,7 +275,8 @@ sub um_service {
 		if ($action =~ /sociallogin/){
 			foreach (@$array_ref){
 				my $email=$_->{email};
-				$info->{"$email"} = 1;
+				my $active=$_->{active};
+				$info->{"$email"} = $active;
 			}
 		}else{
 			$info =  $array_ref;
@@ -290,9 +293,33 @@ sub returnStatus {
 }
 
 sub stringSanitization{
-	my $str=shift;
-	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
-		$info->{INFO} = "Invalid characters detected.";
-		&returnStatus();
+	my $opt=shift;
+	my $dirtybit=0;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		next if $key eq "newPass";
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username" || $key eq "email"){
+			$dirtybit =1  if ! &emailValidate($str);
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
 	}
 }
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	my $domain   = qr/[a-z0-9.-]+/;
+	my $regex = $email =~ /^$username\@$domain$/;
+	return $regex;
+}
+

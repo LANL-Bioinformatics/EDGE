@@ -10,7 +10,7 @@ my $info; # info to return
 my $cgi     = CGI->new;
 my %opt     = $cgi->Vars();
 my $queries = $opt{'query'} || $ARGV[0];
-&stringSanitization($queries);
+&stringSanitization(\%opt);
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -54,26 +54,32 @@ sub readListFromJson {
 sub getSysParamFromConfig {
         my $config = shift;
         my $sys;
+        my $flag=0;
         open CONF, $config or die "Can't open $config: $!";
         while(<CONF>){
-                if( /^\[system\]/ ){
-                        while(<CONF>){
-                                chomp;
-                                last if /^\[/;
-                                if ( /^([^=]+)=([^=]+)/ ){
-                                        $sys->{$1}=$2;
-                                }
-                        }
-                }
-                last;
-        }
+			if( /^\[system\]/ ){
+				$flag=1;
+				while(<CONF>){
+					chomp;
+					last if /^\[/;
+					if ( /^([^=]+)=([^=]+)/ ){
+						$sys->{$1}=$2;
+					}
+				}
+			}
+			last;
+		}
         close CONF;
+        die "Incorrect system file\n" if (!$flag);
         return $sys;
 }
 sub stringSanitization{
-	my $str=shift;
-        if ($str =~ /[\`\|\;\&\$\>\<\!]/){
-		$info->{INFO} = "Invalid characters detected.";
-		&returnStatus();
+	my $opt=shift;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
 	}
 }

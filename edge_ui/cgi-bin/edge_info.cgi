@@ -54,9 +54,12 @@ $ENV{REMOTE_ADDR} = $ip if $ip;
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-dev-master.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
-for my $checkName ( keys %opt){
-        &stringSanitization($opt{$checkName});
-}
+my $list; # ref for project list
+my @projlist; # project list index
+my $prog; # progress for latest job
+my $info; # info to return
+
+&stringSanitization(\%opt);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -80,10 +83,6 @@ my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 &LoadSGEenv($sys) if ($cluster);
 
-my $list; # ref for project list
-my @projlist; # project list index
-my $prog; # progress for latest job
-my $info; # info to return
 
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
 $info->{INFO}->{CPUU} = $cpuUsage;
@@ -272,9 +271,11 @@ sub saveListToJason {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -286,6 +287,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -449,9 +451,9 @@ sub scanNewProjToList {
 			$list->{$cnt}->{PROJNAME} = $projname;
 
 			## sample metadata
+			$list->{$cnt}->{ISOWNER} = 1;
 			if($sys->{edge_sample_metadata}) {
 				$list->{$cnt}->{SHOWMETA} = 1;
-				$list->{$cnt}->{ISOWNER} = 1;
 			}
 			my $metaFile = "$out_dir/$file/metadata_sample.txt";
 			my $runFile = "$out_dir/$file/metadata_run.txt";
@@ -511,7 +513,7 @@ sub getSystemUsage {
 }
 
 sub checkProjVital {
-	my $ps = `ps aux | grep run[P]`;
+	my $ps = `ps auxww | grep run[P]`;
 	my $vital;
 	my $name2pid;
 	my @line = split "\n", $ps;
@@ -749,9 +751,33 @@ sub returnStatus {
 	exit;
 }
 sub stringSanitization{
-	my $str=shift;
-	if ($str =~ /[\`\|\;\&\$\>\<\!]/){
-		$info->{INFO} = "Invalid characters detected.";
-		&returnStatus();
+	my $opt=shift;
+	my $dirtybit=0;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username"){
+			$dirtybit =1  if ! &emailValidate($str);
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
 	}
 }
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	my $domain   = qr/[a-z0-9.-]+/;
+	my $regex = $email =~ /^$username\@$domain$/;
+	return $regex;
+}
+
+

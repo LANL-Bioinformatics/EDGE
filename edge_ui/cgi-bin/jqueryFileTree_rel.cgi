@@ -29,6 +29,8 @@ my $params = &getCGIParams();
 print "Content-type: text/html\n\n";
 
 my $dir = $params->{dir};
+if ($dir =~ /[^0-9a-zA-Z_\/]/){print "Error\n"; exit;}
+if ($dir !~ /EDGE_output\/+\w+/){print "Error\n"; exit;}
 my $fullDir = $root . $dir;
 
 exit if ! -e $fullDir;

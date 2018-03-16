@@ -285,9 +285,11 @@ sub readBatchInput {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -300,6 +302,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -365,29 +368,36 @@ sub createConfig {
 		if( defined $opt{"edge-input-config"} && -e $opt{"edge-input-config"} ){
 			open CFG, $opt{"edge-input-config"};
 			open CFG_OUT, ">$config_out";
-			while(<CFG>){
-				chomp;
-				my $line = $_;
-				if( $line =~ /^cpu=/ ){
-					$line =~ s/^cpu=.*/cpu=$num_cpu/;
+			my $head=<CFG_OUT>;
+			if ($head !~ /project/i){
+					&addMessage("GENERATE_CONFIG","failure","Incorrect config file");
+			}else{
+				while(<CFG>){
+					chomp;
+					my $line = $_;
+					if( $line =~ /^cpu=/ ){
+						$line =~ s/^cpu=.*/cpu=$num_cpu/;
+					}
+					elsif( $line =~ /^outpath=/ ){
+						$line =~ s/^outpath=.*/outpath=$out_dir/;
+					}
+					elsif( $line =~ /^projname=/ ){
+						$line =~ s/^projname=.*/projname=$opt{"edge-proj-name"}/;
+					}
+					elsif( $line =~ /^projdesc=/ ){
+						$line =~ s/^projdesc=.*/projdesc=$opt{"edge-proj-desc"}/;
+					}
+					elsif( $line =~ /^projid=/ ){
+						$line =~ s/^projdesc=.*/projdesc=$pname/;
+					}
+					$line =~ s/[`;]//g;
+					&addMessage("GENERATE_CONFIG","failure","Invalid config") if ($line =~ /\.\.\//);
+					print CFG_OUT "$line\n";
 				}
-				elsif( $line =~ /^outpath=/ ){
-					$line =~ s/^outpath=.*/outpath=$out_dir/;
-				}
-				elsif( $line =~ /^projname=/ ){
-					$line =~ s/^projname=.*/projname=$opt{"edge-proj-name"}/;
-				}
-				elsif( $line =~ /^projdesc=/ ){
-					$line =~ s/^projdesc=.*/projdesc=$opt{"edge-proj-desc"}/;
-				}
-				elsif( $line =~ /^projid=/ ){
-					$line =~ s/^projdesc=.*/projdesc=$pname/;
-				}
-				print CFG_OUT "$line\n";
+				close CFG_OUT;
+				close CFG;
+				&addMessage("CONFIG","info","Use existing config $config_out.");
 			}
-			close CFG_OUT;
-			close CFG;
-			&addMessage("CONFIG","info","Use existing config $config_out.");
 		}
 		else{
 			if ( $opt{"edge-hostrm-sw"} )
@@ -681,7 +691,7 @@ sub availableToRun {
 }
 
 sub checkProjVital {
-	my $ps = `ps aux | grep run[P]`;
+	my $ps = `ps auxww | grep run[P]`;
 	my $vital;
 	my $name2pid;
 	my @line = split "\n", $ps;
@@ -783,18 +793,16 @@ sub checkParams {
 			next if $param eq "username";
 			next if $param eq "password";
 			##sample metadata
-			next if $param =~ /metadata/;
-			next if $param =~ /edgesite/;
-			next if $param eq "locality";
-			next if $param eq "administrative_area_level_1";
-			next if $param eq "country";
-			next if $param eq "lat";
-			next if $param eq "lng";
+			if ($param =~ /metadata|edgesite|locality|administrative|country|lat|lng/){
+				$opt{$param} =~ s/[`";']/ /g;
+				next;
+			}
 			next if $param eq "keywords";
 			if ($param =~ /aligner-options/){
 				 &addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\|\;\&\$\>\<\!\#]/;
+				 next;
 			};
-			
+			&addMessage("PARAMS","$param","$param Invalid characters detected.") if ($param =~ /input|custom-/ && $opt{$param} =~ /\.\.\//);
 			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
@@ -952,6 +960,7 @@ sub checkParams {
 		$opt{"edge-targetedngs-ref-file"} = $input_dir."/".$opt{"edge-targetedngs-ref-file"} if ($opt{"edge-targetedngs-ref-file"} =~ /^\w/);
         
 		&addMessage("PARAMS", "edge-targetedngs-ref-file","File not found. Please check the file path.") if ( $opt{"edge-targetedngs-ref-file"} && ! -e $opt{"edge-targetedngs-ref-file"} );
+		&addMessage("PARAMS", "edge-targetedngs-ref-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-targetedngs-ref-file"} && ! is_fasta($opt{"edge-targetedngs-ref-file"}) );
 		&addMessage("PARAMS","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{""} >=0 && $opt{""} <=1 );
 		&addMessage("PARAMS", "edge-targetedngs-depth-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-depth-cutoff"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-targetedngs-len-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-len-cutoff"}=~ /^\d+$/;
@@ -1173,16 +1182,20 @@ sub parse_qiime_mapping_files{
 		my $file_path = "$input_dir/$qiime_dir" if ($qiime_dir =~ /^\w/);
 		my $file_column_index;
 		my $fh;
+		&addMessage("PARAMS","edge-qiime-mapping-file-input1","Please select mapping from EDGE_input directory") if ($f !~ /EDGE_input/ || $f =~ /\.\.\//);
+		$f =~ s/[`';"]//g;
 		if ($f =~ /xlsx$/){
 			open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
 		}else{
 			open ($fh, "$f") or die "Cannot read $f\n";
 		}
+		my $column_headers=0;
 		while(<$fh>){
 			chomp;
 			next if (/^\n/);
 			next unless (/\S/);
 			if (/SampleID/){
+				$column_headers=1;
 				my @header = split /\t/,$_;
 				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
 			}elsif(! /^#/){
@@ -1200,6 +1213,7 @@ sub parse_qiime_mapping_files{
 			}
 		}
 		close $fh;
+		&addMessage("PARAMS","edge-qiime-mapping-file-input1","Incorrect mapping metadata file") if (!$column_headers);
 	}
 	&addMessage("PARAMS","edge-qiime-mapping-file-input1","No fastq input in the mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
 	return (\@pe1_files,\@pe2_files,\@se_files);
@@ -1316,11 +1330,9 @@ sub createSampleMetadataFile {
                         print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
 
 			my $id = $opt{'metadata-study-id'};
-			$opt{'metadata-study-title'} =~ s/["']//g;
 			$id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"` unless $id;
 			print OUT "study_id=$id\n";
 			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
-			$opt{'metadata-study-type'} =~ s/["']//g;
 			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
 			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); 
 			if($batch_sra_run) {
@@ -1339,16 +1351,13 @@ sub createSampleMetadataFile {
 					}
 					print OUT "host=human\n";
 				} else {
-					$opt{'metadata-host'} =~ s/["']//g;
 					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
 					print OUT "host=".$opt{'metadata-host'}."\n";
 				}
 				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
-				$opt{'metadata-host-condition'} =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			} else {
-				$opt{'metadata-isolation-source'}  =~ s/["']//g;
 				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			}
@@ -1361,10 +1370,8 @@ sub createSampleMetadataFile {
 			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
 			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
 			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
-			$opt{'metadata-seq-center'} =~ s/["']//g;
 			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
 			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
-			$opt{'metadata-sequencer'} =~ s/["']//g;
 			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );

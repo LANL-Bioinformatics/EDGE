@@ -7,11 +7,21 @@ use CGI;
 my $query = CGI->new;
 my $sid = $query->param( 'sid' );
 
+print "Content-Type: text/html\n\n";
+
+&stringSanitization($sid);
 my $valid = &verifySession($sid);
 
-print "Content-Type: text/html\n\n";
 if($valid) {
    print "true";
 } else {
    print "false";
+}
+
+sub stringSanitization{
+	my $str=shift;
+	if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
+		print "Invalid characters detected \'$str\'.\n\n";
+		
+	}
 }
