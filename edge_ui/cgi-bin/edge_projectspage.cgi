@@ -10,6 +10,7 @@ use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
 use Data::Dumper;
+use Email::Valid;
 #use CGI::Pretty;
 require "edge_user_session.cgi";
 
@@ -512,9 +513,6 @@ sub stringSanitization{
 sub emailValidate{
 	my $email=shift;
 	$email = lc($email);
-	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
-	my $domain   = qr/[a-z0-9.-]+/;
-	my $regex = $email =~ /^$username\@$domain$/;
-	return $regex;
+	return Email::Valid->address($email);
 }
 

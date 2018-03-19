@@ -13,7 +13,7 @@ use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
 use Data::Dumper;
-
+use Email::Valid;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use POSIX qw(strftime);
@@ -259,9 +259,6 @@ sub stringSanitization{
 sub emailValidate{
 	my $email=shift;
 	$email = lc($email);
-	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
-	my $domain   = qr/[a-z0-9.-]+/;
-	my $regex = $email =~ /^$username\@$domain$/;
-	return $regex;
+	return Email::Valid->address($email);
 }
 

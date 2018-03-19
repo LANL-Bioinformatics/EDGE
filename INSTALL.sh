@@ -18,7 +18,7 @@ utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcf
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
-perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
+perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
 pipeline_tools=( targetedNGS reference-based_assembly )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
@@ -1185,6 +1185,44 @@ echo "
 "
 }
 
+install_perl_email_valid(){
+local VER=1.202
+echo "-----------------------------------------------------------------------------
+		Installing Perl Module Email-Valid-$VER
+ ------------------------------------------------------------------------------
+"
+tar xvzf Email-Valid-$VER.tar.gz
+cd Email-Valid-$VER
+perl Makefile.PL
+make
+cp -fR blib/lib/* $rootdir/lib/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+		Email-Valid-$VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_perl_mailtools(){
+local VER=2.20
+echo "-----------------------------------------------------------------------------
+		Installing Perl Module MailTools-$VER
+ ------------------------------------------------------------------------------
+"
+tar xvzf MailTools-$VER.tar.gz
+cd MailTools-$VER
+perl Makefile.PL
+make
+cp -fR blib/lib/* $rootdir/lib/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+		MailTools-$VER Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_Anaconda2()
 {
 echo "------------------------------------------------------------------------------
@@ -2114,6 +2152,22 @@ then
 else
   echo "Perl CGI::Session is not found"
   install_perl_cgi_session
+fi
+
+if ( checkPerlModule Email::Valid )
+then
+  echo "Perl Email::Valid is found"
+else
+  echo "Perl Email::Valid is not found"
+  install_perl_email_valid
+fi
+
+if ( checkPerlModule Mail::Address )
+then
+  echo "Perl Mail::Address is found"
+else
+  echo "Perl Mail::Address is not found"
+  install_perl_mailtools
 fi
 
 if [ -x $rootdir/edge_ui/JBrowse/bin/prepare-refseqs.pl ]

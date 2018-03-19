@@ -33,6 +33,7 @@ print "Content-type: text/html\n\n";
 
 my $dir = $params->{dir};
 if ($dir =~ /[^0-9a-zA-Z_\/]/){print "Error\n"; exit;}
+if ($dir !~ /\w+/){print "Error\n"; exit;}
 my $fullDir = $root . $dir;
 
 exit if ! -e $fullDir;
@@ -108,9 +109,11 @@ sub getCGIParams {
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
+	my $flag=0;
 	open CONF, $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -122,6 +125,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 

@@ -17,6 +17,7 @@ use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use Tie::File;
+use Email::Valid;
 
 require "edge_user_session.cgi";
 require "$RealBin/../cluster/clusterWrapper.pl";
@@ -902,10 +903,7 @@ sub stringSanitization{
 sub emailValidate{
 	my $email=shift;
 	$email = lc($email);
-	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
-	my $domain   = qr/[a-z0-9.-]+/;
-	my $regex = $email =~ /^$username\@$domain$/;
-	return $regex;
+	return Email::Valid->address($email);
 }
 
 sub returnStatus {

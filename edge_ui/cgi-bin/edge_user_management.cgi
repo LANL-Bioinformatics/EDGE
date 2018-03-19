@@ -9,6 +9,9 @@ use JSON;
 use CGI qw(:standard);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
+use File::Path qw(make_path remove_tree);
+use File::Copy;
+use Email::Valid;
 require "edge_user_session.cgi";
 
 my $cgi    = CGI->new;
@@ -91,16 +94,18 @@ elsif ($action eq "login"){
 		$info->{SESSION} = $sid;
 		my $user_dir_old=md5_hex($username);
 		my $user_dir=md5_hex(lc($username));
-		`mkdir -p $edge_input/$user_dir/MyProjects/`;
+		make_path("$edge_input/$user_dir/MyProjects/",{chmod => 0755,});
 		if ( $user_dir_old ne $user_dir && -d "$edge_input/$user_dir_old"){
-			`mv -f $edge_input/$user_dir_old/* $edge_input/$user_dir/`;
-			`rm -rf $edge_input/$user_dir_old`;
+			move_recursive("$edge_input/$user_dir_old", "$edge_input/$user_dir");
+			remove_tree("$edge_input/$user_dir_old");
 		}
 		$info->{UserDir} = $user_dir; 
 		my $cronjobs = `crontab -l 2>/dev/null`;
 		$info->{CleanData} = $sys->{edgeui_proj_store_days} if ($sys->{edgeui_proj_store_days} > 0 && $cronjobs =~ /edge_data_cleanup/);
-		`ln -sf $edge_input/public/data $edge_input/$user_dir/PublicData` if (! -e "$edge_input/$user_dir/PublicData");a
-		`ln -sf $edge_input/public/projects $edge_input/$user_dir/PublicProjects` if (! -e "$edge_input/$user_dir/PublicProjects");
+		unlink glob("$edge_input/$user_dir/.sid*");
+		symlink("$edge_input/public/data", "$edge_input/$user_dir/PublicData") if (! -e "$edge_input/$user_dir/PublicData");
+		symlink("$edge_input/public/projects", "$edge_input/$user_dir/PublicProjects") if (! -e "$edge_input/$user_dir/PublicProjects");
+		open my $fh, ">", "$edge_input/$user_dir/.sid$sid"; close $fh;
 	}
 }
 elsif ($action eq "logout"){
@@ -317,9 +322,16 @@ sub stringSanitization{
 sub emailValidate{
 	my $email=shift;
 	$email = lc($email);
-	my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
-	my $domain   = qr/[a-z0-9.-]+/;
-	my $regex = $email =~ /^$username\@$domain$/;
-	return $regex;
+	#my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	#my $domain   = qr/[a-z0-9.-]+/;
+	#my $regex = $email =~ /^$username\@$domain$/;
+	return Email::Valid->address($email);
 }
 
+sub move_recursive{
+	my $source_dir=shift;
+	my $destination_dir=shift;
+	for my $file (glob ("$source_dir/*")) {
+   		move ($file, "$destination_dir/") or die $!;
+	}
+}

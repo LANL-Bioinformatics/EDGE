@@ -42,12 +42,19 @@ function check_uploadFile($input){
 $edge_config=read_config(__DIR__."/../sys.properties");
 
 //if($argv[1]){if(check_uploadFile($argv[1])){echo "OK"."\n";} exit;}
-
 if (!empty($edge_config["user_management"])){
         $session_return="false";
         $sid="";
+	$target_path=explode("/",$_REQUEST["targetDir"]);
         if (isset($_REQUEST["sid"])){
                 $sid=$_REQUEST["sid"];
+		$user_dir=$edge_config["edgeui_input"]."/$target_path[1]";
+		if(!file_exists($user_dir)){
+			die('{"jsonrpc" : "2.0", "error" : {"code": 404, "message": "User Directory not exist."}}');
+		}
+		if(!file_exists("$user_dir/.sid$sid")){
+			die('{"jsonrpc" : "2.0", "error" : {"code": 401, "message": "Invalid Session."}, "id" : "id"}');
+		}
                 //$session_return=shell_exec("ls /tmp/*$sid");
         }else{
                 die('{"jsonrpc" : "2.0", "error" : {"code": 401, "message": "Invalid Session."}, "id" : "id"}');
