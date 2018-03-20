@@ -134,7 +134,7 @@ class PluploadHandler
             }
 
             // no  dot
-            if ( preg_match('/[^A-Za-z0-9_\/]/',$conf['target_dir'])){
+            if ( preg_match('/[^A-Za-z0-9_\/\-]/',$conf['target_dir'])){
 	        throw new Exception('', PLUPLOAD_SECURITY_ERR);
             }
 
