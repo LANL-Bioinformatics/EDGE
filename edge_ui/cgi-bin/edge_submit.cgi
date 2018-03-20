@@ -416,7 +416,7 @@ sub createConfig {
 				#$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
 			}
 	   
-			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g if $opt{"edge-taxa-sw"};
+			$opt{"edge-taxa-enabled-tools"} =~ s/[\x0]/,/g;
 			$opt{'edge-sra-acc'} = uc $opt{'edge-sra-acc'};
 			$opt{'edge-phylo-sra-acc'} = uc $opt{'edge-phylo-sra-acc'};
 			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files && $pipeline eq "qiime";
