@@ -23,6 +23,7 @@ my $userType;
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
+my $loadNum    = $opt{'loadNum'} || 100;
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
@@ -85,33 +86,33 @@ if ( $username && $password || $um_config == 0){
 my $head_checkbox="<input type='checkbox' id='edge-projpage-ckall'>";
 if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
 	# My Table
-	my $list = &getUserProjFromDB("owner");
-	my $list_g = &getUserProjFromDB("guest");
-	my $list_p = &getUserProjFromDB("other_published");
+	my $list = &getUserProjFromDB("owner",$loadNum);
+	my $list_g = &getUserProjFromDB("guest",$loadNum);
+	my $list_p = &getUserProjFromDB("other_published",$loadNum);
 	$list = &ref_merger($list, $list_p) if $list_p;
 	$list = &ref_merger($list, $list_g) if $list_g;
 	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
 	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
-	my $idxs = &sortList($list);
+	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$idxs,$list,\@theads);
+	&printTable($table_id,$return_idxs,$list,\@theads);
 
 }elsif ($umSystemStatus=~ /true/i) {
 	# show admin list or published project
 	$head_checkbox="" if (!$username && !$password);
-	my $list =  &getUserProjFromDB();
-	my $idxs = &sortList($list);
+	my $list =  &getUserProjFromDB("",$loadNum);
+	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
 	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$idxs,$list,\@theads);
+	&printTable($table_id,$return_idxs,$list,\@theads);
 }elsif ($um_config == 0) {
 	# all projects in the EDGE_output
-	my $list= &scanProjToList();
-	my $idxs = &sortList($list);
+	my $list= &scanProjToList($loadNum);
+	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
 	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$idxs,$list,\@theads);
+	&printTable($table_id,$return_idxs,$list,\@theads);
 }
 
 
@@ -120,12 +121,21 @@ if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i 
 
 sub sortList {
 	my $list = shift;
+	my $loadNum = shift;
 	
 	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} =~ /running/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} =~ /unstarted/i } sort {$list->{$a}->{REAL_PROJNAME} cmp $list->{$b}->{REAL_PROJNAME}} keys %$list;
 	my @idxs3 = grep { $list->{$_}->{PROJSTATUS} !~ /running|unstarted/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 	my @idxs = (@idxs1,@idxs2,@idxs3);
-	return \@idxs;
+	my $totalNum=scalar(@idxs);
+	my @return_idxs = @idxs;
+	my $load_num_button="<div>Load recent <input type='number' id='edge-projpage-loadnum' data-role='none' min='100' max=\"$totalNum\" value=\'$loadNum\' step='10'> /$totalNum projects. <input type='button' data-role='none' id='edge-projpage-loadnum-submit' value='Go'></div>";
+	print $load_num_button if ($totalNum>100);
+	if ( $totalNum > $loadNum) {
+		@return_idxs=@idxs[0..$loadNum];
+	}
+	#print join ("<br/>",@return_idxs,$loadNum);
+	return (\@idxs,\@return_idxs);
 }
 
 sub printTable {
@@ -192,7 +202,7 @@ sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
 	my $flag=0;
-	open CONF, $config or die "Can't open $config: $!";
+	open (CONF, "<", $config )or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
 			$flag=1;
@@ -212,24 +222,27 @@ sub getSysParamFromConfig {
 }
 
 sub scanProjToList {
+	my $loadNum=shift;
 	my $cnt = 0;
 	my $list;
 	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
-	while( defined (my $file = readdir BIN) ) {
+	my @dirs= sort { -M $a <=> -M $b } readdir BIN;
+	foreach my $file (@dirs) {
 		next if $file eq '.' or $file eq '..' or $file eq 'sample_metadata_export';
 		if ( -d "$out_dir/$file"  && -r "$out_dir/$file/config.txt") {
 			++$cnt;
-			if ( -e "$out_dir/$file/.AllDone" && -e "$out_dir/$file/HTML_Report/writeHTMLReport.finished"){
-				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
-				$list->{$cnt}->{PROJSTATUS} = "Complete";
-			}else
-			{
-				if (-r "$out_dir/$file/process.log" ){
-                                        $list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file")
-                                }else{
-                                        $list->{$cnt}->{PROJSTATUS} = "Unstarted";
-                                }
-				$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
+			if ($cnt <= $loadNum){
+				if ( -e "$out_dir/$file/.AllDone" && -e "$out_dir/$file/HTML_Report/writeHTMLReport.finished"){
+					$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
+					$list->{$cnt}->{PROJSTATUS} = "Complete";
+				}else{
+					if (-r "$out_dir/$file/process.log" ){
+                                        	$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file")
+                               		}else{
+                                        	$list->{$cnt}->{PROJSTATUS} = "Unstarted";
+                                	}
+					$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
+				}
 			}
 			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
 			$list->{$cnt}->{PROJNAME} = $file;
@@ -268,6 +281,8 @@ sub getUserInfo {
 
 sub getUserProjFromDB{
 	my $project_type = shift;
+	my $loadNum = shift;
+	my $numProj=0;
 	my $list={};
         my %data = (
                 email => $username,
@@ -302,7 +317,8 @@ sub getUserProjFromDB{
         }
         my $array_ref =  decode_json($result_json);
 	#print Dumper ($array_ref) if @ARGV;
-	foreach my $hash_ref (@$array_ref)
+	my @projectlist=@$array_ref;
+	foreach my $hash_ref ( sort {$b->{created} cmp $a->{created}} @projectlist)
 	{
 		my $id = $hash_ref->{id};
 		my $projCode = $hash_ref->{code};
@@ -317,20 +333,24 @@ sub getUserProjFromDB{
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && ! $cluster);
 		my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
 		my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
-		if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
-			$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
-			$status=($status =~ /finished/i)?"Complete":"Archived";
-		}elsif( $status =~ /unstarted/i){
-			$list->{$id}->{PROJSUBTIME}=$created_time;
-			$list->{$id}->{RUNTIME}="";
-			$status="Unstarted";
-		}elsif( $status =~ /in process/i){
-                        $list->{$id}->{PROJSUBTIME}=$created_time;
-                        $list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
-                        $list->{$id}->{RUNTIME}="";
-                        $status="In process";
-		}else{
-			$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
+		if ($numProj < $loadNum){
+		#		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
+		#		&updateDBProjectStatus("$id","finished") if ( $list->{$id}->{PROJSTATUS} =~ /Complete/i);
+			if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
+				$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
+				$status=($status =~ /finished/i)?"Complete":"Archived";
+			}elsif( $status =~ /unstarted/i){
+				$list->{$id}->{PROJSUBTIME}=$created_time;
+				$list->{$id}->{RUNTIME}="";
+				$status="Unstarted";
+			}elsif( $status =~ /in process/i){
+                        	$list->{$id}->{PROJSUBTIME}=$created_time;
+                        	$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
+                        	$list->{$id}->{RUNTIME}="";
+                        	$status="In process";
+			}else{
+				$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
+			}
 		}
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
@@ -340,8 +360,39 @@ sub getUserProjFromDB{
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
 		$list->{$id}->{PROJ_TYPE} = $hash_ref->{type};
+
+		$numProj++;
 	}
 	return $list;
+}
+
+sub updateDBProjectStatus{
+        my $project = shift;
+        my $status = shift;
+        my %data = (
+                email => $username,
+                password => $password,
+                project_id => $project,
+                new_project_status => $status
+        );
+	my $data = to_json(\%data);
+
+        my $url = $um_url ."WS/project/update";
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+       
+        $req->header( "Content-Length" => length($data) );
+        $req->content($data);
+
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+        my $result =  from_json($result_json);
+        if (! $result->{status})
+        {
+                #$info->{INFO} .= " Update Project status in database failed.";
+        }
 }
 
 sub get_start_run_time{
@@ -350,7 +401,7 @@ sub get_start_run_time{
 	my $list = shift;
 	my $tol_running_sec=0;
 	my ($start_time, $run_time);
-	open (my $log_fh, $log) or die "Cannot read $log\n";
+	open (my $log_fh,"<", $log) or die "Cannot read $log\n";
 	while(<$log_fh>){
 		chomp;
 		($start_time, $run_time) = split /\t/,$_;
@@ -464,7 +515,11 @@ sub pull_summary {
 	
 	close ($sumfh);
 	if ($list->{$cnt}->{PROJSTATUS} eq "Complete" && ! -e "$proj_dir/.AllDone"){
-		`echo "$list->{$cnt}->{PROJSUBTIME}\t$run_time" > $proj_dir/.AllDone` if ($list->{$cnt}->{RUNTIME});
+		if  ($list->{$cnt}->{RUNTIME}){
+			open (my $fh, ">","$proj_dir/.AllDone") or die "$!"; 
+			print $fh "$list->{$cnt}->{PROJSUBTIME}\t$run_time";
+			close $fh;
+		}
 	}
 	return $list;
 }

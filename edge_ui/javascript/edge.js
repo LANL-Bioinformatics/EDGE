@@ -1771,13 +1771,16 @@ $( document ).ready(function()
 		$("#edge-project-page-li").data( "mode", "user" );
 		updateProjectsPage('user');
 	});
-	function updateProjectsPage(view) {
+	function updateProjectsPage(view, loadNum) {
+		if (loadNum === undefined){
+			loadNum = 100;
+		}
 		$.ajax({
 			url: "./cgi-bin/edge_projectspage.cgi",
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid},
+			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid,'loadNum':loadNum},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
 					text: "Load...",
@@ -1808,6 +1811,17 @@ $( document ).ready(function()
 					maxWidth: '480',
 					interactive: true,
 					multiple:true
+				});
+				$("#edge-projpage-loadnum-submit").on("click",function(){
+					var loadprojNum =  $("#edge-projpage-loadnum").val();
+					updateProjectsPage(view,loadprojNum);
+				});
+				$('#edge-projpage-loadnum').keypress(function (e) {
+					var key = e.which;
+					if(key == 13){  // the enter key code
+						$('#edge-projpage-loadnum-submit').click();
+						return false;
+					}
 				});
 				$("#edge-projpage-action").children('a').on("click", function(){
 					var action = $(this).text();

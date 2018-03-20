@@ -213,7 +213,7 @@ sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
 	my $flag=0;
-	open CONF, $config or die "Can't open $config: $!";
+	open (CONF, "<",$config) or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
 			$flag=1;
