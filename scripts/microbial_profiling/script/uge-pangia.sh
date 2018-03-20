@@ -102,11 +102,11 @@ pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB 
 DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
 MERGED_SAM_DIR=$OUTPATH/${PREFIX}_tmp/merged_sam
 LOCAL_PVIA_DATA=$OUTPATH/pangia-vis
-PVIS_DATA=$EDGE_HOME/thirdParty/pangia/pangia-vis/data
 
 mkdir -p $LOCAL_PVIA_DATA/$DIRMD5
 
 cp $OUTPATH/$PREFIX.report.tsv $LOCAL_PVIA_DATA/$DIRMD5.tsv
+cp $OUTPATH/$PREFIX.pangia.log $LOCAL_PVIA_DATA/$DIRMD5.pangia.log
 
 # generate scaled-down genome depth files for PanGIA-VIS, save to $OUTPATH/pangia-vis then symlink to global pangia-vis
 find $MERGED_SAM_DIR -type f -name '*.depth' | cut -d"|" -f3 | sort | uniq > $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
@@ -123,7 +123,7 @@ awk -F\\t '{if(NR>1&&$16==""){out=$1"\t"$2"\t"$14"\t"; { for(i=3;i<=NF;i++){out=
 # prepare lineage and score files
 awk -F\\t '{if($1=="species"){print $2"\t"$12}}' $OUTPATH/$PREFIX.report.tsv > $OUTPATH/$PREFIX.out.tab_tree.score
 
-cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -dp ${DB%/*}  > $OUTPATH/$PREFIX.out.tab_tree
+cat $OUTPATH/$PREFIX.report.tsv | pangia_report2lineage.py -dp ${DB%/*} > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

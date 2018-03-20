@@ -922,10 +922,12 @@
 						  	<th data-priority='3'>Rollup DOC</th>
 							</TMPL_IF>
 							<TMPL_IF NAME="CPTOOL_PANGIA">
-						  	<th data-priority='3'>Linear COV</th>
-						  	<th data-priority='3'>Linear DOC</th>
-						  	<th data-priority='3'>RS Norm Reads</th>
-						  	<th data-priority='3'>Score</th>
+						  	<th data-priority='1'>Reads (RNR)</th>
+							<th data-priority='3'>Reads (RSNB)</th>
+							<th data-priority='1'>Depth Cov</th>
+							<th data-priority='3'>Depth Cov (RSNR)</th>
+							<th data-priority='1'>Genome COV</th>
+							<th data-priority='3'>Score</th>
 							</TMPL_IF>
 						  	<th data-priority='1'>Abundance</th>
 							</tr>
@@ -945,10 +947,12 @@
 								    <td><TMPL_VAR NAME=GOTTCHA2_ROLLUP_DOC DEFAULT=-></td>
 								</TMPL_IF>
 								<TMPL_IF NAME="PANGIA_LINEAR_RSNB">
-								    <td><TMPL_VAR NAME=PANGIA_LINEAR_COV  DEFAULT=-></td>
-								    <td><TMPL_VAR NAME=PANGIA_LINEAR_DOC  DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_RNR DEFAULT=-></td>
 								    <td><TMPL_VAR NAME=PANGIA_LINEAR_RSNB DEFAULT=-></td>
-								    <td><TMPL_VAR NAME=PANGIA_LINEAR_SCR  DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_DC DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_RSDCNR DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_GC DEFAULT=-></td>
+								    <td><TMPL_VAR NAME=PANGIA_LINEAR_SCR DEFAULT=-></td>
 								</TMPL_IF>
 								<td><TMPL_VAR NAME=CPABU_ABU DEFAULT=-></td>
 							</tr>

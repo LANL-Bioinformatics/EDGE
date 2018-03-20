@@ -1284,9 +1284,9 @@ sub pull_taxa {
 							$res_row->{CPABU_REA} = _reformat_val($t[5]);
 							$res_row->{PANGIA_LINEAR_RNR}  = _reformat_val(sprintf "%.2f", $t[6]);
 							$res_row->{PANGIA_LINEAR_RSNB} = _reformat_val(sprintf "%.2f", $t[7]);
-							$res_row->{PANGIA_LINEAR_DC}   = sprintf "%.2f", $t[11];
-							$res_row->{PANGIA_LINEAR_RSDC} = sprintf "%.2f", $t[10];
-							$res_row->{PANGIA_LINEAR_GC}   = sprintf "%.2f", $t[9];
+							$res_row->{PANGIA_LINEAR_DC}   = sprintf "%.2f", $t[9];
+							$res_row->{PANGIA_LINEAR_RSDCNR} = sprintf "%.2f", $t[11];
+							$res_row->{PANGIA_LINEAR_GC}   = sprintf "%.2f", $t[8];
 							$res_row->{PANGIA_LINEAR_SCR}  = $t[13];
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[14]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
