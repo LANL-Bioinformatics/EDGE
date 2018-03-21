@@ -271,9 +271,12 @@ sub readBatchInput {
 			chomp $test; 
 			next if ($test =~ /None/);
 			next if ($test !~ /\w/);
+			$test =~ s/[`";']/ /g;
 			my @data = split /\t/, $test;
-			$data[0] =~ s/\s/_/g;
+			$data[0] =~ s/\W/_/g;
 			for my $i (1..$#header){
+				$data[$i] =~ s/^\s+|\s+$//g;
+				$data[$i] =~ s/\.\.\///g;
 				my $key = lc($header[$i]);
 				$list->{$data[0]}->{"$key"}=$data[$i];
 			}
@@ -779,7 +782,7 @@ sub checkParams {
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $se of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
@@ -1203,6 +1206,7 @@ sub parse_qiime_mapping_files{
 			}elsif(! /^#/){
 				my @array = split /\t/,$_;
 				$array[$file_column_index] =~ tr/"//d;
+				$array[$file_column_index] =~ s/^\s+|\s+$//g;
 				my @files = map { "$file_path/$_" } split /,|\s+/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
