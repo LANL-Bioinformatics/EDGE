@@ -19,7 +19,7 @@ my %opt   = $cgi->Vars();
 my $username    = $opt{'username'}|| $ARGV[0];
 my $password    = $opt{'password'}|| $ARGV[1];
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[2];
-my $userType;
+my $userType = "user";
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
@@ -43,10 +43,8 @@ my $cluster     = $sys->{cluster};
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
 	if($valid){
-		($username,$password) = getCredentialsFromSession($sid);
+		($username,$password,$userType) = getCredentialsFromSession($sid);
 	}
-	my $user_info=&getUserInfo();
-        $userType=$user_info->{type};
 }
 
 #print Dumper ($list);

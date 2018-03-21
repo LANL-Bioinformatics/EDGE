@@ -254,30 +254,32 @@ sub readBatchInput {
 		&returnStatus();
 	}
 	
-	my $path_to_script = "$EDGE_HOME/scripts/importBatchExcelFile.py";
+	my $path_to_script = "$EDGE_HOME/thirdParty/Anaconda2/bin/xlsx2csv";
+	open (my $fh, "-|") 
+	  or exec ("$path_to_script","-d","tab","$excel_file");
 
-	#open python file which is located in scripts. 	
-	#pass in $input_dir as location of xlsx file
-	my @output = `$EDGE_HOME/bin/python $path_to_script $excel_file`;
-   
 	#create a hash
 	my $list;
 	my $temp_project_name;
-
-	foreach my $test (@output){
-		chomp $test; 
-		next if ($test =~ /None/);
-	    
-		my @data = split ",", $test;
-		$data[0] =~ s/\s/_/g;
-		#data[0] = project name, data[1] = q1, data[2] = q2
-		#data[3] = desc
-
-		#Nested hash ref
-		$list->{$data[0]}->{ "q1" }=$data[1];
-		$list->{$data[0]}->{ "q2" }=$data[2];
-		$list->{$data[0]}->{ "description" }=$data[3];
+	my $head = <$fh>;
+	chomp $head;
+	my @header = split /\t/,$head;
+	if ($head !~ /project/i){
+		&addMessage("PARAMS","edge-batch-input-excel","Incorrect batch file");
+	}else{
+		while (my $test=<$fh>){
+			chomp $test; 
+			next if ($test =~ /None/);
+			next if ($test !~ /\w/);
+			my @data = split /\t/, $test;
+			$data[0] =~ s/\s/_/g;
+			for my $i (1..$#header){
+				my $key = lc($header[$i]);
+				$list->{$data[0]}->{"$key"}=$data[$i];
+			}
+		}
 	}
+	close $fh;
 	#return outter hash ref
 	return $list;
 }
