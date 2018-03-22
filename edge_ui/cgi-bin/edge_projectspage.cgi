@@ -2,7 +2,7 @@
 use strict;
 use LWP::Simple qw();
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
@@ -12,14 +12,14 @@ use POSIX qw(strftime);
 use Data::Dumper;
 use Email::Valid;
 #use CGI::Pretty;
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $username    = $opt{'username'}|| $ARGV[0];
 my $password    = $opt{'password'}|| $ARGV[1];
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[2];
-my $userType = "user";
+my $userType="user";
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
@@ -45,6 +45,8 @@ if( $sys->{user_management} ){
 	if($valid){
 		($username,$password,$userType) = getCredentialsFromSession($sid);
 	}
+	#my $user_info=&getUserInfo();
+        #$userType=$user_info->{type};
 }
 
 #print Dumper ($list);
@@ -351,12 +353,7 @@ sub getUserProjFromDB{
 			}
 		}
 		$list->{$id}->{PROJNAME} = $id;
-		if (!$list->{$id}->{PROJSTATUS}){
-			$list->{$id}->{PROJSTATUS} = $status;
-			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-orange'>Running</span>" if ($status =~ /running/);
-			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>" if ($status =~ /failure/);
-		}
-		$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
+		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
 		$list->{$id}->{PROJDISPLAY} = $display;
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROJCODE} = $projCode;

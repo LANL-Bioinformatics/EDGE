@@ -6,7 +6,7 @@
 
 use strict;
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use JSON;
 use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
@@ -16,8 +16,9 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use Digest::MD5 qw(md5_hex);
 use Email::Valid;
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
+$ENV{PATH} = "/bin:/usr/bin";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -202,7 +203,9 @@ if( scalar @projlist ){
 					# the process log reports it's running, but can't find vital
 					# Unexpected exit detecteda
 					$list->{$i}->{STATUS} = "failed";
-					`echo "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid $lproj $lprojc). Unexpected exit detected! ***" |tee -a $log >> $proj_dir/process_current.log`;
+					my $msg = "\n*** [$time] EDGE_UI: Pipeline failed (PID:$realpid $lproj $lprojc). Unexpected exit detected! ***";
+					open (my $fh, ">>", "$proj_dir/process_current.log") or die "$!"; print $fh $msg; close $fh;
+					open (my $lfh, ">>", "$log") or die "$!"; print $lfh $msg; close $lfh;
 				}
 			}
 			else{
@@ -252,7 +255,7 @@ sub readListFromJson {
 	my $json = shift;
 	my $list = {};
 	if( -r $json ){
-		open JSON, $json;
+		open (JSON, "<", $json) or die "$!";
 		flock(JSON, 1);
   		local $/ = undef;
   		$list = decode_json(<JSON>);
@@ -263,7 +266,7 @@ sub readListFromJson {
 
 sub saveListToJason {
 	my ($list, $file) = @_;
-	open JSON, ">$file" or die "Can't write to file: $file\n";
+	open JSON, ">", "$file" or die "Can't write to file: $file\n";
   	my $json = encode_json($list);
 	print JSON $json;
   	close JSON;
@@ -273,7 +276,7 @@ sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
 	my $flag=0;
-	open CONF, $config or die "Can't open $config: $!";
+	open CONF, "<", $config or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
 			$flag=1;
@@ -307,7 +310,7 @@ sub parseProcessLog {
 	my %map;
 	my $rnaPipeline=0;
 
-	open LOG, $log or die "Can't open $log.";
+	open LOG, "<", $log or die "Can't open $log.";
 	foreach(<LOG>){
 		chomp;
 		next if /^$/;
@@ -425,7 +428,7 @@ sub scanNewProjToList {
 			$list->{$cnt}->{TIME} =  strftime "%F %X",localtime((stat("$config"))[9]); 
 			$list->{$cnt}->{STATUS} = "unknown";
 			if ( -r "$processLog"){
-				open (my $fh, $processLog);
+				open (my $fh, "<",$processLog) or die "$!";
 				while(<$fh>){
 					if (/queued/){
 						$list->{$cnt}->{STATUS} = "unstarted";
@@ -443,6 +446,7 @@ sub scanNewProjToList {
 			my $projname = $file;
 			# if the system change from User management on to off. will need parse the project name from config file
 			#  using grep is slow than open file and regrex
+		#unlink glob("$edge_input/$user_dir/.sid*");
 			#if ( length($projname)==32 ){
 			#	open (my $fh, $config);
 			#	while(<$fh>){if (/projname=(.*)/){$projname=$1;chomp $projname;last;};}
@@ -467,7 +471,13 @@ sub scanNewProjToList {
 				$list->{$cnt}->{SHAREBSVE} = 1;
 			}
 			if(-r $runFile) {
-				my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
+				my $bsveId;
+				open (my $fh, "<", $runFile) or die "$!";
+				while(<$fh>){
+					chomp;
+					if (/bsve_id=(.*)/){ $bsveId = $1; last;}
+				}
+				close $fh;
 				chomp $bsveId;
 				$list->{$cnt}->{METABSVE} = $bsveId;
 			}
@@ -498,8 +508,10 @@ sub availableToRun {
 sub getSystemUsage {
 	my $mem = `vmstat -s | awk  '\$0 ~/total memory/ {total=\$1 } \$0 ~/free memory/ {free=\$1} \$0 ~/buffer memory/ {buffer=\$1} \$0 ~/cache/ {cache=\$1} END{print (total-free-buffer-cache)/total*100}'`;
 	my $cpu = `top -bn1 | grep load | awk '{printf "%.1f", \$(NF-2)}'`;
-	my $disk = `df -h $out_dir | tail -1 | awk '{print \$5}'`;
-	$disk= `df -h $out_dir | tail -1 | awk '{print \$4}'` if ($disk !~ /\%/);
+	my $disk;
+	open (my $fh, "-|")
+	  or exec ("df","-h","$out_dir");
+	while(<$fh>){ my @array= split/\s+/; $disk=($array[4] =~ /\%/)?$array[4]:$array[3];}
 	$cpu = $cpu/$sys->{edgeui_tol_cpu}*100;
 	$disk =~ s/\%//;
 	if( $mem || $cpu || $disk ){
@@ -638,7 +650,13 @@ sub getUserProjFromDB{
 			$list->{$id}->{SHAREBSVE} = 1;
 		}
 		if(-r $runFile) {
-			my $bsveId = `grep -a "bsve_id=" $runFile | awk -F'=' '{print \$2}'`;
+			my $bsveId; 
+			open (my $fh, "<", $runFile) or die "$!";
+			while(<$fh>){
+				chomp;
+				if (/bsve_id=(.*)/){ $bsveId = $1; last;}
+			}
+			close $fh;
 			chomp $bsveId;
 			$list->{$id}->{METABSVE} = $bsveId;
 		} 
@@ -652,7 +670,7 @@ sub hasPathogens {
 	my $top = 0;
 
 	if(-e $file) {
-	    	open (my $fh , $file) or die "No config file $!\n";
+	    	open (my $fh , "<", $file) or die "No config file $!\n";
 	   	 while (<$fh>) {
 	       	 	chomp;
 			if(/pathogen\thost\(s\)\tdisease/) {
@@ -713,7 +731,7 @@ sub getProjID {
   my $project=shift;
   my $projID = $project;
   if ( -d "$out_dir/$project"){ # use ProjCode as dir
-    open (my $fh, "$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
+    open (my $fh, "<", "$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
     while(<$fh>){
       if (/^projid=(\S+)/){
         $projID = $1;
@@ -738,6 +756,7 @@ sub loadInitSetup{
 	$info->{INFO}->{MPPA}    = ( $sys->{m_pcr_primer_analysis} )?"true":"false";
 	$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
 	$info->{INFO}->{MTARGETEDNGS}  = ( $sys->{m_targetedngs} )?"true":"false";
+	$info->{INFO}->{MPIRET}  = ( $sys->{m_piret} )?"true":"false";
 	#parameters
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,text,config,ini,xls,xlsx";

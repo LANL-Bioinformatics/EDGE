@@ -4,7 +4,7 @@ use strict;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use JSON;
 use CGI qw(:standard);
 use Data::Dumper;
@@ -12,7 +12,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Path qw(make_path remove_tree);
 use File::Copy;
 use Email::Valid;
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 
 my $cgi    = CGI->new;
 my %opt    = $cgi->Vars();
@@ -109,6 +109,9 @@ elsif ($action eq "login"){
 	}
 }
 elsif ($action eq "logout"){
+	my ($username,$password,$userType)=getCredentialsFromSession($sid);
+	my $user_dir=md5_hex(lc($username));
+	unlink "$edge_input/$user_dir/.sid$sid";
 	my $valid = closeSession($sid);
 
 	$info->{error} = "failed to close the session:$sid\n" unless $valid;
@@ -255,7 +258,6 @@ sub um_service {
 	$url .= $service;
 	my $browser = LWP::UserAgent->new;
 	my $req = ($service =~ /register/)? POST $url : PUT $url;
-	my $response = $browser->request($req);
 	$req->header('Content-Type' => 'application/json');
 	$req->header('Accept' => 'application/json');
 	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning

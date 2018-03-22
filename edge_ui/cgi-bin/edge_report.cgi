@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env perl 
 #
 # Po-E (Paul) Li
 # Los Alamos National Lab.
@@ -8,7 +8,7 @@
 use strict;
 use JSON;
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
@@ -18,15 +18,16 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
+
+my $EDGE_HOME = $ENV{EDGE_HOME};
+$EDGE_HOME ||= "$RealBin/../..";
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();
 my $pname = $opt{proj};
 my $init  = $opt{init};
 $pname ||= $ARGV[0];
-my $EDGE_HOME = $ENV{EDGE_HOME};
-$EDGE_HOME ||= "$RealBin/../..";
 
 my $username    = $opt{'username'}|| $ARGV[1];
 my $password    = $opt{'password'}|| $ARGV[2];
@@ -94,8 +95,7 @@ sub generateReport {
 	chdir $edgeui_wwwroot;
 
 	if( ! -e "$projDir/HTML_Report/.complete_report_web" ){
-		my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/munger/outputMunger_w_temp.pl $projDir $projDir/HTML_Report/report_web.html";
-		`$cmd`;
+		system("$EDGE_HOME/scripts/munger/outputMunger_w_temp.pl","$projDir","$projDir/HTML_Report/report_web.html");
 		#print STDERR "outputMunger_w_temp.pl ran!\n";
 	}
 	else{
@@ -103,7 +103,7 @@ sub generateReport {
 		#print STDERR "outputMunger_w_temp.pl NOT ran!\n";
 	}
 
-	open REP, "$projDir/HTML_Report/report_web.html" or die "Can't open report_web.html: $!";
+	open REP, "<", "$projDir/HTML_Report/report_web.html" or die "Can't open report_web.html: $!";
 	my $pr=0;
 	my @htmls;
 	foreach(<REP>){
@@ -112,7 +112,7 @@ sub generateReport {
 		$pr=1 if /id='edge-content-report'/;
 		
 		if( $_ =~ /edge-output-projstatus.*(complete|archived)/i && !$complete_report_exist ){
-			`touch $projDir/HTML_Report/.complete_report_web`;
+			open (my $fh,">","$projDir/HTML_Report/.complete_report_web") or die "$!"; close $fh;
 		}
 	}
 
@@ -135,7 +135,7 @@ sub scanProjToList {
 		my $projCode;
 		if ( -d "$out_dir/$file" && -r "$out_dir/$file/config.txt"  ) 
 		{
-			open ( CONFIG, "$out_dir/$file/config.txt") or die "Cannot open $out_dir/$file/config.txt\n";
+			open ( CONFIG, "<","$out_dir/$file/config.txt") or die "Cannot open $out_dir/$file/config.txt\n";
 			while(<CONFIG>)
 			{
 				last if (/^\[Down/);
@@ -224,7 +224,7 @@ sub getProjID {
   my $project=shift;
   my $projID = $project;
   if ( -d "$out_dir/$project"){ # use ProjCode as dir
-    open (my $fh, "$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
+    open (my $fh, "<","$out_dir/$project/config.txt") or die "Cannot open $out_dir/$project/config.txt\n";
     while(<$fh>){
       if (/^projid=(\S+)/){
         $projID = $1;

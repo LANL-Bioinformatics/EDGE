@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use CGI::Session qw/-ip_match/;
 use CGI::Session;
 use strict;
@@ -36,9 +36,9 @@ sub closeSession {
 	return 0 unless $sid;
 	return 0 unless $sid =~ /^[\w\d]+$/;
 	my $session = CGI::Session->load($sid) or return 0;
-	#$session->delete();
+	$session->delete();
 	#$session->flush();
-	my $e = system("rm -f /tmp/cgisess_$sid");
+	my $e = unlink("/tmp/cgisess_$sid");
 	return $e ? 0 : 1 ;
 }
 
