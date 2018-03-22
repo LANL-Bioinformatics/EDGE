@@ -2253,6 +2253,7 @@ fi
 sed -i 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
 
 TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]

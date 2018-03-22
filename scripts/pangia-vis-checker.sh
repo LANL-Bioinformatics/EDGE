@@ -20,15 +20,17 @@ if [[ $(cat $BOKEH_LOG | grep -E 'NoneType|No active exception') ]]; then
         
 	# start bokeh server
 	cd ${EDGE_HOME}/thirdParty/pangia
-	nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --keep-alive 10000 --allow-websocket-origin '*' --use-xheaders &> ${EDGE_HOME}/edge_ui/bokeh.log &
+	nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --allow-websocket-origin '*' &> ${EDGE_HOME}/edge_ui/bokeh.log &
+	#nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --keep-alive 10000 --allow-websocket-origin '*' --use-xheaders &> ${EDGE_HOME}/edge_ui/bokeh.log &
 else
 	DATETIME=`date "+%x %H:%M:%S"`
 	if [[ $EXITCODE -ne 0 ]]; then
 		echo "[$DATETIME] [INFO] Bokeh server is OFFLINE."
 		# start bokeh server	
 		cd ${EDGE_HOME}/thirdParty/pangia
+		nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --allow-websocket-origin '*' &> ${EDGE_HOME}/edge_ui/bokeh.log &
 		# --use-xheaders for https
-		nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --keep-alive 10000 --allow-websocket-origin '*' --use-xheaders &> ${EDGE_HOME}/edge_ui/bokeh.log &
+		#nohup ${EDGE_HOME}/thirdParty/Anaconda3/bin/bokeh serve pangia-vis --port 5100 --keep-alive 10000 --allow-websocket-origin '*' --use-xheaders &> ${EDGE_HOME}/edge_ui/bokeh.log &
 	else
 		echo "[$DATETIME] [INFO] Bokeh server seems ONLINE."
 	fi
