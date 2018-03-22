@@ -45,8 +45,6 @@ if( $sys->{user_management} ){
 	if($valid){
 		($username,$password,$userType) = getCredentialsFromSession($sid);
 	}
-	#my $user_info=&getUserInfo();
-        #$userType=$user_info->{type};
 }
 
 #print Dumper ($list);
@@ -353,7 +351,12 @@ sub getUserProjFromDB{
 			}
 		}
 		$list->{$id}->{PROJNAME} = $id;
-		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
+		if (!$list->{$id}->{PROJSTATUS}){
+			$list->{$id}->{PROJSTATUS} = $status;
+			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-orange'>Running</span>" if ($status =~ /running/);
+			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>" if ($status =~ /failure/);
+		}
+		$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
 		$list->{$id}->{PROJDISPLAY} = $display;
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROJCODE} = $projCode;
