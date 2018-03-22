@@ -346,7 +346,7 @@ class PluploadHandler
 
         fflush($out);
         @fclose($out);
-
+	chmod($target_path,0644);
         return $target_path;
     }
 
