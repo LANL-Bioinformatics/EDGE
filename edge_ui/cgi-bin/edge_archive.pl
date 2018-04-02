@@ -50,6 +50,7 @@ sub stringSanitization{
 		$dirtybit=1 if ($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
 		if ($dirtybit){
 			print "Content-Type: text/html\n\n", "Invalid characters detected \'$str\'.\n\n";
+			exit;
 		}
 	}
 }

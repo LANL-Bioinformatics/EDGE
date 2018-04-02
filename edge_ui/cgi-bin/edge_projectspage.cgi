@@ -564,6 +564,7 @@ sub stringSanitization{
 		}
 		if ($dirtybit){
 			print "Content-Type: text/html\n\n", "Invalid characters detected \'$str\'.\n\n";
+			exit;
 		}
 	}
 }

@@ -22,6 +22,6 @@ sub stringSanitization{
 	my $str=shift;
 	if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
 		print "Invalid characters detected \'$str\'.\n\n";
-		
+		exit;
 	}
 }

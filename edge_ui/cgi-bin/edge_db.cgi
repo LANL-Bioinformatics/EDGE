@@ -410,6 +410,7 @@ sub stringSanitization{
 		my $str = $opt->{$key};
 		if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
 			print "Content-Type: text/html\n\n", "Invalid characters detected \'$str\'.\n\n";
+			exit;
         }
 	}
 }
