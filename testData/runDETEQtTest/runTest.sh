@@ -7,7 +7,7 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
-	Test=$rootdir/TestOutput/TargetedNGS/stats/testTargetedNGS.report.txt 
+	Test=$rootdir/TestOutput/TargetedNGS/stats/testDETEQT.report.txt 
 	Expect=$rootdir/report.txt
 	testName="EDGE targetedNGS test";
 	if cmp -s "$Test" "$Expect"
