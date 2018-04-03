@@ -11,8 +11,9 @@ test_result(){
 	TestLog=$rootdir/TestOutput/AssemblyBasedAnalysis/Taxonomy/log.txt
 	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/Taxonomy/summary_by_topHitCount.txt
 	Expect=$rootdir/summary_by_topHitCount.txt
+	Expect2=$rootdir/summary_by_topHitCount2.txt
 	testName="EDGE Contigs Taxonomy test";
-	if cmp -s "$Test" "$Expect"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
