@@ -95,77 +95,26 @@ $( document ).ready(function()
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
+		pipeline="EDGE";
 		$.get("edgesite.installation.done", function() {
-			setRunEdge();
-		})
-		  .fail(function() {
+			setRunPipeline(pipeline,true);
+		}).fail(function() {
 			allMainPage.hide();
 			$( "#edgesite-content" ).fadeIn("fast");
-		  });
+		});
 	});
 
 	$( "a[href=#edge-qiime-pipeline]" ).on( "click", function(){
-		allMainPage.hide();
 		pipeline="qiime";
-		toggle_input_fields("enable");
-		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
-		$('#edge-form-submit').closest('.ui-btn').show();
-		$('#edge-form-reset').closest('.ui-btn').show();
-		$('#edge-form-reset').click();
-		$("#edge-submit-info" ).children().remove();
-		$(".edge-main-pipeline-input").hide();
-		$(".edge-targetedngs-pipeline-input").hide();
-		$(".edge-qiime-pipeline-input").show();
-		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
-		$('#edge-fastq-input-block').show();
-		$('.edge-input-se-block').hide();
-		$('.edge-input-pe-block').show();
-		$('#edge-qiime-pipeline-dir-input').hide();
-		$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
-		$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
-		$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
-		$("#edge-qiime-mapping-file-tooltip").tooltipster(
-			'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
-		);
-		integrityCheck();
-		$("#edge-content-pipeline" ).fadeIn("fast", function(){
-			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
-				showWarning("Please login to run EDGE.");
-			}
-		});
-		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+		setRunPipeline(pipeline,true);
 	});
 	$( "a[href=#edge-targetedngs-pipeline]" ).on( "click", function(){
-		allMainPage.hide();
 		pipeline="targetedngs";
-		toggle_input_fields("enable");
-		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
-		$('#edge-form-submit').closest('.ui-btn').show();
-		$('#edge-form-reset').closest('.ui-btn').show();
-		$('#edge-form-reset').click();
-		$("#edge-submit-info" ).children().remove();
-		$(".edge-qiime-pipeline-input").hide();
-		$(".edge-main-pipeline-input").hide();
-		$(".edge-targetedngs-pipeline-input").show();
-		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
-		$('.edge-input-se-block').hide();
-		$('#edge-qiime-pipeline-input-block1').siblings('p').hide();
-		$('.edge-input-pe-block').hide();
-		$('#btnAdd-edge-input-pe').hide();
-		$('#btnAdd-edge-input-se').hide();
-		$('#edge-qiime-pipeline-dir-input').show();
-		$("#edge-qiime-mapping-file-tooltip").tooltipster(
-			'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
-		);
-		$("#edge-targetedngs-ref-file-tooltip").tooltipster(
-			'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="EDGE_input/public/data/testData/runTargetedNGSTest/targeted_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
-		);
-		$("#edge-content-pipeline" ).fadeIn("fast", function(){
-			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
-				showWarning("Please login to run EDGE.");
-			}
-		});
-		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+		setRunPipeline(pipeline,true);
+	});
+	$( "a[href=#edge-piret-pipeline]" ).on( "click", function(){
+		pipeline="piret";
+		setRunPipeline(pipeline,true);
 	});
 
 	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
@@ -243,6 +192,7 @@ $( document ).ready(function()
 							$( "a[href=#edge-content-uploadfile]" ).hide();
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
 							$( "a[href=#edge-targetedngs-pipeline]" ).hide();
+							$( "a[href=#edge-piret-pipeline]" ).hide();
 							$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
 						}else{
 							// no configuration to use User management
@@ -653,6 +603,9 @@ $( document ).ready(function()
 	$('#edge-megahit-preset-l').tooltipster(
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr><tr><td>bulk</td><td>Experimental; assembly of standard bulk sequencing with sufficient depth</td></tr><tr><td>single-cell</td><td>Experimental; single-cell sequence assembly</td></tr></table></span>')
 	);
+	$('#edge-piret-method-l').tooltipster(
+		'content', $('<span>For detecting differentially expressed genes, all of which are R packages. This option provides users with multiple tools to use which can be spcified using following keywords:<table border="1"><tr><th>Methods</th><th>Descriptions</th></tr><tr><td>EdgeR</td><td>Uses EdgeR.</td></tr><tr><td>Deseq2</td><td>Uses Deseq2.</td></tr><tr><td>ballgown</td><td>Uses ballgown. Appropriate for eukaryotes.</td></tr><td>DeEdge</td><td>Uses both EdgeR and Deseq2.</td></tr><tr><td>Degown</td><td>Uses Deseq2 and ballgown.</td></tr><tr><td>ballEdge</td><td>Uses ballgown and Deseq2.</td></tr><tr><td>all</td><td>Uses all of the above methods.</td></tr></table></span>')
+	);
 	$("#edge-qiime-pro-tooltip").tooltipster(
 		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
 	);
@@ -1004,7 +957,7 @@ $( document ).ready(function()
 	});
 	
 	$( "#edge-form-reset" ).on( "click", function() {
-		page.find("form")[0].reset();
+		$('#edge-run-pipeline-form')[0].reset();
 		//$('.ui-select select').val('').selectmenu('refresh');
 		$('.ui-select select').selectmenu('refresh',true);
 		$('#edge-proj-cpu').val(localStorage.runCPU);
@@ -1697,6 +1650,22 @@ $( document ).ready(function()
 				$('#edge-targetedngs-ebq').val('12').slider("refresh");
 			}
 		});
+
+		$('#edge-piret-euk-input').hide();
+		$(":radio[name='edge-piret-kingdom']").on("change", function(){
+			if($('#edge-piret-kingdom1').is(':checked')){
+				$('#edge-piret-euk-input').hide();
+				$('#edge-piret-prok-input').show();
+			}
+			if($('#edge-piret-kingdom2').is(':checked')){
+				$('#edge-piret-euk-input').show();
+				$('#edge-piret-prok-input').hide();
+			}
+			if($('#edge-piret-kingdom3').is(':checked')){
+				$('#edge-piret-euk-input').show();
+				$('#edge-piret-prok-input').show();
+			}
+		});
 	}
 
 	function toggle_input_fields( act ){
@@ -2033,6 +2002,7 @@ $( document ).ready(function()
 				}
 				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
 				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();
+				(  obj.INFO.MPIRET == "true")?$( "a[href=#edge-piret-pipeline]" ).show():$( "a[href=#edge-piret-pipeline]" ).hide();
 				
 				if( String(obj.INFO.UMSYSTEM) != String(localStorage.umStatus) ){
 					check_user_management();
@@ -2479,32 +2449,99 @@ $( document ).ready(function()
                 $("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
         });
         
-	function setRunEdge() {
+	function setRunPipeline(pipeline,resetflag) {
 		allMainPage.hide();
-		pipeline="EDGE";
 		toggle_input_fields("enable");
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
 		$('#edge-form-submit').closest('.ui-btn').show();
 		$('#edge-form-reset').closest('.ui-btn').show();
-		$('#edge-form-reset').click();
 		$("#edge-submit-info" ).children().remove();
-		$("#edge-fastq-input-block").children().show();
-		$(".btnAdd-edge-input").children().show();
-		$(".edge-targetedngs-pipeline-input").hide();
-		$(".edge-qiime-pipeline-input").hide();
-		$(".edge-main-pipeline-input").show();
-		inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
+		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
+		if (resetflag){
+			$('#edge-form-reset').click();
+		}
+		if (pipeline === 'EDGE'){
+			$("#edge-fastq-input-block").children().show();
+			$(".btnAdd-edge-input").children().show();
+			$(".edge-targetedngs-pipeline-input").hide();
+			$(".edge-piret-pipeline-input").hide();
+			$(".edge-qiime-pipeline-input").hide();
+			$(".edge-main-pipeline-input").show();
+			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
+			//reset metadata form
+			resetMetadata();
+		}
+		if (pipeline === 'qiime'){
+			$(".edge-main-pipeline-input").hide();
+			$(".edge-targetedngs-pipeline-input").hide();
+			$(".edge-piret-pipeline-input").hide();
+			$(".edge-qiime-pipeline-input").show();
+			$('#edge-fastq-input-block').show();
+			$('.edge-input-se-block').hide();
+			$('.edge-input-pe-block').show();
+			$('#edge-qiime-pipeline-dir-input').hide();
+			$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
+			$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
+			$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
+			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
+			$("#edge-qiime-mapping-file-tooltip").tooltipster(
+				'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
+			);
+			integrityCheck();
+		}
+		if (pipeline === 'targetedngs'){
+			$(".edge-qiime-pipeline-input").hide();
+			$(".edge-main-pipeline-input").hide();
+			$(".edge-piret-pipeline-input").hide();
+			$(".edge-targetedngs-pipeline-input").show();
+			$('.edge-input-se-block').hide();
+			$('.edge-input-pe-block').hide();
+			$('#edge-qiime-pipeline-input-block1').siblings('p').hide();
+			$('#btnAdd-edge-input-pe').hide();
+			$('#btnAdd-edge-input-se').hide();
+			$('#edge-qiime-pipeline-dir-input').show();
+			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
+			$("#edge-qiime-mapping-file-tooltip").tooltipster(
+				'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="data/DETECT_sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+			);
+			$("#edge-targetedngs-ref-file-tooltip").tooltipster(
+				'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="data/DETECT_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
+			);
+		}
+		if (pipeline === 'piret'){
+			$(".edge-qiime-pipeline-input").hide();
+			$(".edge-main-pipeline-input").hide();
+			$(".edge-targetedngs-pipeline-input").hide();
+			$(".edge-piret-pipeline-input").show();
+			$('.edge-input-se-block').hide();
+			$('#edge-qiime-pipeline-input-block1').siblings('p').hide();
+			$('.edge-input-pe-block').hide();
+			$('#btnAdd-edge-input-pe').hide();
+			$('#btnAdd-edge-input-se').hide();
+			$('#edge-qiime-pipeline-dir-input').show();
+			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Metadata Mapping File","Experimental Design File");
+			$("#edge-qiime-mapping-file-tooltip").tooltipster(
+				'content', $('<span>a tab-delimited text file or EXCEL file with header ID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+			);
+		}
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				showWarning("Please login to run EDGE.");
 			}
 		});
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
-
-		//reset metadata form
-		resetMetadata();
 	}
-
+	
+	function replace_label_string(obj,old_string,new_string){
+		var str = $(obj).html();
+		var res = str.replace(old_string,new_string);
+		$(obj).html(res);
+		$(obj).find('.tooltip').tooltipster({
+                	theme:'tooltipster-light',
+                	maxWidth: '480',
+                	interactive: true,
+        	});
+	}
 	//reconfig input
 	function reconfig(){
 		//add time stamp to avoid caching.
@@ -2588,23 +2625,10 @@ $( document ).ready(function()
 			});	
 
 			//loading pipeline
-			if( data['pipeline'] == "EDGE" ){
-				setRunEdge();
-				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
-				$('#edge-form-submit').closest('.ui-btn').hide();
-				$('#edge-form-reset').closest('.ui-btn').hide();
-			}
-			else if( data['pipeline'] == "qiime" ){
-				$( "a[href=#edge-qiime-pipeline]" ).click();
-				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
-				$('#edge-form-submit').closest('.ui-btn').hide();
-				$('#edge-form-reset').closest('.ui-btn').hide();
-			}else if( data['pipeline'] == "targetedngs" ){
-				$( "a[href=#edge-targetedngs-pipeline]" ).click();
-				$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
-				$('#edge-form-submit').closest('.ui-btn').hide();
-				$('#edge-form-reset').closest('.ui-btn').hide();
-			}
+			setRunPipeline(data['pipeline']);
+			$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
+			$('#edge-form-submit').closest('.ui-btn').hide();
+			$('#edge-form-reset').closest('.ui-btn').hide();
 			// trigger all change / clicks
 			toggle_input_fields( "reconfig" );
 			integrityCheck();
@@ -2924,7 +2948,7 @@ $( document ).ready(function()
 
 				if( data.SUBMISSION_STATUS == "success" ){
 					$( "a[href=#edge-content-pipeline]" ).focus();
-					setRunEdge();
+					setRunPipeline("EDGE");
 				}
 				else{
 					// display error information

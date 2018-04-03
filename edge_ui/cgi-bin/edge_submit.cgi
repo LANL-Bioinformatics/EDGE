@@ -20,8 +20,9 @@ use CGI qw(:standard);
 use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Data::Dumper;
+use File::Copy;
 use Storable 'dclone';
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 
 my $cgi = CGI->new;
@@ -204,7 +205,7 @@ if ($msg->{SUBMISSION_STATUS} eq 'success'){
 		&addProjToDB();
 	}else{
 		foreach (@pnames){
-			`ln -sf $edge_output/$_ $input_dir/projects/$_` if ( ! -e "$input_dir/projects/$_");
+			symlink("$edge_output/$_", "$input_dir/projects/$_") if ( ! -e "$input_dir/projects/$_");
 		}
 	}
 }
@@ -365,15 +366,22 @@ sub createConfig {
 		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
 		$json_out   = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.json" if ($username && $password);
 		
+		if ($opt{"edge-batch-input-excel"}){
+			$opt_orig->{$pname}->{"edge-input-pe1[]"} = $projlist->{$pname}->{"q1"};
+			$opt_orig->{$pname}->{"edge-input-pe2[]"} = $projlist->{$pname}->{"q2"};
+			$opt_orig->{$pname}->{"edge-input-se[]"} = $projlist->{$pname}->{"s"};
+			$opt_orig->{$pname}->{"edge-proj-desc"} = $projlist->{$pname}->{"description"};
+			$opt_orig->{$pname}->{"edge-proj-name"} = $pname;
+                }
 		#backup config first
-		`mv $config_out $config_out.bak` if( -e $config_out );
-		`mv $json_out $json_out.bak` if( -e $json_out );
+		move ("$config_out", "$config_out.bak") if( -e $config_out );
+		move ("$json_out","$json_out.bak") if( -e $json_out );
 		saveListToJason( $opt_orig, $json_out );
 
 		if( defined $opt{"edge-input-config"} && -e $opt{"edge-input-config"} ){
-			open CFG, $opt{"edge-input-config"};
-			open CFG_OUT, ">$config_out";
-			my $head=<CFG_OUT>;
+			open CFG, "<", "$opt{'edge-input-config'}";
+			open CFG_OUT, ">","$config_out";
+			my $head=<CFG>;
 			if ($head !~ /project/i){
 					&addMessage("GENERATE_CONFIG","failure","Incorrect config file");
 			}else{
@@ -439,7 +447,7 @@ sub createConfig {
 				my $template = HTML::Template->new(filename => $projConfigTmpl, die_on_bad_params => 0 );
 				$template->param( %opt );
 			
-				open CONFIG, ">$config_out" or die "Can't write config file: $!";
+				open CONFIG, ">", "$config_out" or die "Can't write config file: $!";
 				print CONFIG $template->output();
 				close CONFIG;
 			
@@ -513,9 +521,14 @@ sub runPipeline {
 		}
 		else{
 			my $time = strftime "%F %X", localtime;
-			`echo "\n*** [$time] EDGE_UI: This project is queued. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
-			`echo "$cmd" >> $proj_dir/process.log`;
-			`echo "\n*** [$time] EDGE_UI: Project unstarted ***" >> $proj_dir/process.log`;
+			open (my $fh, ">>","$proj_dir/process_current.log");
+			open (my $fh2, ">>", "$proj_dir/process.log");
+			print $fh "\n*** [$time] EDGE_UI: This project is queued. ***";
+			print $fh2 "\n*** [$time] EDGE_UI: This project is queued. ***";
+			print $fh2 "$cmd";
+			print $fh2 "\n*** [$time] EDGE_UI: Project unstarted ***";
+			close $fh;
+			close $fh2;
 			&addMessage("RUN_PIPELINE","success","Project $opt{'edge-proj-name'} has been added but unstarted.");
 			&addMessage("SYSTEM","success","The server does not have enough CPU available to run this job.");
 		}
@@ -651,7 +664,7 @@ sub addProjToDB{
 
 		my $user_project_dir = "$input_dir/MyProjects/${pname}_$new_id";
 		#`ln -sf $edge_output/$new_id $user_project_dir` if (! -e $user_project_dir);
-		`ln -sf $edge_output/$projCode $user_project_dir` if (! -e $user_project_dir);
+		symlink("$edge_output/$projCode", "$user_project_dir") if (! -e $user_project_dir);
 	}
 }
 
@@ -1190,9 +1203,10 @@ sub parse_qiime_mapping_files{
 		&addMessage("PARAMS","edge-qiime-mapping-file-input1","Please select mapping from EDGE_input directory") if ($f !~ /EDGE_input/ || $f =~ /\.\.\//);
 		$f =~ s/[`';"]//g;
 		if ($f =~ /xlsx$/){
-			open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+			open ($fh, "-|")
+				or exec("xlsx2csv", "-d", "tab", "$f");
 		}else{
-			open ($fh, "$f") or die "Cannot read $f\n";
+			open ($fh,"<", "$f") or die "Cannot read $f\n";
 		}
 		my $column_headers=0;
 		while(<$fh>){
@@ -1336,10 +1350,15 @@ sub createSampleMetadataFile {
                         print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
 
 			my $id = $opt{'metadata-study-id'};
-			$id = `perl edge_db.cgi study-title-add "$opt{'metadata-study-title'}"` unless $id;
+			unless ($id){
+				open (my $read_id_fh, "-|") 
+					or exec("perl","edge_db.cgi","study-title-add","$opt{'metadata-study-title'}");
+				$id=<$read_id_fh>;
+				close $read_id_fh;
+			}
 			print OUT "study_id=$id\n";
 			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
-			`perl edge_db.cgi study-type-add "$opt{'metadata-study-type'}"`;
+			system("perl", "edge_db.cgi", "study-type-add","$opt{'metadata-study-type'}");
 			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); 
 			if($batch_sra_run) {
 				print OUT "study_type=SRA\n";
@@ -1357,14 +1376,14 @@ sub createSampleMetadataFile {
 					}
 					print OUT "host=human\n";
 				} else {
-					`perl edge_db.cgi animal-host-add "$opt{'metadata-host'}"`;
+					system("perl", "edge_db.cgi", "animal-host-add", "$opt{'metadata-host'}");
 					print OUT "host=".$opt{'metadata-host'}."\n";
 				}
 				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
-				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}"`;
+				system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}");
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			} else {
-				`perl edge_db.cgi isolation-source-add "$opt{'metadata-isolation-source'}" "environmental"`;
+				system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}","environmental");
 				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
 			}
 			
@@ -1376,9 +1395,9 @@ sub createSampleMetadataFile {
 			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
 			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
 			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
-			`perl edge_db.cgi seq-center-add "$opt{'metadata-seq-center'}"`;
+			system("perl", "edge_db.cgi", "seq-center-add", "$opt{'metadata-seq-center'}");
 			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
-			`perl edge_db.cgi sequencer-add "$opt{'metadata-sequencer'}"`;
+			system("perl", "edge_db.cgi", "sequencer-add", "$opt{'metadata-sequencer'}");
 			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
 			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
 			close OUT;
@@ -1388,8 +1407,11 @@ sub createSampleMetadataFile {
 		if(!$batch_sra_run) {
 			my $run_out = "$out_dir/$pname/metadata_run.txt";
 			$run_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_run.txt" if ($username && $password);
-			open ROUT,  ">$run_out";
-			my $id = `perl edge_db.cgi run-add "$opt{'edge-proj-name'}"`;
+			open ROUT,  ">","$run_out";
+			open (my $read_id_fh, "-|") 
+				or exec("perl","edge_db.cgi","run-add","$opt{'edge-proj-name'}");
+			my $id=<$read_id_fh>;
+			close $read_id_fh;
 			print ROUT "edge-run-id=$id\n";
 			close ROUT;
 		} 
@@ -1398,7 +1420,7 @@ sub createSampleMetadataFile {
 		if($opt{'metadata-other'}) {
 			my $other_out = "$out_dir/$pname/metadata_other.txt";
 			$other_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_other.txt" if ($username && $password);
-			open OUT,  ">$other_out";
+			open OUT,  ">","$other_out";
 			print OUT $opt{'metadata-other'};
 			close OUT;
 		}
