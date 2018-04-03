@@ -13,8 +13,9 @@ test_result(){
 	Expect=$rootdir/summary.txt
 	Expect2=$rootdir/summary2.txt
 	Expect3=$rootdir/summary3.txt
+	Expect4=$rootdir/summary4.txt
 	testName="EDGE Reads Taxonomy test";
-	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2" || cmp -s "$Test" "$Expect3"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2" || cmp -s "$Test" "$Expect3" || cmp -s "$Test" "$Expect4"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
