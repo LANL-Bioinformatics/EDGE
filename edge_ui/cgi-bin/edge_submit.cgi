@@ -1429,7 +1429,7 @@ sub createSampleMetadataFile {
 
 sub getSRAmetaData{
 	my $accession=shift;
-	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy};
+	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy} || $sys->{proxy};
 	$proxy = "--proxy \'$proxy\' " if ($proxy);
 	my $url="https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$accession&result=read_run&display=report&fields=run_accession,sample_accession,study_accession,study_title,experiment_title,scientific_name,instrument_model,instrument_platform,library_layout,base_count&limit=1000";
 	my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
@@ -1541,7 +1541,7 @@ sub getGeocode($){
 	}
 	if($url) {
 		my $json = get($url);
-		my $d_json = decode_json( $json );
+		my $d_json = ($json)? decode_json( $json ):"";
 
 		$rlat = $d_json->{results}->[0]->{geometry}->{location}->{lat};
 		$rlng = $d_json->{results}->[0]->{geometry}->{location}->{lng};
