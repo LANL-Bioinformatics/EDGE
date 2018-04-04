@@ -672,9 +672,6 @@ $( document ).ready(function()
 	//input source
 	$( "#edge-sra-input-block" ).hide();
 	$( "#edge-fasta-input-block" ).hide();
-	$( ":radio[name='edge-inputS-sw']" ).on("change",function(){
-		inputSourceCheck(this);
-	});
 
 	function inputSourceCheck(obj){
 		if ( $(obj).val() == "sra" ){
@@ -709,6 +706,29 @@ $( document ).ready(function()
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( ".edge-fastq-options").hide();
 			$( "a[data-id=edge-annotation-parameters]" ).click();
+		}
+		if ( $(obj).val() == "pe"){
+				$('.edge-input-se-block').hide();
+				$('.edge-input-pe-block').show();
+				$('#edge-qiime-pro-sw').show();
+				$('#btnAdd-edge-input-pe').show();
+				$('#btnAdd-edge-input-se').hide();
+				$('#edge-qiime-pipeline-dir-input').hide();
+		}
+		if ( $(obj).val() == "se"){
+				$('.edge-input-pe-block').hide();
+				$('.edge-input-se-block').show();
+				$('#edge-qiime-pro-sw').hide();
+				$('#btnAdd-edge-input-pe').hide();
+				$('#btnAdd-edge-input-se').show();
+				$('#edge-qiime-pipeline-dir-input').hide();
+		}
+		if ( $(obj).val() == "dedir"){
+				$('.edge-input-se-block').hide();
+				$('.edge-input-pe-block').hide();
+				$('#edge-qiime-pipeline-dir-input').show();
+				$('#btnAdd-edge-input-pe').hide();
+				$('#btnAdd-edge-input-se').hide();
 		}
 	}
 	//
@@ -810,13 +830,13 @@ $( document ).ready(function()
 			blockClass = ".edge-input-se-block";
 			blockIDprefix = "edge-input-se-block";
 			label = "Single-end FASTQ file";
-			inputID = "edge-input-se";
+			inputID = "edge-input-se-";
 		}
 		else if ( btnID === "btnAdd-edge-qiime-mapping-file") { 
 			blockClass = ".edge-qiime-pipeline-input-block";
 			blockIDprefix = "edge-qiime-pipeline-input-block";
 			label = "Mapping File";
-			inputID = "edge-qiime-mapping-file-input";
+			inputID = "edge-qiime-mapping-file-input-";
 		}
         	// how many "duplicatable" input fields we currently have
         	var num = $(blockClass).length;	
@@ -1603,35 +1623,11 @@ $( document ).ready(function()
 				$('#edge-assembled-conti-file-div').hide();
 			}
 		});
-		
-		//$('.edge-input-se-block').hide();
-		$('#edge-qiime-pipeline-dir-input').hide();
-		$('#btnAdd-edge-input-se').hide();
-		$(":radio[name='edge-qiime-rt-sw']").on("change", function(){
-			if($('#edge-qiime-rt-sw1').is(':checked')){
-				$('.edge-input-se-block').hide();
-				$('.edge-input-pe-block').show();
-				$('#edge-qiime-pro-sw').show();
-				$('#btnAdd-edge-input-pe').show();
-				$('#btnAdd-edge-input-se').hide();
-				$('#edge-qiime-pipeline-dir-input').hide();
-			}
-			if($('#edge-qiime-rt-sw2').is(':checked')){
-				$('.edge-input-pe-block').hide();
-				$('.edge-input-se-block').show();
-				$('#edge-qiime-pro-sw').hide();
-				$('#btnAdd-edge-input-pe').hide();
-				$('#btnAdd-edge-input-se').show();
-				$('#edge-qiime-pipeline-dir-input').hide();
-			}
-			if($('#edge-qiime-rt-sw3').is(':checked')){
-				$('.edge-input-se-block').hide();
-				$('.edge-input-pe-block').hide();
-				$('#edge-qiime-pipeline-dir-input').show();
-				$('#btnAdd-edge-input-pe').hide();
-				$('#btnAdd-edge-input-se').hide();
-			}
+
+		$( ":radio[name='edge-inputS-sw'],:radio[name='edge-qiime-rt-sw']").on("change",function(){
+			inputSourceCheck(this);
 		});
+		
 		$(":radio[name='edge-targetedngs-platform']").on("change", function(){
 			if($('#edge-targetedngs-platform1').is(':checked')){
 				$('#edge-targetedngs-mode1').closest('div').show();
@@ -1677,8 +1673,9 @@ $( document ).ready(function()
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
 			$('#edge-batch-input-excel-1').prop("disabled", true);
 			$('input[id^="edge-input-"]').prop("disabled", true);
-			$('#edge-qiime-mapping-file-input1').prop("disabled", true);
+			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", true);
 			$('#edge-qiime-reads-dir-input').prop("disabled", true);
+			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").addClass("ui-disabled");
 		}
 		else{
 			$('#edge-proj-name').prop("disabled", false);
@@ -1688,8 +1685,9 @@ $( document ).ready(function()
 			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
 			$('#edge-batch-input-excel-1').prop("disabled", false);
 			$('input[id^="edge-input-"]').prop("disabled", false);
-			$('#edge-qiime-mapping-file-input1').prop("disabled", false);
+			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", false);
 			$('#edge-qiime-reads-dir-input').prop("disabled", false);
+			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").removeClass('ui-disabled');
 		}
 	}
 	function sync_input( type ) {	//disable inputs for default tools
@@ -2479,15 +2477,14 @@ $( document ).ready(function()
 			$('#edge-fastq-input-block').show();
 			$('.edge-input-se-block').hide();
 			$('.edge-input-pe-block').show();
+			$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').hide();
-			$('#edge-qiime-rt-sw1').prop("checked",true).checkboxradio("refresh");
-			$('#edge-qiime-rt-sw2').prop("checked",false).checkboxradio("refresh");
-			$('#edge-qiime-rt-sw3').prop("checked",false).checkboxradio("refresh");
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
 				'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
 			);
-			integrityCheck();
+			inputSourceCheck($( ":radio[name='edge-qiime-rt-sw']:checked"));
+			//integrityCheck();
 		}
 		if (pipeline === 'targetedngs'){
 			$(".edge-qiime-pipeline-input").hide();
@@ -2630,11 +2627,11 @@ $( document ).ready(function()
 			$('#edge-form-submit').closest('.ui-btn').hide();
 			$('#edge-form-reset').closest('.ui-btn').hide();
 			// trigger all change / clicks
-			toggle_input_fields( "reconfig" );
 			integrityCheck();
 			$( "#edge-content-pipeline").find( "div[id^='edge']" ).trigger('change');
 			$( ".edge-additional-options-toggle" ).trigger('click');
 			$(".edge-tabs").find("a").trigger('click');
+			toggle_input_fields( "reconfig" );
 		});
 	}
 	

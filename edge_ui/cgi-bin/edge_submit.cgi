@@ -820,7 +820,7 @@ sub checkParams {
 				 &addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\|\;\&\$\>\<\!\#]/;
 				 next;
 			};
-			&addMessage("PARAMS","$param","$param Invalid characters detected.") if ($param =~ /input|custom-/ && $opt{$param} =~ /\.\.\//);
+			&addMessage("PARAMS","$param","$param Invalid characters detected.") if ($param =~ /file|input|custom-/ && $opt{$param} =~ /\.\.\//);
 			&addMessage("PARAMS","$param","$param Invalid characters detected.") if $opt{$param} =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/;
 		}
 		
@@ -898,9 +898,9 @@ sub checkParams {
 			if (@edge_input_pe1 && @edge_input_se){
 				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
 			}
-			&addMessage("PARAMS","edge-qiime-mapping-file-input1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
+			&addMessage("PARAMS","edge-qiime-mapping-file-input-1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
-				my $id = "edge-qiime-mapping-file-input". ($i + 1);
+				my $id = "edge-qiime-mapping-file-input-". ($i + 1);
 				$edge_qiime_mapping_files[$i] =~ s/ //g;
 				$edge_qiime_mapping_files[$i] = "$input_dir/$edge_qiime_mapping_files[$i]" if ($edge_qiime_mapping_files[$i] =~ /^\w/);
 				&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_mapping_files[$i]});
@@ -930,7 +930,7 @@ sub checkParams {
 		$opt{"edge-jbroswe-sw"} = 0 ;
 		my @chartTypes=split /[\x0]/, $opt{"edge-qiime-taxa-charttype"};
 		$opt{"edge-qiime-taxa-charttype"} = join(",", @chartTypes);
-		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input"} if defined $opt{"edge-qiime-barcode-fq-file-input"};
+		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input[]"} if defined $opt{"edge-qiime-barcode-fq-file-input[]"};
 		foreach my $i (0..$#edge_qiime_barcode_input){
 			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);
 			$edge_qiime_barcode_input[$i] =~ s/ //g;
@@ -1006,8 +1006,8 @@ sub checkParams {
 			    } @refsl;
 			$num_selected = scalar(@refsl);
 		}
-		if ($opt{"edge-ref-file"}){
-			@edge_ref_input = split /[\x0]/, $opt{"edge-ref-file"} if defined $opt{"edge-ref-file"};
+		if ($opt{"edge-ref-file[]"}){
+			@edge_ref_input = split /[\x0]/, $opt{"edge-ref-file[]"} if defined $opt{"edge-ref-file[]"};
 			for my $i (0..$#edge_ref_input){
 				$edge_ref_input[$i] = $input_dir."/".$edge_ref_input[$i] if ($edge_ref_input[$i]=~ /^\w/);
 				my $id = 'edge-ref-file-'. ($i + 1);
@@ -1018,8 +1018,8 @@ sub checkParams {
 		}
 		push @refs, @edge_ref_input if @edge_ref_input;
 		$opt{"edge-ref-file"} = join ",", @refs;
-		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
+		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
 		
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
@@ -1155,12 +1155,12 @@ sub checkParams {
 		my (@snpPhylo_selected_refs,$num_selected);
 		&addMessage("PARAMS", "edge-phylo-patho", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
 		&addMessage("PARAMS", "edge-phylo-ref-select", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
-		&addMessage("PARAMS", "edge-phylo-patho", "You have both input types. Please select either from precomputed SNPdb OR form Genomes list.") if ( $opt{'edge-phylo-patho'} && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file'}));
+		&addMessage("PARAMS", "edge-phylo-patho", "You have both input types. Please select either from precomputed SNPdb OR form Genomes list.") if ( $opt{'edge-phylo-patho'} && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file[]'}));
 		@snpPhylo_selected_refs =  split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
-		@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file"} if defined $opt{"edge-phylo-ref-file"};
+		@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file[]"} if defined $opt{"edge-phylo-ref-file[]"};
 		$opt{"edge-phylo-ref-list"} = join ",",@snpPhylo_selected_refs if @snpPhylo_selected_refs;
 		$num_selected = scalar(@snpPhylo_selected_refs) + scalar(@edge_phylo_ref_input);
-		if ($opt{"edge-phylo-ref-file"}){
+		if ($opt{"edge-phylo-ref-file[]"}){
 			for my $i (0..$#edge_phylo_ref_input){
 				$edge_phylo_ref_input[$i] = $input_dir."/".$edge_phylo_ref_input[$i] if ($edge_phylo_ref_input[$i]=~ /^\w/);
 				my $id = 'edge-phylo-ref-file-'. ($i + 1);
@@ -1171,11 +1171,11 @@ sub checkParams {
 		$opt{"edge-phylo-ref-list-file"} = join ",",@edge_phylo_ref_input if @edge_phylo_ref_input;
 		if ($edge_phylo_genome_file_max && $num_selected > $edge_phylo_genome_file_max){
                         &addMessage("PARAMS","edge-phylo-ref-select","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if defined $opt{"edge-phylo-ref-select"};
-                        &addMessage("PARAMS","edge-phylo-ref-file-1","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if (defined $opt{"edge-phylo-ref-file"});
+                        &addMessage("PARAMS","edge-phylo-ref-file-1","The maximum genome for phylogenetic analysis is $edge_phylo_genome_file_max") if (defined $opt{"edge-phylo-ref-file[]"});
                 }
-		if ($num_selected < 3 && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file'})){
+		if ($num_selected < 3 && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file[]'})){
                         &addMessage("PARAMS","edge-phylo-ref-select","Please select/add at least three genomes") if defined $opt{"edge-phylo-ref-select"};
-                        &addMessage("PARAMS","edge-phylo-ref-file-1","Please select/add at least three genomes") if (defined $opt{"edge-phylo-ref-file"});
+                        &addMessage("PARAMS","edge-phylo-ref-file-1","Please select/add at least three genomes") if (defined $opt{"edge-phylo-ref-file[]"});
                 }
 	}
 	if (!$opt{"edge-sg-sw"}){
@@ -1200,7 +1200,7 @@ sub parse_qiime_mapping_files{
 		my $file_path = "$input_dir/$qiime_dir" if ($qiime_dir =~ /^\w/);
 		my $file_column_index;
 		my $fh;
-		&addMessage("PARAMS","edge-qiime-mapping-file-input1","Please select mapping from EDGE_input directory") if ($f !~ /EDGE_input/ || $f =~ /\.\.\//);
+		&addMessage("PARAMS","edge-qiime-mapping-file-input-1","Please select mapping from EDGE_input directory") if ($f !~ /EDGE_input/ || $f =~ /\.\.\//);
 		$f =~ s/[`';"]//g;
 		if ($f =~ /xlsx$/){
 			open ($fh, "-|")
@@ -1224,18 +1224,18 @@ sub parse_qiime_mapping_files{
 				my @files = map { "$file_path/$_" } split /,|\s+/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
-					&addMessage("PARAMS","edge-qiime-mapping-file-input1","File $array[$file_column_index] not exist") if (! -e $files[0]);
+					&addMessage("PARAMS","edge-qiime-mapping-file-input-1","File $array[$file_column_index] not exist") if (! -e $files[0]);
 				}else{
 					push @pe1_files,$files[0];
 					push @pe2_files,$files[1];
-					&addMessage("PARAMS","edge-qiime-mapping-file-input1","File $array[$file_column_index] not exist") if (! -e $files[0] || ! -e $files[1]);
+					&addMessage("PARAMS","edge-qiime-mapping-file-input-1","File $array[$file_column_index] not exist") if (! -e $files[0] || ! -e $files[1]);
 				}
 			}
 		}
 		close $fh;
-		&addMessage("PARAMS","edge-qiime-mapping-file-input1","Incorrect mapping metadata file") if (!$column_headers);
+		&addMessage("PARAMS","edge-qiime-mapping-file-input-1","Incorrect mapping metadata file") if (!$column_headers);
 	}
-	&addMessage("PARAMS","edge-qiime-mapping-file-input1","No fastq input in the mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
+	&addMessage("PARAMS","edge-qiime-mapping-file-input-1","No fastq input in the mapping file") if (!@se_files && !@pe1_files && !@pe2_files);
 	return (\@pe1_files,\@pe2_files,\@se_files);
 }
 
