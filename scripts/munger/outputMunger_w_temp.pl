@@ -18,7 +18,7 @@ my $projname = $out_dir_parts[-1];
 my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 my $www_root    = $sys->{edgeui_wwwroot};
-
+$ENV{EDGE_HOME} ||= "../../";
 ## Instantiate the variables
 my $getting_paired=0;
 my $vars;
