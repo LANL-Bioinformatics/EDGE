@@ -57,7 +57,7 @@ $opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Viru
 $opt{"gottcha2-e-invDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna";
 $opt{"gottcha2-e-ptgDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna";
 $opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna";
-$opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.faa.dmnd";
+$opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd";
 
 #PanGIA configs
 my $config_json = readListFromJson($opt{"configJson"});
@@ -133,7 +133,7 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -gottcha2-e-invDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna
     -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna
     -gottcha2-e-ptgDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna
-    -diamond-db         $EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.faa.dmnd
+    -diamond-db         $EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
 
 USAGE
     #

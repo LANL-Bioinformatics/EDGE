@@ -36,7 +36,7 @@ def main(argv):
      diseases_list = []
      not_in_db = []
      not_in_db_filename = 'species_not_in_pathogen_DB.txt'
-     print "running identify_pathogens2.py...."
+     print "running identify_pathogens.py...."
      try:
           opts, args = getopt.getopt(sys.argv[1:],"h:b:v:o:d:n:u:p:",["bifile=", "vifile=", "ofile=", "dbhost=", "dbname=", "dbuser=", "passwd="])
           #print "opts = ", opts

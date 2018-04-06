@@ -360,18 +360,19 @@ sub is_folder_empty {
 }
 
 sub createConfig {
-	foreach my $pname (@pnames){
+	foreach my $i (0..$#pnames){
+		my $pname=$pnames[$i];
 		my $config_out = "$out_dir/$pname/config.txt";
 		my $json_out   = "$out_dir/$pname/config.json";
 		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
 		$json_out   = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.json" if ($username && $password);
 		
 		if ($opt{"edge-batch-input-excel"}){
-			$opt_orig->{$pname}->{"edge-input-pe1[]"} = $projlist->{$pname}->{"q1"};
-			$opt_orig->{$pname}->{"edge-input-pe2[]"} = $projlist->{$pname}->{"q2"};
-			$opt_orig->{$pname}->{"edge-input-se[]"} = $projlist->{$pname}->{"s"};
-			$opt_orig->{$pname}->{"edge-proj-desc"} = $projlist->{$pname}->{"description"};
-			$opt_orig->{$pname}->{"edge-proj-name"} = $pname;
+			$opt_orig->{"edge-input-pe1[]"} = $projlist->{$pname}->{"q1"};
+			$opt_orig->{"edge-input-pe2[]"} = $projlist->{$pname}->{"q2"};
+			$opt_orig->{"edge-input-se[]"} = $projlist->{$pname}->{"s"};
+			$opt_orig->{"edge-proj-desc"} = $projlist->{$pname}->{"description"};
+			$opt_orig->{"edge-proj-name"} = $real_names[$i];
                 }
 		#backup config first
 		move ("$config_out", "$config_out.bak") if( -e $config_out );
