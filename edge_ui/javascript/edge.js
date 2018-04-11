@@ -61,6 +61,7 @@ $( document ).ready(function()
   	}
 	
 	//init page
+	edge_ui_init();
 	//$("#edge-content-upload-li").hide();
 	$("#edge-phylo-ref-select-ref-div").hide();
 	if (! umSystemStatus ){
@@ -77,7 +78,6 @@ $( document ).ready(function()
 		$('#signInForm').popup('open');
 	});
 
-	edge_ui_init();
 	sync_input(); //sync input with switch
 	integrityCheck();
 	//foldLeftPanel();
@@ -246,7 +246,7 @@ $( document ).ready(function()
 			//password = localStorage.pass;
 			userType = localStorage.userType;
 			FileTree("/" + localStorage.udir + "/");
-			uploadFiles("/" + localStorage.udir + "/");
+			setTimeout(function(){ uploadFiles("/" + localStorage.udir + "/");},300);
 
 			//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 			$('#edge-user-btn').html(localStorage.fnname);
@@ -2390,7 +2390,17 @@ $( document ).ready(function()
                        UploadComplete: function(up, files) {
                           // Called when all files are either uploaded or failed
 			  (umSystemStatus)?FileTree(userDir):FileTree(inputFileDir);
-                       }
+                       },
+		       FileUploaded: function(up,files,result){
+				var obj = JSON.parse(result.response);
+				var filename = files.name;
+				if (obj.error){
+ 					var msg = obj.error.message;
+					$( "#edge_integrity_dialog_header" ).text("Error");
+					$( "#edge_integrity_dialog_content" ).text( filename + " upload failed. " + msg);
+					setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+				}
+		       }
                     },
 
             });
