@@ -209,7 +209,7 @@ if( $proj_list->{$pname} ){
 
 		my $projDir = $edgeui_output . "/". $proj_list->{$pname};
 
-		if(-w $projDir) {
+		if(-e $projDir) {
 			#travels
 			my $travel_out = "$projDir/metadata_travels.txt";
 			my @travels = split /[\x0]/, $opt{"metadata-travel-location"};
