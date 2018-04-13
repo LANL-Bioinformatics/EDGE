@@ -614,7 +614,7 @@ sub runDETEQT{
     $cmd .= "--depth_cutoff $targetedNGS_depth_cutoff ";
     $cmd .= "--len_cutoff $targetedNGS_len_cutoff ";
     $cmd .= "--mode $targetedNGS_mode ";
-    $cmd .= "--align_options \'-x ont2d\' " if ($targetedNGS_platform =~ /ont2d/);
+    $cmd .= "--aligner minimap2 " if ($targetedNGS_platform =~ /ont2d/);
     $cmd .= "--align_options \'-x pacbio\' " if ($targetedNGS_platform =~ /pacbio/);
     $cmd .= "--expectedCoverage $targetedNGS_expectedCoverage " if ($targetedNGS_expectedCoverage);
     $cmd .= "--expectedIdentity $targetedNGS_expectedIdentity " if ($targetedNGS_expectedIdentity);

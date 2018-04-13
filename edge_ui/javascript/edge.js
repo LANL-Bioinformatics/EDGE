@@ -1641,7 +1641,7 @@ $( document ).ready(function()
 				$('#edge-targetedngs-mode1').closest('div').hide();
 				$('#edge-targetedngs-mode2').prop("checked",true).checkboxradio("refresh");
 				$('#edge-targetedngs-mode1').prop("checked",false).checkboxradio("refresh");
-				$('#edge-targetedngs-eid').val('0.95').slider("refresh");
+				$('#edge-targetedngs-eid').val('0.90').slider("refresh");
 				$('#edge-targetedngs-emq').val('50').slider("refresh");
 				$('#edge-targetedngs-ebq').val('12').slider("refresh");
 			}
