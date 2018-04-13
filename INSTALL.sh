@@ -20,7 +20,7 @@ taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
-pipeline_tools=( targetedNGS reference-based_assembly )
+pipeline_tools=( DETEQT reference-based_assembly )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
@@ -93,20 +93,20 @@ echo "
 "
 }
 
-install_targetedNGS(){
-local VER=0.2.0
+install_DETEQT(){
+local VER=0.3.0
 echo "------------------------------------------------------------------------------
-                           Installing targetedNGS $VER
+                           Installing DETEQT $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf targetedNGS.tgz
-cd targetngs
+tar xvzf DETEQT-$VER.tgz
+cd DETEQT
 ./INSTALL.sh
-ln -sf $rootdir/thirdParty/targetngs $rootdir/bin/targetedNGS
+ln -sf $rootdir/thirdParty/DETEQT $rootdir/bin/DETEQT
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           targetedNGS $VER installed
+                           DETEQT $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -599,7 +599,7 @@ echo "
 
 install_pangia()
 {
-local VER=2.4.4
+local VER=2.4.3
 echo "------------------------------------------------------------------------------
                            Installing PANGIA $VER BETA
 ------------------------------------------------------------------------------
@@ -2015,18 +2015,18 @@ else
     install_reference-based_assembly
 fi
 
-if ( checkLocalInstallation targetedNGS )
+if ( checkLocalInstallation DETEQT )
 then
-  targetedNGS_VER=`targetedNGS -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
-  if  ( echo $targetedNGS_VER | awk '{if($2>="0.2.0") exit 0; else exit 1}' )
+  DETEQT_VER=`DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
+  if  ( echo $DETEQT_VER | awk '{if($2>="0.3.0") exit 0; else exit 1}' )
   then
-    echo "targetedNGS is found"
+    echo "DETEQT is found"
   else
-   install_targetedNGS
+   install_DETEQT
   fi
 else
-  echo "targetedNGS is not found"
-  install_targetedNGS
+  echo "DETEQT is not found"
+  install_DETEQT
 fi
 
 if ( checkLocalInstallation opaver_anno.pl )

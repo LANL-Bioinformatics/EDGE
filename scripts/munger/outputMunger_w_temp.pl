@@ -19,6 +19,7 @@ my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 my $www_root    = $sys->{edgeui_wwwroot};
 $ENV{EDGE_HOME} ||= "../../";
+
 ## Instantiate the variables
 my $getting_paired=0;
 my $vars;
@@ -70,23 +71,27 @@ eval {
 	&pull_blast();
 #	print STDOUT "blast\n";
 	&pull_sra_download();
-#	print STDOUT "sra download\n";
 	&pull_targetedNGS();
+	&pull_piret();
 	&prep_jbrowse_link();
-#	print STDOUT "jbrowse link\n";
 	&checkImageReady();
-#	print STDOUT "check image ready\n";
 	&checkProjTarFile();
-#	print STDOUT "check proj tar file\n";
 };
 #print STDOUT "start output html \n";
 output_html();
 #print STDOUT "end output html\n";
 #
 #
+#
+sub pull_piret{
+	my  $output_dir = "$out_dir/ReferenceBasedAnalysis/Piret";
+	return unless -e "$output_dir/runPiret.finished";
+
+}
+
 sub pull_targetedNGS {
-	my $output_dir = "$out_dir/TargetedNGS";
-	return unless -e "$output_dir/runTargetedNGS.finished";
+	my $output_dir = "$out_dir/DETEQT";
+	return unless -e "$output_dir/runDETEQT.finished";
 	my $proj_realname = $vars->{PROJNAME};
 	my (@errs,$errs); 
 	@errs = `grep ERROR $output_dir/log.txt` if ( -e "$output_dir/log.txt");
@@ -262,8 +267,9 @@ sub check_analysis {
 	$vars->{OUT_PA_D_SW}  = 1 if -e "$out_dir/AssayCheck/PCR.design.primers.txt";
 	$vars->{OUT_AB_SW}    = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished" and -s "$out_dir/AssemblyBasedAnalysis/Blast/ContigsForBlast");
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
-	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/TargetedNGS/runTargetedNGS.finished");
-	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} )? "" : 1;
+	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/DETEQT/runDETEQT.finished");
+	$vars->{OUT_piret_SW}   = 1 if ( -e "$out_dir/ReferenceBasedAnalysis/Piret/runPiret.finished");
+	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} ||  $vars->{OUT_piret_SW} )? "" : 1;
 	$vars->{OUT_SG_SW}    = 1 if (-e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" or -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" );
 	$vars->{OUT_OSG_SW}   = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
 	$vars->{OUT_RSG_SW}   = 1 if ( -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");

@@ -17,6 +17,8 @@ use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use Tie::File;
+use File::Path qw(make_path remove_tree);
+use File::Copy;
 use Email::Valid;
 
 require "edge_user_session.cgi";
@@ -1357,6 +1359,8 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Specialty Genes Profiling"}      ->{"AssemblyBased"} = "$proj_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished";
 	$module_ctl->{"Primer Validation"}              ->{"general"}       = "$proj_dir/AssayCheck/pcrContigValidation.txt";
 	$module_ctl->{"Primer Design"}                  ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
+	$module_ctl->{"PiReT transcriptomics analysis"} ->{"general"}       = "$proj_dir/ReferenceBasedAnalysis/Piret/runPiret.finished";
+	$module_ctl->{"DETEQT analysis"}                ->{"general"}       = "$proj_dir/DETEQT/runDETEQT.finished";
 	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
 	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
 

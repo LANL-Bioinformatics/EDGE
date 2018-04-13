@@ -240,7 +240,7 @@ qiime_chart_type=<TMPL_VAR NAME=edge-qiime-taxa-charttype>
 </TMPL_IF>
 
 <TMPL_IF NAME=edge-targetedngs-sw>
-[TargetedNGS analysis]
+[DETEQT analysis]
 DoTargetedNGS=<TMPL_VAR NAME=edge-targetedngs-sw DEFAULT=0>
 targetedNGS_ref=<TMPL_VAR NAME=edge-targetedngs-ref-file>
 targetedNGS_input_dir=<TMPL_VAR NAME=edge-targetedngs-dir-input>
@@ -258,6 +258,21 @@ targetedNGS_coverageWeight=<TMPL_VAR NAME=edge-targetedngs-cw DEFAULT=0.25>
 targetedNGS_identityWeight=<TMPL_VAR NAME=edge-targetedngs-iw DEFAULT=0.25>
 targetedNGS_baseqWeight=<TMPL_VAR NAME=edge-targetedngs-bw DEFAULT=0.25>
 targetedNGS_mapqWeight=<TMPL_VAR NAME=edge-targetedngs-mw DEFAULT=0.25>
+</TMPL_IF>
+
+<TMPL_IF NAME=edge-piret-sw>
+[PiReT transcriptomics analysis]
+DoPiReTAnalysis=<TMPL_VAR NAME=edge-piret-sw DEFAULT=0>
+piret_input_dir=<TMPL_VAR NAME=edge-piret-dir-input>
+piret_exp_design_file=<TMPL_VAR NAME=edge-piret-exp-design-file>
+piret_kingdom=<TMPL_VAR NAME=edge-piret-kingdom DEFAULT="prokarya">
+piret_prokaryote_fasta=<TMPL_VAR NAME=edge-piret-prok-fasta-file>
+piret_prokaryote_gff=<TMPL_VAR NAME=edge-piret-prok-gff-file>
+piret_eukarya_fasta=<TMPL_VAR NAME=edge-piret-euk-fasta-file>
+piret_eukarya_gff=<TMPL_VAR NAME=edge-piret-euk-gff-file>
+piret_p_value=<TMPL_VAR NAME=edge-piret-pvalue DEFAULT=0.0001>
+piret_method=<TMPL_VAR NAME=edge-piret-method>
+piret_index=<TMPL_VAR NAME=edge-piret-hisat2-index-file>
 </TMPL_IF>
 
 [HTML Report]

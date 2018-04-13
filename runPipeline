@@ -175,8 +175,8 @@ if ($configuration->{'DoQiimeAnalysis'}){
 	&runQiimeAnalysis(\@unpairedReadsFile, \@pairedReadsFile);
 }
 
-if ($configuration->{DoTargetedNGS}){
-	&runTargetedNGS();
+if ($configuration->{DoDETEQT}){
+	&runDETEQT();
 }
 
 if ($configuration->{DoHostRemoval})
@@ -558,24 +558,24 @@ sub parse_qiime_mapping_file{
 }
 
 
-sub runTargetedNGS{
+sub runDETEQT{
     my $time=time();
-    my $outputDir="$outDir/TargetedNGS";
+    my $outputDir="$outDir/DETEQT";
     my $log="$outputDir/log.txt";
     my $stats_report = "$outputDir/stats/$project_name.report.txt";
     my $run_stats = "$outputDir/stats/$project_name.run_stats.txt";
     my $mapping_stats = "$outputDir/stats/$project_name.mapping_stats.txt";
     if ($noColorLog)
     {
-        &lprint ("[TargetedNGS analysis]\n");
+        &lprint ("[DETEQT analysis]\n");
     }
     else
     {
-        &lprint (colored ("[TargetedNGS analysis]\n",'yellow'));
+        &lprint (colored ("[DETEQT analysis]\n",'yellow'));
     }
-    if ( -e "$outputDir/runTargetedNGS.finished" )
+    if ( -e "$outputDir/runDETEQT.finished" )
     {
-       &lprint ("TargetedNGS analysis Finished\n"); 
+       &lprint ("DETEQT analysis Finished\n"); 
        return 0;
     }  
     `mkdir -p $outputDir`;
@@ -609,7 +609,7 @@ sub runTargetedNGS{
         exit;
     }
 
-    my $cmd = "$RealBin/bin/targetedNGS/targetedNGS  --ref $targetedNGS_ref --indir $targetedNGS_input_dir --samples $targetedNGS_sample_file --cpus  $numCPU --outdir $outputDir --prefix $project_name --force " ;
+    my $cmd = "$RealBin/bin/DETEQT/DETEQT  --ref $targetedNGS_ref --indir $targetedNGS_input_dir --samples $targetedNGS_sample_file --cpus  $numCPU --outdir $outputDir --prefix $project_name --force " ;
     $cmd .= "--q_cutoff $targetedNGS_q_cutoff ";
     $cmd .= "--depth_cutoff $targetedNGS_depth_cutoff ";
     $cmd .= "--len_cutoff $targetedNGS_len_cutoff ";
@@ -635,7 +635,7 @@ sub runTargetedNGS{
     &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $mapping_stats > $mapping_stats.json");
 
     my $run_time = &printRunTime($time);
-    system("touch $outputDir/runTargetedNGS.finished");
+    system("touch $outputDir/runDETEQT.finished");
     return 0;
 } 
 
