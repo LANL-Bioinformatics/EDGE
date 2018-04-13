@@ -604,7 +604,7 @@ $( document ).ready(function()
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr><tr><td>bulk</td><td>Experimental; assembly of standard bulk sequencing with sufficient depth</td></tr><tr><td>single-cell</td><td>Experimental; single-cell sequence assembly</td></tr></table></span>')
 	);
 	$('#edge-piret-method-l').tooltipster(
-		'content', $('<span>For detecting differentially expressed genes, all of which are R packages. This option provides users with multiple tools to use which can be spcified using following keywords:<table border="1"><tr><th>Methods</th><th>Descriptions</th></tr><tr><td>EdgeR</td><td>Uses EdgeR.</td></tr><tr><td>Deseq2</td><td>Uses Deseq2.</td></tr><tr><td>ballgown</td><td>Uses ballgown. Appropriate for eukaryotes.</td></tr><td>DeEdge</td><td>Uses both EdgeR and Deseq2.</td></tr><tr><td>Degown</td><td>Uses Deseq2 and ballgown.</td></tr><tr><td>ballEdge</td><td>Uses ballgown and Deseq2.</td></tr><tr><td>all</td><td>Uses all of the above methods.</td></tr></table></span>')
+		'content', $('<span>For detecting differentially expressed genes, all of which are R packages. This option provides users with multiple tools to use which can be spcified using following keywords:<table border="1"><tr><th>Methods</th><th>Descriptions</th></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/edgeR.html target="_blank">EdgeR</a></td><td>Uses EdgeR.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/DESeq2.html" target="_blank">Deseq2</a></td><td>Uses Deseq2.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/ballgown.html" target="_blank">ballgown</a></td><td>Uses ballgown. Appropriate for eukaryotes.</td></tr><td>DeEdge</td><td>Uses both EdgeR and Deseq2.</td></tr><tr><td>Degown</td><td>Uses Deseq2 and ballgown.</td></tr><tr><td>ballEdge</td><td>Uses ballgown and EdgeR.</td></tr><tr><td>all</td><td>Uses all of the above methods.</td></tr></table></span>')
 	);
 	$("#edge-qiime-pro-tooltip").tooltipster(
 		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
@@ -1647,7 +1647,6 @@ $( document ).ready(function()
 			}
 		});
 
-		$('#edge-piret-euk-input').hide();
 		$(":radio[name='edge-piret-kingdom']").on("change", function(){
 			if($('#edge-piret-kingdom1').is(':checked')){
 				$('#edge-piret-euk-input').hide();
@@ -2395,14 +2394,13 @@ $( document ).ready(function()
 				var obj = JSON.parse(result.response);
 				var filename = files.name;
 				if (obj.error){
- 					var msg = obj.error.message;
+					var msg = obj.error.message;
 					$( "#edge_integrity_dialog_header" ).text("Error");
 					$( "#edge_integrity_dialog_content" ).text( filename + " upload failed. " + msg);
 					setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 				}
 		       }
                     },
-
             });
     };
 
@@ -2509,10 +2507,10 @@ $( document ).ready(function()
 			$('#edge-qiime-pipeline-dir-input').show();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
-				'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="data/DETECT_sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+				'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="data/DETEQT_sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
 			);
 			$("#edge-targetedngs-ref-file-tooltip").tooltipster(
-				'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="data/DETECT_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
+				'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="data/DETEQT_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
 			);
 		}
 		if (pipeline === 'piret'){
@@ -2526,6 +2524,7 @@ $( document ).ready(function()
 			$('#btnAdd-edge-input-pe').hide();
 			$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').show();
+			$('#edge-piret-euk-input').hide();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Metadata Mapping File","Experimental Design File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
 				'content', $('<span>a tab-delimited text file or EXCEL file with header ID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
