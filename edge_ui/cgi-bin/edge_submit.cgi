@@ -148,22 +148,20 @@ if( $sys->{user_management} ){
 
 # Qiime dir submit
 &addMessage("PARAMS","edge-qiime-reads-dir-input","Invalid characters detected") if ($edge_qiime_input_dir =~ /[\`\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-if ($edge_qiime_input_dir && $pipeline eq "qiime"){
+if ($edge_qiime_input_dir){
 	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
 	@edge_input_pe1 = @{$pe1_file_r};
 	@edge_input_pe2 = @{$pe2_file_r};
 	@edge_input_se = @{$se_file_r};
-	$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
-	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
-}
-
-# TargetedNGS dir submit
-if ($edge_qiime_input_dir && $pipeline eq "targetedngs" ){
-	my ($pe1_file_r,$pe2_file_r,$se_file_r) = &parse_qiime_mapping_files($edge_qiime_input_dir,\@edge_qiime_mapping_files);
-	@edge_input_pe1 = @{$pe1_file_r};
-	@edge_input_pe2 = @{$pe2_file_r};
-	@edge_input_se = @{$se_file_r};
-	$opt{"edge-targetedngs-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+	if ($pipeline eq "qiime"){
+		$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+	}
+	if ($pipeline eq "targetedngs"){
+		$opt{"edge-targetedngs-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+	}
+	if ($pipeline eq "piret") {
+		$opt{"edge-piret-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+	}
 	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
 }
 
@@ -360,8 +358,8 @@ sub is_folder_empty {
 }
 
 sub createConfig {
-	foreach my $i (0..$#pnames){
-		my $pname=$pnames[$i];
+	for my $i (0..$#pnames){
+		my $pname = $pnames[$i];
 		my $config_out = "$out_dir/$pname/config.txt";
 		my $json_out   = "$out_dir/$pname/config.json";
 		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
@@ -980,7 +978,7 @@ sub checkParams {
         
 		&addMessage("PARAMS", "edge-targetedngs-ref-file","File not found. Please check the file path.") if ( $opt{"edge-targetedngs-ref-file"} && ! -e $opt{"edge-targetedngs-ref-file"} );
 		&addMessage("PARAMS", "edge-targetedngs-ref-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-targetedngs-ref-file"} && ! is_fasta($opt{"edge-targetedngs-ref-file"}) );
-		&addMessage("PARAMS","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{""} >=0 && $opt{""} <=1 );
+		&addMessage("PARAMS","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-q-cutoff"} >=0 && $opt{"edge-targetedngs-q-cutoff"} <=1 );
 		&addMessage("PARAMS", "edge-targetedngs-depth-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-depth-cutoff"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-targetedngs-len-cutoff","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-len-cutoff"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-targetedngs-ebq","Invalid input. Natural number required.") unless $opt{"edge-targetedngs-ebq"}=~ /^\d+$/;
@@ -992,6 +990,41 @@ sub checkParams {
 		&addMessage("PARAMS","edge-targetedngs-bw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-bw"} >=0 && $opt{"edge-targetedngs-bw"} <=1 );
 		&addMessage("PARAMS","edge-targetedngs-mw","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-targetedngs-mw"} >=0 && $opt{"edge-targetedngs-mw"} <=1 );
 		&addMessage("PARAMS","edge-targetedngs-cw","Sum up the four weight parameters must be equal to 1.") unless ( $opt{"edge-targetedngs-cw"} + $opt{"edge-targetedngs-iw"} +  $opt{"edge-targetedngs-bw"}  + $opt{"edge-targetedngs-mw"} == 1);
+	}
+	if ($pipeline eq "piret"){
+		$opt{"edge-piret-sw"} =1;
+		$opt{"edge-qc-sw"} =0;
+		$opt{'edge-joinpe-sw'}   = 0;
+		$opt{"edge-hostrm-sw"} =0;
+		$opt{"edge-assembly-sw"} = 0;
+		$opt{"edge-ref-sw"} = 0;
+		$opt{"edge-taxa-sw"} = 0;
+		$opt{"edge-contig-taxa-sw"} = 0;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-phylo-sw"} = 0 ;
+		$opt{"edge-primer-valid-sw"} = 0 ;
+		$opt{"edge-primer-adj-sw"} = 0 ;
+		$opt{"edge-anno-sw"} = 0 ;
+		$opt{"edge-jbroswe-sw"} = 0 ;
+		$opt{"edge-piret-exp-design-file"} = ($edge_qiime_mapping_files[0] =~ /^\w/)? $input_dir."/".$edge_qiime_mapping_files[0] : $edge_qiime_mapping_files[0];
+		$opt{"edge-piret-prok-fasta-file"} = $input_dir."/".$opt{"edge-piret-prok-fasta-file"} if ($opt{"edge-piret-prok-fasta-file"} =~ /^\w/);
+		$opt{"edge-piret-prok-gff-file"} = $input_dir."/".$opt{"edge-piret-prok-gff-file"} if ($opt{"edge-piret-prok-gff-file"} =~ /^\w/);
+		$opt{"edge-piret-euk-fasta-file"} = $input_dir."/".$opt{"edge-piret-euk-fasta-file"} if ($opt{"edge-piret-euk-fasta-file"} =~ /^\w/);
+		$opt{"edge-piret-euk-gff-file"} = $input_dir."/".$opt{"edge-piret-euk-gff-file"} if ($opt{"edge-piret-euk-gff-file"} =~ /^\w/);
+		$opt{"edge-piret-hisat2-index-file"} = $input_dir."/".$opt{"edge-piret-hisat2-index-file"} if ($opt{"edge-piret-hisat2-index-file"} =~ /^\w/);
+		
+		&addMessage("PARAMS", "edge-piret-exp-design-file","File not found. Please check the file path.") if ( $opt{"edge-piret-exp-design-file"} && ! -e $opt{"edge-piret-exp-design-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-fasta-file"} && ! -e $opt{"edge-piret-prok-fasta-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-prok-fasta-file"} && ! is_fasta($opt{"edge-piret-prok-fasta-file"}) );
+		&addMessage("PARAMS", "edge-piret-prok-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-gff-file"} && ! -e $opt{"edge-piret-prok-gff-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-gff-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-prok-gff-file"} && ! is_gff($opt{"edge-piret-prok-gff-file"}) );
+		&addMessage("PARAMS", "edge-piret-euk-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-fasta-file"} && ! -e $opt{"edge-piret-euk-fasta-file"} );
+		&addMessage("PARAMS", "edge-piret-euk-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-euk-fasta-file"} && ! is_fasta($opt{"edge-piret-euk-fasta-file"}) );
+		&addMessage("PARAMS", "edge-piret-euk-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-gff-file"} && ! -e $opt{"edge-piret-euk-gff-file"} );
+		&addMessage("PARAMS", "edge-piret-euk-gff-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-euk-gff-file"} && ! is_gff($opt{"edge-piret-euk-gff-file"}) );
+		&addMessage("PARAMS","edge-piret-pvalue","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-piret-pvalue"} >=0 && $opt{"edge-piret-pvalue"} <=1 );
+		
+		
 	}
 	#tool parameters
 	if ( $opt{"edge-ref-sw"} ){
@@ -1214,7 +1247,7 @@ sub parse_qiime_mapping_files{
 			chomp;
 			next if (/^\n/);
 			next unless (/\S/);
-			if (/SampleID/){
+			if (/SampleID|ID/){
 				$column_headers=1;
 				my @header = split /\t/,$_;
 				( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
@@ -1222,7 +1255,7 @@ sub parse_qiime_mapping_files{
 				my @array = split /\t/,$_;
 				$array[$file_column_index] =~ tr/"//d;
 				$array[$file_column_index] =~ s/^\s+|\s+$//g;
-				my @files = map { "$file_path/$_" } split /,|\s+/,$array[$file_column_index];
+				my @files = map { "$file_path/$_" } split /,|\s+|:/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
 					&addMessage("PARAMS","edge-qiime-mapping-file-input-1","File $array[$file_column_index] not exist") if (! -e $files[0]);
@@ -1240,6 +1273,20 @@ sub parse_qiime_mapping_files{
 	return (\@pe1_files,\@pe2_files,\@se_files);
 }
 
+
+sub is_gff
+{
+	$SIG{'PIPE'}=sub{};
+	my $file=shift;
+	my ($fh,$pid) = open_file($file);
+	my $head=<$fh>;
+	close $fh;
+	kill 9, $pid; # avoid gunzip broken pipe
+	$SIG{'PIPE'} = 'DEFAULT';
+	($head =~ /gff/i)?
+		return 1:
+		return 0;
+}
 
 sub is_fastq
 {
@@ -1286,7 +1333,8 @@ sub open_file
 	my ($file) = @_;
 	my $fh;
 	my $pid;
-	if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
+	if ( $file=~/\.gz$/i ) { $pid=open($fh, "-|")
+				or exec("gunzip", "-c", "$file"); }
 	else { $pid=open($fh,'<',$file) or die("$file: $!"); }
 	return ($fh,$pid);
 }

@@ -9,6 +9,8 @@ use POSIX qw(strftime);
 use Cwd;
 use threads;
 use FindBin qw($RealBin);
+use File::Path qw(make_path remove_tree);
+use File::Copy;
 use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
@@ -90,9 +92,9 @@ END
 my $configuration=&readEDGEConfig($configFile);
 my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 
-&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir}  or $configuration->{inputContigs} or $inputContigs );
+&Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir}  or $configuration->{inputContigs} or $inputContigs or $configuration->{piret_input_dir});
 &Usage("Missing output directory path.") unless ($outDir);
-`mkdir -p $outDir`;
+&make_dir($outDir);
 my $abs_outDir=Cwd::abs_path("$outDir");
 unlink "$abs_outDir/HTML_Report/writeHTMLReport.finished";
 &setProxy if $sys->{proxy};
@@ -143,9 +145,9 @@ if ($configuration->{'DoSRADownload'})
 {
 	&Download_SRA();
 }
-if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir}){
-	my $dir_input=$configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir};
-	my $mapping_files=$configuration->{qiime_mapping_file} || $configuration->{targetedNGS_sample_file};
+if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir} || $configuration->{piret_input_dir}){
+	my $dir_input=$configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir} || $configuration->{piret_input_dir};
+	my $mapping_files=$configuration->{qiime_mapping_file} || $configuration->{targetedNGS_sample_file} || $configuration->{piret_exp_design_file};
 	my ($pe_files_r,$se_files_r)=&parse_qiime_mapping_file($dir_input,$mapping_files);
 	@pairedReadsFile=@{$pe_files_r};
 	@unpairedReadsFile=@{$se_files_r};
@@ -177,6 +179,10 @@ if ($configuration->{'DoQiimeAnalysis'}){
 
 if ($configuration->{DoDETEQT}){
 	&runDETEQT();
+}
+
+if ($configuration->{DoPiReTAnalysis}){
+	&runPiReT();
 }
 
 if ($configuration->{DoHostRemoval})
@@ -396,7 +402,187 @@ if ($configuration->{projrunhost} =~ /edge-bsve/ || defined $data_cleanup ){
 #}
 ### END MAIN ###
 ### Below are subroutins ###
+sub runPiReT {
+    my $kingdom = $configuration->{piret_kingdom};
+    my $significant_pvalue = $configuration->{piret_p_value} || 0.001;
+    my $exp_file = $configuration->{piret_exp_design_file};
+    my $test_method = $configuration->{piret_method}||'ballEdge';
+    my $index_ref = $configuration->{piret_index};
+    my $piret_indir = $configuration->{piret_input_dir};
+    my $outputDir = "$outDir/ReferenceBasedAnalysis/Piret";
+    my $exp_design = "$outputDir/exp_design.txt";
+    my $log = "$outputDir/log.txt";
+    my $luigi_config = "$outputDir/luigi.cfg";
 
+    my $time=time();    
+    if ($noColorLog)
+    {
+        &lprint ("[PiReT transcriptomics analysis]\n");
+    }
+    else
+    {
+        &lprint (colored ("[PiReT transcriptomics analysis]\n",'yellow'));
+    }
+    if ( -e "$outputDir/runPiret.finished" )
+    {
+       &lprint ("PiReT transcriptomics analysis Finished\n"); 
+       return 0;
+    } 
+
+    if (! -e $exp_file) {
+      &lprint("ERROR: No experimental design file");
+      exit;
+    }  
+    my $prokaryote_fasta = $configuration->{piret_prokaryote_fasta};
+    my $prokaryote_gff = $configuration->{piret_prokaryote_gff};
+    my $eukarya_fasta = $configuration->{piret_eukarya_fasta};
+    my $eukarya_gff = $configuration->{piret_eukarya_gff};
+    make_path($outputDir,{chmod => 0755,});
+    my $piret_indir_basename=basename($piret_indir);
+    my $piret_abs_indir=Cwd::abs_path($piret_indir);
+    symlink($piret_abs_indir,"$outputDir/$piret_indir_basename");
+    &prepareExpDesignAndConfig($exp_file,$piret_indir_basename,$outputDir);
+
+    chdir "$outputDir";
+    my $cmd="$RealBin/thirdParty/PyPiReT/bin/runPiReT -k $kingdom -e $exp_design -d $outputDir -m $test_method -p $significant_pvalue -c $numCPU --config $luigi_config ";
+    $cmd .= "-i $index_ref " if ($index_ref);
+    if ($kingdom eq 'prokarya')
+    {
+        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
+            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($prokaryote_gff)){
+             &lprint("ERROR:prokaryote_gff is not in GFF3 format");
+             exit;
+	}
+        $cmd .= "-fp $prokaryote_fasta -gp $prokaryote_gff ";
+    }
+    elsif ($kingdom eq 'eukarya')
+    {
+        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
+            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($eukarya_gff)){
+             &lprint("ERROR:eukarya_gff is not in GFF3 format");
+             exit;
+	}
+        $cmd .= "-fe $eukarya_fasta -ge $eukarya_gff ";
+    }   
+    elsif ($kingdom eq 'both')
+    {
+        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
+            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            exit;
+        }
+        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
+            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($prokaryote_gff) || ! is_gff($eukarya_gff)){
+             &lprint("ERROR:prokaryote_gff or eukarya_gff is not in GFF3 format");
+             exit;
+	}
+        $cmd .= "-fe $eukarya_fasta -ge $eukarya_gff -fp $prokaryote_fasta -gp $prokaryote_gff ";
+    }
+    &lprint ("  Running \n  $cmd \n");
+    my @cmds = split / /,$cmd;
+    &executeCommand2(@cmds); 
+    #unlink "$outputDir/$piret_indir_basename";
+    &touchFile("$outputDir/runPiret.finished");
+
+    &printRunTime($time);
+    return 0;
+}
+
+sub prepareExpDesignAndConfig{
+    my $exp_file = shift;
+    my $dir= shift;
+    my $outdir=shift;
+    my $exp_design = "$outdir/exp_design.txt";
+    my $luigi_config = "$outdir/luigi.cfg";
+    my $fh;
+
+    if ($exp_file =~ /xlsx$/){ 
+        open ($fh, "-|")
+            or exec("xlsx2csv", "-d", "tab", "$exp_file");
+    }else{
+        open $fh,"<", $exp_file;
+    }
+    open my $ofh, ">", $exp_design;
+    my $file_column_index;
+    while(<$fh>){
+        chomp;
+        next if (/^\n/);
+        next unless (/\S/);
+        if (/ID/ && /Files/i){
+            my @header = split /\t/,$_;
+            ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
+            print $ofh $_,"\n";
+        }elsif(! /^#/){
+            my @array = split /\t/,$_;
+            $array[$file_column_index] =~ tr/"//d;
+            $array[$file_column_index] =~ s/^\s+|\s+$//g;
+            $array[$file_column_index] =~ s/:/:$dir\//;
+            $array[$file_column_index] = "$dir/$array[$file_column_index]";
+            $array[0] =~ s/[^\w-]/_/g;
+            print $ofh join("\t",@array),"\n";
+        }
+        
+    }
+    close $fh;
+    close $ofh;
+    open (my $ofh2, ">",$luigi_config);
+    print $ofh2 <<"END";
+[DEFAULT]
+faqc_min_L=40
+n_cutoff=10
+stranded=0
+
+[core]
+log_level:DEBUG
+
+[RunAllQC]
+faqc_min_L:50
+n_cutoff=10
+
+[Hisat]
+
+[HisatMapW]
+
+[SAM2BAMfile]
+
+[SAM2BAMfileW]
+
+
+[SortBAMfile]
+
+[SortBAMfileW]
+
+
+[StringTieScores]
+
+[StringTieScoresW]
+
+[FeatureCounts]
+fid=ID
+stranded=0
+
+[MergeStringTies]
+
+[ReStringTieScoresW]
+
+[ReStringTieScores]
+
+[EdgeR]
+fid=ID
+
+END
+close $ofh2;
+return 0;
+
+}
 sub runSpecialtyGenesProfiling {
     my $pair_read = shift;
     my $single_end_read= shift;
@@ -462,7 +648,7 @@ sub runSpecialtyGenesProfiling {
 		my $outputDir= "$outDir/ReadsBasedAnalysis/SpecialtyGenes";
 		my $log = "$outputDir/log.txt";
         my $cmd;
-		`mkdir -p $outputDir`;
+		&make_dir($outputDir);
 	# AR Reads ShortBRED 
        	$cmd = "$ShortBRED_PATH/shortbred_quantify.py --wgs $wgs_reads --markers $AR_markers --results $outputDir/${project_name}_AR_genes_ShortBRED.txt --tmp $outputDir/${project_name}_AR_genes_tmp --marker_results $outputDir/${project_name}_AR_genes_markers.txt --SBhits $outputDir/${project_name}_AR_genes_SBhits.txt --search_program $search_tool --id $identity --pctlength $pctlength --threads $numCPU 1>$log 2>&1";
        		&lprint ("  Running \n  $cmd \n");
@@ -479,7 +665,7 @@ sub runSpecialtyGenesProfiling {
        		&lprint ("  Running \n  $cmd \n");
        		&executeCommand($cmd);
 
-		system("touch $outputDir/runSpecialtyGenesProfiling.finished");
+		&touchFile("$outputDir/runSpecialtyGenesProfiling.finished");
     }
 
 	# ORF Based Analysis
@@ -488,7 +674,7 @@ sub runSpecialtyGenesProfiling {
        	my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
        	my $log = "$outputDir/log.txt";
        	my $cmd;
-	`mkdir -p $outputDir`;
+        &make_dir($outputDir);
 		
 		
 	# AR
@@ -506,7 +692,7 @@ sub runSpecialtyGenesProfiling {
        $cmd = "python $RealBin/scripts/specialty_genes/ProcessVFSBResults.py -t orf -m $VFDB_ini -i $outputDir/${project_name}_VF_genes_ShortBRED.txt -s $outputDir/${project_name}_VF_genes_SBhits.txt -g $annotationGFF -p $outputDir/${project_name}_VF_genes_ShortBRED 1>>$log 2>&1";
       	 	&lprint ("  Running \n  $cmd \n");
        		&executeCommand($cmd);
-       	system("touch $outputDir/runSpecialtyGenesProfiling.finished");
+       	&touchFile("$outputDir/runSpecialtyGenesProfiling.finished");
     }
     &printRunTime($time);
     return 0;	
@@ -527,22 +713,23 @@ sub parse_qiime_mapping_file{
             my $file_column_index;
             my $fh;
             if ($f =~ /xlsx$/){
-                open ($fh, "xlsx2csv -d tab $f | ") or die "Cannot read $f\n";
+                open ($fh, "-|") 
+                	or exec("xlsx2csv", "-d", "tab", "$f");
             }else{
-                open ($fh, $f) or die "Cannot read $f\n";
+                open ($fh, "<", $f) or die "Cannot read $f\n";
             }
             while(<$fh>){
                 chomp;
                 next if (/^\n/);
                 next unless (/\S/);
-                if (/SampleID/){
+                if (/SampleID|ID/){
                         $header_flag=1;
                         my @header = split /\t/,$_;
                         ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
                 }elsif(! /^#/){
                         my @array = split /\t/,$_;
-			$array[$file_column_index] =~ tr/"//d;
-			$array[$file_column_index] =~ s/^\s+|\s+$//g;
+                        $array[$file_column_index] =~ tr/"//d;
+                        $array[$file_column_index] =~ s/^\s+|\s+$//g;
                         my @files = map { "$qiime_dir/$_" } split /,|\s+/,$array[$file_column_index];
                         if (scalar(@files) % 2){
                                 push @unpariedFiles,@files;
@@ -578,7 +765,7 @@ sub runDETEQT{
        &lprint ("DETEQT analysis Finished\n"); 
        return 0;
     }  
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $targetedNGS_ref=$configuration->{targetedNGS_ref};
     my $targetedNGS_mode=$configuration->{targetedNGS_mode} || "PE";
     my $targetedNGS_platform=$configuration->{targetedNGS_platform} || "illumina";
@@ -635,7 +822,7 @@ sub runDETEQT{
     &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $mapping_stats > $mapping_stats.json");
 
     my $run_time = &printRunTime($time);
-    system("touch $outputDir/runDETEQT.finished");
+    &touchFile("$outputDir/runDETEQT.finished");
     return 0;
 } 
 
@@ -649,7 +836,7 @@ sub runJoinPE{
     my $maxDiffPerc = $configuration->{"fastqjoin-maxdiff"} || 8;
     my $minOverlap = $configuration->{"fastqjoin-minoverlap"} || 6;
     my $useJoinedPEonly = ($configuration->{"fastqjoin-usejoined-only"})? $configuration->{"fastqjoin-usejoined-only"} : "0";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Join PE Reads]\n");
@@ -673,7 +860,7 @@ sub runJoinPE{
     my $command = "fastq-join -r $outputDir/mergeLen_dist.txt -p $maxDiffPerc -m $minOverlap $pairedFile -o $outputDir/reads.\%.fastq > $log";
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
-    system("touch $outputDir/runJoinPE.finished");
+    &touchFile("$outputDir/runJoinPE.finished");
     &printRunTime($time);
     if ( -s "$outputDir/reads.join.fastq"){
         if($unpairedFile && !$useJoinedPEonly){
@@ -708,7 +895,7 @@ sub runQiimeAnalysis{
        &lprint ("Qiime analysis Finished\n"); 
        return 0;
     }  
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     system("rm -f $outputDir/runQiimeAnalysis.finished");
     my @unpairedFile= @$unpairedFile;
     my @pairedFile= @$pairedFile;
@@ -757,7 +944,7 @@ sub runQiimeAnalysis{
     &executeCommand($cmd);
 
     &printRunTime($time);
-    system("touch $outputDir/runQiimeAnalysis.finished");
+    &touchFile("$outputDir/runQiimeAnalysis.finished");
     return 0;	
 }
 
@@ -776,7 +963,7 @@ sub runUnmappedContigToRefSeq
     }
 
     &lprint ("  Mapping unmapped contigss to RefSeq...\n");
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $cmd = "$RealBin/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $db --threads $numCPU --prefix $prefix --input $file";
     $cmd .= " 1>$log 2>\&1 ";
     chdir $outputDir;
@@ -804,7 +991,7 @@ sub runUnmappedReadsToRefSeq
        return 0;
     }  
 
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     &lprint ("  Mapping reads that were unmapped to reference(s) to RefSeq...\n");
 	my $parameters;
     $parameters .= " -c $cov_cut_off";
@@ -846,7 +1033,7 @@ sub Contigs_taxonomyAssignment
        &lprint ("Contigs Taxonomy Classification Finished\n"); 
        return 0;
     }  
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     system("rm -f $outputDir/ContigsTaxonomy.finished");
     my $cmd="$RealBin/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $db --threads $numCPU --prefix $prefix --input $file";
     $cmd .= " 1>$log 2>&1";
@@ -860,7 +1047,7 @@ sub Contigs_taxonomyAssignment
     &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig -limit $row_limit $tax_lca_result > $prefix.ctg_class.LCA.json");
     chdir $workingDir;
     &printRunTime($time);
-    system("touch $outputDir/ContigsTaxonomy.finished");
+    &touchFile("$outputDir/ContigsTaxonomy.finished");
     return 0;
 }
 
@@ -883,7 +1070,7 @@ sub Download_SRA
        &lprint ("Download SRA Finished\n"); 
        return 0;
     }  
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     system("rm -f $outputDir/DownloadSRA.finished");
     my @SRA_ids = split /[:,\s]+/, uc $configuration->{'SRA_id'};
     my $cmd = "perl $RealBin/scripts/sra2fastq.pl --outdir $outputDir --clean ";
@@ -897,7 +1084,7 @@ sub Download_SRA
     my $flag=&read_SRAD_Download_dir($outputDir);
 
     unless ($flag){
-        system("touch $outputDir/DownloadSRA.finished");
+        &touchFile("$outputDir/DownloadSRA.finished");
         return 0;
     }	
 }
@@ -981,8 +1168,8 @@ sub check_reference_genome
     my @files =  @{$referenceGenome_r};
     my @fasta_files;
     my $check_value=0;
-    `mkdir -p $outputDir`;
-    `mkdir -p $outDir/ReferenceBasedAnalysis`;
+    &make_dir($outputDir);
+    &make_dir("$outDir/ReferenceBasedAnalysis");
     if (-e $file_list)
     {
         my %previous_run_ref;
@@ -1123,15 +1310,15 @@ sub phageFinder
        &lprint ("ProPhage Detection Finished\n"); 
        return 0;
     }  
-    `mkdir -p $outputDirTmp`;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDirTmp);
+    &make_dir($outputDir);
     my $outputDir_abs_path = Cwd::abs_path("$outputDir");
     my $outputTmpDir_abs_path = Cwd::abs_path("$outputDirTmp");
     if ( -z $FAA || ! -e $FAA)
     { 
         warn "No CDS annotation for phage finder\n";
         `rm -rf $outputDirTmp`;
-        system("touch $outputDir/phageFinder.finished");
+        &touchFile("$outputDir/phageFinder.finished");
         &printRunTime($time);
         return 0;
     }
@@ -1172,7 +1359,7 @@ sub phageFinder
     &lprint (" Numaber of prophage hit found: ". ($num_phageHit - 1)  ."\n");
     #print " See $outputFile for the result\n" if (-e "$outputFile");
     system("rm -rf $outputDirTmp");
-    system("touch $outputDir/phageFinder.finished");
+    &touchFile("$outputDir/phageFinder.finished");
     &printRunTime($time);
     return 0;
 }
@@ -1186,7 +1373,7 @@ sub Reads_taxonomyAssignment
     my $input = ($outputDir =~ /Unmap/)?"$outputDir/UnmappedReads.fastq":"$outputDir/allReads.fastq";
     my $logFile = "$outputDir/error.log";
     my $log = "$outputDir/taxonomyProfiling.log";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $time=time();
     my $dparam=($debug)?"--debug":"" ;
 	my $bwaScoreCut=30;
@@ -1260,7 +1447,7 @@ sub Reads_taxonomyAssignment
     $cmd = "$RealBin/scripts/svg2pdf $outputDir/report/*/*/*svg  2>>$logFile";
     &executeCommand("$cmd || true");
     #unlink $input;
-    system("touch $outputDir/taxonomyAssignment.finished");
+    &touchFile("$outputDir/taxonomyAssignment.finished");
     &printRunTime($time);
     return 0;
 }
@@ -1326,8 +1513,8 @@ sub variantAnalysis
     &printRunTime($time);
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );
-    system("touch $outputDir/variantAnalysis.finished") if ( -e $outputDir);
-    system("touch $r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
+    &touchFile("$outputDir/variantAnalysis.finished") if ( -e $outputDir);
+    &touchFile("$r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;
 }
 
@@ -1337,7 +1524,7 @@ sub ContigsBlast
     my $db=shift;
     #my $outputDir=($db eq "nt")?"$outDir/AssemblyBasedAnalysis/Blast":"$outDir/AssemblyBasedAnalysis/contigMappingToRef/";
     my $outputDir="$outDir/AssemblyBasedAnalysis/Blast";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $outputFile="$outputDir/ContigFasta.$db.blast.out";
     my $outputFile2="$outputDir/ContigFasta.virulence.blastx";
     my $time=time();
@@ -1359,7 +1546,7 @@ sub ContigsBlast
     {
 	&lprint ("Contigs File for Blast is EMPTY\n.");
         &printRunTime($time);
-        system("touch $outputDir/ContigsBlast.finished");
+        &touchFile("$outputDir/ContigsBlast.finished");
         return ($outputFile,$outputFile2);
     }
     system("rm -f $outputDir/ContigsBlast.finished");
@@ -1393,7 +1580,7 @@ sub ContigsBlast
     &executeCommand($cmd);
 
     &printRunTime($time);
-    system("touch $outputDir/ContigsBlast.finished");
+    &touchFile("$outputDir/ContigsBlast.finished");
     return ($outputFile,$outputFile2);
 }
 
@@ -1412,7 +1599,7 @@ sub retrieveUnmappedReads
     my $NumOfunmappedPaired=0;
     my $NumOfunmappedSingle=0;
     my $total_unmapped_reads=0;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ( (-s "$unmappedSingle" || -s "$unmappedPaired_1") && -e "$outputDir/retrieveUnmappedReads.finished" )
     {
        &lprint ("  Unmapped reads retrieved\n");
@@ -1486,7 +1673,7 @@ sub retrieveUnmappedReads
     `echo "Total Unmapped:$total_unmapped_reads" > $log`;
     unlink "$outputDir/unmapped.sam";
     &printRunTime($time);
-    system("touch $outputDir/retrieveUnmappedReads.finished");
+    &touchFile("$outputDir/retrieveUnmappedReads.finished");
     if ($QCpairFile)
     {
         return ("$unmappedPaired_1 $unmappedPaired_2",$unmappedSingle,$total_unmapped_reads);
@@ -1505,7 +1692,7 @@ sub runAnnotation
     my $project_name=shift;
     my $time=time();
     my $outputDir= "$outDir/AssemblyBasedAnalysis/Annotation";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $outputDir_abs_path = Cwd::abs_path("$outputDir");
     my $outGenbank="$outputDir_abs_path/$project_name.gbk";
     my $outGFF="$outputDir_abs_path/$project_name.gff";
@@ -1538,7 +1725,7 @@ sub runAnnotation
         &lprint ("failed: No contigs > $contig_size_for_annotation bp for annotation\n");
         `echo "No contigs > $contig_size_for_annotation bp for annotation" >$log`;
         &printRunTime($time);
-        system("touch $outputDir/runAnnotation.finished");
+        &touchFile("$outputDir/runAnnotation.finished");
         return ($outGFF,$outFAA,$outFNA);
     }
  
@@ -1549,7 +1736,7 @@ sub runAnnotation
 		&lprint("No source reference GenBank file for RATT annotation transfer. Will use prokka to do annotation\n"); 
 		$annotateProgram = "prokka";
 	}else{
-            `mkdir -p $outputDir_abs_path/RATT/source`;
+            &make_dir("$outputDir_abs_path/RATT/source");
             chdir "$outputDir_abs_path/RATT";
             my $ref_abs_path = "$outputDir_abs_path/RATT/source";
             my $contig_abs_path = Cwd::abs_path("$contigFile");
@@ -1614,7 +1801,7 @@ sub runAnnotation
     }
 
     &printRunTime($time);
-    system("touch $outputDir/runAnnotation.finished");
+    &touchFile("$outputDir/runAnnotation.finished");
     return ($outGFF,$outFAA,$outFNA);
 }
 
@@ -1624,7 +1811,7 @@ sub pcrDesign
     #my $referenceFile = shift;
     my $time=time();
     my $outputDir= "$outDir/AssayCheck";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $output = "$outputDir/PCR.design.primers.txt";
     my $gff3output = "$outputDir/PCR.design.primers.gff3"; 
     #my $outputFasta = "$outputDir/PCR.Adjudication.fasta";
@@ -1660,7 +1847,7 @@ sub pcrDesign
     &executeCommand("cat $log");
     &lprint (" See primer design results at $outputDir/PCR.design.primers.txt and PCR.design.primers.gff3\n");
     &printRunTime($time);
-    system("touch $outputDir/pcrDesign.finished");
+    &touchFile("$outputDir/pcrDesign.finished");
     return ("$output");
 }
 
@@ -1673,7 +1860,7 @@ sub pcrValidation
     my $numOfMismatch = $configuration->{"maxMismatch"}||1;
     my $failure = 0 ;
     my $outputDir= "$outDir/AssayCheck";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     
     #my $outPrefix = "$outputDir/pcrValidation";
     my $pcrContigValidationLog = "$outputDir/pcrContigValidation.txt";
@@ -2127,7 +2314,7 @@ sub runQC
     my $cut_3_end = ($configuration->{"3end"})? $configuration->{"3end"}: 0;
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
     my $split_size = $configuration->{"split_size"} || 100000;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Quality Trim and Filter]\n");
@@ -2160,7 +2347,7 @@ sub runQC
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &printRunTime($time);
-    system("touch $outputDir/runQC.finished");
+    &touchFile("$outputDir/runQC.finished");
     if ( -s "$outputDir/QC.1.trimmed.fastq")
     {
           return ("$outputDir/QC.1.trimmed.fastq $outputDir/QC.2.trimmed.fastq","$outputDir/QC.unpaired.trimmed.fastq");
@@ -2184,7 +2371,7 @@ sub countFastq
     my $all_R2_fastq = "$outputDir/all.2.fastq";
     my $all_SE_fastq = "$outputDir/all.se.fastq";
     my $count_file_list= "$outputDir/fastqCount.txt";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Count Fastq]\n");
@@ -2232,7 +2419,7 @@ sub countFastq
     close $fh;
 
     &printRunTime($time);
-    system("touch $outputDir/countFastq.finished");
+    &touchFile("$outputDir/countFastq.finished");
     if ( -s $all_R1_fastq && -e $all_SE_fastq)
     {
         return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq");
@@ -2297,7 +2484,7 @@ sub runHostRemoval
     $prefix =~ s/\./_/g;
     
     my $outputDir = "$abs_outDir/HostRemoval/$prefix";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Host Removal]\n $prefix\n");
@@ -2350,7 +2537,7 @@ sub runHostRemoval
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &printRunTime($time);
-    system("touch $outputDir/run${prefix}.finished");
+    &touchFile("$outputDir/run${prefix}.finished");
     system("rm -rf $host_index_dir/$prefix.fa.*");
     if ( -s "$outputDir/$prefix.1.fastq")
     {
@@ -2446,7 +2633,7 @@ sub runReadsToContig
     my $outputDir= "$outDir/AssemblyBasedAnalysis/readsMappingToContig";
     my $r2c_aligner_options = $configuration->{"r2c_aligner_options"} || "";
     my $log="$outputDir/mapping.log";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Reads Mapping To Contigs]\n");
@@ -2496,7 +2683,7 @@ sub runReadsToContig
         &executeCommand($command);
     }
     &printRunTime($time);
-    system("touch $outputDir/runReadsToContig.finished");
+    &touchFile("$outputDir/runReadsToContig.finished");
     return ("$outputDir/$outPrefix.sort.bam");    
 }
 
@@ -2517,7 +2704,7 @@ sub runReadsToGenome
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
     if ($noColorLog)
     {
@@ -2567,7 +2754,7 @@ sub runReadsToGenome
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
 	foreach my $file (@$referenceFile_r){
-            `mkdir -p $outputDir/consensus_tmp`;
+            &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
             &executeCommand("sed -e 's/[\\|\\.]/_/g'  $file > $outputDir/consensus_tmp/${file_name}.fa");
@@ -2594,7 +2781,7 @@ sub runReadsToGenome
     &executeCommand("echo -n \"Total Unmapped:\" >>$log");
     &executeCommand("$RealBin/scripts/count_unmapped.pl $outputDir/*bam >>$log");
     &printRunTime($time);
-    system("touch $outputDir/runReadsToGenome.finished");
+    &touchFile("$outputDir/runReadsToGenome.finished");
     return ($outVCF,$outGap);
 }
 
@@ -2606,7 +2793,7 @@ sub runContigToGenome
     my $outputDir= "$outDir/AssemblyBasedAnalysis/contigMappingToRef";
     my $outPrefix = "$outputDir/contigsToRef";
     my $identity_cutoff = $configuration->{identity}||85;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
     if ($noColorLog)
     {
@@ -2630,7 +2817,7 @@ sub runContigToGenome
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     &printRunTime($time);
-    system("touch $outputDir/runContigToGenome.finished");
+    &touchFile("$outputDir/runContigToGenome.finished");
     return ("${outPrefix}_query_novel_region_30bpUP.fasta","$outPrefix.snps","${outPrefix}_ref_zero_cov_coord.txt");
 }
 
@@ -2642,7 +2829,7 @@ sub processProvideContigs
     my $contig_file= "$outputDir/${project_name}_contigs.fa";
     my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     my $contig_min_length = $configuration->{minContigSize} || 200;
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Assembly]\n");
@@ -2672,7 +2859,7 @@ sub processProvideContigs
         &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contig_file > contigs_stats.txt");
         chdir $workingDir;
     }
-    system("touch $outputDir/processProvideContigs.finished");
+    &touchFile("$outputDir/processProvideContigs.finished");
     &printRunTime($time);
     return ($contig_file, $contig_for_annotation);
 
@@ -2738,8 +2925,8 @@ sub runSpadesAssembly
 	if ( ! -e "$SPAdesOutDir/K$Spades_default_kmers_spec[0]/contigs.fasta"){
             my $msg = "Assembly failed. Out of Memory. Will skip downstream assembly based analysis.";
             &lprint("$msg\n"); 
-	    `echo $msg >> $log`;
-            system("touch $outputDir/runSPAdesAssembly.finished");
+			`echo $msg >> $log`;
+            &touchFile("$outputDir/runSPAdesAssembly.finished");
             &printRunTime($time);
             return;
         }
@@ -2756,7 +2943,7 @@ sub runSpadesAssembly
     ($contig_file, $contig_for_annotation)=&rename_filter_fasta("$spades_contigs",$outputDir,$contig_min_length,$contig_number);
        
     &executeCommand("rm -rf $SPAdesOutDir");
-    system("touch $outputDir/runSPAdesAssembly.finished");
+    &touchFile("$outputDir/runSPAdesAssembly.finished");
     &printRunTime($time);
     return ($contig_file, $contig_for_annotation);
 }
@@ -2798,11 +2985,11 @@ sub runAssembly
     }
     system("rm -f $outputDir/runAssembly.finished");
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($assembler =~ /idba/){
         $AssemblerOutDir = "$outputDir/idba";
         $AssemblerLog = "$AssemblerOutDir/log";
-        `mkdir -p $AssemblerOutDir`;
+        &make_dir($AssemblerOutDir);
         my $options = $configuration->{idbaOptions};
         my $pairFastaFile="$AssemblerOutDir/pairedForAssembly.fasta";
         my $unpairFastaFile="$AssemblerOutDir/unpairedForAssembly.fasta";
@@ -2898,7 +3085,7 @@ sub runAssembly
             my $msg = "Assembly failed. It may be out of Memory. Please see assembly.log for details. Will skip downstream assembly based analysis.";
             &lprint("$msg\n"); 
             `echo $msg >> $log`;
-            system("touch $outputDir/runAssembly.finished");
+            &touchFile("$outputDir/runAssembly.finished");
             &printRunTime($time);
             return;
         }
@@ -2925,7 +3112,7 @@ sub runAssembly
     unlink "core";
 
     &printRunTime($time);
-    system("touch $outputDir/runAssembly.finished");
+    &touchFile("$outputDir/runAssembly.finished");
     return ($final_contig_file, $contig_for_annotation);
 }
 
@@ -2945,7 +3132,7 @@ sub runIdbaAssembly
     my $log = "$outputDir/assembly.log";
     my $singleEndOnlyFlag=0;
     my $parameters=" -o $outputDir/idba ". $configuration->{idbaOptions};
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($^O eq 'darwin') 
     {
         $parameters .= " --num_threads 4 ";
@@ -3084,7 +3271,7 @@ sub runIdbaAssembly
     unlink $long_reads;
     unlink "core";
     &printRunTime($time);
-    system("touch $outputDir/runIdbaAssembly.finished");
+    &touchFile("$outputDir/runIdbaAssembly.finished");
     return ($contig_file, $contig_for_annotation);
 }
 
@@ -3182,7 +3369,7 @@ sub SNPtree
     }
     
     &executeCommand("rm -rf $outputDir");
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     my $cmd= "$RealBin/scripts/prepare_SNP_phylogeny.pl -o $outputDir  ".
             "-n $project_name ".
             "-tree $treeMaker ".
@@ -3205,7 +3392,7 @@ sub SNPtree
     if ($db_check_log)
     {
         &lprint("$db_check_log \n Skip ...\n");
-    	system("touch $outputDir/SNPtree.finished");
+    	&touchFile("$outputDir/SNPtree.finished");
     	&printRunTime($time);
         return 0;
     };
@@ -3214,7 +3401,7 @@ sub SNPtree
     if ($configuration->{'SNP_SRA_ids'} and ! -e "$sra_outdir/download.finished"){
 	my $sra_out_dir_abs_path = Cwd::abs_path("$sra_outdir");
         my @SRA_ids = split /[:,\s]+/, uc $configuration->{'SNP_SRA_ids'};
-	`mkdir -p $sra_outdir`; 
+	&make_dir($sra_outdir); 
 	$cmd = "perl $RealBin/scripts/sra2fastq.pl --outdir $sra_outdir --clean ";
 	$cmd .= join (" ",@SRA_ids);
 	$cmd .= " 1>$log 2>&1 ";
@@ -3241,7 +3428,7 @@ sub SNPtree
 			}
 		}
 	}
-	system("touch $sra_outdir/download.finished");
+	&touchFile("$sra_outdir/download.finished");
     }
 
     $cmd= "$PhaME_tool_dir/src/runPhaME.pl $control_file  1>> $log 2>\&1";
@@ -3254,8 +3441,8 @@ sub SNPtree
 	my $error_log = "$outputDir/results/${project_name}.error";
 	my @errors = (-e $error_log)? `grep -i -a  ERROR $error_log`:"unknown";
 	my $error = join("\n", "  failed", @errors,"\n");
-    	system("touch $outputDir/SNPtree.finished");
-    	&printRunTime($time);
+    &touchFile("$outputDir/SNPtree.finished");
+    &printRunTime($time);
 	&lprint($error);
 	return 1;
     }
@@ -3292,7 +3479,7 @@ sub SNPtree
 	system("perl -pi -e 's/<name>(\\d\\.\\d)\\d+<\\/name>/<name>\$1<\\/name>/g' $outputDir/SNPphyloTree.*.xml");
 	system("perl -pi -e 's/<name>1\\.0<\\/name>/<name>1<\\/name>/g' $outputDir/SNPphyloTree.*.xml");
   
-    system("touch $outputDir/SNPtree.finished");
+    &touchFile("$outputDir/SNPtree.finished");
     &printRunTime($time);
     return 0;
 }
@@ -3425,7 +3612,7 @@ sub download_reads
         return 0;
     }
     `rm -rf $outputDir`;
-     `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";  
     chdir $outputDir;
@@ -3438,7 +3625,7 @@ sub download_reads
     }
     chdir $workingDir;
     &printRunTime($time);
-    system("touch $outputDir/DownloadFastq.finished");
+    &touchFile("$outputDir/DownloadFastq.finished");
     return 0;
 }
 
@@ -3656,6 +3843,21 @@ sub is_genbank
    
 }
 
+sub is_gff
+{
+    $SIG{'PIPE'}=sub{};
+    my $file=shift;
+    my ($fh,$pid) = open_file($file);
+    my $head=<$fh>;
+    close $fh;
+    kill 9, $pid; # avoid gunzip broken pipe
+    $SIG{'PIPE'} = 'DEFAULT';
+    ($head =~ /gff/i)?
+        return 1:
+        return 0;
+   
+}
+
 sub open_default_browser {
   my $url = shift;
   my $platform = $^O;
@@ -3698,6 +3900,15 @@ sub executeCommand
          { die ("the command $command failed\n");}
 }
 
+sub executeCommand2
+{
+    my @command = @_;
+    if (system(@command) != 0) {
+		my $cmd = join (" ",@command);
+        die ("the command $cmd failed\n");
+    }
+}
+
 sub printVersion 
 {
     print basename($0), " version: $version\n";
@@ -3727,7 +3938,7 @@ sub writeJBrowseInfo
     my $log="$outputDir/log.txt";
     my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
     my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
-    `mkdir -p $outputDir`;
+    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Generate JBrowse Tracks]\n");
@@ -3757,8 +3968,8 @@ sub writeJBrowseInfo
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd"); 
     &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
-    system("rm -f $outputDir/*/*mapped.bam");
-    system("touch $outputDir/writeJBrowseInfo.finished");
+    unlink glob("$outputDir/*/*mapped.bam");
+    &touchFile("$outputDir/writeJBrowseInfo.finished");
     &printRunTime($time);
     #return \%project;
 }
@@ -3772,8 +3983,8 @@ sub generateHTMLreport
     my $outputDir = "$abs_outDir/HTML_Report";
     my $imagesDir = "$outputDir/images";
     my $log = "$outputDir/log.txt";
-    `mkdir -p $outputDir`;
-    `mkdir -p $imagesDir`;
+    &make_dir($outputDir);
+    &make_dir($imagesDir);
     if ($noColorLog)
     {
         &lprint ("[HTML Report]\n");
@@ -3794,7 +4005,7 @@ sub generateHTMLreport
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd");
     &printRunTime($time);
-    system("touch $outputDir/writeHTMLReport.finished")
+    &touchFile("$outputDir/writeHTMLReport.finished")
 
 }
 
@@ -3933,6 +4144,12 @@ sub get_sys_memory
     return $total_mem;
 }
 
+sub touchFile{
+    my $file=shift;
+    open (my $fh,">",$file) or die "$!";
+    close $fh;
+}
+
 sub lprint {
       my ($line) = @_;
       print $log_fh $line;  
@@ -3957,6 +4174,12 @@ sub setProxy{
         $proxy = $sys->{proxy};
         $ENV{http_proxy} = $proxy;
         $ENV{https_proxy} = $proxy;
+}
+
+sub make_dir{
+	my $dir=shift;
+	make_path($dir,{chmod => 0755,});
+	return 0;
 }
 
 sub stringSanitization{

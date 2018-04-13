@@ -1590,6 +1590,21 @@
 		</div>
 		</TMPL_IF>
 
+		<TMPL_IF NAME="OUT_piret_SW">
+                <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>PiReT transcriptomics analysis</h4>
+			<TMPL_IF NAME="ERROR_piret">
+			<p class="error"><TMPL_VAR NAME=ERROR_piret></p>
+			</TMPL_IF>
+			<ol>
+				<p class='extra-text-link'>Link to
+				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret'> Directory </a>
+				</p>
+			</ol>
+		</div>
+		</TMPL_IF>
+
+
 		<div data-role="popup" id="popup-general-svg" data-overlay-theme="b" data-theme="b" data-corners="false">
 		  <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
 		  <a href="#" data-rel="back"><object id="popup-general-obj" type="image/svg+xml"></object></a>

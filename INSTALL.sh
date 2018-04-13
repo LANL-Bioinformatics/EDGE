@@ -20,7 +20,7 @@ taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
-pipeline_tools=( DETEQT reference-based_assembly )
+pipeline_tools=( DETEQT reference-based_assembly Piret )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
@@ -107,6 +107,27 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            DETEQT $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_PyPiReT(){
+local VER=0.3
+echo "------------------------------------------------------------------------------
+                           Installing PyPiReT $VER
+------------------------------------------------------------------------------
+"
+tar xvzf PyPiReT-$VER.tgz
+cd PyPiReT
+Org_PATH=$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$PATH;
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/PyPiReT $rootdir/bin/PyPiReT
+export PATH=$Org_PATH
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           PyPiReT $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2017,7 +2038,7 @@ fi
 
 if ( checkLocalInstallation DETEQT )
 then
-  DETEQT_VER=`DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
+  DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
   if  ( echo $DETEQT_VER | awk '{if($2>="0.3.0") exit 0; else exit 1}' )
   then
     echo "DETEQT is found"
@@ -2027,6 +2048,21 @@ then
 else
   echo "DETEQT is not found"
   install_DETEQT
+fi
+
+
+if ( checkLocalInstallation PyPiReT)
+then
+  PiReT_VER=`$rootdir/bin/PyPiReT/bin/runPiReT -V | perl -nle 'print $& if m{Version \d+\.\d+\.*\d*}'`;
+  if  ( echo $PiReT_VER | awk '{if($2>="0.3") exit 0; else exit 1}' )
+  then
+    echo "PyPiReT is found"
+  else
+   install_PyPiReT
+  fi
+else
+  echo "PyPiReT is not found"
+  install_PyPiReT
 fi
 
 if ( checkLocalInstallation opaver_anno.pl )
