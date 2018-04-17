@@ -808,7 +808,7 @@ echo "
 
 install_minimap2()
 {
-local VER=2.7
+local VER=2.10
 echo "------------------------------------------------------------------------------
                            Compiling minimap2 $VER
 ------------------------------------------------------------------------------
@@ -1837,7 +1837,7 @@ fi
 if ( checkSystemInstallation minimap2 )
 then
   minimap2_VER=`minimap2 --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+)}'`;
-  if  ( echo $minimap2_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
+  if  ( echo $minimap2_VER | awk '{if($1>="2.10") exit 0; else exit 1}' )
   then
     echo "minimap2 $minimap2_VER found"
   else
