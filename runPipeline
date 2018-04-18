@@ -413,6 +413,7 @@ sub runPiReT {
     my $exp_design = "$outputDir/exp_design.txt";
     my $log = "$outputDir/log.txt";
     my $luigi_config = "$outputDir/luigi.cfg";
+    my $run_script = "$outputDir/runPiret.sh";
 
     my $time=time();    
     if ($noColorLog)
@@ -487,8 +488,15 @@ sub runPiReT {
         $cmd .= "-fe $eukarya_fasta -ge $eukarya_gff -fp $prokaryote_fasta -gp $prokaryote_gff ";
     }
     &lprint ("  Running \n  $cmd \n");
-    my @cmds = split / /,$cmd;
-    &executeCommand2(@cmds); 
+    open (my $fh, ">", $run_script);
+    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate piret 1>/dev/null\n";
+    print $fh $cmd,"\n";
+    print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
+    close $fh;
+
+    #my @cmds = split / /,$cmd;
+    #&executeCommand2(@cmds); 
+    &executeCommand2("/bin/sh","$run_script");
     #unlink "$outputDir/$piret_indir_basename";
     &touchFile("$outputDir/runPiret.finished");
 
@@ -533,6 +541,7 @@ sub prepareExpDesignAndConfig{
     }
     close $fh;
     close $ofh;
+    my $log_level = ($debug)? "DEBUG":"INFO";
     open (my $ofh2, ">",$luigi_config);
     print $ofh2 <<"END";
 [DEFAULT]
@@ -541,11 +550,13 @@ n_cutoff=10
 stranded=0
 
 [core]
-log_level:DEBUG
+log_level:$log_level
 
 [RunAllQC]
 faqc_min_L:50
 n_cutoff=10
+
+[SummarizeQC]
 
 [Hisat]
 
@@ -575,7 +586,7 @@ stranded=0
 
 [ReStringTieScores]
 
-[EdgeR]
+[edgeR]
 fid=ID
 
 END
