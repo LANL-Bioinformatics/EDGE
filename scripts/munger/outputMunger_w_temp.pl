@@ -158,10 +158,10 @@ sub pull_piret{
 	if ($vars->{PIRETPROK}){
 		# PROK Feature Counts 
 		my $prefix = basename($1) if ($vars->{PIRETPROKREF} =~ /(.*)\.\w+$/);
-		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_sorted.csv";
+		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.csv";
 		my $feature_CDS_count_json_file = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_sorted.json";
 		my $feature_CDS_count_summary = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_summary.csv";
-		my $feature_gene_count_file = "$output_dir/featureCounts/${prefix}_gene_count.tsv_sorted.csv";
+		my $feature_gene_count_file = "$output_dir/featureCounts/${prefix}_gene_count_sorted.csv";
 		my $feature_gene_count_json_file = "$output_dir/featureCounts/${prefix}_gene_count.tsv_sorted.json";
 		my $feature_gene_count_summary = "$output_dir/featureCounts/${prefix}_gene_count.tsv_summary.csv";
 
@@ -175,6 +175,7 @@ sub pull_piret{
 				if( scalar @temp == 12 ){
 					my $info;
 					for my $i(0..$#temp){
+						$temp[$i] =~ s/^\"|"$//g;
 						$info->{"PIRETPROKFCCS$i"}=$temp[$i];
 					}
 					my $array_index=$samples{$temp[0]}->{index};
@@ -182,7 +183,7 @@ sub pull_piret{
 				}
 			}
 			close $fccs;
-			@{$vars->{LOOP_PIRETPRKFCCS}} = @fccs_result;
+			@{$vars->{LOOP_PIRETPROKFCCS}} = @fccs_result;
 		}
 		if ( ! -e $feature_CDS_count_json_file) {
 			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_CDS_count_json_file,$feature_CDS_count_file);
@@ -190,7 +191,7 @@ sub pull_piret{
 		$vars->{PIRETPROKCDSFC} = $feature_CDS_count_json_file if ( -e $feature_CDS_count_json_file);
 		if ( -e $feature_gene_count_summary){
 			my @gccs_result;
-			open (my $gccs, "<",$feature_CDS_count_summary);
+			open (my $gccs, "<",$feature_gene_count_summary);
 			while(<$gccs>){
 				chomp;
 				next if (/Assigned/);
@@ -198,6 +199,7 @@ sub pull_piret{
 				if( scalar @temp == 12 ){
 					my $info;
 					for my $i(0..$#temp){
+						$temp[$i] =~ s/^\"|"$//g;
 						$info->{"PIRETPROKGCCS$i"}=$temp[$i];
 					}
 					my $array_index=$samples{$temp[0]}->{index};
