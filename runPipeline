@@ -510,6 +510,7 @@ sub prepareExpDesignAndConfig{
     my $outdir=shift;
     my $exp_design = "$outdir/exp_design.txt";
     my $luigi_config = "$outdir/luigi.cfg";
+    my $stranded = ($configuration->{piret_stranded})?$configuration->{piret_stranded}:0;
     my $fh;
 
     if ($exp_file =~ /xlsx$/){ 
@@ -547,7 +548,7 @@ sub prepareExpDesignAndConfig{
 [DEFAULT]
 faqc_min_L=40
 n_cutoff=10
-stranded=0
+stranded=$stranded
 
 [core]
 log_level:$log_level
@@ -587,6 +588,9 @@ stranded=0
 [ReStringTieScores]
 
 [edgeR]
+fid=ID
+
+[DESeq2]
 fid=ID
 
 END

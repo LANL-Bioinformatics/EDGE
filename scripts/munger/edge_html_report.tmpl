@@ -1563,43 +1563,522 @@
 		</div>
 		</TMPL_IF>
 		<TMPL_IF NAME="OUT_targetedNGS_SW">
-                <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-                	<h4>DETEQT analysis</h4>
+        <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>DETEQT analysis</h4>
 			<TMPL_IF NAME="ERROR_targetedNGS">
 			<p class="error"><TMPL_VAR NAME=ERROR_targetedNGS></p>
 			</TMPL_IF>
 			<ol>
-                                <li><span class="li-report-content-title">Report</span><div class="li-report-content">
+				<li><span class="li-report-content-title">Report</span><div class="li-report-content">
 					<p><TMPL_VAR NAME=TNNPT> Targeted Amplicons were found Positive from <TMPL_VAR NAME=TNNPS> Samples.</p>
 					<table data-role="none" id="edge-targetedngs-report" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=TNREPROT>'></table>
-				</li>
-                                <li><span class="li-report-content-title">Sample Plot</span><div class="li-report-content">
+				</div></li>
+				<li><span class="li-report-content-title">Sample Plot</span><div class="li-report-content">
 				<TMPL_IF NAME=TNSPLOT>
 				<div style="border: 1px solid #ddd; height:800px;">
 					<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=TNSPLOT>'>[fullwindow]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNSPLOT>'>[By Samples]</a><a data-ajax='false' class="iframe_data_src" href="#" data-src='<TMPL_VAR NAME=TNTPLOT>'>[By Target]</a></span>
 					<iframe data-src='<TMPL_VAR NAME=TNSPLOT>'>Your browser does not support iframes</iframe>
 				</div>
 				</TMPL_IF>
-				</li>
+				</div></li>
 				<p class='extra-text-link'>Link to
 				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNRUNSTATS>'> Mapping Stats </a>
 				|<a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=TNMAPPINGSTATS>'> Sample Stats </a>
-				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/TargetedNGS'> Directory </a>
+				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/DETEQT'> Directory </a>
 				</p>
 			</ol>
 		</div>
 		</TMPL_IF>
 
 		<TMPL_IF NAME="OUT_piret_SW">
-                <div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>PiReT transcriptomics analysis</h4>
 			<TMPL_IF NAME="ERROR_piret">
 			<p class="error"><TMPL_VAR NAME=ERROR_piret></p>
 			</TMPL_IF>
 			<ol>
-				<p class='extra-text-link'>Link to
-				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret'> Directory </a>
-				</p>
+				<li><span class="li-report-content-title">QC summary</span><div class="li-report-content">
+				<table data-role='table' class='output-table ui-responsive'>
+					<thead>
+						<tr> 
+						  <th data-priority='1'>ID</th>
+						  <th data-priority='2'>Read Length</th>
+						  <th data-priority='3'>Raw Reads</th>
+						  <th data-priority='4'>Reads After QC</th>
+						</tr>
+					</thead>
+					<tbody>
+						<TMPL_LOOP NAME=LOOP_PIRETQC>
+						<tr>
+						  <td><TMPL_VAR NAME=PIRETQC0 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETQC1 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETQC2 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETQC3 DEFAULT=-></td>
+						</tr>
+						</TMPL_LOOP>
+					</tbody>
+				</table>
+				</div></li>
+				<li><span class="li-report-content-title">Mapping summary</span><div class="li-report-content">
+				<table data-role='table' class='output-table ui-responsive'>
+					<thead>
+						<tr> 
+						  <th data-priority='1'>ID</th>
+						  <th data-priority='2'>Paired Reads</th>
+						  <th data-priority='3'>Concordantly Unaligned</th>
+						  <th data-priority='4'>Concordantly Aligned</th>
+						  <th data-priority='5'>Multi-Aligned</th>
+						</tr>
+					</thead>
+					<tbody>
+						<TMPL_LOOP NAME=LOOP_PIRETMAP>
+						<tr>
+						  <td><TMPL_VAR NAME=PIRETMAP0 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETMAP1 DEFAULT=-> x 2</td>
+						  <td><TMPL_VAR NAME=PIRETMAP2 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETMAP3 DEFAULT=-></td>
+						  <td><TMPL_VAR NAME=PIRETMAP4 DEFAULT=-></td>
+						</tr>
+						</TMPL_LOOP>
+					</tbody>
+				</table>
+				</div></li>
+
+				<li><span class="li-report-content-title">Feature Count</span><div class="li-report-content">
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+							<input type="radio" name="edge-piret-output-fc-choose" id="edge-piret-output-fc-choose-1" value="CDS" checked="checked">
+							<label for="edge-piret-output-fc-choose-1">CDS</label>
+							<input type="radio" name="edge-piret-output-fc-choose" id="edge-piret-output-fc-choose-2" value="genes" >
+							<label for="edge-piret-output-fc-choose-2">Genes</label>
+						</fieldset>
+					</div>
+					<ul>
+					<TMPL_IF NAME="PIRETPROK">
+					<li><span class="li-report-content-title">Prokarya</span><div class="li-report-content">
+					<div class="edge-piret-report-cds-fc">
+						<p>Feature count summary</p>
+						<table data-role='none' class='display edge-piret-report-fcs-table' cellspacing="0">
+								<thead>
+									<tr> 
+									  <th>ID</th>
+									  <th>Assigned</th>
+									  <th>Unassigned_Ambiguity</th>
+									  <th>Unassigned_MultiMapping</th>
+									  <th>Unassigned_NoFeatures</th>
+									  <th>Unassigned_Unmapped</th>
+									  <th>Unassigned_MappingQuality</th>
+									  <th>Unassigned_FragmentLength</th>
+									  <th>Unassigned_Chimera</th>
+									  <th>Unassigned_Secondary</th>
+									  <th>Unassigned_Nonjunction</th>
+									  <th>Unassigned_Duplicate</th>
+									</tr>
+								</thead>
+								<tbody>
+									<TMPL_LOOP NAME=LOOP_PIRETPROKFCCS>
+									<tr>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS0 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS1 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS2 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS3 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS4 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS5 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS6 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS7 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS8 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS9 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS10 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKFCCS11 DEFAULT=-></td>
+									</tr>
+									</TMPL_LOOP>
+								</tbody>
+						</table>
+						<p>Top 100 CDSs by mapped reads counts</p>
+						<table data-role="none" id="edge-piret-prok-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETPROKCDSFC>'></table>
+					</div>
+					<div class="edge-piret-report-gene-fc">
+						<p>Feature count summary</p>
+						<table data-role='none' class='display edge-piret-report-fcs-table' cellspacing="0">
+								<thead>
+									<tr> 
+									  <th>ID</th>
+									  <th>Assigned</th>
+									  <th>Unassigned_Ambiguity</th>
+									  <th>Unassigned_MultiMapping</th>
+									  <th>Unassigned_NoFeatures</th>
+									  <th>Unassigned_Unmapped</th>
+									  <th>Unassigned_MappingQuality</th>
+									  <th>Unassigned_FragmentLength</th>
+									  <th>Unassigned_Chimera</th>
+									  <th>Unassigned_Secondary</th>
+									  <th>Unassigned_Nonjunction</th>
+									  <th>Unassigned_Duplicate</th>
+									</tr>
+								</thead>
+								<tbody>
+									<TMPL_LOOP NAME=LOOP_PIRETPROKGCCS>
+									<tr>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS0 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS1 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS2 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS3 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS4 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS5 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS6 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS7 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS8 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS9 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS10 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETPROKGCCS11 DEFAULT=-></td>
+									</tr>
+									</TMPL_LOOP>
+								</tbody>
+						</table>
+						<p>Top 100 Genes by mapped reads counts</p>
+						<table data-role="none" id="edge-piret-prok-gene-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETPROKGENEFC>'></table>
+					</div>
+					</div></li>
+					</TMPL_IF>
+					<TMPL_IF NAME="PIRETEUK">
+					<li><span class="li-report-content-title">Eukarya</span><div class="li-report-content">
+					<div class="edge-piret-report-cds-fc">
+						<p>Feature count summary</p>
+						<table data-role='none' class='display edge-piret-report-fcs-table' cellspacing="0">
+								<thead>
+									<tr> 
+									  <th>ID</th>
+									  <th>Assigned</th>
+									  <th>Unassigned_Ambiguity</th>
+									  <th>Unassigned_MultiMapping</th>
+									  <th>Unassigned_NoFeatures</th>
+									  <th>Unassigned_Unmapped</th>
+									  <th>Unassigned_MappingQuality</th>
+									  <th>Unassigned_FragmentLength</th>
+									  <th>Unassigned_Chimera</th>
+									  <th>Unassigned_Secondary</th>
+									  <th>Unassigned_Nonjunction</th>
+									  <th>Unassigned_Duplicate</th>
+									</tr>
+								</thead>
+								<tbody>
+									<TMPL_LOOP NAME=LOOP_PIRETEUKFCCS>
+									<tr>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS0 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS1 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS2 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS3 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS4 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS5 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS6 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS7 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS8 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS9 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS10 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKFCCS11 DEFAULT=-></td>
+									</tr>
+									</TMPL_LOOP>
+								</tbody>
+						</table>
+						<p>Top 100 CDSs by mapped reads counts</p>
+						<table data-role="none" id="edge-piret-euk-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETEUKCDSFC>'></table>
+					</div>
+					<div class="edge-piret-report-gene-fc">
+						<p>Feature count summary</p>
+						<table data-role='none' class='display edge-piret-report-fcs-table' cellspacing="0">
+								<thead>
+									<tr> 
+									  <th>ID</th>
+									  <th>Assigned</th>
+									  <th>Unassigned_Ambiguity</th>
+									  <th>Unassigned_MultiMapping</th>
+									  <th>Unassigned_NoFeatures</th>
+									  <th>Unassigned_Unmapped</th>
+									  <th>Unassigned_MappingQuality</th>
+									  <th>Unassigned_FragmentLength</th>
+									  <th>Unassigned_Chimera</th>
+									  <th>Unassigned_Secondary</th>
+									  <th>Unassigned_Nonjunction</th>
+									  <th>Unassigned_Duplicate</th>
+									</tr>
+								</thead>
+								<tbody>
+									<TMPL_LOOP NAME=LOOP_PIRETEUKGCCS>
+									<tr>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS0 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS1 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS2 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS3 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS4 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS5 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS6 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS7 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS8 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS9 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS10 DEFAULT=-></td>
+									  <td><TMPL_VAR NAME=PIRETEUKGCCS11 DEFAULT=-></td>
+									</tr>
+									</TMPL_LOOP>
+								</tbody>
+						</table>
+						<p>Top 100 Genes by mapped reads counts</p>
+						<table data-role="none" id="edge-piret-euk-gene-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETEUKGENEFC>'></table>
+					</div>
+					</div></li>
+					</TMPL_IF>
+					</ul>
+					<p class='extra-text-link'>Link to
+					|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret/featureCounts'> Directory </a>
+					</p>
+				</div></li>
+				
+				<TMPL_IF NAME="PIRETEDGER">
+				<li><span class="li-report-content-title">Differential Expression Analysis by edgeR</span><div class="li-report-content">
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+							<input type="radio" name="edge-piret-output-de-choose" id="edge-piret-output-de-choose-1" value="CDS" checked="checked">
+							<label for="edge-piret-output-de-choose-1">CDS</label>
+							<input type="radio" name="edge-piret-output-de-choose" id="edge-piret-output-de-choose-2" value="genes" >
+							<label for="edge-piret-output-de-choose-2">Genes</label>
+						</fieldset>
+					</div>
+					<ul>
+					<TMPL_IF NAME="PIRETPROK">
+					<li><span class="li-report-content-title">Prokarya</span><div class="li-report-content">
+						<table data-role='table' class='output-table ui-responsive'>
+							<thead>
+								<tr> 
+						  		  <th data-priority='1'>Comparison</th>
+						  		  <th data-priority='2'>Down</th>
+						  		  <th data-priority='3'>Not Significant</th>
+								  <th data-priority='4'>Up</th>
+								</tr>
+							</thead>
+							<tbody>
+								<TMPL_LOOP NAME=LOOP_PIRETEDGERPROKSUM>
+								<tr>
+						  		  <td><TMPL_VAR NAME=PIRETEDGERPROKSUM0 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGERPROKSUM1 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGERPROKSUM2 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGERPROKSUM3 DEFAULT=-></td>
+								</tr>
+								</TMPL_LOOP>
+							</tbody>
+						</table>
+						<div class="edge-piret-report-cds-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">MDS<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MDS DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MDS DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_MDS"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">RPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_histogram DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_RPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">RPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_RPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MD DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_MD"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_CDS_MD_PLOT>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MD_PLOT_ID DEFAULT=-> <a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MD_PLOT_PDF=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MD_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+
+						</div>
+						<div class="edge-piret-report-gene-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">MDS<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MDS DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MDS DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_MDS"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">RPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_histogram DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_RPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">RPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_RPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MD DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_MD"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_gene_MD_PLOT>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MD_PLOT_ID DEFAULT=-><a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MD_PLOT_ID_PDF=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MD_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+						</div>
+						<p class='extra-text-link'>Link to
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret/edgeR/prokarya'> Directory </a>
+						</p>
+					</div></li>
+					</TMPL_IF>
+					<TMPL_IF NAME="PIRETEUK">
+					<li><span class="li-report-content-title">Eukarya</span><div class="li-report-content">
+						<table data-role='table' class='output-table ui-responsive'>
+							<thead>
+								<tr> 
+						  		  <th data-priority='1'>Comparison</th>
+						  		  <th data-priority='2'>Down</th>
+						  		  <th data-priority='3'>Not Significant</th>
+								  <th data-priority='4'>Up</th>
+								</tr>
+							</thead>
+							<tbody>
+								<TMPL_LOOP NAME=LOOP_PIRETEDGEREUKSUM>
+								<tr>
+						  		  <td><TMPL_VAR NAME=PIRETEDGEREUKSUM0 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGEREUKSUM1 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGEREUKSUM2 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETEDGEREUKSUM3 DEFAULT=-></td>
+								</tr>
+								</TMPL_LOOP>
+							</tbody>
+						</table>
+						<div class="edge-piret-report-cds-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">MDS<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MDS DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MDS DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_MDS"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">RPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_histogram DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_RPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">RPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_RPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">RPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_RPKM_heatmap.png"></a>
+									<!--<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MD DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_MD"></a>-->
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_CDS_MD_PLOT>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MD_PLOT_ID DEFAULT=-> <a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MD_PLOT_PDF=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MD_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+
+						</div>
+						<div class="edge-piret-report-gene-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">MDS<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MDS DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MDS DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_MDS"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">RPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_histogram DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_RPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">RPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_RPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">RPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_RPKM_heatmap.png"></a>
+									<!--<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MD DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_MD"></a>-->
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_gene_MD_PLOT>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MD_PLOT_ID DEFAULT=-><a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MD_PLOT_ID_PDF=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MD_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+						</div>
+						<p class='extra-text-link'>Link to
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret/edgeR/eukarya'> Directory </a>
+						</p>
+					</div></li>
+					</TMPL_IF>
+				</div></li>
+				</TMPL_IF>
+
+				<TMPL_IF NAME="PIRETDESEQ2">
+				<li><span class="li-report-content-title">Differential Expression Analysis by DESeq2</span><div class="li-report-content">
+				
+				</div></li>
+				</TMPL_IF>
 			</ol>
 		</div>
 		</TMPL_IF>
