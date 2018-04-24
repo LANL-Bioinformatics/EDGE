@@ -146,8 +146,8 @@ COMMAND=uge-bwa.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -b <TMPL_
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
-<TMPL_IF NAME="kraken_mini">
-[kraken_mini]
+<TMPL_IF NAME="kraken">
+[kraken]
 COMMAND=uge-kraken.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -n "--preload" -d <TMPL_VAR NAME=kraken-db>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>

@@ -579,6 +579,7 @@ sub check_analysis {
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
 	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/DETEQT/runDETEQT.finished");
 	$vars->{OUT_piret_SW}   = 1 if ( -e "$out_dir/ReferenceBasedAnalysis/Piret/runPiret.finished");
+	$vars->{OUT_CONLY_SW} = 1 if $vars->{OUT_piret_SW};
 	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} ||  $vars->{OUT_piret_SW} )? "" : 1;
 	$vars->{OUT_SG_SW}    = 1 if (-e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" or -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" );
 	$vars->{OUT_OSG_SW}   = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished");
@@ -1632,7 +1633,8 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (bacterial species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
-			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken_mini/;
+			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/ ;
+			$tool->{CPTOOL_LABEL} = "Kraken"	if $vars->{KRAKENDB};
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;
 
@@ -1867,6 +1869,9 @@ sub pull_summary {
 		}
 		if (/^fastqjoin-usejoined-only=(.*)/){
 			$vars->{JOINEDPEONLY}=$1;
+		}
+		if (/^custom-kraken-db=(.*)/){
+			$vars->{KRAKENDB}=$1;
 		}
 		if (/^piret_kingdom=(.*)/){
 			my $piret_kingdom=$1;
