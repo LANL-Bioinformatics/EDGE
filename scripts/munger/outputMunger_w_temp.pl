@@ -246,7 +246,7 @@ sub pull_piret{
 					$md_plot_info->{PIRET_MD_PLOT}=$CDS_MD_plots[$i];
 					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
 					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_CDS_MD_PLOT}},$md_plot_info;
+					push @{$vars->{LOOP_PIRET_PROK_CDS_edgeR_MD_PLOT}},$md_plot_info;
 				}
 			}
 			$vars->{PIRET_PROK_gene_edgeR_MDS}="$output_dir/edgeR/prokarya/${prefix}_gene_count_MDS";
@@ -259,19 +259,69 @@ sub pull_piret{
 				my $md_plot_info;
 				for my $i (0..$#gene_MD_plots){
 					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MD_plots[$i]", qr/\.[^.]*/);
+					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MD_plots[$i]", qr/\.[^.]*/);
 					$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
 					$md_plot_info->{PIRET_MD_PLOT}=$gene_MD_plots[$i];
 					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
 					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_gene_MD_PLOT}},$md_plot_info;
+					push @{$vars->{LOOP_PIRET_PROK_gene_edgeR_MD_PLOT}},$md_plot_info;
 				}
 			}
 		}
 		if ($vars->{PIRETMETHODS} eq "DESeq2"){
 			$vars->{PIRETDESEQ2}=1;
-			my $DE_summary_table = "$output_dir/DESeq2/eukarya/summary_updown.csv";
-			# cp deseq2 result
+			my $DE_summary_table = "$output_dir/DESeq2/prokarya/summary_updown.csv";
+			open(my $des,"<",$DE_summary_table);
+			while(<$des>){
+				chomp;
+				next if (/^,/);
+				my @temp = split /,/, $_;
+				if( scalar @temp == 4 ){
+					my $info;
+					for my $i(0..$#temp){
+						$temp[$i] =~ s/^\"|"$//g;
+						$info->{"PIRETDESEQ2PROKSUM$i"}=$temp[$i];
+					}
+					push @{$vars->{LOOP_PIRETDESEQ2PROKSUM}}, $info;
+				}
+			}
+			close $des;
+			$vars->{PIRET_PROK_CDS_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_PCA";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_histogram";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_heatmap";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_violin";
+			$vars->{PIRET_PROK_CDS_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
+			my @CDS_MA_plots = glob("$output_dir/DESeq2/prokarya/*__CDS__MA.png");
+			if (scalar @CDS_MA_plots > 0 ){
+				my $md_plot_info;
+				for my $i (0..$#CDS_MA_plots){
+					my $grid_index = $i % 4 ;
+					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MA_plots[$i]", qr/\.[^.]*/);
+					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
+					$md_plot_info->{PIRET_MA_PLOT}=$CDS_MA_plots[$i];
+					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
+					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
+					push @{$vars->{LOOP_PIRET_PROK_CDS_DESeq2_MA_PLOT}},$md_plot_info;
+				}
+			}
+			$vars->{PIRET_PROK_gene_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_PCA";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_histogram";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_heatmap";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_violin";
+			$vars->{PIRET_PROK_gene_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
+			my @gene_MA_plots = glob("$output_dir/DESeq2/prokarya/*__gene__MA.png");
+			if (scalar @gene_MA_plots > 0 ){
+				my $md_plot_info;
+				for my $i (0..$#gene_MA_plots){
+					my $grid_index = $i % 4 ;
+					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MA_plots[$i]", qr/\.[^.]*/);
+					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
+					$md_plot_info->{PIRET_MA_PLOT}=$gene_MA_plots[$i];
+					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
+					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
+					push @{$vars->{LOOP_PIRET_PROK_gene_DESeq2_MA_PLOT}},$md_plot_info;
+				}
+			}
 		}
 	}
 	if ($vars->{PIRETEUK}){
@@ -367,7 +417,7 @@ sub pull_piret{
 					$md_plot_info->{PIRET_MD_PLOT}=$CDS_MD_plots[$i];
 					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
 					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_CDS_MD_PLOT}},$md_plot_info;
+					push @{$vars->{LOOP_PIRET_EUK_CDS_edgeR_MD_PLOT}},$md_plot_info;
 				}
 			}
 			$vars->{PIRET_EUK_gene_edgeR_MDS}="$output_dir/edgeR/eukarya/${prefix}_gene_count_MDS";
@@ -385,15 +435,66 @@ sub pull_piret{
 					$md_plot_info->{PIRET_MD_PLOT}=$gene_MD_plots[$i];
 					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
 					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_gene_MD_PLOT}},$md_plot_info;
+					push @{$vars->{LOOP_PIRET_EUK_gene_edgeR_MD_PLOT}},$md_plot_info;
 				}
 			}
 			
 		}
+		
 		if ($vars->{PIRETMETHODS} eq "DESeq2"){
 			$vars->{PIRETDESEQ2}=1;
 			my $DE_summary_table = "$output_dir/DESeq2/eukarya/summary_updown.csv";
-			# cp deseq2 result
+			open(my $des,"<",$DE_summary_table);
+			while(<$des>){
+				chomp;
+				next if (/^,/);
+				my @temp = split /,/, $_;
+				if( scalar @temp == 4 ){
+					my $info;
+					for my $i(0..$#temp){
+						$temp[$i] =~ s/^\"|"$//g;
+						$info->{"PIRETDESEQ2EUKSUM$i"}=$temp[$i];
+					}
+					push @{$vars->{LOOP_PIRETDESEQ2EUKSUM}}, $info;
+				}
+			}
+			close $des;
+			$vars->{PIRET_EUK_CDS_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_PCA";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_histogram";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_heatmap";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_violin";
+			$vars->{PIRET_EUK_CDS_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
+			my @CDS_MA_plots = glob("$output_dir/DESeq2/eukarya/*__CDS__MA.png");
+			if (scalar @CDS_MA_plots > 0 ){
+				my $md_plot_info;
+				for my $i (0..$#CDS_MA_plots){
+					my $grid_index = $i % 4 ;
+					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MA_plots[$i]", qr/\.[^.]*/);
+					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
+					$md_plot_info->{PIRET_MA_PLOT}=$CDS_MA_plots[$i];
+					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
+					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
+					push @{$vars->{LOOP_PIRET_EUK_CDS_DESeq2_MA_PLOT}},$md_plot_info;
+				}
+			}
+			$vars->{PIRET_EUK_gene_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_PCA";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_histogram";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_heatmap";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_violin";
+			$vars->{PIRET_EUK_gene_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
+			my @gene_MA_plots = glob("$output_dir/DESeq2/eukarya/*__gene__MA.png");
+			if (scalar @gene_MA_plots > 0 ){
+				my $md_plot_info;
+				for my $i (0..$#gene_MA_plots){
+					my $grid_index = $i % 4 ;
+					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MA_plots[$i]", qr/\.[^.]*/);
+					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
+					$md_plot_info->{PIRET_MA_PLOT}=$gene_MA_plots[$i];
+					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
+					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
+					push @{$vars->{LOOP_PIRET_EUK_gene_DESeq2_MA_PLOT}},$md_plot_info;
+				}
+			}
 		}
 	}
 	
@@ -1633,7 +1734,7 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (bacterial species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
-			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/ ;
+			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/;
 			$tool->{CPTOOL_LABEL} = "Kraken"	if $vars->{KRAKENDB};
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;

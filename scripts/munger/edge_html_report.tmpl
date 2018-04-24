@@ -1836,9 +1836,9 @@
 				<li><span class="li-report-content-title">Differential Expression Analysis by edgeR</span><div class="li-report-content">
 					<div class="ui-field-contain">
 						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
-							<input type="radio" name="edge-piret-output-de-choose" id="edge-piret-output-de-choose-1" value="CDS" checked="checked">
+							<input type="radio" name="edge-piret-output-de-choose-edgeR" id="edge-piret-output-de-choose-1" value="CDS" checked="checked">
 							<label for="edge-piret-output-de-choose-1">CDS</label>
-							<input type="radio" name="edge-piret-output-de-choose" id="edge-piret-output-de-choose-2" value="genes" >
+							<input type="radio" name="edge-piret-output-de-choose-edgeR" id="edge-piret-output-de-choose-2" value="genes" >
 							<label for="edge-piret-output-de-choose-2">Genes</label>
 						</fieldset>
 					</div>
@@ -1886,7 +1886,7 @@
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
-								<TMPL_LOOP NAME=LOOP_PIRET_PROK_CDS_MD_PLOT>
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_CDS_edgeR_MD_PLOT>
 								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
 								<div class="ui-block-a">
 								</TMPL_IF>
@@ -1929,7 +1929,7 @@
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
-								<TMPL_LOOP NAME=LOOP_PIRET_PROK_gene_MD_PLOT>
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_gene_edgeR_MD_PLOT>
 								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
 								<div class="ui-block-a">
 								</TMPL_IF>
@@ -1995,12 +1995,10 @@
 								<div class="ui-block-d">
 									<span class="iframe_label">RPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_RPKM_heatmap.png"></a>
-									<!--<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_edgeR_MD DEFAULT=->.png" alt="PIRET_EUK_CDS_edgeR_MD"></a>-->
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
-								<TMPL_LOOP NAME=LOOP_PIRET_EUK_CDS_MD_PLOT>
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_CDS_edgeR_MD_PLOT>
 								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
 								<div class="ui-block-a">
 								</TMPL_IF>
@@ -2040,12 +2038,10 @@
 								<div class="ui-block-d">
 									<span class="iframe_label">RPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_RPKM_heatmap.png"></a>
-									<!--<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_edgeR_MD DEFAULT=->.png" alt="PIRET_EUK_gene_edgeR_MD"></a>-->
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
-								<TMPL_LOOP NAME=LOOP_PIRET_EUK_gene_MD_PLOT>
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_gene_edgeR_MD_PLOT>
 								<TMPL_IF NAME="PIRET_MD_PLOT_GRID_0">
 								<div class="ui-block-a">
 								</TMPL_IF>
@@ -2076,7 +2072,241 @@
 
 				<TMPL_IF NAME="PIRETDESEQ2">
 				<li><span class="li-report-content-title">Differential Expression Analysis by DESeq2</span><div class="li-report-content">
-				
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+							<input type="radio" name="edge-piret-output-de-choose-deseq2" id="edge-piret-output-deseq2-choose-1" value="CDS" checked="checked">
+							<label for="edge-piret-output-deseq2-choose-1">CDS</label>
+							<input type="radio" name="edge-piret-output-de-choose-deseq2" id="edge-piret-output-deseq2-choose-2" value="genes" >
+							<label for="edge-piret-output-deseq2-choose-2">Genes</label>
+						</fieldset>
+					</div>
+					<ul>
+					<TMPL_IF NAME="PIRETPROK">
+					<li><span class="li-report-content-title">Prokarya</span><div class="li-report-content">
+						<TMPL_IF NAME="LOOP_PIRETDESEQ2PROKSU">
+						<table data-role='table' class='output-table ui-responsive'>
+							<thead>
+								<tr> 
+						  		  <th data-priority='1'>Comparison</th>
+						  		  <th data-priority='2'>Down</th>
+						  		  <th data-priority='3'>Not Significant</th>
+								  <th data-priority='4'>Up</th>
+								</tr>
+							</thead>
+							<tbody>
+								<TMPL_LOOP NAME=LOOP_PIRETDESEQ2PROKSUM>
+								<tr>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2PROKSUM0 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2PROKSUM1 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2PROKSUM2 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2PROKSUM3 DEFAULT=-></td>
+								</tr>
+								</TMPL_LOOP>
+							</tbody>
+						</table>
+						</TMPL_IF>
+						<div class="edge-piret-report-cds-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">PCA<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_PCA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_PCA DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_PCA"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">FPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_histogram DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_FPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">FPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_FPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">Mean Average<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_MA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_MA DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_MA"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_CDS_DESeq2_MA_PLOT>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MA_PLOT_ID DEFAULT=-> <a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MA_PLOT_PDF DEFAULT=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MA_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+
+						</div>
+						<div class="edge-piret-report-gene-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">PCA<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_PCA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_PCA DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_PCA"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">FPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_histogram DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_FPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">FPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_FPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">Mean Average<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_MA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_MA DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_MA"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_PROK_gene_DESeq2_MA_PLOT>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MA_PLOT_ID DEFAULT=-><a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MA_PLOT_PDF DEFAULT=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MA_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+						</div>
+						<p class='extra-text-link'>Link to
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret/DESeq2/prokarya'> Directory </a>
+						</p>
+					</div></li>
+					</TMPL_IF>
+					<TMPL_IF NAME="PIRETEUK">
+					<li><span class="li-report-content-title">Eukarya</span><div class="li-report-content">
+						<table data-role='table' class='output-table ui-responsive'>
+							<thead>
+								<tr> 
+						  		  <th data-priority='1'>Comparison</th>
+						  		  <th data-priority='2'>Down</th>
+						  		  <th data-priority='3'>Not Significant</th>
+								  <th data-priority='4'>Up</th>
+								</tr>
+							</thead>
+							<tbody>
+								<TMPL_LOOP NAME=LOOP_PIRETDESEQ2EUKSUM>
+								<tr>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2EUKSUM0 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2EUKSUM1 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2EUKSUM2 DEFAULT=-></td>
+						  		  <td><TMPL_VAR NAME=PIRETDESEQ2EUKSUM3 DEFAULT=-></td>
+								</tr>
+								</TMPL_LOOP>
+							</tbody>
+						</table>
+						<div class="edge-piret-report-cds-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">PCA<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_PCA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_PCA DEFAULT=->.png" alt="PIRET_EUK_CDS_DESeq2_PCA"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">FPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_histogram DEFAULT=->.png" alt="PIRET_EUK_CDS_DESeq2_FPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">FPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_EUK_CDS_DESeq2_FPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">FPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_CDS_DESeq2_FPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_CDS_DESeq2_FPKM_heatmap.png"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_CDS_DESeq2_MA_PLOT>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MA_PLOT_ID DEFAULT=-> <a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MA_PLOT_PDF DEFAULT=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MA_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+
+						</div>
+						<div class="edge-piret-report-gene-de">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">PCA<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_PCA DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_PCA DEFAULT=->.png" alt="PIRET_EUK_gene_DESeq2_PCA"></a>
+								</div>
+								<div class="ui-block-b">
+									<span class="iframe_label">FPKM Histogram<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_histogram DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_histogram DEFAULT=->.png" alt="PIRET_EUK_gene_DESeq2_FPKM_histogram"></a>
+								</div>
+								<div class="ui-block-c">
+									<span class="iframe_label">FPKM Violin<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_violin DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_EUK_gene_DESeq2_FPKM_violin.png"></a>
+								</div>
+								<div class="ui-block-d">
+									<span class="iframe_label">FPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_EUK_gene_DESeq2_FPKM_heatmap DEFAULT=->.png" alt="PIRET_EUK_gene_DESeq2_FPKM_heatmap.png"></a>
+								</div>
+							</div>
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_LOOP NAME=LOOP_PIRET_EUK_gene_DESeq2_MA_PLOT>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_0">
+								<div class="ui-block-a">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_1">
+								<div class="ui-block-b">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_2">
+								<div class="ui-block-c">
+								</TMPL_IF>
+								<TMPL_IF NAME="PIRET_MA_PLOT_GRID_3">
+								<div class="ui-block-d">
+								</TMPL_IF>
+									<span class="iframe_label"><TMPL_VAR NAME=PIRET_MA_PLOT_ID DEFAULT=-><a data-ajax='false' href='<TMPL_VAR NAME=PIRET_MA_PLOT_PDF DEFAULT=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_MA_PLOT DEFAULT=->" alt="Coverage">
+									</a>
+								</div>
+								</TMPL_LOOP>
+							</div>
+						</div>
+						<p class='extra-text-link'>Link to
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReferenceBasedAnalysis/Piret/DESeq2/eukarya'> Directory </a>
+						</p>
+					</div></li>
+					</TMPL_IF>
 				</div></li>
 				</TMPL_IF>
 			</ol>

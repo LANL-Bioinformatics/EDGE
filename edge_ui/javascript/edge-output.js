@@ -262,18 +262,18 @@ $( document ).ready(function()
 		if ($(this).val() == "genes"){
 			$(".edge-piret-report-cds-fc").hide();
 			$(".edge-piret-report-gene-fc").show();
-                }
+        }
 	});
 	$(".edge-piret-report-gene-de").hide();
-	$(":radio[name=edge-piret-output-de-choose]").on("change", function(){
+	$(":radio[name^=edge-piret-output-de-choose]").on("change", function(){
 		if ($(this).val() == "CDS"){
-			$(".edge-piret-report-cds-de").show();
-			$(".edge-piret-report-gene-de").hide();
+			$(this).closest(".li-report-content").find(".edge-piret-report-cds-de").show();
+			$(this).closest(".li-report-content").find(".edge-piret-report-gene-de").hide();
 		}
 		if ($(this).val() == "genes"){
-			$(".edge-piret-report-cds-de").hide();
-			$(".edge-piret-report-gene-de").show();
-                }
+			$(this).closest(".li-report-content").find(".edge-piret-report-cds-de").hide();
+			$(this).closest(".li-report-content").find(".edge-piret-report-gene-de").show();
+        }
 	});
 	$(".edge-piret-report-fcs-table").DataTable({
 		"order": [],
