@@ -12,9 +12,13 @@ mkdir -p $rootdir/bin
 export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
+anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
+anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
+
+
 assembly_tools=( idba spades megahit long_read_assembly )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer Rpackages )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
@@ -372,6 +376,8 @@ tar xzf R_3.3.2_Packages.tgz
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"Cairo\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"Cairo\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 #echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 echo "install.packages(c(\"MetaComp-1.0.2.tgz\"), repos = NULL, type=\"source\")" | $rootdir/bin/Rscript --no-init-file  - 
 rm -r R_3.3.2_Packages/
@@ -660,7 +666,6 @@ then
 rm -rf $rootdir/thirdPart/pangia-vis-data
 fi 
 
-#$rootdir/thirdParty/Anaconda3/bin/pip install git+https://github.com/pymc-devs/pymc3
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1271,25 +1276,24 @@ echo "--------------------------------------------------------------------------
 if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
     bash Anaconda2-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
 fi
-anacondabin=$rootdir/thirdParty/Anaconda2/bin/
-ln -fs $anacondabin/python $rootdir/bin
-ln -fs $anacondabin/pip $rootdir/bin
-ln -fs $anacondabin/conda $rootdir/bin
-	tar -xvzf Anaconda2Packages.tgz
-    $anacondabin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
-	$anacondabin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
-	$anacondabin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
-	$anacondabin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
-	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages qiime
-	$anacondabin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
-	matplotlibrc=`$anacondabin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
-	perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-	rm -r Anaconda2Packages/
+ln -fs $anaconda2bin/python $rootdir/bin
+ln -fs $anaconda2bin/pip $rootdir/bin
+ln -fs $anaconda2bin/conda $rootdir/bin
+tar -xvzf Anaconda2Packages.tgz
+$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
+$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
+$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
+$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
+$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
+$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
+matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
+rm -r Anaconda2Packages/
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda2 4.1.1 Installed
@@ -1299,26 +1303,53 @@ echo "
 
 install_Anaconda3()
 {
+local VER=5.1.0
 echo "------------------------------------------------------------------------------
-                 Installing Python Anaconda3 4.1.1
+                 Installing Python Anaconda3 $VER
 ------------------------------------------------------------------------------
 "
 if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
-    bash Anaconda3-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
+    bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
 fi
-anacondabin=$rootdir/thirdParty/Anaconda3/bin/
-ln -fs $anacondabin/python3 $rootdir/bin
+ln -fs $anaconda3bin/python3 $rootdir/bin
 
 tar -xvzf Anaconda3Packages.tgz
-$anacondabin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
-$anacondabin/pip install --no-index --find-links=./Anaconda3Packages pymc3
-ln -fs $anacondabin/cairosvg $rootdir/bin
-$anacondabin/conda update -y conda
-$anacondabin/conda install -y bokeh==0.12.10
-rm -r Anaconda3Packages/
+$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
+$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
+ln -fs $anaconda3bin/cairosvg $rootdir/bin
+$anaconda3bin/conda install Anaconda3Packages/bokeh-0.12.10.tar.gz 
 echo "
 ------------------------------------------------------------------------------
-                         Python Anaconda3 4.1.1 Installed
+                         Python Anaconda3 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_NanoPlot()
+{
+echo "------------------------------------------------------------------------------
+                 	Installing NanoPlot
+------------------------------------------------------------------------------
+"
+$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
+ln -fs $anaconda3bin/NanoPlot $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         NanoPlot Installed
+------------------------------------------------------------------------------
+"
+}
+install_Porechop()
+{
+echo "------------------------------------------------------------------------------
+                 	Installing Porechop
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
+ln -fs $anaconda3bin/porechop $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         Porechop Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2068,6 +2099,22 @@ else
     install_reference-based_assembly
 fi
 
+if ( checkLocalInstallation porechop )
+then
+    echo "porechop is found"
+else
+    echo "porechop is not found"
+    install_Porechop
+fi
+
+if ( checkLocalInstallation NanoPlot )
+then
+    echo "NanoPlot is found"
+else
+    echo "NanoPlot is not found"
+    install_NanoPlot
+fi
+
 if ( checkLocalInstallation DETEQT )
 then
   DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
@@ -2341,6 +2388,11 @@ then
 	fi
 }
 fi
+
+
+
+
+rm -r Anaconda3Packages/
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -

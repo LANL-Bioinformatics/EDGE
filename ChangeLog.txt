@@ -1,4 +1,62 @@
--- Version devel
+-- Version 20180425
+runPipeline version 2.1.0
+1. Add minimap2, a long noisy read aligner
+2. Update samtools/bcftools from 0.1.19 to 1.6 
+3. Update FaQCs to 2.07 and allow process long reads
+4. Add alinger option for PhaME. support bowtie/bwa/minimap2
+5. Update MetaComp to 1.0.2.
+6. Add bokeh server check script for PanGIA visulization, pangia-vis-checker.sh
+8. Update pangia from 2.3.2 to 2.4.5
+9. Update tbl2asn
+10. Update targetedNGS tool and rename to DETEQT, and update its test case
+11. Get proxy setting from system for SRA download
+12. Remove .complete_report_web for import script
+13. Check symlink for pangia-vis, JBrowse and Opaver data.
+14. Add PyPiReT Pipeline (https://github.com/mshakya/PyPiReT) Pipeline for Reference based Transcriptomics.
+15. Add long reads assembler pipeline (minimap2 -> miniasm -> racon, https://gitlab.com/chienchi/long_read_assembly)
+16. Update Anaconda3 from 4.1.1. to 5.1.0
+17. Add NanoPlot v1.13.0, Plotting scripts for long read sequencing data. (https://github.com/wdecoster/NanoPlot)
+18. Add Porechop v0.2.3, a tool for finding and removing adapters from Oxford Nanopore reads. (https://github.com/rrwick/Porechop)
+
+EDGE GUI version 2.1.0
+1. Allow batch submit with http/ftp for input reads
+2. Add option to use only joined PE reads for downstream analysis
+3. Add diamond and pangia heatmap from MetaComp.
+4. Add minimap2 GUI option (mapping to contigs/reference) for nanopore dataset
+5. Add security of Apache configuration and bokeh proxy service for pangia-vis
+6. Add file content check of upload files.  
+7. Add messages when NCBI_Genomes are not synced with ref_list.json file
+8. Add project owner in the result page
+9. Remove output path from GUI
+10. Add javascript disabled msg
+11. Get userType from server side
+12. Security Patch on all cgi scripts by sanitize all input. 
+13. Redirect to register page when social login failed.
+14. Reset button on select menu
+15. Check session for upload. Remove some system call
+16. Add load num for project pages
+17. Use xlsx2csv for batch excel file process
+18. Sanitize batch sumbit input
+19. Allow upload gff fomrat text file
+20. Rename TargetedNGS to DETEQT
+21. Add batch project info into config.json for reconfig function.
+22. Add Beta version of Pipeline for Reference based Transcriptomics.(PyPiReT)
+23. Add LRASM assembler (long reads assembler)
+
+EDGE docker:
+https://hub.docker.com/r/bioedge/edge_dev/
+1. Developed docker_deploy scripts
+
+Database:
+Full Kraken database is available on ftp://ftp.lanl.gov/public/genome/EDGE/full_kraken_db/
+User can use it as custom kraken db. The database is large (155G after unzip) and using it requires ~150 GB memory too.
+
+
+Bugs fixes: reconfig with unexpected behavior, edge_actions.cgi sequential actions on multiple projects, 
+            the null chcaracter in the config.txt cause error on runPipeline, fix link for example data set
+            ...
+
+-- Version devel 2.0.0
 2018/01/16
 1. Add mummerplot for contig to reference dotplot
 2. Add .gz support for provided contigs fasta
