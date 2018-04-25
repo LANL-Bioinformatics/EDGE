@@ -688,7 +688,7 @@ sub check_analysis {
 }
 
 sub prep_jbrowse_link {
-	`ln -s $out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
+	`ln -s $www_root/$out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
 	$vars->{JB_CTG_ANNO}     = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA";
 	$vars->{JB_CTG_ANNO_BAM} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM"; 
 	$vars->{JB_CTG_ANNO_PCR} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR"; 
@@ -958,7 +958,7 @@ sub pull_anno {
 	chomp @kegg_maps;
 	if (scalar(@kegg_maps)>0){
 		$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname";
-		`ln -s $out_dir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
+		`ln -s $www_root/$out_dir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
 	}
 }
 
