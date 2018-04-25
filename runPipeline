@@ -563,15 +563,17 @@ n_cutoff=10
 
 [HisatMapW]
 
-[SAM2BAMfile]
+[RefNames]
 
-[SAM2BAMfileW]
+[GetRefNames]
 
+[SplitBAMfile]
 
-[SortBAMfile]
+[SplitBAMBoth]
 
-[SortBAMfileW]
+[Split2ProkEuk]
 
+[Split2ProkEukW]
 
 [StringTieScores]
 
@@ -579,7 +581,11 @@ n_cutoff=10
 
 [FeatureCounts]
 fid=ID
-stranded=0
+stranded=$stranded
+
+[FeatureCountsBoth]
+fid=ID
+stranded=$stranded
 
 [MergeStringTies]
 
@@ -3078,6 +3084,16 @@ sub runAssembly
         }
         $cmd .= "-r $unpairFile " if (-s $unpairFile);
         $cmd .= " 2>&1 ";
+    }
+    if ($assembler =~ /lrasm/){
+		$AssemblerOutDir = "$outputDir/lrasm";
+		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
+		$AssemblerLog = "$AssemblerOutDir/contigs.log";
+		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
+		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
+		$cmd .= " -e" if $configuration->{lrasm_ec};
+		$cmd .= " $unpairFile " if (-s $unpairFile);
+		$cmd .= " 2>/dev/null";
     }
     &lprint ("  Running\n  $cmd\n");
     eval{ system($cmd);};

@@ -858,7 +858,31 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-assembler2">SPAdes</label>
 					<input type="radio" name="edge-assembler" id="edge-assembler3" value="megahit">
 					<label for="edge-assembler3">MEGAHIT</label>
+					<input type="radio" name="edge-assembler" id="edge-assembler4" value="lrasm">
+					<label for="edge-assembler4">LRASM</label>
 				</fieldset>
+			</div>
+			<div id="edge-lrasm-parameters">
+				<p class="edge_tool_note">LRASM is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
+				<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Error Correction</legend>
+					<input type="radio" name="edge-lrasm-ec" id="edge-lrasm-ec1" value="1" checked="checked">
+					<label for="edge-lrasm-ec1">Yes</label>
+					<input type="radio" name="edge-lrasm-ec" id="edge-lrasm-ec2" value="0">
+					<label for="edge-lrasm-ec2">No</label>
+				</fieldset>
+				</div>
+				<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Preset</legend>
+					<input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset1" value="ont" checked="checked">
+					<label for="edge-lrasm-preset1">Nanopore</label>
+					<input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset2" value="pb">
+					<label for="edge-lrasm-preset2">Pacbio</label>
+				</fieldset>
+				</div>
+				<div class="ui-field-contain"><label for="edge-lrasm-num-consensus">Num of Iteration of Consensus </label><input type="number" data-mini="true" data-clear-btn="true" name="edge-lrasm-num-consensus" id="edge-lrasm-num-consensus" max="10" value="3"></div>
 			</div>
 			<div id="edge-idba-parameters">
 				<p class="edge_tool_note">IDBA_UD performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>

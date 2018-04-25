@@ -1589,21 +1589,31 @@ $( document ).ready(function()
 
 		$('#edge-spades-parameters').hide();
 		$('#edge-megahit-parameters').hide();
+		$('#edge-lrasm-parameters').hide();
 		$(":radio[name='edge-assembler']").on("change", function(){
 			if($('#edge-assembler1').is(':checked')){
 				$('#edge-spades-parameters').hide();
 				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').show();
+				$('#edge-lrasm-parameters').hide();
 			}
 			if($('#edge-assembler2').is(':checked')){
 				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').hide();
 				$('#edge-spades-parameters').show();
+				$('#edge-lrasm-parameters').hide();
 			}
 			if($('#edge-assembler3').is(':checked')){
 				$('#edge-spades-parameters').hide();
 				$('#edge-idba-parameters').hide();
 				$('#edge-megahit-parameters').show();
+				$('#edge-lrasm-parameters').hide();
+			}
+			if($('#edge-assembler4').is(':checked')){
+				$('#edge-spades-parameters').hide();
+				$('#edge-idba-parameters').hide();
+				$('#edge-megahit-parameters').hide();
+				$('#edge-lrasm-parameters').show();
 			}
 		});
 		

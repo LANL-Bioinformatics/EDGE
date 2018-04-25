@@ -12,7 +12,7 @@ mkdir -p $rootdir/bin
 export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
-assembly_tools=( idba spades megahit )
+assembly_tools=( idba spades megahit long_read_assembly )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
@@ -20,7 +20,7 @@ taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
-pipeline_tools=( DETEQT reference-based_assembly Piret )
+pipeline_tools=( DETEQT reference-based_assembly PyPiReT )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
@@ -194,6 +194,24 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            megahit $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_long_read_assembly(){
+local VER=0.1.0
+echo "------------------------------------------------------------------------------
+                           Installing long_read_assembly $VER
+------------------------------------------------------------------------------
+"
+tar xvzf long_read_assembly-$VER.tgz
+cd long_read_assembly
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/long_read_assembly/lrasm $rootdir/bin/lrasm
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           long_read_assembly $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1952,6 +1970,20 @@ then
 else
   echo "megahit is not found"
   install_megahit
+fi
+
+if ( checkSystemInstallation lrasm  )
+then
+  lrasm_VER=`lrasm --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if  ( echo $lrasm_VER | awk '{if($1>="0.1.0") exit 0; else exit 1}' )
+  then
+    echo "lrasm $lrasm_VER found"
+  else
+    install_lrasm
+  fi
+else
+  echo "lrasm is not found"
+  install_lrasm
 fi
 
 if [ -x $rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh  ]
