@@ -2420,8 +2420,10 @@ fi
 
 
 
-
+## Cleanup
 rm -r Anaconda3Packages/
+$anaconda2bin/conda clean -y -a
+$anaconda3bin/conda clean -y -a
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
