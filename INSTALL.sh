@@ -16,7 +16,7 @@ anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
 anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
-assembly_tools=( idba spades megahit long_read_assembly )
+assembly_tools=( idba spades megahit lrasm )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
@@ -202,7 +202,7 @@ echo "
 "
 }
 
-install_long_read_assembly(){
+install_lrasm(){
 local VER=0.1.0
 echo "------------------------------------------------------------------------------
                            Installing long_read_assembly $VER
