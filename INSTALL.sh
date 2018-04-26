@@ -18,7 +18,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit long_read_assembly )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
 taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
@@ -1317,10 +1317,25 @@ tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
-$anaconda3bin/conda install Anaconda3Packages/bokeh-0.12.10.tar.gz 
+
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda3 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_bokeh()
+{
+local VER=0.12.10
+echo "------------------------------------------------------------------------------
+                        Installing bokeh $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/pip install  --no-index --find-links=./Anaconda3Packages bokeh==$VER
+echo "
+------------------------------------------------------------------------------
+                         bokeh $VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2113,6 +2128,20 @@ then
 else
     echo "NanoPlot is not found"
     install_NanoPlot
+fi
+
+if [ -x $anaconda3bin/bokeh ]
+then
+  bokeh_VER=`$anaconda3bin/boke --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $bokeh_VER | awk '{if($1=="0.12.10") exit 0; else exit 1}' )
+  then
+    echo "bokeh $bokeh_VER is found"
+  else
+    install_bokeh
+  fi
+else
+  echo "bokeh is not found"
+  install_bokeh
 fi
 
 if ( checkLocalInstallation DETEQT )
