@@ -2421,7 +2421,7 @@ fi
 
 
 ## Cleanup
-rm -r Anaconda3Packages/
+rm -r $rootdir/thirdParty/Anaconda3Packages/
 $anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
 
