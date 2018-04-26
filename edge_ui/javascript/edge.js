@@ -830,21 +830,21 @@ $( document ).ready(function()
 			blockClass = ".edge-input-se-block";
 			blockIDprefix = "edge-input-se-block";
 			label = "Single-end FASTQ file";
-			inputID = "edge-input-se-";
+			inputID = "edge-input-se";
 		}
 		else if ( btnID === "btnAdd-edge-qiime-mapping-file") { 
 			blockClass = ".edge-qiime-pipeline-input-block";
 			blockIDprefix = "edge-qiime-pipeline-input-block";
 			label = "Mapping File";
-			inputID = "edge-qiime-mapping-file-input-";
+			inputID = "edge-qiime-mapping-file-input";
 		}
         	// how many "duplicatable" input fields we currently have
         	var num = $(blockClass).length;	
         	// the numeric ID of the new input field being added	
         	var newNum	= new Number(num + 1);		
         	var newElem = $('#' + blockIDprefix + num ).clone().attr('id', blockIDprefix + newNum);
-        	newElem.find('label').attr( 'for', inputID + newNum ).text(label + '(' + newNum + ')');            
-        	newElem.find('input').attr( 'id', inputID + newNum ).attr('name', inputID + '[]');
+        	newElem.find('label').attr( 'for', inputID + "-" + newNum ).text(label + '(' + newNum + ')');            
+        	newElem.find('input').attr( 'id', inputID + "-" + newNum ).attr('name', inputID + '[]');
         	newElem.find(delbtnClass).css("visibility","visible");
         	// insert newElem
         	$('#' + blockIDprefix + num).after(newElem);
@@ -945,7 +945,7 @@ $( document ).ready(function()
 			Elem.find('input:first').attr( 'id',"custom-"+toolname.toLowerCase()).attr('name',"custom-"+toolname.toLowerCase());
 		} else {
 			newElem.find('label:first').attr( 'for', inputID + "-" + newNum ).text(label + '(' + newNum + ')');
-			newElem.find('input:first').attr( 'id', inputID + "-" + newNum ).attr('name', inputID);
+			newElem.find('input:first').attr( 'id', inputID + "-" + newNum ).attr('name', inputID + '[]');
 		}
 		newElem.find(selectClass).remove();
 		// insert newElem

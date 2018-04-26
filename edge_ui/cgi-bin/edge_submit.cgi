@@ -847,7 +847,7 @@ sub checkParams {
 			&addMessage("PARAMS","$id","Input error. Fastq format required ") unless ( -e $edge_input_pe2[$i] && is_fastq($edge_input_pe2[$i]) || $edge_input_pe2[$i] =~ /^http|ftp/i );
 		}
 		foreach my $i (0..$#edge_input_se){
-			my $id = "edge-input-se". ($i + 1);
+			my $id = "edge-input-se-". ($i + 1);
 			$edge_input_se[$i] =~ s/ //g;
 			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/ && $edge_input_se[$i] !~ /^http|ftp/i);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_se[$i]});
@@ -887,7 +887,7 @@ sub checkParams {
 			if (!@edge_input_pe1 && !@edge_input_pe2 && !@edge_input_se){
 				&addMessage("PARAMS","edge-input-pe1-1","Input error.");
 				&addMessage("PARAMS","edge-input-pe2-1","Input error.");
-				&addMessage("PARAMS","edge-input-se1","Input error.");
+				&addMessage("PARAMS","edge-input-se-1","Input error.");
 			}
 		}
 		if ( $opt{'edge-joinpe-sw'}  && (!@edge_input_pe1 or !@edge_input_pe2) && !$opt{'edge-sra-sw'} ){
@@ -895,7 +895,7 @@ sub checkParams {
 		}
 		if ($pipeline eq "qiime"){
 			if (@edge_input_pe1 && @edge_input_se){
-				&addMessage("PARAMS","edge-input-se1","Input error. Please provide either paired-end Or single-end fastq.");
+				&addMessage("PARAMS","edge-input-se-1","Input error. Please provide either paired-end Or single-end fastq.");
 			}
 			&addMessage("PARAMS","edge-qiime-mapping-file-input-1","Input error. Please check the file path.") if (!@edge_qiime_mapping_files);
 			foreach my $i (0..$#edge_qiime_mapping_files){
@@ -931,7 +931,7 @@ sub checkParams {
 		$opt{"edge-qiime-taxa-charttype"} = join(",", @chartTypes);
 		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input[]"} if defined $opt{"edge-qiime-barcode-fq-file-input[]"};
 		foreach my $i (0..$#edge_qiime_barcode_input){
-			my $id = "edge-qiime-barcode-fq-file-input". ($i + 1);
+			my $id = "edge-qiime-barcode-fq-file-input-". ($i + 1);
 			$edge_qiime_barcode_input[$i] =~ s/ //g;
 			$edge_qiime_barcode_input[$i] = "$input_dir/$edge_qiime_barcode_input[$i]" if ($edge_qiime_barcode_input[$i] =~ /^\w/);
 			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_qiime_barcode_input[$i]});
