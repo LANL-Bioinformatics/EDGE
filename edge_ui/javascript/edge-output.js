@@ -384,9 +384,10 @@ $( document ).ready(function()
 			
 			
 			//draw tree
+			var name2 = name.replace(/[^a-z0-9_]/gi,'_');
 			var phylocanvas = new Smits.PhyloCanvas( dataObject, svg, w, h, treetype );
-			$("#"+svg).find("tspan:contains('"+ name + "')").css('fill', '#FF0033');
-			$("#"+svg).find("tspan:contains('" + name + "_contig')").css('fill', 'blue');
+			$("#"+svg).find("tspan:contains('"+ name2 + "')").css('fill', '#FF0033');
+			$("#"+svg).find("tspan:contains('" + name2 + "_contig')").css('fill', 'blue');
 
 			//reset height for rectangular tree
 			var otu;

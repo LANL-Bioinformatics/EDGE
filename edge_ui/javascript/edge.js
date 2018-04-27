@@ -903,7 +903,7 @@ $( document ).ready(function()
   	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file, .btnAdd-edge-taxa-custom-db').click( function(e) {
 		e.preventDefault();
 		var blockClass, blockIDprefix, inputID, label, selectClass, toolname;
-		var limit=5;
+		var limit=10;
 		if ($(this).hasClass("btnAdd-edge-phylo-ref-file")){
 			selectClass = ".btnAdd-edge-phylo-ref-file";
 			blockClass = ".edge-phylo-ref-file-block";
@@ -1532,6 +1532,59 @@ $( document ).ready(function()
 				}
 			}
 		});
+		$(":radio[name='edge-orfs-sg-sw']").on("change", function(){
+			if ( $(this).val() == 1 ){
+				if ( $( "#edge-anno-sw2" ).is(':checked') || $("#edge-assembly-sw").val() == 0 ){
+					showWarning("ORFs Specialty Gene Profiling function can only be performed when annotation function turns on.");
+					$( "#edge-orfs-sg-sw2" ).prop('checked',true);
+				}
+			}
+		});
+	}
+
+	function toggle_input_fields( act ){
+		if( act == "reconfig" ){
+			$('#edge-proj-name').prop("disabled", true);
+			$('input[id="edge-sra-acc"]').prop("disabled", true);
+			$('input[id^="edge-inputS-"]').prop("disabled", true);
+			$('input[name="edge-inputS-sw"]').prop("disabled", true).checkboxradio("refresh");
+			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
+			$('#edge-batch-input-excel-1').prop("disabled", true);
+			$('input[id^="edge-input-"]').prop("disabled", true);
+			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", true);
+			$('#edge-qiime-reads-dir-input').prop("disabled", true);
+			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").addClass("ui-disabled");
+		}
+		else{
+			$('#edge-proj-name').prop("disabled", false);
+			$('input[id="edge-sra-acc"]').prop("disabled", false);
+			$('input[id^="edge-inputS-"]').prop("disabled", false);
+			$('input[name="edge-inputS-sw"]').prop("disabled", false).checkboxradio("refresh");
+			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
+			$('#edge-batch-input-excel-1').prop("disabled", false);
+			$('input[id^="edge-input-"]').prop("disabled", false);
+			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", false);
+			$('#edge-qiime-reads-dir-input').prop("disabled", false);
+			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").removeClass('ui-disabled');
+		}
+	}
+	function sync_input( type ) {	//disable inputs for default tools and sync radio buttons
+		
+		$( ".edge-collapsible-options > select" ).each( function() {
+			var inputOpt = $(this).parents('div[data-role="collapsible"]');
+			$(inputOpt).find("input").prop("disabled", false);
+			$(inputOpt).find(".input-type-file select").prop("disabled", false);
+			$(inputOpt).find(".input-type-file div").css("pointer-events", 'auto');
+			
+			if( $(this).val()==0 ){
+				//$(inputOpt).find( "input:radio[value=1]" ).not("[name='edge-taxa-allreads']").prop("checked",false).checkboxradio( "refresh" );
+				//$(inputOpt).find( "input:radio[value=0]" ).not("[name='edge-taxa-allreads']").prop("checked",true).checkboxradio( "refresh" );
+				$(inputOpt).find("input:radio").checkboxradio( "refresh" );
+				$(inputOpt).find("input").prop("disabled", true);
+				$(inputOpt).find(".input-type-file select").prop("disabled", true);
+				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');
+			}
+		});
 		$("#edge-assembly-sw").on("change", function(){
 			if ( $(this).val() == 0 ){
 				/*if ( $( "#edge-anno-sw1" ).is(':chekced') ){
@@ -1563,14 +1616,6 @@ $( document ).ready(function()
 				if ( $( "#edge-orfs-sg-sw1" ).is(':checked') ){
 					$( "#edge-orfs-sg-sw1" ).prop("checked",false).checkboxradio("refresh");
 					$( "#edge-orfs-sg-sw2" ).prop("checked",true).checkboxradio("refresh");
-				}
-			}
-		});
-		$(":radio[name='edge-orfs-sg-sw']").on("change", function(){
-			if ( $(this).val() == 1 ){
-				if ( $( "#edge-anno-sw2" ).is(':checked') || $("#edge-assembly-sw").val() == 0 ){
-					showWarning("ORFs Specialty Gene Profiling function can only be performed when annotation function turns on.");
-					$( "#edge-orfs-sg-sw2" ).prop('checked',true);
 				}
 			}
 		});
@@ -1621,15 +1666,10 @@ $( document ).ready(function()
 		$(":radio[name='edge-assembled-contig-sw']").on("change", function(){
 			if($('#edge-assembled-contig1').is(':checked')){
 				$('#edge-assembler-sw').hide();
-				$('#edge-idba-parameters').hide();
-				$('#edge-spades-parameters').hide();
 				$('#edge-assembled-conti-file-div').show();
 			}
 			if($('#edge-assembled-contig2').is(':checked')){
-				$('#edge-assembler1').prop("checked",true).checkboxradio("refresh");
-				$('#edge-assembler2').prop("checked",false).checkboxradio("refresh");
 				$('#edge-assembler-sw').show();
-				$('#edge-idba-parameters').show();
 				$('#edge-assembled-conti-file-div').hide();
 			}
 		});
@@ -1657,6 +1697,7 @@ $( document ).ready(function()
 			}
 		});
 
+		$('#edge-piret-euk-input').hide();
 		$(":radio[name='edge-piret-kingdom']").on("change", function(){
 			if($('#edge-piret-kingdom1').is(':checked')){
 				$('#edge-piret-euk-input').hide();
@@ -1669,51 +1710,6 @@ $( document ).ready(function()
 			if($('#edge-piret-kingdom3').is(':checked')){
 				$('#edge-piret-euk-input').show();
 				$('#edge-piret-prok-input').show();
-			}
-		});
-	}
-
-	function toggle_input_fields( act ){
-		if( act == "reconfig" ){
-			$('#edge-proj-name').prop("disabled", true);
-			$('input[id="edge-sra-acc"]').prop("disabled", true);
-			$('input[id^="edge-inputS-"]').prop("disabled", true);
-			$('input[name="edge-inputS-sw"]').prop("disabled", true).checkboxradio("refresh");
-			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", true).checkboxradio("refresh");
-			$('#edge-batch-input-excel-1').prop("disabled", true);
-			$('input[id^="edge-input-"]').prop("disabled", true);
-			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", true);
-			$('#edge-qiime-reads-dir-input').prop("disabled", true);
-			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").addClass("ui-disabled");
-		}
-		else{
-			$('#edge-proj-name').prop("disabled", false);
-			$('input[id="edge-sra-acc"]').prop("disabled", false);
-			$('input[id^="edge-inputS-"]').prop("disabled", false);
-			$('input[name="edge-inputS-sw"]').prop("disabled", false).checkboxradio("refresh");
-			$('input[name$="-sw"][name^="edge-qiime-"]').prop("disabled", false).checkboxradio("refresh");
-			$('#edge-batch-input-excel-1').prop("disabled", false);
-			$('input[id^="edge-input-"]').prop("disabled", false);
-			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", false);
-			$('#edge-qiime-reads-dir-input').prop("disabled", false);
-			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").removeClass('ui-disabled');
-		}
-	}
-	function sync_input( type ) {	//disable inputs for default tools
-		
-		$( ".edge-collapsible-options > select" ).each( function() {
-			var inputOpt = $(this).parents('div[data-role="collapsible"]');
-			$(inputOpt).find("input").prop("disabled", false);
-			$(inputOpt).find(".input-type-file select").prop("disabled", false);
-			$(inputOpt).find(".input-type-file div").css("pointer-events", 'auto');
-			
-			if( $(this).val()==0 ){
-				//$(inputOpt).find( "input:radio[value=1]" ).not("[name='edge-taxa-allreads']").prop("checked",false).checkboxradio( "refresh" );
-				//$(inputOpt).find( "input:radio[value=0]" ).not("[name='edge-taxa-allreads']").prop("checked",true).checkboxradio( "refresh" );
-				$(inputOpt).find("input:radio").checkboxradio( "refresh" );
-				$(inputOpt).find("input").prop("disabled", true);
-				$(inputOpt).find(".input-type-file select").prop("disabled", true);
-				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');
 			}
 		});
 	};
@@ -2534,7 +2530,6 @@ $( document ).ready(function()
 			$('#btnAdd-edge-input-pe').hide();
 			$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').show();
-			$('#edge-piret-euk-input').hide();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Metadata Mapping File","Experimental Design File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
 				'content', $('<span>a tab-delimited text file or EXCEL file with header ID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
@@ -2571,35 +2566,45 @@ $( document ).ready(function()
 			//clean multiple input blocks
 			$( "div[id^='edge'][class$='-block']" ).not("[id$='-block1']").remove();
 
+			$("input:radio[name^='edge']").off('change');
+			
 			var items = [];
 			$.each( data, function( key, value ) {
 				var multi_input = new Object();
 				//fields of input
 				if( key.indexOf('[]') > 0 ){
 					key = key.replace('[]',"");
+					if (!value){
+						return true;
+					}
 					var arr = value.split("\u0000");
 					$.each( arr, function(i, val) {
 						id=i+1;
 						if( $('#'+key+"-"+id).length == 0 ){
 							btnID = key.slice(0,-1)
 							$('#btnAdd-'+btnID).click();
+							$('.btnAdd-'+key).click();
 						}
 						$('#'+key+"-"+id).val(val);
 					});
 				}
 				else if(  $('#'+key).data('role') == "slider" ){
 					$('#'+key).val(value).slider("refresh");
-					sync_input()
+					sync_input();
 				}
 				else if(  $("input:radio[name="+key+"]").is(':radio') ){
-					$("input:radio[name="+key+"]").off('change');
+					
 					if( $("input:radio[name="+key+"]:checked").val() != value ){
 						$("input:radio[name="+ key +"][value="+ value  +"]").prop('checked', true)
 						$("input:radio[name="+key+"]").checkboxradio("refresh");
-						$("input:radio[name="+key+"]").trigger("change");
+						
+						//$("input:radio[name="+key+"]").trigger("change");
 					}
 				}
 				else if( $('.btnAdd-'+key).length ){
+					if (!value){
+						return true;
+					}
 					var arr = value.split("\u0000");
 					$.each( arr, function(i, val) {
 						id=i+1
@@ -2610,6 +2615,9 @@ $( document ).ready(function()
 					});
 				}
 				else if( $('#'+key).prop('type') == "select-multiple" ){
+					if (!value){
+						return true;
+					}
 					var arr = value.split("\u0000");
 					if(arr.length >= $('#'+key).children('option').length){
 						if( key == "edge-ref-file-fromlist" || key == "edge-phylo-ref-select" ){
@@ -2640,17 +2648,23 @@ $( document ).ready(function()
 				}
 			});	
 
+			
+			$( "#edge-content-pipeline").find( "input:radio[id^='edge']" ).each( function(){
+				if ($("label[for='" + $(this).attr('id') + "']").hasClass('ui-radio-on')){
+					$(this).trigger('change');
+				}
+			});
 			//loading pipeline
 			setRunPipeline(data['pipeline']);
 			$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
 			$('#edge-form-submit').closest('.ui-btn').hide();
 			$('#edge-form-reset').closest('.ui-btn').hide();
 			// trigger all change / clicks
-			integrityCheck();
 			$( "#edge-content-pipeline").find( "div[id^='edge']" ).trigger('change');
 			$( ".edge-additional-options-toggle" ).trigger('click');
 			$(".edge-tabs").find("a").trigger('click');
 			toggle_input_fields( "reconfig" );
+			integrityCheck();
 		});
 	}
 	
