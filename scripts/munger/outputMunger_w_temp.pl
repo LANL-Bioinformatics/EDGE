@@ -88,25 +88,36 @@ sub pull_piret{
 #	return unless -e "$output_dir/runPiret.finished";
 
 	my $exp_design = "$output_dir/exp_design.txt";
+	my $exp_design_json = "$output_dir/exp_design.json";
 	my %samples;
 	my $sample_idx=0;
 	my @groups;
 	my %seen_g;
 	if ( -e $exp_design){
 		open ( my $fh, "<", "$exp_design");
+		open ( my $ofh, ">", "$exp_design.tmp");
 		while (<$fh>){
 			chomp;
-			next if( /^ID/ );
+			if( /^ID/ ){print $ofh $_,"\n"; next;};
 			my @temp = split /\t/, $_;
 			$samples{$temp[0]}->{index}=$sample_idx;
 			$samples{$temp[0]}->{file}=$temp[1];
 			$samples{$temp[0]}->{group}=$temp[2];
+			$temp[1] =~ s/\:\S+\//\:/;
+			$temp[1] =~ s/^\S+\///;
+			print $ofh $temp[0],"\t",$temp[1],"\t",$temp[2], "\n";
 			if (! $seen_g{$temp[2]}++ ) {
     			push @groups, $temp[2];
   			}
 			$sample_idx++;
 		}
 		close $fh;
+		close $ofh;
+		if ( ! -e  $exp_design_json){
+			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$exp_design_json,"$exp_design.tmp");
+			unlink "$exp_design.tmp";
+		}
+		$vars->{PIRETEXPDESIGN} =  $exp_design_json if (-e $exp_design_json);
 	}
 	my $qc_summary = "$output_dir/QCsummary.csv";
 	if ( -e $qc_summary){
@@ -185,7 +196,7 @@ sub pull_piret{
 			close $fccs;
 			@{$vars->{LOOP_PIRETPROKFCCS}} = @fccs_result;
 		}
-		if ( ! -e $feature_CDS_count_json_file) {
+		if ( -e $feature_CDS_count_file && ! -e $feature_CDS_count_json_file) {
 			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_CDS_count_json_file,$feature_CDS_count_file);
 		}
 		$vars->{PIRETPROKCDSFC} = $feature_CDS_count_json_file if ( -e $feature_CDS_count_json_file);
@@ -209,7 +220,7 @@ sub pull_piret{
 			close $gccs;
 			@{$vars->{LOOP_PIRETPROKGCCS}} = @gccs_result;
 		}
-		if ( ! -e $feature_gene_count_json_file) {
+		if ( -e $feature_gene_count_file && ! -e $feature_gene_count_json_file) {
 			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_gene_count_json_file,$feature_gene_count_file);
 		}
 		$vars->{PIRETPROKGENEFC} = $feature_gene_count_json_file if (-e $feature_gene_count_json_file);
@@ -679,7 +690,7 @@ sub check_analysis {
 	$vars->{OUT_AB_SW}    = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished" and -s "$out_dir/AssemblyBasedAnalysis/Blast/ContigsForBlast");
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
 	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/DETEQT/runDETEQT.finished");
-	$vars->{OUT_piret_SW}   = 1 if ( -e "$out_dir/ReferenceBasedAnalysis/Piret/runPiret.finished");
+	$vars->{OUT_piret_SW}   = 1 if ( -d "$out_dir/ReferenceBasedAnalysis/Piret");
 	$vars->{OUT_CONLY_SW} = 1 if $vars->{OUT_piret_SW};
 	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} ||  $vars->{OUT_piret_SW} )? "" : 1;
 	$vars->{OUT_SG_SW}    = 1 if (-e "$out_dir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" or -e "$out_dir/ReadsBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished" );
@@ -688,7 +699,7 @@ sub check_analysis {
 }
 
 sub prep_jbrowse_link {
-	`ln -s $www_root/$out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
+ 	`ln -s $www_root/$out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
 	$vars->{JB_CTG_ANNO}     = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA";
 	$vars->{JB_CTG_ANNO_BAM} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM"; 
 	$vars->{JB_CTG_ANNO_PCR} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR"; 

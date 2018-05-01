@@ -103,6 +103,12 @@
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/final_report.pdf'>final_report.pdf</a></td>
 				</tr>
 				</TMPL_IF>
+				<TMPL_IF NAME="PIRETEXPDESIGN">
+				<tr>
+				  <td>Exp Design</td>
+				  <td><a href='#edge-output-datatables-dialog' class='edge-output-datatables' data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=PIRETEXPDESIGN>'> table </a></td>
+				</tr>
+				</TMPL_IF>
 				<tr>
 				  <td>Process log</td>
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/process.log'>process.log</a></td>
@@ -1694,8 +1700,10 @@
 									</TMPL_LOOP>
 								</tbody>
 						</table>
+						<TMPL_IF NAME=PIRETPROKCDSFC>
 						<p>Top 100 CDSs by mapped reads counts</p>
 						<table data-role="none" id="edge-piret-prok-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETPROKCDSFC>'></table>
+						</TMPL_IF>
 					</div>
 					<div class="edge-piret-report-gene-fc">
 						<p>Feature count summary</p>
@@ -1735,8 +1743,10 @@
 									</TMPL_LOOP>
 								</tbody>
 						</table>
+						<TMPL_IF NAME=PIRETPROKGENEFC>
 						<p>Top 100 Genes by mapped reads counts</p>
 						<table data-role="none" id="edge-piret-prok-gene-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETPROKGENEFC>'></table>
+						</TMPL_IF>
 					</div>
 					</div></li>
 					</TMPL_IF>
@@ -1780,8 +1790,10 @@
 									</TMPL_LOOP>
 								</tbody>
 						</table>
+						<TMPL_IF NAME=PIRETEUKCDSFC>
 						<p>Top 100 CDSs by mapped reads counts</p>
 						<table data-role="none" id="edge-piret-euk-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETEUKCDSFC>'></table>
+						</TMPL_IF>
 					</div>
 					<div class="edge-piret-report-gene-fc">
 						<p>Feature count summary</p>
@@ -1821,8 +1833,10 @@
 									</TMPL_LOOP>
 								</tbody>
 						</table>
+						<TMPL_IF NAME="PIRETEUKGENEFC">
 						<p>Top 100 Genes by mapped reads counts</p>
 						<table data-role="none" id="edge-piret-euk-gene-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETEUKGENEFC>'></table>
+						</TMPL_IF>
 					</div>
 					</div></li>
 					</TMPL_IF>
@@ -1957,6 +1971,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="PIRETEUK">
 					<li><span class="li-report-content-title">Eukarya</span><div class="li-report-content">
+						<TMPL_IF NAME="LOOP_PIRETEDGEREUKSUM">
 						<table data-role='table' class='output-table ui-responsive'>
 							<thead>
 								<tr> 
@@ -1977,6 +1992,7 @@
 								</TMPL_LOOP>
 							</tbody>
 						</table>
+						</TMPL_IF>
 						<div class="edge-piret-report-cds-de">
 							<div class="ui-grid-c ui-responsive edge-report-plots">
 								<div class="ui-block-a">

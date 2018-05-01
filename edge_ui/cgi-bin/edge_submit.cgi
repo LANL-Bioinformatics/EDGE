@@ -1231,7 +1231,7 @@ sub parse_qiime_mapping_files{
 	}
 	foreach my $f (@{$mapping_files}){
 		$f = "$input_dir/$f" if ($f =~ /^\w/);
-		my $file_path = "$input_dir/$qiime_dir" if ($qiime_dir =~ /^\w/);
+		my $file_path =  ($qiime_dir =~ /^\w/)?"$input_dir/$qiime_dir":$qiime_dir;
 		my $file_column_index;
 		my $fh;
 		&addMessage("PARAMS","edge-qiime-mapping-file-input-1","Please select mapping from EDGE_input directory") if ($f !~ /EDGE_input/ || $f =~ /\.\.\//);
