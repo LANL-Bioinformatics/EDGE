@@ -86,7 +86,35 @@ output_html();
 sub pull_piret{
 	my  $output_dir = "$out_dir/ReferenceBasedAnalysis/Piret";
 #	return unless -e "$output_dir/runPiret.finished";
-
+	my $edgeR=0;
+	my $ballgown=0;
+	my $deseq2=0;
+	if ($vars->{PIRETMETHODS} eq "edgeR"){
+		$edgeR=1;
+	}
+	if ($vars->{PIRETMETHODS} eq "DESeq2"){
+                $deseq2=1;
+        }
+	if ($vars->{PIRETMETHODS} eq "ballgown"){
+                $ballgown=1;
+        }
+	if ($vars->{PIRETMETHODS} eq "balledgeR"){
+                $edgeR=1;
+		$ballgown=1;
+        }
+	if ($vars->{PIRETMETHODS} eq "DEedge"){
+                $edgeR=1;
+		$deseq2=1;
+        }
+	if ($vars->{PIRETMETHODS} eq "DEgown"){
+                $ballgown=1;
+		$deseq2=1;
+        }
+	if ($vars->{PIRETMETHODS} eq "all"){
+                $ballgown=1;
+                $edgeR=1;
+		$deseq2=1;
+        }
 	my $exp_design = "$output_dir/exp_design.txt";
 	my $exp_design_json = "$output_dir/exp_design.json";
 	my %samples;
@@ -225,7 +253,7 @@ sub pull_piret{
 		}
 		$vars->{PIRETPROKGENEFC} = $feature_gene_count_json_file if (-e $feature_gene_count_json_file);
 		
-		if ($vars->{PIRETMETHODS} eq "edgeR"){
+		if ($edgeR){
 			$vars->{PIRETEDGER}=1;
 			my $DE_summary_table = "$output_dir/edgeR/prokarya/summary_updown.csv";
 			open(my $des,"<",$DE_summary_table);
@@ -279,7 +307,7 @@ sub pull_piret{
 				}
 			}
 		}
-		if ($vars->{PIRETMETHODS} eq "DESeq2"){
+		if ($deseq2){
 			$vars->{PIRETDESEQ2}=1;
 			my $DE_summary_table = "$output_dir/DESeq2/prokarya/summary_updown.csv";
 			open(my $des,"<",$DE_summary_table);
@@ -395,7 +423,7 @@ sub pull_piret{
 		 $vars->{PIRETEUKGENEFC} = $feature_gene_count_json_file if (-e $feature_gene_count_json_file);
 		
 
-		if ($vars->{PIRETMETHODS} eq "edgeR"){
+		if ($edgeR){
 			$vars->{PIRETEDGER}=1;
 			my $DE_summary_table = "$output_dir/edgeR/eukarya/summary_updown.csv";
 			open(my $des,"<",$DE_summary_table);
@@ -452,7 +480,7 @@ sub pull_piret{
 			
 		}
 		
-		if ($vars->{PIRETMETHODS} eq "DESeq2"){
+		if ($deseq2){
 			$vars->{PIRETDESEQ2}=1;
 			my $DE_summary_table = "$output_dir/DESeq2/eukarya/summary_updown.csv";
 			open(my $des,"<",$DE_summary_table);
