@@ -1,5 +1,20 @@
+-- Version 20180502
+EDGE version 2.1.1
+* Add SSL configuration example
+* fix bug: Cannot find file name with many dots of PhaME input genome
+* fix bug: FaQCs polyA flag expected no argument
+* support uge for taxonomy classification module
+
+EDGE GUI version 2.1.1
+* fix bug: reconfiguration action and submit
+* fix bug: PiReT tab to json script
+* fix bug: piret directory submit using absolute path. Piret result page update
+* fix bug: Safari does not like window.open in ajax sucesss.
+* fix bug: autorun failed introducd by update of edge_submit.cgi, need new line for the print message to log 
+
+
 -- Version 20180425
-runPipeline version 2.1.0
+EDGE version 2.1.0
 1. Add minimap2, a long noisy read aligner
 2. Update samtools/bcftools from 0.1.19 to 1.6 
 3. Update FaQCs to 2.07 and allow process long reads
