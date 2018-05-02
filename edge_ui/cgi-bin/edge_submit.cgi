@@ -154,13 +154,13 @@ if ($edge_qiime_input_dir){
 	@edge_input_pe2 = @{$pe2_file_r};
 	@edge_input_se = @{$se_file_r};
 	if ($pipeline eq "qiime"){
-		$opt{"edge-qiime-reads-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+		$opt{"edge-qiime-reads-dir-input"}=($edge_qiime_input_dir =~ /^\w/)?"$input_dir/$edge_qiime_input_dir":$edge_qiime_input_dir;
 	}
 	if ($pipeline eq "targetedngs"){
-		$opt{"edge-targetedngs-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+		$opt{"edge-targetedngs-dir-input"}=($edge_qiime_input_dir =~ /^\w/)?"$input_dir/$edge_qiime_input_dir":$edge_qiime_input_dir;
 	}
 	if ($pipeline eq "piret") {
-		$opt{"edge-piret-dir-input"}="$input_dir/$edge_qiime_input_dir" if ($edge_qiime_input_dir =~ /^\w/);
+		$opt{"edge-piret-dir-input"}=($edge_qiime_input_dir =~ /^\w/)?"$input_dir/$edge_qiime_input_dir":$edge_qiime_input_dir;
 	}
 	&returnStatus() if ($msg->{SUBMISSION_STATUS} eq 'failure');
 }

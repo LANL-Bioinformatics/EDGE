@@ -78,7 +78,7 @@ $( document ).ready(function()
 
 	$('.edge-output-direct-datatable').removeClass("ui-table-reflow ui-table");
 	$('.edge-output-direct-datatable').each(function(){
-		var dom=this;;
+		var dom=this;
 		var json_table_file = $(this).attr('data-src');
 		var dataTableDom = 'lfrtip';
 		$.ajax( {
@@ -276,6 +276,8 @@ $( document ).ready(function()
 			$(this).closest(".li-report-content").find(".edge-piret-report-gene-de").show();
         }
 	});
+	$(".edge-piret-report-fcs-table").removeClass("ui-table-reflow ui-table");
+	$(".edge-piret-report-fcs-table").find(".ui-table-cell-label").remove();
 	$(".edge-piret-report-fcs-table").DataTable({
 		"order": [],
 		"deferRender": true,
