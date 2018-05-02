@@ -221,6 +221,7 @@ $( document ).ready(function()
 				$("#edge_confirm_dialog a").unbind('click');
 			});
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				var w = window.open();
 				$.ajax({
 					url: "./cgi-bin/edge_action.cgi",
 					type: "POST",
@@ -238,7 +239,7 @@ $( document ).ready(function()
 						$.mobile.loading( "hide" );
 						if( data.STATUS == "SUCCESS" ){
 							showMSG(data.INFO);
-							window.open(edge_path + data.PATH);
+							w.location = edge_path + data.PATH;
 							// add monitor blast file output instead . It may time out for long blast run
 						}else{
 							showMSG(data.INFO);
@@ -533,6 +534,7 @@ $( document ).ready(function()
 		$("#edge_confirm_dialog_content").html(actionContent);
 		$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
 		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+			var w = window.open();		
 			$.ajax({
 				url: "./cgi-bin/edge_action.cgi",
 				type: "POST",
@@ -552,7 +554,7 @@ $( document ).ready(function()
 					$.mobile.loading( "hide");
 					if( data.STATUS == "SUCCESS" ){
                                         	//console.log(edge_path,data.PATH);
-						window.open(edge_path + data.PATH);
+						w.location = edge_path + data.PATH;
 					}else{
 						showMSG(data.INFO);
 					}
@@ -566,6 +568,7 @@ $( document ).ready(function()
 	});
 	$('#edge-get-contigs-by-taxa').on('change',function(){
 		var taxa = $(this).val();
+		var w = window.open();
 		if(taxa == "0" ){
 			return;
 		}
@@ -586,7 +589,7 @@ $( document ).ready(function()
 					$('#edge-get-contigs-by-taxa').removeClass('ui-disabled');
 					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
 					//console.log(edge_path,data.PATH);
-					window.open(edge_path + data.PATH);
+					w.location = edge_path + data.PATH;
 				}else{
 					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
 					showMSG(data.INFO);
@@ -603,6 +606,7 @@ $( document ).ready(function()
 		var select_id = this.id;
 		var taxa = $('#'+ select_id).val();
 		var cptool = select_id.replace('edge-get-reads-by-taxa-','');
+		var w = window.open();
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -620,7 +624,7 @@ $( document ).ready(function()
 				if( data.STATUS == "SUCCESS" ){
 					$('#'+ select_id).removeClass('ui-disabled');
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
-					window.open(edge_path + data.PATH);
+					w.location = edge_path + data.PATH;
 				}else{
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
 					showMSG(data.INFO);

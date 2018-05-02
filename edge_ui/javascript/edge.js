@@ -1149,7 +1149,7 @@ $( document ).ready(function()
 		var rename_project = $("#rename_project_Name_ID").val(); //project name
 		var project_description = $("#rename_project_Desc_ID").val(); //project desc
 
-
+		var w = window.open();
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
 			if($(this).hasClass('ui-checkbox-on')){
@@ -1191,7 +1191,7 @@ $( document ).ready(function()
 					if ( action == 'compare'){
 						var loc = window.location.pathname;
 						var edge_path = loc.substring(0,loc.lastIndexOf('/'));
-						window.open(edge_path + data.PATH);
+						w.location = edge_path + data.PATH;
 					}
 					if( action == 'rename'){
 						$( "#edge-output-projname").text(rename_project);
@@ -2655,7 +2655,8 @@ $( document ).ready(function()
 				}
 			});
 			//loading pipeline
-			setRunPipeline(data['pipeline']);
+			pipeline = data['pipeline'];
+			setRunPipeline(pipeline);
 			$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
 			$('#edge-form-submit').closest('.ui-btn').hide();
 			$('#edge-form-reset').closest('.ui-btn').hide();
