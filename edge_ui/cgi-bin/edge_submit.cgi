@@ -522,10 +522,10 @@ sub runPipeline {
 			my $time = strftime "%F %X", localtime;
 			open (my $fh, ">>","$proj_dir/process_current.log");
 			open (my $fh2, ">>", "$proj_dir/process.log");
-			print $fh "\n*** [$time] EDGE_UI: This project is queued. ***";
-			print $fh2 "\n*** [$time] EDGE_UI: This project is queued. ***";
-			print $fh2 "$cmd";
-			print $fh2 "\n*** [$time] EDGE_UI: Project unstarted ***";
+			print $fh "\n*** [$time] EDGE_UI: This project is queued. ***\n";
+			print $fh2 "\n*** [$time] EDGE_UI: This project is queued. ***\n";
+			print $fh2 "$cmd\n";
+			print $fh2 "\n*** [$time] EDGE_UI: Project unstarted ***\n";
 			close $fh;
 			close $fh2;
 			&addMessage("RUN_PIPELINE","success","Project $opt{'edge-proj-name'} has been added but unstarted.");
