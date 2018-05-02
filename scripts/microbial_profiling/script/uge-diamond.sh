@@ -4,7 +4,6 @@
 #$ -m abe
 #$ -j y
 
-
 set -e;
 
 usage(){
@@ -23,7 +22,8 @@ EOF
 }
 
 FASTQ=
-# This is the database without many viral sequences (only bacteria phages)
+
+# This is the database without many viral sequences
 #REFDB=$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein.faa.dmnd
 
 # This is the database with the NCBI viral database sequences added
@@ -61,7 +61,7 @@ then
      exit 1;
 fi
 
-export PATH=$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
+export PATH=$EDGE_HOME/bin:$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
 
 mkdir -p $OUTPATH
 

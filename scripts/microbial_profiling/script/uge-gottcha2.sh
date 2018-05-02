@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_vmem=2.6G
+#$ -l h_vmem=10G
 #$ -j y
 #$ -cwd
 

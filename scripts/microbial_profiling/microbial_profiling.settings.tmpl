@@ -12,9 +12,10 @@ RUN_SEQ_STATS=0
 MAX_PROCESS_NUM=
 
 ;; settings for STEP3:
-;; run profiling tools
+;; run profiling tools,  qsub time limit in second  172800 = 48 hours
 RUN_TOOLS=1
 RUN_TOOL_AS_JOB=0
+QSUB_TIMELIMIT=172800
 QSUB_COMMAND=qsub -pe smp %THREADS% -j y -m abe -cwd -N %TOOL%-%PREFIX% -o %OUTDIR%/%LOGDIR%/%TOOL%-%PREFIX%.log
 
 ;; settings for STEP4:

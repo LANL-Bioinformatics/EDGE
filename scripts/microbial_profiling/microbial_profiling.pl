@@ -6,9 +6,11 @@ use strict;
 use Getopt::Long;
 use FindBin qw($Bin);
 use POSIX qw(strftime);
+use File::Basename;
+my $script_dirname = dirname(__FILE__);
 
 $|=1;
-$ENV{PATH} = "$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{PATH}";
+$ENV{PATH} = "$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{PATH}:/cm/shared/apps/uge/8.4.4/bin/lx-amd64/";
 my $main_pid = $$;
 
 my %opt;
@@ -193,6 +195,7 @@ else{
 #run tools
 &_notify("\n[TOOLS]\n\n");
 my @childs;
+my %job_ids;
 my @toolnames = sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$tools;
 
 if( $tools->{system}->{RUN_TOOLS} ){
@@ -218,19 +221,31 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			}
 
 			# prepare command
+			my $code;
 			my $time = time;
 			my $cmd = $tools->{$tool}->{COMMAND};
+			my $qsub_cmd = $tools->{system}->{QSUB_COMMAND};
 			$cmd = &param_replace( $cmd, $file_info, $tools, $idx, $tool );
+			$qsub_cmd = &param_replace( $qsub_cmd, $file_info, $tools, $idx, $tool );
 			&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
 			&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
-			
-			my $code = system("$cmd > $log 2>&1");
+			if ($tools->{system}->{RUN_TOOL_AS_JOB}){
+				#&_notify("$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd\n");
+				$code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
+				my ($job_id) = $code =~ /Your job (\d+)/;
+				#&_notify("$code\n");
+				$job_ids{$job_id}->{tool}=$tool;
+				$job_ids{$job_id}->{time}=$time;
+				$job_ids{$job_id}->{outdir}=$outdir;
+				&_notify("[RUN_TOOL] [$tool] Error occured: qsub error\n") if (!$job_id);
+			}else{
+				$code = system("$cmd > $log 2>&1");
+				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
+				my $runningtime = &timeInterval($time);
+				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
+				`touch "$outdir/.finished"` if !$code;
+			}
 
-			&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
-			my $runningtime = &timeInterval($time);
-			&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
-
-			`touch "$outdir/.finished"` if !$code;
 		}
 	}	
 }
@@ -238,6 +253,38 @@ else{
 	&_notify("[RUN_TOOL] Skipped.\n");
 }
 
+if ($tools->{system}->{RUN_TOOL_AS_JOB}){
+	my $timelimit = $tools->{system}->{QSUB_TIMELIMIT};
+	my $wait=1;
+	while ($wait){
+		my $qsub_job_exit=0;
+		foreach my $id (keys %job_ids){
+			if ($job_ids{$id}->{finish}){
+				$qsub_job_exit++;
+				next;
+			}
+			my $job_status=`qstat -j $id 2>&1`;
+			my $time = $job_ids{$id}->{time};
+			my $tool = $job_ids{$id}->{tool};
+			my $outdir = $job_ids{$id}->{outdir};
+			if ($job_status =~ /do not exist/){
+				$qsub_job_exit++;
+				my $runningtime = &timeInterval($time);
+				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
+				`touch "$outdir/.finished"`;
+				$job_ids{$id}->{finish}=1;
+			}
+			if ((time-$time) > $timelimit){
+				`qdel -j $id`;
+				$qsub_job_exit++;
+				$job_ids{$id}->{finish}=1;
+				&_notify("[RUN_TOOL] [$tool] Error: TIME OUT\n");
+			}
+		}
+		last if scalar(keys %job_ids) ==  $qsub_job_exit; 
+		sleep 5;
+	}		
+}
 foreach (@childs) {
 	my $tmp = waitpid($_, 0);
 }
