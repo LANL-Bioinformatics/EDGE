@@ -1651,6 +1651,7 @@
 				</div></li>
 
 				<li><span class="li-report-content-title">Feature Count</span><div class="li-report-content">
+					<p>Strandedness: <TMPL_VAR NAME="PIRETSTRANDED"></p>
 					<div class="ui-field-contain">
 						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 							<input type="radio" name="edge-piret-output-fc-choose" id="edge-piret-output-fc-choose-1" value="CDS" checked="checked">
@@ -1701,7 +1702,7 @@
 								</tbody>
 						</table>
 						<TMPL_IF NAME=PIRETPROKCDSFC>
-						<p>Top 100 CDSs by mapped reads counts</p>
+						<p>Top 100 CDSs counts by mapped reads to <TMPL_VAR NAME=PIRETPROKREFNAME></p>
 						<table data-role="none" id="edge-piret-prok-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETPROKCDSFC>'></table>
 						</TMPL_IF>
 					</div>
@@ -1791,7 +1792,7 @@
 								</tbody>
 						</table>
 						<TMPL_IF NAME=PIRETEUKCDSFC>
-						<p>Top 100 CDSs by mapped reads counts</p>
+						<p>Top 100 CDSs counts by mapped reads to <TMPL_VAR NAME=PIRETEUKREFNAME></p>
 						<table data-role="none" id="edge-piret-euk-cds-featurecount" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=PIRETEUKCDSFC>'></table>
 						</TMPL_IF>
 					</div>
@@ -1848,6 +1849,7 @@
 				
 				<TMPL_IF NAME="PIRETEDGER">
 				<li><span class="li-report-content-title">Differential Expression Analysis by edgeR</span><div class="li-report-content">
+					<p>P-value: <TMPL_VAR NAME="PIRETPVALUE"></p>
 					<div class="ui-field-contain">
 						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 							<input type="radio" name="edge-piret-output-de-choose-edgeR" id="edge-piret-output-de-choose-1" value="CDS" checked="checked">
@@ -2088,6 +2090,7 @@
 
 				<TMPL_IF NAME="PIRETDESEQ2">
 				<li><span class="li-report-content-title">Differential Expression Analysis by DESeq2</span><div class="li-report-content">
+					<p>P-value: <TMPL_VAR NAME="PIRETPVALUE"></p>
 					<div class="ui-field-contain">
 						<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
 							<input type="radio" name="edge-piret-output-de-choose-deseq2" id="edge-piret-output-deseq2-choose-1" value="CDS" checked="checked">

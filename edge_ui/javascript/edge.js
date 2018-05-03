@@ -1149,7 +1149,10 @@ $( document ).ready(function()
 		var rename_project = $("#rename_project_Name_ID").val(); //project name
 		var project_description = $("#rename_project_Desc_ID").val(); //project desc
 
-		var w = window.open();
+		var w;
+		if ( action == 'compare'){
+			w = window.open();
+		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
 			if($(this).hasClass('ui-checkbox-on')){

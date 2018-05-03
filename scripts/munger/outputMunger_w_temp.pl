@@ -89,32 +89,34 @@ sub pull_piret{
 	my $edgeR=0;
 	my $ballgown=0;
 	my $deseq2=0;
-	if ($vars->{PIRETMETHODS} eq "edgeR"){
-		$edgeR=1;
+	if ($vars->{PIRETMETHODS}){
+		if ($vars->{PIRETMETHODS} eq "edgeR"){
+			$edgeR=1;
+		}
+		if ($vars->{PIRETMETHODS} eq "DESeq2"){
+                	$deseq2=1;
+        	}
+		if ($vars->{PIRETMETHODS} eq "ballgown"){
+                	$ballgown=1;
+        	}
+		if ($vars->{PIRETMETHODS} eq "balledgeR"){
+                	$edgeR=1;
+			$ballgown=1;
+        	}
+		if ($vars->{PIRETMETHODS} eq "DEedge"){
+                	$edgeR=1;
+			$deseq2=1;
+        	}
+		if ($vars->{PIRETMETHODS} eq "DEgown"){
+                	$ballgown=1;
+			$deseq2=1;
+        	}
+		if ($vars->{PIRETMETHODS} eq "all"){
+                	$ballgown=1;
+                	$edgeR=1;
+			$deseq2=1;
+        	}
 	}
-	if ($vars->{PIRETMETHODS} eq "DESeq2"){
-                $deseq2=1;
-        }
-	if ($vars->{PIRETMETHODS} eq "ballgown"){
-                $ballgown=1;
-        }
-	if ($vars->{PIRETMETHODS} eq "balledgeR"){
-                $edgeR=1;
-		$ballgown=1;
-        }
-	if ($vars->{PIRETMETHODS} eq "DEedge"){
-                $edgeR=1;
-		$deseq2=1;
-        }
-	if ($vars->{PIRETMETHODS} eq "DEgown"){
-                $ballgown=1;
-		$deseq2=1;
-        }
-	if ($vars->{PIRETMETHODS} eq "all"){
-                $ballgown=1;
-                $edgeR=1;
-		$deseq2=1;
-        }
 	my $exp_design = "$output_dir/exp_design.txt";
 	my $exp_design_json = "$output_dir/exp_design.json";
 	my %samples;
@@ -197,6 +199,7 @@ sub pull_piret{
 	if ($vars->{PIRETPROK}){
 		# PROK Feature Counts 
 		my $prefix = basename($1) if ($vars->{PIRETPROKREF} =~ /(.*)\.\w+$/);
+		$vars->{PIRETPROKREFNAME} = $prefix;
 		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.csv";
 		my $feature_CDS_count_json_file = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_sorted.json";
 		my $feature_CDS_count_summary = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_summary.csv";
@@ -366,6 +369,7 @@ sub pull_piret{
 	if ($vars->{PIRETEUK}){
 		# EUK Feature Counts 
 		my $prefix = basename($1) if ($vars->{PIRETEUKREF} =~ /\/(.*)\.\w+$/);
+		$vars->{PIRETEUKREFNAME} = $prefix;
 		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.csv";
 		my $feature_CDS_count_json_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.json";
 		my $feature_CDS_count_summary = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_summary.csv";
@@ -2015,6 +2019,8 @@ sub pull_summary {
 		}
 		if (/^piret_kingdom=(.*)/){
 			my $piret_kingdom=$1;
+			$vars->{PIRETEUK} = 0;
+			$vars->{PIRETPROK} = 0;
 			$vars->{PIRETEUK} = 1 if ($piret_kingdom =~ /euk|both/);
 			$vars->{PIRETPROK} = 1 if ($piret_kingdom =~ /prok|both/);
 		}
@@ -2026,6 +2032,13 @@ sub pull_summary {
 		}
 		if(/^piret_method=(.*)/){
 			$vars->{PIRETMETHODS} = $1;
+		}
+		if(/^piret_stranded=(.*)/){
+			my $stranded=$1;
+			$vars->{PIRETSTRANDED} = ($stranded == 1 )? "Forward": ($stranded == 2 )? "Reverse" : "Not Stranded";
+		}
+		if(/^piret_p_value=(.*)/){
+			$vars->{PIRETPVALUE} = $1 ;
 		}
 		if( /^\[(.*)\]/ ){
 			my $step = $1;

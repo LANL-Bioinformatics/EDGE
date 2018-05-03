@@ -282,6 +282,7 @@ $( document ).ready(function()
 		"order": [],
 		"deferRender": true,
 		"responsive": true,
+		"scrollX": "100%",
         });
 
 	$('#edge-output-ccp-rank-by-length-table').hide();
