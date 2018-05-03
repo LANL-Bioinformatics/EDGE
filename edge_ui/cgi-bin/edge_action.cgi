@@ -171,9 +171,14 @@ if ($action eq 'rename' ){
 	#edgeDB: update run name
 	my $runFile = "$proj_dir/metadata_run.txt";
 	if(-e $runFile) {
-		my $runId = `grep -a "edge-run-id=" $runFile | awk -F'=' '{print \$2}'`;
-		chomp $runId;
-		`perl edge_db.cgi run-update "$runId" "$new_proj_name"`;
+		my $runId;
+		open (my $fh, "<", $runFile);
+		while(<$fh>){
+			chomp;
+			$runId = $1 if /edge-run-id=(\d+)/;
+		}
+		close $fh;
+		system("perl", "edge_db.cgi", "run-update","$runId","$new_proj_name");
 	}
 	#edgeDB
 }
@@ -193,16 +198,26 @@ if( $action eq 'empty' ){
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
 			next if $file eq '.' or $file eq '..';
-			`rm -rf $proj_dir/$file` if -d "$proj_dir/$file";
-			`rm -f $proj_dir/\.run*`;
+			remove_tree("$proj_dir/$file") if -d "$proj_dir/$file";
+			unlink glob("$proj_dir/\.run*");
 		}
 		closedir(BIN);
 
 		#prepare new preject log
-		`cp $proj_dir/process.log $proj_dir/process.log.bak`;
-		`echo "\n*** [$time] EDGE_UI: This project has been emptied ***\n" |tee $proj_dir/process.log > $proj_dir/process_current.log`;
-		`grep -a "runPipeline -c" $proj_dir/process.log.bak >> $proj_dir/process.log`;
-		`echo "*** [$time] EDGE_UI: project unstarted (queued) ***" | tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+		rename("$proj_dir/process.log", "$proj_dir/process.log.bak");
+		open (my $fh, ">","$proj_dir/process_current.log");
+		open (my $fh2, ">", "$proj_dir/process.log");
+		print $fh "\n*** [$time] EDGE_UI: This project has been emptied ***\n";
+		print $fh2 "\n*** [$time] EDGE_UI: This project has been emptied ***\n";
+		open (my $logfh, "<", "$proj_dir/process.log.bak");
+		while(<$logfh>){
+			print $fh2 $_ if (/runPipeline -c/);
+		}
+		print $fh "\n*** [$time] EDGE_UI: project unstarted (queued) ***\n";
+		print $fh2  "\n*** [$time] EDGE_UI: project unstarted (queued) ***\n"; 
+		close $logfh;
+		close $fh;
+		close $fh2;
 
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -233,7 +248,7 @@ elsif( $action eq 'remove' ){
 	$info->{INFO}   = "Cannot remove $real_name from project list.";
 
 	if( -s "$proj_dir/process.log" ){
-		`mv $proj_dir/process.log $proj_dir/process.log.bak`;
+		rename("$proj_dir/process.log","$proj_dir/process.log.bak");
 		if( !-e "$proj_dir/process.log" ){
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "$real_name has been removed from project list.";
@@ -271,23 +286,28 @@ elsif( $action eq 'delete' ){
 		#edgeDB: delete run name
 		my $runFile = "$proj_dir/metadata_run.txt";
 		if(-e $runFile) {
-			my $runId = `grep -a "edge-run-id=" $runFile | awk -F'=' '{print \$2}'`;
-			chomp $runId;
-			`perl edge_db.cgi run-delete "$runId" "$new_proj_name"`;
+			my $runId;
+			open (my $fh, "<", $runFile);
+ 			while(<$fh>){
+				chomp;
+				$runId = $1 if /edge-run-id=(\d+)/;
+			}
+			close $fh;
+			system("perl", "edge_db.cgi", "run-update","$runId","$new_proj_name");
 		}
 		#edgeDB
 	
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"delete");
-			`rm -f $user_proj_dir`;
-			`rm -f $input_dir/public/projects/${real_name}_$pname`;
-			`rm -f $input_dir/*/SharedProjects/${real_name}_$pname`;
+			unlink $user_proj_dir;
+			unlink "$input_dir/public/projects/${real_name}_$pname";
+			unlink "$input_dir/*/SharedProjects/${real_name}_$pname";
 		}
-		`rm -rf $proj_dir`;
-		`rm -rf $out_dir/$pname`;
-		`rm -f $www_root/JBrowse/data/$pname $www_root/JBrowse/data/$projCode`;
-		`rm -f $www_root/opaver_web/data/$pname $www_root/opaver_web/data/$projCode`;
-		`rm -rf $www_root/../thirdParty/pangia/pangia-vis/data/$projCode*`;
+		remove_tree($proj_dir);
+		remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
+		unlink "$www_root/JBrowse/data/$pname", "$www_root/JBrowse/data/$projCode";
+		unlink "$www_root/opaver_web/data/$pname", "$www_root/opaver_web/data/$projCode";
+		unlink glob("$www_root/../thirdParty/pangia/pangia-vis/data/$projCode*");
 		if( !-e $proj_dir && !-e "$out_dir/$pname" ){
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "Project $real_name has been deleted.";
@@ -312,11 +332,14 @@ elsif( $action eq 'interrupt' ){
 
 	if( $pid ){
 		my $invalid;
+		open (my $fh, ">>","$proj_dir/process_current.log");
+		open (my $fh2, ">>", "$proj_dir/process.log");
 		if($cluster) {
 			$invalid = clusterDeleteJob($pid);
 			if( !$invalid ){
 				&updateDBProjectStatus($pname,"interrupted") if ($username && $password);
-				`echo "\n*** [$time] EDGE_UI: This project has been interrupted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+				print $fh "\n*** [$time] EDGE_UI: This project has been interrupted. ***\n";
+				print $fh2 "\n*** [$time] EDGE_UI: This project has been interrupted. ***\n";
 				$info->{STATUS} = "SUCCESS";
 				$info->{INFO}   = "The cluster job (JOB ID: $pid) has been stopped.";
 			}
@@ -324,11 +347,14 @@ elsif( $action eq 'interrupt' ){
 			$invalid = &killProcess($pid);
 			if( !$invalid  || $projStatus eq "unstarted"){
 				&updateDBProjectStatus($pname,"interrupted") if ($username && $password);
-				`echo "\n*** [$time] EDGE_UI: This project has been interrupted. ***" |tee -a $proj_dir/process.log >> $proj_dir/process_current.log`;
+				print $fh "\n*** [$time] EDGE_UI: This project has been interrupted. ***\n";
+				print $fh2 "\n*** [$time] EDGE_UI: This project has been interrupted. ***\n";
 				$info->{STATUS} = "SUCCESS";
 				$info->{INFO}   = "The process (PID: $pid) has been stopped.";
 			}
 		}
+		close $fh;
+		close $fh2;
 	}
 	else{
 		$info->{INFO} = "Project $real_name is not running.";
@@ -356,7 +382,7 @@ elsif( $action eq 'rerun' ){
 				$info->{INFO} = "Failed to restart this project. File $cluster_job_script not found.";
 			} else {
 				&updateDBProjectStatus($pname,"running") if ($username && $password);
-				`rm -f $proj_dir/HTML_Report/.complete_report_web`;
+				unlink "$proj_dir/HTML_Report/.complete_report_web";
 				my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
 				if($error) {
 					$info->{INFO} = "Failed to restart this project: $error";
@@ -364,7 +390,12 @@ elsif( $action eq 'rerun' ){
 					$info->{STATUS} = "SUCCESS";
 					$info->{INFO}   = "Project $real_name has been restarted (JOB ID: $job_id).";
 					$info->{PID}    = $job_id;
-					`echo "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***" |tee -a $proj_dir/process.log > $proj_dir/process_current.log`;
+					open (my $fh, ">","$proj_dir/process_current.log");
+					open (my $fh2, ">>", "$proj_dir/process.log");
+					print $fh "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***\n"; 
+					print $fh2 "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***\n"; 
+					close $fh;
+					close $fh2;
 				}
 			}
 		} else {
@@ -381,10 +412,15 @@ elsif( $action eq 'rerun' ){
 			my ($numcpu) = $cmd =~ /-cpu (\d+)/;
 			my $run = &availableToRun($numcpu);
 			if (!$run){
-				 my $time = strftime "%F %X", localtime;
-				`echo "\n*** [$time] EDGE_UI: This project is queued. ***" |tee -a $proj_dir/process.log > $proj_dir/process_current.log`;
-				`echo "$cmd" >> $proj_dir/process.log`;
-				`echo "\n*** [$time] EDGE_UI: Project unstarted ***" >> $proj_dir/process.log`;
+				my $time = strftime "%F %X", localtime;
+				open (my $fh, ">","$proj_dir/process_current.log");
+				open (my $fh2, ">>", "$proj_dir/process.log");
+				print $fh "\n*** [$time] EDGE_UI: This project is queued. ***\n"; 
+				print $fh2 "\n*** [$time] EDGE_UI: This project is queued. ***\n"; 
+				print $fh2 "$cmd\n";
+				print $fh2 "\n*** [$time] EDGE_UI: Project unstarted ***\n";
+				close $fh;
+				close $fh2;
 				$info->{INFO} = "The server does not have enough CPU available to run this job. The job is queued";
 				&updateDBProjectStatus($pname,"unstarted") if ($username && $password);
 				&returnStatus();
@@ -393,8 +429,8 @@ elsif( $action eq 'rerun' ){
 				chdir($proj_dir);
 				#remove cached report/status
 				#`rm -f $proj_dir/.run.complete.status.json`;
-				`rm -f $proj_dir/HTML_Report/.complete_report_web`;
-				my $newpid = open RUNPIPLINE, "-|", "$cmd > $proj_dir/process_current.log 2>&1 &" or die $!;
+				unlink "$proj_dir/HTML_Report/.complete_report_web";
+				my $newpid = open RUNPIPLINE, "-|", "$cmd 2>&1 &" or die $!;
 				close RUNPIPLINE;
 				if( $newpid ){
 					$newpid++;
@@ -438,7 +474,8 @@ elsif( $action eq 'archive' ){
 	}
 	else{
 		my $cmd = "$RealBin/edge_archive.pl $proj_dir $adir/$pname &";
-		my $pid = open ARCHIVE, "-|", $cmd or die $!;
+		my $pid = open (ARCHIVE, "-|")
+				or exec("$RealBin/edge_archive.pl","$proj_dir","$adir/$pname");
 		close ARCHIVE;
 
 		$pid++;
@@ -451,9 +488,9 @@ elsif( $action eq 'archive' ){
 		}
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"archived");
-			`rm -f $user_proj_dir`;
-			`rm -f $input_dir/public/projects/${real_name}_$pname`;
-			`rm -f $input_dir/*/SharedProjects/${real_name}_$pname`;
+			unlink $user_proj_dir;
+			unlink "$input_dir/public/projects/${real_name}_$pname";
+			unlink "$input_dir/*/SharedProjects/${real_name}_$pname";
 		}
 	}
 }
@@ -475,7 +512,7 @@ elsif( $action eq 'tarproj'){
 	$info->{INFO}   = "Failed to tar project $real_name $tarLink $tarFile $tarDir";
 	#chdir $proj_dir;
 	if ( ! -e "$proj_dir/.tarfinished" || ! -e "$proj_dir/${real_name}_$pname.zip"){
-		`ln -s $proj_dir $tarDir` if ($username && $password);
+		symlink($proj_dir,$tarDir) if ($username && $password);
 		my $cmd = "cd $out_dir; zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
 		if ( system($cmd) == 0 ){
 			unlink $tarDir if ($username && $password);
@@ -652,8 +689,8 @@ elsif( $action eq 'publish' || $action eq 'unpublish'){
 	}
 	&publishProject($pname,$action);
 	my $public_proj_dir = "$input_dir/public/projects/${real_name}_$pname";
-	`ln -sf $proj_dir $public_proj_dir` if ($action eq 'publish' && ! -e "$public_proj_dir");
-	`rm -f $public_proj_dir` if ($action eq 'unpublish');
+	symlink($proj_dir,$public_proj_dir) if ($action eq 'publish' && ! -e "$public_proj_dir");
+	unlink $public_proj_dir if ($action eq 'unpublish');
 }
 elsif( $action eq 'disable-project-display' || $action eq 'enable-project-display'){
 	&updateDBProjectDisplay($pname,$action);
@@ -676,7 +713,7 @@ elsif( $action eq 'compare'){
 			my $err = `grep "No Taxonomy Classification" $compare_out_dir/log.txt`;
 			if ($err){
 				$info->{INFO} = "Error: $err";
-				`rm -rf $compare_out_dir`;
+				remove_tree($compare_out_dir);
 				&returnStatus();
 			}else{
 				$info->{STATUS} = "SUCCESS";
@@ -691,7 +728,7 @@ elsif( $action eq 'compare'){
 	my $cpu = `grep -a "cpu=" $proj_dir/config.txt | awk -F"=" '{print \$2}'`;
 	chomp $cpu;
 	$blast_params =~ s/-num_threads\s+\d+//;
-	`mkdir -p $blast_out_dir`;
+	make_path("$blast_out_dir",{chmod => 0755,});
 	$info->{PATH} = "$relative_outdir/$contig_id.blastNT.html";
 	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
 	if ( -s "$blast_out_dir/$contig_id.blastNT.html"){
@@ -722,16 +759,16 @@ elsif( $action eq 'compare'){
 	
 	if( -e $metadata ){
 		if(-w $metadata) {
-			`rm -f $metadata`;
-			`rm -f $traveldata`;
-			`rm -f $symptomdata`;
+			unlink $metadata;
+			unlink $traveldata;
+			unlink $symptomdata;
 		} else {
 			$info->{STATUS} = "FAILURE";
 			$info->{INFO}   = "Failed to delete the sample metadata. Permission denied.";
 		}
 	}
 	#delete HTML_Report/.complete_report_web
-	`rm -f $proj_dir/HTML_Report/.complete_report_web`;
+	unlink "$proj_dir/HTML_Report/.complete_report_web";
 	
 } elsif($action eq 'metadata-bsveadd') { 
 	if( $sys->{user_management} && !$permission->{metadata} ){
@@ -770,7 +807,7 @@ elsif( $action eq 'metadata-export'){
 	$info->{PATH} = $metadata_out;
 	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
 
-	`$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl -um $umSystemStatus -out $metadata_out -projects $projects`;
+	system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-um", "$umSystemStatus", "-out", "$metadata_out", "-projects", "$projects");
 
 	if( !-e "$metadata_out" ){
 		$info->{INFO} = "Error: failed to export sample metadata to .xlsx file";
@@ -1000,11 +1037,48 @@ sub renameProject{
 		}
 	}
 	if ($info->{STATUS} eq "SUCCESS"){
-		system("sed -i.bak 's/projname=[[:graph:]]*/projname=$project_name/; s/projdesc=[[:print:]]*/projdesc=$project_description/;' $config_file") if ( -e $config_file);
-		system("sed -i.bak 's/$real_name/$project_name/; s/projdesc=[[:print:]]*/projdesc=$project_description/;' $process_log") if ( -e $process_log);
-		system("sed -i.bak 's/edge-proj-name\" : \"[[:graph:]]*\"/edge-proj-name\" : \"$project_name\"/; s/edge-proj-desc\" : \"[[:print:]]*\"/edge-proj-desc\" : \"$project_description\"/;' $config_json") if ( -e $config_json);
+		if ( -e $config_file){
+			copy($config_file,"$config_file.bak");
+			open(my $ofh, ">", $config_file);
+			open(my $fh, "<", "$config_file.bak");
+			while(<$fh>){
+				chomp;
+				$_ =~ s/^projname=.*/projname=$project_name/;
+				$_ =~ s/^projdesc=.*/projdesc=$project_description/;
+				print $ofh $_,"\n";
+			}
+			close $fh;
+			close $ofh;
+		}
+		if ( -e $process_log){
+			copy($process_log,"$process_log.bak");
+			open(my $ofh, ">", $process_log);
+                        open(my $fh, "<", "$process_log.bak");
+			while(<$fh>){
+				chomp;
+				$_ =~ s/$real_name/$project_name/;
+				$_ =~ s/projname=.*/projname=$project_name/;
+				$_ =~ s/projdesc=.*/projdesc=$project_description/;
+				print $ofh $_,"\n";
+			}
+			close $fh;
+			close $ofh;
+		}
+		if ( -e $config_json){
+			copy($config_json,"$config_json.bak");
+			open(my $ofh, ">", $config_json);
+			open(my $fh, "<", "$config_json.bak");
+			while(<$fh>){
+				chomp;
+				$_ =~ s/edge-proj-name\" : .*/edge-proj-name\" : \"$project_name\",/;
+				$_ =~ s/edge-proj-desc\" : .*/edge-proj-desc\" : \"$project_description\",/;
+				print $ofh $_,"\n";
+			}
+			close $fh;
+			close $ofh;
+		}
 		if (!$umSystemStatus){
-			 `mv $proj_dir $out_dir/$project_name`;
+			rename($proj_dir,"$out_dir/$project_name");
 			$proj_dir = "$out_dir/$project_name";
 		}
 		unlink "$proj_dir/HTML_Report/.complete_report_web";

@@ -489,7 +489,7 @@ sub runPipeline {
 		}else{
 			for (0..$#edge_input_pe1)
 			{
-				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] \\\n";
+				$paired_files .= "$edge_input_pe1[$_] $edge_input_pe2[$_] ";
 			}
 		
 			$single_files = join " ", @edge_input_se;
