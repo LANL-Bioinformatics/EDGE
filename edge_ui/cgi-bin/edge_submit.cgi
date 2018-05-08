@@ -1058,6 +1058,16 @@ sub checkParams {
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
 		}
+		my $num_seq_fragment=0;
+		my $max_seq_fragment=$edge_ref_genome_file_max * 10;
+		foreach my $ref (@refs){
+			$num_seq_fragment += &count_fasta($ref);
+		}
+		if ($edge_ref_genome_file_max && $num_seq_fragment > $max_seq_fragment ){
+			&addMessage("PARAMS","edge-ref-file-fromlist","Total reference genome fragments ($num_seq_fragment) > max $max_seq_fragment. ") if ($opt{"edge-ref-file-fromlist"});
+			&addMessage("PARAMS","edge-ref-file-1","Total reference genome fragments ($num_seq_fragment) > max $max_seq_fragment ") if ($opt{"edge-ref-file[]"});
+		}
+		
 		$opt{"edge-ref-sw"} = 0 if ($opt{'edge-inputS-sw'} eq "fasta");
 		
 	}
@@ -1339,6 +1349,15 @@ sub open_file
 	return ($fh,$pid);
 }
 
+sub count_fasta {
+	my $file = shift;
+	my $count=0;
+	open (my $FASTA, "-|")
+		or exec ("grep", "-c", ">", $file);
+	while(<$FASTA>){chomp; $count = $_;}
+	close $FASTA;
+	return $count;
+}
 ##sample metadata
 sub createSampleMetadataFile {
 	foreach my $pname (@pnames){
