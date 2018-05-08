@@ -237,6 +237,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				$job_ids{$job_id}->{tool}=$tool;
 				$job_ids{$job_id}->{time}=$time;
 				$job_ids{$job_id}->{outdir}=$outdir;
+				$job_ids{$job_id}->{log}=$log;
 				&_notify("[RUN_TOOL] [$tool] Error occured: qsub error\n") if (!$job_id);
 			}else{
 				$code = system("$cmd > $log 2>&1");
@@ -267,9 +268,11 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 			my $time = $job_ids{$id}->{time};
 			my $tool = $job_ids{$id}->{tool};
 			my $outdir = $job_ids{$id}->{outdir};
+			my $log = $job_ids{$id}->{log};
 			if ($job_status =~ /do not exist/){
 				$qsub_job_exit++;
 				my $runningtime = &timeInterval($time);
+				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if (`grep -a -i ERROR $log`);
 				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
 				`touch "$outdir/.finished"`;
 				$job_ids{$id}->{finish}=1;
