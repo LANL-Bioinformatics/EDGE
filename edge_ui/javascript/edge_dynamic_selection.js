@@ -199,6 +199,12 @@ $( document ).ready(function(){
 	$('#edge-phylo-ref-select-listbox').on( "popupafterclose", function(){
 		AddSelectRefList();
 	});
+	$('#edge-hostrm-file-fromlist-listbox').on( "popupafterclose", function(){
+		var $selected = $("#edge-hostrm-file-fromlist option:selected");
+		if ($selected.size() > 0){
+			$('#edge-hostrm-sw1').click().checkboxradio("refresh");
+		}
+	});
 	
 });
 
