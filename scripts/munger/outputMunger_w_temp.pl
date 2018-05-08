@@ -94,28 +94,28 @@ sub pull_piret{
 			$edgeR=1;
 		}
 		if ($vars->{PIRETMETHODS} eq "DESeq2"){
-                	$deseq2=1;
-        	}
+			$deseq2=1;
+        }
 		if ($vars->{PIRETMETHODS} eq "ballgown"){
-                	$ballgown=1;
-        	}
+           	$ballgown=1;
+        }
 		if ($vars->{PIRETMETHODS} eq "balledgeR"){
-                	$edgeR=1;
+			$edgeR=1;
 			$ballgown=1;
-        	}
+        }
 		if ($vars->{PIRETMETHODS} eq "DEedge"){
-                	$edgeR=1;
+            $edgeR=1;
 			$deseq2=1;
-        	}
+        }
 		if ($vars->{PIRETMETHODS} eq "DEgown"){
-                	$ballgown=1;
+           	$ballgown=1;
 			$deseq2=1;
-        	}
+        }
 		if ($vars->{PIRETMETHODS} eq "all"){
-                	$ballgown=1;
-                	$edgeR=1;
+           	$ballgown=1;
+           	$edgeR=1;
 			$deseq2=1;
-        	}
+        }
 	}
 	my $exp_design = "$output_dir/exp_design.txt";
 	my $exp_design_json = "$output_dir/exp_design.json";
@@ -329,9 +329,9 @@ sub pull_piret{
 			}
 			close $des;
 			$vars->{PIRET_PROK_CDS_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_PCA";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_histogram";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_heatmap";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_fpkm_violin";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_histogram";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_heatmap";
+			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_violin";
 			$vars->{PIRET_PROK_CDS_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
 			my @CDS_MA_plots = glob("$output_dir/DESeq2/prokarya/*__CDS__MA.png");
 			if (scalar @CDS_MA_plots > 0 ){
@@ -347,9 +347,9 @@ sub pull_piret{
 				}
 			}
 			$vars->{PIRET_PROK_gene_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_PCA";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_histogram";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_heatmap";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_fpkm_violin";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_histogram";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_heatmap";
+			$vars->{PIRET_PROK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_violin";
 			$vars->{PIRET_PROK_gene_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
 			my @gene_MA_plots = glob("$output_dir/DESeq2/prokarya/*__gene__MA.png");
 			if (scalar @gene_MA_plots > 0 ){
@@ -503,9 +503,9 @@ sub pull_piret{
 			}
 			close $des;
 			$vars->{PIRET_EUK_CDS_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_PCA";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_histogram";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_heatmap";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_fpkm_violin";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_histogram";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_heatmap";
+			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_violin";
 			$vars->{PIRET_EUK_CDS_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
 			my @CDS_MA_plots = glob("$output_dir/DESeq2/eukarya/*__CDS__MA.png");
 			if (scalar @CDS_MA_plots > 0 ){
@@ -521,9 +521,9 @@ sub pull_piret{
 				}
 			}
 			$vars->{PIRET_EUK_gene_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_PCA";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_histogram";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_heatmap";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_fpkm_violin";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_histogram";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_heatmap";
+			$vars->{PIRET_EUK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_violin";
 			$vars->{PIRET_EUK_gene_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
 			my @gene_MA_plots = glob("$output_dir/DESeq2/eukarya/*__gene__MA.png");
 			if (scalar @gene_MA_plots > 0 ){
@@ -664,6 +664,7 @@ sub output_html {
 		next if ($var eq "PROJID");
 		#sample metadata
 		next if ($var =~ /SMD_/);
+		next if ($var =~ /PVALUE/);
 		#END sample metadata
 		if( ref($vars->{$var}) eq 'ARRAY' ){
 			for( my $i=0; $i < scalar(@{$vars->{$var}}); $i++ ){

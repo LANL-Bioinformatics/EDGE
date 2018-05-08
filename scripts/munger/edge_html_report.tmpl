@@ -1897,8 +1897,8 @@
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_RPKM_violin.png"></a>
 								</div>
 								<div class="ui-block-d">
-									<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_MD DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_MD"></a>
+									<span class="iframe_label">RPKM heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_PROK_CDS_edgeR_RPKM_heatmap"></a>
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
@@ -1940,8 +1940,8 @@
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_violin DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_RPKM_violin.png"></a>
 								</div>
 								<div class="ui-block-d">
-									<span class="iframe_label">Mean Difference<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MD DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_MD DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_MD"></a>
+									<span class="iframe_label">RPKM heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_edgeR_RPKM_heatmap DEFAULT=->.png" alt="PIRET_PROK_gene_edgeR_RPKM_heatmap"></a>
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
@@ -2102,7 +2102,7 @@
 					<ul>
 					<TMPL_IF NAME="PIRETPROK">
 					<li><span class="li-report-content-title">Prokarya</span><div class="li-report-content">
-						<TMPL_IF NAME="LOOP_PIRETDESEQ2PROKSU">
+						<TMPL_IF NAME="LOOP_PIRETDESEQ2PROKSUM">
 						<table data-role='table' class='output-table ui-responsive'>
 							<thead>
 								<tr> 
@@ -2140,8 +2140,8 @@
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_FPKM_violin.png"></a>
 								</div>
 								<div class="ui-block-d">
-									<span class="iframe_label">Mean Average<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_MA DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_MA DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_MA"></a>
+									<span class="iframe_label">FPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_CDS_DESeq2_FPKM_heatmap DEFAULT=->.png" alt="PIRET_PROK_CDS_DESeq2_FPKM_heatmap"></a>
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
@@ -2183,8 +2183,8 @@
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_violin DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_FPKM_violin.png"></a>
 								</div>
 								<div class="ui-block-d">
-									<span class="iframe_label">Mean Average<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_MA DEFAULT=->.pdf'>[full]</a></span>
-									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_MA DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_MA"></a>
+									<span class="iframe_label">FPKM Heatmap<a data-ajax='false' href='<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_heatmap DEFAULT=->.pdf'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=PIRET_PROK_gene_DESeq2_FPKM_heatmap DEFAULT=->.png" alt="PIRET_PROK_gene_DESeq2_FPKM_heatmap"></a>
 								</div>
 							</div>
 							<div class="ui-grid-c ui-responsive edge-report-plots">
