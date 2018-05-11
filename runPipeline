@@ -23,7 +23,7 @@ $ENV{HOME} ||= $RealBin;
 
 # unbuffer
 $|=1;
-my $version="2.1.1";
+my $version="2.2.0";
 my $debug=0;
 my @unpairedReadsFile;
 my @pairedReadsFile;
@@ -493,10 +493,7 @@ sub runPiReT {
     print $fh $cmd,"\n";
     print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
     close $fh;
-
-    #my @cmds = split / /,$cmd;
-    #&executeCommand2(@cmds); 
-    &executeCommand2("/bin/sh","$run_script");
+    &executeCommand2("/bin/sh $run_script");
     #unlink "$outputDir/$piret_indir_basename";
     &touchFile("$outputDir/runPiret.finished");
 
@@ -1006,6 +1003,7 @@ sub runUnmappedReadsToRefSeq
     my $outPrefix = "UnmappedReads";
     my $outputDir= "$outDir/ReferenceBasedAnalysis/UnmappedReads";
     my $log= "$outputDir/mapping.log";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d -T $configuration->{min_L} ": ""; 
     if ( -s "$outputDir/UnmappedReads_coverage.txt" )
     {
        &lprint ("  Done mapping $outPrefix.\n"); 
@@ -1018,7 +1016,7 @@ sub runUnmappedReadsToRefSeq
     $parameters .= " -c $cov_cut_off";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -bwa_options ". "'" . "-t $numCPU ". "'";
+    $parameters .= " -bwa_options ". "'" . "-t $numCPU $ont_flag ". "'";
     $parameters .= " -d $outputDir -pre $outPrefix -ref $db";
 
     my $command = "perl $RealBin/scripts/runReadsToContig.pl $parameters 1>$log 2>\&1 ";
@@ -1391,6 +1389,7 @@ sub Reads_taxonomyAssignment
     my $unpairFile = shift;
     my $outputDir = shift;
     my $config_json = "$outputDir/../../config.json";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $input = ($outputDir =~ /Unmap/)?"$outputDir/UnmappedReads.fastq":"$outputDir/allReads.fastq";
     my $logFile = "$outputDir/error.log";
     my $log = "$outputDir/taxonomyProfiling.log";
@@ -1426,6 +1425,9 @@ sub Reads_taxonomyAssignment
 		$bwaScoreCut = int($bases/$reads*0.8);
 		close ($qcfh);
 	}
+    if ($ont_flag){
+        $bwaScoreCut = ( $configuration->{"min_L"} > 1000 )?  $configuration->{"min_L"}: 1000;
+    }
     my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut -configJson $config_json"; 
     $cmd0 .= " -splitrim-minq ". $configuration->{'splitrim-minq'} if ($configuration->{'splitrim-minq'});
     $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if (-e $configuration->{'custom-bwa-db'});
@@ -1442,7 +1444,9 @@ sub Reads_taxonomyAssignment
     $cmd0 .= " -gottcha2-v-genDB ". $configuration->{'custom-gottcha2-genDB-v'} if (-e $configuration->{'custom-gottcha2-genDB-v'});
     $cmd0 .= " -gottcha2-b-speDB ". $configuration->{'custom-gottcha2-speDB-b'} if (-e $configuration->{'custom-gottcha2-speDB-b'});
     $cmd0 .= " -gottcha2-v-speDB ". $configuration->{'custom-gottcha2-speDB-v'} if (-e $configuration->{'custom-gottcha2-speDB-v'});
+    $cmd0 .= " --nanopore " if ($ont_flag);
     $cmd0 .= " > $outputDir/microbial_profiling.settings.ini 2>$logFile"; 
+    
     my $cmd="$RealBin/scripts/microbial_profiling/microbial_profiling.pl $dparam -o $outputDir -s $outputDir/microbial_profiling.settings.ini -c $numCPU $input 2>$logFile";
     if ($noColorLog)
     {
@@ -1946,6 +1950,7 @@ my $time=time();
 my $Rscript="$outDir/merge.R";
 my $InputLogPDF="$outDir/Inputs.pdf";
 my $QCstatsPDF="$outDir/QcReads/QC_qc_report.pdf";
+my $QCstatsTXT="$outDir/QcReads/QC.stats.txt";
 my $hostReomvalPDF="$outDir/HostRemoval/HostRemovalStats.pdf";
 my $contigStatsPDF="$outDir/AssemblyBasedAnalysis/contigs_stats.pdf";
 my $annotationStatsPDF="$outDir/AssemblyBasedAnalysis/Annotation/annotation_stats_plots.pdf";
@@ -1957,6 +1962,11 @@ my $readsMappingToRefStatsPDF="$outDir/ReadsBasedAnalysis/readsMappingToRef/read
 my $readsMappingToRefPDF="$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef_plots.pdf";
 my $primerCheckPDF="$outDir/AssayCheck/pcrValidation.pdf";
 my $contigTaxonomyPDF="$outDir/AssemblyBasedAnalysis/Taxonomy/$project_name.contigsClassification.pdf";
+my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+my $nanoplot_loglength_Histogram = "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf";
+my $nanoplot_length_Histogram = "$outDir/QcReads/HistogramReadlength.pdf";
+my $nanoplot_length_quality_plot= "$outDir/QcReads/Log_LengthvsQualityScatterPlot_kde.pdf";
+my $nanoplot_yield_by_length = "$outDir/QcReads/Yield_By_Length";
 my $mergeFiles="$InputLogPDF,";
 $mergeFiles.="$QCstatsPDF"."," if ( -e $QCstatsPDF);
 my $imagesDir = "$outDir/HTML_Report/images";
@@ -2087,10 +2097,39 @@ pushViewport(viewport(x=0.35, y=input_pos))
 grid.table(input,cols=c(\"Inputs\",\"Reads\",\"Bases\",\"Avg_Len\"))
 Rscript
 }else{
-print $Rfh <<Rscript
+print $Rfh <<Rscript;
 popViewport(0)
 tmp<-dev.off()
 Rscript
+}
+
+if ($ont_flag && -e "$QCstatsTXT" ){
+print $Rfh <<Rscript;
+def.par <- par(no.readonly = TRUE) 
+pdf(file = \"$QCstatsPDF\",width=10,height=8)
+par(family="mono")
+SummaryStats<-readLines("$QCstatsTXT")
+plot(0:1,0:1,type=\'n\',xlab=\"\",ylab=\"\",xaxt=\'n\',yaxt=\'n\',bty=\'n\')
+adjust<-11
+abline(h=0.85,lty=2)
+for (i in 1:length(SummaryStats)){
+   if (i>5 && i<adjust){
+     text(0.45,1-0.035*(i-6),SummaryStats[i],adj=0,font=2,cex=0.9)
+   }else if(i >=adjust){
+     text(0.05,1-0.035*(i-6),SummaryStats[i],adj=0,font=2,cex=0.9)
+   }else{
+     text(0.05,1-0.035*(i-1),SummaryStats[i],adj=0,font=2,cex=0.9)
+    }
+}
+
+title("QC stats")
+par(def.par)#- reset to default
+tmp<-dev.off()
+Rscript
+
+#system("convert","$nanoplot_yield_by_length.png","$nanoplot_yield_by_length.pdf") if ( -e "$nanoplot_yield_by_length.png");
+$mergeFiles.= "$QCstatsPDF,$nanoplot_loglength_Histogram,$nanoplot_length_Histogram,$nanoplot_length_quality_plot,";
+
 }
 
 if ($configuration->{DoHostRemoval}){
@@ -2204,15 +2243,21 @@ unlink $InputLogPDF;
  my @conversions;
  if ( -e $QCstatsPDF)
  {
-     my $page_count = `perl $RealBin/scripts/pdfPageCount.pl $QCstatsPDF`;
-     chomp $page_count;
-     my $qc_3d_page = $page_count - 2 ;
-     my $qc_boxplot_page = $page_count - 3 ;
-     push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[1] $imagesDir/QC_read_length.png";
-     push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[2] $imagesDir/QC_GC_content.png";
-     push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[3] $imagesDir/QC_nucleotide_content.png";
-     push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_3d_page] $imagesDir/QC_quality_report.png";
-     push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_boxplot_page] $imagesDir/QC_quality_boxplot.png";
+     if ($ont_flag){
+       push @conversions, "convert -density 120 -flatten $nanoplot_length_Histogram $imagesDir/QC_read_length.png";
+       push @conversions, "convert -density 120 -flatten $nanoplot_loglength_Histogram $imagesDir/QC_read_loglength.png";
+       push @conversions, "convert -density 120 -flatten $nanoplot_length_quality_plot/QC_length_quality.png";
+     }else{
+       my $page_count = `perl $RealBin/scripts/pdfPageCount.pl $QCstatsPDF`;
+       chomp $page_count;
+       my $qc_3d_page = $page_count - 2 ;
+       my $qc_boxplot_page = $page_count - 3 ;
+       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[1] $imagesDir/QC_read_length.png";
+       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[2] $imagesDir/QC_GC_content.png";
+       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[3] $imagesDir/QC_nucleotide_content.png";
+       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_3d_page] $imagesDir/QC_quality_report.png";
+       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_boxplot_page] $imagesDir/QC_quality_boxplot.png";
+    }
  }
  push @conversions, "convert -density 120 -flatten $hostReomvalPDF $imagesDir/HostRemovalStats.png" if (-e $hostReomvalPDF);
  push @conversions, "convert -density 120 -flatten ${contigStatsPDF}[0] $imagesDir/Assembly_length.png" if (-e $contigStatsPDF);
@@ -2335,6 +2380,8 @@ sub runQC
     my $cut_3_end = ($configuration->{"3end"})? $configuration->{"3end"}: 0;
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
     my $split_size = $configuration->{"split_size"} || 100000;
+    my $unpairedFile_output = ($configuration->{"porechop"})? "$outputDir/QC.unpaired.porechop.fastq":"$outputDir/QC.unpaired.trimmed.fastq";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0; 
     &make_dir($outputDir);
     if ($noColorLog)
     {
@@ -2349,10 +2396,10 @@ sub runQC
           &lprint ("Quality Trim and Filter Finished\n");
           return ("$outputDir/QC.1.trimmed.fastq $outputDir/QC.2.trimmed.fastq","$outputDir/QC.unpaired.trimmed.fastq");
     }
-    elsif ( -s "$outputDir/QC.unpaired.trimmed.fastq" && -e "$outputDir/runQC.finished" )
+    elsif ( -s "$unpairedFile_output" && -e "$outputDir/runQC.finished" )
     {
           &lprint ("Quality Trim and Filter Finished\n");
-          return("", "$outputDir/QC.unpaired.trimmed.fastq");
+          return("", "$unpairedFile_output");
     }
     system("rm -f $outputDir/runQC.finished");
     my $parameters;
@@ -2362,19 +2409,32 @@ sub runQC
     $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
     $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}));
     $parameters .= " --polyA " if ($configuration->{"polyA"});
+    $parameters .= " --trim_only " if $ont_flag;
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
     #my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
+    
+    if ($ont_flag){
+	# if adapte trim run Porechop
+        my $cmd;
+        if ($configuration->{"porechop"}){
+	  $cmd = "porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log";
+          &executeCommand2($cmd);
+        }
+        $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir ";
+        &executeCommand2($cmd);
+    }
+    
     &printRunTime($time);
     &touchFile("$outputDir/runQC.finished");
     if ( -s "$outputDir/QC.1.trimmed.fastq")
     {
           return ("$outputDir/QC.1.trimmed.fastq $outputDir/QC.2.trimmed.fastq","$outputDir/QC.unpaired.trimmed.fastq");
     }
-    elsif ( -s "$outputDir/QC.unpaired.trimmed.fastq"){
-        return("", "$outputDir/QC.unpaired.trimmed.fastq");
+    elsif ( -s "$unpairedFile_output"){
+        return("", "$unpairedFile_output");
     }else{
         die "failed: No reads remain after QC. Please see $log\n"; 
     }
@@ -2498,6 +2558,8 @@ sub runHostRemoval
     my $host=shift;
     my $time=time();
     my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d ": ""; 
+    $min_score = "-T $configuration->{min_L}" if $ont_flag;
     my $similarity_cutoff = $configuration->{"similarity"} || 90 ;
    # my $stats = "$QCoutDir/hostclean.stats.txt";
     my ($prefix, $dirs, $suffix) = fileparse($host,qr/\.[^.]*/);
@@ -2550,7 +2612,7 @@ sub runHostRemoval
     $parameters .= " -p $pairFile" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -ref ". $host;
-    $parameters .= " -bwaMemOptions \"$min_score\"";
+    $parameters .= " -bwaMemOptions \"$min_score $ont_flag\"";
     $parameters .= " -s $similarity_cutoff";
     $parameters .= " -o $outputDir -cpu $numCPU -host";
     $parameters .= " -prefix $prefix ";
@@ -2653,6 +2715,7 @@ sub runReadsToContig
     my $outPrefix = "readsToContigs";
     my $outputDir= "$outDir/AssemblyBasedAnalysis/readsMappingToContig";
     my $r2c_aligner_options = $configuration->{"r2c_aligner_options"} || "";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $log="$outputDir/mapping.log";
     &make_dir($outputDir);
     if ($noColorLog)
@@ -2682,7 +2745,7 @@ sub runReadsToContig
 	$r2c_aligner_options =~ s/-t\s*\d+//;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /minimap/){
-        $parameters =~ s/-u /-long /;
+        $parameters =~ s/-u /-long / if $ont_flag;
         $r2c_aligner_options =~ s/-t\s*\d+//;
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
     }
@@ -2724,6 +2787,7 @@ sub runReadsToGenome
     my $outVCF = "$outputDir/$outPrefix.vcf";
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
     &make_dir($outputDir);
     `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
@@ -2750,13 +2814,13 @@ sub runReadsToGenome
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
-	$r2g_aligner_options =~ s/-p\s*\d+//;
+        $r2g_aligner_options =~ s/-p\s*\d+//;
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
-	$r2g_aligner_options =~ s/-t\s*\d+//;
+        $r2g_aligner_options =~ s/-t\s*\d+//;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
-	$parameters =~ s/-u /-long /;
+        $parameters =~ s/-u /-long / if $ont_flag;
         $r2g_aligner_options =~ s/-t\s*\d+//;
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
     }
@@ -3373,6 +3437,7 @@ sub SNPtree
     my $control_file= "$outputDir/phame.ctrl";
     my $PhaME_tool_dir="$RealBin/scripts/PhaME";
     my $phyloXML_annotation_file = "$outputDir/annotation.txt";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $log = "$outputDir/log.txt";
    
     if ($noColorLog)
@@ -3414,6 +3479,7 @@ sub SNPtree
      $cmd .= "-p $pair_read " if ($pair_read);
      $cmd .= "-c $contig " if ($contig); 
      $cmd .= "-s $single_end_read " if ( $single_end_read && -s $single_end_read); 
+     $cmd .= "-nanopore " if ($ont_flag);
      $cmd .= "  >> $log"; 
     &lprint (" Prepare SNP phylogeny\n"); 
     &lprint (" Running \n $cmd\n");
@@ -3933,7 +3999,8 @@ sub executeCommand
 
 sub executeCommand2
 {
-    my @command = @_;
+    my $command = shift;
+    my @command = split /\s+/,$command;
     if (system(@command) != 0) {
 		my $cmd = join (" ",@command);
         die ("the command $cmd failed\n");

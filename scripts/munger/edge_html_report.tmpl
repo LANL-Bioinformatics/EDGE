@@ -267,6 +267,24 @@
 				  </tbody>
 				</table>
 				<TMPL_IF NAME="OUT_IMAGE_READY">
+				<TMPL_IF NAME="OUT_nanopore_QC_SW">
+				<div class="ui-grid-b ui-responsive edge-report-plots">
+					<div class="ui-block-a">
+						<span class="iframe_label">Quality Report <a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_length_quality.png'>[full]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+						<img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_length_quality.png" alt="QC_quality_report">
+						</a>
+					</div>
+					<div class="ui-block-b">
+						<span class="iframe_label">Read Length <a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_read_length.png'>[full]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_read_length.png" alt="QC_read_length"></a>
+					</div>
+					<div class="ui-block-c">
+						<span class="iframe_label">Read Length (Log)<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_read_loglength.png'>[full]</a></span>
+						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_read_loglength.png" alt="QC_read_log_length"></a>
+					</div>
+				</div>
+				<TMPL_ELSE>
 				<div class="ui-grid-c ui-responsive edge-report-plots">
 					<div class="ui-block-a">
 						<span class="iframe_label">Quality Report <a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_quality_report.png'>[full]</a></span>
@@ -287,6 +305,7 @@
 						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_quality_boxplot.png" alt="QC_quality_report"></a>
 					</div>
 				</div>
+				</TMPL_IF>
 				</TMPL_IF>
 			</div>
 			<p class='extra-text-link'>Link to

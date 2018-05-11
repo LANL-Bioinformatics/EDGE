@@ -118,7 +118,7 @@ else
 	fi
 fi
 
-gottcha.pl --mode all -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB --dumpSam 
+gottcha.pl --mode all --bwaOpt "$BWAMETHOD" -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB --dumpSam 
 
 set +e;
 

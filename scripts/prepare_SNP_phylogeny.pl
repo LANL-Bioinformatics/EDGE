@@ -28,6 +28,8 @@ my $PosSelect;
 my $NCBI_bwa_genome_index;
 my $modeltest=0;
 my $numCPU = 4;
+my $nanopore=0;
+my $aligner="bowtie";
 my $version = "0.3";
 
 my $EDGE_HOME = $ENV{EDGE_HOME};
@@ -53,6 +55,7 @@ GetOptions(
    'bootstrap_n=i' =>\$bootstrap_n,
    'PosSelect=s'  => \$PosSelect,
    'reference=s'  => \$reference,
+   'nanopore'  => \$nanopore,
    'cpu=i'    => \$numCPU,
    'help|h'   => sub{usage()},
 );
@@ -224,6 +227,7 @@ $molecular_analysis = 1 if ($PosSelect =~ /PAML/i);
 $molecular_analysis = 2 if ($PosSelect =~ /HyPhy/i);
 $kingdom_code = 1 if ($kingdom =~ /Virus/i || $SNPdbName =~ /Virus/i);
 $kingdom_code = 2 if ($kingdom =~ /Eukaryote/i);
+$aligner="minimap2" if ($nanopore);
 
 
 ## Prepare Reference and control file
@@ -242,6 +246,7 @@ $kingdom_code = 2 if ($kingdom =~ /Eukaryote/i);
                    # 3:combination F+C; 4:combination F+R; 5:combination C+R; 
                    # 6:combination F+C+R; 7:realignment  *See below 
         reads = $read_type  # 1: single reads; 2: paired reads; 3: both types present;
+      aligner = $aligner # support bowtie/bwa/minimap2
          tree = $treeMethod  # 0:no tree; 1:use FastTree; 2:use RAxML; 3:use both;
     modelTest = $modeltest  # 0:no; 1:yes; # Only used when building a tree using RAxML
     bootstrap = $bootstrap  # 0:no; 1:yes;  # Run bootstrapping  *See below
@@ -328,6 +333,8 @@ sub usage {
             -bootstrap_n  Number of bootstraps to run (default 100)
             
             -PosSelect    Molecular evolutionary analysis: PAML or HyPhy (default: no ME analysis)
+
+            -nanopore     [bool] use minimap2 as aligner 
             
             -n            Name of the project
 

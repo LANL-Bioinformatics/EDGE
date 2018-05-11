@@ -14,7 +14,7 @@ MAX_PROCESS_NUM=
 ;; settings for STEP3:
 ;; run profiling tools,  qsub time limit in second  172800 = 48 hours
 RUN_TOOLS=1
-RUN_TOOL_AS_JOB=1
+RUN_TOOL_AS_JOB=0
 QSUB_TIMELIMIT=172800
 QSUB_COMMAND=qsub -pe smp %THREADS% -j y -m abe -cwd -N %TOOL%-%PREFIX% -o %OUTDIR%/%LOGDIR%/%PREFIX%-%TOOL%.log
 
@@ -64,7 +64,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-genDB-b">
 [gottcha-genDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-genDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-genDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -72,7 +72,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-genDB-v">
 [gottcha-genDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-genDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-genDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -86,7 +86,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-speDB-b">
 [gottcha-speDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d <TMPL_VAR NAME=gottcha-b-speDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d <TMPL_VAR NAME=gottcha-b-speDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -101,7 +101,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-speDB-v">
 [gottcha-speDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-speDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-speDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -115,7 +115,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-strDB-b">
 [gottcha-strDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-strDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-strDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -123,7 +123,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-strDB-v">
 [gottcha-strDB-v]
-COMMAND=uge-gottcha.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-strDB> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-strDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -143,7 +143,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="bwa">
 [bwa]
-COMMAND=uge-bwa.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -b <TMPL_VAR NAME=bwaScoreCut DEFAULT=30> -d <TMPL_VAR NAME=bwa-db>
+COMMAND=uge-bwa.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -b <TMPL_VAR NAME=bwaScoreCut DEFAULT=30> <TMPL_VAR NAME=bwa-opts> -d <TMPL_VAR NAME=bwa-db>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 

@@ -702,6 +702,7 @@ sub output_html {
 sub check_analysis {
 	$vars->{OUT_GET_DOWNLOAD} = 1 if $mode eq "web";
 	$vars->{OUT_QC_SW}    = 1 if -e "$out_dir/QcReads/runQC.finished";
+	$vars->{OUT_nanopore_QC_SW}    = 1 if -e "$out_dir/QcReads/NanoStats.txt";
 	$vars->{OUT_JP_SW}    = 1 if -e "$out_dir/QcReads/runJoinPE.finished";
 	$vars->{OUT_HR_SW}    = 1 if -e "$out_dir/HostRemoval/hostclean.stats.txt";
 	$vars->{OUT_AS_SW}    = 1 if (glob "$out_dir/AssemblyBasedAnalysis/*.finished");

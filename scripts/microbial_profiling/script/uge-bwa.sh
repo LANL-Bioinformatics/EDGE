@@ -15,6 +15,7 @@ OPTIONS:
    -d      Database
    -o      Output directory
    -p      Output prefix
+   -a      BWA alignment parameters.
    -t      Number of threads (default: 24)
    -f      platform pacbio
    -h      help
@@ -30,8 +31,9 @@ INPUT_OPTION=
 PLATFORM=
 PLATFORM_OPTION=
 BWASCORECUT=
+BWAMETHOD=
 
-while getopts "i:d:o:p:t:f:b:h" OPTION
+while getopts "i:d:o:p:t:f:a:b:h" OPTION
 do
      case $OPTION in
         i) FASTQ=$OPTARG
@@ -48,7 +50,9 @@ do
            ;;
         b) BWASCORECUT=$OPTARG
            ;;
-	    h) usage
+	a) BWAMETHOD=$OPTARG
+	   ;;
+	h) usage
            exit
            ;;
      esac
@@ -68,7 +72,7 @@ echo "[BEGIN]"
 
 set -x;
 
-bwa mem -t $THREADS -T $BWASCORECUT $REFDB $FASTQ > $OUTPATH/$PREFIX.sam
+bwa mem -t $THREADS $BWAMETHOD -T $BWASCORECUT $REFDB $FASTQ > $OUTPATH/$PREFIX.sam
 # bwa_sam2read_taxa.pl species preload < $OUTPATH/$PREFIX.sam > $OUTPATH/$PREFIX.out.read_classification &
 bwa_sam2giReadCount.pl < $OUTPATH/$PREFIX.sam > $OUTPATH/${PREFIX}.csv &
 

@@ -298,6 +298,17 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</div>
 
 					<div class="edge-main-pipeline-input">
+						<div class="ui-field-contain edge-fastq-options" id="edge-fastq-source-block">
+							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+							<legend>Nanopore Reads</legend>
+								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw1" value="nanopore">
+								<label for="edge-fastq-source-sw1">Yes</label>
+								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw2" value="notnanopore" checked="checked">
+								<label for="edge-fastq-source-sw2">No</label>
+							</fieldset>
+						</div>
+					</div>
+					<div class="edge-main-pipeline-input">
 						<div class="ui-field-contain" id="edge-sra-input-block">
 							<label for="edge-sra-acc">SRA Accession</label>
 							<input data-mini="true" type="text" name="edge-sra-acc" id="edge-sra-acc" placeholder="ex:SRR1553609">
@@ -357,7 +368,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</div> 
 					<div class="edge-qiime-pipeline-input edge-targetedngs-pipeline-input edge-piret-pipeline-input">
 						<div id="edge-qiime-pipeline-dir-input" class="ui-field-contain input-type-file">
-							<label for="edge-qiime-reads-dir-input">Directory<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sampleID."></a></label>
+							<label for="edge-qiime-reads-dir-input">Directory<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="(Double Click) Contains Demultiplexed fastq files. To use this option, the mapping file need a 'Files' column with filenames for each sample ID."></a></label>
 							<input data-mini="true" type="text" name="edge-qiime-reads-dir-input" id="edge-qiime-reads-dir-input" placeholder="absolute dir path/select dir">
 							<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">Dir</a></div>
 						</div>
@@ -723,10 +734,19 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<label for="edge-qc-lc">Low Complexity Filter<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum fraction of mono-/di-nucleotide sequence" ></a></label>
 				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
 			</div>
-			<div class="ui-field-contain input-type-file">
+			<div class="ui-field-contain input-type-file edge-notnanopore-options">
 				<label for="edge-qc-adapter">Adapter FASTA</label>
 				<input data-mini="true" name="edge-qc-adapter" id="edge-qc-adapter" type="text" placeholder="(optional) absolute file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain edge-nanopore-options">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Remove Adapter</legend>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="1">
+					<label for="edge-porechop-sw1">On</label>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="0" checked="checked">
+					<label for="edge-porechop-sw2">Off</label>
+				</fieldset>
 			</div>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1948,7 +1968,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 </form><!--  edgesite-form -->
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
-		<p>EDGE version 2.1.1</p>	
+		<p>EDGE version 2.2.0</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo">
             <a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>

@@ -684,6 +684,8 @@ $( document ).ready(function()
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( ".edge-fastq-options").show();
 			$( "a[data-id=edge-assembly-parameters]" ).click();
+			$( "#edge-fastq-source-sw2").click().checkboxradio("refresh");
+			$( '#edge-fastq-source-block').hide();
 		}
 		if ( $(obj).val() == "fastq"){
 			$( "#edge-sra-input-block" ).hide();
@@ -695,6 +697,7 @@ $( document ).ready(function()
 			$( '#edge-input-contig-file').val('');
 			$( ".edge-fastq-options").show();
 			$( "a[data-id=edge-assembly-parameters]" ).click();
+			$( '#edge-fastq-source-block').show();
 		}
 		if ( $(obj).val() == "fasta"){
 			$( "#edge-sra-input-block" ).hide();
@@ -708,27 +711,27 @@ $( document ).ready(function()
 			$( "a[data-id=edge-annotation-parameters]" ).click();
 		}
 		if ( $(obj).val() == "pe"){
-				$('.edge-input-se-block').hide();
-				$('.edge-input-pe-block').show();
-				$('#edge-qiime-pro-sw').show();
-				$('#btnAdd-edge-input-pe').show();
-				$('#btnAdd-edge-input-se').hide();
-				$('#edge-qiime-pipeline-dir-input').hide();
+			$('.edge-input-se-block').hide();
+			$('.edge-input-pe-block').show();
+			$('#edge-qiime-pro-sw').show();
+			$('#btnAdd-edge-input-pe').show();
+			$('#btnAdd-edge-input-se').hide();
+			$('#edge-qiime-pipeline-dir-input').hide();
 		}
 		if ( $(obj).val() == "se"){
-				$('.edge-input-pe-block').hide();
-				$('.edge-input-se-block').show();
-				$('#edge-qiime-pro-sw').hide();
-				$('#btnAdd-edge-input-pe').hide();
-				$('#btnAdd-edge-input-se').show();
-				$('#edge-qiime-pipeline-dir-input').hide();
+			$('.edge-input-pe-block').hide();
+			$('.edge-input-se-block').show();
+			$('#edge-qiime-pro-sw').hide();
+			$('#btnAdd-edge-input-pe').hide();
+			$('#btnAdd-edge-input-se').show();
+			$('#edge-qiime-pipeline-dir-input').hide();
 		}
 		if ( $(obj).val() == "dedir"){
-				$('.edge-input-se-block').hide();
-				$('.edge-input-pe-block').hide();
-				$('#edge-qiime-pipeline-dir-input').show();
-				$('#btnAdd-edge-input-pe').hide();
-				$('#btnAdd-edge-input-se').hide();
+			$('.edge-input-se-block').hide();
+			$('.edge-input-pe-block').hide();
+			$('#edge-qiime-pipeline-dir-input').show();
+			$('#btnAdd-edge-input-pe').hide();
+			$('#btnAdd-edge-input-se').hide();
 		}
 	}
 	//
@@ -809,6 +812,16 @@ $( document ).ready(function()
 					$("#edge_file_dialog h4").text("Select a Directory");
 				}else{
 					$("#edge_file_dialog h4").text("Select a File");
+				}
+			},
+			afterclose: function( event, ui ) {
+				if ( $('#'+inputFileID).val().length > 0 ) {
+					if ( /edge-primer-valid-file/.test(inputFileID) ){
+						$('#edge-primer-valid-sw1').click().checkboxradio('refresh');
+					}
+					if ( /edge-hostrm-file/.test(inputFileID)  ){
+						$('#edge-hostrm-sw1').click().checkboxradio('refresh');
+					}
 				}
 			}
 		});
@@ -1644,24 +1657,28 @@ $( document ).ready(function()
 				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').show();
 				$('#edge-lrasm-parameters').hide();
+				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler2').is(':checked')){
 				$('#edge-megahit-parameters').hide();
 				$('#edge-idba-parameters').hide();
 				$('#edge-spades-parameters').show();
 				$('#edge-lrasm-parameters').hide();
+				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler3').is(':checked')){
 				$('#edge-spades-parameters').hide();
 				$('#edge-idba-parameters').hide();
 				$('#edge-megahit-parameters').show();
 				$('#edge-lrasm-parameters').hide();
+				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler4').is(':checked')){
 				$('#edge-spades-parameters').hide();
 				$('#edge-idba-parameters').hide();
 				$('#edge-megahit-parameters').hide();
 				$('#edge-lrasm-parameters').show();
+				$('#edge-r2c-aligner3').click().checkboxradio("refresh");
 			}
 		});
 		
@@ -1713,6 +1730,34 @@ $( document ).ready(function()
 			if($('#edge-piret-kingdom3').is(':checked')){
 				$('#edge-piret-euk-input').show();
 				$('#edge-piret-prok-input').show();
+			}
+		});
+		$(":radio[name='edge-fastq-source']").on("change", function(){
+			$( "#edge-r2g-aligner-sw, #edge-r2c-aligner-sw").find('input').prop('disabled',false);
+			
+			if($('#edge-fastq-source-sw1').is(':checked')){
+				$('#btnAdd-edge-input-pe').hide();
+				$('.edge-input-pe-block').hide();
+				$('#edge-fastq-input-block > .edge-center').hide();
+				$('#edge-qc-minl').val('1000');
+				$('#splitrim-minq').val('7');
+				$('.edge-notnanopore-options').hide();
+				$('.edge-nanopore-options').show();
+				$( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
+				$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler4" ).click().checkboxradio("refresh");
+				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+			}
+			if($('#edge-fastq-source-sw2').is(':checked')){
+				$('#btnAdd-edge-input-pe').show();
+				$('.edge-input-pe-block').show();
+				$('#edge-fastq-input-block > .edge-center').show();
+				$('#edge-qc-minl').val('50');
+				$('#splitrim-minq').val('20');
+				$('.edge-notnanopore-options').show();
+				$('.edge-nanopore-options').hide();
+				$( "a[data-id=edge-joinpe-parameters]").removeClass('ui-disabled');
+				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
+				$( "#edge-r2g-aligner1, #edge-r2c-aligner1, #edge-assembler1" ).click().checkboxradio("refresh");
 			}
 		});
 	};

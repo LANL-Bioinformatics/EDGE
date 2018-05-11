@@ -33,6 +33,7 @@ GetOptions(\%opt,
            "pangia-db=s",
            "diamond-db=s",
            "splitrim-minq=i",
+	   "nanopore",
            'help|h|?'
           );
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
@@ -82,6 +83,14 @@ foreach my $db ( keys %opt) {
 	$opt{"$db"} =~ s/(\.rev)?.\d\.bt2$// if ($db =~ /metaphlan-db/);
 	(my $tmp_filenaem,$opt{"kraken-db"},my $tmp_suffix)=&fileparse($opt{"kraken-db"}) if ($db =~ /kraken-db/);
 	
+}
+
+if ($opt{nanopore}){
+	$opt{"gottcha-opts"} = "-a \'-x ont2d\'";
+	# gottcha2 doesn't expose aligner options.
+	$opt{"gottcha2-opts"} = "";
+	$opt{"bwa-opts"}="-a \'-x ont2d\'";
+	$opt{"pangia-opts"}= "\'-sb -se --nanopore\' ";
 }
 
 foreach my $tool ( @tools ){
@@ -134,6 +143,7 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna
     -gottcha2-e-ptgDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna
     -diamond-db         $EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
+    --nanopore          
 
 USAGE
     #
