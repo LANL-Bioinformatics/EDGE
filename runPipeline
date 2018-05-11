@@ -2421,9 +2421,11 @@ sub runQC
         my $cmd;
         if ($configuration->{"porechop"}){
 	  $cmd = "porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log";
-          &executeCommand2($cmd);
+	  &lprint ("  Running \n  $cmd \n");
+	  &executeCommand($cmd);
         }
         $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir ";
+	&lprint ("  Running \n  $cmd \n");
         &executeCommand2($cmd);
     }
     
