@@ -1176,7 +1176,7 @@ $( document ).ready(function()
 		var w;
 		if ( action == 'compare'){
 			w = window.open();
-			w.document.write("Running MetaComp ...");
+			w.document.write("Running MetaComp ... Please wait...");
 		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
