@@ -1663,7 +1663,28 @@ sub pull_reports {
 										$str = '';
 									} elsif(/<\/tr>/) {
 										##parse tool summary
-										if($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
+										if($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
+											my $tool;
+											$tool->{PROJNAME} = $proj->{PROJNAME};
+											$tool->{PROJ} = $proj->{PROJ};
+											$tool->{PROPROJURL} = $vars->{PROJURL};
+											$tool->{LS_TAX} = $2;
+											$tool->{LS_READS} = $3;
+											$tool->{LS_COV} = $8;
+											$tool->{LS_DOC} = $6;
+											$tool->{LS_RS} = $4;
+											$tool->{LS_SCORE} = $9;
+											$tool->{LS_ABUNDANCE} = $10;
+											if($tool->{LS_TAX} =~ /<a href='(.*)' target='_blank'>(.*)<\/a>/) {
+												$tool->{LS_TAX} = $2;
+												$tool->{LS_TAX_LINK} = $1;
+											}
+											if($tool->{LS_SCORE}>= $pangia_score) {			
+												push @{$proj->{TAX_TOOL_PANGIA_LOOP}}, $tool;
+												push @{$reports_map{$project}{'tax-tool-pangia'}}, $tool;
+											}
+										} 
+										elsif($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
 											my $tool;
 											$tool->{PROJNAME} = $proj->{PROJNAME};
 											$tool->{PROJ} = $proj->{PROJ};
