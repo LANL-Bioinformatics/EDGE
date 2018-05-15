@@ -1176,6 +1176,7 @@ $( document ).ready(function()
 		var w;
 		if ( action == 'compare'){
 			w = window.open();
+			w.document.write("Running MetaComp ...");
 		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
@@ -3535,6 +3536,8 @@ $( document ).ready(function()
 			}
 		});
 		var shareEmail = userChkArray.join(',');
+		var reportnameHTML = $.parseHTML(reportName);
+		reportName = $(reportnameHTML).text();
 		var myAjaxRequest= $.ajax({
 			url: "./cgi-bin/edge_projects_report.cgi",
 			type: "POST",
