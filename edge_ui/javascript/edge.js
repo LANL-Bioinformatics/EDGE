@@ -423,10 +423,10 @@ $( document ).ready(function()
 					updateProject(focusProjName);
 					var LoginMsg = true; 
 					if (localStorage.LoginMsg){ LoginMsg =  ( localStorage.LoginMsg  === "true") ;}
-					if (data.user-background){
-						$(".edge-header").css("background",data.user-background);
-						$("div#popupUser  a").css("background",data.user-background);
- 						localStorage.background=data.user-background;
+					if (data.userbackground){
+						$(".edge-header").css("background",data.userbackground);
+						$("div#popupUser  a").css("background",data.userbackground);
+ 						localStorage.background=data.userbackground;
 					}
 					var cleanData = (data.CleanData > 0);
 					if (  LoginMsg && cleanData ){

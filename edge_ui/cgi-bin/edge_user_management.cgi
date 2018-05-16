@@ -110,7 +110,7 @@ elsif ($action eq "login"){
 		if ( -e "$user_preference" && -s $user_preference){
 			my $user_preference_info = readListFromJson($user_preference);
 			foreach my $key (keys %{$user_preference_info}){
-				 $info->{"user-$key"} = $user_preference_info->{$key};
+				 $info->{"user$key"} = $user_preference_info->{$key};
 			}
 		}
 		else{
