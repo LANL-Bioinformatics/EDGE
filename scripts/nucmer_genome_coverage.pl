@@ -184,7 +184,8 @@ foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mapped
   my $ref_len=$reference{$ref}->{len};
   my $ref_desc=$reference{$ref}->{desc};
   my $mapped_contig_count =  $reference{$ref}->{mappedCount};
-  my ($genome_covered_pos, $gaps, @gap_array, $gap_num,$cov,$total_cov);
+  my ($genome_covered_pos, $gaps, $gap_num,$cov,$total_cov) = (0,0,0,0,0);
+  my @gap_array;
   if ($ref_used{$ref})
   {   
       for (1..$ref_len){
@@ -277,12 +278,11 @@ for(i in 1: dim(data.hits)[1]) {
 # get margin coordiates
 pa<-par('usr');
 # plot gap regions
-rect(1,round(pa[3]),data.gaps[i,1]-1,round(pa[3])+0.5,col="black",border=NA)
-for(i in 2:(dim(data.gaps)[1]-1)){
- #rect(data.gaps[i-1,2]+1,round(pa[3]),data.gaps[i,1]-1,round(pa[3])+0.5,col="black",border=NA)
- rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)
+if (dim(data.gaps)[1])>0){
+	for(i in 1:dim(data.gaps)[1]){
+		rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)	
+	}
 }
-#rect(data.gaps[dim(data.gaps)[1],2],round(pa[3]),$ref_len,round(pa[3])+0.5,col="black",border=NA)
 
 # add Legend
 Coverage <- sprintf ("Coverage: %.2f %%", $genome_covered_pos/$ref_len*100)
