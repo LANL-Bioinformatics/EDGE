@@ -20,6 +20,7 @@
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<link rel='stylesheet' href='css/spectrum.css'/>
 	<link rel="stylesheet" href="css/jquery.lazyloadxt.spinner.min.css">
 	<link rel="stylesheet" href="javascript/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css" type="text/css" media="screen" /> 
 	<link rel="stylesheet" type="text/css" href="css/zocial.css" />
@@ -29,6 +30,7 @@
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/jquery.dataTables.min.js"></script>
 	<script src="javascript/edge.js"></script>
+	<script src="javascript/spectrum.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
 	<script src="javascript/jsphylosvg-min.js"></script>
@@ -303,7 +305,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<legend>Nanopore Reads</legend>
 								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw1" value="nanopore">
 								<label for="edge-fastq-source-sw1">Yes</label>
-								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw2" value="notnanopore" checked="checked">
+								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw2" value="not" checked="checked">
 								<label for="edge-fastq-source-sw2">No</label>
 							</fieldset>
 						</div>
@@ -1206,7 +1208,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<option value="metaphlan" selected="">MetaPhlAn</option>
 							<option value="kraken" selected="">Kraken</option>
 							<!-- Adding DIAMOND -->
-							<!-- <option value="diamond" selected="">DIAMOND (Amino acid-based classification)</option> -->
+							<!-- <option value="diamond">DIAMOND (Amino acid-based classification)</option> -->
 						</optgroup>
 					</select>
 				</fieldset>
@@ -1780,6 +1782,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<ul data-role="listview" data-inset="true" data-icon="false">
 			<li><a href="#" id="signOutBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Log Out</a></li>
 			<li><a href="#UpdateProfileForm" id="UpdateProfileBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Update Profile</a></li>
+			<li><input type='text' data-role="none" data-mini="true" name='color' class="colorpicker no-show-logout" style="display: nono;"></li>
 		</ul>
 	</div>
 

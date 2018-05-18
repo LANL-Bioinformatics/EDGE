@@ -2246,7 +2246,7 @@ unlink $InputLogPDF;
      if ($ont_flag){
        push @conversions, "convert -density 120 -flatten $nanoplot_length_Histogram $imagesDir/QC_read_length.png";
        push @conversions, "convert -density 120 -flatten $nanoplot_loglength_Histogram $imagesDir/QC_read_loglength.png";
-       push @conversions, "convert -density 120 -flatten $nanoplot_length_quality_plot/QC_length_quality.png";
+       push @conversions, "convert -density 120 -flatten $nanoplot_length_quality_plot $imagesDir/QC_length_quality.png";
      }else{
        my $page_count = `perl $RealBin/scripts/pdfPageCount.pl $QCstatsPDF`;
        chomp $page_count;

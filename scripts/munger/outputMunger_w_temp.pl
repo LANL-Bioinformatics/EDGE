@@ -196,350 +196,136 @@ sub pull_piret{
 		@{$vars->{LOOP_PIRETMAP}} = @mapping_result;
 	}
 	my $feature_top=100;
-	if ($vars->{PIRETPROK}){
-		# PROK Feature Counts 
-		my $prefix = basename($1) if ($vars->{PIRETPROKREF} =~ /(.*)\.\w+$/);
-		$vars->{PIRETPROKREFNAME} = $prefix;
-		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.csv";
-		my $feature_CDS_count_json_file = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_sorted.json";
-		my $feature_CDS_count_summary = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_summary.csv";
-		my $feature_gene_count_file = "$output_dir/featureCounts/${prefix}_gene_count_sorted.csv";
-		my $feature_gene_count_json_file = "$output_dir/featureCounts/${prefix}_gene_count.tsv_sorted.json";
-		my $feature_gene_count_summary = "$output_dir/featureCounts/${prefix}_gene_count.tsv_summary.csv";
-
-		if ( -e $feature_CDS_count_summary){
-			my @fccs_result;
-			open (my $fccs, "<",$feature_CDS_count_summary);
-			while(<$fccs>){
-				chomp;
-				next if (/Assigned/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 12 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETPROKFCCS$i"}=$temp[$i];
+	foreach my $kingdom ("PROK","EUK"){
+		my $kingdom_path =  ($kingdom eq "PROK")?"prokarya":"eukarya";
+		if ($vars->{"PIRET$kingdom"}){
+			my $prefix = basename($1) if ($vars->{"PIRET${kingdom}REF"} =~ /(.*)\.\w+$/);
+			$vars->{"PIRET${kingdom}REFNAME"} = $prefix;
+			for my $feature ("CDS","gene"){
+				my $feature_count_file = "$output_dir/featureCounts/${prefix}_${feature}_count_sorted.csv";
+				my $feature_count_json_file = "$output_dir/featureCounts/${prefix}_${feature}_count.tsv_sorted.json";
+				my $feature_count_summary = "$output_dir/featureCounts/${prefix}_${feature}_count.tsv_summary.csv";
+	
+				if ( -e $feature_count_summary){
+					my @fccs_result;
+					open (my $fccs, "<",$feature_count_summary);
+					while(<$fccs>){
+						chomp;
+						next if (/Assigned/);
+						my @temp = split /,/, $_;
+						if( scalar @temp == 12 ){
+							my $info;
+							for my $i(0..$#temp){
+								$temp[$i] =~ s/^\"|"$//g;
+								$info->{"PIRET${kingdom}FCCS$i"}=$temp[$i] if ($feature eq "CDS");
+								$info->{"PIRET${kingdom}GCCS$i"}=$temp[$i] if ($feature eq "gene"); 
+							}
+							my $array_index=$samples{$temp[0]}->{index};
+							$fccs_result[$array_index]=$info;
+						}
 					}
-					my $array_index=$samples{$temp[0]}->{index};
-					$fccs_result[$array_index]=$info;
+					close $fccs;
+					@{$vars->{"LOOP_PIRET${kingdom}FCCS"}} = @fccs_result if ($feature eq "CDS");
+					@{$vars->{"LOOP_PIRET${kingdom}GCCS"}} = @fccs_result if ($feature eq "gene");
 				}
-			}
-			close $fccs;
-			@{$vars->{LOOP_PIRETPROKFCCS}} = @fccs_result;
-		}
-		if ( -e $feature_CDS_count_file && ! -e $feature_CDS_count_json_file) {
-			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_CDS_count_json_file,$feature_CDS_count_file);
-		}
-		$vars->{PIRETPROKCDSFC} = $feature_CDS_count_json_file if ( -e $feature_CDS_count_json_file);
-		if ( -e $feature_gene_count_summary){
-			my @gccs_result;
-			open (my $gccs, "<",$feature_gene_count_summary);
-			while(<$gccs>){
-				chomp;
-				next if (/Assigned/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 12 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETPROKGCCS$i"}=$temp[$i];
-					}
-					my $array_index=$samples{$temp[0]}->{index};
-					$gccs_result[$array_index]=$info;
+				if ( -e $feature_count_file && ! -e $feature_count_json_file) {
+					system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_count_json_file,$feature_count_file);
 				}
+				$vars->{"PIRET${kingdom}CDSFC"} = $feature_count_json_file if ( -e $feature_count_json_file && $feature eq "CDS");
+				$vars->{"PIRET${kingdom}GENEFC"} = $feature_count_json_file if ( -e $feature_count_json_file && $feature eq "gene");
 			}
-			close $gccs;
-			@{$vars->{LOOP_PIRETPROKGCCS}} = @gccs_result;
-		}
-		if ( -e $feature_gene_count_file && ! -e $feature_gene_count_json_file) {
-			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_gene_count_json_file,$feature_gene_count_file);
-		}
-		$vars->{PIRETPROKGENEFC} = $feature_gene_count_json_file if (-e $feature_gene_count_json_file);
 		
-		if ($edgeR){
-			$vars->{PIRETEDGER}=1;
-			my $DE_summary_table = "$output_dir/edgeR/prokarya/summary_updown.csv";
-			open(my $des,"<",$DE_summary_table);
-			while(<$des>){
-				chomp;
-				next if (/^,/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 4 ){
-					my $info;
-					for my $i(0..$#temp){
-						$info->{"PIRETEDGERPROKSUM$i"}=$temp[$i];
+			if ($edgeR){
+				$vars->{PIRETEDGER}=1;
+				my $DE_summary_table = "$output_dir/edgeR/$kingdom_path/summary_updown.csv";
+				open(my $des,"<",$DE_summary_table);
+				while(<$des>){
+					chomp;
+					next if (/^,/);
+					my @temp = split /,/, $_;
+					if( scalar @temp == 4 ){
+						my $info;
+						for my $i(0..$#temp){
+							$info->{"PIRETEDGER${kingdom}SUM$i"}=$temp[$i];
+						}
+						push @{$vars->{"LOOP_PIRETEDGER${kingdom}SUM"}}, $info;
 					}
-					push @{$vars->{LOOP_PIRETEDGERPROKSUM}}, $info;
 				}
-			}
-			close $des;
-			$vars->{PIRET_PROK_CDS_edgeR_MDS}="$output_dir/edgeR/prokarya/${prefix}_CDS_count_MDS";
-			$vars->{PIRET_PROK_CDS_edgeR_RPKM_histogram}="$output_dir/edgeR/prokarya/${prefix}_CDS_count_rpkm_histogram";
-			$vars->{PIRET_PROK_CDS_edgeR_RPKM_heatmap}="$output_dir/edgeR/prokarya/${prefix}_CDS_count_rpkm_heatmap";
-			$vars->{PIRET_PROK_CDS_edgeR_RPKM_violin}="$output_dir/edgeR/prokarya/${prefix}_CDS_count_rpkm_violin";
-			$vars->{PIRET_PROK_CDS_edgeR_MD}="$output_dir/edgeR/prokarya/$groups[0]"."__"."$groups[1]"."__CDS__MD";
-			my @CDS_MD_plots = glob("$output_dir/edgeR/prokarya/*__CDS__MD.png");
-			if (scalar @CDS_MD_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#CDS_MD_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MD_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MD_PLOT}=$CDS_MD_plots[$i];
-					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_CDS_edgeR_MD_PLOT}},$md_plot_info;
-				}
-			}
-			$vars->{PIRET_PROK_gene_edgeR_MDS}="$output_dir/edgeR/prokarya/${prefix}_gene_count_MDS";
-			$vars->{PIRET_PROK_gene_edgeR_RPKM_histogram}="$output_dir/edgeR/prokarya/${prefix}_gene_count_rpkm_histogram";
-			$vars->{PIRET_PROK_gene_edgeR_RPKM_heatmap}="$output_dir/edgeR/prokarya/${prefix}_gene_count_rpkm_heatmap";
-			$vars->{PIRET_PROK_gene_edgeR_RPKM_violin}="$output_dir/edgeR/prokarya/${prefix}_gene_count_rpkm_violin";
-			$vars->{PIRET_PROK_gene_edgeR_MD}="$output_dir/edgeR/prokarya/$groups[0]"."__"."$groups[1]"."__gene__MD";
-			my @gene_MD_plots = glob("$output_dir/edgeR/prokarya/*__gene__MD.png");
-			if (scalar @gene_MD_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#gene_MD_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MD_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MD_PLOT}=$gene_MD_plots[$i];
-					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_gene_edgeR_MD_PLOT}},$md_plot_info;
-				}
-			}
-		}
-		if ($deseq2){
-			$vars->{PIRETDESEQ2}=1;
-			my $DE_summary_table = "$output_dir/DESeq2/prokarya/summary_updown.csv";
-			open(my $des,"<",$DE_summary_table);
-			while(<$des>){
-				chomp;
-				next if (/^,/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 4 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETDESEQ2PROKSUM$i"}=$temp[$i];
+				close $des;
+				foreach my $feature ("CDS","gene"){
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_MDS"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_MDS";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_histogram"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_histogram";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_heatmap"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_heatmap";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_violin"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_violin";
+					my @MD_plots = glob("$output_dir/edgeR/$kingdom_path/*_${feature}__MD.png");
+					if (scalar @MD_plots > 0 ){
+						for my $i (0..$#MD_plots){
+							my $md_plot_info;
+							my $grid_index = $i % 4 ;
+							my ($file_name, $file_path, $file_suffix)=fileparse("$MD_plots[$i]", qr/\.[^.]*/);
+							(my $sig_file_name = $file_name) =~ s/__MD/__sig/;
+							my $sig_file = "$file_path/$sig_file_name.csv";
+							my $sig_json = "$file_path/$sig_file_name.json";
+							if ( -e $sig_file && ! -e $sig_json) {
+								system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-out",$sig_json,$sig_file);
+									}
+							$md_plot_info->{PIRET_DE_SIG_JSON}="$sig_json";
+							$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
+							$md_plot_info->{PIRET_MD_PLOT}=$MD_plots[$i];
+							$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
+							$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
+							push @{$vars->{"LOOP_PIRET_${kingdom}_${feature}_edgeR_MD_PLOT"}},$md_plot_info;
+						}
 					}
-					push @{$vars->{LOOP_PIRETDESEQ2PROKSUM}}, $info;
 				}
 			}
-			close $des;
-			$vars->{PIRET_PROK_CDS_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_PCA";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_histogram";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_heatmap";
-			$vars->{PIRET_PROK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_CDS_count_FPKM_violin";
-			$vars->{PIRET_PROK_CDS_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
-			my @CDS_MA_plots = glob("$output_dir/DESeq2/prokarya/*__CDS__MA.png");
-			if (scalar @CDS_MA_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#CDS_MA_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MA_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MA_PLOT}=$CDS_MA_plots[$i];
-					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_CDS_DESeq2_MA_PLOT}},$md_plot_info;
-				}
-			}
-			$vars->{PIRET_PROK_gene_DESeq2_PCA}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_PCA";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_histogram";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_heatmap";
-			$vars->{PIRET_PROK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/prokarya/${prefix}_gene_count_FPKM_violin";
-			$vars->{PIRET_PROK_gene_DESeq2_MA}="$output_dir/DESeq2/prokarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
-			my @gene_MA_plots = glob("$output_dir/DESeq2/prokarya/*__gene__MA.png");
-			if (scalar @gene_MA_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#gene_MA_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MA_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MA_PLOT}=$gene_MA_plots[$i];
-					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_PROK_gene_DESeq2_MA_PLOT}},$md_plot_info;
-				}
-			}
-		}
-	}
-	if ($vars->{PIRETEUK}){
-		# EUK Feature Counts 
-		my $prefix = basename($1) if ($vars->{PIRETEUKREF} =~ /\/(.*)\.\w+$/);
-		$vars->{PIRETEUKREFNAME} = $prefix;
-		my $feature_CDS_count_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.csv";
-		my $feature_CDS_count_json_file = "$output_dir/featureCounts/${prefix}_CDS_count_sorted.json";
-		my $feature_CDS_count_summary = "$output_dir/featureCounts/${prefix}_CDS_count.tsv_summary.csv";
-		my $feature_gene_count_file = "$output_dir/featureCounts/${prefix}_gene_count_sorted.csv";
-		my $feature_gene_count_json_file = "$output_dir/featureCounts/${prefix}_gene_count_sorted.json";
-		my $feature_gene_count_summary = "$output_dir/featureCounts/${prefix}_gene_count.tsv_summary.csv";
-		
-		if ( -e $feature_CDS_count_summary){
-			my @fccs_result;
-			open (my $fccs, "<",$feature_CDS_count_summary);
-			while(<$fccs>){
-				chomp;
-				next if (/Assigned/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 12 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETEUKFCCS$i"}=$temp[$i];
+			if ($deseq2){
+				$vars->{PIRETDESEQ2}=1;
+				my $DE_summary_table = "$output_dir/DESeq2/$kingdom_path/summary_updown.csv";
+				open(my $des,"<",$DE_summary_table);
+				while(<$des>){
+					chomp;
+					next if (/^,/);
+					my @temp = split /,/, $_;
+					if( scalar @temp == 4 ){
+						my $info;
+						for my $i(0..$#temp){
+							$temp[$i] =~ s/^\"|"$//g;
+							$info->{"PIRETDESEQ2${kingdom}SUM$i"}=$temp[$i];
+						}
+						push @{$vars->{"LOOP_PIRETDESEQ2${kingdom}SUM"}}, $info;
 					}
-					my $array_index=$samples{$temp[0]}->{index};
-					$fccs_result[$array_index]=$info;
 				}
-			}
-			close $fccs;
-			@{$vars->{LOOP_PIRETEUKFCCS}} = @fccs_result;
-		}
-		if ( -e $feature_CDS_count_file && ! -e $feature_CDS_count_json_file) {
-			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_CDS_count_json_file,$feature_CDS_count_file);	
-		}
-		$vars->{PIRETEUKCDSFC} = $feature_CDS_count_json_file if (-e $feature_CDS_count_json_file);
-		if ( -e $feature_gene_count_summary){
-			my @gccs_result;
-			open (my $gccs, "<",$feature_gene_count_summary);
-			while(<$gccs>){
-				chomp;
-				next if (/Assigned/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 12 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETEUKGCCS$i"}=$temp[$i];
+				close $des;
+				foreach my $feature ("CDS","gene"){
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_PCA"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_PCA";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_histogram"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_histogram";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_heatmap"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_heatmap";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_violin"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_violin";
+					my @MA_plots = glob("$output_dir/DESeq2/$kingdom_path/*_${feature}__MA.png");
+					if (scalar @MA_plots > 0 ){
+						for my $i (0..$#MA_plots){
+							my $md_plot_info;
+							my $grid_index = $i % 4 ;
+							my ($file_name, $file_path, $file_suffix)=fileparse("$MA_plots[$i]", qr/\.[^.]*/);
+							(my $sig_file_name = $file_name) =~ s/__MA/__sig/;
+							my $sig_file = "$file_path/$sig_file_name.csv";
+							my $sig_json = "$file_path/$sig_file_name.json";
+							if ( -e $sig_file && ! -e $sig_json) {
+								system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-delimit","comma","-out",$sig_json,$sig_file);
+									}
+							$md_plot_info->{PIRET_DE_SIG_JSON}="$sig_json";
+							$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
+							$md_plot_info->{PIRET_MA_PLOT}=$MA_plots[$i];
+							$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
+							$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
+							push @{$vars->{"LOOP_PIRET_${kingdom}_${feature}_DESeq2_MA_PLOT"}},$md_plot_info;
+						}
 					}
-					my $array_index=$samples{$temp[0]}->{index};
-					$gccs_result[$array_index]=$info;
 				}
 			}
-			close $gccs;
-			@{$vars->{LOOP_PIRETEUKGCCS}} = @gccs_result;
-		}
-		if ( -e $feature_gene_count_file && ! -e $feature_gene_count_json_file) {
-			system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-limit",$feature_top,"-out",$feature_gene_count_json_file,$feature_gene_count_file);
-		}
-		 $vars->{PIRETEUKGENEFC} = $feature_gene_count_json_file if (-e $feature_gene_count_json_file);
-		
-
-		if ($edgeR){
-			$vars->{PIRETEDGER}=1;
-			my $DE_summary_table = "$output_dir/edgeR/eukarya/summary_updown.csv";
-			open(my $des,"<",$DE_summary_table);
-			while(<$des>){
-				chomp;
-				next if (/^,/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 4 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETEDGEREUKSUM$i"}=$temp[$i];
-					}
-					push @{$vars->{LOOP_PIRETEDGEREUKSUM}}, $info;
-				}
-			}
-			close $des;
-			$vars->{PIRET_EUK_CDS_edgeR_MDS}="$output_dir/edgeR/eukarya/${prefix}_CDS_count_MDS";
-			$vars->{PIRET_EUK_CDS_edgeR_RPKM_histogram}="$output_dir/edgeR/eukarya/${prefix}_CDS_count_rpkm_histogram";
-			$vars->{PIRET_EUK_CDS_edgeR_RPKM_heatmap}="$output_dir/edgeR/eukarya/${prefix}_CDS_count_rpkm_heatmap";
-			$vars->{PIRET_EUK_CDS_edgeR_RPKM_violin}="$output_dir/edgeR/eukarya/${prefix}_CDS_count_rpkm_violin";
-			$vars->{PIRET_EUK_CDS_edgeR_MD}="$output_dir/edgeR/eukarya/$groups[0]"."__"."$groups[1]"."__CDS__MD";
-			my @CDS_MD_plots = glob("$output_dir/edgeR/eukarya/*__CDS__MD.png");
-			if (scalar @CDS_MD_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#CDS_MD_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MD_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MD_PLOT}=$CDS_MD_plots[$i];
-					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_CDS_edgeR_MD_PLOT}},$md_plot_info;
-				}
-			}
-			$vars->{PIRET_EUK_gene_edgeR_MDS}="$output_dir/edgeR/eukarya/${prefix}_gene_count_MDS";
-			$vars->{PIRET_EUK_gene_edgeR_RPKM_histogram}="$output_dir/edgeR/eukarya/${prefix}_gene_count_rpkm_histogram";
-			$vars->{PIRET_EUK_gene_edgeR_RPKM_heatmap}="$output_dir/edgeR/eukarya/${prefix}_gene_count_rpkm_heatmap";
-			$vars->{PIRET_EUK_gene_edgeR_RPKM_violin}="$output_dir/edgeR/eukarya/${prefix}_gene_count_rpkm_violin";
-			$vars->{PIRET_EUK_gene_edgeR_MD}="$output_dir/edgeR/eukarya/$groups[0]"."__"."$groups[1]"."__gene__MD";
-			my @gene_MD_plots = glob("$output_dir/edgeR/eukarya/*__gene__MD.png");
-			if (scalar @gene_MD_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#gene_MD_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MD_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MD_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MD_PLOT}=$gene_MD_plots[$i];
-					$md_plot_info->{PIRET_MD_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MD_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_gene_edgeR_MD_PLOT}},$md_plot_info;
-				}
-			}
-			
-		}
-		
-		if ($deseq2){
-			$vars->{PIRETDESEQ2}=1;
-			my $DE_summary_table = "$output_dir/DESeq2/eukarya/summary_updown.csv";
-			open(my $des,"<",$DE_summary_table);
-			while(<$des>){
-				chomp;
-				next if (/^,/);
-				my @temp = split /,/, $_;
-				if( scalar @temp == 4 ){
-					my $info;
-					for my $i(0..$#temp){
-						$temp[$i] =~ s/^\"|"$//g;
-						$info->{"PIRETDESEQ2EUKSUM$i"}=$temp[$i];
-					}
-					push @{$vars->{LOOP_PIRETDESEQ2EUKSUM}}, $info;
-				}
-			}
-			close $des;
-			$vars->{PIRET_EUK_CDS_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_PCA";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_histogram";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_heatmap";
-			$vars->{PIRET_EUK_CDS_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_CDS_count_FPKM_violin";
-			$vars->{PIRET_EUK_CDS_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__CDS__MA";
-			my @CDS_MA_plots = glob("$output_dir/DESeq2/eukarya/*__CDS__MA.png");
-			if (scalar @CDS_MA_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#CDS_MA_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$CDS_MA_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MA_PLOT}=$CDS_MA_plots[$i];
-					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_CDS_DESeq2_MA_PLOT}},$md_plot_info;
-				}
-			}
-			$vars->{PIRET_EUK_gene_DESeq2_PCA}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_PCA";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_histogram}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_histogram";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_heatmap}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_heatmap";
-			$vars->{PIRET_EUK_gene_DESeq2_FPKM_violin}="$output_dir/DESeq2/eukarya/${prefix}_gene_count_FPKM_violin";
-			$vars->{PIRET_EUK_gene_DESeq2_MA}="$output_dir/DESeq2/eukarya/$groups[0]"."__"."$groups[1]"."__gene__MA";
-			my @gene_MA_plots = glob("$output_dir/DESeq2/eukarya/*__gene__MA.png");
-			if (scalar @gene_MA_plots > 0 ){
-				my $md_plot_info;
-				for my $i (0..$#gene_MA_plots){
-					my $grid_index = $i % 4 ;
-					my ($file_name, $file_path, $file_suffix)=fileparse("$gene_MA_plots[$i]", qr/\.[^.]*/);
-					$md_plot_info->{"PIRET_MA_PLOT_GRID_$grid_index"}=1;
-					$md_plot_info->{PIRET_MA_PLOT}=$gene_MA_plots[$i];
-					$md_plot_info->{PIRET_MA_PLOT_ID}=$file_name;
-					$md_plot_info->{PIRET_MA_PLOT_PDF}="$file_path/$file_name.pdf";
-					push @{$vars->{LOOP_PIRET_EUK_gene_DESeq2_MA_PLOT}},$md_plot_info;
-				}
-			}
-		}
-	}
+		} # $vars->{"PIRET$kingdom"}
+	} # foreach $kingdom 
 	
 }
 

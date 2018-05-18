@@ -254,6 +254,11 @@ $( document ).ready(function()
 			$('#edge-user-btn').unbind("click").on("click",function(){
 				$('#popupUser').popup('open');
 			});
+			if (localStorage.background){
+				$(".edge-header").css("background",localStorage.background);
+				$("div#popupUser  a").css("background",localStorage.background);
+			}
+
 		}else{
 			FileTree(inputFileDir);
 		}
@@ -406,7 +411,7 @@ $( document ).ready(function()
 					userType = data.type;
 					FileTree("/" + data.UserDir + "/");
 					uploadFiles("/" + data.UserDir + "/");
-
+					$('.colorpicker').hide();
 					//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 					$('#edge-user-btn').html(localStorage.fnname);
 					$('#edge-project-page-li').text('My Project List');
@@ -418,6 +423,11 @@ $( document ).ready(function()
 					updateProject(focusProjName);
 					var LoginMsg = true; 
 					if (localStorage.LoginMsg){ LoginMsg =  ( localStorage.LoginMsg  === "true") ;}
+					if (data.userbackground){
+						$(".edge-header").css("background",data.userbackground);
+						$("div#popupUser  a").css("background",data.userbackground);
+ 						localStorage.background=data.userbackground;
+					}
 					var cleanData = (data.CleanData > 0);
 					if (  LoginMsg && cleanData ){
 						showWarning("The intermediate bam/sam/fastq/gz files in the projects directory will be deleted if they are older than "+ data.CleanData  + " days. <br/><p><input type='checkbox' data-role='none' id='chk-close-warning'>Don't show this again.</p>");
@@ -532,15 +542,15 @@ $( document ).ready(function()
 				userType='';
 				$('#signIn-password').empty();
 				allMainPage.hide();
-		 	    $( "#edge-content-home" ).fadeIn();
+				$( "#edge-content-home" ).fadeIn();
 				// remove session, update button
 				$('.no-show-login').fadeIn("fast");
-		    	$(".no-show-logout").hide();
+				$(".no-show-logout").hide();
 				//$('#edge-user-btn').addClass("ui-btn-icon-notext").removeClass("edge-user-btn-login");
 				$('#edge-user-btn').html("Login");
 				$('#edge-project-page-li').text('Public Project List');
 				setTimeout( function() {updateProject(focusProjName);},5);
-		    	$( "#edge_integrity_dialog_header" ).text("Message");
+				$( "#edge_integrity_dialog_header" ).text("Message");
 				$( "#edge_integrity_dialog_content" ).text(success_msg);
 				setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 				$('#edge-user-btn').unbind("click").on("click",function(){
@@ -552,8 +562,9 @@ $( document ).ready(function()
                                 var uploader = $("#uploader").pluploadQueue({
                                     buttons : {browse:false,start:false,stop:false}
                                 });
+
 			} // success
-      	}); // ajax
+ 		}); // ajax
 	};
 	
 	$(".edge-popup-close").on('click', function(e){
@@ -1165,6 +1176,7 @@ $( document ).ready(function()
 		var w;
 		if ( action == 'compare'){
 			w = window.open();
+			w.document.write("Running MetaComp ... Please wait...");
 		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
@@ -2060,6 +2072,11 @@ $( document ).ready(function()
 				}
 				$('#edge-proj-cpu').val(obj.INFO.RUNCPU);
 				localStorage.runCPU = obj.INFO.RUNCPU;
+				
+				if (localStorage.background){
+					$(".edge-header").css("background",localStorage.background);
+					$("div#popupUser  a").css("background",localStorage.background);
+				}
 			},
 			error: function(data){
 				showWarning("Failed to initialized EDGE GUI interface. Please check server error log for detail.");
@@ -3519,6 +3536,8 @@ $( document ).ready(function()
 			}
 		});
 		var shareEmail = userChkArray.join(',');
+		var reportnameHTML = $.parseHTML(reportName);
+		reportName = $(reportnameHTML).text();
 		var myAjaxRequest= $.ajax({
 			url: "./cgi-bin/edge_projects_report.cgi",
 			type: "POST",
@@ -3564,4 +3583,30 @@ $( document ).ready(function()
 	};
 
 //END EDGE REPORTS
+	//ColorPick
+	var dfColor = localStorage.background || "#50a253";
+	$(".colorpicker").spectrum({
+		color: dfColor,
+		change: function(color){
+			$(".edge-header").css("background",color.toHexString());
+			$("div#popupUser  a").css("background",color.toHexString());
+			localStorage.background=color.toHexString();
+			updateUserPreference("background",color.toHexString().replace("#",""));
+		}
+	});
+	function updateUserPreference(key,value){
+		key = 'user-' + key;
+		$.ajax({
+			url: "./cgi-bin/edge_user_management.cgi",
+			type: "POST",
+			cache: false,
+			dataType: "json",
+			data: key + '=' + value + '&'  + $.param({"action": 'write-user-preference','protocol': location.protocol, 'sid':localStorage.sid}) ,
+			error: function(data){
+				showWarning("Update User Preference FAILED:  Please try again or contact your system administrator.");
+			},
+			success: function(data){
+			}
+		});
+	};
 });

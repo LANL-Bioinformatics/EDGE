@@ -18,10 +18,10 @@ $( document ).ready(function()
 		$(this).parent().next().find('.li-report-content').toggle(false);
 	});
 	$( "#edge-content-report p.extra-text-link > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
-	$( "#edge-content-report .iframe_label > a" ).attr( "target", "new_window");
+	$( "#edge-content-report .iframe_label > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
 	$( "#edge-content-report .jb_link" ).attr( "target", "new_window");
 	$( "#edge-content-report table.output-table td > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
-	$( ".edge-compare-output .iframe_label > a" ).attr( "target", "_blank");
+	$( ".edge-compare-output .iframe_label > a:not(a[data-rel='popup'])" ).attr( "target", "_blank");
 
 	$( "#edge-content-report span.li-report-content-title" ).on("click",function(){
 		$(this).next().slideToggle();
@@ -123,7 +123,7 @@ $( document ).ready(function()
 		
 	});
 
-	var gap_depth_cut_off=0
+	var gap_depth_cut_off=0;
 	$('.edge-output-datatables').on('click',function(){
 		var json_table_file = $(this).attr('data-src');
 		var tablelinkdom = $(this);
@@ -222,6 +222,7 @@ $( document ).ready(function()
 			});
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				var w = window.open();
+				w.document.write("Running Blast on " + contigID + " against NT... Please wait...");
 				$.ajax({
 					url: "./cgi-bin/edge_action.cgi",
 					type: "POST",
@@ -240,6 +241,7 @@ $( document ).ready(function()
 						if( data.STATUS == "SUCCESS" ){
 							showMSG(data.INFO);
 							w.location = edge_path + data.PATH;
+							setTimeout(function(){ w.close(); },100);
 							// add monitor blast file output instead . It may time out for long blast run
 						}else{
 							showMSG(data.INFO);
@@ -247,6 +249,7 @@ $( document ).ready(function()
 					},
 					error: function(x, t, m){
 						$.mobile.loading( "hide" );
+						setTimeout(function(){ w.close(); },100);
 						showMSG("ACTION FAILED: "+ t + "  Please try again or contact your system administrator." );
 					},
 				});
@@ -537,7 +540,8 @@ $( document ).ready(function()
 		$("#edge_confirm_dialog_content").html(actionContent);
 		$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
 		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-			var w = window.open();		
+			var w = window.open("","new","width=360,height=100");
+			w.document.write("Extracting Contigs/Reads Mapped to " + ReferenceID + ". Please wait...");	
 			$.ajax({
 				url: "./cgi-bin/edge_action.cgi",
 				type: "POST",
@@ -546,7 +550,7 @@ $( document ).ready(function()
 				data: { "proj" : focusProjName, "action": action, "reffile":ReferenceFile,"refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
 				beforeSend: function(){
 					$.mobile.loading( "show", {
-						text: "Extract Contigs Fasta...",
+						text: "Extract Contigs/Reads Fasta/Fastq...",
 						textVisible: 1,
 						html: ""
 					});
@@ -558,12 +562,14 @@ $( document ).ready(function()
 					if( data.STATUS == "SUCCESS" ){
                                         	//console.log(edge_path,data.PATH);
 						w.location = edge_path + data.PATH;
+						setTimeout(function(){ w.close(); },100);
 					}else{
 						showMSG(data.INFO);
 					}
 				},
 				error: function(data){
 					$.mobile.loading( "hide");
+					setTimeout(function(){ w.close(); },100);
 					showMSG("ACTION FAILED: Please try again or contact your system administrator.");
 				}
 			});
@@ -571,10 +577,11 @@ $( document ).ready(function()
 	});
 	$('#edge-get-contigs-by-taxa').on('change',function(){
 		var taxa = $(this).val();
-		var w = window.open();
 		if(taxa == "0" ){
 			return;
 		}
+		var w = window.open("","new","width=360,height=100");
+		w.document.write("Extracting " + taxa + " FASTA. Please wait ...");
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -593,6 +600,7 @@ $( document ).ready(function()
 					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
 					//console.log(edge_path,data.PATH);
 					w.location = edge_path + data.PATH;
+					setTimeout(function(){ w.close(); },100);
 				}else{
 					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
 					showMSG(data.INFO);
@@ -600,6 +608,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
+				setTimeout(function(){ w.close(); },100);
 				showMSG("ACTION FAILED: Please try again or contact your system administrator.");
 			}
 		});
@@ -607,9 +616,11 @@ $( document ).ready(function()
 	});
 	$('.edge-get-reads-by-taxa').on('change',function(){
 		var select_id = this.id;
-		var taxa = $('#'+ select_id).val();
+		var taxa = $('#'+ select_id + ' option:selected ').val();
+		var taxa_name = $('#'+ select_id + ' option:selected ').text();
 		var cptool = select_id.replace('edge-get-reads-by-taxa-','');
-		var w = window.open();
+		var w = window.open("","new","width=360,height=100");
+		w.document.write("Extracting " + taxa_name + " FASTQ from " + cptool + ". Please wait...");
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -628,6 +639,7 @@ $( document ).ready(function()
 					$('#'+ select_id).removeClass('ui-disabled');
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
 					w.location = edge_path + data.PATH;
+					setTimeout(function(){ w.close(); },100);
 				}else{
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
 					showMSG(data.INFO);
@@ -635,6 +647,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
+				setTimeout(function(){ w.close(); },100);
 				showMSG("ACTION FAILED: Please try again or contact your system administrator.");
 			}
 		});

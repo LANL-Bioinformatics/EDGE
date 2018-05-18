@@ -884,8 +884,10 @@ sub stringSanitization{
 			map { $dirtybit =1  if ! &emailValidate($_); } @email;
 		}else{
 			$opt->{$key} =~ s/[`;'"]/ /g;
+			$str =~ s/[`;'"]/ /g;
+			$str =~ s/[\x0]//g;
 			next if $key eq "edge-report-desc";
-			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\_\@\-\=\:\\\.\/\+ ]/);
+			$dirtybit=1 if ($str =~ /[^0-9a-zA-Z\_\@\-\=\:\\\.\/\+ ]/);
 		}
 		if ($dirtybit){
 			$info->{INFO} = "Invalid characters detected \'$str\'.";

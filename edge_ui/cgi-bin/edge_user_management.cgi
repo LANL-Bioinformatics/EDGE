@@ -100,12 +100,22 @@ elsif ($action eq "login"){
 			remove_tree("$edge_input/$user_dir_old");
 		}
 		$info->{UserDir} = $user_dir; 
+		my $user_preference = "$edge_input/$user_dir/.edgeuser";
 		my $cronjobs = `crontab -l 2>/dev/null`;
 		$info->{CleanData} = $sys->{edgeui_proj_store_days} if ($sys->{edgeui_proj_store_days} > 0 && $cronjobs =~ /edge_data_cleanup/);
 		unlink glob("$edge_input/$user_dir/.sid*");
 		symlink("$edge_input/public/data", "$edge_input/$user_dir/PublicData") if (! -e "$edge_input/$user_dir/PublicData");
 		symlink("$edge_input/public/projects", "$edge_input/$user_dir/PublicProjects") if (! -e "$edge_input/$user_dir/PublicProjects");
 		open my $fh, ">", "$edge_input/$user_dir/.sid$sid"; close $fh;
+		if ( -e "$user_preference" && -s $user_preference){
+			my $user_preference_info = readListFromJson($user_preference);
+			foreach my $key (keys %{$user_preference_info}){
+				 $info->{"user$key"} = $user_preference_info->{$key};
+			}
+		}
+		else{
+			open my $fh, ">", "$user_preference"; close $fh;
+		} 
 	}
 }
 elsif ($action eq "logout"){
@@ -205,6 +215,29 @@ elsif ($action eq "report-share" || $action eq "report-unshare"){
 	} else{
 		$info->{error} = "Invalid session.\n";
 	}
+}elsif($action eq 'write-user-preference'){
+	my $valid = verifySession($sid);
+
+	if ($valid){
+		my ($username,$password,$userType) = getCredentialsFromSession($sid);
+		my $user_dir=md5_hex(lc($username));
+		my $user_preference = "$edge_input/$user_dir/.edgeuser";
+		my $user_preference_info;
+		if ( -e $user_preference && -s $user_preference){
+			$user_preference_info =	readListFromJson($user_preference);
+		}
+		foreach my $key (keys %opt){
+			if ($key =~ /^user-(.*)/){
+				my $user_key = $1;
+				$opt{$key} = "#".$opt{$key} if $user_key =~ /background/;
+				$user_preference_info->{$user_key} = $opt{$key};
+			}
+		}
+		saveListToJason($user_preference_info,$user_preference);
+		
+	}else{
+		$info->{error} = "Invalid session.\n";
+	}
 }
 
 #$info->{SUCCESS} = "login is successful";
@@ -258,6 +291,7 @@ sub um_service {
 	$url .= $service;
 	my $browser = LWP::UserAgent->new;
 	my $req = ($service =~ /register/)? POST $url : PUT $url;
+	my $response = $browser->request($req);
 	$req->header('Content-Type' => 'application/json');
 	$req->header('Accept' => 'application/json');
 	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
@@ -336,4 +370,24 @@ sub move_recursive{
 	for my $file (glob ("$source_dir/*")) {
    		move ($file, "$destination_dir/") or die $!;
 	}
+}
+
+sub saveListToJason {
+        my ($list, $file) = @_;
+        open (JSON, ">", $file) or die "Can't write to file: $file\n";
+        my $json = to_json($list, {utf8 => 1, pretty => 1});
+        print JSON $json;
+        close JSON;
+}
+sub readListFromJson {
+	my $json = shift;
+	my $list = {};
+	if( -r $json ){
+		open JSON, "<", $json;
+		flock(JSON, 1);
+		local $/ = undef;
+		$list = decode_json(<JSON>);
+		close JSON;
+	}
+	return $list;
 }
