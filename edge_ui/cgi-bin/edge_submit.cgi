@@ -1352,8 +1352,15 @@ sub open_file
 sub count_fasta {
 	my $file = shift;
 	my $count=0;
-	open (my $FASTA, "-|")
-		or exec ("grep", "-c", ">", $file);
+	my $FASTA;
+	if (is_fasta($file)){
+		open ($FASTA, "-|")
+			or exec ("grep", "-c", ">", $file);
+	}
+	if (is_genbank($file)){
+		open ($FASTA, "-|")
+			or exec ("grep", "-c", "^LOCUS", $file);
+	}
 	while(<$FASTA>){chomp; $count = $_;}
 	close $FASTA;
 	return $count;
