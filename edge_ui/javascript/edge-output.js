@@ -614,6 +614,7 @@ $( document ).ready(function()
 		});
 		
 	});
+	var checkpidInterval;
 	$('.edge-get-reads-by-taxa').on('change',function(){
 		var select_id = this.id;
 		var taxa = $('#'+ select_id + ' option:selected ').val();
@@ -632,14 +633,22 @@ $( document ).ready(function()
 				$('#edge-get-reads-spinner-'+cptool).addClass("edge-sp edge-sp-circle");
 				$('#edge-get-reads-spinner-'+cptool).css("width","20px").css("height","20px");
 			},
-			complete: function() {
+			complete: function(data) {
 			},
 			success: function(data){
+				//console.log(data);
 				if( data.STATUS == "SUCCESS" ){
-					$('#'+ select_id).removeClass('ui-disabled');
-					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
-					w.location = edge_path + data.PATH;
-					setTimeout(function(){ w.close(); },100);
+					data.cptool = cptool;
+					data.w = w;
+					data.select_id = select_id;
+					if ( data.PID ){ 
+						checkpidInterval = setInterval(function(){check_process(data)},3000); 
+					}else{
+						$('#'+ select_id).removeClass('ui-disabled');
+						$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
+						w.opener.location = edge_path + data.PATH;
+						setTimeout(function(){ w.close(); },300);
+					}
 				}else{
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
 					w.close();
@@ -654,6 +663,35 @@ $( document ).ready(function()
 		});
 		
 	});
+
+	function check_process(data){
+		var cptool = data.cptool;
+		var w = data.w;
+		var select_id = data.select_id;
+		$.ajax({
+			url: "./cgi-bin/edge_action.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { "action": 'checkpid', "pid": data.PID,'protocol': location.protocol, 'sid':localStorage.sid},
+			success: function(obj){
+				if( obj.STATUS == "DONE" ){
+					$('#'+ select_id).removeClass('ui-disabled');
+					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
+					clearInterval(checkpidInterval);
+					w.opener.location = edge_path + data.PATH;
+					setTimeout(function(){ w.close(); },300);
+				}else{
+					w.document.write(".");
+					//console.log(obj.INFO);
+				}
+			},
+			error: function(obj){
+				showMSG("ACTION FAILED: Please try again or contact your system administrator.");
+			}
+		});
+		
+	}
 	function showMSG( dialog_content ) {
 		$( "#edge_integrity_dialog_header" ).text("Message");
 		$( "#edge_integrity_dialog_content" ).html(dialog_content);

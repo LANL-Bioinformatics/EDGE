@@ -565,7 +565,7 @@ elsif( $action eq 'getreadsbyref'){
 	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/g;
 	(my $correct_ref_id = $reference_id) =~ s/\W/\_/g;
 	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
-	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq &";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
 	
@@ -633,23 +633,29 @@ elsif( $action eq 'getreadsbytaxa'){
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/g;
 	my $extract_from_original_fastq = ($cptool_for_reads_extract =~ /gottcha/i)? " -fastq $reads_fastq " : "";
 	$out_fasta_name = "$real_name"."_"."$cptool_for_reads_extract"."_"."$out_fasta_name";
-	my $cmd = "$EDGE_HOME/scripts/microbial_profiling/script/bam_to_fastq_by_taxa.pl -rank species  -name \"$taxa_for_contig_extract\" -prefix $readstaxa_outdir/$out_fasta_name -se -zip $extract_from_original_fastq $readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam 1>>$readstaxa_outdir/ReadsExtractLog.txt";
+	my $cmd = "$EDGE_HOME/scripts/microbial_profiling/script/bam_to_fastq_by_taxa.pl -rank species  -name \"$taxa_for_contig_extract\" -prefix $readstaxa_outdir/$out_fasta_name -se -zip $extract_from_original_fastq $readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam";
 	#GOTTCHA2 Only
 	if( $cptool_for_reads_extract =~ /gottcha2/i ){
 		my $gottcha2_db="";
 		$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna" if ($cptool_for_reads_extract =~ /speDB-b/);
 		$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna" if ($cptool_for_reads_extract =~ /speDB-v/);
-		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
 	}
 	# PanGIA Only
 	if( $cptool_for_reads_extract =~ /pangia/i ){
 		my $pangia_db_path="$EDGE_HOME/database/PanGIA/";
-		$cmd = "export HOME=$EDGE_HOME;$EDGE_HOME/thirdParty/pangia/pangia.py -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
 
+	# bring process to background and return to ajax
+	open (my $fh,">","$readstaxa_outdir/run.sh");
+	print $fh $cmd,"\n";
+	close $fh;
+	chdir $readstaxa_outdir;
+	$cmd = "bash $readstaxa_outdir/run.sh 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt &";
+
 	$info->{STATUS} = "FAILURE";
-	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
-	
+	my $pid;
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
@@ -658,12 +664,14 @@ elsif( $action eq 'getreadsbytaxa'){
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
 	{
-		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
+		$pid = open EXTRACTREADS, "-|", $cmd  or die $!;
 		close EXTRACTREADS;
-		$pid++;
-
-		if( $pid ){
+		if (not defined $pid ){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to extract $taxa_for_contig_extract reads fastq";
+		}else{
 			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
 			$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
 		}
 	}
@@ -853,6 +861,22 @@ elsif($action eq 'define-gap-depth'){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
 	}
+}elsif($action eq 'checkpid'){
+	my $pid =  $opt{"pid"};
+	if ( $pid =~ /^\d+$/ ) { 
+		open (PS, "-|") 
+			or exec ("ps","--no-headers","-p","$pid");
+		my $process = <PS>;   
+		close PS;
+		chomp $process;
+		unless ($process){
+			$info->{STATUS} = "DONE";
+			$info->{INFO} = "Process $pid not detected. Done?";
+		}else{
+			$info->{STATUS} = "RUNNING";
+                        $info->{INFO} = "Process $pid detected";
+		}
+	}
 }
 &returnStatus();
 
@@ -951,7 +975,7 @@ sub returnStatus {
 	$json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
 	print $cgi->header('application/json') unless $ARGV[0];
 	print $json;
-	exit;
+	exit 0;
 }
 
 sub getProjNameFromDB{
