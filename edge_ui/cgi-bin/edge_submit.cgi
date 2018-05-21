@@ -1354,11 +1354,11 @@ sub count_fasta {
 	my $count=0;
 	my $FASTA;
 	if (is_fasta($file)){
-		open (my $FASTA, "-|")
+		open ($FASTA, "-|")
 			or exec ("grep", "-c", ">", $file);
 	}
 	if (is_genbank($file)){
-		open (my $FASTA, "-|")
+		open ($FASTA, "-|")
 			or exec ("grep", "-c", "^LOCUS", $file);
 	}
 	while(<$FASTA>){chomp; $count = $_;}
