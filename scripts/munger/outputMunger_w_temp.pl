@@ -202,9 +202,9 @@ sub pull_piret{
 			my $prefix = basename($1) if ($vars->{"PIRET${kingdom}REF"} =~ /(.*)\.\w+$/);
 			$vars->{"PIRET${kingdom}REFNAME"} = $prefix;
 			for my $feature ("CDS","gene"){
-				my $feature_count_file = "$output_dir/featureCounts/${prefix}_${feature}_count_sorted.csv";
-				my $feature_count_json_file = "$output_dir/featureCounts/${prefix}_${feature}_count.tsv_sorted.json";
-				my $feature_count_summary = "$output_dir/featureCounts/${prefix}_${feature}_count.tsv_summary.csv";
+				my $feature_count_file = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count_sorted.csv";
+				my $feature_count_json_file = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count.tsv_sorted.json";
+				my $feature_count_summary = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count.tsv_summary.csv";
 	
 				if ( -e $feature_count_summary){
 					my @fccs_result;
