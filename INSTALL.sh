@@ -244,35 +244,37 @@ echo "
 
 install_prokka()
 {
+local VER=1.13
 echo "------------------------------------------------------------------------------
-                           Installing prokka-1.11
+                           Installing prokka-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf prokka-1.11.tar.gz
-cd prokka-1.11
+tar xvzf prokka-$VER.tar.gz
+cd prokka-$VER
 cd $rootdir/thirdParty
-ln -sf $rootdir/thirdParty/prokka-1.11/bin/prokka $rootdir/bin/prokka
-$rootdir/thirdParty/prokka-1.11/bin/prokka --setupdb
+ln -sf $rootdir/thirdParty/prokka-$VER/bin/prokka $rootdir/bin/prokka
+$rootdir/thirdParty/prokka-$VER/bin/prokka --setupdb
 echo "
 ------------------------------------------------------------------------------
-                           prokka-1.11 installed
+                           prokka-$VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_barrnap()
 {
+local VER=0.9
 echo "------------------------------------------------------------------------------
-                           Installing barrnap-0.4.2
+                           Installing barrnap-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf barrnap-0.4.2.tar.gz
-cd barrnap-0.4.2
+tar xvzf barrnap-$VER.tar.gz
+cd barrnap-$VER
 cd $rootdir/thirdParty
-ln -sf $rootdir/thirdParty/barrnap-0.4.2/bin/barrnap $rootdir/bin/barrnap
+ln -sf $rootdir/thirdParty/barrnap-$VER/bin/barrnap $rootdir/bin/barrnap
 echo "
 ------------------------------------------------------------------------------
-                           barrnap-0.4.2 installed
+                           barrnap-$VER installed
 ------------------------------------------------------------------------------
 "
 }
