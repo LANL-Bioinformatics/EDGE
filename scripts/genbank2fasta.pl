@@ -49,15 +49,17 @@ my $inseq = Bio::SeqIO->new(-format => 'genbank', -file => $gb_file);
 my $n;
 my $protein_accession;
 while (my $seq = $inseq->next_seq){ 
+	my $Locus_id = $seq->display_id();
 	if ($get_genome){
 		my $genome_seq = $seq->seq();
 		$genome_seq =~ s/(.{70})/$1\n/g; 
         	chomp $genome_seq;
-		print ">".$seq->accession_number().".".$seq->seq_version()." ".$seq->description()."\n".$genome_seq."\n";
+		my $acc = $seq->accession_number();
+		$acc = $Locus_id if $acc eq "unknown";
+		print ">".$acc.".".$seq->seq_version()." ".$seq->description()."\n".$genome_seq."\n";
 		#$seqout->write_seq($seq);
 		next;
 	}
-	my $Locus_id = $seq->display_id();
 	my $contig_seq = $seq->seq();
 	my $contig_len = $seq->length;
 	my ($output_aa, $output_contig, $fig_id, $product, $aa_Seq, 
