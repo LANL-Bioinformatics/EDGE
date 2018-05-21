@@ -642,6 +642,7 @@ $( document ).ready(function()
 					setTimeout(function(){ w.close(); },100);
 				}else{
 					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
+					w.close();
 					showMSG(data.INFO);
 				}
 			},
