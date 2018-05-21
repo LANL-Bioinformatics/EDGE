@@ -56,7 +56,9 @@ while (my $seq = $inseq->next_seq){
         	chomp $genome_seq;
 		my $acc = $seq->accession_number();
 		$acc = $Locus_id if $acc eq "unknown";
-		print ">".$acc.".".$seq->seq_version()." ".$seq->description()."\n".$genome_seq."\n";
+		my $version = ($seq->seq_version())? $seq->seq_version(): 1 ;
+		my $desc = $seq->description();
+		print ">".$acc.".$version "."$desc\n".$genome_seq."\n";
 		#$seqout->write_seq($seq);
 		next;
 	}
