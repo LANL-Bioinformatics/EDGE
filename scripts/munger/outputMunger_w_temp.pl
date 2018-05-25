@@ -1482,7 +1482,15 @@ sub pull_taxa {
 					my @temp = split /\t/, $_;
 					$cur_level ||= $temp[0];
 					last if $cur_level ne $temp[0];
-					my $mapped_reads = $toolname =~ /gottcha-/i ? $temp[8] : $temp[2];
+
+					my $mapped_reads = $temp[2];
+					if( $toolname =~ /gottcha-/i ){
+						$mapped_reads = $temp[8];
+					}
+					elsif( $toolname =~ /pangia/i ){
+						$mapped_reads = $temp[19];
+					}
+
 					$creads += $mapped_reads if ($mapped_reads =~ /\d/);
 					$creads = "N/A" if $toolname =~ /metaphlan/i;
 				}
