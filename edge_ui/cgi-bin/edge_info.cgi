@@ -16,6 +16,8 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use Digest::MD5 qw(md5_hex);
 use Email::Valid;
+use Storable 'dclone';
+
 require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 $ENV{PATH} = "/bin:/usr/bin";
@@ -51,6 +53,7 @@ my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[3];
 my $protocol = $opt{protocol} || 'http:';
 my $sid         = $opt{'sid'}|| $ARGV[4];
 my $ip          = $ARGV[5];
+my $forceupdate = $opt{'forceupdate'};
 $ENV{REMOTE_ADDR} = $ip if $ip;
 
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-dev-master.lanl.gov';
@@ -118,11 +121,19 @@ if($cluster) {
 if( $umSystemStatus ){
 	my $valid = verifySession($sid);
 	if($valid){
-		($username,$password,$viewType) = getCredentialsFromSession($sid);
-		my $user_config = $sys->{edgeui_input}."/". md5_hex(lc($username))."/user.properties";
-		&getUserProjFromDB();
-		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
 		$info->{INFO}->{SESSION_STATUS} = "valid";
+		($username,$password,$viewType) = getCredentialsFromSession($sid);
+		my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($username));
+		my $list_json = "$user_dir/.edgeinfo.json";
+		my $user_config = $sys->{edgeui_input}."/". md5_hex(lc($username))."/user.properties";
+		$info->{INFO}->{FORCE}=$forceupdate;
+		if ( $forceupdate ne "true"  && -e $list_json) {
+			$list = readListFromJson($list_json);
+		}else{
+			&getUserProjFromDB();
+		}
+		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
+		&cache_user_projects_page($username,$password,$viewType,$list);	
 	}
 	else{
 		&getUserProjFromDB();
@@ -136,12 +147,12 @@ else{
 
 my $time = strftime "%F %X", localtime;
 my $idx;
+my @delete;
 @projlist = sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
 # selected project on index 0
 if( scalar @projlist ){
 	my $progs;
 	my $count=0;
-	
 	# retrive progress info of a project that is selected by the following priorities:
 	#  1. assigned project
 	#  2. latest running project
@@ -150,8 +161,8 @@ if( scalar @projlist ){
 	my @running_idxs = grep { $list->{$_}->{STATUS} eq "running" or $list->{$_}->{STATUS} =~ /unstarted|interrupted|in process|unknown/ and $list->{$_}->{NAME} ne $pname } @projlist;
 	$idx = shift @running_idxs if (scalar(@running_idxs) && !$pname);
 	$idx = $projlist[0] if (!$idx); # when given $pname does not exist.
-	@projlist = ($idx,@running_idxs); # update running projects and focus project program info.
-	foreach my $i ( @projlist ) {
+	my @projlist_update = ($idx,@running_idxs); # update running projects and focus project program info.
+	foreach my $i ( @projlist_update ) {
 		last if ($edge_projlist_num && ++$count > $edge_projlist_num);
 		my $lproj    = $list->{$i}->{NAME};
 		my $lprojc   = $list->{$i}->{PROJCODE};
@@ -170,6 +181,7 @@ if( scalar @projlist ){
 		#remove project from list if output directory has been removed	
 		unless( -e $log || -e $config){
 			delete $list->{$i};
+			push @delete, $i;
 			next;
 		}	
 	
@@ -224,7 +236,6 @@ if( scalar @projlist ){
 			#}
 		}
 	}
-
 	$info->{PROG} = $progs->{$idx};
 	# with user management, NAME becomes unique project id
 	$info->{INFO}->{NAME}   = $list->{$idx}->{NAME};
@@ -244,12 +255,48 @@ if( scalar @projlist ){
 	$info->{INFO}->{METABSVE}   = $list->{$idx}->{METABSVE} if ($list->{$idx}->{METABSVE});
 	## END sample metadata
 }
-
+delete $list->{$_} foreach @delete;
 $info->{LIST} = $list if $list;
-
 &returnStatus();
 
 ######################################################
+
+sub cache_user_projects_page {
+	my $user = shift;
+	my $pass = shift;
+	my $type= shift;
+	my $list = shift;
+	
+	my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($user));
+	my $upage_html = "$user_dir/.user_pp.html";
+	my $apage_html = "$user_dir/.admin_pp.html";
+	my $list_json = "$user_dir/.edgeinfo.json";
+	my $now = time(); 
+	# fork this process
+	my $pid = fork();
+	die "Fork failed: $!" if !defined $pid;
+	if ($pid==0){
+		open STDERR, ">/dev/null";
+		if ( ! -e $list_json || ($now-(stat $list_json)[9]) > 180 || $forceupdate eq "true") {
+			if (!$list){
+				&getUserProjFromDB();
+				&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
+			}
+			my $list_from_api = dclone($list);
+			saveListToJason($list_from_api, $list_json);
+		}
+		# update if file age > 5 min = 300 sec
+		if ( ! -e $upage_html || ($now-(stat $upage_html)[9]) > 300 || $forceupdate eq "true") {
+			if ($type eq "admin"){
+				system("perl edge_projectspage.cgi $user $pass true $type user \'\' 2>/dev/null 1> $upage_html");
+				system("perl edge_projectspage.cgi $user $pass true $type $type \'\' 2>/dev/null 1> $apage_html");
+			}else{
+				system("perl edge_projectspage.cgi $user $pass true $type user \'\' 2>/dev/null 1> $upage_html");
+			}
+		}
+		exit;
+	}
+}
 
 sub readListFromJson {
 	my $json = shift;
@@ -271,6 +318,8 @@ sub saveListToJason {
 	print JSON $json;
   	close JSON;
 }
+
+
 
 sub getSysParamFromConfig {
 	my $config = shift;

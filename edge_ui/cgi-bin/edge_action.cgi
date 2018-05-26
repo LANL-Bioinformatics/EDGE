@@ -132,7 +132,7 @@ if ( $umSystemStatus )
 	$list = &getUserProjFromDB("owner");
 	my $user_info=&getUserInfo();
 	$userType=$user_info->{type};
-	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
 	#separate permission for future uses. A permission module can be added potentially..
@@ -195,14 +195,28 @@ if( $action eq 'empty' ){
 	}
 
 	if( -d $proj_dir ){
+		my @trash;
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
 			next if $file eq '.' or $file eq '..';
-			remove_tree("$proj_dir/$file") if -d "$proj_dir/$file";
+			if (-d "$proj_dir/$file"){
+				rename("$proj_dir/$file","$proj_dir/$file.trash");
+				push @trash, "$proj_dir/$file.trash"; 
+			}
 			unlink glob("$proj_dir/\.run*");
 		}
 		closedir(BIN);
-
+		
+		my $pid = fork();
+		die "Fork failed: $!" if !defined $pid;
+		if ($pid==0){
+			# releases browser from waiting child to finish
+			open STDIN, "</dev/null";
+ 			open STDOUT, ">/dev/null";
+			open STDERR, ">/dev/null";
+			remove_tree("$_") foreach @trash;
+			exit;
+		}
 		#prepare new preject log
 		rename("$proj_dir/process.log", "$proj_dir/process.log.bak");
 		open (my $fh, ">","$proj_dir/process_current.log");
@@ -211,7 +225,10 @@ if( $action eq 'empty' ){
 		print $fh2 "\n*** [$time] EDGE_UI: This project has been emptied ***\n";
 		open (my $logfh, "<", "$proj_dir/process.log.bak");
 		while(<$logfh>){
-			print $fh2 $_ if (/runPipeline -c/);
+			if (/runPipeline -c/){
+				print $fh2 $_;
+				last;
+			}
 		}
 		print $fh "\n*** [$time] EDGE_UI: project unstarted (queued) ***\n";
 		print $fh2  "\n*** [$time] EDGE_UI: project unstarted (queued) ***\n"; 
@@ -219,16 +236,16 @@ if( $action eq 'empty' ){
 		close $fh;
 		close $fh2;
 
-		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
-		while( defined (my $file = readdir BIN) ) {
-			next if $file eq '.' or $file eq '..';
-			if( -d "$proj_dir/$file" ){
-				$info->{STATUS} = "FAILURE";
-				$info->{INFO} = "ERROR: Not able to delete $proj_dir/$file.";
-				&returnStatus();
-			}
-		}
-		closedir(BIN);
+		#opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
+		#while( defined (my $file = readdir BIN) ) {
+		#	next if $file eq '.' or $file eq '..';
+		#	if( -d "$proj_dir/$file" ){
+		#		$info->{STATUS} = "FAILURE";
+		#		$info->{INFO} = "ERROR: Not able to delete $proj_dir/$file.";
+		#		&returnStatus();
+		#	}
+		#}
+		#closedir(BIN);
 		&updateDBProjectStatus($pname,"unstarted") if ($username && $password);
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO} = "Project output has been emptied.";
@@ -303,18 +320,30 @@ elsif( $action eq 'delete' ){
 			unlink "$input_dir/public/projects/${real_name}_$pname";
 			unlink "$input_dir/*/SharedProjects/${real_name}_$pname";
 		}
-		remove_tree($proj_dir);
-		remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
+		# fork this process
+		my $pid = fork();
+		die "Fork failed: $!" if !defined $pid;
+		if ($pid==0){
+			# releases browser from waiting child to finish
+			open STDIN, "</dev/null";
+ 			open STDOUT, ">/dev/null";
+			open STDERR, ">/dev/null";
+			remove_tree($proj_dir);
+			remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
+			exit;
+		}
 		unlink "$www_root/JBrowse/data/$pname", "$www_root/JBrowse/data/$projCode";
 		unlink "$www_root/opaver_web/data/$pname", "$www_root/opaver_web/data/$projCode";
 		unlink glob("$www_root/../thirdParty/pangia/pangia-vis/data/$projCode*");
-		if( !-e $proj_dir && !-e "$out_dir/$pname" ){
+		##if( !-e $proj_dir && !-e "$out_dir/$pname" ){
 			$info->{STATUS} = "SUCCESS";
 			$info->{INFO}   = "Project $real_name has been deleted.";
-		}
-
+		##}
 	}
 	else{
+		if ($username && $password){
+			&updateDBProjectStatus($pname,"delete");
+		}
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Output directory not found.";
 	}
@@ -513,17 +542,32 @@ elsif( $action eq 'tarproj'){
 	#chdir $proj_dir;
 	if ( ! -e "$proj_dir/.tarfinished" || ! -e "$proj_dir/${real_name}_$pname.zip"){
 		symlink($proj_dir,$tarDir) if ($username && $password);
-		my $cmd = "cd $out_dir; zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished ";
-		if ( system($cmd) == 0 ){
-			unlink $tarDir if ($username && $password);
-			$info->{STATUS} = "SUCCESS";
+		my $cmd = "cd $out_dir; zip -r $tarFile ${real_name}_$pname -x \\*gz \\*.sam \\*.bam \\*.fastq; mv $tarFile $proj_dir/ ; touch $proj_dir/.tarfinished; rm -f $proj_dir/zip.sh $tarDir";
+		
+		# bring process to background and return to ajax
+		open (my $fh,">","$proj_dir/zip.sh");
+		print $fh $cmd,"\n";
+		close $fh;
+		chdir $out_dir;
+		$cmd = "bash $proj_dir/zip.sh 2>\&1 1>>/dev/null &";
+		
+		my $pid = open TARPROJ, "-|", $cmd  or die $!;
+		close TARPROJ;
+                if (not defined $pid ){
+                        $info->{STATUS} = "FAILURE";
+                        $info->{INFO}   = "Failed to compress project $real_name directory";
+                }else{
+ 			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
+ 			$info->{PATH} = $tarLink;
 			$info->{INFO}   = "$real_name compressed file is ready to ";
 			$info->{LINK}	= "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
-		}
+                }
 	}else{
 		$info->{STATUS} = "SUCCESS";
 		$info->{INFO}   = "$real_name compressed file is ready to ";
 		$info->{LINK}   = "<a data-ajax='false' id='ddownload_link'  href=\"$tarLink\">download</a>";
+ 		$info->{PATH} = $tarLink;
 	}
 }
 elsif( $action eq 'getcontigbyref'){
@@ -536,20 +580,27 @@ elsif( $action eq 'getcontigbyref'){
 	my $mapping_outdir="$assemble_outdir/contigMappingToRef";
 	my $relative_mapping_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/contigMappingToRef" ;
 	(my $out_fasta_name = $reference_id) =~ s/[ .']/_/g;
-	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
+	$out_fasta_name = "$real_name"."_"."$out_fasta_name"."_contigas.fasta";
 	my $cmd = "awk '\$7>=$identity_cutoff && \$12==\"$reference_id\" {print \$13}'  $mapping_outdir/contigsToRef.coords | $EDGE_HOME/scripts/get_seqs.pl - $assemble_outdir/${real_name}_contigs.fa > $mapping_outdir/$out_fasta_name";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id contig fasta";
 	
-	if (  -s  "$mapping_outdir/$out_fasta_name.fasta"){
+	# bring process to background and return to ajax
+	open (my $fh,">","$mapping_outdir/getseq.sh");
+	print $fh $cmd,"\n";
+	close $fh;
+	chdir $mapping_outdir;
+	$cmd = "bash $mapping_outdir/getseq.sh 2>\&1 1>>/dev/null &";
+		
+	if (  -s  "$mapping_outdir/$out_fasta_name"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_mapping_outdir/$out_fasta_name";
 	}else{
-		my $pid = open EXTRACTCONTIG, "-|", $cmd or die $!;
-		close EXTRACTCONTIG;
-		$pid++;
+		my $pid = open GETSEQ, "-|", $cmd  or die $!;
+        	close GETSEQ;
 
 		if( $pid ){
+			$info->{PID} = ++$pid;
 			$info->{STATUS} = "SUCCESS";
 			$info->{PATH} = "$relative_mapping_outdir/$out_fasta_name";
 		}
@@ -565,9 +616,16 @@ elsif( $action eq 'getreadsbyref'){
 	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/g;
 	(my $correct_ref_id = $reference_id) =~ s/\W/\_/g;
 	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
-	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq &";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq ";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
+
+	# bring process to background and return to ajax
+	open (my $fh,">","$mapping_outdir/getseq.sh");
+	print $fh $cmd,"\n";
+	close $fh;
+	chdir $mapping_outdir;
+	$cmd = "bash $mapping_outdir/getseq.sh 2>\&1 1>>/dev/null &";
 	
 	if (  -s  "$mapping_outdir/$out_fastq_name"){
 		$info->{STATUS} = "SUCCESS";
@@ -578,9 +636,9 @@ elsif( $action eq 'getreadsbyref'){
 	}else{
 		my $pid = open EXTRACTREADS, "-|", $cmd or die $!;
 		close EXTRACTREADS;
-		$pid++;
 
 		if( $pid ){
+			$info->{PID} = ++$pid;
 			$info->{STATUS} = "SUCCESS";
 			$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
 		}
@@ -595,20 +653,27 @@ elsif( $action eq 'getcontigbytaxa'){
 	my $taxa_outdir="$assemble_outdir/Taxonomy";
 	my $relative_taxa_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/Taxonomy" ;
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/;
-	$out_fasta_name = "$real_name"."_"."$out_fasta_name.fasta";
+	$out_fasta_name = "$real_name"."_"."$out_fasta_name"."_contigas.fasta";
 	my $cmd = "$EDGE_HOME/scripts/contig_classifier_by_bwa/extract_fasta_by_taxa.pl -fasta $assemble_outdir/${real_name}_contigs.fa -csv $taxa_outdir/$real_name.ctg_class.top.csv -taxa \"$taxa_for_contig_extract\" -rank genus > $taxa_outdir/$out_fasta_name";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract contig fasta";
 	
-	if (  -s  "$taxa_outdir/$out_fasta_name.fasta"){
+	# bring process to background and return to ajax
+	open (my $fh,">","$assemble_outdir/getseq.sh");
+	print $fh $cmd,"\n";
+	close $fh;
+	chdir $assemble_outdir;
+	$cmd = "bash $assemble_outdir/getseq.sh 2>\&1 1>>/dev/null &";
+
+	if (  -s  "$taxa_outdir/$out_fasta_name"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name";
 	}else{
 		my $pid = open EXTRACTCONTIG, "-|", $cmd or die $!;
 		close EXTRACTCONTIG;
-		$pid++;
 
 		if( $pid ){
+			$info->{PID} = ++$pid;
 			$info->{STATUS} = "SUCCESS";
 			$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name";
 		}
@@ -707,25 +772,29 @@ elsif( $action eq 'compare'){
 	my $compare_out_dir = "$out_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
 	my $relative_outdir = "$out_rel_dir/ProjectComparison/". md5_hex(join ('',@projCodes));
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
+	make_path("$compare_out_dir",{chmod => 0755,});
 	$info->{PATH} = "$relative_outdir/compare_project.html";
 	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/compare_project.html\'>here</a>";
 	if ( -s "$compare_out_dir/compare_project.html"){
 		$info->{STATUS} = "SUCCESS";
 	}else{
 		my $cmd = "$EDGE_HOME/scripts/compare_projects/compare_projects.pl -html_host $runhost -out_dir $compare_out_dir -projects $projects";
+		# bring process to background and return to ajax
+		open (my $fh,">","$compare_out_dir/run.sh");
+		print $fh $cmd,"\n";
+		close $fh;
+		chdir $compare_out_dir;
+		$cmd = "bash $compare_out_dir/run.sh 2>\&1 1>>$compare_out_dir/metacomp.log &";
+
 		my $pid = open COMPARE, "-|", $cmd or die $!;
 		close COMPARE;
-		$pid++;
-
-		if( $pid ){
-			my $err = `grep "No Taxonomy Classification" $compare_out_dir/log.txt`;
-			if ($err){
-				$info->{INFO} = "Error: $err";
-				remove_tree($compare_out_dir);
-				&returnStatus();
-			}else{
-				$info->{STATUS} = "SUCCESS";
-			}
+		
+		if (not defined $pid ){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to run MetaComp";
+		}else{
+			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
 		}
 	}
 }elsif($action eq 'contigblast'){
@@ -733,27 +802,35 @@ elsif( $action eq 'compare'){
 	my $relative_outdir="$proj_rel_dir/AssemblyBasedAnalysis/ContigBlast";
 	my $contig_file="$proj_dir/AssemblyBasedAnalysis/${real_name}_contigs.fa"; 
 	my $nt_db="$EDGE_HOME/database/nt/nt"; 
-	my $cpu = `grep -a "cpu=" $proj_dir/config.txt | awk -F"=" '{print \$2}'`;
-	chomp $cpu;
+	my $cpu=4;
+	open(my $cfh,"<","$proj_dir/config.txt");
+	while(<$cfh>){chomp;if($_=~/cpu=(\d+)/){$cpu=$1; last;} }
+	close $cfh;
 	$blast_params =~ s/-num_threads\s+\d+//;
 	make_path("$blast_out_dir",{chmod => 0755,});
 	$info->{PATH} = "$relative_outdir/$contig_id.blastNT.html";
-	$info->{INFO} = "The comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
+	$info->{INFO} = "The blast comparison result is available <a target='_blank' href=\'$runhost/$relative_outdir/$contig_id.blastNT.html\'>here</a>";
 	if ( -s "$blast_out_dir/$contig_id.blastNT.html"){
 		$info->{STATUS} = "SUCCESS";
 	}else{
 		my $cmd = "$EDGE_HOME/scripts/get_seqs.pl $contig_id $contig_file | blastn -query - -db $nt_db $blast_params -out $blast_out_dir/$contig_id.blastNT.html -num_threads $cpu -html ";
+		# bring process to background and return to ajax
+		open (my $fh,">","$blast_out_dir/run.sh");
+		print $fh $cmd,"\n";
+		close $fh;
+		chdir $blast_out_dir;
+		$cmd = "bash $blast_out_dir/run.sh 2>\&1 1>>$blast_out_dir/blast.log &";
 
 		my $pid = open BLAST, "-|", $cmd or die $!;
 		close BLAST;
 
 		if( $pid ){
 			#parent
-			$pid++;
+			$info->{PID}= ++$pid;
 			$info->{STATUS} = "SUCCESS";
 		}else{
-			#child
-			close STDOUT;
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to blast $contig_id from project $real_name";
 		}
 	}
 }elsif( $action eq 'metadata-delete' ){
@@ -1233,10 +1310,10 @@ sub shareProject{
 			my $user_dir =  "$input_dir/". md5_hex(lc($_));
 			my $shared_proj_dir = "$user_dir/SharedProjects/${real_name}_$project";
 			if ( $action eq "share"){
-				`mkdir -p $user_dir/SharedProjects`;
-				`ln -sf $proj_dir $shared_proj_dir` if (!-e $shared_proj_dir);
+				make_path("$user_dir/SharedProjects",{chmod => 0755,});
+				symlink($proj_dir,$shared_proj_dir) if (!-e $shared_proj_dir);
 			}else{# unshare
-				`rm -f $shared_proj_dir` if ( -e $shared_proj_dir);
+				unlink $shared_proj_dir if ( -e $shared_proj_dir);
 			}
 		}
         }else{
@@ -1411,8 +1488,10 @@ sub scanProjToList{
 sub getSystemUsage {
 	my $mem = `vmstat -s | awk  '\$0 ~/total memory/ {total=\$1 } \$0 ~/free memory/ {free=\$1} \$0 ~/buffer memory/ {buffer=\$1} \$0 ~/cache/ {cache=\$1} END{print (total-free-buffer-cache)/total*100}'`;
         my $cpu = `top -bn1 | grep load | awk '{printf "%.1f", \$(NF-2)}'`;
-        my $disk = `df -h $out_dir | tail -1 | awk '{print \$5}'`;
-        $disk= `df -h $out_dir | tail -1 | awk '{print \$4}'` if ($disk !~ /\%/);
+	my $disk;
+	open (my $fh, "-|")
+		or exec ("df","-h","$out_dir");
+	while(<$fh>){ my @array= split/\s+/; $disk=($array[4] =~ /\%/)?$array[4]:$array[3];}
         $cpu = $cpu/$sys->{edgeui_tol_cpu}*100;
         $disk =~ s/\%//;
         if( $mem || $cpu || $disk ){
@@ -1471,12 +1550,14 @@ sub cleanProjectForNewConfig {
 			if( $new_config->{$module}->{$param} ne $old_config->{$module}->{$param} ){
 				$diff++;
 				foreach my $task ( keys %{$module_ctl->{$module}} ){
-					`rm -f $module_ctl->{$module}->{$task}`;
+					unlink $module_ctl->{$module}->{$task};
 				}
 				if($param =~ /^custom-(\w+)-/){
-					`rm -f $proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/$1*/.finished $proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/$1*/.finished`;
+					unlink glob("$proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/$1*/.finished");
+					unlink glob("$proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/$1*/.finished");
 				}elsif($param =~ /^splitrim/ ){
-					`rm -f $proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/gottcha-*/.finished $proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/gottcha-*/.finished`;
+					unlink glob("$proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/gottcha-*/.finished");
+					unlink glob("$proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/gottcha-*/.finished");
 				}else{
 					last;
 				}

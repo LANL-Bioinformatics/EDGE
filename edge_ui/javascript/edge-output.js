@@ -1,8 +1,13 @@
 $( document ).ready(function()
 {
+	var checkpidInterval;
 	var projdir = $('#edge-proj-outdir').attr('dir-src');
 	var focusProjName = $('#edge-output-projname').attr("data-pid");
 	var projRealname = $('#edge-output-projname').text();
+	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
+        var newWindowFooter = "<div class='edge-sp edge-sp-circle'></div></body></html>";
+	var newTitle = "EDGE bioinformatics";
+
 
 	$( "#edge-out-expand-all" ).on("click", function(){
 		$( "#edge-content-report > div[data-role='collapsible']" ).collapsible( "option", "collapsed", false );
@@ -221,8 +226,9 @@ $( document ).ready(function()
 				$("#edge_confirm_dialog a").unbind('click');
 			});
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-				var w = window.open();
-				w.document.write("Running Blast on " + contigID + " against NT... Please wait...");
+				var w = window.open("","new");
+				w.document.body.innerHTML = '';
+				w.document.write( newWindowHeader + "Running Blast on " + contigID + " against NT. Please wait..." + newWindowFooter);
 				$.ajax({
 					url: "./cgi-bin/edge_action.cgi",
 					type: "POST",
@@ -237,13 +243,24 @@ $( document ).ready(function()
 						});
 					},
 					success: function(data){
-						$.mobile.loading( "hide" );
+						data.w = w;
+						data.type= 'blast';
 						if( data.STATUS == "SUCCESS" ){
-							showMSG(data.INFO);
-							w.location = edge_path + data.PATH;
-							setTimeout(function(){ w.close(); },100);
+							if ( data.PID ){ 
+								checkpidInterval = setInterval(function(){check_process(data)},3000); 
+							}else{
+								$.mobile.loading( "hide" );
+								showMSG(data.INFO);
+								w.location = edge_path + data.PATH;
+								setTimeout(function(){
+									w.document.title = newTitle;
+									var newHeader= "<div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>" + newTitle + "</h2></div>";
+									$(w.document.body).prepend(newHeader);
+								},300);
+							}
 							// add monitor blast file output instead . It may time out for long blast run
 						}else{
+							$.mobile.loading( "hide" );
 							showMSG(data.INFO);
 						}
 					},
@@ -474,6 +491,9 @@ $( document ).ready(function()
 	//var focusProjName = projdir.split('/').pop();
 	// download button
 	$("#get_download_link").on('click',function tarProj(){
+		var w = window.open("","new","width=360,height=200");
+		w.document.body.innerHTML = '';
+ 		w.document.write(newWindowHeader + "Compressing Project "+ projRealname + " Result ..." + newWindowFooter);
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -487,20 +507,31 @@ $( document ).ready(function()
 			complete: function() {
 			},
 			success: function(data){
-				if( data.STATUS == "SUCCESS" ){
-					$('#edge-download-spinner').removeClass("edge-sp edge-sp-circle");
-					$('#get_download_link').after(data.LINK);
-					$('#ddownload_link').addClass("ui-btn ui-mini ui-btn-inline ui-btn-active");
-					$('#ddownload_link').text('Download Project');
-					$('#get_download_link').hide();
-					showMSG(data.INFO + data.LINK + '.');
+				// need data.PATH
+				if( data.STATUS == "SUCCESS" ){	
+					data.w = w;
+					data.spinner_id = "edge-download-spinner";
+					data.type = "download";
+					if ( data.PID ){ 
+						checkpidInterval = setInterval(function(){check_process(data)},3000); 
+					}else{
+						$('#edge-download-spinner').removeClass("edge-sp edge-sp-circle");
+						$('#get_download_link').after(data.LINK);
+						$('#ddownload_link').addClass("ui-btn ui-mini ui-btn-inline ui-btn-active");
+						$('#ddownload_link').text('Download Project');
+						$('#get_download_link').hide();
+						showMSG(data.INFO + data.LINK + '.');
+						setTimeout(function(){ w.close(); },100);
+					}
 				}
 				else{
 					$('#edge-download-spinner').removeClass("edge-sp edge-sp-circle");
+					w.close();
 					showMSG(data.INFO);
 				}
 			},
 			error: function(data){
+				setTimeout(function(){ w.close(); },100);
 				$('#edge-download-spinner').removeClass("edge-sp edge-sp-circle");
 				showMSG("ACTION FAILED: Please try again or contact your system administrator.");
 			}
@@ -540,8 +571,9 @@ $( document ).ready(function()
 		$("#edge_confirm_dialog_content").html(actionContent);
 		$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
 		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-			var w = window.open("","new","width=360,height=100");
-			w.document.write("Extracting Contigs/Reads Mapped to " + ReferenceID + ". Please wait...");	
+			var w = window.open("","new","width=360,height=200");
+			w.document.body.innerHTML = '';
+			w.document.write( newWindowHeader + "Extracting Contigs/Reads Mapped to " + ReferenceID + ". Please wait..." + newWindowFooter);	
 			$.ajax({
 				url: "./cgi-bin/edge_action.cgi",
 				type: "POST",
@@ -558,12 +590,19 @@ $( document ).ready(function()
 				complete: function() {
 				},
 				success: function(data){
-					$.mobile.loading( "hide");
 					if( data.STATUS == "SUCCESS" ){
-                                        	//console.log(edge_path,data.PATH);
-						w.location = edge_path + data.PATH;
-						setTimeout(function(){ w.close(); },100);
+						data.w = w;
+						if ( data.PID ){ 
+							checkpidInterval = setInterval(function(){check_process(data)},3000); 
+						}else{
+							$.mobile.loading( "hide");
+                                        		//console.log(edge_path,data.PATH);
+							w.opener.location = edge_path + data.PATH;
+							setTimeout(function(){ w.close(); },100);
+						}
 					}else{
+						$.mobile.loading( "hide");
+						w.close();
 						showMSG(data.INFO);
 					}
 				},
@@ -580,8 +619,9 @@ $( document ).ready(function()
 		if(taxa == "0" ){
 			return;
 		}
-		var w = window.open("","new","width=360,height=100");
-		w.document.write("Extracting " + taxa + " FASTA. Please wait ...");
+		var w = window.open("","new","width=360,height=200");
+		w.document.body.innerHTML = '';
+		w.document.write(newWindowHeader + "Extracting " + taxa + " FASTA. Please wait ..." + newWindowFooter);
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -596,13 +636,21 @@ $( document ).ready(function()
 			},
 			success: function(data){
 				if( data.STATUS == "SUCCESS" ){
-					$('#edge-get-contigs-by-taxa').removeClass('ui-disabled');
-					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
-					//console.log(edge_path,data.PATH);
-					w.location = edge_path + data.PATH;
-					setTimeout(function(){ w.close(); },100);
+					data.spinner_id = 'edge-get-contigs-spinner';
+					data.w = w;
+					data.select_id = 'edge-get-contigs-by-taxa';
+					if ( data.PID ){ 
+						checkpidInterval = setInterval(function(){check_process(data)},3000); 
+					}else{
+						$('#edge-get-contigs-by-taxa').removeClass('ui-disabled');
+						$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
+						//console.log(edge_path,data.PATH);
+						w.opener.location = edge_path + data.PATH;
+						setTimeout(function(){ w.close(); },100);
+					}
 				}else{
 					$('#edge-get-contigs-spinner').removeClass("edge-sp edge-sp-circle");
+					w.close();
 					showMSG(data.INFO);
 				}
 			},
@@ -614,14 +662,14 @@ $( document ).ready(function()
 		});
 		
 	});
-	var checkpidInterval;
 	$('.edge-get-reads-by-taxa').on('change',function(){
 		var select_id = this.id;
 		var taxa = $('#'+ select_id + ' option:selected ').val();
 		var taxa_name = $('#'+ select_id + ' option:selected ').text();
 		var cptool = select_id.replace('edge-get-reads-by-taxa-','');
-		var w = window.open("","new","width=360,height=100");
-		w.document.write("Extracting " + taxa_name + " FASTQ from " + cptool + ". Please wait...");
+		var w = window.open("","new","width=360,height=200");
+		w.document.body.innerHTML = '';
+		w.document.write( newWindowHeader  + "Extracting " + taxa_name + " FASTQ from " + cptool + ". Please wait..." + newWindowFooter);
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -638,7 +686,7 @@ $( document ).ready(function()
 			success: function(data){
 				//console.log(data);
 				if( data.STATUS == "SUCCESS" ){
-					data.cptool = cptool;
+					data.spinner_id = 'edge-get-reads-spinner-'+cptool;
 					data.w = w;
 					data.select_id = select_id;
 					if ( data.PID ){ 
@@ -665,7 +713,7 @@ $( document ).ready(function()
 	});
 
 	function check_process(data){
-		var cptool = data.cptool;
+		var spinner_id = data.spinner_id;
 		var w = data.w;
 		var select_id = data.select_id;
 		$.ajax({
@@ -676,13 +724,35 @@ $( document ).ready(function()
 			data: { "action": 'checkpid', "pid": data.PID,'protocol': location.protocol, 'sid':localStorage.sid},
 			success: function(obj){
 				if( obj.STATUS == "DONE" ){
-					$('#'+ select_id).removeClass('ui-disabled');
-					$('#edge-get-reads-spinner-'+cptool).removeClass("edge-sp edge-sp-circle");
 					clearInterval(checkpidInterval);
-					w.opener.location = edge_path + data.PATH;
-					setTimeout(function(){ w.close(); },300);
+					if (data.type === "download"){
+ 						$('#get_download_link').after(data.LINK);
+ 						$('#ddownload_link').addClass("ui-btn ui-mini ui-btn-inline ui-btn-active");
+ 						$('#ddownload_link').text('Download Project');
+						$('#get_download_link').hide();
+ 						showMSG(data.INFO + data.LINK + '.');
+					}
+					if (spinner_id){
+						$('#'+ select_id).removeClass('ui-disabled');
+						$('#' + spinner_id).removeClass("edge-sp edge-sp-circle");
+					}else{
+						$.mobile.loading( "hide");
+					}
+					
+					if (data.type === "blast"){
+						showMSG(data.INFO);
+						w.location = edge_path + data.PATH;
+						setTimeout(function(){
+							w.document.title = newTitle;
+							var newHeader= "<div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;' class='edge-header'>"+newTitle+"</h2></div>";
+							$(w.document.body).prepend(newHeader);
+						},300);
+					}else{
+						w.opener.location = edge_path + data.PATH;
+						setTimeout(function(){ w.close(); },300);
+					}
 				}else{
-					w.document.write(".");
+					//w.document.write(".");
 					//console.log(obj.INFO);
 				}
 			},
