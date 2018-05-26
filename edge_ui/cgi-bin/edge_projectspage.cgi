@@ -6,6 +6,7 @@ use lib "../../lib";
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use Digest::MD5 qw(md5_hex);
 use CGI qw(:standard);
 #use CGI::Carp qw(fatalsToBrowser);
 use POSIX qw(strftime);
@@ -19,11 +20,12 @@ my %opt   = $cgi->Vars();
 my $username    = $opt{'username'}|| $ARGV[0];
 my $password    = $opt{'password'}|| $ARGV[1];
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[2];
-my $userType="user";
+my $userType    = $ARGV[3]||"user";
 my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
-my $loadNum    = $opt{'loadNum'} || 100;
+my $loadNum    = $opt{'loadNum'} || 9999999;
+my $forceupdate = $opt{'forceupdate'};
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
@@ -44,6 +46,23 @@ if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
 	if($valid){
 		($username,$password,$userType) = getCredentialsFromSession($sid);
+		my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($username));
+		my $upage_html = "$user_dir/.user_pp.html";
+		my $apage_html = "$user_dir/.admin_pp.html";
+		if (!$forceupdate){
+			if ($viewType =~ /user/i && -e "$upage_html" && -s "$upage_html" ){
+				open (my $fh, "<", $upage_html);
+				print $_ while(<$fh>);
+				close $fh;
+				exit;
+			}elsif( $viewType =~ /admin/i && -e "$apage_html" && -s "$apage_html"){
+				open (my $fh, "<", $apage_html);
+				print $_ while(<$fh>);
+				close $fh;
+				exit;
+			}else{
+			}
+		}
 	}
 }
 
@@ -76,6 +95,9 @@ if ( $username && $password || $um_config == 0){
  	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
  		print '<a href="" title="Share Selected Projects Metadata/Pathogens with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
  	}
+	 if ($um_config != 0){
+		print '<a href="" title="Force Update Project Page List" class="tooltip ui-btn ui-btn-d ui-icon-clock ui-btn-icon-notext ui-corner-all" data-role="button" role="button">refresh</a>';
+	}
  	print '</div>';
 }
 
@@ -128,7 +150,7 @@ sub sortList {
 	my $totalNum=scalar(@idxs);
 	my @return_idxs = @idxs;
 	my $load_num_button="<div>Load recent <input type='number' id='edge-projpage-loadnum' data-role='none' min='100' max=\"$totalNum\" value=\'$loadNum\' step='10'> /$totalNum projects. <input type='button' data-role='none' id='edge-projpage-loadnum-submit' value='Go'></div>";
-	print $load_num_button if ($totalNum>100);
+	#print $load_num_button if ($totalNum>100);
 	if ( $totalNum > $loadNum) {
 		@return_idxs=@idxs[0..$loadNum];
 	}

@@ -19,15 +19,20 @@ $( document ).ready(function()
 	var interval = 1000*7; //check every 7 secs
 	var updateProjInterval;
 	var updateLogInterval;
+	var checkpidInterval1;
 	var inputLogObj = {};
 	var inputFileID;
 	var inputFileDir  = "/public/";
 	var upFileType= "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,config,xls,xlsx";
+	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
+        var newWindowFooter = "<div class='edge-sp edge-sp-circle'></div></body></html>";
 	//var username;
 	//var password;
 	var userType;
 	var umSystemStatus = (localStorage.umStatus == 'true')? true : false;
 	var umSystemURL = localStorage.umURL;
+	var loc = window.location.pathname;
+	var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
@@ -1180,7 +1185,7 @@ $( document ).ready(function()
 		var w;
 		if ( action == 'compare'){
 			w = window.open();
-			w.document.write("Running MetaComp ... Please wait...");
+			w.document.write(newWindowHeader + "Running MetaComp. Please wait..." + newWindowFooter);
 		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
@@ -1216,32 +1221,44 @@ $( document ).ready(function()
 				//END sample metadata
 			},
 			success: function(data){
-				$.mobile.loading( "hide" );
+				
 				if( data.STATUS == "SUCCESS" ){
 					$( "#edge_integrity_dialog_header" ).text("Message");
-					showWarning(data.INFO);
 					if ( action == 'compare'){
-						var loc = window.location.pathname;
-						var edge_path = loc.substring(0,loc.lastIndexOf('/'));
-						w.location = edge_path + data.PATH;
+						data.w = w;
+						if ( data.PID ){ 
+							checkpidInterval1 = setInterval(function(){checkprocess(data)},3000); 
+						}else{
+							$.mobile.loading( "hide" );
+							w.location = edge_path + data.PATH;
+							showWarning(data.INFO);
+						}
+					}else{
+						$.mobile.loading( "hide" );
+						showWarning(data.INFO);	
 					}
 					if( action == 'rename'){
 						$( "#edge-output-projname").text(rename_project);
 					}
 				}
 				else{
+					$.mobile.loading( "hide" );
 					showWarning(data.INFO);
 				}
 				if (action != 'compare' && !request){
-					updateProject(focusProjName);
+					updateProject(focusProjName, true);
 				}
 				if ( $( "#edge-content-report" ).is(":visible")  && !request && action != 'delete'){
-					 updateReport(focusProjName);
+					updateReport(focusProjName);
+				}
+				if ( $( "#edge-content-report" ).is(":visible")  && !request && action == 'delete'){
+					setRunPipeline("EDGE");
+					//updateProjectsPage( $("#edge-project-page-li").data( "mode") );
 				}
 				//reload project list if project list page is loaded
-				if( $("#edge-project-page").is(":visible") && !request){
-					updateProjectsPage( $("#edge-project-page-li").data( "mode") );
-				}
+				//if( $("#edge-project-page").is(":visible") && !request && action != 'compare'){
+				//	updateProjectsPage( $("#edge-project-page-li").data( "mode") );
+				//}
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
@@ -1252,6 +1269,37 @@ $( document ).ready(function()
 		if (request){
 			request.push(myAjaxRequest);
 		}
+	}
+	
+	function checkprocess(data){
+		var spinner_id = data.spinner_id;
+		var w = data.w;
+		$.ajax({
+			url: "./cgi-bin/edge_action.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { "action": 'checkpid', "pid": data.PID,'protocol': location.protocol, 'sid':localStorage.sid},
+			success: function(obj){
+				if( obj.STATUS == "DONE" ){
+					clearInterval(checkpidInterval1);
+					if (spinner_id){
+						$('#' + spinner_id).removeClass("edge-sp edge-sp-circle");
+					}else{
+						$.mobile.loading( "hide");
+					}
+					showWarning(data.INFO);
+					w.location = edge_path + data.PATH;
+				}else{
+					//w.document.write(".");
+					//console.log(obj.INFO);
+				}
+			},
+			error: function(obj){
+				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+			}
+		});
+		
 	}
 
 	//panel
@@ -1469,7 +1517,7 @@ $( document ).ready(function()
 					else{
 						var dom = "<li data-icon='info' class='list-info'><a href='#'>The project has been submitted successfully. Click to see open progress panel.</a></li>";
 						$(dom).on( "click", function(){page.find( ".edge-action-panel" ).panel( "open" );}).appendTo( "#edge-submit-info");
-						updateProject(projID);
+						updateProject(projID,true);
 					}
 				}
 				else{
@@ -1807,19 +1855,19 @@ $( document ).ready(function()
 		$("#edge-project-page-li").data( "mode", "user" );
 		updateProjectsPage('user');
 	});
-	function updateProjectsPage(view, loadNum) {
-		if (loadNum === undefined){
-			loadNum = 100;
-		}
+	function updateProjectsPage(view, force) {
+		//if (loadNum === undefined){
+		//	loadNum = 100;
+		//}
 		$.ajax({
 			url: "./cgi-bin/edge_projectspage.cgi",
 			type: "POST",
 			dataType: "html",
 			cache: false,
-			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid,'loadNum':loadNum},
+			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'forceupdate':force},
 			beforeSend: function(){
 				$.mobile.loading( "show", {
-					text: "Load...",
+					text: "Load Projects List...",
 					textVisible: 1,
 					html: ""
 				});
@@ -1828,7 +1876,7 @@ $( document ).ready(function()
 				$.mobile.loading( "hide" );
 			},
 			success: function(data){
-				updateProject();
+				//updateProject();
 				allMainPage.hide();
 				$( "#edge-project-page" ).html(data);
 				$( "#edge-project-page" ).show();
@@ -1849,8 +1897,8 @@ $( document ).ready(function()
 					multiple:true
 				});
 				$("#edge-projpage-loadnum-submit").on("click",function(){
-					var loadprojNum =  $("#edge-projpage-loadnum").val();
-					updateProjectsPage(view,loadprojNum);
+					//var loadprojNum =  $("#edge-projpage-loadnum").val();
+					//updateProjectsPage(view,loadprojNum);
 				});
 				$('#edge-projpage-loadnum').keypress(function (e) {
 					var key = e.which;
@@ -1874,7 +1922,11 @@ $( document ).ready(function()
 						updateProjectsPage('admin');
 						$("#edge-project-page-li").data( "mode", "admin" );
 						return;
-					}else{
+					}else if (action === "refresh" ) {
+						updateProjectsPage(view,true);
+						updateProject("",true);
+						return;
+					}else {
 						if ( $('[name="edge-projpage-ckb"]:checked').length === 0 ){
 							showWarning("There are no projects selected.");
 							return;
@@ -1901,17 +1953,18 @@ $( document ).ready(function()
 							setUserList(action,focusProjCodes);
 						}
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+							var actionRequest=[];
 							if ( action === "compare" || action === 'metadata-export'){
 								actionConfirm(action,focusProjCodes);
 							}else{
 								//loop with 200 ms delay
 								(function actionLoop (i) {
 									setTimeout(function () {
-										$.mobile.loading( "show", {
-											text: "Executing "+ action.toUpperCase()  + " command...",
-											textVisible: 1,
-											html: ""});
-										actionConfirm(action,projids[i-1]);
+										//$.mobile.loading( "show", {
+										//	text: "Executing "+ action.toUpperCase()  + " command...",
+										//	textVisible: 1,
+										//	html: ""});
+										actionConfirm(action,projids[i-1],actionRequest);
 										if (--i) {                  // If i > 0, keep going
 											actionLoop(i);  // Call the loop again
 										}
@@ -1929,9 +1982,9 @@ $( document ).ready(function()
 									//END sample metadata
 										showWarning( 'The ' + action + ' action on project(s) is      complete.' + '<ul>' + projnames.join('\n') + '</ul>');
 									}
-									updateProjectsPage( $("#edge-project-page-li").data( "mode") );
+									updateProjectsPage( $("#edge-project-page-li").data( "mode"),true);
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
-								},500*projids.length);
+								},1000*projids.length);
 							}
 						});
 					}
@@ -1963,19 +2016,6 @@ $( document ).ready(function()
 						updateProject(focusProjName);
 					}
 				});
-			/*	//use tablesortr library 
-				$("#edge-project-page-table").tablesorter(
-					{
-						widthFixed: true, 
-						widgets: ['zebra','filter'],
-						widgetOptions : {
-						 	reflow_className    : 'ui-table-reflow',
-						 	reflow_headerAttrib : 'data-name',
-							reflow_dataAttrib   : 'data-title',
-							filter_reset: '.reset'
-						}
-					}
-				);*/
 
 				var ProjDataTable = $('#edge-project-page-table').DataTable({
 					"columnDefs": [ {"targets": 0, "orderable": false}],
@@ -2088,14 +2128,14 @@ $( document ).ready(function()
 		});
 	};
 
-	function updateProject(pname) {
+	function updateProject(pname,force) {
 		focusProjName = sessionStorage.focusProjName;
 		$.ajax({
 			url: './cgi-bin/edge_info.cgi',
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			data: { "proj" : focusProjName, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
+			data: { "proj" : focusProjName, 'forceupdate': force, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			complete: function(data){
 				/*
 				console.log("finished_proj="+finished_proj);
@@ -2196,8 +2236,8 @@ $( document ).ready(function()
 				// project list
 				if(! $.isEmptyObject(obj.LIST)){
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
-		
 					var listIdOrder = Object.keys(obj.LIST);
+
 					listIdOrder.sort(
 						firstBy(function(a,b){ return new Date(obj.LIST[b].TIME.replace(/-/g,"/")) - new Date(obj.LIST[a].TIME.replace(/-/g,"/"))})
  						.thenBy(function(a,b){ return obj.LIST[b].NAME < obj.LIST[a].NAME ? -1 : obj.LIST[b].NAME > obj.LIST[a].NAME; })
@@ -2369,6 +2409,7 @@ $( document ).ready(function()
 
 					if( obj.INFO.STATUS == "finished" && $('#edge-output-projstatus').text() && $('#edge-output-projstatus').text() != "Complete" ){
 						updateReport( obj.INFO.NAME );
+						updateProject(pname,true);
 					}
 				}
 			},
@@ -3361,7 +3402,7 @@ $( document ).ready(function()
 				$.mobile.loading( "hide" );
 			},
 			success: function(data){
-				console.log(data);
+				//console.log(data);
 				allMainPage.hide();
 				$( "#edge-projects-report-page" ).html(data);
 				$( "#edge-projects-report-page" ).show();
