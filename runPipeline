@@ -489,9 +489,12 @@ sub runPiReT {
     }
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
-    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate piret 1>/dev/null\n";
+    my $piret_env_path1 = "$RealBin/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret";
+    my $piret_env_path2 = "$RealBin/thirdParty/Anaconda3/envs/piret";
+    my $piret_env = (-e $piret_env_path1)? $piret_env_path1 : ( -e $piret_env_path2)? $piret_env_path2 : "piret";
+    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $piret_env 1>/dev/null\n";
     print $fh $cmd,"\n";
-    print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
+    #print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
     close $fh;
     &executeCommand2("/bin/sh $run_script");
     #unlink "$outputDir/$piret_indir_basename";
