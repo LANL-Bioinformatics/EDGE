@@ -16,7 +16,7 @@ anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
 anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
-assembly_tools=( idba spades megahit lrasm )
+assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
@@ -202,6 +202,26 @@ echo "
 "
 }
 
+install_racon(){
+local VER=1.3.1
+echo "------------------------------------------------------------------------------
+                           Installing racon $VER
+------------------------------------------------------------------------------"
+tar xvzf racon-v$VER.tar.gz
+cd racon-v$VER
+mkdir build
+cd build
+$anaconda2bin/cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+cp -f bin/racon* $rootdir/bin/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           racon $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_lrasm(){
 local VER=0.1.0
 echo "------------------------------------------------------------------------------
@@ -251,6 +271,9 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf prokka-$VER.tar.gz
 cd prokka-$VER
+# remove old perl modules
+# https://github.com/tseemann/prokka/issues/293
+rm -rf perl5
 cd $rootdir/thirdParty
 ln -sf $rootdir/thirdParty/prokka-$VER/bin/prokka $rootdir/bin/prokka
 $rootdir/thirdParty/prokka-$VER/bin/prokka --setupdb
@@ -1290,6 +1313,7 @@ $anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_
 $anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
+$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
@@ -2018,6 +2042,20 @@ then
 else
   echo "megahit is not found"
   install_megahit
+fi
+
+if ( checkSystemInstallation lrasm  )
+then
+  racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  if ( echo $racon_installed_VER | awk '{if($1>=1.3.0) exit 0; else exit 1}' )
+  then
+    echo "racon $racon_installed_VER found"
+  else
+    install_racon
+  fi
+else
+  echo "racon is not found"
+  install_racon
 fi
 
 if ( checkSystemInstallation lrasm  )
