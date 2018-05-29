@@ -64,7 +64,7 @@ $ftp_proxy ="" if $no_proxy;
 $http_proxy = "--proxy \'$user_proxy\' " if ($user_proxy);
 $ftp_proxy = "--proxy \'$user_proxy\' " if ($user_proxy);
 
-my $curl = ($Download_tool =~ /wget/)?  "wget -v -U \"Mozilla/5.0\" ": "curl -A \"Mozilla/5.0\" -L";
+my $curl = ($Download_tool =~ /wget/)?  "wget -v -U \"Mozilla/5.0\" ": "curl -k -A \"Mozilla/5.0\" -L";
 
 ## init temp directory
 `rm -rf $OUTDIR/sra2fastq_temp/`;
