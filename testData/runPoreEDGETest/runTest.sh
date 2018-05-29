@@ -14,12 +14,18 @@ test_result(){
 	Expect=$rootdir/readsToRef.alnstats.txt
 	Expect2=$rootdir/readsToContigs.alnstats.txt
 	Expect3=$rootdir/NanoStats.txt
+	Expect4=$rootdir/readsToRef.alnstats2.txt
 	testName="EDGE Nanopore data analysis test";
-	if cmp -s "$Test" "$Expect" && cmp -s "$Test2" "$Expect2" && cmp -s "$Test3" "$Expect3"
-	#if cmp -s "$Test" "$Expect"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect4"
 	then
-		echo "$testName passed!"
-		touch "$rootdir/TestOutput/test.success"
+		if cmp -s "$Test2" "$Expect2" && cmp -s "$Test3" "$Expect3"
+		then
+			echo "$testName passed!"
+			touch "$rootdir/TestOutput/test.success"
+		else
+			echo "$testName failed!"
+			touch "$rootdir/TestOutput/test.fail"
+		fi
 	else
 		echo "$testName failed!"
 		touch "$rootdir/TestOutput/test.fail"
