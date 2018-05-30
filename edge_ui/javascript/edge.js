@@ -1880,16 +1880,6 @@ $( document ).ready(function()
 				allMainPage.hide();
 				$( "#edge-project-page" ).html(data);
 				$( "#edge-project-page" ).show();
-				$( ".edge-project-page-link").unbind('click').on('click', function(e){
-					e.preventDefault();
-					var pname = $(this).attr("data-pid");
-					if (e.altKey){
-                                                window.open(location.href.split('#')[0] +"/?proj="+pname);
-                                        }else{
-						updateReport(pname);
-						updateProject(pname);
-					}
-				});
 				$(".tooltip").tooltipster({
 					theme:'tooltipster-light',
 					maxWidth: '480',
@@ -1983,6 +1973,7 @@ $( document ).ready(function()
 										showWarning( 'The ' + action + ' action on project(s) is      complete.' + '<ul>' + projnames.join('\n') + '</ul>');
 									}
 									updateProjectsPage( $("#edge-project-page-li").data( "mode"),true);
+									updateProject("",true);
 									//showWarning('Projects' + '<ul>' + projnames.join('\n') + '</ul>'+ 'have been ' + action +'d');
 								},1000*projids.length);
 							}
@@ -2016,14 +2007,27 @@ $( document ).ready(function()
 						updateProject(focusProjName);
 					}
 				});
-
+				var projectTableData = $('#edge-project-page-table').attr('data');
 				var ProjDataTable = $('#edge-project-page-table').DataTable({
+					"ajax" : projectTableData,
 					"columnDefs": [ {"targets": 0, "orderable": false}],
 					"order": [],
 					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
 					"pageLength": 25,
 					"deferRender": true,
 					"responsive": true,
+					"drawCallback" : function(settings){
+						$( ".edge-project-page-link").unbind('click').on('click', function(e){
+							e.preventDefault();
+							var pname = $(this).attr("data-pid");
+							if (e.altKey){
+								window.open(location.href.split('#')[0] +"/?proj="+pname);
+							}else{
+								updateReport(pname);
+								updateProject(pname);
+							}
+						});
+					}
 				});
 				$('#edge-projpage-ckall').on('click',function(){
 					$(this).toggleClass('selected');

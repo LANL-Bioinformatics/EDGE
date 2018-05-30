@@ -268,15 +268,18 @@ sub cache_user_projects_page {
 	my $list = shift;
 	
 	my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($user));
-	my $upage_html = "$user_dir/.user_pp.html";
-	my $apage_html = "$user_dir/.admin_pp.html";
+	my $upage_json = "$user_dir/.user_pp.json";
+	my $apage_json = "$user_dir/.admin_pp.json";
 	my $list_json = "$user_dir/.edgeinfo.json";
 	my $now = time(); 
 	# fork this process
 	my $pid = fork();
 	die "Fork failed: $!" if !defined $pid;
 	if ($pid==0){
+		# releases browser from waiting child to finish
 		open STDERR, ">/dev/null";
+		open STDIN, "</dev/null";
+		open STDOUT, ">/dev/null";
 		if ( ! -e $list_json || ($now-(stat $list_json)[9]) > 180 || $forceupdate eq "true") {
 			if (!$list){
 				&getUserProjFromDB();
@@ -286,12 +289,12 @@ sub cache_user_projects_page {
 			saveListToJason($list_from_api, $list_json);
 		}
 		# update if file age > 5 min = 300 sec
-		if ( ! -e $upage_html || ($now-(stat $upage_html)[9]) > 300 || $forceupdate eq "true") {
+		if ( ! -e $upage_json || ($now-(stat $upage_json)[9]) > 300 || $forceupdate eq "true") {
 			if ($type eq "admin"){
-				system("perl edge_projectspage.cgi $user $pass true $type user \'\' 2>/dev/null 1> $upage_html");
-				system("perl edge_projectspage.cgi $user $pass true $type $type \'\' 2>/dev/null 1> $apage_html");
+				system("perl edge_projectspage.cgi $user $pass true $type user \'\' true 2>/dev/null 1>/dev/null");
+				system("perl edge_projectspage.cgi $user $pass true $type $type \'\' true  2>/dev/null 1>/dev/null");
 			}else{
-				system("perl edge_projectspage.cgi $user $pass true $type user \'\' 2>/dev/null 1> $upage_html");
+				system("perl edge_projectspage.cgi $user $pass true $type user \'\' true  2>/dev/null 1>/dev/null");
 			}
 		}
 		exit;

@@ -25,7 +25,7 @@ my $viewType    = $opt{'view'}|| $ARGV[4];
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
 my $loadNum    = $opt{'loadNum'} || 9999999;
-my $forceupdate = $opt{'forceupdate'};
+my $forceupdate = $opt{'forceupdate'} || $ARGV[6];
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
 
@@ -35,34 +35,23 @@ my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 $sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
+my $www_root    = $sys->{edgeui_wwwroot};
 my $out_dir     = $sys->{edgeui_output};
 my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
 $um_url ||= "$protocol//$domain/userManagement";
 
 my $cluster     = $sys->{cluster};
+my $upage_json = $sys->{edgeui_input}."/.user_pp.json";
+my $apage_json = $sys->{edgeui_input}."/.admin_pp.json";
 # session check
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
-	if($valid){
-		($username,$password,$userType) = getCredentialsFromSession($sid);
+	if($valid || scalar(@ARGV) > 1 ) {
+		($username,$password,$userType) = getCredentialsFromSession($sid) unless (scalar(@ARGV) > 1);
 		my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($username));
-		my $upage_html = "$user_dir/.user_pp.html";
-		my $apage_html = "$user_dir/.admin_pp.html";
-		if (!$forceupdate){
-			if ($viewType =~ /user/i && -e "$upage_html" && -s "$upage_html" ){
-				open (my $fh, "<", $upage_html);
-				print $_ while(<$fh>);
-				close $fh;
-				exit;
-			}elsif( $viewType =~ /admin/i && -e "$apage_html" && -s "$apage_html"){
-				open (my $fh, "<", $apage_html);
-				print $_ while(<$fh>);
-				close $fh;
-				exit;
-			}else{
-			}
-		}
+		$upage_json = "$user_dir/.user_pp.json";
+		$apage_json = "$user_dir/.admin_pp.json";
 	}
 }
 
@@ -103,36 +92,53 @@ if ( $username && $password || $um_config == 0){
 
 #print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
 #print "<form id='edge-projpage-form'>\n";
+my ($list,$idxs,$return_idxs);
 my $head_checkbox="<input type='checkbox' id='edge-projpage-ckall'>";
 if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
 	# My Table
-	my $list = &getUserProjFromDB("owner",$loadNum);
-	my $list_g = &getUserProjFromDB("guest",$loadNum);
-	my $list_p = &getUserProjFromDB("other_published",$loadNum);
-	$list = &ref_merger($list, $list_p) if $list_p;
-	$list = &ref_merger($list, $list_g) if $list_g;
-	#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
-
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
-	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$return_idxs,$list,\@theads);
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
+	
+	if (!$forceupdate && -e "$upage_json" && -s "$upage_json"){
+		&printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
+	}else{
+		$list = &getUserProjFromDB("owner",$loadNum);
+		my $list_g = &getUserProjFromDB("guest",$loadNum);
+		my $list_p = &getUserProjFromDB("other_published",$loadNum);
+		$list = &ref_merger($list, $list_p) if $list_p;
+		$list = &ref_merger($list, $list_g) if $list_g;
+		#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
+
+		($idxs,$return_idxs)= &sortList($list,$loadNum);
+		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
+		saveListToJason($td_list,$upage_json);
+	}
 
 }elsif ($umSystemStatus=~ /true/i) {
 	# show admin list or published project
 	$head_checkbox="" if (!$username && !$password);
-	my $list =  &getUserProjFromDB("",$loadNum);
-	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$return_idxs,$list,\@theads);
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
+	if (!$forceupdate && -e "$apage_json" && -s "$apage_json"){
+		&printTable($table_id,$return_idxs,$list,\@theads,$apage_json);
+	}else{
+		$list =  &getUserProjFromDB("",$loadNum);
+		($idxs,$return_idxs)= &sortList($list,$loadNum);
+		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$apage_json);
+		saveListToJason($td_list,$apage_json);
+	}
 }elsif ($um_config == 0) {
 	# all projects in the EDGE_output
-	my $list= &scanProjToList($loadNum);
-	my ($idxs,$return_idxs)= &sortList($list,$loadNum);
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
 	my $table_id = "edge-project-page-table";
-	&printTable($table_id,$return_idxs,$list,\@theads);
+	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
+	if (!$forceupdate && -e "$upage_json" && -s "$upage_json"){
+		&printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
+	}else{
+		$list= &scanProjToList($loadNum);
+		($idxs,$return_idxs)= &sortList($list,$loadNum);
+		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
+		saveListToJason($td_list,$upage_json);
+	}
 }
 
 
@@ -163,8 +169,12 @@ sub printTable {
 	my $idx_ref = shift;
 	my $list = shift;
 	my $theads = shift;
-	my @idxs = @{$idx_ref};
+	my $json = shift;
+	(my $json_relpath = $json) =~ s/$www_root//;
+	my @idxs = ($idx_ref)? @{$idx_ref}:"";
 	my @tbodys;
+	my $tbody_list;
+	my @tds_for_list;
 	#return if (@ARGV);
 	if ($list->{INFO}->{ERROR})
 	{
@@ -189,32 +199,39 @@ sub printTable {
 		if ($umSystemStatus=~ /true/i){
 			$checkbox="" if (!$username && !$password);
 			if( scalar @$theads == 8 ){
+				@tds_for_list = ( $checkbox,$projname,$projStatus,$projDisplay,$projSubTime,$projRunTime,$projType,$projOwner );
 				@tds = ( td($checkbox),td($projname),td($projStatus),td($projDisplay),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
 			}
 			else{
+				@tds_for_list =  ( $checkbox, $projname,$projStatus,$projSubTime,$projRunTime,$projOwner );
 				@tds = ( td($checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
 			}
 		}else{
+			@tds_for_list = ( $checkbox,$projname,$projStatus,$projSubTime,$projRunTime,$projLastRunTime ); 
 			@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
 		}
 		push @tbodys, \@tds;
+		push @{$tbody_list->{data}}, [@tds_for_list];
 	}
 
 	if (scalar(@idxs)<1){
+		@tds_for_list = ("", "No Projects", "", "", "", "");
 		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
 		if( scalar @$theads == 8 ){
 			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""),td(""));
+			@tds_for_list = ("", "No Projects", "", "", "", "","","");
 		}
-
+		push @{$tbody_list->{data}}, [@tds_for_list];
 		push @tbodys, \@tds;
 	}
 	print $cgi->table( 
-			{-id=>"$table_id" , -class=>"output-table ui-responsive ui-table ui-table-reflow" },
+			{-id=>"$table_id" , -data=>"$json_relpath",-class=>"output-table ui-responsive ui-table ui-table-reflow" },
 			thead(Tr(@{$theads})),
-			tbody(
-			map { Tr(@{$_}) } @tbodys
-			)
+			#tbody(
+			#map { Tr(@{$_}) } @tbodys
+			#)
 	);
+	return($tbody_list);
 }
 
 
@@ -597,3 +614,10 @@ sub emailValidate{
 	return Email::Valid->address($email);
 }
 
+sub saveListToJason {
+	my ($list, $file) = @_;
+	open JSON, ">", "$file" or die "Can't write to file: $file\n";
+	my $json = to_json($list, {utf8 => 1});
+	print JSON $json;
+	close JSON;
+}
