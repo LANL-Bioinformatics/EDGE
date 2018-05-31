@@ -2439,6 +2439,8 @@ $( document ).ready(function()
 
                     chunk_size: '1mb',
 
+		    max_retries: 3,
+
                     // Resize images on clientside if we can
                     resize : {
                             width : 200,
