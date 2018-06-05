@@ -13,6 +13,7 @@ use CGI qw(:standard);
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use File::Basename;
 use POSIX qw(strftime);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
@@ -684,6 +685,7 @@ elsif( $action eq 'getreadsbytaxa'){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
+	my $config = &getProjParamFromConfig( "$proj_dir/config.txt" );
 	my $read_type="allReads";
 	my $reads_fastq="$proj_dir/ReadsBasedAnalysis/Taxonomy/$read_type.fastq"; 
 	my $readstaxa_outdir="$proj_dir/ReadsBasedAnalysis/Taxonomy/report/1_$read_type/$cptool_for_reads_extract";
@@ -702,13 +704,20 @@ elsif( $action eq 'getreadsbytaxa'){
 	#GOTTCHA2 Only
 	if( $cptool_for_reads_extract =~ /gottcha2/i ){
 		my $gottcha2_db="";
-		$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna" if ($cptool_for_reads_extract =~ /speDB-b/);
-		$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna" if ($cptool_for_reads_extract =~ /speDB-v/);
+		if ($cptool_for_reads_extract =~ /speDB-b/){
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna";
+			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"});
+		}
+		if ($cptool_for_reads_extract =~ /speDB-v/){
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna";
+			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"});
+		}
 		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
 	}
 	# PanGIA Only
 	if( $cptool_for_reads_extract =~ /pangia/i ){
 		my $pangia_db_path="$EDGE_HOME/database/PanGIA/";
+		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}); 
 		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
 
