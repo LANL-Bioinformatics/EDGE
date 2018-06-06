@@ -74,6 +74,12 @@ if ($new_projid && $new_projcode){
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/; s/projid=[[:graph:]]*/projid=$new_projid/; s/projcode=[[:graph:]]*/projcode=$new_projcode/' $new_config");
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g; s/EDGE_output\\\/$projid/EDGE_output\\\/$new_projid/g' $new_processLog");
 	system("sed -i.bak 's/$projcode/$new_projcode/g' $new_processLog") if ($projcode);
+	my $pangia_vis_dir = "$edge_output/$new_projcode/ReadsBasedAnalysis/Taxonomy/report/1_allReads/pangia/pangia-vis";
+	if ( -d "$pangia_vis_dir/$projcode"){
+		system("mv $pangia_vis_dir/$projcode $pangia_vis_dir/$new_projcode");
+		system("mv $pangia_vis_dir/$projcode.pangia.log $pangia_vis_dir/$new_projcode.pangia.log");
+		system("mv $pangia_vis_dir/$projcode.tsv $pangia_vis_dir/$new_projcode.tsv");
+	}
 	print "Done importing \"$projname\". Please check EDGE to confirm it worked.\n";
 }
 
