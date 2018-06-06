@@ -99,18 +99,18 @@ fi
 pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
 
 # prepare pangia-vis
-DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
+#DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
 MERGED_SAM_DIR=$OUTPATH/${PREFIX}_tmp/merged_sam
 LOCAL_PVIA_DATA=$OUTPATH/pangia-vis
 
-mkdir -p $LOCAL_PVIA_DATA/$DIRMD5
+mkdir -p $LOCAL_PVIA_DATA/report
 
-cp $OUTPATH/$PREFIX.report.tsv $LOCAL_PVIA_DATA/$DIRMD5.tsv
-cp $OUTPATH/$PREFIX.pangia.log $LOCAL_PVIA_DATA/$DIRMD5.pangia.log
+cp $OUTPATH/$PREFIX.report.tsv $LOCAL_PVIA_DATA/report.tsv
+cp $OUTPATH/$PREFIX.pangia.log $LOCAL_PVIA_DATA/report.pangia.log
 
 # generate scaled-down genome depth files for PanGIA-VIS, save to $OUTPATH/pangia-vis then symlink to global pangia-vis
 find $MERGED_SAM_DIR -type f -name '*.depth' | cut -d"|" -f3 | sort | uniq > $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
-parallel "$EDGE_HOME/thirdParty/pangia/pangia-vis/scripts/depth_scale_down.py $MERGED_SAM_DIR/*\|{}\|*.depth > $LOCAL_PVIA_DATA/$DIRMD5/{}.depth.scaledown" :::: $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
+parallel "$EDGE_HOME/thirdParty/pangia/pangia-vis/scripts/depth_scale_down.py $MERGED_SAM_DIR/*\|{}\|*.depth > $LOCAL_PVIA_DATA/report/{}.depth.scaledown" :::: $OUTPATH/${PREFIX}_tmp/unique_taxid.txt
 
 # remove temporary files
 find $OUTPATH/${PREFIX}_tmp -type f -exec rm {} +
