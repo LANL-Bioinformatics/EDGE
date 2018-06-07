@@ -709,7 +709,7 @@ elsif( $action eq 'getreadsbytaxa'){
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"});
 		}
 		if ($cptool_for_reads_extract =~ /speDB-v/){
-			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna";
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Virus.species.fna";
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"});
 		}
 		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
@@ -718,7 +718,7 @@ elsif( $action eq 'getreadsbytaxa'){
 	if( $cptool_for_reads_extract =~ /pangia/i ){
 		my $pangia_db_path="$EDGE_HOME/database/PanGIA/";
 		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}); 
-		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
+		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -t2 -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
 
 	# bring process to background and return to ajax
@@ -726,7 +726,7 @@ elsif( $action eq 'getreadsbytaxa'){
 	print $fh $cmd,"\n";
 	close $fh;
 	chdir $readstaxa_outdir;
-	$cmd = "bash $readstaxa_outdir/run.sh 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt &";
+	$cmd = "bash $readstaxa_outdir/run.sh  1>>$readstaxa_outdir/ReadsExtractLog.txt &";
 
 	$info->{STATUS} = "FAILURE";
 	my $pid;
