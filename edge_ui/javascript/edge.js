@@ -1808,6 +1808,8 @@ $( document ).ready(function()
 				$('.edge-notnanopore-options').hide();
 				$('.edge-nanopore-options').show();
 				$( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
+				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
+				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
 				$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler4" ).click().checkboxradio("refresh");
 				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
 			}
@@ -1820,6 +1822,8 @@ $( document ).ready(function()
 				$('.edge-notnanopore-options').show();
 				$('.edge-nanopore-options').hide();
 				$( "a[data-id=edge-joinpe-parameters]").removeClass('ui-disabled');
+				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
+				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
 				$( "#edge-r2g-aligner1, #edge-r2c-aligner1, #edge-assembler1" ).click().checkboxradio("refresh");
 			}

@@ -2748,6 +2748,7 @@ sub runReadsToContig
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /bwa/){
 	$r2c_aligner_options =~ s/-t\s*\d+//;
+	$r2c_aligner_options .= " -x ont2d " if $ont_flag;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
@@ -2823,6 +2824,7 @@ sub runReadsToGenome
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
+	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
