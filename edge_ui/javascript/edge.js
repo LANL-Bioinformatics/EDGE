@@ -2011,7 +2011,7 @@ $( document ).ready(function()
 						updateProject(focusProjName);
 					}
 				});
-				var projectTableData = $('#edge-project-page-table').attr('data');
+				var projectTableData = "." + $('#edge-project-page-table').attr('data');
 				var ProjDataTable = $('#edge-project-page-table').DataTable({
 					"ajax" : projectTableData,
 					"columnDefs": [ {"targets": 0, "orderable": false}],
