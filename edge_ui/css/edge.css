@@ -78,6 +78,103 @@
 	display: inline-block;
 }
 
+
+/* app-home */
+.edge-home .app-showcase {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: column nowrap;
+    margin: 0 2em 0;
+    //padding-left:12.5%;
+}
+
+#edge-apps-home .ui-grid-b > .ui-block-a,
+#edge-apps-home .ui-grid-b > .ui-block-b,
+#edge-apps-home .ui-grid-b > .ui-block-c {
+    background-color: #eee;
+    margin:1em;
+    border-radius: 25px;
+    width:25%;
+}
+
+
+.edge-home .app-artwork {
+    cursor: pointer;
+    margin:  0 2rem 2rem;
+    margin-top:10px;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto
+}
+
+.edge-home .app-artwork img {
+    height: 100%;
+    width:100%;
+    box-shadow: 0 4px 8px -4px #666;
+    border-collapse: separate
+}
+
+.edge-home .app-artwork a {
+    border-bottom-color: transparent
+}
+
+.edge-home .app-info {
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+    padding: 10px;
+    text-align: left;
+    background-color: transparent;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: column nowrap;
+    flex-flow: column nowrap
+}
+
+.edge-home .app-name-version {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto
+}
+
+.edge-home .app-name {
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 80%;
+    font-weight: 700;
+    color: #222;
+    line-height: 1.5rem
+}
+
+.edge-home .app-version {
+    font-size: 71%;
+    font-weight: 400;
+    color: #aaa;
+    float: right;
+    line-height: 1.5rem;
+    margin-left: 1rem
+}
+
+.edge-home .app-summary {
+    font-size: 77%;
+    font-weight: 500;
+    color: #888;
+    display: block;
+    float: none;
+    margin: .5rem 0;
+    -webkit-box-flex: 100;
+    -ms-flex: 100 1 auto;
+    flex: 100 1 auto
+}
+
 /* sign in sign out */
 
 input#signIn-email{
@@ -1065,11 +1162,12 @@ div.edge-collapsible-options .ui-btn {
 	margin:0.1em;
 }
 
-.noscriptmsg{
+.noscriptmsg{ 
 	padding-left: 20px;
 	padding-right: 20px;
 	padding-top:10px
 }
+
 
 /*
 .edge-home .ui-widget.ui-widget-content {

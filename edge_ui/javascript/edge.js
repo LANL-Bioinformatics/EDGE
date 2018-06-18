@@ -85,18 +85,21 @@ $( document ).ready(function()
 
 	sync_input(); //sync input with switch
 	integrityCheck();
-	//foldLeftPanel();
+	foldLeftPanel();
+	$( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).on( "panelbeforeopen", function(){
+		$(this).css('width','25%');
+	});
 	//updateProject(focusProjName);
 	
 	allMainPage.hide();
-	$( "#edge-content-home" ).fadeIn();
-	//$( "#edge-content-intro" ).fadeIn();
+	//$( "#edge-content-home" ).fadeIn();
+	$( "#edge-apps-home" ).fadeIn();
 	
-	$( "a[href=#edge-content-home]" ).on( "click", function(){
+	$( "a[href=#edge-app-home]" ).on( "click", function(){
 		allMainPage.hide();
-		$( "#edge-content-home" ).fadeIn();
+		$( "#edge-apps-home" ).fadeIn();
 		//$( "#edge-content-intro" ).fadeIn();
-		//foldLeftPanel();
+		foldLeftPanel();
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
@@ -184,7 +187,7 @@ $( document ).ready(function()
 					$( "a[href=#edge-content-pipeline]" ).hide();
 					$( "a[href=#edge-content-uploadfile]" ).hide();
 					$( "a[href=#edge-qiime-pipeline]" ).hide();
-					$('#edge-content-home').prepend("<h2 class='error'>Failed to check user management system. Please check server error log for detail or contact system administrator</h2>");
+					$('#edge-apps-home').prepend("<h2 class='error'>Failed to check user management system. Please check server error log for detail or contact system administrator</h2>");
          			console.log("ERROR");
         		}, // error 
         		// script call was successful 
@@ -202,7 +205,7 @@ $( document ).ready(function()
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
 							$( "a[href=#edge-targetedngs-pipeline]" ).hide();
 							$( "a[href=#edge-piret-pipeline]" ).hide();
-							$('#edge-content-home').prepend("<h2 class='error'>"+data.error+"</h2>")
+							$('#edge-apps-home').prepend("<h2 class='error'>"+data.error+"</h2>")
 						}else{
 							// no configuration to use User management
 							localStorage.umStatus = false;
@@ -406,7 +409,7 @@ $( document ).ready(function()
 				localStorage.maxFileSize=data.maxFileSize;
 				if (data.status) { // login success
 					allMainPage.hide();
- 				        $( "#edge-content-home" ).fadeIn();
+ 				        $( "#edge-apps-home" ).fadeIn();
  	        			$('.no-show-login').hide();
            				$(".no-show-logout").fadeIn("fast");
            				// add session storage
@@ -424,7 +427,7 @@ $( document ).ready(function()
 					//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 					$('#edge-user-btn').html(localStorage.fnname);
 					$('#edge-project-page-li').text('My Project List');
-					$('#edge-content-home').find(".error").remove();
+					$('#edge-apps-home').find(".error").remove();
 					$('#popupUser').removeClass('highlight');
 					$('#edge-user-btn').unbind("click").bind("click",function(){
 						$('#popupUser').popup('open');
@@ -551,7 +554,7 @@ $( document ).ready(function()
 				userType='';
 				$('#signIn-password').empty();
 				allMainPage.hide();
-				$( "#edge-content-home" ).fadeIn();
+				$( "#edge-apps-home" ).fadeIn();
 				// remove session, update button
 				$('.no-show-login').fadeIn("fast");
 				$(".no-show-logout").hide();
@@ -695,6 +698,7 @@ $( document ).ready(function()
 
 	function inputSourceCheck(obj){
 		if ( $(obj).val() == "sra" ){
+			console.log("sra");
 			$( "#edge-fasta-input-block").hide();
 			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
@@ -999,14 +1003,14 @@ $( document ).ready(function()
 	});
 
 	$( "#edge-all-on-btn" ).on( "click", function() {
-		page.find(".edge-collapsible-options > select").val(1).slider("refresh");
+		$("#edge-runEDGE-modules").find(".edge-collapsible-options > select").val(1).slider("refresh");
 		sync_input();
 	});
 	$( "#edge-all-exp-btn" ).on( "click", function() {
-		page.find('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
+		$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
 	});
 	$( "#edge-all-close-btn" ).on( "click", function() {
-		page.find('div[data-role="collapsible"]').collapsible( "option", "collapsed", true );
+		$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').collapsible( "option", "collapsed", true );
 	});
 	
 	$( "#edge-form-reset" ).on( "click", function() {
@@ -1322,20 +1326,23 @@ $( document ).ready(function()
 	var w = $( "#edge-navmenu-panel" ).width();
 	$( "#panel-folder" ).on( "click", function() {
 		if( $( "#panel-folder-btn" ).hasClass("ui-icon-carat-l") ){
-			$( "#panel-folder-btn" ).removeClass("ui-icon-carat-l").addClass("ui-icon-carat-r");
-			$( "#edge-navmenu-panel" ).animate({ "left": "-="+w+"px" }, "fast" );
-			$( "#edge-navmenu-panel" ).css("width","0px");
+			foldLeftPanel();
 		}
 		else{
-			$( "#panel-folder-btn" ).removeClass("ui-icon-carat-r").addClass("ui-icon-carat-l");
-			$( "#edge-navmenu-panel" ).animate({ "left": "+="+w+"px" }, "fast" );
-			$( "#edge-navmenu-panel" ).css("width","25%");
+			foldRightPanel();
 		}
 	});
 	function foldLeftPanel(){
 		$( "#panel-folder-btn" ).removeClass("ui-icon-carat-l").addClass("ui-icon-carat-r");
 		$( "#edge-navmenu-panel" ).animate({ "left": "-="+w+"px" }, "fast" );
 		$( "#edge-navmenu-panel" ).css("width","0px");
+		$( ".app-showcase").css("padding-left",'12.5%');
+	}
+	function foldRightPanel(){
+		$( "#panel-folder-btn" ).removeClass("ui-icon-carat-r").addClass("ui-icon-carat-l");
+		$( "#edge-navmenu-panel" ).animate({ "left": "+="+w+"px" }, "fast" );
+		$( "#edge-navmenu-panel" ).css("width","25%");
+		$( ".app-showcase").css("padding-left",'');
 	}
 	//update report
 	var testKronaAnimation;
@@ -2129,6 +2136,93 @@ $( document ).ready(function()
 					$(".edge-header").css("background",localStorage.background);
 					$("div#popupUser  a").css("background",localStorage.background);
 				}
+			
+				// app actions
+				$('#edge-apps-home').find(".app-info").each(function(){
+					var data = $(this).attr('data');
+					if (data == 'newToEDGE'){
+						//$(this).siblings('.app-artwork').find('img').on('click',function(){
+						$(this).parent('div').on('click',function(){
+							allMainPage.hide();
+							foldRightPanel();
+							$("#edge-content-home").fadeIn();
+						})
+					}
+					if (data == 'runEDGE'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("EDGE",true);
+							$(":radio[name='edge-fastq-source']").trigger('change');
+						})
+					}
+					if (data == 'runQiime'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("qiime",true);
+						})
+					}
+					if (data == 'runDETEQT'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("targetedngs",true);
+						})
+					}
+					if (data == 'runPIRET'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("piret",true);
+						})
+					}
+					if (data == 'projectsReport'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							$( "a[href=#edge-report-pipeline]" ).click();
+						})
+					}
+					if (data == 'nanoEDGE'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("EDGE",true);
+							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+						})
+					}
+					if (data == 'contigEDGE'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("EDGE",true);
+							$('#edge-inputS-sw2').click().checkboxradio("refresh");
+							$(":radio[name='edge-fastq-source']").trigger('change');
+						})
+					}
+					if (data == 'sraEDGE'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("EDGE",true);
+							$('#edge-inputS-sw3').click().checkboxradio("refresh");
+							$(":radio[name='edge-fastq-source']").trigger('change');
+						})
+					}
+					if (data == 'projectspage'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							updateProjectsPage('');
+						})
+					}
+					if (data == 'dataupload'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							$( "a[href=#edge-content-uploadfile]" ).click();
+						})
+					}
+					if (data == 'runPhaME'){
+						$(this).parent('div').on('click',function(){
+							foldRightPanel();
+							setRunPipeline("phame",true);
+							$(":radio[name='edge-fastq-source']").trigger('change');
+						})
+					}
+					
+				});
 			},
 			error: function(data){
 				showWarning("Failed to initialized EDGE GUI interface. Please check server error log for detail.");
@@ -2599,6 +2693,9 @@ $( document ).ready(function()
 			$(".edge-piret-pipeline-input").hide();
 			$(".edge-qiime-pipeline-input").hide();
 			$(".edge-main-pipeline-input").show();
+			$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').show();
+			$("#edge-runEDGE-modules").find(".ui-collapsible-heading").show();
+			$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').collapsible( "option", "collapsed", true );
 			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 			//reset metadata form
 			resetMetadata();
@@ -2654,6 +2751,17 @@ $( document ).ready(function()
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
 				'content', $('<span>a tab-delimited text file or EXCEL file with header ID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
 			);
+		}
+		if (pipeline === "phame"){
+			setRunPipeline("EDGE",true);
+			$('#edge-runEDGE-modules-desc').hide();
+			$("#edge-runEDGE-modules").find(".edge-collapsible-options > select").val(0).slider("refresh");
+			$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').hide();
+			$("#edge-runEDGE-pa" ).show();
+			$("#edge-runEDGE-pa" ).collapsible( "option", "collapsed", false );
+			$("#edge-runEDGE-pa" ).find(".edge-collapsible-options > select").val(1).slider("refresh");
+			$("#edge-runEDGE-pa" ).find(".ui-collapsible-heading").hide();
+			sync_input();
 		}
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){

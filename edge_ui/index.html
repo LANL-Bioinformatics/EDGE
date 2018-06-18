@@ -45,7 +45,7 @@
 
 	<!-- sample metadata -->
 	<link rel="stylesheet" type="text/css" href="css/geocomplete.css" />
-
+	
 </head>
 
 <body class="ui-mobile-viewport ui-push-a">
@@ -54,6 +54,7 @@
 //		$.getScript('javascript/social.js', function() {});
 //	});
 </script>
+
 <noscript>
 	<style type="text/css">
 		#loading {display:none;}
@@ -61,10 +62,11 @@
 	<div class='edge-home'>
 		<h2 style="position:inherit; padding-left:20px;"class="edge-header">EDGE bioinformatics</h2>
 	</div>
-	<div class="noscriptmsg">We're sorry, but EDGE doesn't work properly without JavaScript enabled. JavaScript must be enabled in order for you to use EDGE. However, it seems JavaScript is either disabled or not supported by your browser. To use EDGE, enable JavaScript by changing your browser options, then <a href="">try again</a>.
+	<div class="noscriptmsg">
+		We're sorry, but EDGE doesn't work properly without JavaScript enabled. JavaScript must be enabled in order for you to use EDGE. However, it seems JavaScript is either disabled or not supported by your browser. To use EDGE, enable JavaScript by changing your browser options, then <a href="">try again</a>.
 	</div>
-</noscript>
 
+</noscript>
 <div id="loading" data-role="page" class="edge-demos edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active" data-url="" tabindex="0" style="padding-bottom: 82px;">
 
 	<div data-role="header" class="edge-header ui-header ui-bar-inherit">
@@ -86,7 +88,7 @@
 	</div>
 	<div data-role="panel" id="edge-navmenu-panel" class="edge-navmenu-panel ui-panel ui-panel-position-left ui-panel-animate ui-panel-closed" data-position="left" data-display="overlay" data-theme="a">
 		<div class="ui-panel-inner"><ul class="edge-list ui-alt-icon ui-nodisc-icon ui-listview">
-			<li class="ui-first-child"><a href="#edge-content-home" class="ui-btn ui-btn-icon-right ui-icon-home">Home</a></li>
+			<li class="ui-first-child"><a href="#edge-app-home" class="ui-btn ui-btn-icon-right ui-icon-home">Home</a></li>
                         <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
 			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE</a></li>
 			<li><a href="#edge-qiime-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run Qiime</a></li>
@@ -173,7 +175,160 @@
 			<!-- END sample metadata -->
 		</div>
 	</div><!-- /progress panel -->
-
+	
+	<div role="main" id="edge-apps-home" class="ui-content edge-content edge-main-page">
+		<div class="ui-grid-b ui-responsive app-showcase">
+			<div class="ui-block-a">
+				<div class="app-artwork">
+					<img alt="New to EDGE" src="images/NewToEDGE.png" >
+				</div>
+				<div data="newToEDGE" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">2.0.0</div>
+						<div class="app-name">New to EDGE?</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui-block-b">
+				<div class="app-artwork">
+					<img alt="edge main workflow" src="images/edge_logo_app.png">
+				</div>
+				<div data="runEDGE" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">2.2.0</div>
+						<div class="app-name">Run EDGE</div>
+					</div>
+					<div class="app-summary">EDGE bioinformatics</div>
+				</div>
+			</div>
+			<div class="ui-block-c">
+				<div class="app-artwork">
+					<img alt="edge qiime workflow" src="images/Qiime.png">
+				</div>
+				<div data="runQiime" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">1.9.1</div>
+						<div class="app-name">Run QIIME</div>
+					</div>
+					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and ITS</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui-grid-b ui-responsive app-showcase">
+			<div class="ui-block-a">
+				<div class="app-artwork">
+					<img alt="edge qiime workflow" src="images/deteqt.png">
+				</div>
+				<div data="runDETEQT" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">0.3.0</div>
+						<div class="app-name">Run DETEQT</div>
+					</div>
+					<div class="app-summary">Diagnostic targeted sequencing adjudication pipeline</div>
+				</div>
+			</div>
+			<div class="ui-block-b">
+				<div class="app-artwork">
+					<img alt="edge piret workflow" src="images/PiReT.png">
+				</div>
+				<div data="runPIRET" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">0.3.0 beta </div>
+						<div class="app-name">Run PiReT</div>
+					</div>
+					<div class="app-summary">A pipeline for Reference based Transcriptomics analysis.</div>
+				</div>
+			</div>
+			<div class="ui-block-c">
+				<div class="app-artwork">
+					<img alt="edge phame workflow" src="images/runPhame.png">
+				</div>
+				<div data="runPhaME" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">1.0.0</div>
+						<div class="app-name">Run PhaME</div>
+					</div>
+					<div class="app-summary">Phylogenetic and Molecular Evolution (PhaME) analysis tool.</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui-grid-b ui-responsive app-showcase">
+			<div class="ui-block-a">
+				<div class="app-artwork">
+					<img alt="edge nanopore" src="images/NanoEDGE.png">
+				</div>
+				<div data="nanoEDGE" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version"></div>
+						<div class="app-name">Nano-EDGE</div>
+					</div>
+					<div class="app-summary">Run EDGE for Nanopore dataset.</div>
+				</div>
+			</div>
+			<div class="ui-block-b">
+				<div class="app-artwork">
+					<img alt="edge contig" src="images/contig_edge.png">
+				</div>
+				<div data="contigEDGE" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version"></div>
+						<div class="app-name">contig-EDGE</div>
+					</div>
+					<div class="app-summary">Run EDGE for assembled contig fasta files.</div>
+				</div>
+			</div>
+			<div class="ui-block-c">
+				<div class="app-artwork">
+					<img alt="edge sra" src="images/ncbi_sra.png">
+				</div>
+				<div data="sraEDGE" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version"></div>
+						<div class="app-name">sra-EDGE</div>
+					</div>
+					<div class="app-summary">Run EDGE for Sequence Read Archive </div>
+				</div>
+			</div>
+		</div>
+		<div class="ui-grid-b ui-responsive app-showcase">
+			<div class="ui-block-a">
+				<div class="app-artwork">
+					<img alt="edge report workflow" src="images/ProjectsReport.png">
+				</div>
+				<div data="projectsReport" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">1.0.0</div>
+						<div class="app-name">Reports</div>
+					</div>
+					<div class="app-summary">Create summary tables for multiple projects.</div>
+				</div>
+			</div>
+			<div class="ui-block-b">
+				<div class="app-artwork">
+					<img alt="edge project list" src="images/projectlist.png">
+				</div>
+				<div data="projectspage" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">1.0.0</div>
+						<div class="app-name">Project List</div>
+					</div>
+					<div class="app-summary"></div>
+				</div>
+			</div>
+			<div class="ui-block-c">
+				<div class="app-artwork">
+					<img alt="edge upload" src="images/upload.png">
+				</div>
+				<div data="dataupload" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version">1.0.0</div>
+						<div class="app-name">Upload Data</div>
+					</div>
+					<div class="app-summary">Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format.</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div role="main" id="edge-content-home" class="ui-content edge-content edge-main-page">
 		<h2><u>E</u>mpowering the <u>D</u>evelopment of <u>G</u>enomics <u>E</u>xpertise</h2>
 		 <!-- Social buttons 
@@ -310,6 +465,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							</fieldset>
 						</div>
 					</div>
+
 					<div class="edge-main-pipeline-input">
 						<div class="ui-field-contain" id="edge-sra-input-block">
 							<label for="edge-sra-acc">SRA Accession</label>
@@ -401,11 +557,9 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<a href="#" id="btnAdd-edge-input-se" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Single-end Input</a>
 							<a href="#" id="btnAdd-edge-qiime-mapping-file" class="edge-qiime-pipeline-input" data-theme="b" data-role="button" data-inline="true" data-mini="true" data-icon="plus" data-iconpos="right" >Add Mapping File Field</a>
 						</div>
-
 						<div class="ui-field-contain">
 							<label for="edge-proj-desc">Use # of CPUs</label>
 							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
-
 						<div class="ui-field-contain input-type-file">
 							<label for="edge-input-config">Config File</label>
 							<input data-mini="true" type="text" name="edge-input-config" id="edge-input-config" placeholder="(optional) absolute file path/select file">
@@ -681,14 +835,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 		<p></p>
 		<h2 class="edge-main-pipeline-input">Choose Processes / Analyses</h2>
-		<p class="edge-main-pipeline-input">EDGE provides many modules to do various analyses. You can choose to run or skip a specific process. Parameters/options are provided for most of the analyses.
+		<p id='edge-runEDGE-modules-desc' class="edge-main-pipeline-input">EDGE provides many modules to do various analyses. You can choose to run or skip a specific process. Parameters/options are provided for most of the analyses.
 		   You can click here to
 		   <a href="#" id="edge-all-on-btn">turn all on</a>,
 		   <a href="#" id="edge-all-exp-btn">expand all sections</a> or
 		   <a href="#" id="edge-all-close-btn">close all sections</a>.
 		</p>
-		<div class="edge-main-pipeline-input">
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" class="edge-fastq-options">
+		<div id="edge-runEDGE-modules" class="edge-main-pipeline-input">
+		<div id="edge-runEDGE-pp" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" class="edge-fastq-options">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-pp-sw" name="edge-pp-sw" data-role="slider" data-mini="true">
@@ -699,7 +853,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</h4>
 			<div class="edge-tabs" >
 				<div class="ui-grid-b">
-					
 					<div class="ui-block-a"><a href="#" data-id="edge-qc-parameters" class="ui-btn ui-mini ui-btn-active">Quality Trim and Filter</a></div>
 					<div class="ui-block-b"><a href="#" data-id="edge-joinpe-parameters" class="ui-btn ui-mini">Stitch Paired-End Reads</a></div>
 					<div class="ui-block-c"><a href="#" data-id="edge-hostrm-parameters" class="ui-btn ui-mini">Host Removal</a></div>
@@ -799,7 +952,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Use joined PE reads only<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Use only joined PE reads for downstream analysis" ></a></legend>
 					<input type="radio" data-mini="true" name="edge-joinpe-usejoined-only" id="edge-joinpe-usejoined-only1" value="1">
-
 					<label for="edge-joinpe-usejoined-only1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-joinpe-usejoined-only" id="edge-joinpe-usejoined-only2" value="0" checked="checked">
 					<label for="edge-joinpe-usejoined-only2">No</label>
@@ -840,7 +992,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			-->
 			</div><!--edge-hostr-parameters-->
 		</div>
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-aa" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-assembly-sw" name="edge-assembly-sw" data-role="slider" data-mini="true">
@@ -857,7 +1009,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			<div id="edge-assembly-parameters" class="edge-fastq-options">
 			<div class="ui-field-contain">
-                        	<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Bypass Assembly And Use Pre-assembled Contigs</legend>
 					<input type="radio" name="edge-assembled-contig-sw" id="edge-assembled-contig1" value="1">
 					<label for="edge-assembled-contig1">Yes</label>
@@ -884,6 +1036,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-assembler4">LRASM</label>
 				</fieldset>
 			</div>
+			
 			<div id="edge-lrasm-parameters">
 				<p class="edge_tool_note">LRASM is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
 				<div class="ui-field-contain">
@@ -906,6 +1059,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				<div class="ui-field-contain"><label for="edge-lrasm-num-consensus">Num of Iteration of Consensus </label><input type="number" data-mini="true" data-clear-btn="true" name="edge-lrasm-num-consensus" id="edge-lrasm-num-consensus" max="10" value="3"></div>
 			</div>
+				
 			<div id="edge-idba-parameters">
 				<p class="edge_tool_note">IDBA_UD performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>
 				<div class="ui-field-contain"><label for="edge-assembly-mink">Minimum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-mink" id="edge-assembly-mink" value="31"></div>
@@ -1026,7 +1180,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div> <!-- edge-annotation-parameters -->
 		</div>
 
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-rba" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-ref-sw" name="edge-ref-sw" data-role="slider" data-mini="true">
@@ -1152,7 +1306,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		</div>
 		
 		<!-- Taxonomy classification -->
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-tc" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-taxa-sw" name="edge-taxa-sw" data-role="slider" data-mini="true">
@@ -1190,7 +1344,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<option value="gottcha-strDB-v" selected=""> GOTTCHA Strain</option>
 						</optgroup>
                         
-						<!--
+						
 						<optgroup label="GOTTCHA2 Bacterial Databases">
 						    <option value="gottcha2-speDB-b"> GOTTCHA2 Species</option>
 						</optgroup>
@@ -1200,7 +1354,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
                         <optgroup label="PanGIA Databases">
 						    <option value="pangia"> PanGIA NCBI_genomes_p_GRCh38 </option>
 						</optgroup>
-						-->
+						
 						<optgroup label="Reads Mapping">
 							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>
@@ -1208,7 +1362,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<option value="metaphlan" selected="">MetaPhlAn</option>
 							<option value="kraken" selected="">Kraken</option>
 							<!-- Adding DIAMOND -->
-							<!-- <option value="diamond">DIAMOND (Amino acid-based classification)</option> -->
+							<option value="diamond">DIAMOND (Amino acid-based classification)</option>
 						</optgroup>
 					</select>
 				</fieldset>
@@ -1263,7 +1417,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</ol>
 		</div>
 
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-pa" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 				<select id="edge-phylo-sw" name="edge-phylo-sw" data-role="slider" data-mini="true">
@@ -1347,7 +1501,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 		</div>
 	
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-gfa" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-sg-sw" name="edge-sg-sw" data-role="slider" data-mini="true">
@@ -1393,7 +1547,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</div>
 		</div>
-		<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+		<div id="edge-runEDGE-ppa" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-primer-sw" name="edge-primer-sw" data-role="slider" data-mini="true">
@@ -1721,6 +1875,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 		</div><!--edge-piret-pipeline parameters-->
 		
+
 		<div class="edge-center">
 			<input data-mini="true" type="button" id="edge-form-submit" data-inline="true" class="edge-center" value="Submit">
 			<input data-mini="true" type="button" id="edge-form-reset" data-inline="true" class="edge-center" value="Reset">
