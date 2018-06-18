@@ -3460,12 +3460,12 @@ sub SNPtree
         &lprint ("Phylogenetic Analysis Finished\n"); 
         return 0;
     }
-    if ($SNPdbName and $SNPGenomeNames)
+    if ($SNPdbName and ($SNPGenomeNames || $SNPGenomeFiles))
     {
         &lprint("Input both precomputered DB and a list of reference genomes.\n Will use precomputered DB to build SNP tree.\n");
         $SNPGenomeNames="";
     }
-    if (!$SNPdbName and !$SNPGenomeNames)
+    if (!$SNPdbName and !$SNPGenomeNames and !$SNPGenomeFiles)
     {
         &lprint("Please provide either precomputered DB OR a list of reference genomes.\n");
 	return 0;
@@ -3557,14 +3557,15 @@ sub SNPtree
     }
 
     system("mv $outputDir/results/$allTreeFile $outputDir/results/SNPphyloTree.all");
-
-    $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.all -o $outputDir -a $phyloXML_annotation_file ";
+   
+    my $phyloXML_annotation_parameter = (-e $phyloXML_annotation_file)? "-a $phyloXML_annotation_file":"";
+    $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.all -o $outputDir $phyloXML_annotation_parameter ";
     &executeCommand($cmd);
     if ( ($SNPdbName && $SNPdbName !~/hantavirus/i) || $SNPrefName)
     {
         my $cdsTreeFile= $treeMaker eq "FastTree"? "${project_name}_cds.fasttree" : "RAxML_bestTree.${project_name}_cds";;
         system("mv $outputDir/results/$cdsTreeFile $outputDir/results/SNPphyloTree.cds");
-        $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.cds -o $outputDir -a $phyloXML_annotation_file ";
+        $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.cds -o $outputDir $phyloXML_annotation_parameter ";
         &executeCommand($cmd);
     }
  

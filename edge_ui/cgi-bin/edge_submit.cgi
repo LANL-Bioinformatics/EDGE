@@ -1197,8 +1197,8 @@ sub checkParams {
 	}
 	if ( $opt{"edge-phylo-sw"} ){
 		my (@snpPhylo_selected_refs,$num_selected);
-		&addMessage("PARAMS", "edge-phylo-patho", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
-		&addMessage("PARAMS", "edge-phylo-ref-select", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'});
+		&addMessage("PARAMS", "edge-phylo-patho", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'} && !$opt{'edge-phylo-ref-file[]'});
+		&addMessage("PARAMS", "edge-phylo-ref-select", "Invalid input. Please select from precomputed SNP DB or form Genomes list.") if ( !$opt{'edge-phylo-patho'} && !defined $opt{'edge-phylo-ref-select'} && !$opt{'edge-phylo-ref-file[]'});
 		&addMessage("PARAMS", "edge-phylo-patho", "You have both input types. Please select either from precomputed SNPdb OR form Genomes list.") if ( $opt{'edge-phylo-patho'} && ($opt{'edge-phylo-ref-select'} || $opt{'edge-phylo-ref-file[]'}));
 		@snpPhylo_selected_refs =  split /[\x0]/, $opt{"edge-phylo-ref-select"} if defined $opt{"edge-phylo-ref-select"};
 		@edge_phylo_ref_input = split /[\x0]/, $opt{"edge-phylo-ref-file[]"} if defined $opt{"edge-phylo-ref-file[]"};
