@@ -1,3 +1,40 @@
+-- Version 201805
+EDGE version 2.2.0
+* Update pangia from 2.4.5 to 2.4.10
+* Add changes for modules when Nanopore Reads option is on.
+* Add Test Case for Nanopore data
+* Update prokka version from 1.11 to 1.13
+* Update barrnap version from 0.4.2 to 0.9
+* Add cmake 3.6 and racon v1.3.1 software for compling and assembly
+* fix bug : minimize backtick used in edge_action.cgi, runDETEQT in config.tmpl
+* fix bug: qsub error check for taxonomy classfication module 
+* fix bug: unknown accesion for genbank to fasta conversion
+* fix issue: sra download with ssl self-certificate or insecure connection
+* fix bug: gottcha bwa opiton error
+* fix bug: PiReT exp design parsing and load correct pirect env
+* fix bug: Phylogeney analysis if only provide geonome files
+
+EDGE GUI version 2.2.0
+* Add Nanopore Reads Options
+* Add app-like front page
+* Add auto turn on if host file/primer file input selected
+* Add parameter in the Piret Result and fix typo, datatable
+* Add number sequence fragments check for reference based analysis
+* Auto turn on hose removal if host selected from the list
+* Add color spectrum for user custom theme color
+* Add dynamic table for PiReT differnetial expression significant genes
+* Add check process status for extract reads fastq
+* Add cache edge info/projectlist page. 
+* Add check status for long process actions to avoid timeout
+* Make action "Delete" and "Empty" run in background to avoid timeout
+* Use json for projectspages table to speed up the page loading process
+* Add Password requirement for user registration. (Must contain at least one
+number and one uppercase and one lowercase letter and one special character,
+and at least 8 or more characters.)
+* fix bug: project report \x0000 null character and html tag invalid
+* fix bug: jquery mobile dialog error on extract reads/contigs
+* fix bug:Fixed read number at comparative table for pangia
+
 -- Version 20180502
 EDGE version 2.1.1
 * Add SSL configuration example
