@@ -128,10 +128,10 @@ if (! -e $outDir)
      mkdir $outDir;
 }
 
-$bwa_options =~ s/-t\s+\d+/-t $numCPU/  if $bwa_options =~ /-t\s+\d+/;
-$minimap2_options =~ s/-t\s+\d+/-t $numCPU/ if $minimap2_options =~ /-t\s+\d+/;
-$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ if $bowtie_options =~ /-p\s+\d+/;
-$snap_options =~ s/-t\s+\d+/-t $numCPU/ if $snap_options =~ /-t\s+\d+/;
+if ($bwa_options =~ /-t\s+\d+/) { $bwa_options =~ s/-t\s+\d+/-t $numCPU/; } else { $bwa_options .= " -t $numCPU ";}
+if ($minimap2_options =~ /-t\s+\d+/){$minimap2_options =~ s/-t\s+\d+/-t $numCPU/;}else{$minimap2_options .= " -t $numCPU ";};
+if ($bowtie_options =~ /-p\s+\d+/){$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ ;}else{$bowtie_options .= " -p $numCPU ";}
+if ($snap_options =~ /-t\s+\d+/){$snap_options =~ s/-t\s+\d+/-t $numCPU/;}else{$snap_options .= " -t $numCPU ";}
 my $samtools_threads=$numCPU;
 
 my @bam_outputs;
