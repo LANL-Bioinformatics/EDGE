@@ -37,10 +37,11 @@ my ($file1, $file2, @ref_files, $outDir, $pacbio, $offset);
 my $file_long="";
 my $singleton="";
 my $paired_files="";
-my $bwa_options="-t 4 ";
-my $minimap2_options="-t 4 ";
-my $bowtie_options="-p 4 -a ";
-my $snap_options="-t 4 -M ";
+my $numCPU=4;
+my $bwa_options ="-t $numCPU ";
+my $minimap2_options ="-t $numCPU ";
+my $bowtie_options ="-p $numCPU -a ";
+my $snap_options ="-t $numCPU -M ";
 my $cov_cut_off=80;
 my $aligner="bwa";
 my $gen_consensus=1;
@@ -83,6 +84,7 @@ GetOptions(
             'max_depth' => \$max_depth,
             'min_depth' => \$min_depth,
             'snp_gap_filter' => \$snp_gap_filter,
+            'cpu=i' => \$numCPU,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
             'no_plot'   => \$no_plot,
@@ -125,12 +127,12 @@ if (! -e $outDir)
 {
      mkdir $outDir;
 }
-my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
-my ($minimap2_threads)= $minimap2_options =~ /-t (\d+)/;
-my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
-my ($snap_threads)= $snap_options =~ /-t (\d+)/;
-my $samtools_threads;
-$samtools_threads = $bwa_threads || $bowtie_threads || $snap_threads || $minimap2_threads || 1; 
+
+$bwa_options =~ s/-t\s+\d+/-t $numCPU/  if $bwa_options =~ /-t\s+\d+/;
+$minimap2_options =~ s/-t\s+\d+/-t $numCPU/ if $minimap2_options =~ /-t\s+\d+/;
+$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ if $bowtie_options =~ /-p\s+\d+/;
+$snap_options =~ s/-t\s+\d+/-t $numCPU/ if $snap_options =~ /-t\s+\d+/;
+my $samtools_threads=$numCPU;
 
 my @bam_outputs;
 for my $ref_file_i ( 0..$#ref_files ){
@@ -1000,6 +1002,7 @@ Usage: perl $0
                -no_plot                  <bool> default: off
                -no_snp                   <bool> default: off
                -debug                    <bool> default: off
+               -cpu                      number of CPUs [4]. will overwrite aligner options. 
 	
                # Variant Filter parameters
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]

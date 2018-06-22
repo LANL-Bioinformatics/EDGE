@@ -15,7 +15,7 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
-$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin";
+$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
@@ -338,22 +338,24 @@ my $conversion_cmd_array_ref = &MergeReport();
 &generateHTMLreport($outDir,$conversion_cmd_array_ref) if ($configuration->{DoHTMLReport});
 #&updateProjectHTML($outDir,$start_time_string) if ($configuration->{DoHTMLReport});
 
-##pathogen detection 
-my $blist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-b/allReads-gottcha2-speDB-b.list.txt";
-my $vlist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-v/allReads-gottcha2-speDB-v.list.txt";
+if ($configuration->{DoReadsTaxonomy} && $configuration->{enabledTools} =~ /gottcha/){
+	##pathogen detection 
+	my $blist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-b/allReads-gottcha2-speDB-b.list.txt";
+	my $vlist = "$taxonomy_report_dir/1_allReads/gottcha2-speDB-v/allReads-gottcha2-speDB-v.list.txt";
 
-if(!-e $blist) {
-   $blist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-b/allReads-gottcha-speDB-b.list.txt";
-}
-if(!-e $vlist) {
-   $vlist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-v/allReads-gottcha-speDB-v.list.txt";
-}
+	if(!-e $blist) {
+   		$blist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-b/allReads-gottcha-speDB-b.list.txt";
+	}
+	if(!-e $vlist) {
+		$vlist = "$taxonomy_report_dir/1_allReads/gottcha-speDB-v/allReads-gottcha-speDB-v.list.txt";
+	}
 
-if($sys->{edge_pathogen_detection} && -e $blist && -e $vlist) {
-	&detectPathogen($blist, $vlist);
-}elsif($sys->{edge_pathogen_detection}){
-	&lprint ("File $blist not found\n");
-	&lprint ("File $vlist not found\n");
+	if($sys->{edge_pathogen_detection} && -e $blist && -e $vlist) {
+		&detectPathogen($blist, $vlist);
+	}elsif($sys->{edge_pathogen_detection}){
+		&lprint ("File $blist not found\n");
+		&lprint ("File $vlist not found\n");
+	}
 }
 ##END pathogen detection
 ##sample metadata submission
@@ -1017,9 +1019,10 @@ sub runUnmappedReadsToRefSeq
     &lprint ("  Mapping reads that were unmapped to reference(s) to RefSeq...\n");
 	my $parameters;
     $parameters .= " -c $cov_cut_off";
+    $parameters .= " -cpu $numCPU";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -bwa_options ". "'" . "-t $numCPU $ont_flag ". "'";
+    $parameters .= " -bwa_options ". "'" . "$ont_flag ". "'";
     $parameters .= " -d $outputDir -pre $outPrefix -ref $db";
 
     my $command = "perl $RealBin/scripts/runReadsToContig.pl $parameters 1>$log 2>\&1 ";
@@ -2740,20 +2743,21 @@ sub runReadsToContig
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $parameters;
     $parameters .= " -c $cov_cut_off";
+    $parameters .= " -cpu $numCPU";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -d $outputDir -pre $outPrefix -ref $contigFile"; 
     if ($configuration->{r2c_aligner} =~ /bowtie/){
 	$r2c_aligner_options =~ s/-p\s*\d+//;
-    	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2c_aligner_options . "'";
+    	$parameters .= " -aligner bowtie -bowtie_options ". "'" . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /bwa/){
 	$r2c_aligner_options =~ s/-t\s*\d+//;
 	$r2c_aligner_options .= " -x ont2d " if $ont_flag;
-    	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
+    	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
         $r2c_aligner_options =~ s/-t\s*\d+//;
-        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2c_aligner_options . "'";
+        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2c_aligner_options . "'";
     }
 
     my $command = "perl $RealBin/scripts/runReadsToContig.pl $parameters 1>$log 2>\&1 ";
@@ -2818,18 +2822,18 @@ sub runReadsToGenome
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -consensus 0";
+    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -cpu $numCPU -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
-    	$parameters .= " -aligner bowtie -bowtie_options ". "'" . "-p $numCPU " . $r2g_aligner_options . "'";
+    	$parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
-    	$parameters .= " -aligner bwa -bwa_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
+    	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
         $r2g_aligner_options =~ s/-t\s*\d+//;
-        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . "-t $numCPU " . $r2g_aligner_options . "'";
+        $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
     $parameters .= " -no_snp " if ($variant_call == 0);

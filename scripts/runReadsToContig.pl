@@ -30,9 +30,10 @@ $|=1;
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
 
 my ($file1, $file2, $paired_files, $ref_file, $outDir,$file_long,$singleton,$pacbio,$offset);
-my $bwa_options="-t 4 ";
-my $minimap2_options="-t 4 ";
-my $bowtie_options="-p 4 -a ";
+my $numCPU = 4;
+my $bwa_options="-t $numCPU ";
+my $minimap2_options="-t $numCPU ";
+my $bowtie_options="-p $numCPU -a ";
 my $cov_cut_off=0;
 my $aligner="bwa";
 my $pacbio_bwa_option="-b5 -q2 -r1 -z10 ";
@@ -49,6 +50,7 @@ GetOptions(
             'u=s' => \$singleton, # illumina singleton 
             'd=s'   => \$outDir,
             'c=f'   => \$cov_cut_off, 
+            'cpu=i' => \$numCPU,
             'bwa_options=s' => \$bwa_options,
             'bowtie_options=s' => \$bowtie_options,
             'minimap2_options=s' => \$minimap2_options,
@@ -96,6 +98,7 @@ Usage: perl $0
                                          type "minimap2" to see options
                                          default: "-t 4 "
                -skip_aln                 <bool> skip alignment step
+               -cpu <NUM>                number of CPUs [4]  will overwrite the aligner threads
                -c  <NUM>                 cutoff value of contig coverage for final fasta file. (default:noFilter) 
 
 Synopsis:
@@ -115,12 +118,10 @@ my $bam_output="$outDir/$prefix.sort.bam";
 my $bam_index_output="$outDir/$prefix.sort.bam.bai";
 my $pileup_output="$outDir/$prefix.pileup";
 
-my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
-my ($minimap2_threads)= $minimap2_options =~ /-t (\d+)/;
-my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
-my $samtools_threads;
-$samtools_threads = $bwa_threads || $bowtie_threads || $minimap2_threads;
-$samtools_threads = 1 if (!$samtools_threads); 
+$bwa_options =~ s/-t\s+\d+/-t $numCPU/  if $bwa_options =~ /-t\s+\d+/;
+$minimap2_options =~ s/-t\s+\d+/-t $numCPU/ if $minimap2_options =~ /-t\s+\d+/;
+$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ if $bowtie_options =~ /-p\s+\d+/;
+my $samtools_threads = $numCPU;
 
 my ($ref_file_name, $ref_file_path, $ref_file_suffix)=fileparse("$ref_file", qr/\.[^.]*/);
 
