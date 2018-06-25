@@ -490,18 +490,19 @@ echo "
 
 install_kraken()
 {
+local VER=1.0
 echo "------------------------------------------------------------------------------
-                           Install kraken-0.10.4-beta
+                           Install kraken-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf kraken-0.10.4-beta.tgz
-cd kraken-0.10.4-beta
+tar xvzf kraken-$VER.tgz
+cd kraken-$VER-beta
 ./install_kraken.sh $rootdir/bin/
 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           kraken-0.10.4-beta installed
+                           kraken-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1859,7 +1860,13 @@ fi
 
 if ( checkLocalInstallation kraken )
 then
-  echo "kraken is found"
+  kraken_VER=`kraken --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  if  ( echo $kraken_VER | awk '{if($1>=1.0) exit 0; else exit 1}' )
+  then
+    echo "kraken $kraken_VER found"
+  else
+    install_kraken
+  fi
 else
   echo "kraken is not found"
   install_kraken
