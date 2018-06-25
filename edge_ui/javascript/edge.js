@@ -2038,6 +2038,15 @@ $( document ).ready(function()
 								updateProject(pname);
 							}
 						});
+					},
+					"rowCallback": function( nRow, aData, iDisplayIndex ) {
+						if ( aData[2]== "running" ) {
+							console.log(nRow);
+							 $('td:eq(2)', nRow).css('color','#f7931e');
+						}
+						if ( aData[2]== "failed" ) {
+							 $('td:eq(2)', nRow).css('color','#d72a30');
+						}
 					}
 				});
 				$('#edge-projpage-ckall').on('click',function(){
@@ -2205,7 +2214,7 @@ $( document ).ready(function()
 					if (data == 'projectspage'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							updateProjectsPage('');
+							updateProjectsPage('user');
 						})
 					}
 					if (data == 'dataupload'){
