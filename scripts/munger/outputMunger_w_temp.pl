@@ -1752,6 +1752,7 @@ sub pull_summary {
 	my $cnt=0;
 	my $cpu=0;
 	my $tol_running_sec=0;
+	my $last_running_sec=0;
 	my $prog;
 	my %map;
 	my ($step,$ord,$do,$status,$lastline,$kingdom);
@@ -1786,6 +1787,8 @@ sub pull_summary {
 
 		if( /Total Running time: (\d+:\d+:\d+)/){
 			$vars->{LASTRUNTIME} = $1;
+			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
+			$last_running_sec = $h*3600+$m*60+$s;
 			next;
 		}
 		elsif( /^Host=(.*)/ ){
@@ -1919,6 +1922,7 @@ sub pull_summary {
 		}
 	}
 	#$vars->{RUNTIME} = strftime("\%H:\%M:\%S", gmtime($tol_running_sec));
+	$tol_running_sec = $last_running_sec if $last_running_sec > $tol_running_sec;
 	$vars->{RUNTIME} = sprintf("%02d:%02d:%02d", int($tol_running_sec / 3600), int(($tol_running_sec % 3600) / 60), int($tol_running_sec % 60));
 
 	$vars->{PROJSTATUS}        = "Unstarted"   if $lastline =~ /EDGE_UI.*unstarted/;
