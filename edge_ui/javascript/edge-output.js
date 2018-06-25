@@ -2,6 +2,7 @@ $( document ).ready(function()
 {
 	var checkpidInterval;
 	var projdir = $('#edge-proj-outdir').attr('dir-src');
+	var projNotes = projdir + "/projnotes.txt";
 	var focusProjName = $('#edge-output-projname').attr("data-pid");
 	var projRealname = $('#edge-output-projname').text();
 	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
@@ -51,7 +52,7 @@ $( document ).ready(function()
 		$(this).siblings(':first').attr("href",src);
 		$(this).parent().next('iframe').attr("src",src);
 	});
-
+	
 	// directory file tree
 	var dir;
 	var loc = window.location.pathname.replace("//","/");
@@ -781,5 +782,60 @@ $( document ).ready(function()
                 }, 300, 'linear');
                 return false;
         });
+	// Take Notes actions
+	var NotesLenLimit = 500,
+		NotesLen; // Maximum word length
+	$('#edge-takenotes-content').keydown(function(event) {	
+		NotesLen = $('#edge-takenotes-content').val().split(/[\s]+/);
+		if (NotesLen.length >= NotesLenLimit) { 
+			if ( event.keyCode == 46 || event.keyCode == 8 ) {// Allow backspace and delete buttons
+			} else if (event.keyCode < 48 || event.keyCode > 57 ) {//all other buttons
+    				event.preventDefault();
+    			}
+		}
+		//console.log(NotesLen.length + " words are typed out of an available " + NotesLenLimit);
+		var wordsLeft = (NotesLenLimit) - NotesLen.length;
+		$('.NotesWords-left').html(wordsLeft + ' words left');
+	});
+	$('#edge-result-notes').on('click',function(){
+		$( "#edge-takenotes-dialog" ).popup('open');
+	});
+	$( "#edge-takenotes-dialog" ).popup({
+		beforeposition: function( event, ui ) {
+                        getNotes(projNotes);
+                }
+	});
+	function getNotes(texturl) {
+		$.ajax({
+			url: texturl,
+			dataType: 'text',
+			cache: false,
+			success: function(text) {
+				$("#edge-takenotes-content").val(text);
+			},
+			error: function(text) {
+				$("#edge-takenotes-content").attr("placeholder","Enter Note Here...(alphanumeric space comma dot dash underscore) "); 
+			}
+		});
+	}
+	$("#edge-takenotes-dialog a:contains('Save')").on("click",function(){
+		var text = $("#edge-takenotes-content").val();
+		$.ajax({
+			url: "./cgi-bin/edge_action.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { "action": 'takenotes', "projnotes": text, "proj" : focusProjName, 'protocol': location.protocol, 'sid':localStorage.sid},
+			success: function(data){
+				if (data.INFO){
+					showMSG(data.INFO);
+				}
+			},
+			error: function(data){
+				showMSG(data.INFO);
+				//showMSG("ACTION FAILED: Please try again or contact your system administrator.");
+			}
+		});
+	});
 });
 //# sourceURL=edge-output.js

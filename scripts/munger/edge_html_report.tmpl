@@ -41,7 +41,10 @@
 	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>
 		<h2 id="edge-output-projname" data-pid="<TMPL_VAR NAME=PROJID>"><TMPL_VAR NAME=PROJNAME DEFAULT=-></h2>
 		<TMPL_IF NAME="OUT_GET_DOWNLOAD"> 
-		<div style='float:right;'><a href="#" id="get_download_link" class="ui-btn ui-mini ui-btn-inline">Get Download Link</a><div id='edge-download-spinner'></div></div>
+		<div style='float:right;'>
+			<a href="#" id="get_download_link" class="ui-btn ui-mini ui-btn-inline">Get Download Link</a><div id='edge-download-spinner'></div>
+			<a href="#" id="edge-result-notes" class="ui-btn ui-mini ui-btn-inline">Take Notes</a>
+		</div>
 		</TMPL_IF>
 		<TMPL_IF NAME="OUT_DOWNLOAD"> 
 		<div style='float:right;'><a data-ajax='false' href="<TMPL_VAR NAME=PROJTARFILE DEFAULT=->" id="download_link" class="ui-btn ui-mini ui-btn-inline ui-btn-active">Download Project</a></div>
@@ -2378,6 +2381,19 @@
 				 <div id='edge-output-datatable-spinner'></div>
 				<table id="edge-output-datatable" class="display" cellspacing="0">
 				</table>
+			</div>
+		</div>
+		<div data-role="popup" id="edge-takenotes-dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true">
+			<div data-role="header" data-theme="a" style="width:100%" class="ui-header ui-bar-a">
+				<h4 class='ui-title'>Notes</h4>
+			</div>
+			<div role="main" class="ui-content">
+				<textarea id="edge-takenotes-content" rows="10" cols="30"></textarea>
+				<p class="NotesWords-left"></p>
+				<div class="edge-center">
+					<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back" data-transition="flow">Save</a>	
+					<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>	
+				</div>
 			</div>
 		</div>
 		<div data-role="popup" id="edge-outputfile-dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog">

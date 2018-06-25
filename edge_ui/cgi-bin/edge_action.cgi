@@ -149,10 +149,14 @@ if ( $umSystemStatus )
 		$permission->{publish} = 1;
 		$permission->{unpublish} = 1;
 		$permission->{tarproj} = 1;
+		$permission->{contigblast}=1;
+		$permission->{"define-gap-depth"}=1;
+		$permission->{rename} = 1;
 		$permission->{getcontigbytaxa} = 1;
 		$permission->{getreadsbytaxa} = 1;
 		$permission->{getcontigbyref} = 1;
 		$permission->{getreadsbyref} = 1;
+		$permission->{takenotes} = 1;
 		$permission->{metadata} = 1;
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
@@ -168,6 +172,10 @@ if ( $umSystemStatus )
 
 
 if ($action eq 'rename' ){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
 	renameProject($new_proj_name,$new_proj_desc);
 	#edgeDB: update run name
 	my $runFile = "$proj_dir/metadata_run.txt";
@@ -717,7 +725,7 @@ elsif( $action eq 'getreadsbytaxa'){
 	# PanGIA Only
 	if( $cptool_for_reads_extract =~ /pangia/i ){
 		my $pangia_db_path="$EDGE_HOME/database/PanGIA/";
-		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}); 
+		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"});
 		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -t2 -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
 
@@ -726,7 +734,7 @@ elsif( $action eq 'getreadsbytaxa'){
 	print $fh $cmd,"\n";
 	close $fh;
 	chdir $readstaxa_outdir;
-	$cmd = "bash $readstaxa_outdir/run.sh  1>>$readstaxa_outdir/ReadsExtractLog.txt &";
+	$cmd = "bash $readstaxa_outdir/run.sh 1>>$readstaxa_outdir/ReadsExtractLog.txt &";
 
 	$info->{STATUS} = "FAILURE";
 	my $pid;
@@ -807,6 +815,10 @@ elsif( $action eq 'compare'){
 		}
 	}
 }elsif($action eq 'contigblast'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
 	my $blast_out_dir="$proj_dir/AssemblyBasedAnalysis/ContigBlast";
 	my $relative_outdir="$proj_rel_dir/AssemblyBasedAnalysis/ContigBlast";
 	my $contig_file="$proj_dir/AssemblyBasedAnalysis/${real_name}_contigs.fa"; 
@@ -844,6 +856,10 @@ elsif( $action eq 'compare'){
 	}
 }elsif( $action eq 'metadata-delete' ){
 ##sample metatdata
+	if( $sys->{user_management} && !$permission->{metadata} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
 	$info->{STATUS} = "SUCCESS";
 	$info->{INFO}   = "Project $real_name sample metadata has been deleted.";
 
@@ -911,6 +927,10 @@ elsif( $action eq 'metadata-export'){
 }
 #END sample metadata
 elsif($action eq 'define-gap-depth'){
+	if( $sys->{user_management} && !$permission->{"$action"} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
 	my $gap_depth_cutoff =  ($opt{"gap-depth-cutoff"})? $opt{"gap-depth-cutoff"}:0;
 	my $gap_out_dir="$proj_dir/ReferenceBasedAnalysis/readsMappingToRef";
 	my $gap_outfile="$gap_out_dir/readsToRef_d$gap_depth_cutoff.gaps";
@@ -963,7 +983,25 @@ elsif($action eq 'define-gap-depth'){
                         $info->{INFO} = "Process $pid detected";
 		}
 	}
+}elsif($action eq 'takenotes'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	my $wordlimit=500;
+	my $projnotes = $opt{'projnotes'};
+	#$info->{INFO} = "Notes taken.";
+	my @words = split/\s+/,$projnotes;
+	if (scalar(@words) > ($wordlimit + 1)){
+		$info->{INFO} .= "The Notes are too long. Only beginning $wordlimit words will be saved.";
+		$projnotes = join(" ",@words[0 .. ($wordlimit - 1)]);
+	}
+	my $NotesFile = "$proj_dir/projnotes.txt";
+	open (my $fh, ">", $NotesFile);
+	print $fh $projnotes;
+	close $fh;
 }
+
 &returnStatus();
 
 ######################################################
