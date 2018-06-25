@@ -28,7 +28,7 @@ $ENV{PATH} = "/bin:/usr/bin";
 #     $info->{LIST}->{1}->{NAME}    // project name
 #                       ->{TIME}    // submission time
 #                       ->{PID}     // runpipeline pid
-#                       ->{STATUS}  // status [finished|running]
+#                       ->{STATUS}  // status [Complete|running]
 #                       ->{DESC}    // description
 #                  ->{2}...
 #
@@ -133,7 +133,7 @@ if( $umSystemStatus ){
 			&getUserProjFromDB();
 		}
 		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
-		&cache_user_projects_page($username,$password,$viewType,$list);	
+		&cache_user_projects_info($username,$password,$viewType,$list);	
 	}
 	else{
 		&getUserProjFromDB();
@@ -194,7 +194,7 @@ if( scalar @projlist ){
 		#}
 		# update current project status
 		if( -r $log ){
-			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$rnaPipeline) = &parseProcessLog($log);
+			my ($p_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$proj_runtime,$rnaPipeline) = &parseProcessLog($log);
 			$list->{$i}->{TIME} ||= $proj_start;
 			$list->{$i}->{TIME} ||= strftime "%F %X", localtime;
 			$list->{$i}->{PID} = $realpid;
@@ -226,7 +226,9 @@ if( scalar @projlist ){
 
 			$progs->{$i} = $prog;
 			if ( $list->{$i}->{DBSTATUS} && ($list->{$i}->{STATUS} ne $list->{$i}->{DBSTATUS})){
-				&updateDBProjectStatus($i, $list->{$i}->{STATUS});
+				&updateDBProjectStatus($i, $list->{$i}->{STATUS},$proj_start,$proj_runtime);
+			}elsif( $p_status ne 'Complete'){
+				&updateDBProjectStatus($i, $list->{$i}->{STATUS},$proj_start,$proj_runtime);
 			}
 			#if( $list->{$i}->{STATUS} eq "finished" && !-e $sjson ){
 			#	my $storedStatus;
@@ -261,7 +263,7 @@ $info->{LIST} = $list if $list;
 
 ######################################################
 
-sub cache_user_projects_page {
+sub cache_user_projects_info {
 	my $user = shift;
 	my $pass = shift;
 	my $type= shift;
@@ -289,14 +291,14 @@ sub cache_user_projects_page {
 			saveListToJason($list_from_api, $list_json);
 		}
 		# update if file age > 5 min = 300 sec
-		if ( ! -e $upage_json || ($now-(stat $upage_json)[9]) > 300 || $forceupdate eq "true") {
-			if ($type eq "admin"){
-				system("perl edge_projectspage.cgi $user $pass true $type user \'\' true 2>/dev/null 1>/dev/null");
-				system("perl edge_projectspage.cgi $user $pass true $type $type \'\' true  2>/dev/null 1>/dev/null");
-			}else{
-				system("perl edge_projectspage.cgi $user $pass true $type user \'\' true  2>/dev/null 1>/dev/null");
-			}
-		}
+		#if ( ! -e $upage_json || ($now-(stat $upage_json)[9]) > 300 || $forceupdate eq "true") {
+		#	if ($type eq "admin"){
+		#		system("perl edge_projectspage.cgi $user $pass true $type user \'\' true 2>/dev/null 1>/dev/null");
+		#		system("perl edge_projectspage.cgi $user $pass true $type $type \'\' true  2>/dev/null 1>/dev/null");
+		#	}else{
+		#		system("perl edge_projectspage.cgi $user $pass true $type user \'\' true  2>/dev/null 1>/dev/null");
+		#	}
+		#}
 		exit;
 	}
 }
@@ -358,6 +360,8 @@ sub parseProcessLog {
 	my $proj_name;
 	my $proj_id;
 	my $numcpu;
+	my $tol_running_sec=0;
+	my $last_runtime;
 	my ($step,$ord,$do,$status);
 	my %map;
 	my $rnaPipeline=0;
@@ -367,6 +371,10 @@ sub parseProcessLog {
 		chomp;
 		next if /^$/;
 		next if /^#/;
+		if( /Total Running time: (\d+):(\d+):(\d+)/){
+			$last_runtime = "$1h $2m $3s";
+			next;
+		}
 		if( /Project Start: (\d{4}) (\w{3})\s+(\d+)\s+(.*)/){
 			my ($yyyy,$mm,$dd,$hms) = ($1,$2,$3,$4);
 			my %mon2num = qw(jan 1  feb 2  mar 3  apr 4  may 5  jun 6  jul 7  aug 8  sep 9  oct 10 nov 11 dec 12);
@@ -424,6 +432,8 @@ sub parseProcessLog {
 		elsif( /Running time: (\d+:\d+:\d+)/ ){
 			$prog->{$ord}->{STATUS} = "done";
 			$prog->{$ord}->{TIME} = $1;
+			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
+			$tol_running_sec += $h*3600+$m*60+$s;
 		}
 		elsif( /Running/ ){
 			$prog->{$ord}->{STATUS} = "running";
@@ -438,7 +448,7 @@ sub parseProcessLog {
 			$proj_status="failed";
 		}
 		elsif( /^All Done\./ ){
-			$proj_status="finished";
+			$proj_status="Complete";
 		}
 		$lastline = $_;
 	}
@@ -450,7 +460,8 @@ sub parseProcessLog {
 	$proj_status            = "archived" if $lastline =~ /EDGE_UI.*archived/;
 	$proj_start             = $1            if $lastline =~ /\[(\S+ \S+)\] EDGE_UI/;
 	$prog->{$ord}->{STATUS} = "unfinished"  if $proj_status eq "interrupted"; #turn last step to unfinished
-
+	
+	my $proj_runtime = sprintf("%02d:%02d:%02d", int($tol_running_sec / 3600), int(($tol_running_sec % 3600) / 60), int($tol_running_sec % 60));
 	#change unfinished auto steps to "skip"
 	my $flag=0;
 	foreach my $ord ( sort {$b<=>$a} keys %$prog ){
@@ -462,7 +473,7 @@ sub parseProcessLog {
 		}
 	}
 
-	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$rnaPipeline);
+	return ($proj_status,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id,$proj_runtime,$rnaPipeline);
 }
 
 sub scanNewProjToList {
@@ -486,7 +497,7 @@ sub scanNewProjToList {
 						$list->{$cnt}->{STATUS} = "unstarted";
 					}
 					if (/All Done/){
-						$list->{$cnt}->{STATUS} = "finished";
+						$list->{$cnt}->{STATUS} = "Complete";
 					}
 					if (/failed/i){
 						$list->{$cnt}->{STATUS} = "failed";
@@ -600,12 +611,18 @@ sub addInfo {
 sub updateDBProjectStatus{
 	my $project = shift;
 	my $status = shift;
+	my $submitted = shift;
+	my $running_time = shift;
 	my %data = (
                 email => $username,
                 password => $password,
 		project_id => $project,
-		new_project_status => $status
+		new_project_status => $status,
+		run_submitted => $submitted,
         );
+	if($running_time) {
+		$data{running_time} = $running_time;
+	}
 	# Encode the data structure to JSON
         my $data = to_json(\%data);
         #w Set the request parameters
@@ -637,7 +654,7 @@ sub getUserProjFromDB{
 	my $service;
 	if ($username && $password){ 
 		$service = "WS/user/getProjects";
-		$data{project_display} = "yes";
+		#$data{project_display} = "yes";
 	}else{
 		$service = "WS/user/publishedProjects";
 	}

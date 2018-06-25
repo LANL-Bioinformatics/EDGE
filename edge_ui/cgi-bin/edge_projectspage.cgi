@@ -42,298 +42,122 @@ my $um_url      = $sys->{edge_user_management_url};
 $um_url ||= "$protocol//$domain/userManagement";
 
 my $cluster     = $sys->{cluster};
-my $upage_json = $sys->{edgeui_input}."/.user_pp.json";
-my $apage_json = $sys->{edgeui_input}."/.admin_pp.json";
 # session check
 if( $sys->{user_management} ){
 	my $valid = verifySession($sid);
 	if($valid || scalar(@ARGV) > 1 ) {
 		($username,$password,$userType) = getCredentialsFromSession($sid) unless (scalar(@ARGV) > 1);
-		my $user_dir =  $sys->{edgeui_input}."/". md5_hex(lc($username));
-		$upage_json = "$user_dir/.user_pp.json";
-		$apage_json = "$user_dir/.admin_pp.json";
 	}
 }
 
 #print Dumper ($list);
-print  $cgi->header( "text/html" );
-print  $cgi->h2("Project List");
+my $relt;
+print $cgi->header('application/json');
+my $html = "<h2>Project List</h2>";
+
 if ( $username && $password || $um_config == 0){
 	#Action buttons
-	print "<div id='edge-projpage-action' class='flex-container'>\n";
+	$html .= "<div id='edge-projpage-action' class='flex-container'>";
 	if ($userType =~ /admin/i){
-		print '<a href="" title="See All Projects List (admin)" class="tooltip ui-btn ui-btn-d ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">show-all</a>';
+		$html .= "<a href='' title='See All Projects List (admin)' class='tooltip ui-btn ui-btn-d ui-icon-bars ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>show-all</a>";
 	}
-	print '<a href="" title="Force Selected Projects to rerun" class="tooltip ui-btn ui-btn-d ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all" data-role="button" >rerun</a>';
-	print '<a href="" title="Interrupt running Projects" class="tooltip ui-btn ui-btn-d ui-icon-forbidden ui-btn-icon-notext ui-corner-all" data-role="button" role="button">interrupt</a>';
-	print '<a href="" title="Delete Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-delete ui-btn-icon-notext ui-corner-all" data-role="button" role="button">delete</a>';
-	print '<a href="" title="Empty Selected Projects Output" class="tooltip ui-btn ui-btn-d ui-icon-recycle ui-btn-icon-notext ui-corner-all" data-role="button" role="button">empty</a>';
+	$html .= "<a href='' title='Force Selected Projects to rerun' class='tooltip ui-btn ui-btn-d ui-shadow-icon ui-icon-refresh ui-btn-icon-notext ui-corner-all' data-role='button' >rerun</a>";
+	$html .= "<a href='' title='Interrupt running Projects' class='tooltip ui-btn ui-btn-d ui-icon-forbidden ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>interrupt</a>";
+	$html .= "<a href='' title='Delete Selected Projects' class='tooltip ui-btn ui-btn-d ui-icon-delete ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>delete</a>";
+	$html .= "<a href='' title='Empty Selected Projects Output' class='tooltip ui-btn ui-btn-d ui-icon-recycle ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>empty</a>";
 	if ($sys->{edgeui_archive}){
-		print '<a href="" title="Archive Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all" data-role="button" role="button">archive</a>';
+		$html .= "<a href='' title='Archive Selected Projects' class='tooltip ui-btn ui-btn-d ui-icon-arrow-u-r ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>archive</a>";
  	}
 	 if ($um_config != 0){
-		print '<a href="" title="Share Selected Projects" class="tooltip ui-btn ui-btn-d ui-icon-forward ui-btn-icon-notext ui-corner-all" data-role="button" role="button">share</a>';
-		print '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-d ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
-		print '<a href="" title="Disable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-minus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">disable-project-display</a>';
-		print '<a href="" title="Enable Selected Projects Display" class="tooltip ui-btn ui-btn-d ui-icon-plus ui-btn-icon-notext ui-corner-all" data-role="button" role="button">enable-project-display</a>';
+		$html .= "<a href='' title='Share Selected Projects' class='tooltip ui-btn ui-btn-d ui-icon-forward ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>share</a>";
+		$html .= '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-d ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
  	}
-	print '<a href="" title="Compare Selected Projects Taxonomy Classification (HeatMap)" class="tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all" data-role="button" role="button">compare</a>';
+	$html .= "<a href='' title='Compare Selected Projects Taxonomy Classification (HeatMap)' class='tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>compare</a>";
  	if($sys->{edge_sample_metadata}) {
- 		print '<a href="" title="Export Selected Projects Metadata" class="tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-export</a>';
+ 		$html .= "<a href='' title='Export Selected Projects Metadata' class='tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-export</a>";
  	}
  	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
- 		print '<a href="" title="Share Selected Projects Metadata/Pathogens with BSVE" class="tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all" data-role="button" role="button">metadata-bsveadd</a>';
+ 		$html .= "<a href='' title='Share Selected Projects Metadata/Pathogens with BSVE' class='tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-bsveadd</a>";
  	}
-	 if ($um_config != 0){
-		print '<a href="" title="Force Update Project Page List" class="tooltip ui-btn ui-btn-d ui-icon-clock ui-btn-icon-notext ui-corner-all" data-role="button" role="button">refresh</a>';
-	}
- 	print '</div>';
+	
+ 	$html .= "</div>";
 }
 
-#print "<div data-filter='true' id='edge-project-list-filter' data-filter-placeholder='Search projects ...'> \n";
-#print "<form id='edge-projpage-form'>\n";
-my ($list,$idxs,$return_idxs);
+$html .= "<table id='edge-project-page-table' class='output-table ui-responsive ui-table ui-table-reflow'>";
 my $head_checkbox="<input type='checkbox' id='edge-projpage-ckall'>";
-if ($umSystemStatus=~ /true/i && $username && $password && $viewType =~ /user/i ){
-	# My Table
-	my $table_id = "edge-project-page-table";
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
-	
-	if (!$forceupdate && -e "$upage_json" && -s "$upage_json"){
-		&printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
-	}else{
-		$list = &getUserProjFromDB("owner",$loadNum);
-		my $list_g = &getUserProjFromDB("guest",$loadNum);
-		my $list_p = &getUserProjFromDB("other_published",$loadNum);
-		$list = &ref_merger($list, $list_p) if $list_p;
-		$list = &ref_merger($list, $list_g) if $list_g;
-		#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
 
-		($idxs,$return_idxs)= &sortList($list,$loadNum);
-		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
-		saveListToJason($td_list,$upage_json);
+if ($umSystemStatus=~ /true/i && $username && $password ){
+	if($viewType =~ /user/i ) {
+		&getUserProjList();
+	} else {
+		&getAdminProjList();
 	}
 
 }elsif ($umSystemStatus=~ /true/i) {
-	# show admin list or published project
-	$head_checkbox="" if (!$username && !$password);
-	my $table_id = "edge-project-page-table";
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Owner"));
-	if (!$forceupdate && -e "$apage_json" && -s "$apage_json"){
-		&printTable($table_id,$return_idxs,$list,\@theads,$apage_json);
-	}else{
-		$list =  &getUserProjFromDB("",$loadNum);
-		($idxs,$return_idxs)= &sortList($list,$loadNum);
-		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$apage_json);
-		saveListToJason($td_list,$apage_json);
-	}
+	&getPublicProjList();
 }elsif ($um_config == 0) {
-	# all projects in the EDGE_output
-	my $table_id = "edge-project-page-table";
-	my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
-	if (!$forceupdate && -e "$upage_json" && -s "$upage_json"){
-		&printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
-	}else{
-		$list= &scanProjToList($loadNum);
-		($idxs,$return_idxs)= &sortList($list,$loadNum);
-		my $td_list = &printTable($table_id,$return_idxs,$list,\@theads,$upage_json);
-		saveListToJason($td_list,$upage_json);
-	}
+	&getProjList();
 }
 
+$html .= "</table>";
+
+$relt -> {html} = $html;
+my $relt_json = encode_json($relt);
+#print STDERR $relt_json;
+print $relt_json;
 
 
 ## END MAIN## 
+sub getUserProjList {
+	$html .= "<thead><tr>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
+	$html .= " </tr></thead>";
+	&getProjFromUM("user");
+}
 
-sub sortList {
-	my $list = shift;
-	my $loadNum = shift;
+sub getAdminProjList {
+	$html .= "<thead><tr>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Owner</th>";
+	$html .= " </tr></thead>";
+	&getProjFromUM("admin");
+}
+
+sub getPublicProjList {
+	$html .= "<thead><tr>";
+	$html .= "<th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Owner</th>";
+	$html .= " </tr></thead>";
+	&getProjFromUM("public");
+}
+
+sub getProjList {	
+	# all projects in the EDGE_output
+	$html .= "<thead><tr>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th>";
+	$html .= " </tr></thead>";
 	
-	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} =~ /running/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} =~ /unstarted/i } sort {$list->{$a}->{REAL_PROJNAME} cmp $list->{$b}->{REAL_PROJNAME}} keys %$list;
-	my @idxs3 = grep { $list->{$_}->{PROJSTATUS} !~ /running|unstarted/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
-	my @idxs = (@idxs1,@idxs2,@idxs3);
-	my $totalNum=scalar(@idxs);
-	my @return_idxs = @idxs;
-	my $load_num_button="<div>Load recent <input type='number' id='edge-projpage-loadnum' data-role='none' min='100' max=\"$totalNum\" value=\'$loadNum\' step='10'> /$totalNum projects. <input type='button' data-role='none' id='edge-projpage-loadnum-submit' value='Go'></div>";
-	#print $load_num_button if ($totalNum>100);
-	if ( $totalNum > $loadNum) {
-		@return_idxs=@idxs[0..$loadNum];
-	}
-	#print join ("<br/>",@return_idxs,$loadNum);
-	return (\@idxs,\@return_idxs);
+	my $list= &scanProjToList();
+	my ($idxs)= &sortList($list);
+	&tdList($idxs,$list);
 }
 
-sub printTable {
-	my $table_id = shift;
-	my $idx_ref = shift;
-	my $list = shift;
-	my $theads = shift;
-	my $json = shift;
-	(my $json_relpath = $json) =~ s/$www_root//;
-	my @idxs = ($idx_ref)? @{$idx_ref}:"";
-	my @tbodys;
-	my $tbody_list;
+sub getProjFromUM {
+	my $request_type = shift;
 	my @tds_for_list;
-	#return if (@ARGV);
-	if ($list->{INFO}->{ERROR})
-	{
-		print "<p class='error'>$list->{INFO}->{ERROR}</p>\n";
-	}
-	foreach (@idxs)
-	{
-		my $projOwner = $list->{$_}->{OWNER};
-		my $projStatus = $list->{$_}->{PROJSTATUS};
-		my $projDisplay = $list->{$_}->{PROJDISPLAY};
-		my $projID = $list->{$_}->{PROJNAME};
-		my $projname = "<a href=\"#\" class=\"edge-project-page-link \" title=\"$list->{$_}->{PROJDESC} (alt-click to open in a new tab)\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
-		my $projSubTime = $list->{$_}->{PROJSUBTIME};
-		my $projRunTime = $list->{$_}->{RUNTIME};
-		my $projLastRunTime = $list->{$_}->{LASTRUNTIME};
-		my $projType = $list->{$_}->{PROJ_TYPE};
-		my $projCode = $list->{$_}->{PROJCODE} || $list->{$_}->{REAL_PROJNAME};
-		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value=\'$projCode\'>";
-		my $publish_action= ($projType =~ /published/)? "unpublished":"published";
-		$projType =~ s/published/public/;
-		my @tds;
-		if ($umSystemStatus=~ /true/i){
-			$checkbox="" if (!$username && !$password);
-			if( scalar @$theads == 8 ){
-				@tds_for_list = ( $checkbox,$projname,$projStatus,$projDisplay,$projSubTime,$projRunTime,$projType,$projOwner );
-				@tds = ( td($checkbox),td($projname),td($projStatus),td($projDisplay),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
-			}
-			else{
-				@tds_for_list =  ( $checkbox, $projname,$projStatus,$projSubTime,$projRunTime,$projOwner );
-				@tds = ( td($checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
-			}
-		}else{
-			@tds_for_list = ( $checkbox,$projname,$projStatus,$projSubTime,$projRunTime,$projLastRunTime ); 
-			@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
-		}
-		push @tbodys, \@tds;
-		push @{$tbody_list->{data}}, [@tds_for_list];
-	}
-
-	if (scalar(@idxs)<1){
-		@tds_for_list = ("", "No Projects", "", "", "", "");
-		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
-		if( scalar @$theads == 8 ){
-			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""),td(""));
-			@tds_for_list = ("", "No Projects", "", "", "", "","","");
-		}
-		push @{$tbody_list->{data}}, [@tds_for_list];
-		push @tbodys, \@tds;
-	}
-	print $cgi->table( 
-			{-id=>"$table_id" , -data=>"$json_relpath",-class=>"output-table ui-responsive ui-table ui-table-reflow" },
-			thead(Tr(@{$theads})),
-			#tbody(
-			#map { Tr(@{$_}) } @tbodys
-			#)
-	);
-	return($tbody_list);
-}
-
-
-sub getSysParamFromConfig {
-	my $config = shift;
-	my $sys;
-	my $flag=0;
-	open (CONF, "<", $config )or die "Can't open $config: $!";
-	while(<CONF>){
-		if( /^\[system\]/ ){
-			$flag=1;
-			while(<CONF>){
-				chomp;
-				last if /^\[/;
-				if ( /^([^=]+)=([^=]+)/ ){
-					$sys->{$1}=$2;
-				}
-			}
-		}
-		last;
-	}
-	close CONF;
-	die "Incorrect system file\n" if (!$flag);
-	return $sys;
-}
-
-sub scanProjToList {
-	my $loadNum=shift;
-	my $cnt = 0;
-	my $list;
-	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
-	my @dirs= sort { -M $a <=> -M $b } readdir BIN;
-	foreach my $file (@dirs) {
-		next if $file eq '.' or $file eq '..' or $file eq 'sample_metadata_export';
-		if ( -d "$out_dir/$file"  && -r "$out_dir/$file/config.txt") {
-			++$cnt;
-			if ($cnt <= $loadNum){
-				if ( -e "$out_dir/$file/.AllDone" && -e "$out_dir/$file/HTML_Report/writeHTMLReport.finished"){
-					$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
-					$list->{$cnt}->{PROJSTATUS} = "Complete";
-				}else{
-					if (-r "$out_dir/$file/process.log" ){
-                                        	$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file")
-                               		}else{
-                                        	$list->{$cnt}->{PROJSTATUS} = "Unstarted";
-                                	}
-					$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
-				}
-			}
-			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
-			$list->{$cnt}->{PROJNAME} = $file;
-		}
-	}
-	closedir(BIN);
-	return $list;
-}
-sub getUserInfo {
-	my $service = "WS/user/getInfo";
-	my $url = $um_url .$service;
-	my %user_info;
-	my %data = (
-		email => $username,
-		password => $password
- 	);
-	my $data = to_json(\%data);
-	my $browser = LWP::UserAgent->new;
-	my $req = PUT $url;
-	$req->header('Content-Type' => 'application/json');
-	$req->header('Accept' => 'application/json');
-	$req->header( "Content-Length" => length($data) );
-	$req->content($data);
-
- 	my $response = $browser->request($req);
-	my $result_json = $response->decoded_content;
-	print $result_json,"\n" if (@ARGV);
-	if ($result_json =~ /\"error_msg\":"(.*)"/){
-		print "Content-Type: text/html\n\n", "Fail to get user info\n\n";
-		exit;
- 	}
-	my $tmp_r = from_json($result_json);
-	$user_info{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
-	return \%user_info;
-}
-
-sub getUserProjFromDB{
-	my $project_type = shift;
-	my $loadNum = shift;
-	my $numProj=0;
-	my $list={};
+	
         my %data = (
                 email => $username,
                 password => $password
         );
-        # Encode the data structure to JSON
-        #w Set the request parameters
-	my $service;
-	if ($username && $password){ 
-		$service= ($viewType =~ /admin/i)? "WS/user/admin/getProjects" :"WS/user/getProjects";
-		$data{project_type} = $project_type if ($viewType =~ /user/i && $project_type);
-	}else{
-		$service="WS/user/publishedProjects";
-	}
+	my $api_path;
+	if($request_type eq "user") {
+		$api_path = "user/getRuns";
+	} elsif($request_type eq "admin") {
+		$api_path = "user/admin/getRuns";
+	} else {
+		$api_path = "user/publicRuns";
+	}       
+
+	my $service="WS/$api_path";
         my $data = to_json(\%data);
         my $url = $um_url .$service;
         my $browser = LWP::UserAgent->new;
@@ -346,95 +170,105 @@ sub getUserProjFromDB{
 
         my $response = $browser->request($req);
         my $result_json = $response->decoded_content;
-	
+	#print STDERR "$result_json";
+
 	if ($result_json =~ /\"error_msg\":"(.*)"/)
-        {
-                $list->{INFO}->{ERROR}=$1;
-                return;
+        {                
+                return "ERROR";
         }
         my $array_ref =  decode_json($result_json);
-	#print Dumper ($array_ref) if @ARGV;
-	my @projectlist=@$array_ref;
-	foreach my $hash_ref ( sort {$b->{created} cmp $a->{created}} @projectlist)
-	{
-		my $id = $hash_ref->{id};
-		my $projCode = $hash_ref->{code};
-		my $project_name = $hash_ref->{name};
-		my $status = $hash_ref->{status};
-		my $created_time = $hash_ref->{created};
-		my $display = $hash_ref->{display}||"yes";
-		if($project_type eq "other_published") {
-			$display = "no";
-		}
-		next if ($status =~ /delete/i);
-		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && ! $cluster);
-		my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
-		my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
-		if ($numProj < $loadNum){
-		#		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
-		#		&updateDBProjectStatus("$id","finished") if ( $list->{$id}->{PROJSTATUS} =~ /Complete/i);
-			if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
-				$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
-				$status=($status =~ /finished/i)?"Complete":"Archived";
-			}elsif( $status =~ /unstarted/i){
-				$list->{$id}->{PROJSUBTIME}=$created_time;
-				$list->{$id}->{RUNTIME}="";
-				$status="Unstarted";
-			}elsif( $status =~ /in process/i){
-                        	$list->{$id}->{PROJSUBTIME}=$created_time;
-                        	$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
-                        	$list->{$id}->{RUNTIME}="";
-                        	$status="In process";
-			}else{
-				$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
-			}
-		}
-		$list->{$id}->{PROJNAME} = $id;
-		if (!$list->{$id}->{PROJSTATUS}){
-			$list->{$id}->{PROJSTATUS} = $status;
-			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-orange'>Running</span>" if ($status =~ /running/);
-			$list->{$id}->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>" if ($status =~ /failure/);
-		}
-		$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
-		$list->{$id}->{PROJDISPLAY} = $display;
-		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
-		$list->{$id}->{PROJCODE} = $projCode;
-		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";
-		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
-		$list->{$id}->{PROJ_TYPE} = $hash_ref->{type};
 
-		$numProj++;
+	my @projectlist=@$array_ref;
+	my ($id, $code, $name, $status, $submitted, $running_time,$type, $owner);
+	foreach my $hash_ref (@projectlist)
+	{
+		$id = $hash_ref->{id};
+		$code = $hash_ref->{code};
+		$name = $hash_ref->{name};
+		$status = $hash_ref->{status};
+		$submitted = $hash_ref->{submitted};
+		$running_time = $hash_ref->{running_time};
+		$type = $hash_ref->{type};
+		$owner = $hash_ref->{owner};
+		
+		my $projname = "<a href='#' class='edge-project-page-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
+		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value='$code'>";
+
+		if($request_type eq "user") {
+			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$type,$owner );
+		} elsif($request_type eq "admin") {
+			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$owner );
+		} else {
+			@tds_for_list = ( $projname,$status,$submitted,$running_time,$owner );
+		}
+		push @{$relt->{data}}, [@tds_for_list];
+	
 	}
+}
+
+
+sub scanProjToList {
+	my $cnt = 0;
+	my $list;
+	opendir(BIN, $out_dir) or die "Can't open $out_dir: $!";
+	my @dirs= readdir BIN;
+	foreach my $file (@dirs) {
+		next if $file eq '.' or $file eq '..' or $file eq 'sample_metadata_export';
+		if ( -d "$out_dir/$file"  && -r "$out_dir/$file/config.txt") {
+			$cnt ++;
+			if ( -e "$out_dir/$file/.AllDone" && -e "$out_dir/$file/HTML_Report/writeHTMLReport.finished"){
+				$list=&get_start_run_time("$out_dir/$file/.AllDone",$cnt,$list);
+				$list->{$cnt}->{PROJSTATUS} = "Complete";
+			}else{
+				if (-r "$out_dir/$file/process.log" ){
+                                	$list=&pull_summary("$out_dir/$file/process.log",$cnt,$list,"$out_dir/$file")
+                               	}else{
+                                  	$list->{$cnt}->{PROJSTATUS} = "Unstarted";
+                             	}
+				$list=&pull_summary("$out_dir/$file/config.txt",$cnt,$list,"$out_dir/$file") if ($list->{$cnt}->{PROJSTATUS} =~ /unstart/i);
+				
+			}
+			$list->{$cnt}->{REAL_PROJNAME} = $list->{$cnt}->{PROJNAME} || $file;
+			$list->{$cnt}->{PROJNAME} = $file;
+		}
+	}
+	closedir(BIN);
 	return $list;
 }
 
-sub updateDBProjectStatus{
-        my $project = shift;
-        my $status = shift;
-        my %data = (
-                email => $username,
-                password => $password,
-                project_id => $project,
-                new_project_status => $status
-        );
-	my $data = to_json(\%data);
+sub sortList {
+	my $list = shift;
+	
+	my @idxs1 = grep { $list->{$_}->{PROJSTATUS} =~ /running/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs2 = grep { $list->{$_}->{PROJSTATUS} =~ /unstarted/i } sort {$list->{$a}->{REAL_PROJNAME} cmp $list->{$b}->{REAL_PROJNAME}} keys %$list;
+	my @idxs3 = grep { $list->{$_}->{PROJSTATUS} !~ /running|unstarted/i } sort {$list->{$b}->{TIME} cmp $list->{$a}->{TIME}} keys %$list;
+	my @idxs = (@idxs1,@idxs2,@idxs3);
+	
+	return (\@idxs);
+}
 
-        my $url = $um_url ."WS/project/update";
-        my $browser = LWP::UserAgent->new;
-        my $req = PUT $url;
-        $req->header('Content-Type' => 'application/json');
-        $req->header('Accept' => 'application/json');
-       
-        $req->header( "Content-Length" => length($data) );
-        $req->content($data);
-
-        my $response = $browser->request($req);
-        my $result_json = $response->decoded_content;
-        my $result =  from_json($result_json);
-        if (! $result->{status})
-        {
-                #$info->{INFO} .= " Update Project status in database failed.";
-        }
+sub tdList {
+	my $idx_ref = shift;
+	my $list = shift;
+	my @idxs = ($idx_ref)? @{$idx_ref}:"";
+	my @tds_for_list;
+	#return if (@ARGV);
+	if ($list->{INFO}->{ERROR})
+	{
+		print "<p class='error'>$list->{INFO}->{ERROR}</p>\n";
+	}
+	foreach (@idxs)
+	{
+		my $projStatus = $list->{$_}->{PROJSTATUS};
+		my $projID = $list->{$_}->{PROJNAME};
+		my $projname = "<a href='#' class='edge-project-page-link ' title='$list->{$_}->{PROJDESC} (alt-click to open in a new tab)' data-pid='$projID'>$list->{$_}->{REAL_PROJNAME}</a>";
+		my $projSubTime = $list->{$_}->{PROJSUBTIME};
+		my $projRunTime = $list->{$_}->{RUNTIME};
+		my $projCode = $list->{$_}->{PROJCODE} || $list->{$_}->{REAL_PROJNAME};
+		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value='$projCode'>";
+		@tds_for_list = ( $checkbox,$projname,$projStatus,$projSubTime,$projRunTime ); 
+		push @{$relt->{data}}, [@tds_for_list];
+	}
 }
 
 sub get_start_run_time{
@@ -566,25 +400,27 @@ sub pull_summary {
 	return $list;
 }
 
-sub check_um_service {
-	my $url=shift;
-	if (! LWP::Simple::head($url)) {
-  	#	warn "The User managment Service is DOWN!!!! Will pull all projects from EDGE output direcotry";
-  		return 0; 
-	}else{
-		return 1;
-	}
-}
-
-sub ref_merger {
-	my ($r1, $r2) = @_;
-	foreach my $key (keys %$r2){
-		if($r1->{$key}) {
-			$r2->{$key}->{PROJ_TYPE} .= ",public";
+sub getSysParamFromConfig {
+	my $config = shift;
+	my $sys;
+	my $flag=0;
+	open (CONF, "<", $config )or die "Can't open $config: $!";
+	while(<CONF>){
+		if( /^\[system\]/ ){
+			$flag=1;
+			while(<CONF>){
+				chomp;
+				last if /^\[/;
+				if ( /^([^=]+)=([^=]+)/ ){
+					$sys->{$1}=$2;
+				}
+			}
 		}
-		$r1->{$key} = $r2->{$key};
+		last;
 	}
-	return $r1;
+	close CONF;
+	die "Incorrect system file\n" if (!$flag);
+	return $sys;
 }
 
 sub stringSanitization{
@@ -612,12 +448,4 @@ sub emailValidate{
 	my $email=shift;
 	$email = lc($email);
 	return Email::Valid->address($email);
-}
-
-sub saveListToJason {
-	my ($list, $file) = @_;
-	open JSON, ">", "$file" or die "Can't write to file: $file\n";
-	my $json = to_json($list, {utf8 => 1});
-	print JSON $json;
-	close JSON;
 }

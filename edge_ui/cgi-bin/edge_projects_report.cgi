@@ -52,32 +52,30 @@ if( $sys->{user_management} ){
 	}
 }
 
+my $relt;
 if($action eq "form") {
+	print $cgi->header('application/json');
 	my $reportFormTmpl    = "$RealBin/../../scripts/projects_report/edge_projects_report_form.tmpl";
 	my $head_checkbox="<input type='checkbox' id='edge-reportform-ckall'>";
 	my $projectListHtml;
+	my $tableHtml = "<table id='edge-report-form-table' class='output-table ui-responsive ui-table ui-table-reflow'>";
 	if ($username && $password){
 		# My Table
-		my $list = &getUserProjFromDB("owner");
-		my $list_g = &getUserProjFromDB("guest");
-		my $list_p = &getUserProjFromDB("other_published");
-		$list = &ref_merger($list, $list_p) if $list_p;
-		$list = &ref_merger($list, $list_g) if $list_g;
-		#<div data-role='collapsible-set' id='edge-project-list-collapsibleset'> 
-
-		my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Display"),th("Submission Time"),th("Total Running Time"),th("Type"),th("Owner"));
-		my $idxs = &sortList($list);
-		my $table_id = "edge-report-form-table";
-		$projectListHtml = &printTable($table_id,$idxs,$list,\@theads);
+		$tableHtml .= "<thead><tr>";
+		$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
+		$tableHtml .= " </tr></thead>";
+		&getProjFromUM("user");
 
 	} else {
 		# all projects in the EDGE_output
+		$tableHtml .= "<thead><tr>";
+		$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th>";
+		$tableHtml .= " </tr></thead>";
 		my $list= &scanProjToList();
 		my $idxs = &sortList($list);
-		my @theads = (th("$head_checkbox"),th("Project Name"),th("Status"),th("Submission Time"),th("Total Running Time"),th("Last Run Time"));
-		my $table_id = "edge-report-form-table";
-		$projectListHtml = &printTable($table_id,$idxs,$list,\@theads);
+		&dtList($idxs,$list);
 	}
+	$tableHtml .= "</table>";
 
 	my $html;
 	open(my $fh, '<', $reportFormTmpl) or die "cannot open file $reportFormTmpl";
@@ -87,9 +85,11 @@ if($action eq "form") {
 	}
 	close($fh);
 
-	$html =~ s/<PROJECT-LIST PLACEHOLDER>/$projectListHtml/;
-	print "Content-Type: text/html\n\n",
-				  $html;
+	$html =~ s/<PROJECT-LIST PLACEHOLDER>/$tableHtml/;
+	$relt -> {html} = $html;
+	my $relt_json = encode_json($relt);
+	#print STDERR $relt_json;
+	print $relt_json;
 } elsif ($action eq "create") {
 	my $html;
 	my $report_name = $opt{'report'};
@@ -236,6 +236,72 @@ if($action eq "form") {
 }
 ## END MAIN## 
 
+sub getProjFromUM {
+	my $request_type = shift;
+	my @tds_for_list;
+	
+        my %data = (
+                email => $username,
+                password => $password
+        );
+	my $api_path;
+	if($request_type eq "user") {
+		$api_path = "user/getRuns";
+	} elsif($request_type eq "admin") {
+		$api_path = "user/admin/getRuns";
+	} else {
+		$api_path = "user/publicRuns";
+	}       
+
+	my $service="WS/$api_path";
+        my $data = to_json(\%data);
+        my $url = $um_url .$service;
+        my $browser = LWP::UserAgent->new;
+        my $req = PUT $url;
+        $req->header('Content-Type' => 'application/json');
+        $req->header('Accept' => 'application/json');
+        #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+        $req->header( "Content-Length" => length($data) );
+        $req->content($data);
+
+        my $response = $browser->request($req);
+        my $result_json = $response->decoded_content;
+	#print STDERR "$result_json";
+
+	if ($result_json =~ /\"error_msg\":"(.*)"/)
+        {                
+                return "ERROR";
+        }
+        my $array_ref =  decode_json($result_json);
+
+	my @projectlist=@$array_ref;
+	my ($id, $code, $name, $status, $submitted, $running_time,$type, $owner);
+	foreach my $hash_ref (@projectlist)
+	{
+		$id = $hash_ref->{id};
+		$code = $hash_ref->{code};
+		$name = $hash_ref->{name};
+		$status = $hash_ref->{status};
+		$submitted = $hash_ref->{submitted};
+		$running_time = $hash_ref->{running_time};
+		$type = $hash_ref->{type};
+		$owner = $hash_ref->{owner};
+		
+		my $projname = "<a href='#' class='edge-project-page-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
+		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value='$code'>";
+
+		if($request_type eq "user") {
+			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$type,$owner );
+		} elsif($request_type eq "admin") {
+			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$owner );
+		} else {
+			@tds_for_list = ( $projname,$status,$submitted,$running_time,$owner );
+		}
+		push @{$relt->{data}}, [@tds_for_list];
+	
+	}
+}
+
 sub sortReportList {
 	my $list = shift;
 	
@@ -299,66 +365,37 @@ sub sortList {
 	return \@idxs;
 }
 
-sub printTable {
-	my $projectListHtml = '';
-	my $table_id = shift;
+sub dtList {
 	my $idx_ref = shift;
 	my $list = shift;
-	my $theads = shift;
 	my @idxs = @{$idx_ref};
-	my @tbodys;
-	#return if (@ARGV);
+	
 	if ($list->{INFO}->{ERROR})
 	{
-		$projectListHtml = "<p class='error'>$list->{INFO}->{ERROR}</p>\n";
+		return  "<p class='error'>$list->{INFO}->{ERROR}</p>\n";
 	}
 	foreach (@idxs)
 	{
 		my $projOwner = $list->{$_}->{OWNER};
 		my $projStatus = $list->{$_}->{PROJSTATUS};
-		my $projDisplay = $list->{$_}->{PROJDISPLAY};
 		my $projID = $list->{$_}->{PROJNAME};
-		my $projname = "<a href=\"#\" class=\"edge-report-form-link \" title=\"$list->{$_}->{PROJDESC} (alt-click to open in a new tab)\" data-pid=\"$projID\">$list->{$_}->{REAL_PROJNAME}</a>";
+		my $projname = "<a href='#' class='edge-report-form-link ' title='$list->{$_}->{PROJDESC} (alt-click to open in a new tab)' data-pid='$projID'>$list->{$_}->{REAL_PROJNAME}</a>";
 		my $projSubTime = $list->{$_}->{PROJSUBTIME};
 		my $projRunTime = $list->{$_}->{RUNTIME};
-		my $projLastRunTime = $list->{$_}->{LASTRUNTIME};
 		my $projType = $list->{$_}->{PROJ_TYPE};
 		my $projCode = $list->{$_}->{PROJCODE} || $list->{$_}->{REAL_PROJNAME};
-		my $checkbox = "<input type='checkbox' class='edge-reportform-ckb' name='edge-reportform-ckb' value=\'$projCode\'>";
+		my $checkbox = "<input type='checkbox' class='edge-reportform-ckb' name='edge-reportform-ckb' value='$projCode'>";
 		my $publish_action= ($projType =~ /published/)? "unpublished":"published";
 		$projType =~ s/published/public/;
 		my @tds;
 		if ($umSystemStatus=~ /true/i){
-			$checkbox="" if (!$username && !$password);
-			if( scalar @$theads == 8 ){
-				@tds = ( td($checkbox),td($projname),td($projStatus),td($projDisplay),td($projSubTime),td($projRunTime),td($projType),td($projOwner) );
-			}
-			else{
-				@tds = ( td($checkbox), td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projOwner) );
-			}
+			@tds = ($checkbox,$projname,$projStatus,$projSubTime,$projRunTime,$projType,$projOwner);
+			
 		}else{
-			@tds = ( td($checkbox),td($projname),td($projStatus),td($projSubTime),td($projRunTime),td($projLastRunTime));
+			@tds = ($checkbox,$projname,$projStatus,$projSubTime,$projRunTime);
 		}
-		push @tbodys, \@tds;
+		push @{$relt->{data}}, [@tds];
 	}
-
-	if (scalar(@idxs)<1){
-		my @tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""));
-		if( scalar @$theads == 8 ){
-			@tds = (td(""),td("No Projects"),td(""),td(""),td(""),td(""),td(""),td(""));
-		}
-
-		push @tbodys, \@tds;
-	}
-	$projectListHtml = $cgi->table( 
-			{-id=>"$table_id" , -class=>"output-table ui-responsive ui-table ui-table-reflow" },
-			thead(Tr(@{$theads})),
-			tbody(
-			map { Tr(@{$_}) } @tbodys
-			)
-	);
-
-	return $projectListHtml;
 }
 
 
@@ -456,10 +493,6 @@ sub getUserProjFromDB{
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
 		my $created_time = $hash_ref->{created};
-		my $display = $hash_ref->{display}||"yes";
-		if($project_type eq "other_published") {
-			$display = "no";
-		}
 		next if ($status =~ /delete/i);
 		next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" && ! $cluster);
 		my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
@@ -482,7 +515,6 @@ sub getUserProjFromDB{
 		}
 		$list->{$id}->{PROJNAME} = $id;
 		$list->{$id}->{PROJSTATUS} = $status if (!$list->{$id}->{PROJSTATUS});
-		$list->{$id}->{PROJDISPLAY} = $display;
 		$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
 		$list->{$id}->{PROJCODE} = $projCode;
 		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}";

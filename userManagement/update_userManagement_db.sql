@@ -26,3 +26,6 @@ ALTER TABLE reports ADD CONSTRAINT rpublishedChk CHECK (published IN ('yes','no'
 ALTER TABLE projects ADD full_name VARCHAR(255);
 ALTER TABLE users_projects add display varchar(25) NOT NULL DEFAULT 'yes';
 ALTER TABLE users_projects ADD CONSTRAINT displayChk CHECK (display IN ('yes','no'));
+
+ALTER TABLE projects ADD run_submitted DATETIME;
+ALTER TABLE projects ADD running_time TIME;

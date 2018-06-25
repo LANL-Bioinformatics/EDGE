@@ -1246,6 +1246,9 @@ sub updateDBProjectStatus{
         my $data = to_json(\%data);
         #w Set the request parameters
         my $url = $um_url ."WS/project/update";
+	if($status eq "delete") {
+		$url = $um_url ."WS/project/delete";
+	}
         my $browser = LWP::UserAgent->new;
         my $req = PUT $url;
         $req->header('Content-Type' => 'application/json');

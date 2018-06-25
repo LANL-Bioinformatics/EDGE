@@ -1037,11 +1037,11 @@ $( document ).ready(function()
 			getLog("."+focusProjLogFile);
 		},
 		afteropen: function( event, ui ) {
-			if( focusProjStatus != "finished" ){
+			if( focusProjStatus != "Complete" ){
 				updateLogInterval = setInterval(
 					function(){
 						getLog("."+focusProjLogFile);
-						if( focusProjStatus == "finished" ){
+						if( focusProjStatus == "Complete" ){
 							clearInterval(updateLogInterval);
 						}
 					}, interval);
@@ -1873,7 +1873,7 @@ $( document ).ready(function()
 		$.ajax({
 			url: "./cgi-bin/edge_projectspage.cgi",
 			type: "POST",
-			dataType: "html",
+			dataType: "json",
 			cache: false,
 			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'forceupdate':force},
 			beforeSend: function(){
@@ -1889,7 +1889,7 @@ $( document ).ready(function()
 			success: function(data){
 				//updateProject();
 				allMainPage.hide();
-				$( "#edge-project-page" ).html(data);
+				$( "#edge-project-page" ).html(data.html);
 				$( "#edge-project-page" ).show();
 				$(".tooltip").tooltipster({
 					theme:'tooltipster-light',
@@ -2018,9 +2018,9 @@ $( document ).ready(function()
 						updateProject(focusProjName);
 					}
 				});
-				var projectTableData = "." + $('#edge-project-page-table').attr('data');
+				var projectTableData = data.data;
 				var ProjDataTable = $('#edge-project-page-table').DataTable({
-					"ajax" : projectTableData,
+					"data" : projectTableData,
 					"columnDefs": [ {"targets": 0, "orderable": false}],
 					"order": [],
 					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -2367,6 +2367,11 @@ $( document ).ready(function()
 									projIcon  = "ui-icon-check";
 									finished_proj++;
 									break;
+								case "Complete":
+									projClass = "edge-time-bg-green";
+									projIcon  = "ui-icon-check";
+									finished_proj++;
+									break;
 								case "running":
 									projClass = "edge-time-bg-orange";
 									projIcon  = "ui-icon-load";
@@ -2500,7 +2505,7 @@ $( document ).ready(function()
 				
 				//for progress bar in report
 				if( $('#edge-output-projname').length && $('#edge-output-projname').attr("data-pid") == obj.INFO.NAME ){
-					if( obj.INFO.STATUS == "finished" ){
+					if( obj.INFO.STATUS == "Complete" ){
 						$("#progressbar-block").hide();
 					}
 					else{
@@ -2509,7 +2514,7 @@ $( document ).ready(function()
 						$("#progressbar-val").css("width",prog_pct+"%").text( obj.INFO.STATUS + " (" + prog_pct+"% done)" );
 					}
 
-					if( obj.INFO.STATUS == "finished" && $('#edge-output-projstatus').text() && $('#edge-output-projstatus').text() != "Complete" ){
+					if( obj.INFO.STATUS == "Complete" && $('#edge-output-projstatus').text() && $('#edge-output-projstatus').text() != "Complete" ){
 						updateReport( obj.INFO.NAME );
 						updateProject(pname,true);
 					}
@@ -3506,7 +3511,7 @@ $( document ).ready(function()
 		$.ajax({
 			url: "./cgi-bin/edge_projects_report.cgi",
 			type: "POST",
-			dataType: "html",
+			dataType: "json",
 			cache: false,
 			data: {'umSystem':umSystemStatus,'view':view,'protocol': location.protocol, 'sid':localStorage.sid, 'action':'form'},
 			beforeSend: function(){
@@ -3522,10 +3527,12 @@ $( document ).ready(function()
 			success: function(data){
 				//console.log(data);
 				allMainPage.hide();
-				$( "#edge-projects-report-page" ).html(data);
+				$( "#edge-projects-report-page" ).html(data.html);
 				$( "#edge-projects-report-page" ).show();
 
+				var tableData = data.data;
 				var ProjDataTable = $('#edge-report-form-table').DataTable({
+					"data": tableData,
 					"columnDefs": [ {"targets": 0, "orderable": false}],
 					"order": [],
 					"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
