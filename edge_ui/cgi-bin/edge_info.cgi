@@ -448,6 +448,7 @@ sub parseProcessLog {
 			$proj_status="failed";
 		}
 		elsif( /^All Done\./ ){
+			$prog->{$ord}->{STATUS} = "done";
 			$proj_status="Complete";
 		}
 		$lastline = $_;

@@ -4268,6 +4268,7 @@ sub lprint {
 
 sub detectPathogen
 {
+	my $time=time();
 	my $bl = shift;
 	my $vl = shift;
 	my $log = "$outDir/pathogenDetect.log";
@@ -4278,6 +4279,7 @@ sub detectPathogen
 	my $cmd="python $RealBin/scripts/identify_pathogens.py -b $bl -v $vl -o $outDir/pathogens.txt -d $dbhost -n $dbname -u $dbuser -p $dbpasswd 2>\&1 1>$log";
     	&lprint ("\n Running \n $cmd\n");
    	eval{system("$cmd");};
+	&printRunTime($time);
     	&lprint ("Pathogen detection finished.\n");
 }
 sub setProxy{
