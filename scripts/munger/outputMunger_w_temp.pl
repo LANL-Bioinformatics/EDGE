@@ -1490,9 +1490,11 @@ sub pull_taxa {
 					elsif( $toolname =~ /pangia/i ){
 						$mapped_reads = $temp[19];
 					}
-
-					$creads += $mapped_reads if ($mapped_reads =~ /\d/);
-					$creads = "N/A" if $toolname =~ /metaphlan/i;
+					if($toolname =~ /metaphlan/i){
+						$creads = "N/A";
+					}else{
+						$creads += $mapped_reads if ($mapped_reads =~ /\d/);
+					}
 				}
 				close LIST;
 			}
