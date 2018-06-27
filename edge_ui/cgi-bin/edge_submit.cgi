@@ -879,9 +879,12 @@ sub checkParams {
 		
 		$opt{'edge-sra-sw'} = 1 if ($opt{'edge-inputS-sw'} eq "sra");
 		if ( $opt{'edge-sra-sw'}){
-			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'} || $opt{'edge-sra-acc'} =~ /[^a-zA-Z0-9\-_\.]/);
-			my $return=&getSRAmetaData($opt{'edge-sra-acc'});
-			&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $opt{'edge-sra-acc'}") if ($return);
+			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'} || $opt{'edge-sra-acc'} =~ /[^a-zA-Z0-9\-_\.]\,/);
+			my @SRA_ids = split /,/,$opt{'edge-sra-acc'};
+			foreach my $sra_id (@SRA_ids){
+				my $return=&getSRAmetaData($sra_id);
+				&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $sra_id") if ($return);
+			}
 		}
 		if ($opt{'edge-inputS-sw'} eq "fastq"){
 			if (!@edge_input_pe1 && !@edge_input_pe2 && !@edge_input_se){
