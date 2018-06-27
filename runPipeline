@@ -2335,7 +2335,7 @@ sub readEDGEConfig
         if (/=/)
         {
             my ($key,$value)=split /=/,$_;
-             &stringSanitization($value);
+             &stringSanitization($value) if ($key !~ /projdesc/);
             if ( defined $value)
             {
                $value =~ s/\"//g;

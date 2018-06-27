@@ -227,9 +227,9 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			my $qsub_cmd = $tools->{system}->{QSUB_COMMAND};
 			$cmd = &param_replace( $cmd, $file_info, $tools, $idx, $tool );
 			$qsub_cmd = &param_replace( $qsub_cmd, $file_info, $tools, $idx, $tool );
-			&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
-			&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 			if ($tools->{system}->{RUN_TOOL_AS_JOB}){
+				&_notify("[RUN_TOOL] [$tool] COMMAND: $qsub_cmd\n");
+				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 				#&_notify("$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd\n");
 				$code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
 				my ($job_id) = $code =~ /Your job (\d+)/;
@@ -240,6 +240,8 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				$job_ids{$job_id}->{log}=$log;
 				&_notify("[RUN_TOOL] [$tool] Error occured: qsub error\n") if (!$job_id);
 			}else{
+				&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
+				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 				$code = system("$cmd > $log 2>&1");
 				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
 				my $runningtime = &timeInterval($time);
