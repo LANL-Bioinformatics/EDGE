@@ -70,7 +70,7 @@ cluster_job_notify=edge@yourdomain.com
 cluster_job_prefix=EDGE_pipeline_
 cluster_qsub_options=
 ##uge
-cluster_job_resource=h_vmem=6G -pe smp <CPU> -binding linear:<CPU/2>
+cluster_job_resource=mem_free=12G,h_vmem=12G -pe smp <CPU> -binding linear:<CPU/2>
 ##pbs
 ##cluster_job_resource=nodes=1:trailer:ppn=<CPU>,walltime=50:00:00,mem=100gb
 cluster_job_max_cpu=64
