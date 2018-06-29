@@ -231,7 +231,7 @@ $aligner="minimap2" if ($nanopore);
 
 
 ## Prepare Reference and control file
-    system("cp -R $RealBin/../database/SNPdb/${SNPdbName}/* $outputDir_abs_path/.") if (! $genomes);
+    system("cp -R $RealBin/../database/SNPdb/${SNPdbName}/* $outputDir_abs_path/.") if (! $genomes && $SNPdbName);
     
     open (my $fh, ">$control_file") or die "Cannot write $control_file\n";
     print $fh <<"CONTRL";
