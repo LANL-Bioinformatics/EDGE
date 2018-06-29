@@ -29,15 +29,31 @@ if (@ARGV){
 }
 
 sub unwanted {
+	# do not include links
+	return if (-l);
+	
+	if ($_ =~ /JBrowse|public/){#
+		print "JBrowse dir\n";
+		$File::Find::prune= 1;
+        	return;
+	}
+
 	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
-	$File::Find::name !~ /JBrowse|public/i &&  
 	($now-(stat $_)[9]) > $keep_secs &&  
 	unlink $File::Find::name;
 }
 
 sub printOldFiles {
+	# do not include links
+	return if (-l);
+	
+	if ($_ =~ /JBrowse|public/){#
+		print "JBrowse dir\n";
+		$File::Find::prune= 1;
+        	return;
+	}
+
 	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
-	$File::Find::name !~ /JBrowse|public/i &&  
 	($now-(stat $_)[9]) > $keep_secs &&  
 	print $File::Find::name;
 }
