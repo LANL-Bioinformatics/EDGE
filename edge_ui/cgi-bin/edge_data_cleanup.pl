@@ -33,7 +33,6 @@ sub unwanted {
 	return if (-l);
 	
 	if ($_ =~ /JBrowse|public/){#
-		print "JBrowse dir\n";
 		$File::Find::prune= 1;
         	return;
 	}
@@ -48,7 +47,6 @@ sub printOldFiles {
 	return if (-l);
 	
 	if ($_ =~ /JBrowse|public/){#
-		print "JBrowse dir\n";
 		$File::Find::prune= 1;
         	return;
 	}
