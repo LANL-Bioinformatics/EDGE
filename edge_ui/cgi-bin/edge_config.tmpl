@@ -25,6 +25,8 @@ fastq_source=<TMPL_VAR NAME=edge-fastq-source>
 [Quality Trim and Filter]
 ## boolean, 1=yes, 0=no
 DoQC=<TMPL_VAR NAME=edge-qc-sw DEFAULT=0>
+## phred encoding offset,  0 for autocheck
+qc_phred_offset=<TMPL_VAR NAME=edge-qc-phred-offset DEFAULT=0>
 ##Targets quality level for trimming
 q=<TMPL_VAR NAME=edge-qc-q DEFAULT=5>
 ##Trimmed sequence length will have at least minimum length 

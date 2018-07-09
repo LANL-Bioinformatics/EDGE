@@ -2416,6 +2416,7 @@ sub runQC
     $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}));
     $parameters .= " --polyA " if ($configuration->{"polyA"});
     $parameters .= " --trim_only " if $ont_flag;
+    $parameters .= " --ascii $configuration->{qc_phred_offset} " if ($configuration->{qc_phred_offset});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
     #my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
