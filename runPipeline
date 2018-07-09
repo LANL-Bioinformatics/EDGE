@@ -2853,7 +2853,7 @@ sub runReadsToGenome
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
-            &executeCommand("sed -e 's/[\\|\\.]/_/g'  $file > $outputDir/consensus_tmp/${file_name}.fa");
+	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
             $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
@@ -3379,6 +3379,20 @@ sub runIdbaAssembly
     &printRunTime($time);
     &touchFile("$outputDir/runIdbaAssembly.finished");
     return ($contig_file, $contig_for_annotation);
+}
+
+sub correct_fasta_header {
+	my $fasta = shift;
+	my $output_fasta = shift;
+	open (my $fh, "<", $fasta);
+	open (my $ofh , ">", $output_fasta);
+	while (<$fh>){
+		chomp;
+		$_ =~ s/\W/_/g if (/^>/);
+		print $ofh $_,"\n";
+	}
+	close $fh;
+	close $ofh;
 }
 
 sub rename_filter_fasta
