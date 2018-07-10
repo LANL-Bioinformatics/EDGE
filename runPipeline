@@ -2810,12 +2810,18 @@ sub runReadsToGenome
     {
         &lprint (colored ("[Reads Mapping To Reference]\n",'yellow'));
     }
-    if ( -e "$outputDir/runReadsToGenome.finished" )
-    {
-       &lprint ("Reads Mapping to Reference Finished\n");
-       return ($outVCF,$outGap);
+    if ( $configuration->{r2g_get_consensus}){
+        if ( -e "$outputDir/getConsensus.finished"){
+            &lprint ("Reads Mapping to Reference Finished\n");
+            return ($outVCF,$outGap);
+        }
+    }else{
+        if ( -e "$outputDir/runReadsToGenome.finished"){
+            &lprint ("Reads Mapping to Reference Finished\n");
+            return ($outVCF,$outGap);
+        }
     }
-    system("rm -f $outputDir/runReadsToGenome.finished");
+
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     unlink "$outGap";
     unlink "$outVCF";
@@ -2839,10 +2845,26 @@ sub runReadsToGenome
 
     $parameters .= " -no_snp " if ($variant_call == 0);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
-    &lprint ("  Running \n  $command \n");
-    &executeCommand($command);
-    &executeCommand("cat $outputDir/*.gap.coords > $outGap");
-    &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
+    if ( ! -e "$outputDir/runReadsToGenome.finished" ){
+      &lprint ("  Running \n  $command \n");
+      &executeCommand($command);
+      &executeCommand("cat $outputDir/*.gap.coords > $outGap");
+      &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
+    }
+    if ($configuration->{r2g_extract_mapped}){
+        # extract mapped reads
+        `echo "Extract mapped reads" >> $log`;
+         foreach my $file (@$referenceFile_r){
+            my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+            my $bamFile = "$outputDir/$file_name.sort.bam";
+            $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped_to_$file_name $bamFile >>$log ";
+            &executeCommand($command);
+        }
+    }
+    &executeCommand("echo -n \"Total Unmapped:\" >>$log");
+    &executeCommand("$RealBin/scripts/count_unmapped.pl $outputDir/*bam >>$log");
+    &touchFile("$outputDir/runReadsToGenome.finished");
+
     if ($configuration->{r2g_get_consensus}){
         my $consensus_log = "$outputDir/consensus.log";
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 10;
@@ -2863,22 +2885,9 @@ sub runReadsToGenome
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
 	}
         &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
-        
+        &touchFile("$outputDir/getConsensus.finished");  
     }
-    if ($configuration->{r2g_extract_mapped}){
-        # extract mapped reads
-        `echo "Extract mapped reads" >> $log`;
-         foreach my $file (@$referenceFile_r){
-            my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
-            my $bamFile = "$outputDir/$file_name.sort.bam";
-            $command = "perl $RealBin/scripts/bam_to_fastq.pl -mapped -prefix $outputDir/Mapped_to_$file_name $bamFile >>$log ";
-            &executeCommand($command);
-        }
-    }
-    &executeCommand("echo -n \"Total Unmapped:\" >>$log");
-    &executeCommand("$RealBin/scripts/count_unmapped.pl $outputDir/*bam >>$log");
     &printRunTime($time);
-    &touchFile("$outputDir/runReadsToGenome.finished");
     return ($outVCF,$outGap);
 }
 
@@ -3389,8 +3398,13 @@ sub correct_fasta_header {
 	open (my $ofh , ">", $output_fasta);
 	while (<$fh>){
 		chomp;
-		$_ =~ s/\W/_/g if (/^>/);
-		print $ofh $_,"\n";
+		if (/^>(.*)/){
+			my $id = $1;
+			$id =~ s/\W/_/g;
+			print $ofh ">".$id."\n";
+		}else{
+			print $ofh $_,"\n";
+		}
 	}
 	close $fh;
 	close $ofh;
