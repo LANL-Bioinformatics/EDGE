@@ -17,10 +17,11 @@ use POSIX qw(strftime);
 use FindBin qw($RealBin);
 use lib "$RealBin/../lib/perl5";
 use lib "$RealBin/../lib/";
+use File::Copy;
 #use File::Tee qw(tee);
 use Data::Dumper;
 
-my $version=0.5;
+my $version=0.6;
 my $Qiime_version="v1.9.1";
 my $debug=0;
 
@@ -388,9 +389,10 @@ if ($num_sample>1)
 }
 else
 {
-    &heatmap($biom,$analysis_outputDir,$rep_set_tre);
+    &heatmap($biom,$analysis_outputDir,$rep_set_tre,$merge_mapping_file);
     &summarize_taxa($biom,$analysis_outputDir);
- #   &alpha_diversity_analysis;
+    &alpha_diversity_analysis($biom,$analysis_outputDir,$rep_set_tre,$merge_mapping_file,$sampling_depth);
+    &update_index_html_one_sample;
 }
 
 
@@ -409,6 +411,21 @@ close LOG;
 
 ### END MAIN ###
 ### Below are subroutins ###
+sub alpha_diversity_analysis{
+    my $biom = shift;
+    my $dir = shift;
+    my $otu_tree=shift;
+    my $mapping_file=shift;
+    my $depth = shift;
+    my $cmd = "alpha_rarefaction.py -f -i $biom -t $otu_tree -e $depth -m $mapping_file -o $dir";
+    if (-e "$dir/rarefaction.finish")
+    {
+        &lprint("\nAlpha Rarefaction Analysis finished\n");
+        return 0;
+    }
+    &process_cmd($cmd,"Alpha Rarefaction Analysis ");
+    system("touch $dir/rarefaction.finish");
+}
 sub summarize_taxa
 {
     my $biom = shift;
@@ -421,6 +438,11 @@ sub summarize_taxa
         return 0;
     }
     &process_cmd($cmd,"Generating taxanomy summary");
+
+    my @matrix = glob("$outputDir/*.txt");
+    my $matrix = join(",",@matrix);
+    $cmd = "plot_taxa_summary.py -i $matrix -o $outputDir -c bar";
+    &process_cmd($cmd,"Generating taxanomy barplot");
     system("touch $outputDir/taxa.finish");
 }
 
@@ -429,9 +451,11 @@ sub heatmap
     my $biom = shift;
     my $dir = shift;
     my $otu_tree=shift;
+    my $mapping_file=shift;
     my $outputFile="$dir/heatmap.pdf";
     my $cmd="make_otu_heatmap.py -i $biom -o $outputFile "; 
     $cmd .= " -t $otu_tree " if (-e "$otu_tree");
+    $cmd .= " -m $mapping_file " if ( -e $mapping_file); 
     if (-e "$outputFile")
     {
         &lprint("\nHeatMap generated\n");
@@ -1001,6 +1025,47 @@ sub get_catetory_from_mapping_file{
 	}
 	my $categories = join (",",@category_for_analysis);
 	return (\%hash,$categories);
+}
+
+sub update_index_html_one_sample
+{
+    my $index = "$outDir/otus/index.html";
+    system ("mv $outDir/checkMappingFile $outDir/analysis/checkMappingFile");
+    system ("cp $outDir/combined_mapping.txt $outDir/analysis/combined_mapping.txt");
+    copy($index,"$index.org");
+    open (my $fh, "<", "$index.org") or die "Cannot open $index.org\n";
+    open (my $ofh, ">","$index") or die "Cannot write $index\n";
+    while(<$fh>)
+    {
+        chomp;
+        if (/^<table/){
+            print $ofh "<h1>Project: $title</h1>\n";
+            print $ofh $_,"\n";
+        }
+        elsif(/td>Run summary/){
+            print $ofh $_;
+            if ($negative_taxa){
+                print $ofh "<tr><td>Mapping File Check</td><td> <a href=\"../analysis/combined_mapping.txt\" target=\"_blank\">combined_mapping.txt</a></td></tr>\n";
+	    }else{
+                print $ofh "<tr><td>Mapping File Check</td><td> <a href=\"../analysis/checkMappingFile/combined_mapping.html\" target=\"_blank\">combined_mapping.html</a></td></tr>\n";
+	    }
+            print $ofh "<tr><td>OTUs HeatMap</td><td> <a href=\"../analysis/heatmap.pdf\" target=\"_blank\">heatmap.pdf</a></td></tr>\n";
+        }elsif(/Taxonomy assignments/){
+		print $ofh $_,"\n";
+		print $ofh "<tr><td>Bar plot</td><td><a href=\"../analysis/taxa_summary/bar_charts.html\" target=\"_blank\">bar_charts.html</a></td></tr>\n";
+	}elsif(/er>Trees/){
+		print $ofh "<tr><td>BIOM table statistics</td><td> <a href=\"./biom_table_summary.txt\" target=\"_blank\">biom_table_summary.txt</a></td></tr>\n";
+		print $ofh $_,"\n";
+        }elsif(/\<\/table/){
+		print $ofh "<tr colspan=2 align=center bgcolor=#e8e8e8><td colspan=2 align=center>Alpha diversity results</td></tr>\n";
+		print $ofh "<tr><td>Rarefaction plots</td><td><a href=\"../analysis/alpha_rarefaction_plots/rarefaction_plots.html\" target=\"_blank\">rarefaction_plots.html</a></td></tr>\n";
+            	print $ofh $_,"\n";
+	}else{
+            print $ofh $_,"\n";
+	}
+    }
+    close $fh;
+    close $ofh;
 }
 
 sub update_index_html

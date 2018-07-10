@@ -73,6 +73,7 @@ eval {
 	&pull_sra_download();
 	&pull_targetedNGS();
 	&pull_piret();
+	&pull_qiime();
 	&prep_jbrowse_link();
 	&checkImageReady();
 	&checkProjTarFile();
@@ -82,7 +83,16 @@ output_html();
 #print STDOUT "end output html\n";
 #
 #
-#
+
+sub pull_qiime{
+	my $output_dir = "$out_dir/QiimeAnalysis";
+	if (-e "$output_dir/analysis/index.html"){
+		$vars->{QIIME_OUT_INDEX} = "$output_dir/analysis/index.html"; 
+	}else{
+		$vars->{QIIME_OUT_INDEX} = "$output_dir/otus/index.html"; 
+	} 
+}
+
 sub pull_piret{
 	my  $output_dir = "$out_dir/ReferenceBasedAnalysis/Piret";
 #	return unless -e "$output_dir/runPiret.finished";
