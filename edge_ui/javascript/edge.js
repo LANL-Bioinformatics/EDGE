@@ -2041,7 +2041,7 @@ $( document ).ready(function()
 					},
 					"rowCallback": function( nRow, aData, iDisplayIndex ) {
 						if ( aData[2]== "running" ) {
-							console.log(nRow);
+							//console.log(nRow);
 							 $('td:eq(2)', nRow).css('color','#f7931e');
 						}
 						if ( aData[2]== "failed" ) {
