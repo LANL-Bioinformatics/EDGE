@@ -111,12 +111,12 @@ $SIG{__WARN__} = sub {print STDERR @_; &lprint  (@_)};
 $SIG{__DIE__} = sub {print STDERR @_; &lprint  (@_);&send_error_notification();exit 1};
 # print whole running command and config file to process log
 &lprint("\nProject Start: $start_time_string\n");
-print $log_fh qx/ps -o args $$/;
+print $log_fh qx/ps -ww -o args $$/;
 &lprint("Version: $version\n");
 open (my $config_fh, "$configFile") or die "Cannot open $configFile\n$!";
 while(<$config_fh>){ if (! /user|edgeui\_/) {print $log_fh $_;}}
 close $config_fh;
-if ( ! -e "$outDir/config.txt"){ `cp $configFile $outDir/config.txt`;}
+if ( ! -e "$outDir/config.txt"){ copy("$configFile","$outDir/config.txt");}
 
 $numCPU = $configuration->{'cpu'} if ($configuration->{'cpu'});
 
@@ -248,7 +248,7 @@ if ($referenceGenome)
                 # retrieve unmapped reads
                 ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
 	        &Reads_taxonomyAssignment($r2gUnmappedPaired,$r2gUnmappedSingle,"$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy") if ($numOfunmappedReads > 0);
-                `ln -sf $outDir/ReferenceBasedAnalysis/UnmappedReads $outDir/ReadsBasedAnalysis/UnmappedReads` if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
+                symlink("$outDir/ReferenceBasedAnalysis/UnmappedReads", "$outDir/ReadsBasedAnalysis/UnmappedReads") if ( ! -e "$outDir/ReadsBasedAnalysis/UnmappedReads");
             }
         }
     }
@@ -919,7 +919,7 @@ sub runQiimeAnalysis{
        return 0;
     }  
     &make_dir($outputDir);
-    system("rm -f $outputDir/runQiimeAnalysis.finished");
+    unlink "$outputDir/runQiimeAnalysis.finished";
     my @unpairedFile= @$unpairedFile;
     my @pairedFile= @$pairedFile;
     my $qiime_input_dir=$configuration->{qiime_input_dir};
@@ -1059,7 +1059,7 @@ sub Contigs_taxonomyAssignment
        return 0;
     }  
     &make_dir($outputDir);
-    system("rm -f $outputDir/ContigsTaxonomy.finished");
+    unlink "$outputDir/ContigsTaxonomy.finished";
     my $cmd="$RealBin/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $db --threads $numCPU --prefix $prefix --input $file";
     $cmd .= " 1>$log 2>&1";
     &lprint (" Running \n $cmd\n");
@@ -1096,7 +1096,7 @@ sub Download_SRA
        return 0;
     }  
     &make_dir($outputDir);
-    system("rm -f $outputDir/DownloadSRA.finished");
+    unlink "$outputDir/DownloadSRA.finished";
     my @SRA_ids = split /[:,\s]+/, uc $configuration->{'SRA_id'};
     my $cmd = "perl $RealBin/scripts/sra2fastq.pl --outdir $outputDir --clean ";
     $cmd = "--download-interface $configuration->{'download_interface'} " if ($configuration->{'download_interface'});
@@ -1287,7 +1287,7 @@ sub check_reference_genome
     }
     else
     {
-        &executeCommand("ln -sf $fasta_files[0] $referenceGenome") if ( ! -s $referenceGenome );
+        symlink("$fasta_files[0]", "$referenceGenome") if ( ! -s $referenceGenome );
     }
     
     my $ref_header = `head -n 1 $referenceGenome`;
@@ -1342,19 +1342,19 @@ sub phageFinder
     if ( -z $FAA || ! -e $FAA)
     { 
         warn "No CDS annotation for phage finder\n";
-        `rm -rf $outputDirTmp`;
+        remove_tree("$outputDirTmp");
         &touchFile("$outputDir/phageFinder.finished");
         &printRunTime($time);
         return 0;
     }
-    system("rm -f $outputDir/phageFinder.finished");
+    unlink "$outputDir/phageFinder.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     # prepare input (Assembly.con,id_map.txt, phage_finder_info.txt) for phage finder. 
     $cmd="$RealBin/scripts/phageFinder_prepare.pl -o $outputDirTmp $GFF $FNA";
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);
     chdir "$outputTmpDir_abs_path";
-    &executeCommand("ln -sf $FAA Assembly.pep");
+    symlink("$FAA","Assembly.pep");
     #&executeCommand("ln -sf $FNA Assembly.con");
     $cmd="$RealBin/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh Assembly $numCPU 1>$outputDir_abs_path/log.txt 2>\&1";
     &lprint (" Running \n $cmd\n");
@@ -1383,7 +1383,7 @@ sub phageFinder
     my $num_phageHit= (-e "$outputFile")? `wc -l $outputFile | awk '{print \$1}'`:1;
     &lprint (" Numaber of prophage hit found: ". ($num_phageHit - 1)  ."\n");
     #print " See $outputFile for the result\n" if (-e "$outputFile");
-    system("rm -rf $outputDirTmp");
+    remove_tree("$outputDirTmp");
     &touchFile("$outputDir/phageFinder.finished");
     &printRunTime($time);
     return 0;
@@ -1468,7 +1468,7 @@ sub Reads_taxonomyAssignment
        return 0;
     }
  
-    system("rm -f $outputDir/taxonomyAssignment.finished");
+    unlink "$outputDir/taxonomyAssignment.finished";
     &executeCommand("cat $pairFile $unpairFile > $input");
     &lprint (" Running \n $cmd\n");
 
@@ -1518,8 +1518,8 @@ sub variantAnalysis
        return 0;
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    system("rm -f $outputDir/variantAnalysis.finished");
-    system("rm -f $r2g_outputDir/variantAnalysis.finished");
+    unlink "$outputDir/variantAnalysis.finished";
+    unlink "$r2g_outputDir/variantAnalysis.finished";
     if ($c2g_SNP_INDEL_File and -s $c2g_SNP_INDEL_File){
       $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $c2g_SNP_INDEL_File -format nucmer -output $outputDir 2>$log";
       &lprint (" Running \n $cmd\n");
@@ -1559,7 +1559,7 @@ sub ContigsBlast
     my $outputFile="$outputDir/ContigFasta.$db.blast.out";
     my $outputFile2="$outputDir/ContigFasta.virulence.blastx";
     my $time=time();
-    system("ln -sf $file $outputDir/ContigsForBlast");
+    symlink("$file", "$outputDir/ContigsForBlast");
     if ($noColorLog)
     {
         &lprint ("[Contigs Blast] \n  to $db and virluence proteins Step ...\n");
@@ -1580,7 +1580,7 @@ sub ContigsBlast
         &touchFile("$outputDir/ContigsBlast.finished");
         return ($outputFile,$outputFile2);
     }
-    system("rm -f $outputDir/ContigsBlast.finished");
+    unlink "$outputDir/ContigsBlast.finished";
     my $blast_program = ($db eq 'nt')? "blastn":"blastx";
     my $blastDBPath=$configuration->{"BLAST_${db}_DB"};
     # Need to modified the path
@@ -1648,7 +1648,7 @@ sub retrieveUnmappedReads
     else
     {
        &lprint ("  Retrieving unmapped reads\n");
-       system("rm -f $outputDir/retrieveUnmappedReads.finished");
+       unlink "$outputDir/retrieveUnmappedReads.finished";
     }
 
     open (my $se_fh,">  $unmappedSingle") or die "cannot open $unmappedSingle to write\n";
@@ -1772,7 +1772,7 @@ sub runAnnotation
             my $ref_abs_path = "$outputDir_abs_path/RATT/source";
             my $contig_abs_path = Cwd::abs_path("$contigFile");
 	    # convert genbank to embl for RATT annotation transfer
-	    &executeCommand("cp $sourceGBK $outputDir_abs_path/RATT/source/source.gbk");
+	    copy("$sourceGBK", "$outputDir_abs_path/RATT/source/source.gbk");
   	    &executeCommand("genbank2embl.pl $outputDir_abs_path/RATT/source/source.gbk 2>/dev/null");
             $cmd = ("$RealBin/scripts/runRATT.sh $ref_abs_path $contig_abs_path $project_name Species 1>$log 2>\&1 ");
 	}
@@ -1792,7 +1792,7 @@ sub runAnnotation
 	&executeCommand("genbank2fasta.pl -translation $outGenbank > $outFAA");
 	&executeCommand("genbank2fasta.pl -genome $outGenbank > $outFNA");
         &executeCommand("$RealBin/scripts/genbank2gff3.pl -e 3 --outdir stdout --typesource contig $outGenbank >$project_name.gff");
-        &executeCommand("rm -rf $outputDir_abs_path/RATT");
+        remove_tree("$outputDir_abs_path/RATT");
         chdir $workingDir;
     }
     else
@@ -1813,7 +1813,7 @@ sub runAnnotation
         my @kegg_maps = `ls $outputDir_abs_path/kegg_map/*png 2>/dev/null`;
         chomp @kegg_maps;
         if (scalar(@kegg_maps)>0){
-            &executeCommand("ln -sf $outputDir_abs_path/kegg_map $RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
+            symlink("$outputDir_abs_path/kegg_map", "$RealBin/edge_ui/opaver_web/data/$basename") if ( -w "$RealBin/edge_ui/opaver_web/data");
         }
     }
     # RATT features stats. 
@@ -1861,7 +1861,7 @@ sub pcrDesign
        return ("$output");
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    system("rm -f $outputDir/pcrDesign.finished");
+    unlink "$outputDir/pcrDesign.finished";
     my $command;
     my $tm_diff=$configuration->{"tm_diff"} || 5;
     my $top=$configuration->{"top"} || 5;
@@ -2407,7 +2407,7 @@ sub runQC
           &lprint ("Quality Trim and Filter Finished\n");
           return("", "$unpairedFile_output");
     }
-    system("rm -f $outputDir/runQC.finished");
+    unlink "$outputDir/runQC.finished";
     my $parameters;
     $parameters .= " -p $pairedFile " if ($pairedFile);
     $parameters .= " -u $unpairedFile " if ( -s $unpairedFile);
@@ -2593,7 +2593,7 @@ sub runHostRemoval
     my $host_index_dir=$outputDir;
     unless (  -e "$host.bwt" or ($host =~ /edge_ui/ and -w $host))
     {
-        system("ln -sf $host_abs_path $host_index_dir/$prefix.fa ");   
+        symlink("$host_abs_path", "$host_index_dir/$prefix.fa");   
         $host =   "$host_index_dir/$prefix.fa";  
     }
     
@@ -2601,20 +2601,20 @@ sub runHostRemoval
     if ( -s "$outputDir/$prefix.1.fastq" && -e "$outputDir/run${prefix}.finished" )
     {
         &lprint ("Host Removal Finished\n");
-        system("ln -sf $outputDir/$prefix.1.fastq $abs_outDir/HostRemoval/hostclean.1.fastq");
-        system("ln -sf $outputDir/$prefix.2.fastq $abs_outDir/HostRemoval/hostclean.2.fastq");
-        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
+        symlink("$outputDir/$prefix.1.fastq", "$abs_outDir/HostRemoval/hostclean.1.fastq");
+        symlink("$outputDir/$prefix.2.fastq", "$abs_outDir/HostRemoval/hostclean.2.fastq");
+        symlink("$outputDir/$prefix.unpaired.fastq", "$abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("$outputDir/$prefix.1.fastq $outputDir/$prefix.2.fastq","$outputDir/$prefix.unpaired.fastq");
     }
     elsif ( -s "$outputDir/$prefix.unpaired.fastq" && -e "$outputDir/run${prefix}.finished" )
     {
         &lprint ("Host Removal Finished\n");
-        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
+        symlink("$outputDir/$prefix.unpaired.fastq", "$abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("","$outputDir/$prefix.unpaired.fastq");
     }
-    system("rm -f $outputDir/run${prefix}Removal.finished");
-    system("rm -f $abs_outDir/HostRemoval/HostRemovalStats.pdf");
-    system("rm -f $abs_outDir/HostRemoval/hostclean*");
+    unlink "$outputDir/run${prefix}Removal.finished";
+    unlink "$abs_outDir/HostRemoval/HostRemovalStats.pdf";
+    unlink glob("$abs_outDir/HostRemoval/hostclean*");
   
     
     my $parameters;
@@ -2630,16 +2630,16 @@ sub runHostRemoval
     &executeCommand($command);
     &printRunTime($time);
     &touchFile("$outputDir/run${prefix}.finished");
-    system("rm -rf $host_index_dir/$prefix.fa.*");
+    unlink glob("$host_index_dir/$prefix.fa.*");
     if ( -s "$outputDir/$prefix.1.fastq")
     {
-        system("ln -sf $outputDir/$prefix.1.fastq $abs_outDir/HostRemoval/hostclean.1.fastq");
-        system("ln -sf $outputDir/$prefix.2.fastq $abs_outDir/HostRemoval/hostclean.2.fastq");
-        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
+        symlink("$outputDir/$prefix.1.fastq", "$abs_outDir/HostRemoval/hostclean.1.fastq");
+        symlink("$outputDir/$prefix.2.fastq", "$abs_outDir/HostRemoval/hostclean.2.fastq");
+        symlink("$outputDir/$prefix.unpaired.fastq", "$abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("$outputDir/$prefix.1.fastq $outputDir/$prefix.2.fastq","$outputDir/$prefix.unpaired.fastq");
     }
     elsif( -s "$outputDir/$prefix.unpaired.fastq" ){
-        system("ln -sf $outputDir/$prefix.unpaired.fastq $abs_outDir/HostRemoval/hostclean.unpaired.fastq");
+        symlink("$outputDir/$prefix.unpaired.fastq", "$abs_outDir/HostRemoval/hostclean.unpaired.fastq");
         return ("","$outputDir/$prefix.unpaired.fastq");
     }
    
@@ -2740,7 +2740,7 @@ sub runReadsToContig
        &lprint ("Reads Mapping to Contigs Finished\n");
        return ("$outputDir/$outPrefix.sort.bam");    
     }
-    system("rm -f $outputDir/runReadsToContig.finished");
+    unlink "$outputDir/runReadsToContig.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $parameters;
     $parameters .= " -c $cov_cut_off";
@@ -2767,7 +2767,7 @@ sub runReadsToContig
     &executeCommand("awk \'{print \$1\"\\t\"\$4}\' $outputDir/readsToContigs_coverage.table > $outputDir/magnitudes.txt");
     my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
     &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -mode contig -limit $row_limit  $outputDir/readsToContigs_coverage.table > $outputDir/readsToContigs_coverage.table.json");
-    &executeCommand("mv $outputDir/Final_contigs.fasta $contigFile") if ( -s "$outputDir/Final_contigs.fasta");
+    rename("$outputDir/Final_contigs.fasta", "$contigFile") if ( -s "$outputDir/Final_contigs.fasta");
     chdir "$abs_outDir/AssemblyBasedAnalysis/";
     &executeCommand("perl $RealBin/scripts/contig_stats.pl -p $contigFile > contigs_stats.txt");  
     chdir $workingDir;
@@ -2801,7 +2801,7 @@ sub runReadsToGenome
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
     &make_dir($outputDir);
-    `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
+    symlink("$outputDir", "$outDir/ReferenceBasedAnalysis/readsMappingToRef");
     if ($noColorLog)
     {
        &lprint ("[Reads Mapping To Reference]\n");
@@ -2881,10 +2881,10 @@ sub runReadsToGenome
             $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
-            &executeCommand("mv -f $outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam $outputDir/");
+            move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
 	}
-        &executeCommand("rm -rf $outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
+        remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
     }
     &printRunTime($time);
@@ -2900,7 +2900,7 @@ sub runContigToGenome
     my $outPrefix = "$outputDir/contigsToRef";
     my $identity_cutoff = $configuration->{identity}||85;
     &make_dir($outputDir);
-    `ln -sf $outputDir $outDir/ReferenceBasedAnalysis/`;
+    symlink("$outputDir", "$outDir/ReferenceBasedAnalysis/contigMappingToRef");
     if ($noColorLog)
     {
         &lprint ("[Contigs Mapping To Reference]\n");
@@ -2914,7 +2914,7 @@ sub runContigToGenome
        &lprint ("Contigs Mapping to Reference Finished\n"); 
        return ("${outPrefix}_query_novel_region_30bpUP.fasta","$outPrefix.snps","${outPrefix}_ref_zero_cov_coord.txt");
     }  
-    system("rm -f $outputDir/runContigToGenome.finished");
+    unlink "$outputDir/runContigToGenome.finished";
     my $parameters;    
     $parameters .= " -e 1 -i $identity_cutoff";
     $parameters .= " -p $outPrefix ";
@@ -3000,8 +3000,8 @@ sub runSpadesAssembly
        &lprint ("SPAdes Assembly Finished\n");
        return ($contig_file, $contig_for_annotation);
     }
-    system("rm -f $outputDir/runAPAdesAssembly.finished");
-    system("rm -rf $SPAdesOutDir");
+    unlink "$outputDir/runAPAdesAssembly.finished";
+    remove_tree("$SPAdesOutDir");
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     if ($pairFile){
         my ($p1,$p2) = split /\s+/,$pairFile;
@@ -3019,12 +3019,12 @@ sub runSpadesAssembly
     &lprint ("  Running\n  $cmd\n");
     eval{ system($cmd);};
     
-    &executeCommand("mv $SPAdesOutDir/spades.log $log") if ( -e "$SPAdesOutDir/spades.log");
+    rename("$SPAdesOutDir/spades.log", "$log") if ( -e "$SPAdesOutDir/spades.log");
 
     my $spades_contigs ="$SPAdesOutDir/contigs.fasta";
 
     if ( -e "$SPAdesOutDir/scaffolds.fasta"){
-         &executeCommand("mv $SPAdesOutDir/scaffolds.fasta $outputDir/scaffold.fa");
+         rename("$SPAdesOutDir/scaffolds.fasta", "$outputDir/scaffold.fa");
     }
     if ( ! -e $spades_contigs){
         my @Spades_default_kmers_spec= ("21", "33", "55", "77", "99", "127");
@@ -3048,7 +3048,7 @@ sub runSpadesAssembly
     chomp $contig_number;
     ($contig_file, $contig_for_annotation)=&rename_filter_fasta("$spades_contigs",$outputDir,$contig_min_length,$contig_number);
        
-    &executeCommand("rm -rf $SPAdesOutDir");
+    remove_tree("$SPAdesOutDir");
     &touchFile("$outputDir/runSPAdesAssembly.finished");
     &printRunTime($time);
     return ($contig_file, $contig_for_annotation);
@@ -3089,7 +3089,7 @@ sub runAssembly
        &lprint ("Assembly Finished\n");
        return ($final_contig_file, $contig_for_annotation);
     }
-    system("rm -f $outputDir/runAssembly.finished");
+    unlink "$outputDir/runAssembly.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     &make_dir($outputDir);
     if ($assembler =~ /idba/){
@@ -3182,17 +3182,17 @@ sub runAssembly
     }
     &lprint ("  Running\n  $cmd\n");
     eval{ system($cmd);};
-    &executeCommand("cp $AssemblerLog $log");
+    copy("$AssemblerLog", "$log");
 
     # deal with scaffold
     if ( -e "$AssemblerOutDir/scaffold-level-2.fa"){
-        &executeCommand("mv $AssemblerOutDir/scaffold-level-2.fa $outputDir/scaffold.fa")      
+        rename("$AssemblerOutDir/scaffold-level-2.fa", "$outputDir/scaffold.fa")      
     }
     if (-e "$AssemblerOutDir/scaffold.fa"){
-        &executeCommand("mv $AssemblerOutDir/scaffold.fa $outputDir/scaffold.fa");  
+        rename("$AssemblerOutDir/scaffold.fa", "$outputDir/scaffold.fa");  
     }
     if ( -e "$AssemblerOutDir/scaffolds.fasta"){
-        &executeCommand("mv $AssemblerOutDir/scaffolds.fasta $outputDir/scaffold.fa");
+        rename("$AssemblerOutDir/scaffolds.fasta", "$outputDir/scaffold.fa");
     }
 
     if ( ! -e $AssemblerContigs){
@@ -3214,8 +3214,8 @@ sub runAssembly
         &executeCommand("megahit_toolkit contig2fastg $largest_kmer $AssemblerOutDir/intermediate_contigs/k$largest_kmer.contigs.fa  > $final_contig_fastG_file");
     }elsif($assembler =~ /spades/){
         my ($file_name, $file_path, $file_suffix)=fileparse("$AssemblerContigs", qr/\.[^.]*/);
-        &executeCommand("mv -f $file_path/assembly_graph.fastg $final_contig_fastG_file") if ( -e "$file_path/assembly_graph.fastg");
-        &executeCommand("mv -f $file_path/assembly_graph_with_scaffolds.gfa $outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
+        rename("$file_path/assembly_graph.fastg", "$final_contig_fastG_file") if ( -e "$file_path/assembly_graph.fastg");
+        rename("$file_path/assembly_graph_with_scaffolds.gfa", "$outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
     }
 
     # rename contigs id by project name
@@ -3224,7 +3224,7 @@ sub runAssembly
     ($final_contig_file, $contig_for_annotation)=&rename_filter_fasta($AssemblerContigs,$outputDir,$contig_min_length,$contig_number);
 
     # clean up
-    &executeCommand("rm -rf $AssemblerOutDir");
+    remove_tree("$AssemblerOutDir");
     unlink "core";
 
     &printRunTime($time);
@@ -3275,7 +3275,7 @@ sub runIdbaAssembly
        &lprint ("IDBA Assembly Finished\n");
        return ($contig_file, $contig_for_annotation);
     }
-    system("rm -f $outputDir/runIdbaAssembly.finished");
+    unlink "$outputDir/runIdbaAssembly.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     # preprocessing input files. 
     if ($pairFile)
@@ -3347,11 +3347,11 @@ sub runIdbaAssembly
        eval{ system($command);};
        if ( -e "$outputDir/idba/scaffold-level-2.fa")                                                         
        {                                                                                                      
-           &executeCommand("mv $outputDir/idba/scaffold-level-2.fa $outputDir/scaffold.fa")                   
+           rename("$outputDir/idba/scaffold-level-2.fa", "$outputDir/scaffold.fa")                   
        }                                                                                                      
        elsif (-e "$outputDir/idba/scaffold.fa")                                                               
        {                                                                                                      
-           &executeCommand("mv $outputDir/idba/scaffold.fa $outputDir/scaffold.fa");                          
+           rename("$outputDir/idba/scaffold.fa", "$outputDir/scaffold.fa");                          
        }         
     }     
     if ( ! -s "$outputDir/idba/contig-$maxK.fa")
@@ -3373,13 +3373,13 @@ sub runIdbaAssembly
         $maxK = $finalK-$step; 
     }
     
-    &executeCommand("mv $outputDir/idba/log $log");
+    rename("$outputDir/idba/log", "$log");
     my @contig_numbers=`grep contigs: $log | awk '{print \$2}'`;
     my $max_contig_number= (sort { $b <=> $a } @contig_numbers)[0];
     chomp $max_contig_number;
     ($contig_file, $contig_for_annotation)=&rename_filter_fasta("$outputDir/idba/contig-$maxK.fa",$outputDir,$contig_min_length,$max_contig_number);
     # clean up
-    &executeCommand("rm -rf $outputDir/idba");
+    remove_tree("$outputDir/idba");
     unlink $pairFastaFile;
     unlink $unpairFastaFile;
     unlink $short_pairFastaFile;
@@ -3504,7 +3504,7 @@ sub SNPtree
 	return 0;
     }
     
-    &executeCommand("rm -rf $outputDir");
+    remove_tree("$outputDir");
     &make_dir($outputDir);
     my $cmd= "$RealBin/scripts/prepare_SNP_phylogeny.pl -o $outputDir  ".
             "-n $project_name ".
@@ -3553,15 +3553,15 @@ sub SNPtree
 		foreach (@files){
 			if (/(\w+)_1/){
 				$name = $1;
-				`ln -s $sra_out_dir_abs_path/$_ $outputDir/${name}_R1.fastq`;
+				symlink("$sra_out_dir_abs_path/$_", "$outputDir/${name}_R1.fastq");
 			}
 			elsif(/(\w+)_2/){
 				$name = $1;
-				`ln -s $sra_out_dir_abs_path/$_ $outputDir/${name}_R2.fastq`;
+				symlink("$sra_out_dir_abs_path/$_", "$outputDir/${name}_R2.fastq");
 	
 			}elsif(/(\w+)\.fastq/){
 				$name = $1;
-				`ln -s $sra_out_dir_abs_path/$_ $outputDir/${name}_SE.fastq`;
+				symlink("$sra_out_dir_abs_path/$_", "$outputDir/${name}_SE.fastq");
 			}
 		}
 	}
@@ -3589,7 +3589,7 @@ sub SNPtree
         $allTreeFile = "RAxML_bipartitions.${project_name}_all_best";
     }
 
-    system("mv $outputDir/results/$allTreeFile $outputDir/results/SNPphyloTree.all");
+    rename("$outputDir/results/$allTreeFile", "$outputDir/results/SNPphyloTree.all");
    
     my $phyloXML_annotation_parameter = (-e $phyloXML_annotation_file)? "-a $phyloXML_annotation_file":"";
     $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.all -o $outputDir $phyloXML_annotation_parameter ";
@@ -3597,13 +3597,13 @@ sub SNPtree
     if ( ($SNPdbName && $SNPdbName !~/hantavirus/i) || $SNPrefName)
     {
         my $cdsTreeFile= $treeMaker eq "FastTree"? "${project_name}_cds.fasttree" : "RAxML_bestTree.${project_name}_cds";;
-        system("mv $outputDir/results/$cdsTreeFile $outputDir/results/SNPphyloTree.cds");
+        rename("$outputDir/results/$cdsTreeFile", "$outputDir/results/SNPphyloTree.cds");
         $cmd = "$RealBin/scripts/newickToPhyloXML.pl -m -i  $outputDir/results/SNPphyloTree.cds -o $outputDir $phyloXML_annotation_parameter ";
         &executeCommand($cmd);
     }
  
-    system("mv $outputDir/results/${project_name}_* $outputDir/");
-    system("mv $outputDir/results/RAxML_* $outputDir/ 2>/dev/null");
+    move("$_", "$outputDir/") for glob("$outputDir/results/${project_name}_*");
+    move("$_", "$outputDir/") for glob("$outputDir/results/RAxML_*");
     unless ($debug)
     {
       #system("mv $outputDir/results/RAxML_bestTree.all $outputDir/RAxML_bestTree.all.nwk");
@@ -3611,7 +3611,8 @@ sub SNPtree
       #system("mv $outputDir/results/basesUsed.txt $outputDir/");
       #system("mv $outputDir/results/*log $outputDir/");
      # system("mv $outputDir/results/all_gaps.txt $outputDir/");
-      system("rm -rf $outputDir/files $outputDir/*list* $outputDir/results $outputDir/reffiles");
+      unlink glob("$outputDir/*list*");
+      remove_tree("$outputDir/files", "$outputDir/results", "$outputDir/reffiles");
     }
 	
 	system("perl -pi -e 's/<name>(\\d\\.\\d)\\d+<\\/name>/<name>\$1<\\/name>/g' $outputDir/SNPphyloTree.*.xml");
@@ -3749,7 +3750,7 @@ sub download_reads
         &lprint ("Download Fastq Finished\n");
         return 0;
     }
-    `rm -rf $outputDir`;
+    remove_tree("$outputDir");
     &make_dir($outputDir);
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";  
@@ -4092,7 +4093,7 @@ sub writeJBrowseInfo
         &lprint ("Generate JBrowse Tracks Finished\n");
         return;
     }
-    system("rm -f $outputDir/writeJBrowseInfo.finished");
+    unlink "$outputDir/writeJBrowseInfo.finished";
     
     my $project_name=basename($abs_outDir);
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl ";
@@ -4204,7 +4205,7 @@ sub updateProjectHTML
         $print_string .= basename($referenceGenome) if ($referenceGenome);
         &executeCommand("echo  \"$print_string\" >> $project_list");
     }
-    system ("mv $outputHTML $outputHTML.bak") if (-e "$outputHTML");
+    rename("$outputHTML", "$outputHTML.bak") if (-e "$outputHTML");
     my $header = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
 <html>
 <head>

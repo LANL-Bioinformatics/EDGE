@@ -468,7 +468,7 @@ elsif( $action eq 'rerun' ){
 				#remove cached report/status
 				#`rm -f $proj_dir/.run.complete.status.json`;
 				unlink "$proj_dir/HTML_Report/.complete_report_web";
-				my $newpid = open RUNPIPLINE, "-|", "$cmd 2>&1 &" or die $!;
+				my $newpid = open RUNPIPLINE, "-|", "$cmd > $proj_dir/process_current.log 2>\&1 &" or die $!;
 				close RUNPIPLINE;
 				if( $newpid ){
 					$newpid++;
