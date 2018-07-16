@@ -1282,12 +1282,14 @@ sub check_reference_genome
     }
     if (scalar(@fasta_files)>1)
     {
-        my $cmd = "awk '{print \$0}' ". join(" ",@fasta_files). "> $referenceGenome";
+        my $cmd = "awk '{print \$0}' ". join(" ",@fasta_files). "> $referenceGenome.tmp ";
         &executeCommand($cmd);
+	&correct_fasta_header("$referenceGenome.tmp",$referenceGenome);
+	unlink "$referenceGenome.tmp";
     }
     else
     {
-        symlink("$fasta_files[0]", "$referenceGenome") if ( ! -s $referenceGenome );
+	&correct_fasta_header("$fasta_files[0]", "$referenceGenome") if ( ! -s $referenceGenome );
     }
     
     my $ref_header = `head -n 1 $referenceGenome`;
@@ -1305,8 +1307,6 @@ sub check_reference_genome
     #not sure if it is Virus, use size of references to determine the kingdoma (580K is smallest Prok,Mycoplasma)
     if (!$tax_kingdom) { $tax_kingdom = ($refSize < 580000)? "Viruses":"Bacteria";}
    
-    # replace dot to underscore in the name tag to avoid error on JBrowse
-	&executeCommand("sed -i.bak 's/[\\|\\.]/_/g'  $referenceGenome");
     &printRunTime($time);
     return($referenceGenome,$referenceGBK,$gff3File);
 }
