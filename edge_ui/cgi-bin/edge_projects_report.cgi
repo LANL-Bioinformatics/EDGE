@@ -287,8 +287,8 @@ sub getProjFromUM {
 		$type = $hash_ref->{type};
 		$owner = $hash_ref->{owner};
 		
-		my $projname = "<a href='#' class='edge-project-page-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
-		my $checkbox = "<input type='checkbox' class='edge-projpage-ckb' name='edge-projpage-ckb' value='$code'>";
+		my $projname = "<a href='#' class='edge-report-form-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
+		my $checkbox = "<input type='checkbox' class='edge-reportform-ckb' name='edge-reportform-ckb' value='$code'>";
 
 		if($request_type eq "user") {
 			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$type,$owner );
