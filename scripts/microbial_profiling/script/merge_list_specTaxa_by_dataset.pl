@@ -36,8 +36,9 @@ my %tool_order=(
 	'sequedex-opg'     => 11,
 	'sequedex-tol'     => 12,
 	'metaphlan'        => 13,
-	'metacv'           => 14,
-	'bwa'              => 15
+	'metaphlan2'       => 14,
+	'metacv'           => 15,
+	'bwa'              => 16
 );
 
 #parsing filter

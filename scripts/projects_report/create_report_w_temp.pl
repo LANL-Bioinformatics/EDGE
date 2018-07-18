@@ -239,15 +239,20 @@ if($settings->{'tax-tools'} eq "on") {
 			$vars->{TAX_TOOL} = 1;
 			$vars->{TAX_TOOL_METAPHLAN} =1;
 			$tax_tools{"metaphlan"} = 1;
+		}  elsif($field eq "metaphlan2") {
+			$vars->{TAX} = 1;
+			$vars->{TAX_TOOL} = 1;
+			$vars->{TAX_TOOL_METAPHLAN} =1;
+			$tax_tools{"metaphlan2"} = 1;
 		}  elsif($field eq "bwa") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL_BWA} =1;
 			$tax_tools{"bwa"} = 1;
-		}  elsif($field eq "kraken-mini") {
+		}  elsif($field eq "kraken") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL} = 1;
 			$vars->{TAX_TOOL_KRAKEN} =1;
-			$tax_tools{"kraken_mini"} = 1;
+			$tax_tools{"kraken"} = 1;
 		}  elsif($field eq "diamond") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL} = 1;
@@ -1663,28 +1668,7 @@ sub pull_reports {
 										$str = '';
 									} elsif(/<\/tr>/) {
 										##parse tool summary
-										if($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
-											my $tool;
-											$tool->{PROJNAME} = $proj->{PROJNAME};
-											$tool->{PROJ} = $proj->{PROJ};
-											$tool->{PROPROJURL} = $vars->{PROJURL};
-											$tool->{LS_TAX} = $2;
-											$tool->{LS_READS} = $3;
-											$tool->{LS_COV} = $8;
-											$tool->{LS_DOC} = $6;
-											$tool->{LS_RS} = $4;
-											$tool->{LS_SCORE} = $9;
-											$tool->{LS_ABUNDANCE} = $10;
-											if($tool->{LS_TAX} =~ /<a href='(.*)' target='_blank'>(.*)<\/a>/) {
-												$tool->{LS_TAX} = $2;
-												$tool->{LS_TAX_LINK} = $1;
-											}
-											if($tool->{LS_SCORE}>= $pangia_score) {			
-												push @{$proj->{TAX_TOOL_PANGIA_LOOP}}, $tool;
-												push @{$reports_map{$project}{'tax-tool-pangia'}}, $tool;
-											}
-										} 
-										elsif($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
+										if($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
 											my $tool;
 											$tool->{PROJNAME} = $proj->{PROJNAME};
 											$tool->{PROJ} = $proj->{PROJ};
@@ -1740,8 +1724,8 @@ sub pull_reports {
 						}#end while
 						next;						
 					}#end if
-					#Metaphlan
-					if(/<li><span class="li-report-content-title">Metaphlan<\/span><div class="li-report-content">/) {
+					#Metaphlan2
+					if(/<li><span class="li-report-content-title">Metaphlan2<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
@@ -1785,17 +1769,17 @@ sub pull_reports {
 							}
 
 							##get files/figures					
-							if(/<a data-ajax='false' href='(.*allReads-metaphlan\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-metaphlan\d?\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_METAPHLAN_TREE_PLOT} = $1;
 								$proj->{TAX_TOOL_METAPHLAN_TREE_PLOT_TXT} = "SVG";
 								next;
 							}					
-							if(/<a data-ajax='false' href='(.*allReads-metaphlan\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-metaphlan\d?\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_METAPHLAN_KRONA_PLOT} = $1;
 								$proj->{TAX_TOOL_METAPHLAN_KRONA_PLOT_TXT} = "HTML";
 								next;
 							}								
-							if(/<a data-ajax='false' href='(.*allReads-metaphlan\.list\.txt)'> Abundance <\/a>/) {
+							if(/<a data-ajax='false' href='(.*allReads-metaphlan\d?\.list\.txt)'> Abundance <\/a>/) {
 								$proj->{TAX_TOOL_METAPHLAN_ABUNDANCE} = $1;
 								$proj->{TAX_TOOL_METAPHLAN_ABUNDANCE_TXT} = "TXT";
 								last;
@@ -1925,17 +1909,17 @@ sub pull_reports {
 							}
 
 							##get files/figures					
-							if(/<a data-ajax='false' href='(.*allReads-kraken_mini\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT_TXT} = "SVG";
 								next;
 							}					
-							if(/<a data-ajax='false' href='(.*allReads-kraken_mini\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT_TXT} = "HTML";
 								next;
 							}								
-							if(/<a data-ajax='false' href='(.*allReads-kraken_mini\.list\.txt)'> Abundance <\/a>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\.list\.txt)'> Abundance <\/a>/) {
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE} = $1;
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE_TXT} = "TXT";
 								last;

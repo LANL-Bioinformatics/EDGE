@@ -11,10 +11,10 @@ test_result(){
 	TotalTestFileNum=6
   	testName="EDGE Report test";
 	final_PDF=$rootdir/TestOutput/final_report.pdf
-	SVGFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/1_allReads/metaphlan/allReads-metaphlan.tree.svg
-	PDFFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/1_allReads/metaphlan/allReads-metaphlan.tree.pdf
-	PNGFile=$rootdir/TestOutput/HTML_Report/images/allReads-metaphlan.tree.png
-	HEATMAPPDFFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/heatmap_TOOL-metaphlan.species.pdf
+	SVGFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/1_allReads/metaphlan2/allReads-metaphlan2.tree.svg
+	PDFFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/1_allReads/metaphlan2/allReads-metaphlan2.tree.pdf
+	PNGFile=$rootdir/TestOutput/HTML_Report/images/allReads-metaphlan2.tree.png
+	HEATMAPPDFFile=$rootdir/TestOutput/ReadsBasedAnalysis/Taxonomy/report/heatmap_TOOL-metaphlan2.species.pdf
 	HTMLFile=$rootdir/TestOutput/HTML_Report/report.html
 	HTMLlog=$rootdir/TestOutput/HTML_Report/log.txt
 	

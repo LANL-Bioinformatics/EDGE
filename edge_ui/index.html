@@ -1339,7 +1339,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			<div class="ui-field-contain edge-fastq-options" id="edge-taxa-tool-select">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn, Kraken and reads mapping to NCBI RefSeq using BWA."></a></legend>
+					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn2, Kraken and reads mapping to NCBI RefSeq using BWA."></a></legend>
 					<label for="edge-taxa-enabled-tools" class="select">Run With Following Databases</label>
 					<select name="edge-taxa-enabled-tools" id="edge-taxa-enabled-tools" multiple="multiple" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
 						<option>Choose Classification Tools:</option>
@@ -1369,7 +1369,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<option value="bwa" selected="">Reads Mapping (BWA against RefSeq)</option>
 						</optgroup>
 						<optgroup label="Other Tools">
-							<option value="metaphlan" selected="">MetaPhlAn</option>
+							<option value="metaphlan2" selected="">MetaPhlAn2</option>
 							<option value="kraken" selected="">Kraken</option>
 							<!-- Adding DIAMOND -->
 							<option value="diamond">DIAMOND (Amino acid-based classification)</option>
@@ -1400,7 +1400,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<option value="diamond"> DIAMOND database </option>
 						-->
 						<option value="BWA" selected="">Reads Mapping (BWA against custom DB)</option>
-						<option value="Metaphlan">MetaPhlAn</option>
+						<option value="Metaphlan2">MetaPhlAn2</option>
 						<option value="Kraken">Kraken</option>
 					</select>
 					<a href="#" class="btnAdd-edge-taxa-custom-db" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>

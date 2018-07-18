@@ -5,10 +5,13 @@ SRA_id=SRX674271
 
 [Count Fastq]
 DoCountFastq=auto
+fastq_source=not
 
 [Quality Trim and Filter]
 ## boolean, 1=yes, 0=no
 DoQC=1
+## phred encoding offset,  0 for autocheck
+qc_phred_offset=0
 ##Targets quality level for trimming
 q=5
 ##Trimmed sequence length will have at least minimum length 
@@ -40,14 +43,22 @@ similarity=90
 DoAssembly=1
 #Bypass assembly and use pre-assembled contigs
 assembledContigs=
+inputContigs=
 minContigSize=200
-## spades or idba_ud
+## spades or idba_ud or megahit or lrasm
 assembler=idba_ud
 idbaOptions="--pre_correction  --mink 31"
 ## for spades
-singleCellMode=
-pacbioFile=
-nanoporeFile=
+## support algorithm: default, singlecell,metagenome,plasmid,rna
+SpadesAlgorithm=default
+SpadesPacbioFile=
+SpadesNanoporeFile=
+## for megahit
+megahit_preset=meta
+## for lrasm
+lrasm_num_consensus=3
+lrasm_preset=ont
+lrasm_ec=1
 
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
@@ -65,13 +76,37 @@ edge-r2g-aligner-options=
 # reference genbank or fasta file
 reference=
 MapUnmappedReads=0
+r2g_extract_mapped=0
+r2g_extract_unmapped=0
+r2g_get_consensus=0
+r2g_consensus_min_mapQ=10
+r2g_consensus_max_cov=300
+r2g_consensus_alt_prop=0.5
+r2g_consensus_min_cov=5
+r2g_consensus_min_baseQ=20
+r2g_variant_call=1
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
 DoReadsTaxonomy=1
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=0
-enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini,diamond
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan2,bwa,kraken,diamond
+splitrim-minq=20
+custom-gottcha-genDB-b=
+custom-gottcha-speDB-b=
+custom-gottcha-strDB-b=
+custom-gottcha-genDB-v=
+custom-gottcha-speDB-v=
+custom-gottcha-strDB-v=
+custom-gottcha2-speDB-b=
+custom-gottcha2-genDB-v=
+custom-gottcha2-speDB-v=
+custom-bwa-db=
+custom-metaphlan-db=
+custom-kraken-db=
+custom-pangia-db=
+custom-diamond-db=
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference
@@ -85,11 +120,6 @@ DoVariantAnalysis=auto
 
 [Contigs Taxonomy Classification]
 DoContigsTaxonomy=1
-
-[Contigs Blast]
-DoBlast=0
-BLAST_nr_DB=/PATH/nr/
-BLAST_nt_DB=/PATH/nt/
 
 [Contigs Annotation]
 ## boolean, 1=yes, 0=no

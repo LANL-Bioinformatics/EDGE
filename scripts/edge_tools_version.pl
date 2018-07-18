@@ -178,7 +178,7 @@ sub check_tools{
 			LICENSE => "GPLv3"
 		},
 		'Metaphlan' => {
-			GETVER => "metaphlan.py -v 2>\&1",
+			GETVER => "metaphlan2.py -v 2>\&1",
 			REGEXP => qr/version\s+(\d+\.\d+\.\d+)/,
 			CITATION => "Segata, N., et al. (2012) Metagenomic microbial community profiling using unique clade-specific marker genes, Nature methods, 9, 811-814.",
 			LICENSE => "Artistic Liense"

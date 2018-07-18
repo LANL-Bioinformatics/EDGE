@@ -20,7 +20,7 @@ assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
-taxonomy_tools=( kraken metaphlan kronatools gottcha gottcha2 pangia )
+taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
@@ -701,19 +701,21 @@ echo "
 }
 
 
-install_metaphlan()
+install_metaphlan2()
 {
+local VER=2.7.7
 echo "------------------------------------------------------------------------------
-                           Compiling metaphlan-1.7.7
+                           Installing metaphlan-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf metaphlan-1.7.7.tar.gz
-cd metaphlan-1.7.7
-cp -fR metaphlan.py $rootdir/bin/.
+tar xvzf metaphlan-$VER.tgz
+cd metaphlan-$VER
+cp -fR metaphlan2.py $rootdir/bin/.
+cp -fR utils/read_fastx.py $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           metaphlan-1.7.7 compiled
+                           metaphlan-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2123,12 +2125,18 @@ else
   install_pangia
 fi
 
-if ( checkLocalInstallation metaphlan.py  )
+if ( checkLocalInstallation metaphlan2.py  )
 then
-  echo "metaphlan  is found"
+  metaphlan_VER=`metaphlan2.py -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if ( echo $metaphlan_VER | awk '{if($1>="2.7.7") exit 0; else exit 1}' )
+  then
+    echo "metaphlan2  is found"
+  else
+    install_metaphlan2
+  fi
 else
-  echo "metaphlan  is not found"
-  install_metaphlan
+  echo "metaphlan2 is not found"
+  install_metaphlan2
 fi
 
 if ( checkLocalInstallation primer3_core  )

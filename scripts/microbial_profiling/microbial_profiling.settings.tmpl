@@ -14,7 +14,7 @@ MAX_PROCESS_NUM=
 ;; settings for STEP3:
 ;; run profiling tools,  qsub time limit in second  172800 = 48 hours
 RUN_TOOLS=1
-RUN_TOOL_AS_JOB=0
+RUN_TOOL_AS_JOB=1
 QSUB_TIMELIMIT=172800
 QSUB_COMMAND=qsub -pe smp %THREADS% -j y -m abe -cwd -N %TOOL%-%PREFIX% -o %OUTDIR%/%LOGDIR%/%PREFIX%-%TOOL%.log
 
@@ -131,13 +131,19 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="pangia">
 [pangia]
-COMMAND=uge-pangia.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d "<TMPL_VAR NAME=pangia-db>" -c <TMPL_VAR NAME=pangia-rc> -a '-ams <TMPL_VAR NAME=bwaScoreCut DEFAULT=60>' -r <TMPL_VAR NAME=pangia-ra> -S <TMPL_VAR NAME=pangia-ms> -R <TMPL_VAR NAME=pangia-mr> -B <TMPL_VAR NAME=pangia-mb> -L <TMPL_VAR NAME=pangia-ml> <TMPL_VAR NAME=pangia-bg>
+COMMAND=uge-pangia.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d "<TMPL_VAR NAME=pangia-db>" -c <TMPL_VAR NAME=pangia-rc> -a <TMPL_VAR NAME=pangia-opts DEFAULT="'-sb -se'"> -r <TMPL_VAR NAME=pangia-ra> -S <TMPL_VAR NAME=pangia-ms> -R <TMPL_VAR NAME=pangia-mr> -B <TMPL_VAR NAME=pangia-mb> -L <TMPL_VAR NAME=pangia-ml> <TMPL_VAR NAME=pangia-bg>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
 <TMPL_IF NAME="metaphlan">
 [metaphlan]
 COMMAND=uge-metaphlan.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=metaphlan-db>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
+<TMPL_IF NAME="metaphlan2">
+[metaphlan2]
+COMMAND=uge-metaphlan2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=metaphlan-db>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
