@@ -496,7 +496,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 tar xvzf kraken-$VER.tgz
-cd kraken-$VER-beta
+cd kraken-$VER
 ./install_kraken.sh $rootdir/bin/
 
 cd $rootdir/thirdParty
