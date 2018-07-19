@@ -3398,10 +3398,11 @@ sub correct_fasta_header {
 	open (my $ofh , ">", $output_fasta);
 	while (<$fh>){
 		chomp;
-		if (/^>(.*)/){
+		if (/^>(\S+)\s*(.*)/){
 			my $id = $1;
+			my $desc = $2;
 			$id =~ s/\W/_/g;
-			print $ofh ">".$id."\n";
+			print $ofh ">".$id." $desc\n";
 		}else{
 			print $ofh $_,"\n";
 		}
