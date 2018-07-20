@@ -2166,26 +2166,30 @@ $( document ).ready(function()
 					if (data == 'runEDGE'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("EDGE",true);
+							pipeline="EDGE";
+							setRunPipeline(pipeline,true);
 							$(":radio[name='edge-fastq-source']").trigger('change');
 						})
 					}
 					if (data == 'runQiime'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("qiime",true);
+							pipeline="qiime";
+							setRunPipeline(pipeline,true);
 						})
 					}
 					if (data == 'runDETEQT'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("targetedngs",true);
+							pipeline="targetedngs";
+							setRunPipeline(pipeline,true);
 						})
 					}
 					if (data == 'runPIRET'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("piret",true);
+							pipeline="piret";
+							setRunPipeline(pipeline,true);
 						})
 					}
 					if (data == 'projectsReport'){
@@ -2197,14 +2201,16 @@ $( document ).ready(function()
 					if (data == 'nanoEDGE'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("EDGE",true);
+							pipeline="EDGE"
+							setRunPipeline(pipeline,true);
 							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
 						})
 					}
 					if (data == 'contigEDGE'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("EDGE",true);
+							pipeline="EDGE";
+							setRunPipeline(pipeline,true);
 							$('#edge-inputS-sw2').click().checkboxradio("refresh");
 							$(":radio[name='edge-fastq-source']").trigger('change');
 						})
@@ -2212,7 +2218,8 @@ $( document ).ready(function()
 					if (data == 'sraEDGE'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							setRunPipeline("EDGE",true);
+							pipeline="EDGE";
+							setRunPipeline(pipeline,true);
 							$('#edge-inputS-sw3').click().checkboxradio("refresh");
 							$(":radio[name='edge-fastq-source']").trigger('change');
 						})
@@ -2232,6 +2239,7 @@ $( document ).ready(function()
 					if (data == 'runPhaME'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
+							pipeline="EDGE";
 							setRunPipeline("phame",true);
 							$(":radio[name='edge-fastq-source']").trigger('change');
 						})
