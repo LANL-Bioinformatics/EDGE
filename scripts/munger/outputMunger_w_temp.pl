@@ -138,7 +138,7 @@ sub pull_piret{
 		open ( my $ofh, ">", "$exp_design.tmp");
 		while (<$fh>){
 			chomp;
-			if( /^ID/ ){print $ofh $_,"\n"; next;};
+			if( /SampleID/ ){print $ofh $_,"\n"; next;};
 			my @temp = split /\t/, $_;
 			$samples{$temp[0]}->{index}=$sample_idx;
 			$samples{$temp[0]}->{file}=$temp[1];
