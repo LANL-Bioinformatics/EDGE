@@ -1793,14 +1793,20 @@ $( document ).ready(function()
 			if($('#edge-piret-kingdom1').is(':checked')){
 				$('#edge-piret-euk-input').hide();
 				$('#edge-piret-prok-input').show();
+				$('#edge-piret-method option[value="ballgown"], option[value="balledgeR"], option[value="DEgown"], option[value="all"]').prop('disabled',true);
+				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 			if($('#edge-piret-kingdom2').is(':checked')){
 				$('#edge-piret-euk-input').show();
 				$('#edge-piret-prok-input').hide();
+				$('#edge-piret-method option[value="ballgown"], option[value="balledgeR"], option[value="DEgown"], option[value="all"]').prop('disabled',false);
+				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 			if($('#edge-piret-kingdom3').is(':checked')){
 				$('#edge-piret-euk-input').show();
 				$('#edge-piret-prok-input').show();
+				$('#edge-piret-method option[value="ballgown"], option[value="balledgeR"], option[value="DEgown"], option[value="all"]').prop('disabled',false);
+				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 		});
 		$(":radio[name='edge-fastq-source']").on("change", function(){
@@ -2744,7 +2750,7 @@ $( document ).ready(function()
 			$('#edge-qiime-pipeline-dir-input').show();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
-				'content', $('<span>a tab-delimited file with header #SampleID Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="data/DETEQT_sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+				'content', $('<span>a tab-delimited file with header #SampleID, Files. In the Files column, the paired-end fastq files are separated by a comma and all the fastq files should be located in the input directory. Click <a href="data/DETEQT_sample_test.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
 			);
 			$("#edge-targetedngs-ref-file-tooltip").tooltipster(
 				'content', $('<span>A Fasta file contains targeted PCR amplicons in the assay. Click <a href="data/DETEQT_reference.fa" download="" target="_blank"> Download [Sample File]</a> to see the example FASTA File.</span>')
@@ -2763,7 +2769,7 @@ $( document ).ready(function()
 			$('#edge-qiime-pipeline-dir-input').show();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Metadata Mapping File","Experimental Design File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
-				'content', $('<span>a tab-delimited text file or EXCEL file with header ID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
+				'content', $('<span>a tab-delimited text file or EXCEL file with header, #SampleID, Files and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. Click <a href="data/PiReT_experimental_design.txt" download="" target="_blank"> Download [Sample File]</a> to see the example.</span>')
 			);
 		}
 		if (pipeline === "phame"){

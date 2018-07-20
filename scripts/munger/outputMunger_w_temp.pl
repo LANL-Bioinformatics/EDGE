@@ -212,9 +212,9 @@ sub pull_piret{
 			my $prefix = basename($1) if ($vars->{"PIRET${kingdom}REF"} =~ /(.*)\.\w+$/);
 			$vars->{"PIRET${kingdom}REFNAME"} = $prefix;
 			for my $feature ("CDS","gene"){
-				my $feature_count_file = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count_sorted.csv";
-				my $feature_count_json_file = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count.tsv_sorted.json";
-				my $feature_count_summary = "$output_dir/featureCounts/$kingdom_path/${prefix}_${feature}_count.tsv_summary.csv";
+				my $feature_count_file = "$output_dir/featureCounts/$kingdom_path/${feature}_count_sorted.csv";
+				my $feature_count_json_file = "$output_dir/featureCounts/$kingdom_path/${feature}_count.tsv_sorted.json";
+				my $feature_count_summary = "$output_dir/featureCounts/$kingdom_path/${feature}_count.tsv_summary.csv";
 	
 				if ( -e $feature_count_summary){
 					my @fccs_result;
@@ -263,10 +263,10 @@ sub pull_piret{
 				}
 				close $des;
 				foreach my $feature ("CDS","gene"){
-					$vars->{"PIRET_${kingdom}_${feature}_edgeR_MDS"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_MDS";
-					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_histogram"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_histogram";
-					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_heatmap"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_heatmap";
-					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_violin"}="$output_dir/edgeR/$kingdom_path/${prefix}_${feature}_count_rpkm_violin";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_MDS"}="$output_dir/edgeR/$kingdom_path/${feature}_count_MDS";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_histogram"}="$output_dir/edgeR/$kingdom_path/${feature}_count_rpkm_histogram";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_heatmap"}="$output_dir/edgeR/$kingdom_path/${feature}_count_rpkm_heatmap";
+					$vars->{"PIRET_${kingdom}_${feature}_edgeR_RPKM_violin"}="$output_dir/edgeR/$kingdom_path/${feature}_count_rpkm_violin";
 					my @MD_plots = glob("$output_dir/edgeR/$kingdom_path/*_${feature}__MD.png");
 					if (scalar @MD_plots > 0 ){
 						for my $i (0..$#MD_plots){
@@ -308,10 +308,10 @@ sub pull_piret{
 				}
 				close $des;
 				foreach my $feature ("CDS","gene"){
-					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_PCA"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_PCA";
-					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_histogram"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_histogram";
-					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_heatmap"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_heatmap";
-					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_violin"}="$output_dir/DESeq2/$kingdom_path/${prefix}_${feature}_count_FPKM_violin";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_PCA"}="$output_dir/DESeq2/$kingdom_path/${feature}_count_PCA";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_histogram"}="$output_dir/DESeq2/$kingdom_path/${feature}_count_FPKM_histogram";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_heatmap"}="$output_dir/DESeq2/$kingdom_path/${feature}_count_FPKM_heatmap";
+					$vars->{"PIRET_${kingdom}_${feature}_DESeq2_FPKM_violin"}="$output_dir/DESeq2/$kingdom_path/${feature}_count_FPKM_violin";
 					my @MA_plots = glob("$output_dir/DESeq2/$kingdom_path/*_${feature}__MA.png");
 					if (scalar @MA_plots > 0 ){
 						for my $i (0..$#MA_plots){

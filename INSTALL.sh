@@ -116,7 +116,7 @@ echo "
 }
 
 install_PyPiReT(){
-local VER=0.3
+local VER=0.3.2
 echo "------------------------------------------------------------------------------
                            Installing PyPiReT $VER
 ------------------------------------------------------------------------------
@@ -2217,7 +2217,7 @@ fi
 if ( checkLocalInstallation PyPiReT)
 then
   PiReT_VER=`$rootdir/bin/PyPiReT/bin/runPiReT -V | perl -nle 'print $& if m{Version \d+\.\d+\.*\d*}'`;
-  if  ( echo $PiReT_VER | awk '{if($2>="0.3") exit 0; else exit 1}' )
+  if  ( echo $PiReT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
   then
     echo "PyPiReT is found"
   else
