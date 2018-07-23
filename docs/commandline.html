@@ -1,0 +1,1014 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>6. Command Line Interface (CLI) &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="7. Output" href="output.html"/>
+        <link rel="prev" title="5. Graphic User Interface (GUI)" href="gui.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>6. Command Line Interface (CLI)</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/commandline.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="command-line-interface-cli">
+<h1>6. Command Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Permalink to this headline">¶</a></h1>
+<p>The command line usage is as followings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Usage</span><span class="p">:</span> <span class="n">perl</span> <span class="n">runPipeline</span><span class="o">.</span><span class="n">pl</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">.</span><span class="n">txt</span> <span class="o">-</span><span class="n">p</span> <span class="s1">&#39;reads1.fastq reads2.fastq&#39;</span> <span class="o">-</span><span class="n">o</span> <span class="n">out_directory</span>
+<span class="n">Version</span> <span class="mf">1.1</span>
+<span class="n">Input</span> <span class="n">File</span><span class="p">:</span>
+        <span class="o">-</span><span class="n">u</span>            <span class="n">Unpaired</span> <span class="n">reads</span><span class="p">,</span> <span class="n">Single</span> <span class="n">end</span> <span class="n">reads</span> <span class="ow">in</span> <span class="n">fastq</span>
+
+        <span class="o">-</span><span class="n">p</span>            <span class="n">Paired</span> <span class="n">reads</span> <span class="ow">in</span> <span class="n">two</span> <span class="n">fastq</span> <span class="n">files</span> <span class="ow">and</span> <span class="n">separate</span> <span class="n">by</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">quote</span>
+
+        <span class="o">-</span><span class="n">c</span>            <span class="n">Config</span> <span class="n">File</span>
+<span class="n">Output</span><span class="p">:</span>
+        <span class="o">-</span><span class="n">o</span>            <span class="n">Output</span> <span class="n">directory</span><span class="o">.</span>
+
+<span class="n">Options</span><span class="p">:</span>
+        <span class="o">-</span><span class="n">ref</span>          <span class="n">Reference</span> <span class="n">genome</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">fasta</span>
+
+        <span class="o">-</span><span class="n">primer</span>       <span class="n">A</span> <span class="n">pair</span> <span class="n">of</span> <span class="n">Primers</span> <span class="n">sequences</span> <span class="ow">in</span> <span class="n">strict</span> <span class="n">fasta</span> <span class="nb">format</span>
+
+        <span class="o">-</span><span class="n">cpu</span>          <span class="n">number</span> <span class="n">of</span> <span class="n">CPUs</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="mi">8</span><span class="p">)</span>
+
+        <span class="o">-</span><span class="n">version</span>      <span class="nb">print</span> <span class="n">verison</span>
+</pre></div>
+</div>
+<p>A config file (example in the below section, the <a class="reference internal" href="gui.html"><span class="doc">Graphic User Interface (GUI)</span></a> will generate config automatically), reads Files in fastq format, and a output directory are required when run by command line. Based on the configuration file, if all modules are turned on, EDGE will run the following steps. Each step contains at least one command line scripts/programs.</p>
+<ol class="arabic simple">
+<li>Data QC</li>
+<li>Host Removal QC</li>
+<li><em>De novo</em> Assembling</li>
+<li>Reads Mapping To Contig</li>
+<li>Reads Mapping To Reference Genomes</li>
+<li>Taxonomy Classification on All Reads or unMapped to Reference Reads</li>
+<li>Map Contigs To Reference Genomes</li>
+<li>Variant Analysis</li>
+<li>Contigs Taxonomy Classification</li>
+<li>Contigs Annotation</li>
+<li>ProPhage detection</li>
+<li>PCR Assay Validation</li>
+<li>PCR Assay Adjudication</li>
+<li>Phylogenetic Analysis</li>
+<li>Generate JBrowse Tracks</li>
+<li>HTML report</li>
+</ol>
+<div class="section" id="configuration-file">
+<span id="config-example"></span><h2>6.1. Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The config file is a text file with the following information. If you are going to do host removal, you need to <a class="reference internal" href="database.html#build-host-index"><span class="std std-ref">build host index</span></a> for it and change the fasta file path in the config file.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Count</span> <span class="n">Fastq</span><span class="p">]</span>
+<span class="n">DoCountFastq</span><span class="o">=</span><span class="n">auto</span>
+
+<span class="p">[</span><span class="n">Quality</span> <span class="n">Trim</span> <span class="ow">and</span> <span class="n">Filter</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoQC</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">##Targets quality level for trimming</span>
+<span class="n">q</span><span class="o">=</span><span class="mi">5</span>
+<span class="c1">##Trimmed sequence length will have at least minimum length</span>
+<span class="n">min_L</span><span class="o">=</span><span class="mi">50</span>
+<span class="c1">##Average quality cutoff</span>
+<span class="n">avg_q</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">##&quot;N&quot; base cutoff.  Trimmed read has more than this number of continuous base &quot;N&quot; will be discarded.</span>
+<span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence</span>
+<span class="n">lc</span><span class="o">=</span><span class="mf">0.85</span>
+<span class="c1">## Trim reads with adapters or contamination sequences</span>
+<span class="n">adapter</span><span class="o">=/</span><span class="n">PATH</span><span class="o">/</span><span class="n">adapter</span><span class="o">.</span><span class="n">fasta</span>
+<span class="c1">## phiX filter, boolean, 1=yes, 0=no</span>
+<span class="n">phiX</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">## Cut # bp from 5 end before quality trimming/filtering</span>
+<span class="mi">5</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">## Cut # bp from 3 end before quality trimming/filtering</span>
+<span class="mi">3</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="p">[</span><span class="n">Host</span> <span class="n">Removal</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoHostRemoval</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">## Use more Host=  to remove multiple host reads</span>
+<span class="n">Host</span><span class="o">=/</span><span class="n">PATH</span><span class="o">/</span><span class="n">all_chromosome</span><span class="o">.</span><span class="n">fasta</span>
+<span class="n">similarity</span><span class="o">=</span><span class="mi">90</span>
+
+<span class="p">[</span><span class="n">Assembly</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoAssembly</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">##Bypass assembly and use pre-assembled contigs</span>
+<span class="n">assembledContigs</span><span class="o">=</span>
+<span class="n">minContigSize</span><span class="o">=</span><span class="mi">200</span>
+<span class="c1">## spades or idba_ud</span>
+<span class="n">assembler</span><span class="o">=</span><span class="n">idba_ud</span>
+<span class="n">idbaOptions</span><span class="o">=</span><span class="s2">&quot;--pre_correction  --mink 31&quot;</span>
+<span class="c1">## for spades</span>
+<span class="n">singleCellMode</span><span class="o">=</span>
+<span class="n">pacbioFile</span><span class="o">=</span>
+<span class="n">nanoporeFile</span><span class="o">=</span>
+
+<span class="p">[</span><span class="n">Reads</span> <span class="n">Mapping</span> <span class="n">To</span> <span class="n">Contigs</span><span class="p">]</span>
+<span class="c1"># Reads mapping to contigs</span>
+<span class="n">DoReadsMappingContigs</span><span class="o">=</span><span class="n">auto</span>
+
+<span class="p">[</span><span class="n">Reads</span> <span class="n">Mapping</span> <span class="n">To</span> <span class="n">Reference</span><span class="p">]</span>
+<span class="c1"># Reads mapping to reference</span>
+<span class="n">DoReadsMappingReference</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">bowtieOptions</span><span class="o">=</span>
+<span class="c1"># reference genbank or fasta file</span>
+<span class="n">reference</span><span class="o">=</span>
+<span class="n">MapUnmappedReads</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="p">[</span><span class="n">Reads</span> <span class="n">Taxonomy</span> <span class="n">Classification</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoReadsTaxonomy</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.</span>
+<span class="n">AllReads</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">enabledTools</span><span class="o">=</span><span class="n">gottcha</span><span class="o">-</span><span class="n">genDB</span><span class="o">-</span><span class="n">b</span><span class="p">,</span><span class="n">gottcha</span><span class="o">-</span><span class="n">speDB</span><span class="o">-</span><span class="n">b</span><span class="p">,</span><span class="n">gottcha</span><span class="o">-</span><span class="n">strDB</span><span class="o">-</span><span class="n">b</span><span class="p">,</span><span class="n">gottcha</span><span class="o">-</span><span class="n">genDB</span><span class="o">-</span><span class="n">v</span><span class="p">,</span><span class="n">gottcha</span><span class="o">-</span><span class="n">speDB</span><span class="o">-</span><span class="n">v</span><span class="p">,</span><span class="n">gottcha</span><span class="o">-</span><span class="n">strDB</span><span class="o">-</span><span class="n">v</span><span class="p">,</span><span class="n">metaphlan</span><span class="p">,</span><span class="n">bwa</span><span class="p">,</span><span class="n">kraken_mini</span>
+
+<span class="p">[</span><span class="n">Contigs</span> <span class="n">Mapping</span> <span class="n">To</span> <span class="n">Reference</span><span class="p">]</span>
+<span class="c1"># Contig mapping to reference</span>
+<span class="n">DoContigMapping</span><span class="o">=</span><span class="n">auto</span>
+<span class="c1">## identity cutoff</span>
+<span class="n">identity</span><span class="o">=</span><span class="mi">85</span>
+<span class="n">MapUnmappedContigs</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="p">[</span><span class="n">Variant</span> <span class="n">Analysis</span><span class="p">]</span>
+<span class="n">DoVariantAnalysis</span><span class="o">=</span><span class="n">auto</span>
+
+<span class="p">[</span><span class="n">Contigs</span> <span class="n">Taxonomy</span> <span class="n">Classification</span><span class="p">]</span>
+<span class="n">DoContigsTaxonomy</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="p">[</span><span class="n">Contigs</span> <span class="n">Annotation</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoAnnotation</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1"># kingdom: Archaea Bacteria Mitochondria Viruses</span>
+<span class="n">kingdom</span><span class="o">=</span><span class="n">Bacteria</span>
+<span class="n">contig_size_cut_for_annotation</span><span class="o">=</span><span class="mi">700</span>
+<span class="c1">## support tools: Prokka or RATT</span>
+<span class="n">annotateProgram</span><span class="o">=</span><span class="n">Prokka</span>
+<span class="n">annotateSourceGBK</span><span class="o">=</span>
+
+<span class="p">[</span><span class="n">ProPhage</span> <span class="n">Detection</span><span class="p">]</span>
+<span class="n">DoProPhageDetection</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="p">[</span><span class="n">Phylogenetic</span> <span class="n">Analysis</span><span class="p">]</span>
+<span class="n">DoSNPtree</span><span class="o">=</span><span class="mi">1</span>
+<span class="c1">## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus</span>
+<span class="n">SNPdbName</span><span class="o">=</span><span class="n">Ecoli</span>
+<span class="c1">## FastTree or RAxML</span>
+<span class="n">treeMaker</span><span class="o">=</span><span class="n">FastTree</span>
+<span class="c1">## SRA accessions ByrRun, ByExp, BySample, ByStudy</span>
+<span class="n">SNP_SRA_ids</span><span class="o">=</span>
+
+<span class="p">[</span><span class="n">Primer</span> <span class="n">Validation</span><span class="p">]</span>
+<span class="n">DoPrimerValidation</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">maxMismatch</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">primer</span><span class="o">=</span>
+
+<span class="p">[</span><span class="n">Primer</span> <span class="n">Adjudication</span><span class="p">]</span>
+<span class="c1">## boolean, 1=yes, 0=no</span>
+<span class="n">DoPrimerDesign</span><span class="o">=</span><span class="mi">0</span>
+<span class="c1">## desired primer tm</span>
+<span class="n">tm_opt</span><span class="o">=</span><span class="mi">59</span>
+<span class="n">tm_min</span><span class="o">=</span><span class="mi">57</span>
+<span class="n">tm_max</span><span class="o">=</span><span class="mi">63</span>
+<span class="c1">## desired primer length</span>
+<span class="n">len_opt</span><span class="o">=</span><span class="mi">18</span>
+<span class="n">len_min</span><span class="o">=</span><span class="mi">20</span>
+<span class="n">len_max</span><span class="o">=</span><span class="mi">27</span>
+<span class="c1">## reject primer having Tm &lt; tm_diff difference with background Tm</span>
+<span class="n">tm_diff</span><span class="o">=</span><span class="mi">5</span>
+<span class="c1">## display # top results for each target</span>
+<span class="n">top</span><span class="o">=</span><span class="mi">5</span>
+
+<span class="p">[</span><span class="n">Generate</span> <span class="n">JBrowse</span> <span class="n">Tracks</span><span class="p">]</span>
+<span class="n">DoJBrowse</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="p">[</span><span class="n">HTML</span> <span class="n">Report</span><span class="p">]</span>
+<span class="n">DoHTMLReport</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-run">
+<h2>6.2. Test Run<a class="headerlink" href="#test-run" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>EDGE provides an example data set which is an E. coli MiSeq dataset and has been subsampled to ~10x fold coverage reads.</div></blockquote>
+<p>In the EDGE home directory,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">testData</span>
+<span class="n">sh</span> <span class="n">runTest</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<div class="figure" id="id1">
+<a class="reference internal image-reference" href="_images/commandline_screen.png"><img alt="Snapshot from the terminal." src="_images/commandline_screen.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text">Snapshot from the terminal.</span></p>
+</div>
+<p>See <a class="reference internal" href="output.html"><span class="doc">Output</span></a></p>
+</div>
+<div class="section" id="descriptions-of-each-module">
+<h2>6.3. Descriptions of each module<a class="headerlink" href="#descriptions-of-each-module" title="Permalink to this headline">¶</a></h2>
+<p>Each module comes with default parameters and user can see the optional parameters by entering the program name with –h or -help flag without any other arguments.</p>
+<ol class="arabic simple">
+<li><strong>Data QC</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/illumina_fastq_QC.pl  -p &#39;Ecoli_10x.1.fastq Ecoli_10x.2.fastq&#39;  -q 5 -min_L 50 -avg_q 5 -n 0 -lc 0.85 –d QcReads -t 10
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Quality control</li>
+<li>Read filtering</li>
+<li>Read trimming</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Paired-end/Single-end reads in FASTQ format</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>QC.1.trimmed.fastq</li>
+<li>QC.2.trimmed.fastq</li>
+<li>QC.unpaired.trimmed.fastq</li>
+<li>QC.stats.txt</li>
+<li>QC_qc_report.pdf</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><strong>Host Removal QC</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/host_reads_removal_by_mapping.pl  -p &#39;QC.1.trimmed.fastq QC.2.trimmed.fastq&#39; -u QC.unpaired.trimmed.fastq -ref human_chromosomes.fasta -o QcReads -cpu 10
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Read filtering</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Paired-end/Single-end reads in FASTQ format</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>host_clean.1.fastq</li>
+<li>host_clean.2.fastq</li>
+<li>host_clean.mapping.log</li>
+<li>host_clean.unpaired.fastq</li>
+<li>host_clean.stats.txt</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><strong>IDBA Assembling</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fq2fa</span> <span class="o">--</span><span class="n">merge</span> <span class="n">host_clean</span><span class="o">.</span><span class="mf">1.</span><span class="n">fastq</span>  <span class="n">host_clean</span><span class="o">.</span><span class="mf">2.</span><span class="n">fastq</span>  <span class="n">pairedForAssembly</span><span class="o">.</span><span class="n">fasta</span>
+<span class="n">idba_ud</span>  <span class="o">--</span><span class="n">num_threads</span> <span class="mi">10</span> <span class="o">-</span><span class="n">o</span> <span class="n">AssemblyBasedAnalysis</span><span class="o">/</span><span class="n">idba</span> <span class="o">--</span><span class="n">pre_correction</span> <span class="n">pairedForAssembly</span><span class="o">.</span><span class="n">fasta</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Iterative kmers de novo Assembly, it performs well on isolates as well as metagenomes.  It may not work well on very large genomes.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Paired-end/Single-end reads in FASTA format</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>contig.fa</li>
+<li>scaffold.fa  (input paired end)</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><strong>Reads Mapping To Contig</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/runReadsToContig.pl  -p &#39;host_clean.1.fastq host_clean.2.fastq&#39; -d AssemblyBasedAnalysis/readsMappingToContig -pre readsToContigs  -ref AssemblyBasedAnalysis/contigs.fa
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Mapping reads to assembled contigs</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Paired-end/Single-end reads in FASTQ format</li>
+<li>Assembled Contigs in Fasta format</li>
+<li>Output Directory</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>readsToContigs.alnstats.txt</li>
+<li>readsToContigs_coverage.table</li>
+<li>readsToContigs_plots.pdf</li>
+<li>readsToContigs.sort.bam</li>
+<li>readsToContigs.sort.bam.bai</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><strong>Reads Mapping To Reference Genomes</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/runReadsToGenome.pl  -p &#39;host_clean.1.fastq host_clean.2.fastq&#39;  -d ReadsBasedAnalysis -pre readsToRef -ref Reference.fna
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Mapping reads to reference genomes</li>
+<li>SNPs/Indels calling</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Paired-end/Single-end reads in FASTQ format</li>
+<li>Reference genomes in Fasta format</li>
+<li>Output Directory</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>readsToRef.alnstats.txt</li>
+<li>readsToRef_plots.pdf</li>
+<li>readsToRef_refID.coverage</li>
+<li>readsToRef_refID.gap.coords</li>
+<li>readsToRef_refID.window_size_coverage</li>
+<li>readsToRef.ref_windows_gc.txt</li>
+<li>readsToRef.raw.bcf</li>
+<li>readsToRef.sort.bam</li>
+<li>readsToRef.sort.bam.bai</li>
+<li>readsToRef.vcf</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><strong>Taxonomy Classification on All Reads or unMapped to Reference Reads</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/microbial_profiling/microbial_profiling_configure.pl $EDGE_HOME/scripts/microbial_profiling/microbial_profiling.settings.tmpl gottcha-speDB-b &gt; microbial_profiling.settings.ini
+perl $EDGE_HOME/scripts/microbial_profiling/microbial_profiling.pl -o  Taxonomy -s microbial_profiling.settings.ini -c 10 UnmappedReads.fastq
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Taxonomy Classification using multiple tools, including BWA mapping to NCBI Refseq, metaphlan, kraken, GOTTCHA.</li>
+<li>Unify varies output format and generate reports</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Reads in FASTQ format</li>
+<li>Configuration text file (generated by microbial_profiling_configure.pl)</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>Summary EXCEL and text files.</li>
+<li>Heatmaps tools comparison</li>
+<li>Radarchart tools comparison</li>
+<li>Krona and tree-style plots for each tool.</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="7">
+<li><strong>Map Contigs To Reference Genomes</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/nucmer_genome_coverage.pl  -e 1 -i 85 –p contigsToRef Reference.fna contigs.fa
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Mapping assembled contigs to reference genomes</li>
+<li>SNPs/Indels calling</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Reference genome in Fasta Format</li>
+<li>Assembled contigs in Fasta Format</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>contigsToRef_avg_coverage.table</li>
+<li>contigsToRef.delta</li>
+<li>contigsToRef_query_unUsed.fasta</li>
+<li>contigsToRef.snps</li>
+<li>contigsToRef.coords</li>
+<li>contigsToRef.log</li>
+<li>contigsToRef_query_novel_region_coord.txt</li>
+<li>contigsToRef_ref_zero_cov_coord.txt</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="8">
+<li><strong>Variant Analysis</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step?      <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/SNP_analysis.pl -genbank Reference.gbk -SNP contigsToRef.snps -format nucmer
+perl $EDGE_HOME/scripts/gap_analysis.pl -genbank Reference.gbk -gap  contigsToRef_ref_zero_cov_coord.txt
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Analyze variants and gaps regions using annotation file.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Reference in GenBank format</li>
+<li>SNPs/INDELs/Gaps files from “Map Contigs To Reference Genomes“</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>contigsToRef.SNPs_report.txt</li>
+<li>contigsToRef.Indels_report.txt</li>
+<li>GapVSReference.report.txt</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="9">
+<li><strong>Contigs Taxonomy Classification</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna --threads 10 --prefix OuputCT --input contigs.fa
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Taxonomy Classification on contigs using BWA mapping to NCBI Refseq</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Contigs in Fasta format</li>
+<li>NCBI Refseq genomes bwa index</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>prefix.assembly_class.csv</li>
+<li>prefix.assembly_class.top.csv</li>
+<li>prefix.ctg_class.csv</li>
+<li>prefix.ctg_class.LCA.csv</li>
+<li>prefix.ctg_class.top.csv</li>
+<li>prefix.unclassified.fasta</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="10">
+<li><strong>Contig Annotation</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prokka</span> <span class="o">--</span><span class="n">force</span> <span class="o">--</span><span class="n">prefix</span> <span class="n">PROKKA</span> <span class="o">--</span><span class="n">outdir</span> <span class="n">Annotation</span> <span class="n">contigs</span><span class="o">.</span><span class="n">fa</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>The rapid annotation of prokaryotic genomes.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Assembled Contigs in Fasta format</li>
+<li>Output Directory</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>It produces GFF3, GBK and SQN files that are ready for editing in Sequin and ultimately submitted to Genbank/DDJB/ENA.</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="11">
+<li><strong>ProPhage detection</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/phageFinder_prepare.pl -o Prophage –p Assembly Annotation/PROKKA.gff Annotation/PROKKA.fna
+$EDGE_HOME/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh Assembly
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Identify and classify prophages within prokaryotic genomes.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Annotated Contigs GenBank file</li>
+<li>Output Directory</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>phageFinder_summary.txt</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="12">
+<li><strong>PCR Assay Validation</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/pcrValidation/validate_primers.pl -ref contigs.fa -primer primers.fa -mismatch 1 -output AssayCheck
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>In silico PCR primer validation by sequence alignment.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Assembled Contigs/Reference in Fasta format</li>
+<li>Output Directory</li>
+<li>Output prefix</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>pcrContigValidation.log</li>
+<li>pcrContigValidation.bam</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="13">
+<li><strong>PCR Assay Adjudication</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/pcrAdjudication/pcrUniquePrimer.pl --input contigs.fa  --gff3 PCR.Adjudication.primers.gff3
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Design unique primer pairs for input contigs.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>Assembled Contigs in Fasta format</li>
+<li>Output gff3 file name</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>PCR.Adjudication.primers.gff3</li>
+<li>PCR.Adjudication.primers.txt</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="14">
+<li><strong>Phylogenetic Analysis</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/prepare_SNP_phylogeny.pl -o output/SNP_Phylogeny/Ecoli -tree FastTree -db Ecoli -n output -cpu 10 -p QC.1.trimmed.fastq QC.2.trimmed.fastq -c contigs.fa -s QC.unpaired.trimmed.fastq
+perl $EDGE_HOME/scripts/SNPphy/runSNPphylogeny.pl output/SNP_Phylogeny/Ecoli/SNPphy.ctrl
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Perform SNP identification against selected pre-built SNPdb or selected genomes</li>
+<li>Build SNP based multiple sequence alignment for all and CDS regions</li>
+<li>Generate Tree file in newick/PhyloXML format</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>SNPdb path or genomesList</li>
+<li>Fastq reads files</li>
+<li>Contig files</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>SNP based phylogentic multiple sequence alignment</li>
+<li>SNP based phylogentic tree in newick/PhyloXML format.</li>
+<li>SNP information table</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="15">
+<li><strong>Generate JBrowse Tracks</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/edge2jbrowse_converter.pl --in-ref-fa Reference.fna --in-ref-gff3 Reference.gff --proj_outdir EDGE_project_dir
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Convert several EDGE outputs into JBrowse tracks for visualization for contigs and reference, respectively.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>EDGE project output Directory</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>EDGE post-processed files for JBrowse tracks in the JBrowse directory.</li>
+<li>Tracks configuration files in the JBrowse directory.</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="16">
+<li><strong>HTML Report</strong></li>
+</ol>
+<blockquote>
+<div><ul>
+<li><p class="first">Required step? <strong>No</strong></p>
+</li>
+<li><p class="first">Command example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>perl $EDGE_HOME/scripts/munger/outputMunger_w_temp.pl EDGE_project_dir
+</pre></div>
+</div>
+</li>
+<li><p class="first">What it does</p>
+<ul class="simple">
+<li>Generate statistical numbers and plots in an interactive html report page.</li>
+</ul>
+</li>
+<li><p class="first">Expected input</p>
+<ul class="simple">
+<li>EDGE project output Directory</li>
+</ul>
+</li>
+<li><p class="first">Expected output</p>
+<ul class="simple">
+<li>report.html</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="other-command-line-utility-scripts">
+<h2>6.4. Other command-line utility scripts<a class="headerlink" href="#other-command-line-utility-scripts" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">To extract certain taxa fasta from contig classification result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">edge_ui</span><span class="o">/</span><span class="n">EDGE_output</span><span class="o">/</span><span class="mi">41</span><span class="o">/</span><span class="n">AssemblyBasedAnalysis</span><span class="o">/</span><span class="n">Taxonomy</span>
+<span class="n">perl</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">contig_classifier_by_bwa</span><span class="o">/</span><span class="n">extract_fasta_by_taxa</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">fasta</span> <span class="o">../</span><span class="n">contigs</span><span class="o">.</span><span class="n">fa</span> <span class="o">-</span><span class="n">csv</span> <span class="n">ProjectName</span><span class="o">.</span><span class="n">ctg_class</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">taxa</span> <span class="s2">&quot;Enterobacter cloacae” &gt; Ecloacae.contigs.fa</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">To extract unmapped/mapped reads fastq from the bam file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">edge_ui</span><span class="o">/</span><span class="n">EDGE_output</span><span class="o">/</span><span class="mi">41</span><span class="o">/</span><span class="n">AssemblyBasedAnalysis</span><span class="o">/</span><span class="n">readsMappingToContig</span>
+<span class="c1"># extract unmapped reads</span>
+<span class="n">perl</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">bam_to_fastq</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">unmapped</span> <span class="n">readsToContigs</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">bam</span>
+<span class="c1"># extract mapped reads</span>
+<span class="n">perl</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">bam_to_fastq</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">mapped</span> <span class="n">readsToContigs</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">bam</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">To extract mapped reads fastq of a specific contig/reference from the bam file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">edge_ui</span><span class="o">/</span><span class="n">EDGE_output</span><span class="o">/</span><span class="mi">41</span><span class="o">/</span><span class="n">AssemblyBasedAnalysis</span><span class="o">/</span><span class="n">readsMappingToContig</span>
+<span class="n">perl</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">edge_install</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">bam_to_fastq</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="nb">id</span> <span class="n">ProjectName_00001</span> <span class="o">-</span><span class="n">mapped</span> <span class="n">readsToContigs</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">bam</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="output.html" class="btn btn-neutral float-right" title="7. Output">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="gui.html" class="btn btn-neutral" title="5. Graphic User Interface (GUI)"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

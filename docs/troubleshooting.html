@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>10. FAQs and Troubleshooting &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="11. Copyright" href="copyright.html"/>
+        <link rel="prev" title="9. Third Party Tools" href="third_party.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>10. FAQs and Troubleshooting</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/troubleshooting.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="faqs-and-troubleshooting">
+<h1>10. FAQs and Troubleshooting<a class="headerlink" href="#faqs-and-troubleshooting" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="faqs">
+<h2>10.1. FAQs<a class="headerlink" href="#faqs" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Can I speed up the process?</p>
+<blockquote>
+<div><p>You may increase the number of CPUs to be used from the “additional options” of the input section. The default and minimum value is one-eighth of total number of server CPUs.</p>
+</div></blockquote>
+</li>
+<li><p class="first">There is no enough disk space for storing projects data. How do I do?</p>
+<blockquote>
+<div><p>There is an archive project action which will move the whole project directory to the directory path configured in the $EDGE_HOME/sys.properties.
+We also recommend a symbolic link for the $EDGE_HOME/edge_ui/EDGE_input/public/  directory which points to the location where the users’ (or sequencing centers’) raw data are stored, obviating unnecessary data transfer via web protocol and saving local storage.</p>
+</div></blockquote>
+</li>
+<li><p class="first">How to decide various QC parameters?</p>
+<blockquote>
+<div><p>The default parameters should be sufficient for most cases. However, if you have very depth coverage of the sequencing data, you may increase the trim quality level and average quality cutoff to only use high quality data.</p>
+</div></blockquote>
+</li>
+<li><p class="first">How to set K-mer size for IDBA_UD assembly?</p>
+<blockquote>
+<div><p>By default, it starts from kmer=31 and iterative step by adding 20 to maximum kmer=121. Larger K-mers would have higher rate of uniqueness in the genome and would make the graph simpler, but it requires deep sequencing depth and longer read length to guarantee the overlap at any genomic location and it is much more sensitive to sequencing errors and heterozygosity.
+Professor Titus Brown has <a class="reference external" href="http://ivory.idyll.org/blog/the-k-parameter.html">a good blog on general k-mer size discussion</a>.</p>
+</div></blockquote>
+</li>
+<li><p class="first">How many reference genomes for Reference-Based Analysis and Phylogenetic Analysis can be used from the EDGE GUI?</p>
+<blockquote>
+<div><p>The default maximum is 20 and there is a minimum 3 genomes criteria for the Phylogenetic Analysis. But it can be configured when installing EDGE.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Which aligner should I choose?</p>
+<blockquote>
+<div><p>We use default setting of the aligner. Bowtie2 default is for global alignment and BWA mem algorithm will do local alignment. If users would like to overwrite the setting, users can use “Aligner Options” to do so. For example, use “–local” to run bowtie2 with local alignment mode. Or, use “-x ont2d” to run BWA mem with Nanopore reads.</p>
+</div></blockquote>
+</li>
+</ul>
+<ul id="app-icon-fandq">
+<li><p class="first">How to make an app icon on the mobile device?</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_iOS.svg/177px-Apple_iOS.svg.png"><img alt="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_iOS.svg/177px-Apple_iOS.svg.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_iOS.svg/177px-Apple_iOS.svg.png" style="width: 50px;" /></a>
+<p>Launch the Safari browser on Apple’s iOS and navigate to the <a class="reference external" href="https://bioedge.lanl.gov/edge_ui/">https://bioedge.lanl.gov/edge_ui/</a> or your EDGE instance website. (Please refresh the page few times to update the cache) Tap the Share button on the browser’s toolbar — that’s the rectangle with an arrow pointing upward. It’s on the bar at the top of the screen on an iPad, and on the bar at the bottom of the screen on an iPhone or iPod Touch. Tap the Add to Home Screen icon in the Share menu.</p>
+<a class="reference internal image-reference" href="https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Android_robot_2014.svg/75px-Android_robot_2014.svg.png"><img alt="https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Android_robot_2014.svg/75px-Android_robot_2014.svg.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Android_robot_2014.svg/75px-Android_robot_2014.svg.png" style="width: 50px;" /></a>
+<p>Launch Chrome for Android and open the <a class="reference external" href="https://bioedge.lanl.gov/edge_ui/">https://bioedge.lanl.gov/edge_ui/</a> or your EDGE instance website.  (Please refresh the page few times to update the cache) Tap the menu button and tap Add to homescreen. You’ll be able to enter a name for the shortcut and then Chrome will add it to your home screen.
+Alternatively, we have bioedge Web App as APK file to download and install in your android device too. You can download by scan the QR code below.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/apk_qr_code.png"><img alt="_images/apk_qr_code.png" src="_images/apk_qr_code.png" style="width: 480px;" /></a>
+</div></blockquote>
+</div></blockquote>
+</li>
+<li><p class="first">Why a job is queued and never autostarted?</p>
+<blockquote>
+<div><p>The queued job had too much CPUs request. The autorun feature will start running queued job when there is available CPU resource. The queued job CPUs usage plus running jobs CPUs usage should be less than (&lt;) <strong>edgeui_tol_cpu</strong> configured in the $EDGE_HOME/edge_ui/sys.properties.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Why some of the taxonomy profiling result are N.A.?</p>
+<blockquote>
+<div><img alt="_images/NATaxaResult.png" src="_images/NATaxaResult.png" />
+<p>Please check the log file to give us more information. For above example on BWA result, at web UI, you can open log file by Clicking the link next to “Output Directory” at “General” section -&gt; ReadsBasedAnalysis -&gt; Taxonomy -&gt; log -&gt; allReads-bwa.log.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/bwaLogFile.png"><img alt="_images/bwaLogFile.png" src="_images/bwaLogFile.png" style="width: 360px;" /></a>
+</div></blockquote>
+<p>In this case, it is out of memory. EDGE requires at least 16G memory. see <a class="reference external" href="system_requirement.html">System requirements</a></p>
+<p>For machine with &lt; 32Gb memory, we suggest to use the smaller BWA index (~13Gb) and contains the databases for bwa taxonomic identification pipeline</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_bwa_mini_index</span><span class="o">.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="troubleshooting">
+<h2>10.2. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Process.log and error.log files may help on the troubleshooting.</li>
+</ul>
+<div class="section" id="edge-web-gui">
+<h3>10.2.1. EDGE WEB GUI<a class="headerlink" href="#edge-web-gui" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p class="first">In the GUI, if you are trying to enter information into a specific field and it is grayed out or won’t let you, try refreshing the page by clicking the icon in the right top of the browser window.</p>
+</li>
+<li><p class="first">After installation, I can login but cannot select any files for input. the selection pop-up is empty.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/emptySelectionBox.png"><img alt="_images/emptySelectionBox.png" src="_images/emptySelectionBox.png" style="width: 360px;" /></a>
+<p>This could be the permission issue on the EDGE_input/EDGE_output directory for Apache user. Please see <a class="reference external" href="installation.html?highlight=Permission#apache-web-server-configuration">Apache Web Server Configuration</a></p>
+</div></blockquote>
+</li>
+<li><p class="first">I can not login to EDGE, it keeps saying Session expired.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/sessionTimeout.png"><img alt="_images/sessionTimeout.png" src="_images/sessionTimeout.png" style="width: 200px;" /></a>
+<p>The login session will expire in 12 hours. If you keeps get session expired message. It may indicate the  ‘/’ (root) space is full. Please try to clean up log files or others you/admins can delete.  For example, /var/log/message-2016xxxx  is the archived log rotations which can be deleted for the space.</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="coverage-issues">
+<h3>10.2.2. Coverage Issues<a class="headerlink" href="#coverage-issues" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Average Fold Coverage reported in the HTML output and by the output tables generated in {output directory}/AssemblyBasedAnalysis/ReadsMappingToContigs/ are calculated with mpileup using the default options for metagenomes.  These settings discount reads that are unpaired within a contig or with an insert size out of the expected bounds.  This will result in an underreporting of the average fold coverage based on the generated BAM file, but one that the team feels is more accurate given the intended use of this environment.</li>
+</ul>
+</div>
+<div class="section" id="data-migration">
+<h3>10.2.3. Data Migration<a class="headerlink" href="#data-migration" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>The preferred method of transferring data to the EDGE appliance is via SFTP.  Using an SFTP client such as FileZilla, connect to port 22 using your system’s username and password.</li>
+<li>In the case of very large transfers, you may wish to use a USB hard drive or thumb drive.</li>
+<li>If the data is being transferred from another LINUX machine, the server will recognize partitions that use the FAT, ext2, ext3, or ext4 filesystems.</li>
+<li><dl class="first docutils">
+<dt>If the data is being transferred from a Windows machine, the partition may use the NTFS filesystem.  If this is the case, the drive will not be recognized until you follow these instructions:</dt>
+<dd><ul class="first last">
+<li>Open the command line interface by clicking the Applications menu in the top left corner (or use SSH to connect to the system).</li>
+<li>Enter the command: ‘’sudo yum install ntfs-3g ntfs-3g-devel -y’‘</li>
+<li>Enter your password if required.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>After a reboot, you should be able to connect your Windows hard drive to the system, and it will mount like a normal disk.</li>
+</ul>
+</div>
+<div class="section" id="known-issues">
+<h3>10.2.4. Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Installations on CentOS 6.4 with Apache 2.2 are known to have difficulty executing jobs that have “.real” anywhere in the name.  This is due to a CGI execution issue.  The recommended resolution is to use an underscore in place of the period, or simply name your job something else.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="discussions-bugs-reporting">
+<h2>10.3. Discussions / Bugs Reporting<a class="headerlink" href="#discussions-bugs-reporting" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">We have created a mailing list for EDGE users. If you would like to recieve notifications about the updates and join the discussion, please join the mailing list by becoming the member of edge-users groups.</p>
+<blockquote>
+<div><p><a class="reference external" href="https://groups.google.com/d/forum/edge-users">EDGE user’s google group</a></p>
+</div></blockquote>
+</li>
+<li><p class="first">We appreciate any feedback or concerns you may have about EDGE. If you encounter any bugs, you can report them to our GitHub issue tracker.</p>
+<blockquote>
+<div><p><a class="reference external" href="https://github.com/LANL-Bioinformatics/EDGE/issues">Github issue tracker</a></p>
+</div></blockquote>
+</li>
+<li><p class="first">Any other questions? You are welcome to <a class="reference internal" href="contact.html"><span class="doc">Contact Us and Citation</span></a></p>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="copyright.html" class="btn btn-neutral float-right" title="11. Copyright">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="third_party.html" class="btn btn-neutral" title="9. Third Party Tools"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

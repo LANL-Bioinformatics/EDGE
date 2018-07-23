@@ -1,0 +1,1239 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4. Installation &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="5. Graphic User Interface (GUI)" href="gui.html"/>
+        <link rel="prev" title="3. System requirements" href="system_requirement.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>4. Installation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This is for development version of EDGE.  Stable version (v1.5) is <a class="reference external" href="http://edge.readthedocs.org/en/v1.5/installation.html">here.</a></p>
+</div>
+<div class="section" id="installation">
+<h1>4. Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These instructions assumes Ubuntu 14 and CentOS 7</p>
+</div>
+<div class="section" id="edge-installation">
+<h2>4.1. EDGE Installation<a class="headerlink" href="#edge-installation" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A base install is ~8GB for the code base and ~330GB for the databases.</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Please ensure that your system has the <a class="reference internal" href="system_requirement.html"><span class="doc">essential software building packages</span></a>. installed properly before proceeding following installation.</p>
+</li>
+<li><p class="first">Download the codebase, databases and third party tools.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Codebase is ~207Mb and contains all the scripts and HTML needed to make EDGE run</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_main</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## Third party tools is ~2.8Gb and contains the underlying programs needed to do the analysis</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_thirdParty_softwares</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## Pipeline database is ~17Gb and contains the other databases needed for EDGE</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_pipeline_databases</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## BWA index is ~41Gb and contains the databases for bwa taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_bwa_index</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## HOST genomes BWA index is ~41Gb for Host removal, including human, bacteria, phiX, viruses, invertebrate vectors of human pathogens</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_HostIndex</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## NCBI Genomes is ~21Gb and contain the full genomes for prokaryotes and some viruses</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_NCBI_genomes</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## GOTTCHA database is ~16Gb and contains the custom databases for the GOTTCHA taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA_db</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## Amplicon database is ~78Mb and contains the databases for Qiime 16s and 18s ITS pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_amplicons_db</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## NT database is ~25Gb and contains the NCBI nt database for contig identification</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_nt_20160426</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## ShortBRED database is ~27Mb and contains the databases used by ShortBRED for virulence factors and read based antibiotic resistance analysis</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_ShortBRED_Database</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## PanGIA database is ~12Gb and contains the databases used for the PanGIA taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_PanGIA_db</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## Diamond database is ~16Gb and contains the databases from RefSeq for protein based taxonomic identification</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_diamond_db</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## MetaPhlAn2 database is 1.1Gb contains the databases used for the MetaPhlAn2 taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_metaphlan2DB</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="p">(</span><span class="n">Optional</span><span class="p">)</span>
+<span class="c1">## Other Host bwa index ~18Gb for host removal, including pig, sheep, cow, monkey, hamster. and goat.</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_otherHostIndex</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## GOTTCHA2 databases are 27Gb and ~1Gb and contains the custom databases for the GOTTCHA2 taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA2_bac_db</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA2_virus_db</span><span class="o">.</span><span class="n">tgz</span>
+
+<span class="c1">## For machine with &lt; 32Gb memory, we suggest to use the smaller BWA index (~14Gb) and contains the databases for bwa taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">public</span><span class="o">/</span><span class="n">genome</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_bwa_mini_index</span><span class="o">.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Be patient; the database files are huge.</p>
+</div>
+<ol class="arabic" start="3">
+<li><p class="first">Unpack main archive:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_main</span><span class="o">.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The main directory, edge_dev, will be created.</p>
+<p>Create a link from edge to that directory:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ln</span> <span class="o">-</span><span class="n">sf</span> <span class="n">edge_dev</span> <span class="n">edge</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic" start="4">
+<li><p class="first">Unpack the third party software into main directory (edge):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_thirdParty_softwares</span><span class="o">.</span><span class="n">tgz</span> <span class="o">-</span><span class="n">C</span> <span class="n">edge</span><span class="o">/</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You should see a thirdParty directory inside the edge directory.</p>
+</div>
+<p>5 Unpack the databases:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># unpack databases</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_v1</span><span class="o">.</span><span class="mi">5</span><span class="n">_pipeline_databases</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_GOTTCHA_db</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_bwa_index</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_v1</span><span class="o">.</span><span class="mi">5</span><span class="n">_NCBI_genomes</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_amplicons_db</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_nt_20160426</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_ShortBRED_Database</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_PanGIA_db</span><span class="o">.</span><span class="n">tgz</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">At this point, you should see a database directory and the edge directory.</p>
+</div>
+<ol class="arabic" start="6">
+<li><p class="first">Create the symlink from edge to the database directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ln -s `pwd`/database edge/database
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will keep the database directory outside of the edge install location.  Should you need to reinstall the code base you will not need to redownload/install the databases.</p>
+</div>
+<ol class="arabic" start="7">
+<li><p class="first">Installing pipeline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">edge</span>
+<span class="o">./</span><span class="n">INSTALL</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When installing JBrowse, it may require internet connection.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the machine is shared and used with others, the system installed tools version may not be compatible with EDGE. In this case, we would suggest to use force option <code class="code docutils literal notranslate"><span class="pre">./INSTALL.sh</span> <span class="pre">force</span></code> to install all list tools locally.</p>
+</div>
+<p>It will install the following depended <a class="reference internal" href="third_party.html"><span class="doc">tools</span></a>.</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Assembly</p>
+<blockquote>
+<div><ul class="simple">
+<li>idba</li>
+<li>spades</li>
+<li>megahit</li>
+<li>long_read_assembly</li>
+<li>racon</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Annotation</p>
+<blockquote>
+<div><ul class="simple">
+<li>prokka</li>
+<li>RATT</li>
+<li>tRNAscan</li>
+<li>barrnap</li>
+<li>BLAST+</li>
+<li>blastall</li>
+<li>phageFinder</li>
+<li>glimmer</li>
+<li>aragorn</li>
+<li>prodigal</li>
+<li>tbl2asn</li>
+<li>ShortBRED</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Alignment</p>
+<blockquote>
+<div><ul class="simple">
+<li>hmmer</li>
+<li>infernal</li>
+<li>bowtie2</li>
+<li>bwa</li>
+<li>mummer</li>
+<li>RAPSearch2</li>
+<li>diamond</li>
+<li>minimap2</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Taxonomy</p>
+<blockquote>
+<div><ul class="simple">
+<li>kraken</li>
+<li>metaphlan2</li>
+<li>kronatools</li>
+<li>gottcha</li>
+<li>gottcha2</li>
+<li>pangia</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Phylogeny</p>
+<blockquote>
+<div><ul class="simple">
+<li>FastTree</li>
+<li>RAxML</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Utility</p>
+<blockquote>
+<div><ul class="simple">
+<li>FaQCs</li>
+<li>bedtools</li>
+<li>R</li>
+<li>GNU_parallel</li>
+<li>tabix</li>
+<li>JBrowse</li>
+<li>bokeh</li>
+<li>primer3</li>
+<li>samtools</li>
+<li>bcftools</li>
+<li>sratoolkit</li>
+<li>ea-utils</li>
+<li>omics-pathway-viewer</li>
+<li>NanoPlot</li>
+<li>Porechop</li>
+<li>Rpackages</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Perl_Modules</p>
+<blockquote>
+<div><ul class="simple">
+<li>perl_parallel_forkmanager</li>
+<li>perl_excel_writer</li>
+<li>perl_archive_zip</li>
+<li>perl_string_approx</li>
+<li>perl_pdf_api2</li>
+<li>perl_html_template</li>
+<li>perl_html_parser</li>
+<li>perl_JSON</li>
+<li>perl_bio_phylo</li>
+<li>perl_xml_twig</li>
+<li>perl_cgi_session</li>
+<li>perl_email_valid</li>
+<li>perl_mailtools</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Python_Packages</p>
+<blockquote>
+<div><ul class="simple">
+<li>Anaconda2</li>
+<li>Anaconda3</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Pipeline_Tools</p>
+<blockquote>
+<div><ul class="simple">
+<li>DETEQT</li>
+<li>reference-based_assembly</li>
+<li>PyPiReT</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<ol class="arabic simple" start="8">
+<li>Restart the Terminal Session to allow $EDGE_HOME to be exported.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">After running INSTALL.sh successfully, the binaries and related scripts will be stored in the ./bin and ./scripts directory. It also writes EDGE_HOME environment variable into .bashrc or .bash_profile.</p>
+</div>
+<div class="section" id="testing-the-edge-installation">
+<span id="apache-configuration"></span><h3>4.1.1. Testing the EDGE Installation<a class="headerlink" href="#testing-the-edge-installation" title="Permalink to this headline">¶</a></h3>
+<p>After installing the packages above, it is highly recommended to test the installation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; cd $EDGE_HOME/testData
+&gt; ./runAllTest.sh
+</pre></div>
+</div>
+<img alt="_images/testResult.png" class="align-center" src="_images/testResult.png" />
+<p>There are 17 module/unit tests which took around 2 hours 14 mins in our testing environments. (64 cores 2.30GHz, 512GB ram with CentOS-7.1.1503 ).
+You will see test output on the terminal indicating test successes and failures. The <strong>Specialty Genes Profiling test</strong> will fail in this stage since it requires <a class="reference external" href="installation.html#mysql-databases-creation">virulence database imported</a> and <a class="reference external" href="installation.html#edge-configuration">configured</a>.
+You can test it again after database created and configured. Some tests may fail due to missing external applications/modules/packages or failed installation.
+These will be noted separately in the $EDGE_HOME/testData/runXXXXTest/TestOutput/error.log or log files in each modules. If these are related to features of EDGE that you are not using, this is acceptable.
+Otherwise, you’ll want to ensure that you have the EDGE installed correctly. If the output doesn’t indicate any failures, you are now ready to use EDGE through command line.
+To take advantage of the user friendly GUI, please follow the section below to configure the EDGE Web server.</p>
+</div>
+<div class="section" id="apache-web-server-configuration">
+<h3>4.1.2. Apache Web Server Configuration<a class="headerlink" href="#apache-web-server-configuration" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Modify/Check sample apache configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>For Ubuntu
+
+Double check $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf alias directories the match EDGE
+installation path at line 2,5,6,16,17,29,59.
+
+The default is configured as http://localhost/edge_ui/ or http://www.yourdomain.com/edge_ui/
+
+For CentOS
+
+Double check $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf alias directories the match EDGE
+installation path at line 2,5,6,16,17,29,59.
+
+The default is configured as http://localhost/edge_ui/ or http://www.yourdomain.com/edge_ui/
+</pre></div>
+</div>
+</li>
+<li><p class="first">Confirm apache/httpd user and groups are edge:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>For Ubuntu
+
+The user and group can be edited at /etc/apache2/envvars and the variables are APACHE_RUN_USER and APACHE_RUN_GROUP.
+
+For CentOS
+
+The User and Group on lines 66 and 67 in $EDGE_HOME/edge_ui/apache_conf/centos_httpd.conf should be edge
+
+## Make APACHE_RUN_USER have Permission to write
+&gt; sudo chown -R xxxxx $EDGE_HOME/edge_ui  $EDGE_HOME/edge_ui/JBrowse/data  #(xxxxx is the APACHE_RUN_USER value)
+
+&gt; sudo chgrp -R xxxxx $EDGE_HOME/edge_ui  $EDGE_HOME/edge_ui/JBrowse/data  #(xxxxx is the APACHE_RUN_GROUP value)
+</pre></div>
+</div>
+</li>
+<li><p class="first">(Optional) If users are behind a corporate proxy for internet:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Please add proxy info into $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf or $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf
+
+# Add following proxy env
+SetEnv http_proxy http://yourproxy:port
+SetEnv https_proxy http://yourproxy:port
+SetEnv ftp_proxy http://yourproxy:port
+</pre></div>
+</div>
+</li>
+<li><p class="first">Copy configuration files to the appropriate directories:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>For Ubuntu
+
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf /etc/apache2/conf-available/
+&gt; sudo ln -s /etc/apache2/conf-available/edge_apache.conf /etc/apache2/conf-enabled/
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/pangia-vis.conf /etc/apache2/conf-available/
+&gt; sudo ln -s /etc/apache2/conf-available/pangia-vis.conf /etc/apache2/conf-enabled/
+
+For CentOS
+
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf /etc/httpd/conf.d/
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/centos_httpd.conf /etc/httpd/conf/httpd.conf
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/pangia-vis.conf /etc/httpd/conf.d/
+</pre></div>
+</div>
+</li>
+<li><p class="first">(Optional) HTTPS / SSL configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>i. Please add redirect conditions into $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf or $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf
+
+# Add redirect to https
+RewriteEngine on
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*) https://%{SERVER_NAME}$1 [R,L]
+
+ii. Use pangia-vis-https.conf instead of pangia-vis.conf
+
+For Ubuntu
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/pangia-vis-https.conf /etc/apache2/conf-available/pangia-vis.conf
+
+For CentOS
+&gt; sudo cp $EDGE_HOME/edge_ui/apache_conf/pangia-vis-https.conf /etc/httpd/conf.d/
+
+iii. Add SSL configuration::
+
+see edge_ssl.conf using letsencrypt (https://letsencrypt.org/) as an example.  Please modify it as your environments and
+
+copy modified $EDGE_HOME/edge_ui/apache_conf/edge_ssl.conf to /etc/httpd/conf.d/ for CentOS or /etc/apache2/conf-enabled/ for Ubuntu.
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart the apache2/httpd to activate the new configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">service</span> <span class="n">apache2</span> <span class="n">restart</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">httpd</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="user-management-system-installation-mysql">
+<h3>4.1.3. User Management System Installation: MySQL<a class="headerlink" href="#user-management-system-installation-mysql" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Setup two temporary environmental variables:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UN</span><span class="o">=</span><span class="n">username</span>
+<span class="n">PW</span><span class="o">=</span><span class="n">password</span>
+</pre></div>
+</div>
+<p class="last">These will be used when setting up the user management system</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you were using the user management system and are updating from EDGE v1.1 to this version. You only need to run the commands below and continue to install tomcat.:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span>cd $EDGE_HOME/userManagement
+mysql -u $UN -p userManagement
+mysql&gt; source update_userManagement_db.sql
+</pre></div>
+</div>
+</div>
+<ol class="arabic">
+<li><p class="first">Start mysql (if it is not already running):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">service</span> <span class="n">mysql</span> <span class="n">start</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">mariadb</span><span class="o">.</span><span class="n">service</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">mariadb</span><span class="o">.</span><span class="n">service</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Secure mysql:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The root password here is for the mysql root and not the system root.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">mysql_secure_installation</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Enter root password (likely none)</li>
+<li>Set root password?  Yes</li>
+<li>Enter new root password.</li>
+<li>Re-enter new root password.</li>
+<li>Remove anonymous users? Yes</li>
+<li>Disallow root login remotely? Yes</li>
+<li>Remove test database and access to it? Yes</li>
+<li>Reload privilege table now? Yes</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p class="first">Create database: userManagement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; cd $EDGE_HOME/userManagement
+&gt; mysql -p -u root
+
+mysql&gt; create database userManagement;
+mysql&gt; use userManagement;
+</pre></div>
+</div>
+</li>
+<li><p class="first">Load userManagement_schema.sql:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">source</span> <span class="n">userManagement_schema</span><span class="o">.</span><span class="n">sql</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Load userManagement_constrains.sql:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">source</span> <span class="n">userManagement_constrains</span><span class="o">.</span><span class="n">sql</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create an user account and grant all privileges to user:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This is the database user (not an individual account).</p>
+<p>Replace with the appropriate values:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">username</span><span class="p">:</span> <span class="n">yourDBUsername</span>
+<span class="n">password</span><span class="p">:</span> <span class="n">yourDBPassword</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">CREATE</span> <span class="n">USER</span> <span class="s1">&#39;yourDBUsername&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="n">IDENTIFIED</span> <span class="n">BY</span> <span class="s1">&#39;yourDBPassword&#39;</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">ALL</span> <span class="n">PRIVILEGES</span> <span class="n">ON</span> <span class="n">userManagement</span><span class="o">.*</span> <span class="n">to</span> <span class="s1">&#39;yourDBUsername&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">exit</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="user-management-system-installation-tomcat">
+<h3>4.1.4. User Management System Installation: Tomcat<a class="headerlink" href="#user-management-system-installation-tomcat" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you were using the user management system and are updating from EDGE v1.1 to this version. You only need continue from step 6.</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Configure tomcat basic auth to secure /user/admin/register web service:</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Run this code only once!</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The username and password here should be the same as the database user.</p>
+<p>Update the values for the username and password accordingly before running the code.</p>
+<p>This adds the following to /usr/share/tomcat/conf/tomcat-users.xml or /var/lib/tomcat7/conf/tomcat-users.xml:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">role</span> <span class="n">rolename</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="n">user</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;yourAdminName&quot;</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;yourAdminPassword&quot;</span> <span class="n">roles</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span><span class="o">/&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@&lt;/tomcat-users&gt;@&lt;role rolename=&quot;admin&quot;/&gt;</span><span class="se">\n</span><span class="s1">&lt;user username=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{UN}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; password=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{PW}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; roles=&quot;admin&quot;/&gt;</span><span class="se">\n</span><span class="s1">&lt;/tomcat-users&gt;@g&#39;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">tomcat</span><span class="o">-</span><span class="n">users</span><span class="o">.</span><span class="n">xml</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@&lt;!-- &lt;role rolename=&quot;admin&quot;/&gt; --&gt;@&lt;!-- &lt;role rolename=&quot;admin&quot;/&gt; --&gt;</span><span class="se">\n</span><span class="s1">&lt;role rolename=&quot;admin&quot;/&gt;</span><span class="se">\n</span><span class="s1">&lt;user username=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{UN}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; password=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{PW}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; roles=&quot;admin&quot;/&gt;@g&#39;</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">tomcat</span><span class="o">-</span><span class="n">users</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Update inactive timeout to a more reasonable number 4320 min (3 days) from default (30mins) in /var/lib/tomcat7/conf/web.xml or /etc/tomcat/web.xml</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This is modifying the following code:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;!--  &lt;session-config&gt;
+        &lt;session-timeout&gt;30&lt;/session-timeout&gt;
+&lt;/session-config&gt; --&gt;
+</pre></div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@&lt;session-timeout&gt;.*&lt;/session-timeout&gt;@&lt;session-timeout&gt;4320&lt;/session-timeout&gt;@g&#39;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">web</span><span class="o">.</span><span class="n">xml</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@&lt;session-timeout&gt;.*&lt;/session-timeout&gt;@&lt;session-timeout&gt;4320&lt;/session-timeout&gt;@g&#39;</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">web</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Add memory constrains to Java:</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Run this code only once!</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This will add the following line to the appropriate file:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">JAVA_OPTS</span><span class="o">=</span><span class="s2">&quot; -Xms256M -Xmx1024M -XX:PermSize=256m -XX:MaxPermSize=512m&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@#JAVA_OPTS@JAVA_OPTS=&quot;-Xms256m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m&quot;</span><span class="se">\n</span><span class="s1">#JAVA_OPTS@g&#39;</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">catalina</span><span class="o">.</span><span class="n">sh</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@#JAVA_OPTS@JAVA_OPTS=&quot;-Xms256m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m&quot;</span><span class="se">\n</span><span class="s1">#JAVA_OPTS@g&#39;</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">tomcat</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Restart tomcat server:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+<span class="n">sudo</span> <span class="n">service</span> <span class="n">tomcat7</span> <span class="n">restart</span>
+
+<span class="n">For</span> <span class="n">CentOS7</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">tomcat</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Copy database connector clients to appropriate lib directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">mysql</span><span class="o">-</span><span class="n">connector</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="mf">5.1</span><span class="o">.</span><span class="mi">34</span><span class="o">-</span><span class="nb">bin</span><span class="o">.</span><span class="n">jar</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">744</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mysql</span><span class="o">-</span><span class="n">connector</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="mf">5.1</span><span class="o">.</span><span class="mi">34</span><span class="o">-</span><span class="nb">bin</span><span class="o">.</span><span class="n">jar</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">mariadb</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="n">client</span><span class="o">-</span><span class="mf">1.2</span><span class="o">.</span><span class="mf">0.</span><span class="n">jar</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">744</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mariadb</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="n">client</span><span class="o">-</span><span class="mf">1.2</span><span class="o">.</span><span class="mf">0.</span><span class="n">jar</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Centos Only: Update the MySQL database driver to be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sed -i &#39;s@driverClassName=.*$@driverClassName=&quot;org.mariadb.jdbc.Driver&quot;@&#39; $EDGE_HOME/userManagement/userManagementWS.xml
+</pre></div>
+</div>
+</li>
+<li><p class="first">Deploy userManagement to tomcat server:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>For CentOS the userManagementWS.xml should have:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">driverClassName</span><span class="o">=</span><span class="s2">&quot;org.mariadb.jdbc.Driver&quot;</span>
+</pre></div>
+</div>
+<p class="last">Please check and confirm this before deploying userManagement.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span><span class="n">userManagementWS</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagementWS</span><span class="o">.</span><span class="n">war</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span><span class="n">userManagement</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagement</span><span class="o">.</span><span class="n">war</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">755</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">webapps</span><span class="o">/*</span><span class="n">war</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">744</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span><span class="n">userManagementWS</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagementWS</span><span class="o">.</span><span class="n">war</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">rm</span> <span class="o">-</span><span class="n">rf</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span><span class="n">userManagement</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagement</span><span class="o">.</span><span class="n">war</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">webapps</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">755</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">webapps</span><span class="o">/*</span><span class="n">war</span>
+<span class="n">sudo</span> <span class="n">cp</span> <span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">chmod</span> <span class="mi">744</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Modify the username/password in userManagementWS.xml:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@username=.*$@username=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{UN}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;@&#39;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@password=.*$@password=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{PW}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;@&#39;</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">tomcat7</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+
+<span class="n">For</span> <span class="n">CentOS</span>
+
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@username=.*$@username=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{UN}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;@&#39;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s1">&#39;s@password=.*$@password=&quot;&#39;</span><span class="s2">&quot;$</span><span class="si">{PW}</span><span class="s2">&quot;</span><span class="s1">&#39;&quot;@&#39;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">tomcat</span><span class="o">/</span><span class="n">Catalina</span><span class="o">/</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagementWS</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Update sys.properties in the userManagement deployment:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Tomcat should automatically unarchive the .war files.</p>
+<p>The default configuration is to have the user management system on localhost with email notifications turned off.</p>
+<p>Modify the user management sys.properties if you want to change the default behavior.</p>
+<p class="last">You will need to copy the sys.properties files to the directory of the userManagement deployment.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>For Ubuntu
+
+sudo cp $EDGE_HOME/userManagement/sys.properties /var/lib/tomcat7/webapps/userManagement/WEB-INF/classes/sys.properties
+sudo chmod 744 /var/lib/tomcat7/webapps/userManagement/WEB-INF/classes/sys.properties
+
+For CentOS
+
+sudo cp $EDGE_HOME/userManagement/sys.properties /usr/share/tomcat/webapps/userManagement/WEB-INF/classes/sys.properties
+sudo chmod 744 /usr/share/tomcat/webapps/userManagement/WEB-INF/classes/sys.properties
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Restart tomcat server:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">For</span> <span class="n">Ubuntu</span>
+<span class="n">sudo</span> <span class="n">service</span> <span class="n">tomcat7</span> <span class="n">restart</span>
+
+<span class="n">For</span> <span class="n">CentOS7</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">tomcat</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Setup admin user:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The script createAdminAccount.pl creates an admin user account for EDGE userManagement.</p>
+<blockquote>
+<div><p>Update email (-e), First Name (-fn), and Last Name (-ln) appropriately.</p>
+</div></blockquote>
+<p>It will ask <a class="reference external" href="installation.html#user-management-system-installation-tomcat">tomcat service username and password</a> (tomcat-users.xml:) before creating EDGE user account (email).</p>
+<p>If “HTTP Status 401” error shows, please make sure the tomcat username and password in the <a class="reference external" href="installation.html#user-management-system-installation-tomcat">first step</a> match with what entered here.</p>
+<p class="last">Should this script fail, the userManagement is not set up correctly.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">perl</span> <span class="n">createAdminAccount</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">e</span> <span class="o">&lt;</span><span class="n">email</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">fn</span> <span class="o">&lt;</span><span class="n">first</span> <span class="n">name</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">ln</span> <span class="o">&lt;</span><span class="n">last</span> <span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Enable userManagement in EDGE sys.properties:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See <a class="reference internal" href="#edge-configuration"><span class="std std-ref">EDGE Configuration</span></a> below</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; sed -i &#39;s@user_management=.*$@user_management=1@g&#39; $EDGE_HOME/edge_ui/sys.properties
+&gt; sed -i &#39;s@edge_user_management_url=.*$@edge_user_management_url=http://localhost/userManagement@g&#39; $EDGE_HOME/edge_ui/sys.properties
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Optional: configure social (facebook,google,windows live, Linkedin) login function:</p>
+<blockquote>
+<div><ul class="simple">
+<li>modify $EDGE_HOME/edge_ui/javascript/social.js, change apps id you created on each social media.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You need to register your EDGE’s domain on each social media to get apps id. e.g.: A FACEBOOK app needs to be created and configured for the domain and website set up by EDGE.
+see <a class="reference external" href="https://developers.facebook.com/.">https://developers.facebook.com/</a>  and
+<a class="reference external" href="http://stackoverflow.com/questions/16345777/given-url-is-not-allowed-by-the-application-configuration">StackOverflow Q&amp;A</a></p>
+<p><a class="reference external" href="https://console.developers.google.com/">Google+</a></p>
+<p><a class="reference external" href="https://account.live.com/developers/applications/index">Windows</a></p>
+<p class="last"><a class="reference external" href="https://www.linkedin.com/secure/developer">LinkedIn</a></p>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Optional: configure sendmail to use SMTP to email out of local domain:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">edit /etc/mail/sendmail.cf and edit this line:</p>
+<blockquote>
+<div><p># “Smart” relay host (may be null)
+DS</p>
+</div></blockquote>
+</li>
+<li><p class="first">and append the correct server right next to DS (no spaces);</p>
+<blockquote>
+<div><p># “Smart” relay host (may be null)
+DSmail.yourdomain.com</p>
+</div></blockquote>
+</li>
+<li><p class="first">Then, restart the sendmail service</p>
+<blockquote>
+<div><p>&gt; sudo service sendmail restart</p>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="mysql-databases-creation">
+<h3>4.1.5. MYSQL Databases CREATION<a class="headerlink" href="#mysql-databases-creation" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This requires that MySQL is installed and running.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">EDGE provides Virulence Factors, Metadata, and Pathogen sql dump files which will be used for Speciality Gene Profling module, Sample MetaData module and Pathogen Detection module, respectively. You will need configure the database info in the $EDGE_HOME/edge_ui/sys.properties. See <a class="reference internal" href="#edge-configuration"><span class="std std-ref">EDGE Configuration</span></a> below</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Change directory into database:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cd $EDGE_HOME/SQLdbfile
+</pre></div>
+</div>
+</li>
+<li><p class="first">Run install script for databases and Grant privilege database user to have access to the databases:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span> <span class="o">-</span><span class="n">u</span> <span class="n">root</span> <span class="o">-</span><span class="n">p</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">source</span> <span class="n">virulence_db</span><span class="o">.</span><span class="n">sql</span> <span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">ALL</span> <span class="n">PRIVILEGES</span> <span class="n">ON</span> <span class="n">virulenceFactors</span><span class="o">.*</span> <span class="n">to</span> <span class="s1">&#39;yourDBUsername&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">create</span> <span class="n">database</span> <span class="n">edgeDB</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">use</span> <span class="n">edgeDB</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">source</span> <span class="n">edge_db</span><span class="o">.</span><span class="n">sql</span> <span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">ALL</span> <span class="n">PRIVILEGES</span> <span class="n">ON</span> <span class="n">edgeDB</span><span class="o">.*</span> <span class="n">to</span> <span class="s1">&#39;yourDBUsername&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">create</span> <span class="n">database</span> <span class="n">pathogens</span> <span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">use</span> <span class="n">pathogens</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">source</span> <span class="n">pathogen_db</span><span class="o">.</span><span class="n">sql</span> <span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">ALL</span> <span class="n">PRIVILEGES</span> <span class="n">ON</span> <span class="n">pathogens</span><span class="o">.*</span> <span class="n">to</span> <span class="s1">&#39;yourDBUsername&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="n">exit</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Configure Virulence, Metadata and Pathogen Database information:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Edit $EDGE_HOME/edge_ui/sys.properties with the appropriate database username and password.
+
+# Virluence Factoer database
+VFDB_dbhost = localhost
+VFDB_dbport = 3306
+VFDB_dbname = virulenceFactors
+VFDB_dbuser = edge_user
+VFDB_dbpasswd = edge_user_password
+
+##configure edge pathogen detection 1: with 0: without
+edge_pathogen_detection=0
+pathogen_dbhost=localhost
+pathogen_dbname=pathogens
+pathogen_dbuser=edge_user
+pathogen_dbpasswd=edge_user_password
+
+##configure edge sample metadata option 1: with 0: without
+edge_sample_metadata=0
+edge_dbhost=localhost
+edge_dbname=edgeDB
+edge_dbuser=edge_user
+edge_dbpasswd=edge_user_password
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="edge-configuration">
+<span id="id1"></span><h3>4.1.6. EDGE configuration<a class="headerlink" href="#edge-configuration" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">EDGE system configuration file is $EDGE_HOME/edge_ui/sys.proprties. You can edit this file to turn on/off EDGE functions/modules here. (on=1, off=0);</p>
+</div>
+<ol class="arabic simple">
+<li>Add EDGE GUI admin info:</li>
+</ol>
+<p>#According to <a class="reference external" href="installation.html#user-management-system-installation-tomcat">User Management system installation</a> step 11:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edgeui_admin</span><span class="o">=</span><span class="n">admin</span><span class="nd">@my</span><span class="o">.</span><span class="n">com</span>
+<span class="n">edgeui_admin_password</span><span class="o">=</span><span class="n">admin</span>
+</pre></div>
+</div>
+<ol class="arabic" start="2">
+<li><p class="first">Turn on user management system:</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This assumes localhost is the domain. Update the domain as necessary.
+If user management system is not in the same domain with EDGE.:</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edge_user_management_url</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">someother</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">userManagement</span>
+</pre></div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you have User Management system enabled.</span>
+<span class="n">user_management</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">edge_user_management_url</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="o">/</span><span class="n">userManagement</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Turn on upload function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user_upload</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">user_upload_maxFileSize</span><span class="o">=</span><span class="s1">&#39;5gb&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Turn on project intermediate files clean up:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#Clean up old bam/sam/fastq/gz files (based on file age) in project directories</span>
+<span class="n">edgeui_proj_store_days</span><span class="o">=</span><span class="mi">10</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Set up the archive directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#The archive space is for offload the main computational disk space</span>
+<span class="n">edgeui_archive</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">archive_SPACE</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Turn on Social Login function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#If you have User Management system installation step 18 done.</span>
+<span class="n">user_social_login</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Turn on job submission for SGE/UGE cluster environment:</p>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>make sure the user/apache user running EDGE is a cluster user.</p>
+<p class="last"><code class="code docutils literal notranslate"><span class="pre">qconf</span> <span class="pre">-suserl</span></code>  to check cluster user list</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#Configure cluster system  1: with 0: without</span>
+<span class="n">cluster</span><span class="o">=</span><span class="mi">1</span>
+
+<span class="c1">## sge environment configuration</span>
+<span class="n">sge_bin</span><span class="o">=/</span><span class="n">cm</span><span class="o">/</span><span class="n">shared</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">sge</span><span class="o">/</span><span class="mf">2011.11</span><span class="n">p1</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">linux</span><span class="o">-</span><span class="n">x64</span>
+<span class="n">sge_root</span><span class="o">=/</span><span class="n">cm</span><span class="o">/</span><span class="n">shared</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">sge</span><span class="o">/</span><span class="mf">2011.11</span><span class="n">p1</span>
+<span class="n">sge_cell</span><span class="o">=</span><span class="n">default</span>
+
+<span class="c1">## edge job submission configuration</span>
+<span class="n">cluster_job_notify</span><span class="o">=</span><span class="n">edge</span><span class="nd">@yourdomain</span><span class="o">.</span><span class="n">com</span>
+<span class="n">cluster_job_prefix</span><span class="o">=</span><span class="n">EDGE_pipeline_</span>
+<span class="n">cluster_qsub_options</span><span class="o">=</span>
+<span class="n">cluster_job_resource</span><span class="o">=</span><span class="n">h_vmem</span><span class="o">=</span><span class="mi">6</span><span class="n">G</span> <span class="o">-</span><span class="n">pe</span> <span class="n">smp</span> <span class="o">&lt;</span><span class="n">CPU</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">binding</span> <span class="n">linear</span><span class="p">:</span><span class="o">&lt;</span><span class="n">CPU</span><span class="o">/</span><span class="mi">2</span><span class="o">&gt;</span>
+<span class="n">cluster_job_max_cpu</span><span class="o">=</span><span class="mi">64</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="configure-selinux-on-centos">
+<h2>4.2. Configure SELinux on CentOS<a class="headerlink" href="#configure-selinux-on-centos" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This is not complete.</p>
+</div>
+<ol class="arabic">
+<li><p class="first">Install semanage (if not already installed):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">policycoreutils</span><span class="o">-</span><span class="n">python</span> <span class="n">setroubleshoot</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Allow httpd to access $EDGE_HOME, the databases, and read/write to the EDGE_input/EDGE_output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">fcontext</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">t</span> <span class="n">httpd_sys_content_t</span> <span class="s2">&quot;$EDGE_HOME(/.*)?&quot;</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">fcontext</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">t</span> <span class="n">httpd_sys_content_t</span> <span class="s2">&quot;$EDGE_HOME/database(/.*)?&quot;</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">fcontext</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">t</span> <span class="n">httpd_sys_content_t</span> <span class="s2">&quot;$EDGE_HOME/edge_ui/EDGE_input(/.*)?&quot;</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">fcontext</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">t</span> <span class="n">httpd_sys_content_t</span> <span class="s2">&quot;$EDGE_HOME/edge_ui/EDGE_output(/.*)?&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Allow httpd to execute cgi-scripts in $EDGE_HOME/edge_ui/cgi-bin/:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">boolean</span> <span class="o">-</span><span class="n">m</span> <span class="o">--</span><span class="n">on</span> <span class="n">httpd_enable_cgi</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">fcontext</span> <span class="o">-</span><span class="n">a</span> <span class="o">-</span><span class="n">t</span> <span class="n">httpd_sys_script_exec_t</span> <span class="s2">&quot;$EDGE_HOME/edge_ui/cgi-bin(/.*)?&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Allow httpd to connect to mysql database:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">boolean</span> <span class="o">-</span><span class="n">m</span> <span class="o">--</span><span class="n">on</span> <span class="n">httpd_can_network_connect_db</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Optional: Allow httpd to work with nfs and send mail:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">boolean</span> <span class="o">-</span><span class="n">m</span> <span class="o">--</span><span class="n">on</span> <span class="n">httpd_use_nfs</span>
+<span class="o">&gt;</span> <span class="n">sudo</span> <span class="n">semanage</span> <span class="n">boolean</span> <span class="o">-</span><span class="n">m</span> <span class="o">--</span><span class="n">on</span> <span class="n">httpd_can_sendmail</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">REQUIRED: Apply the rules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&gt; sudo restorecon -R $EDGE_HOME
+&gt; sudo restorecon -R $EDGE_HOME/database/
+&gt; sudo restorecon -R $EDGE_HOME/edge_ui/EDGE_input/
+&gt; sudo restorecon -R $EDGE_HOME/edge_ui/EDGE_output/
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="edge-docker-image">
+<h2>4.3. EDGE Docker image<a class="headerlink" href="#edge-docker-image" title="Permalink to this headline">¶</a></h2>
+<p>EDGE has a lot of dependencies and can (but doesn’t have to) be very challenging to install. The EDGE docker gets around the difficulty of installation by providing a functioning EDGE full install on top of offical CentOS Base Image(7.3.1611).
+You can find the image and usage at <a class="reference external" href="https://hub.docker.com/r/bioedge/edge_dev">docker hub</a>. We would recommend to use Docker container for easy update in the future.</p>
+</div>
+<div class="section" id="edge-vmware-ovf-image">
+<h2>4.4. EDGE VMware/OVF Image<a class="headerlink" href="#edge-vmware-ovf-image" title="Permalink to this headline">¶</a></h2>
+<p>You can start using EDGE by launching a local instance of the EDGE VM. The image is built by <a class="reference external" href="https://my.vmware.com/web/vmware/info?slug=desktop_end_user_computing/vmware_workstation/8_0">VMware Fusion v8.5.0</a>.
+The pre-built EDGE VM is provided in <a class="reference external" href="https://en.wikipedia.org/wiki/Open_Virtualization_Format">Open Virtualization Format (OVA/OVF)</a> which is supported by major virtualization players, such as VMware / VirtualBox / Red Hat Enterprise Virtualization, etc.
+Unfortunately, this may not always work perfectly, as each VM technology seems to use slightly different OVA/OVF implementations that aren’t entirely compatible. For example, the <a class="reference external" href="https://kb.vmware.com/selfservice/microsites/search.do?language=en_US&amp;cmd=displayKC&amp;externalId=2005131">auto-deploy</a> feature and <a class="reference external" href="http://pubs.vmware.com/fusion-4/index.jsp#com.vmware.fusion.help.doc/GUID-5FAA1AF9-C886-40E9-87CD-770235EFB754.html?resultof=%2522%2553%2568%2561%2572%2565%2564%2522%2520%2522%2573%2568%2561%2572%2565%2522%2520%2522%2566%256f%256c%2564%2565%2572%2522%2520">the path of auto-mount shared folders</a> between host and guest which are used in the EDGE VMware image may not be compatible with other VM technologies (or may need advanced tweaks).
+Therefore, we highly recommended using <a class="reference external" href="http://www.vmware.com/products/player/playerpro-evaluation.html">VMware Workstation Player</a> which is free for non-commercial, personal and home use.
+The <a class="reference external" href="installation.html#edge-installation">EDGE databases</a> are not included in the image. You will need to download and mount the databases, input and output directories after you launch the VM. Below are instructions to run EDGE VM on your local server:</p>
+<ol class="arabic simple">
+<li>Install <a class="reference external" href="http://www.vmware.com/products/player/playerpro-evaluation.html">VMware Workstation player</a> .</li>
+<li>Download the EDGE VM image (EDGE_vm_dev_RC2.ova) from <a class="reference external" href="ftp://ftp.lanl.gov/public/genome/EDGE/dev/VirtualMachine/">LANL FTP site</a>.</li>
+<li>Download the <a class="reference external" href="installation.html#edge-installation">EDGE databases</a> and follow instruction to unpack them.</li>
+<li>Import the EDGE VM image. If the first time import fails (due to strict OVF specification), click <strong>“Retry”</strong>; this will allow import of the image.</li>
+</ol>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/VMware_import.png"><img alt="_images/VMware_import.png" src="_images/VMware_import.png" style="width: 70%;" /></a>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/VMware_warning.png"><img alt="_images/VMware_warning.png" src="_images/VMware_warning.png" style="width: 70%;" /></a>
+</div>
+<ol class="arabic simple" start="5">
+<li>Configure your VM.</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>Allocate at least 10GB memory to the VM</li>
+<li>Share/Mount the database, input and output directory to the “database”, “EDGE_input” and “EDGE_output” directory in the VM guest OS.</li>
+</ul>
+</div></blockquote>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/VMware_Sharing_settings.png"><img alt="_images/VMware_Sharing_settings.png" src="_images/VMware_Sharing_settings.png" style="width: 637.0px; height: 269.0px;" /></a>
+</div>
+<ol class="arabic simple" start="6">
+<li>Start EDGE VM.</li>
+<li>Access EDGE VM using host browser (<a class="reference external" href="http:/">http:/</a>/&lt;IP_OF_VM&gt;/edge_ui/).</li>
+</ol>
+<p>Note that the IP address will also be provided when the instance starts up.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/VMware_login.png"><img alt="_images/VMware_login.png" src="_images/VMware_login.png" style="width: 586.0px; height: 446.0px;" /></a>
+</div>
+<ol class="arabic simple" start="8">
+<li>Control EDGE VM with default credentials</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>OS Login: edge/edge</li>
+<li>EDGE user: <a class="reference external" href="mailto:admin&#37;&#52;&#48;my&#46;edge/admin">admin<span>&#64;</span>my<span>&#46;</span>edge/admin</a></li>
+<li>MariaDB root: root/edge</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="gui.html" class="btn btn-neutral float-right" title="5. Graphic User Interface (GUI)">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="system_requirement.html" class="btn btn-neutral" title="3. System requirements"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

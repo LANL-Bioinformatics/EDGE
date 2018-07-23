@@ -1,0 +1,42 @@
+EDGE ABCs 
+#########
+
+
+A quick **A**\bout EDGE, overview of the **B**\ioinformatic workflows, and the **C**\omputational environment
+
+
+Inputs
+======
+
+The input to the EDGE workflows begins with one or more FASTQ files for **a single sample**. The user can also enter SRA/ENA accessions to allow processing of publically available datasets. Comparison among samples is not yet supported but development is underway to accommodate such a function for assembly and taxonomy profile comparisons. (In addition, a 16S analysis workflow and a differential gene expression analysis workflow will be available soon.)
+
+Workflows, outputs, and limitations
+===================================
+
+The host removal step within the Quality Control workflow requires the input of one or more reference genomes as FASTA. Several common references are available for selection.
+
+EDGE has been **primarily designed to analyze microbial (bacterial, archaeal, viral) isolates or (shotgun) metagenome samples**. Due to the complexity and computational resources required for eukaryotic genome assembly, and the fact that the current taxonomy classification tools do not support eukaryotic classification, EDGE does not fully support eukaryotic samples. The combination of large NGS data files and complex metagenomes may also run into computational memory constraints. We provide the `IDBA <http://www.ncbi.nlm.nih.gov/pubmed/22495754>`_ and `Spades <https://www.ncbi.nlm.nih.gov/pubmed/24093227>`_ assembly tools to accommodate a range of sample types and data sizes. When the user selects to perform an assembly, all subsequent workflows can execute analysis with either the reads, the contigs, or both (default).
+
+For comparative reference-based analysis with reads and/or contigs, users must input one or more references (as FASTA or multi-FASTA if there are more than one replicon)  and/or select from a drop-down list of RefSeq genomes. Results include lists of missing regions (gaps), inserted regions (with input contigs if assembly was performed), SNPs (and coding sequence changes), as well as genome coverage plots and interactive access via JBrowse.
+
+For taxonomy classification with reads, multiple tools are used and the results are summarized in heat map and radar plots. Individual tool results are also presented with taxonomy dendograms and Krona plots. Contig classification occurs in the following fashion: by assigning taxonomies to all possible portions of contigs. For each contig, the longest and best match using BWA-MEM is kept for any region within the contig and the region covered is assigned to the taxonomy of the hit. The next best match to a region of the contig not covered by prior hits is then assigned to that taxonomy. The contig results can be viewed by length of assembly coverage per taxa or by number of contigs per taxa ….
+
+For phylogenetic analysis, the user must select reference genomes from a drop down list or enter references as FASTA or multi-FASTA if there is more than one replicon contig(s). This workflow is a whole genome SNP-based analysis that requires at minimum one reference genome and at least three dataset for building the phylogenetic tree. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better). We recommend selecting genomes within the same species or at least within the same genus. The number of ‘core’ nucleotides able to be aligned among all genomes, and the number of SNPs within the core, are what determine the resolution of the phylogenetic tree. Output files include phylogenies based on SNPs within the entire genome and within only coding sequences (CDSs), as well as text files outlining the SNPs discovered.
+
+For primer analysis, if the user would like to validate known PCR primers in *silico*, a FASTA file of primer sequences must be input. New primers can be generated from an assembly as well.
+
+**All commands and tool parameters are recorded in log files to make sure the results are repeatable and traceable.** The main output is an integrated interactive web page that includes summaries of all the workflows run and features tables, graphical plots, and links to genome (if assembled, or of a selected reference) browsers and to access unprocessed results and log files. Most of these summaries, including plots and tables are included within a final PDF report. 
+
+Overlap with other suites of tools
+==================================
+
+They all do well to serve their purposes. EDGE means to create a simple NGS analyzing environment with essential options to provide the most demanding analyses about prokaryotic metagenomic samples. To the best of our knowledge, `Galaxy <https://galaxyproject.org/>`_ is designed to be a platform to manage jobs/workflows for general-purpose bioinformatics programs. Despite third-party components/workflows can be download from the internet, user still requires expertise about either building a custom workflow using provided components to serve their own purposes or handle dependencies for third-party workflows. `MG-RAST <http://metagenomics.anl.gov/>`_ mainly focus on annotation and comparative analysis with other datasets. It performs similarity search against databases using predicted genes and provides results of function and organisms detected.
+
+From the perspective of infrastructures, EDGE and `Galaxy <https://galaxyproject.org/>`_ are able to installed on a local server. No internet required provides several advantages including data security (no private data have to be uploaded to a third-party) and having exclusive computational resources. `MG-RAST <http://metagenomics.anl.gov/>`_ and `IMG/M <https://img.jgi.doe.gov/cgi-bin/m/main.cgi>`_ are pure web-services. `MG-RAST <http://metagenomics.anl.gov/>`_ provides API to interact with local programs but 
+
+Compared to other commercial products, EDGE is licensed under `GPL3.0 <https://www.gnu.org/licenses/gpl-3.0.html>`_ and fully open sourced to public. We feel that EDGE is a good addition to the current suite of tools/platforms available.
+
+EDGE source code, images, and webservers
+========================================
+
+EDGE was designed to be installed and implemented from within any institute that provides sequencing services or that produces or hosts NGS data. When installed locally, EDGE can access the raw FASTQ files from within the institute, thereby providing immediate access by the biologist for analysis. EDGE is available in a variety of packages to fit various institute needs. **EDGE source code** can be obtained via our `GitHub <https://github.com/LANL-Bioinformatics/EDGE>`_ page. To simplify installation, a `VM in OVF <https://edge.readthedocs.io/en/latest/installation.html#edge-vmware-ovf-image>`_ or a `Docker image <https://edge.readthedocs.io/en/latest/installation.html#edge-docker-image>`_ can also be obtained. A **demonstration version of EDGE** is currently available at https://bioedge.lanl.gov with example data sets available to the public to view and/or re-run. This webserver has 24 cores, 512GB ram with Ubuntu 14.04.3 LTS, and also allows EDGE runs of SRA/ENA data. This webserver does not currently support upload of data (due in part to LANL security regulations), however local installations are meant to be fully functional.

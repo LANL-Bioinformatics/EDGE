@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. EDGE Introduction &mdash; EDGE 1.5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE 1.5 documentation" href="index.html"/>
+        <link rel="next" title="2. System requirements" href="system_requirement.html"/>
+        <link rel="prev" title="EDGE: Empowering the Development of Genomics Expertise" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">1. EDGE Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">2. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">2.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">2.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">2.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">3. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">3.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">3.2. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">3.3. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">4. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">4.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">4.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">4.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">4.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">4.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">4.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">4.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">4.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">4.9. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">5. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">5.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">5.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">5.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">5.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">6. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">6.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">7. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">7.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">7.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">7.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">7.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">8. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">8.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">8.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">8.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">8.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">8.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">8.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">8.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">8.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">8.9. Amplicon Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">9. Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#coverage-issues">9.1. Coverage Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#data-migration">9.2. Data Migration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#known-issues">9.3. Known Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">9.4. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">10. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">11. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">11.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>1. EDGE Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/EDGE_introduction.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="edge-introduction">
+<h1>1. EDGE Introduction<a class="headerlink" href="#edge-introduction" title="Permalink to this headline">¶</a></h1>
+<p>A quick overview of EDGE, the Bioinformatic workflows, and the Computational environment</p>
+<div class="section" id="about-edge-bioinformatics">
+<h2>1.1. About EDGE Bioinformatics<a class="headerlink" href="#about-edge-bioinformatics" title="Permalink to this headline">¶</a></h2>
+<p>EDGE bioinformatics was <strong>developed to help biologists process Next Generation Sequencing data</strong> (in the form of <strong>raw FASTQ</strong> files), even if they have little to no bioinformatics expertise. EDGE is a <strong>highly integrated and interactive web-based platform</strong> that is capable of running many of the standard analyses that biologists require for viral, bacterial/archaeal, and metagenomic samples. EDGE provides the following analytical workflows: <strong>pre-processing, assembly and annotation, reference-based analysis, taxonomy classification, phylogenetic analysis, and PCR analysis</strong>. EDGE provides an intuitive web-based interface for user input, allows users to visualize and interact with selected results (e.g. JBrowse genome browser), and generates a final detailed PDF report. Results in the form of tables, text files, graphic files, and PDFs can be downloaded. A user management system allows tracking of an individual’s EDGE runs, along with the ability to share, post publicly, delete, or archive their results.</p>
+<p>While EDGE was intentionally designed to be as simple as possible for the user, there is still no single ‘tool’ or algorithm that fits all use-cases in the bioinformatics field. Our intent is to provide a detailed panoramic view of your sample from various analytical standpoints, but users are encouraged to have some knowledge of how each tool/algorithm workflow functions, and some insight into how the results should best be interpreted.</p>
+</div>
+<div class="section" id="bioinformatics-overview">
+<h2>1.2. Bioinformatics overview<a class="headerlink" href="#bioinformatics-overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="inputs">
+<h3>1.2.1. Inputs:<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h3>
+<p>The input to the EDGE workflows begins with one or more FASTQ files for a single sample. The user can also enter SRA/ENA accessions to allow processing of publically available datasets. Comparison among samples is not yet supported but development is underway to accommodate such a function for assembly and taxonomy profile comparisons.</p>
+</div>
+<div class="section" id="workflows">
+<h3>1.2.2. Workflows:<a class="headerlink" href="#workflows" title="Permalink to this headline">¶</a></h3>
+<p><strong>Pre-Processing</strong></p>
+<p>Assessment of quality control is performed by <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25408143">FAQCS</a>. The host removal step requires the input of one or more reference genomes as FASTA. Several common references are available for selection. Trimmed and host-screened FASTQ files are used for input to the other workflows.</p>
+<p><strong>Assembly and Annotation</strong></p>
+<p>We provide the <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22495754">IDBA</a>, <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22506599">Spades</a>, and <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25609793">MegaHit</a> (in the development version) assembly tools to accommodate a range of sample types and data sizes. When the user selects to perform an assembly, all subsequent workflows can execute analysis with either the reads, the contigs, or both (default).</p>
+<p><strong>Reference-Based Analysis</strong></p>
+<p>For comparative reference-based analysis with reads and/or contigs, users must input one or more references (as FASTA or multi-FASTA if there are more than one replicon)  and/or select from a drop-down list of  RefSeq complete genomes. Results include lists of missing regions (gaps), inserted regions (with input contigs if assembly was performed), SNPs (and coding sequence changes), as well as genome coverage plots and interactive access via JBrowse.</p>
+<p><strong>Taxonomy Classification</strong></p>
+<p>For taxonomy classification with reads, multiple tools are used and the results are summarized in heat map and radar plots. Individual tool results are also presented with taxonomy dendograms and Krona plots. Contig classification occurs by assigning taxonomies to all possible portions of contigs. For each contig, the longest and best match (using BWA-MEM) is kept for any region within the contig and the region covered is assigned to the taxonomy of the hit. The next best match to a region of the contig not covered by prior hits is then assigned to that taxonomy. The contig results can be viewed by length of assembly coverage per taxa or by number of contigs per taxa.</p>
+<p><strong>Phylogenetic Analysis</strong></p>
+<p>For phylogenetic analysis, the user must select datasets from near neighbor isolates for which the user desires a phylogeny. A minimum of two additional datasets are required to draw a tree. At least one dataset must be an assembly or complete genome. <a class="reference external" href="database.html#ncbi-refseq">RefSeq genomes (Bacteria, Archaea, Viruses)</a> are available from a dropdown menu, SRA and FASTA entries are allowed, and previously built databases for some select groups of bacteria are provided.
+This workflow is a whole genome SNP-based analysis that uses one reference assembly to which both reads and contigs are mapped. Because this analysis is based on read alignments and/or contig alignments to the reference genome(s), we <strong>strongly recommend only selecting genomes that can be adequately aligned at the nucleotide level (i.e. ~90% identity or better)</strong>. The number of ‘core’ nucleotides able to be aligned among all genomes, and the number of SNPs within the core, are what determine the resolution of the phylogenetic tree. Output phylogenies are presented along with text files outlining the SNPs discovered.</p>
+<p><strong>Specialty Genes</strong></p>
+<p>For specialty gene analysis, the user selects read-based analysis and/or ORF(contig)-based analysis.</p>
+<p>For read-based analysis antibiotic resistance genes and virulence genes are detected using Huttenhower lab&#8217;s progam ShortBRED.  The antibiotic resistance gene database was generated by the developers of ShortBRED using genes from ARDB and Resfams.  The virulence genes database was generated by the developers of EDGE using VFDB.</p>
+<p>For ORF-based analysis, antibiotic resistance genes are detected using CARD&#8217;s (Comprehensive Antibiotic Resistance Database) program RGI (Resistance Gene Identifier).  RGI uses CARD&#8217;s custom database of antibiotic resistance genes.  The virulence genes are detected using ShortBRED with a database generated by the developers of EDGE using VFDB.</p>
+<p><strong>Primer Analysis</strong></p>
+<p>For primer analysis, if the user would like to validate known PCR primers in silico, a FASTA file of primer sequences must be input. New primers can be generated from an assembly as well.</p>
+<p><strong>All commands and tool parameters are recorded in log files to make sure the results are repeatable and traceable.</strong> The main output is an integrated interactive web page that includes summaries of all the workflows run and features tables, graphical plots, and links to genome (if assembled, or of a selected reference) browsers and to access unprocessed results and log files. Most of these summaries, including plots and tables are included within a final PDF report.</p>
+</div>
+<div class="section" id="limitations">
+<h3>1.2.3. Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h3>
+<p><strong>Pre-processing</strong></p>
+<p>For host removal/screening, not all genomes are available from a drop-down list, however</p>
+<p><strong>Assembly and Taxonomy Classification</strong></p>
+<p>EDGE has been primarily designed to <strong>analyze microbial (bacterial, archaeal, viral) isolates or (shotgun) metagenome samples</strong>. Due to the complexity and computational resources required for eukaryotic genome assembly, and the fact that the current taxonomy classification tools do not support eukaryotic classification, EDGE does not fully support eukaryotic samples. The combination of large NGS data files and complex metagenomes may also run into computational memory constraints.</p>
+<p><strong>Reference-based analysis</strong></p>
+<p>We recommend only aligning against (a limited number of) most closely related genome(s). If this is unknown, the Taxonomy Classification module is recommended as an alternative. If the user selects too many references, this may affect runtimes or require more computational resources than may be available on the user’s system.</p>
+<p><strong>Phylogenetic Analysis</strong></p>
+<p>Because this pipeline provides SNP-based trees derived from whole genome (and contig) alignments or read mapping, <strong>we recommend selecting genomes within the same species or at least within the same genus</strong>.</p>
+<p><strong>Specialty Genes</strong></p>
+<p>As with any read-based analysis, the detection of a gene with low read support may be caused by run-to-run carryover or cross barcode contamination.  Always use your best biological judgement when confirming the existence of these genes, especially with low read coverage.</p>
+<p>The ORF based analysis is limited to analyzing only called genes on the assembled contigs.  This may not work well with metagenomic samples or poorly assembled genomes.</p>
+</div>
+</div>
+<div class="section" id="computational-environment">
+<h2>1.3. Computational Environment<a class="headerlink" href="#computational-environment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="edge-source-code-images-and-webservers">
+<h3>1.3.1. EDGE source code, images, and webservers<a class="headerlink" href="#edge-source-code-images-and-webservers" title="Permalink to this headline">¶</a></h3>
+<p>EDGE was designed to be installed and implemented from within any institute that provides sequencing services or that produces or hosts NGS data. When installed locally, EDGE can access the raw FASTQ files from within the institute, thereby providing immediate access by the biologist for analysis. EDGE is available in a variety of packages to fit various institute needs. <strong>EDGE source code</strong> can be obtained via our <a class="reference external" href="https://lanl-bioinformatics.github.io/EDGE/">GitHub</a> page. To simplify installation, a <a class="reference external" href="installation.html#edge-vmware-ovf-image">VM in OVF</a> or a <a class="reference external" href="installation.html#edge-docker-image">Docker image</a> can also be obtained. A <strong>demonstration version of EDGE</strong> is currently available at <a class="reference external" href="https://bioedge.lanl.gov">https://bioedge.lanl.gov</a> with example data sets available to the public to view and/or re-run. This webserver has 24 cores, 512GB ram with Ubuntu 14.04.3 LTS, and also allows EDGE runs of SRA/ENA data. This webserver does not currently support upload of data (due in part to LANL security regulations), however local installations are meant to be fully functional.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="system_requirement.html" class="btn btn-neutral float-right" title="2. System requirements">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="EDGE: Empowering the Development of Genomics Expertise"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2016, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

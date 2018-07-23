@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5. Graphic User Interface (GUI) &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="6. Command Line Interface (CLI)" href="commandline.html"/>
+        <link rel="prev" title="4. Installation" href="installation.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>5. Graphic User Interface (GUI)</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/gui.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <style> .red {color:red} </style>
+<style> .grey {color:grey} </style>
+<style> .orange {color:orange} </style>
+<style> .green {color:green} </style><div class="section" id="graphic-user-interface-gui">
+<h1>5. Graphic User Interface (GUI)<a class="headerlink" href="#graphic-user-interface-gui" title="Permalink to this headline">¶</a></h1>
+<p>The User Interface was mainly implemented in <a class="reference external" href="http://jquerymobile.com">JQuery Mobile</a>, CSS, javascript and perl CGI. It is a HTML5-based user interface system designed to make responsive web sites and apps that are accessible on all smartphone, tablet and desktop devices. (see <a class="reference internal" href="troubleshooting.html#app-icon-fandq"><span class="std std-ref">How to make an app icon on the mobile device</span></a>)</p>
+<p>See  <a class="reference external" href="https://bioedge.lanl.gov/edge_ui/">GUI page</a></p>
+<div class="section" id="user-login">
+<h2>5.1. User Login<a class="headerlink" href="#user-login" title="Permalink to this headline">¶</a></h2>
+<p>A user management system has been implemented to provide a level of privacy/security for a user’s submitted projects. When this system is activated, any user can view projects that have been made public, but other projects can only be accessed by logging into the system using a registered local EDGE account or via an existing social media account (Facebook, Google+, Windows, or LinkedIn). The users can then run new jobs and view their own previously run projects or those that have been shared with them.
+Click on the upper-right user icon will pop up an user login window.</p>
+<img alt="_images/login.jpg" class="align-center" src="_images/login.jpg" />
+</div>
+<div class="section" id="upload-files">
+<h2>5.2. Upload Files<a class="headerlink" href="#upload-files" title="Permalink to this headline">¶</a></h2>
+<p>For LANL security policy, the function is not implemented at <a class="reference external" href="https://bioedge.lanl.gov/edge_ui/">https://bioedge.lanl.gov/edge_ui/</a>.</p>
+<p>EDGE supports input from NCBI Sequence Reads Archive (SRA) and select files from the EDGE server. To analyze users’ own data, EDGE allows user to upload fastq, fasta and genbank (which can be in gzip format) and text (txt). Max file size is ‘5gb’ and files will be kept for 7 days.
+Choose “Upload files” from the navigation bar on the left side of the screen.  Add users files by clicking “Add Files” buttion or drag files to the upload feature window. Then, click “Start Upload” button to upload files to EDGE server.</p>
+<img alt="_images/upload.jpg" class="align-center" src="_images/upload.jpg" />
+</div>
+<div class="section" id="initiating-an-analysis-job">
+<h2>5.3. Initiating an analysis job<a class="headerlink" href="#initiating-an-analysis-job" title="Permalink to this headline">¶</a></h2>
+<p>Choose “Run EDGE” or “Run Qiime” from the navigation bar on the left side of the screen.</p>
+<img alt="_images/initiating.png" class="align-center" src="_images/initiating.png" />
+<div class="section" id="run-edge">
+<h3>5.3.1. Run EDGE<a class="headerlink" href="#run-edge" title="Permalink to this headline">¶</a></h3>
+<p>Click “Run EDGE” will cause a section to appear called “Input Raw Reads.” Here, you may browse the EDGE Input Directory and select FASTQ files containing the reads to be analyzed. EDGE supports gzip compressed fastq files. At minimum, EDGE will accept two FASTQ files containing paired reads and/or one FASTQ file containing single reads as initial input. Alternatively, rather than providing files through the EDGE Input Directory, you may decide to use as input reads from the Sequence Read Archive (SRA). In this case, select the “yes” option next to “Input from NCBI Sequence Reads Archive” and a field will appear where you can type in an SRA accession number.</p>
+<img alt="_images/input.jpg" class="align-center" src="_images/input.jpg" />
+<p>In addition to the input read files, you have to specify a project name. The project name is restricted to only alphanumerical characters and underscores and requires a minimum of three characters. For example, a project name of “E. coli. Project” is not acceptable, but a project name of “E_coli_project” could be used instead. In the “Description” fields you may enter free text that describes your project. If you would like, you may use as input more reads files than the minimum of 2 paired read files or one file of single reads. To do so, click “additional options” to expose more fields, including two buttons for “Add Paired-end Input” and “Add Single-end Input”.</p>
+<img alt="_images/input_additional.jpg" class="align-center" src="_images/input_additional.jpg" />
+<p>In the “additional options”, there are several more options, for output path, number of CPUs, and config file. In most cases, you can ignore these options, but they are described briefly below.</p>
+</div>
+<div class="section" id="run-qiime">
+<h3>5.3.2. Run Qiime<a class="headerlink" href="#run-qiime" title="Permalink to this headline">¶</a></h3>
+<p>Click “Run Qiime” will cause a section to appear for Qiime input and parameters.  Currently, EDGE suports three amplicon types, <a class="reference external" href="http://qiime.org/home_static/dataFiles.html">16s using GreenGenes database, 16s/18s using SILVA database, and Fungal ITS</a>. Similar to “Run EDGE”, input can be either from the Sequence Read Archive (SRA, internet required) or browse the EDGE Input Directory based on the reads type. The Qiime pipeline support one Reads Type in a run, paired-reads, single end reads, or de-multiplexed reads directory. There is also a mapping file input requirment which is adapted from <a class="reference external" href="http://qiime.org/documentation/file_formats.html">QIIME Metadata mapping file</a>.  This mapping file contains all of the information about the samples necessary to perform the data analysis. It is in tab-delimited format. In general, the header for this mapping file starts with a pound (#) character, and generally requires a “SampleID”, “BarcodeSequence”, and a “Description”.</p>
+<img alt="_images/qiime_input.png" class="align-center" src="_images/qiime_input.png" />
+<p>Mapping File Example:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="30%" />
+<col width="20%" />
+<col width="32%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">#SampleID</th>
+<th class="head">BarcodeSequence</th>
+<th class="head">SampleType</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Sample1</td>
+<td>ACATACCGTCTA</td>
+<td>Stool</td>
+<td>MiSeq,metagenome</td>
+</tr>
+<tr class="row-odd"><td>Sample2</td>
+<td>ACCATGCGTCTA</td>
+<td>Blood</td>
+<td>MiSeq,clinical</td>
+</tr>
+<tr class="row-even"><td>Control1</td>
+<td>AGCCATCGTCTA</td>
+<td>Control</td>
+<td>Negative</td>
+</tr>
+<tr class="row-odd"><td>Control2</td>
+<td>CGTCTAACCATG</td>
+<td>Control</td>
+<td>Spike-in Control</td>
+</tr>
+</tbody>
+</table>
+<p>When the reads type is “De-multiplexed Reads Directory “, the mapping file needs a ‘Files’ column with <strong>FASTQ</strong> filenames for each sampleID. It can be paired-end or single-end FASTQ file and paired-end FASTQ files are comma-separated.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="40%" />
+<col width="17%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">#SampleID</th>
+<th class="head">Files</th>
+<th class="head">SampleType</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Sample1</td>
+<td>S1.R1.fastq,S1.R2.fastq</td>
+<td>Stool</td>
+<td>MiSeq,metagenome</td>
+</tr>
+<tr class="row-odd"><td>Sample2</td>
+<td>S2.R1.fastq,S2.R2.fastq</td>
+<td>Blood</td>
+<td>MiSeq,clinical</td>
+</tr>
+<tr class="row-even"><td>Control1</td>
+<td>C1.R1.fastq,C1.R2.fastq</td>
+<td>Control</td>
+<td>Negative</td>
+</tr>
+<tr class="row-odd"><td>Control2</td>
+<td>C2.R1.fastq,C2.R2.fastq</td>
+<td>Control</td>
+<td>Spike-in Control</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="run-deteqt">
+<h3>5.3.3. Run DETEQT<a class="headerlink" href="#run-deteqt" title="Permalink to this headline">¶</a></h3>
+<p>Click “Run DETEQT” will cause a section to appear for DETEQT input and parameters. The DETEQT is a pipeline for diagnostic targeted sequencing adjudication. You may find more information from <a class="reference external" href="https://chienchilo.bitbucket.io/targetedNGS/">here</a>. The DETEQT pipeline required user to select a directory, a metadata mapping file and a targeted amplicon references. The metadata mapping file is a tab-delimited file or excel file which header or first row includes #SampleID and Files. In the Files column, the paired-end fastq files are separated by a comma(,) and all the fastq files should be located in the input directory. The reference is comprised of only target regions in FASTA format in the assay.</p>
+<img alt="_images/detect_input.png" class="align-center" src="_images/detect_input.png" />
+<p>Metadata Mapping File example:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">#SampleID</th>
+<th class="head">Files</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Dengue</td>
+<td>sample.1.fq,sample.2.fq</td>
+</tr>
+<tr class="row-odd"><td>Flu</td>
+<td>flu.1.fq,flu.2.fq</td>
+</tr>
+<tr class="row-even"><td>Ebola</td>
+<td>ebola.1.fq,ebola.2.fq</td>
+</tr>
+<tr class="row-odd"><td>MERS</td>
+<td>mers.1.fq,mers.2.fq</td>
+</tr>
+<tr class="row-even"><td>SARS</td>
+<td>sars.1.fq,sars.2.fq</td>
+</tr>
+<tr class="row-odd"><td>Zika</td>
+<td>zika.1.fq,zika.2.fq</td>
+</tr>
+<tr class="row-even"><td>Rota</td>
+<td>rota.1.fq,rota.2.fq</td>
+</tr>
+<tr class="row-odd"><td>HIV</td>
+<td>hiv.1.fq,hiv.2.fq</td>
+</tr>
+<tr class="row-even"><td>Hanta</td>
+<td>hanta.1.fq,hanta.2.fq</td>
+</tr>
+<tr class="row-odd"><td>HCV</td>
+<td>hcv.1.fq,hcv.2.fq</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="run-piret">
+<h3>5.3.4. Run PiReT<a class="headerlink" href="#run-piret" title="Permalink to this headline">¶</a></h3>
+<p>Click “Run PiReT” will cause a section to appear for PiReT input and parameters. The PiReT is a pipeline for Reference based Transcriptomics analysis. You may find more information from <a class="reference external" href="https://github.com/mshakya/PyPiReT">PiReT github</a>. The PiReT pipeline required user to select a directory, a experimental design file and references FASTA and <a class="reference external" href="http://gmod.org/wiki/GFF3">GFF</a> files in the parameters section. The experimental file is a tab-delimited file or excel file which header or first row includes #SampleID, Files, and Group. In the Files column, the paired-end fastq files are separated by a colon(:) and all the fastq files should be located in the input directory. The feature ID in the reference GFF files should be uniqe within the scope of the GFF file.</p>
+<img alt="_images/piret_input.png" class="align-center" src="_images/piret_input.png" />
+<p>Experimental Design File example:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="63%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">#SampleID</th>
+<th class="head">Files</th>
+<th class="head">Group</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>samp1</td>
+<td>samp1_R1.fastq:samp1_R2.fastq</td>
+<td>liver</td>
+</tr>
+<tr class="row-odd"><td>samp2</td>
+<td>samp2_R1.fastq:samp2_R2.fastq</td>
+<td>spleen</td>
+</tr>
+<tr class="row-even"><td>samp3</td>
+<td>samp3_R1.fastq:samp3_R2.fastq</td>
+<td>spleen</td>
+</tr>
+<tr class="row-odd"><td>samp4</td>
+<td>samp4_R1.fastq:samp4_R2.fastq</td>
+<td>liver</td>
+</tr>
+<tr class="row-even"><td>samp5</td>
+<td>samp5_R1.fastq:samp5_R2.fastq</td>
+<td>liver</td>
+</tr>
+<tr class="row-odd"><td>samp6</td>
+<td>samp6_R1.fastq:samp6_R2.fastq</td>
+<td>spleen</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="number-of-cpus">
+<h3>5.3.5. Number of CPUs<a class="headerlink" href="#number-of-cpus" title="Permalink to this headline">¶</a></h3>
+<p>Additionally, you may specify the number of CPUs to be used. The default and minimum value is one-fourth of total number of server CPUs. You may adjust this value if you wish. Assuming your hardware has 64 CPUs, the default is 16 and the maximum you should choose is 62 CPUs. Otherwise, if the jobs currently in progress use the maximum number of CPUs, the new submitted job will be queued (and colored in grey. Color-coding see <a class="reference internal" href="#check-status"><span class="std std-ref">Checking the status of an analysis job</span></a>). For instance, if you have only one job running, you may choose 62 CPUs. However, if you are planning to run 6 different jobs simultaneously, you should divide the computing resources (in this case, 10 CPUs per each job, totaling 60 CPUs for 6 jobs).</p>
+</div>
+<div class="section" id="config-file">
+<h3>5.3.6. Config file<a class="headerlink" href="#config-file" title="Permalink to this headline">¶</a></h3>
+<p>Below the “Use # of CPUs” field is a field where you may select a configuration file. A configuration file is automatically generated for each job when you click “Submit.” This field could be used if you wanted to restart a job that hadn’t finished for some reason (e.g. due to power interruption, etc.). This option ensures that your submission will be run exactly the same way as previously, with all the same options.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="commandline.html#config-example"><span class="std std-ref">Example of config file</span></a></p>
+</div>
+</div>
+<div class="section" id="batch-project-submission">
+<h3>5.3.7. Batch project submission<a class="headerlink" href="#batch-project-submission" title="Permalink to this headline">¶</a></h3>
+<p>The “Batch project submission” section is toggled off by default. Clicking on it will open it up and toggle off the “Input Sequence” section at the same time.
+When you have many samples in “EDGE Input Directory” and would like to run them with the same configuration, instead of submitting several times, you can compile a Excel file with project name, fastq inputs and optional project descriptions (you can download the example excel file and fill it with your own data) and submit through the “Batch project submission” section</p>
+<img alt="_images/batchsubmit.jpg" class="align-center" src="_images/batchsubmit.jpg" />
+</div>
+</div>
+<div class="section" id="choosing-processes-analyses">
+<h2>5.4. Choosing processes/analyses<a class="headerlink" href="#choosing-processes-analyses" title="Permalink to this headline">¶</a></h2>
+<p>Once you have selected the input files and assigned a project name and description, you may either click “Submit” to submit an analysis job using the default parameters, or you may change various parameters prior to submitting the job. The default settings include quality filter and trimming, assembly, annotation, and community profiling. Therefore, if you choose to use default parameters, the analysis will provide an assessment of what organism(s) your sample is composed of, but will not include host removal, primer design, etc.
+Below the “Input Your Sample” section is a section called “Choose Processes / Analyses”. It is in this section that you may modify parameters if you would like to use settings other than the default settings for your analysis (discussed in detail below).</p>
+<img alt="_images/modules.jpg" class="align-center" src="_images/modules.jpg" />
+<div class="section" id="pre-processing">
+<h3>5.4.1. Pre-processing<a class="headerlink" href="#pre-processing" title="Permalink to this headline">¶</a></h3>
+<p>Pre-processing is by default on, but can be turned off via the toggle switch on the right hand side. The default parameters should be sufficient for most cases. However, if your experiment involves specialized adapter sequences that need to be trimmed, you may do so in the Quality Trim and Filter subsection.
+There are two options for adapter trimming. You may either supply a FASTA file containing the adapter sequences to be trimmed, or you may specify N number of bases to be trimmed from either end of each read.</p>
+<img alt="_images/qc.jpg" class="align-center" src="_images/qc.jpg" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Trim Quality Level can be used to trim reads from both ends with defined quality.  “N” base cutoff can be used to filter reads which have more than this number of continuous base “N”. Low complexity is defined by the fraction of mono-/di-nucleotide sequence. Ref: <a class="reference external" href="https://github.com/LANL-Bioinformatics/FaQCs">FaQCs</a>.</p>
+</div>
+<p>The host removal subsection allows you to subtract host-derived reads from your dataset, which can be useful for metagenomic (complex) samples such as clinical samples (blood, tissue), or environmental samples like insects.
+In order to enable host removal, within the “Host Removal” subsection of the “Choose Processes / Analyses” section, switch the toggle box to “On” and select either from the pre-build host list ( <a class="reference external" href="ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/Assembled_chromosomes/seq/">Human</a> , <a class="reference external" href="https://www.vectorbase.org">Invertebrate Vectors of Human Pathogens</a> , <a class="reference external" href="http://www.ncbi.nlm.nih.gov/nuccore/NC_001422">PhiX</a> , <a class="reference external" href="ftp://ftp.ncbi.nih.gov/genomes/Bacteria/">RefSeq Bacteria</a> and <a class="reference external" href="ftp://ftp.ncbi.nih.gov/genomes/Viruses">RefSeq Viruses</a> .) or the appropriate host FASTA file for your experiment from the navigation field.
+The Similarity (%) can be varied if desired, but the default is 90 and we would not recommend using a value less than 90.</p>
+</div>
+<div class="section" id="assembly-and-annotation">
+<h3>5.4.2. Assembly And Annotation<a class="headerlink" href="#assembly-and-annotation" title="Permalink to this headline">¶</a></h3>
+<p>The Assembly option by default is turned on. It can be turned off via the toggle button. EDGE performs iterative kmers de novo assembly by <a class="reference external" href="http://i.cs.hku.hk/~alse/hkubrg/projects/idba_ud/">IDBA-UD</a> . It performs well on isolates as well as metagenomes but it may not work well on very large genomes. By default, it starts from kmer=31 and iterative step by adding 20 to maximum kmer=121. When the maximum k value is larger than the input average reads length, it will automatically adjust the maximum value to average reads length minus 1. User can set the minimum cutoff value on the final contigs. By default, it will filter out all contigs with size smaller than 200 bp.</p>
+<img alt="_images/assembly.jpg" class="align-center" src="_images/assembly.jpg" />
+<p>The Annotation module will be performed only if the assembly option is turned on and reads were successfully assembled. EDGE has the option of using <a class="reference external" href="http://www.vicbioinformatics.com/software.prokka.shtml">Prokka</a> or <a class="reference external" href="http://ratt.sourceforge.net/">RATT</a> to do genome annotation. For most cases, Prokka is the appropriate tool to use, however, if your input is a viral genome with attached reference annotation (GenBank file), RATT is the preferred method. If for some reason the assembly fails (ex: run out of Memory), EDGE will bypass any modules requiring a contigs file including the annotation analysis.</p>
+</div>
+<div class="section" id="reference-based-analysis">
+<h3>5.4.3. Reference-based Analysis<a class="headerlink" href="#reference-based-analysis" title="Permalink to this headline">¶</a></h3>
+<p>The reference-based analysis section allows you to map reads/contigs to the provided references, which can be useful for known isolated species such as cultured samples, to get the coverage information and validate the assembled contigs.
+In order to enable reference-based analysis, switch the toggle box to “On” and select either from the pre-build Reference list ( <a class="reference internal" href="database.html#ebola-ref-list"><span class="std std-ref">Ebola virus genomes</span></a> , <a class="reference external" href="http://www.ncbi.nlm.nih.gov/nuccore/NC_011748">E.coli 55989</a> , <a class="reference external" href="http://www.ncbi.nlm.nih.gov/nuccore/NC_018658">E.coli O104H4</a> , <a class="reference external" href="http://www.ncbi.nlm.nih.gov/nuccore/NC_011601">E.coli O127H6</a> and <a class="reference external" href="http://www.ncbi.nlm.nih.gov/nuccore/NC_000913">E.coli K12 MG1655</a> .) or the appropriate FASTA/GenBank file for your experiment from the navigation field.</p>
+<img alt="_images/analysis.jpg" class="align-center" src="_images/analysis.jpg" />
+<p>Given a reference genome fasta file, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. If a GenBank file is provided, EDGE will also turn on variant analysis.</p>
+</div>
+<div class="section" id="taxonomy-classification">
+<h3>5.4.4. Taxonomy Classification<a class="headerlink" href="#taxonomy-classification" title="Permalink to this headline">¶</a></h3>
+<p>Taxonomic profiling is performed via the “Taxonomy Classification” feature. This is a useful feature not only for complex samples, but also for purified microbial samples (to detect contamination). In the “Community profiling” subsection in the “Choose Processes / Analyses section,” community profiling can be turned on or off via the toggle button.</p>
+<img alt="_images/classification.jpg" class="align-center" src="_images/classification.jpg" />
+<p>There is an option to “Always use all reads” or not. If “Always use all reads” is not selected, then only those reads that do not map to the user-supplied reference will be shown in downstream analyses (i.e. the results will only include what is different from the reference).
+Additionally, the user can use different profiling tools with checkbox selection menu. EDGE uses multiple tools for taxonomy classification including <a class="reference external" href="https://github.com/LANL-Bioinformatics/GOTTCHA">GOTTCHA (bacterial &amp; viral databases)</a> , <a class="reference external" href="http://huttenhower.sph.harvard.edu/metaphlan">MetaPhlAn</a> , <a class="reference external" href="http://ccb.jhu.edu/software/kraken/">Kraken</a> and reads mapping to NCBI RefSeq using <a class="reference external" href="http://bio-bwa.sourceforge.net/">BWA</a> .</p>
+<p>Turning on the “Contig-Based Taxonomy Classification” section will initiate mapping contigs against NCBI databases for taxonomy and functional annotations.</p>
+</div>
+<div class="section" id="phylogenomic-analysis">
+<h3>5.4.5. Phylogenomic Analysis<a class="headerlink" href="#phylogenomic-analysis" title="Permalink to this headline">¶</a></h3>
+<p>EDGE supports 5 pre-computed pathogen databases ( <a class="reference internal" href="database.html#snp-db"><span class="std std-ref">E.coli, Yersinia, Francisella, Brucella, Bacillus</span></a>) for SNP phylogeny analysis. You can also choose to build your own database by first selecting a build method (either FastTree or RAxML), then selecting a pathogen from the “Search Genomes” search function. You can also add FASTA files or SRA Accessions.</p>
+<img alt="_images/phylogeny.jpg" class="align-center" src="_images/phylogeny.jpg" />
+</div>
+<div class="section" id="specialty-genes-profiling">
+<h3>5.4.6. Specialty Genes Profiling<a class="headerlink" href="#specialty-genes-profiling" title="Permalink to this headline">¶</a></h3>
+<p>For specialty gene analysis, the user selects read-based analysis and/or ORF(contig)-based analysis.</p>
+<img alt="_images/specialtygenes.png" class="align-center" src="_images/specialtygenes.png" />
+<p>For read-based analysis antibiotic resistance genes and virulence genes are detected using <a class="reference external" href="https://huttenhower.sph.harvard.edu/shortbred">Huttenhower lab’s progam ShortBRED</a>. The antibiotic resistance gene database was generated by the developers of ShortBRED using genes from <a class="reference external" href="http://ardb.cbcb.umd.edu/">ARDB</a> and <a class="reference external" href="http://www.dantaslab.org/resfams/">Resfams</a>. The virulence genes database was generated by the developers of EDGE using <a class="reference external" href="http://www.mgc.ac.cn/VFs/main.htm">VFDB</a>.</p>
+<p>For ORF-based analysis, antibiotic resistance genes are detected using <a class="reference external" href="https://card.mcmaster.ca/">CARD’s (Comprehensive Antibiotic Resistance Database)</a> program <a class="reference external" href="https://card.mcmaster.ca/analyze/rgi">RGI (Resistance Gene Identifier)</a>. RGI uses CARD’s custom database of antibiotic resistance genes. The virulence genes are detected using ShortBRED with a database generated by the developers of EDGE using <a class="reference external" href="http://www.mgc.ac.cn/VFs/main.htm">VFDB</a>.</p>
+</div>
+<div class="section" id="pcr-primer-tools">
+<h3>5.4.7. PCR Primer Tools<a class="headerlink" href="#pcr-primer-tools" title="Permalink to this headline">¶</a></h3>
+<p>EDGE includes PCR-related tools for use by those who want to use PCR data for their projects.</p>
+<img alt="_images/pcr.jpg" class="align-center" src="_images/pcr.jpg" />
+<ul>
+<li><p class="first"><strong>Primer Validation</strong></p>
+<p>The “Primer Validation” tool can be used to verify whether and where given primer sequences would align to the genome of the sequenced organism. Prior to initiating the analysis, primer sequences in FASTA format must be deposited in the folder on the desktop in the directory entitled “EDGE Input Directory.”</p>
+<blockquote>
+<div><p>In order to initiate primer validation, within the “Primer Validation” subsection switch the “Run Primer Validation” toggle button to “On”. Then, within the “Primer FASTA Sequences” navigation field, select your file containing the primer sequences of interest. Next, in the “Maximum Mismatch” field, choose the maximum number of mismatches you wish to allow per primer sequence. The available options are 0, 1, 2, 3, or 4.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>Primer Design</strong></p>
+<p>If you would like to design new primers that will differentiate a sequenced microorganism from all other bacteria and viruses in NCBI, you can do so using the “Primer Design” tool. To initiate primer design switch the “Run Primer Design” toggle button to “On”. There are default settings supplied for Melting Temperature, Primer Length, Tm Differential, and Number of Primer Pairs, but you can change these settings if desired.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submission-of-a-job">
+<h2>5.5. Submission of a job<a class="headerlink" href="#submission-of-a-job" title="Permalink to this headline">¶</a></h2>
+<p>When you have selected the appropriate input files and desired analysis options, and you are ready to submit the analysis job, click on the “Submit” button at the bottom of the page. Immediately you will see indicators of successful job submission and job status below the submit button, in green. If there is something wrong with the input, it will stop the submission and show the message in red, highlighting the sections with issues.</p>
+<img alt="_images/submission.jpg" class="align-center" src="_images/submission.jpg" />
+</div>
+<div class="section" id="checking-the-status-of-an-analysis-job">
+<span id="check-status"></span><h2>5.6. Checking the status of an analysis job<a class="headerlink" href="#checking-the-status-of-an-analysis-job" title="Permalink to this headline">¶</a></h2>
+<p>Once an analysis job has been submitted, it will become visible in the left navigation bar. There is a grey, red, orange, green color-coding system that indicates job status as follow:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="7%" />
+<col width="24%" />
+<col width="14%" />
+<col width="35%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Status</th>
+<th class="head"><span class="grey">Not yet begun</span></th>
+<th class="head"><span class="red">Error</span></th>
+<th class="head"><span class="orange">In progress (running)</span></th>
+<th class="head"><span class="green">Completed</span></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Color</td>
+<td><span class="grey">Grey</span></td>
+<td><span class="red">Red</span></td>
+<td><span class="orange">Orange</span></td>
+<td><span class="green">Green</span></td>
+</tr>
+</tbody>
+</table>
+<p>While the job is in progress, clicking on the project in the left navigation bar will allow you to see which individual steps have been completed or are in progress, and results that have already been produced. Clicking the job progress widget at top right opens up a more concise view of progress.</p>
+<img alt="_images/status.jpg" class="align-center" src="_images/status.jpg" />
+<img alt="_images/status2.jpg" class="align-center" src="_images/status2.jpg" />
+</div>
+<div class="section" id="monitoring-the-resource-usage">
+<h2>5.7. Monitoring the Resource Usage<a class="headerlink" href="#monitoring-the-resource-usage" title="Permalink to this headline">¶</a></h2>
+<p>In the job project sidebar, you can see there is an “EDGE Server Usage” widget that dynamically monitors the server resource usage for %CPU, %MEMORY and %DISK space.  If there is not enough available disk space, you may consider deleting or archiving the submitted job with the Action tool described below.</p>
+<img alt="_images/resource.jpg" class="align-center" src="_images/resource.jpg" />
+</div>
+<div class="section" id="management-of-jobs">
+<h2>5.8. Management of Jobs<a class="headerlink" href="#management-of-jobs" title="Permalink to this headline">¶</a></h2>
+<p>Below the resource monitor is the “Action” tool, used for managing jobs in progress or existing projects.</p>
+<img alt="_images/action.jpg" class="align-center" src="_images/action.jpg" />
+<p>The available actions are:</p>
+<ul class="simple">
+<li><strong>View live log</strong>
+A terminal-like screen showing all the command lines and progress log information. This is useful for troubleshooting or if you want to repeat certain functions through command line at edge server.</li>
+<li><strong>Force to rerun this project</strong>
+Rerun a project with the same inputs and configuration. No additional input needs.</li>
+<li><strong>Interrupt running project</strong>
+Immediately stop a running project.</li>
+<li><strong>Delete entire project</strong>
+Delete the entire output directory of the project.</li>
+<li><strong>Remove from project list</strong>
+Keep the output but remove project name from the project list</li>
+<li><strong>Empty project outputs</strong>
+Clean all the results but keep the config file. User can use this function to do a clean rerun.</li>
+<li><strong>Move to an archive directory</strong>
+For performance reasons, the output directory will be put in local storage. User can use this function to move projects from local storage to a slower but larger network storage, which are configured when the edge server is installed.</li>
+<li><strong>Share Project</strong>
+Allow guests and other users to view the project.</li>
+<li><strong>Make project Private/Public</strong>
+Restrict access to viewing the project to only yourself. Or open it everyone.</li>
+</ul>
+</div>
+<div class="section" id="project-list-table">
+<h2>5.9. Project List Table<a class="headerlink" href="#project-list-table" title="Permalink to this headline">¶</a></h2>
+<p>When you click “My Project List”, all your projects or projects shared to you will show in a table. It lists the projects status, submission time, running time, type and owner. User can select one or more jobs from the checkbox in the project table and perform actions similar to “Action” Widget described in the previous section. The action will apply to all checked projects.</p>
+<img alt="_images/projectlist.png" class="align-center" src="_images/projectlist.png" />
+<p>When mouse over the action buttons on the project list page, it will show a pop up info for the action buttons. There is a special action button for multiple projects, “Compare Selected Projects Taxonomy Classification (HeatMap)” which will draw heatmaps of taxonomy profiling results for multiple projects using <a class="reference external" href="https://github.com/seninp-bioinfo/MetaComp">MetaComp</a>.</p>
+<img alt="_images/projectlistactions.png" class="align-center" src="_images/projectlistactions.png" />
+</div>
+<div class="section" id="other-methods-of-accessing-edge">
+<h2>5.10. Other Methods of Accessing EDGE<a class="headerlink" href="#other-methods-of-accessing-edge" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="internal-python-web-server">
+<h3>5.10.1. Internal Python Web Server<a class="headerlink" href="#internal-python-web-server" title="Permalink to this headline">¶</a></h3>
+<p>EDGE includes a simple web server for single-user applications or other testing.  It is not robust enough for production usage, but it is simple enough that it can be run on practically any system.</p>
+<p>To run gui, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$EDGE_HOME/start_edge_ui.sh
+</pre></div>
+</div>
+<p>This will start a localhost and the GUI html page will be opened by your default browser.</p>
+</div>
+<div class="section" id="apache-web-server">
+<h3>5.10.2. Apache Web Server<a class="headerlink" href="#apache-web-server" title="Permalink to this headline">¶</a></h3>
+<p>The preferred installation of EDGE uses Apache 2 (See <a class="reference internal" href="installation.html#apache-configuration"><span class="std std-ref">Testing the EDGE Installation</span></a>), and serves the application as a proper system service.  A sample httpd.conf (or apache2.conf, depending on your operating system) is provided in the root directory of your installation.  If this configuration is used, EDGE will be available on any IP or hostname registered to the machine, on ports 80 and 8080.</p>
+<p>You can access EDGE by opening either the desktop link (below), or your browser, and entering <a class="reference external" href="http://localhost:80">http://localhost:80</a> in the address bar.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the desktop environment is available, after installation, a “Start EDGE UI” icon should be on the desktop. Click on the green icon and choose “Run in Terminal.” Results should be the same as those obtained by the above method to start the GUI.</p>
+</div>
+<a class="reference internal image-reference" href="_images/edge_desktop_icon.png"><img alt="_images/edge_desktop_icon.png" src="_images/edge_desktop_icon.png" style="width: 200px;" /></a>
+<img alt="_images/start_ui_in_terminal.png" src="_images/start_ui_in_terminal.png" />
+<p>The URL address is 127.0.0.1:8080/index.html. It may not be that powerful,as it is hosted by Apache HTTP Server, but it works. With system administrator help, the Apache HTTP Server is the suggested method to host the gui interface.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You may need to configure the edge_wwwroot and input and output in the edge_ui/edge_config.tmpl file while configuring the Apache HTTP Server and link to external drive or network drive if needed.</p>
+</div>
+<p>A Terminal window will display messages and errors as you run EDGE. Under normal operating conditions you can minimize this window. Should an error/problem arise, you may maximize this window to view the error.</p>
+<img alt="_images/Terminal_log.png" class="align-center" src="_images/Terminal_log.png" />
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">IMPORTANT: Do not close this window!</p>
+</div>
+<p>The Browser window is the window in which you will interact with EDGE.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="commandline.html" class="btn btn-neutral float-right" title="6. Command Line Interface (CLI)">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="4. Installation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

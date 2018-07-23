@@ -1,0 +1,109 @@
+.. _sys_requirement:
+
+System requirements
+###################
+NOTE: There is a demo version of EDGE, found on https://bioedge.lanl.gov/edge_ui/ is run on our own internal servers and is recommended only for testing and demo purposes only.
+
+The current version of the EDGE pipeline has been extensively tested on a Linux Server with Ubuntu 14.04 and CentOS 6.5/7 operating system and will work on 64bit Linux environments. Perl v5.8 or above is required.
+
+Hardware Requirements
+=====================
+Due to the involvement of several high memory and high cpu consuming steps
+Minimum requirement: 24GB memory and at least 8 computing CPUs.
+A higher computer spec is strongly recommended: 256GB memory and 64 computing CPUs.
+Please ensure that your system has the essential software packages installed properly before running the installing script.
+The following should be installed by a system administrator (requires sudo).
+
+.. note:: If your system OS is neither Ubuntu 14.04 or Centos 6.5 or 7.0, it may have differnt packages/libraries name and the newer complier (gcc5) on newer OS (ex: Ubuntu 16.04) may fail on compling some of thirdparty bioinformatics tools. We would suggest to use EDGE `VMware image <installation.html#edge-vmware-ovf-image>`_ or `Docker container <installation.html#edge-docker-image>`_.  
+
+Ubuntu 14.04 
+============
+
+.. image:: https://assets.ubuntu.com/v1/8dd99b80-ubuntu-logo14.png
+    :width: 200px
+
+1. Install build essential libraries and dependancies::
+ 
+    sudo apt-get -y update
+    sudo apt-get install -y build-essential libreadline-gplv2-dev libx11-dev \
+      libxt-dev libgsl0-dev libfreetype6-dev libncurses5-dev gfortran \
+      inkscape libwww-perl libxml-libxml-perl libperlio-gzip-perl  \
+      zlib1g-dev zip unzip libjson-perl libpng12-dev cpanminus default-jre \
+      firefox wget curl csh liblapack-dev libblas-dev libatlas-dev \
+      libcairo2-dev libssh2-1-dev libssl-dev libcurl4-openssl-dev bzip2 \
+      bioperl rsync libbz2-dev liblzma-dev time libterm-readkey-perl \
+      liblwp-protocol-https-perl gnuplot libjson-xs-perl libio-socket-ip-perl
+    
+2. Install Apache2 for EDGE UI::
+    
+    sudo apt-get install apache2
+    sudo a2enmod cgid proxy proxy_http headers
+
+3. Install packages for user management system::
+
+    sudo apt-get install sendmail mysql-client mysql-server phpMyAdmin tomcat7
+
+CentOS 7
+========
+
+.. image:: https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Centos_full.svg/200px-Centos_full.svg.png
+    :width: 200px
+
+1. Install libraries and dependencies by yum::
+
+    # add epel reporsitory 
+    sudo yum -y install epel-release
+    
+    sudo yum install -y libX11-devel readline-devel libXt-devel ncurses-devel inkscape \ 
+        expat expat-devel freetype freetype-devel zlib zlib-devel perl-App-cpanminus \
+        perl-Test-Most blas-devel atlas-devel lapack-devel libpng12 libpng12-devel \
+        perl-XML-Simple perl-JSON csh gcc gcc-c++ make binutils gd gsl-devel git graphviz \
+        java-1.7.0-openjdk perl-Archive-Zip perl-CGI curl perl-CGI-Session \
+        perl-CPAN-Meta-YAML perl-DBI perl-Data-Dumper perl-GD perl-IO-Compress \
+        perl-Module-Build perl-XML-LibXML perl-XML-Parser perl-XML-SAX perl-XML-SAX-Writer \
+        perl-XML-Twig perl-XML-Writer perl-YAML perl-PerlIO-gzip libstdc++-static \
+        cairo-devel openssl-devel openssl-static libssh2-devel libcurl-devel \
+        wget rsync bzip2 bzip2-devel xz-devel time zip unzip which perl-CPAN \
+        perl-LWP-Protocol-https cronie gnuplot perl-JSON-XS perl-IO-Socket-IP
+        
+2. Update perl tools::
+    
+    sudo cpanm App::cpanoutdated
+    sudo su -
+    cpan-outdated -p | cpanm
+    exit
+
+3. Install perl modules by cpanm::
+    
+    sudo cpanm -f Bio::Perl Net::Ping
+    sudo cpanm Graph Time::Piece Hash::Merge PerlIO::gzip Heap::Simple::XS File::Next
+    sudo cpanm Algorithm::Munkres Archive::Tar Array::Compare Clone Convert::Binary::C
+    sudo cpanm HTML::Template HTML::TableExtract List::MoreUtils PostScript::TextBlock
+    sudo cpanm SOAP::Lite SVG SVG::Graph Set::Scalar Sort::Naturally Spreadsheet::ParseExcel
+    sudo cpanm CGI::Simple GraphViz XML::Parser::PerlSAX XML::Simple Term::ReadKey
+
+4. Install package for httpd for EDGE UI::
+    
+    sudo yum -y install httpd
+    sudo systemctl enable httpd && sudo systemctl start httpd
+  
+5. Install packages for user management system::
+    
+    sudo yum -y install sendmail mariadb-server mariadb php phpMyAdmin tomcat
+    sudo systemctl enable tomcat && sudo systemctl start tomcat
+
+6. Configure firewall for ssh, http, https, and smtp::
+    
+    sudo firewall-cmd --permanent --add-service=ssh
+    sudo firewall-cmd --permanent --add-service=http
+    sudo firewall-cmd --permanent --add-service=https
+    sudo firewall-cmd --permanent --add-service=smtp
+    sudo firewall-cmd --reload
+
+7. Disable SELinux::
+
+    As root edit /etc/selinux/config and set SELINUX=disabled
+	
+	Restart the server to make the change
+
+

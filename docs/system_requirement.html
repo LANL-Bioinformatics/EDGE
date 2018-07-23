@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>3. System requirements &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="4. Installation" href="installation.html"/>
+        <link rel="prev" title="2. Introduction" href="introduction.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="third_party.html">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="third_party.html#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>3. System requirements</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/system_requirement.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="system-requirements">
+<span id="sys-requirement"></span><h1>3. System requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h1>
+<p>NOTE: There is a demo version of EDGE, found on <a class="reference external" href="https://bioedge.lanl.gov/edge_ui/">https://bioedge.lanl.gov/edge_ui/</a> is run on our own internal servers and is recommended only for testing and demo purposes only.</p>
+<p>The current version of the EDGE pipeline has been extensively tested on a Linux Server with Ubuntu 14.04 and CentOS 6.5/7 operating system and will work on 64bit Linux environments. Perl v5.8 or above is required.</p>
+<div class="section" id="hardware-requirements">
+<h2>3.1. Hardware Requirements<a class="headerlink" href="#hardware-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Due to the involvement of several high memory and high cpu consuming steps
+Minimum requirement: 24GB memory and at least 8 computing CPUs.
+A higher computer spec is strongly recommended: 256GB memory and 64 computing CPUs.
+Please ensure that your system has the essential software packages installed properly before running the installing script.
+The following should be installed by a system administrator (requires sudo).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your system OS is neither Ubuntu 14.04 or Centos 6.5 or 7.0, it may have differnt packages/libraries name and the newer complier (gcc5) on newer OS (ex: Ubuntu 16.04) may fail on compling some of thirdparty bioinformatics tools. We would suggest to use EDGE <a class="reference external" href="installation.html#edge-vmware-ovf-image">VMware image</a> or <a class="reference external" href="installation.html#edge-docker-image">Docker container</a>.</p>
+</div>
+</div>
+<div class="section" id="ubuntu-14-04">
+<h2>3.2. Ubuntu 14.04<a class="headerlink" href="#ubuntu-14-04" title="Permalink to this headline">¶</a></h2>
+<a class="reference internal image-reference" href="https://assets.ubuntu.com/v1/8dd99b80-ubuntu-logo14.png"><img alt="https://assets.ubuntu.com/v1/8dd99b80-ubuntu-logo14.png" src="https://assets.ubuntu.com/v1/8dd99b80-ubuntu-logo14.png" style="width: 200px;" /></a>
+<ol class="arabic">
+<li><p class="first">Install build essential libraries and dependancies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libreadline</span><span class="o">-</span><span class="n">gplv2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libx11</span><span class="o">-</span><span class="n">dev</span> \
+  <span class="n">libxt</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgsl0</span><span class="o">-</span><span class="n">dev</span> <span class="n">libfreetype6</span><span class="o">-</span><span class="n">dev</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">gfortran</span> \
+  <span class="n">inkscape</span> <span class="n">libwww</span><span class="o">-</span><span class="n">perl</span> <span class="n">libxml</span><span class="o">-</span><span class="n">libxml</span><span class="o">-</span><span class="n">perl</span> <span class="n">libperlio</span><span class="o">-</span><span class="n">gzip</span><span class="o">-</span><span class="n">perl</span>  \
+  <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="nb">zip</span> <span class="n">unzip</span> <span class="n">libjson</span><span class="o">-</span><span class="n">perl</span> <span class="n">libpng12</span><span class="o">-</span><span class="n">dev</span> <span class="n">cpanminus</span> <span class="n">default</span><span class="o">-</span><span class="n">jre</span> \
+  <span class="n">firefox</span> <span class="n">wget</span> <span class="n">curl</span> <span class="n">csh</span> <span class="n">liblapack</span><span class="o">-</span><span class="n">dev</span> <span class="n">libblas</span><span class="o">-</span><span class="n">dev</span> <span class="n">libatlas</span><span class="o">-</span><span class="n">dev</span> \
+  <span class="n">libcairo2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libssh2</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">dev</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">libcurl4</span><span class="o">-</span><span class="n">openssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">bzip2</span> \
+  <span class="n">bioperl</span> <span class="n">rsync</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span> <span class="n">time</span> <span class="n">libterm</span><span class="o">-</span><span class="n">readkey</span><span class="o">-</span><span class="n">perl</span> \
+  <span class="n">liblwp</span><span class="o">-</span><span class="n">protocol</span><span class="o">-</span><span class="n">https</span><span class="o">-</span><span class="n">perl</span> <span class="n">gnuplot</span> <span class="n">libjson</span><span class="o">-</span><span class="n">xs</span><span class="o">-</span><span class="n">perl</span> <span class="n">libio</span><span class="o">-</span><span class="n">socket</span><span class="o">-</span><span class="n">ip</span><span class="o">-</span><span class="n">perl</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install Apache2 for EDGE UI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">apache2</span>
+<span class="n">sudo</span> <span class="n">a2enmod</span> <span class="n">cgid</span> <span class="n">proxy</span> <span class="n">proxy_http</span> <span class="n">headers</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install packages for user management system:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">sendmail</span> <span class="n">mysql</span><span class="o">-</span><span class="n">client</span> <span class="n">mysql</span><span class="o">-</span><span class="n">server</span> <span class="n">phpMyAdmin</span> <span class="n">tomcat7</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="centos-7">
+<h2>3.3. CentOS 7<a class="headerlink" href="#centos-7" title="Permalink to this headline">¶</a></h2>
+<a class="reference internal image-reference" href="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Centos_full.svg/200px-Centos_full.svg.png"><img alt="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Centos_full.svg/200px-Centos_full.svg.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Centos_full.svg/200px-Centos_full.svg.png" style="width: 200px;" /></a>
+<ol class="arabic">
+<li><p class="first">Install libraries and dependencies by yum:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># add epel reporsitory</span>
+<span class="n">sudo</span> <span class="n">yum</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">epel</span><span class="o">-</span><span class="n">release</span>
+
+<span class="n">sudo</span> <span class="n">yum</span> <span class="n">install</span> <span class="o">-</span><span class="n">y</span> <span class="n">libX11</span><span class="o">-</span><span class="n">devel</span> <span class="n">readline</span><span class="o">-</span><span class="n">devel</span> <span class="n">libXt</span><span class="o">-</span><span class="n">devel</span> <span class="n">ncurses</span><span class="o">-</span><span class="n">devel</span> <span class="n">inkscape</span> \
+    <span class="n">expat</span> <span class="n">expat</span><span class="o">-</span><span class="n">devel</span> <span class="n">freetype</span> <span class="n">freetype</span><span class="o">-</span><span class="n">devel</span> <span class="n">zlib</span> <span class="n">zlib</span><span class="o">-</span><span class="n">devel</span> <span class="n">perl</span><span class="o">-</span><span class="n">App</span><span class="o">-</span><span class="n">cpanminus</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">Test</span><span class="o">-</span><span class="n">Most</span> <span class="n">blas</span><span class="o">-</span><span class="n">devel</span> <span class="n">atlas</span><span class="o">-</span><span class="n">devel</span> <span class="n">lapack</span><span class="o">-</span><span class="n">devel</span> <span class="n">libpng12</span> <span class="n">libpng12</span><span class="o">-</span><span class="n">devel</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">Simple</span> <span class="n">perl</span><span class="o">-</span><span class="n">JSON</span> <span class="n">csh</span> <span class="n">gcc</span> <span class="n">gcc</span><span class="o">-</span><span class="n">c</span><span class="o">++</span> <span class="n">make</span> <span class="n">binutils</span> <span class="n">gd</span> <span class="n">gsl</span><span class="o">-</span><span class="n">devel</span> <span class="n">git</span> <span class="n">graphviz</span> \
+    <span class="n">java</span><span class="o">-</span><span class="mf">1.7</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="n">openjdk</span> <span class="n">perl</span><span class="o">-</span><span class="n">Archive</span><span class="o">-</span><span class="n">Zip</span> <span class="n">perl</span><span class="o">-</span><span class="n">CGI</span> <span class="n">curl</span> <span class="n">perl</span><span class="o">-</span><span class="n">CGI</span><span class="o">-</span><span class="n">Session</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">CPAN</span><span class="o">-</span><span class="n">Meta</span><span class="o">-</span><span class="n">YAML</span> <span class="n">perl</span><span class="o">-</span><span class="n">DBI</span> <span class="n">perl</span><span class="o">-</span><span class="n">Data</span><span class="o">-</span><span class="n">Dumper</span> <span class="n">perl</span><span class="o">-</span><span class="n">GD</span> <span class="n">perl</span><span class="o">-</span><span class="n">IO</span><span class="o">-</span><span class="n">Compress</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">Module</span><span class="o">-</span><span class="n">Build</span> <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">LibXML</span> <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">Parser</span> <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">SAX</span> <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">SAX</span><span class="o">-</span><span class="n">Writer</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">Twig</span> <span class="n">perl</span><span class="o">-</span><span class="n">XML</span><span class="o">-</span><span class="n">Writer</span> <span class="n">perl</span><span class="o">-</span><span class="n">YAML</span> <span class="n">perl</span><span class="o">-</span><span class="n">PerlIO</span><span class="o">-</span><span class="n">gzip</span> <span class="n">libstdc</span><span class="o">++-</span><span class="n">static</span> \
+    <span class="n">cairo</span><span class="o">-</span><span class="n">devel</span> <span class="n">openssl</span><span class="o">-</span><span class="n">devel</span> <span class="n">openssl</span><span class="o">-</span><span class="n">static</span> <span class="n">libssh2</span><span class="o">-</span><span class="n">devel</span> <span class="n">libcurl</span><span class="o">-</span><span class="n">devel</span> \
+    <span class="n">wget</span> <span class="n">rsync</span> <span class="n">bzip2</span> <span class="n">bzip2</span><span class="o">-</span><span class="n">devel</span> <span class="n">xz</span><span class="o">-</span><span class="n">devel</span> <span class="n">time</span> <span class="nb">zip</span> <span class="n">unzip</span> <span class="n">which</span> <span class="n">perl</span><span class="o">-</span><span class="n">CPAN</span> \
+    <span class="n">perl</span><span class="o">-</span><span class="n">LWP</span><span class="o">-</span><span class="n">Protocol</span><span class="o">-</span><span class="n">https</span> <span class="n">cronie</span> <span class="n">gnuplot</span> <span class="n">perl</span><span class="o">-</span><span class="n">JSON</span><span class="o">-</span><span class="n">XS</span> <span class="n">perl</span><span class="o">-</span><span class="n">IO</span><span class="o">-</span><span class="n">Socket</span><span class="o">-</span><span class="n">IP</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Update perl tools:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">App</span><span class="p">::</span><span class="n">cpanoutdated</span>
+<span class="n">sudo</span> <span class="n">su</span> <span class="o">-</span>
+<span class="n">cpan</span><span class="o">-</span><span class="n">outdated</span> <span class="o">-</span><span class="n">p</span> <span class="o">|</span> <span class="n">cpanm</span>
+<span class="n">exit</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install perl modules by cpanm:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">cpanm</span> <span class="o">-</span><span class="n">f</span> <span class="n">Bio</span><span class="p">::</span><span class="n">Perl</span> <span class="n">Net</span><span class="p">::</span><span class="n">Ping</span>
+<span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">Graph</span> <span class="n">Time</span><span class="p">::</span><span class="n">Piece</span> <span class="n">Hash</span><span class="p">::</span><span class="n">Merge</span> <span class="n">PerlIO</span><span class="p">::</span><span class="n">gzip</span> <span class="n">Heap</span><span class="p">::</span><span class="n">Simple</span><span class="p">::</span><span class="n">XS</span> <span class="n">File</span><span class="p">::</span><span class="n">Next</span>
+<span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">Algorithm</span><span class="p">::</span><span class="n">Munkres</span> <span class="n">Archive</span><span class="p">::</span><span class="n">Tar</span> <span class="n">Array</span><span class="p">::</span><span class="n">Compare</span> <span class="n">Clone</span> <span class="n">Convert</span><span class="p">::</span><span class="n">Binary</span><span class="p">::</span><span class="n">C</span>
+<span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">HTML</span><span class="p">::</span><span class="n">Template</span> <span class="n">HTML</span><span class="p">::</span><span class="n">TableExtract</span> <span class="n">List</span><span class="p">::</span><span class="n">MoreUtils</span> <span class="n">PostScript</span><span class="p">::</span><span class="n">TextBlock</span>
+<span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">SOAP</span><span class="p">::</span><span class="n">Lite</span> <span class="n">SVG</span> <span class="n">SVG</span><span class="p">::</span><span class="n">Graph</span> <span class="n">Set</span><span class="p">::</span><span class="n">Scalar</span> <span class="n">Sort</span><span class="p">::</span><span class="n">Naturally</span> <span class="n">Spreadsheet</span><span class="p">::</span><span class="n">ParseExcel</span>
+<span class="n">sudo</span> <span class="n">cpanm</span> <span class="n">CGI</span><span class="p">::</span><span class="n">Simple</span> <span class="n">GraphViz</span> <span class="n">XML</span><span class="p">::</span><span class="n">Parser</span><span class="p">::</span><span class="n">PerlSAX</span> <span class="n">XML</span><span class="p">::</span><span class="n">Simple</span> <span class="n">Term</span><span class="p">::</span><span class="n">ReadKey</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install package for httpd for EDGE UI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">yum</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">httpd</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">httpd</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">httpd</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Install packages for user management system:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">yum</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">sendmail</span> <span class="n">mariadb</span><span class="o">-</span><span class="n">server</span> <span class="n">mariadb</span> <span class="n">php</span> <span class="n">phpMyAdmin</span> <span class="n">tomcat</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">tomcat</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">tomcat</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Configure firewall for ssh, http, https, and smtp:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">firewall</span><span class="o">-</span><span class="n">cmd</span> <span class="o">--</span><span class="n">permanent</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">service</span><span class="o">=</span><span class="n">ssh</span>
+<span class="n">sudo</span> <span class="n">firewall</span><span class="o">-</span><span class="n">cmd</span> <span class="o">--</span><span class="n">permanent</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">service</span><span class="o">=</span><span class="n">http</span>
+<span class="n">sudo</span> <span class="n">firewall</span><span class="o">-</span><span class="n">cmd</span> <span class="o">--</span><span class="n">permanent</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">service</span><span class="o">=</span><span class="n">https</span>
+<span class="n">sudo</span> <span class="n">firewall</span><span class="o">-</span><span class="n">cmd</span> <span class="o">--</span><span class="n">permanent</span> <span class="o">--</span><span class="n">add</span><span class="o">-</span><span class="n">service</span><span class="o">=</span><span class="n">smtp</span>
+<span class="n">sudo</span> <span class="n">firewall</span><span class="o">-</span><span class="n">cmd</span> <span class="o">--</span><span class="n">reload</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Disable SELinux:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">As</span> <span class="n">root</span> <span class="n">edit</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">selinux</span><span class="o">/</span><span class="n">config</span> <span class="ow">and</span> <span class="nb">set</span> <span class="n">SELINUX</span><span class="o">=</span><span class="n">disabled</span>
+
+    <span class="n">Restart</span> <span class="n">the</span> <span class="n">server</span> <span class="n">to</span> <span class="n">make</span> <span class="n">the</span> <span class="n">change</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="4. Installation">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral" title="2. Introduction"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

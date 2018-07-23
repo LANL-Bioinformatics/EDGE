@@ -1,0 +1,839 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>9. Third Party Tools &mdash; EDGE develop documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/edge.ico"/>
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+        <link rel="copyright" title="Copyright" href="copyright.html"/>
+    <link rel="top" title="EDGE develop documentation" href="index.html"/>
+        <link rel="next" title="10. FAQs and Troubleshooting" href="troubleshooting.html"/>
+        <link rel="prev" title="8. Databases" href="database.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="index.html" class="fa fa-home"> EDGE</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="EDGE_ABCs.html">1. EDGE ABCs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#about-edge-bioinformatics">1.1. About EDGE Bioinformatics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#bioinformatics-overview">1.2. Bioinformatics overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EDGE_ABCs.html#computational-environment">1.3. Computational Environment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">2. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-is-edge">2.1. What is EDGE?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-create-edge">2.2. Why create EDGE?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="system_requirement.html">3. System requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#hardware-requirements">3.1. Hardware Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#ubuntu-14-04">3.2. Ubuntu 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system_requirement.html#centos-7">3.3. CentOS 7</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">4. Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-installation">4.1. EDGE Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-selinux-on-centos">4.2. Configure SELinux on CentOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-docker-image">4.3. EDGE Docker image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#edge-vmware-ovf-image">4.4. EDGE VMware/OVF Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">5. Graphic User Interface (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#user-login">5.1. User Login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#upload-files">5.2. Upload Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#initiating-an-analysis-job">5.3. Initiating an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#choosing-processes-analyses">5.4. Choosing processes/analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#submission-of-a-job">5.5. Submission of a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#checking-the-status-of-an-analysis-job">5.6. Checking the status of an analysis job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#monitoring-the-resource-usage">5.7. Monitoring the Resource Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#management-of-jobs">5.8. Management of Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#project-list-table">5.9. Project List Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gui.html#other-methods-of-accessing-edge">5.10. Other Methods of Accessing EDGE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">6. Command Line Interface (CLI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#configuration-file">6.1. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#test-run">6.2. Test Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#descriptions-of-each-module">6.3. Descriptions of each module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline.html#other-command-line-utility-scripts">6.4. Other command-line utility scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output.html">7. Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="output.html#example-output">7.1. Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">8. Databases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#edge-provided-databases">8.1. EDGE provided databases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#building-bwa-index">8.2. Building bwa index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#snp-database-genomes">8.3. SNP database genomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#ebola-reference-genomes">8.4. Ebola Reference Genomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. Third Party Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#assembly">9.1. Assembly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotation">9.2. Annotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alignment">9.3. Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taxonomy-classification">9.4. Taxonomy Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#phylogeny">9.5. Phylogeny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specialty-genes">9.6. Specialty Genes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization-and-graphic-user-interface">9.7. Visualization and Graphic User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utility">9.8. Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#amplicon-analysis">9.9. Amplicon Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rna-seq-analysis">9.10. RNA-Seq Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">10. FAQs and Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#faqs">10.1. FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#troubleshooting">10.2. Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#discussions-bugs-reporting">10.3. Discussions / Bugs Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="copyright.html">11. Copyright</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">12. Contact Us and Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contact.html#citation">12.1. Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">EDGE</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>9. Third Party Tools</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/third_party.rst.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="third-party-tools">
+<span id="id1"></span><h1>9. Third Party Tools<a class="headerlink" href="#third-party-tools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="assembly">
+<h2>9.1. Assembly<a class="headerlink" href="#assembly" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>IDBA-UD<ul>
+<li>Citation: Peng, Y., et al. (2012) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22495754">IDBA-UD: a de novo assembler for single-cell and metagenomic sequencing data with highly uneven depth, Bioinformatics, 28, 1420-1428.</a></li>
+<li>Site: <a class="reference external" href="http://i.cs.hku.hk/~alse/hkubrg/projects/idba_ud/">http://i.cs.hku.hk/~alse/hkubrg/projects/idba_ud/</a></li>
+<li>Version: 1.1.1</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>SPAdes<ul>
+<li>Citation: Nurk, Bankevich et al. (2013) <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/24093227">Assembling single-cell genomes and mini-metagenomes from chimeric MDA products. J Comput Biol. 2013 Oct;20(10):714-37</a></li>
+<li>Site: <a class="reference external" href="http://bioinf.spbau.ru/spades">http://bioinf.spbau.ru/spades</a></li>
+<li>Version: 3.11.1</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>MEGAHIT<ul>
+<li>Citation: Li D. et al. (2015) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25609793">MEGAHIT: an ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph. Bioinformatics. 2015 May 15;31(10):1674-6</a></li>
+<li>Site: <a class="reference external" href="https://github.com/voutcn/megahit">https://github.com/voutcn/megahit</a></li>
+<li>Version: 1.0.3</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>LRASM: Long Read Assembler<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://gitlab.com/chienchi/long_read_assembly">https://gitlab.com/chienchi/long_read_assembly</a></li>
+<li>Version: 0.1.0</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>RACON<ul>
+<li>Citation: Vaser R et al.(2017) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/28100585">Fast and accurate de novo genome assembly from long uncorrected reads. Genome Res. 2017 May;27(5):737-746.</a></li>
+<li>Site: <a class="reference external" href="https://github.com/isovic/racon">https://github.com/isovic/racon</a></li>
+<li>Version: 1.3.1</li>
+<li>License: MIT</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="annotation">
+<h2>9.2. Annotation<a class="headerlink" href="#annotation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>RATT<ul>
+<li>Citation: Otto, T.D., et al. (2011) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/21306991">RATT: Rapid Annotation Transfer Tool, Nucleic acids research, 39, e57.</a></li>
+<li>Site: <a class="reference external" href="http://ratt.sourceforge.net/">http://ratt.sourceforge.net/</a></li>
+<li>Version:</li>
+<li>License:</li>
+<li>Note: <strong>The original RATT program does not deal with reverse complement strain annotations transfer. We edited the source code to fix it.</strong></li>
+</ul>
+</li>
+<li>Prokka<ul>
+<li>Citation: Seemann, T. (2014) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/24642063">Prokka: rapid prokaryotic genome annotation, Bioinformatics, 30,2068-2069.</a></li>
+<li>Site: <a class="reference external" href="http://www.vicbioinformatics.com/software.prokka.shtml">http://www.vicbioinformatics.com/software.prokka.shtml</a></li>
+<li>Version: 1.13</li>
+<li>License: GPLv2</li>
+<li>Note: <strong>The NCBI tool tbl2asn included within PROKKA can have very slow runtimes (up to several hours) while it is dealing with numerous contigs, such as when we input metagenomic data. We modified the code to allow parallel processing using tbl2asn.</strong></li>
+</ul>
+</li>
+<li>tRNAscan<ul>
+<li>Citation: Lowe, T.M. and Eddy, S.R. (1997) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/9023104">tRNAscan-SE: a program for improved detection of transfer RNA genes in genomic sequence, Nucleic acids research, 25, 955-964.</a></li>
+<li>Site: <a class="reference external" href="http://lowelab.ucsc.edu/tRNAscan-SE/">http://lowelab.ucsc.edu/tRNAscan-SE/</a></li>
+<li>Version: 1.3.1</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>Barrnap<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="http://www.vicbioinformatics.com/software.barrnap.shtml">http://www.vicbioinformatics.com/software.barrnap.shtml</a></li>
+<li>Version: 0.9</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>BLAST+<ul>
+<li>Citation: Camacho, C., et al. (2009) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20003500">BLAST+: architecture and applications, BMC bioinformatics, 10, 421.</a></li>
+<li>Site: <a class="reference external" href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/">ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/</a></li>
+<li>Version: 2.5.0</li>
+<li>License: Public domain</li>
+</ul>
+</li>
+<li>blastall<ul>
+<li>Citation: Altschul, S.F., et al. (1990) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/2231712">Basic local alignment search tool, Journal of molecular biology, 215, 403-410.</a></li>
+<li>Site: <a class="reference external" href="ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/2.2.26/">ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/2.2.26/</a></li>
+<li>Version: 2.2.26</li>
+<li>License: Public domain</li>
+</ul>
+</li>
+<li>Phage_Finder<ul>
+<li>Citation: Fouts, D.E. (2006) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/17062630">Phage_Finder: automated identification and classification of prophage regions in complete bacterial genome sequences, Nucleic acids research, 34, 5839-5851.</a></li>
+<li>Site: <a class="reference external" href="http://phage-finder.sourceforge.net/">http://phage-finder.sourceforge.net/</a></li>
+<li>Version: 2.1</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>Glimmer<ul>
+<li>Citation: Delcher, A.L., et al. (2007) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/17237039">Identifying bacterial genes and endosymbiont DNA with Glimmer, Bioinformatics, 23, 673-679.</a></li>
+<li>Site: <a class="reference external" href="http://ccb.jhu.edu/software/glimmer/index.shtml">http://ccb.jhu.edu/software/glimmer/index.shtml</a></li>
+<li>Version: 302b</li>
+<li>License: Artistic License</li>
+</ul>
+</li>
+<li>ARAGORN<ul>
+<li>Citation: Laslett, D. and Canback, B. (2004) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/14704338">ARAGORN, a program to detect tRNA genes and tmRNA genes in nucleotide sequences, Nucleic acids research, 32, 11-16.</a></li>
+<li>Site: <a class="reference external" href="http://mbio-serv2.mbioekol.lu.se/ARAGORN/">http://mbio-serv2.mbioekol.lu.se/ARAGORN/</a></li>
+<li>Version: 1.2.36</li>
+<li>License:</li>
+</ul>
+</li>
+<li>Prodigal<ul>
+<li>Citation: Hyatt, D., et al. (2010) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20211023">Prodigal: prokaryotic gene recognition and translation initiation site identification, BMC bioinformatics, 11, 119.</a></li>
+<li>Site: <a class="reference external" href="http://prodigal.ornl.gov/">http://prodigal.ornl.gov/</a></li>
+<li>Version: 2_60</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>tbl2asn<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/">http://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/</a></li>
+<li>Version: 25.6 (2018 Feb 27)</li>
+<li>License:</li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">tbl2asn must be compiled within the past year to function.  We attempt to recompile every 6 months or so.  Most recent compilation is 27 Feb 2018</p>
+</div>
+</div>
+<div class="section" id="alignment">
+<h2>9.3. Alignment<a class="headerlink" href="#alignment" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>HMMER3<ul>
+<li>Citation: Eddy, S.R. (2011) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22039361">Accelerated Profile HMM Searches, PLoS computational biology, 7, e1002195</a></li>
+<li>Site: <a class="reference external" href="http://hmmer.janelia.org/">http://hmmer.janelia.org/</a></li>
+<li>Version: 3.1b1</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>Infernal<ul>
+<li>Citation: Nawrocki, E.P. and Eddy, S.R. (2013) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/24008419">Infernal 1.1: 100-fold faster RNA homology searches, Bioinformatics, 29, 2933-2935.</a></li>
+<li>Site: <a class="reference external" href="http://infernal.janelia.org/">http://infernal.janelia.org/</a></li>
+<li>Version: 1.1rc4</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>Bowtie 2<ul>
+<li>Citation: Langmead, B. and Salzberg, S.L. (2012) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22388286">Fast gapped-read alignment with Bowtie 2, Nature methods, 9, 357-359.</a></li>
+<li>Site: <a class="reference external" href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">http://bowtie-bio.sourceforge.net/bowtie2/index.shtml</a></li>
+<li>Version: 2.2.6</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>BWA<ul>
+<li>Citation: Li, H. and Durbin, R. (2009) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/19451168">Fast and accurate short read alignment with Burrows-Wheeler transform, Bioinformatics, 25, 1754-1760.</a></li>
+<li>Site: <a class="reference external" href="http://bio-bwa.sourceforge.net/">http://bio-bwa.sourceforge.net/</a></li>
+<li>Version: 0.7.12</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>MUMmer3<ul>
+<li>Citation: Kurtz, S., et al. (2004) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/14759262">Versatile and open software for comparing large genomes, Genome biology, 5, R12.</a></li>
+<li>Site: <a class="reference external" href="http://mummer.sourceforge.net/">http://mummer.sourceforge.net/</a></li>
+<li>Version: 3.23</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>RAPSearch2<ul>
+<li>Citation: Zhao et al. (2012) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22039206">RAPSearch2: a fast and memory-efficient protein similarity search tool for next-generation sequencing data. Bioinformatics. 2012 Jan 1;28(1):125-6</a></li>
+<li>Site: <a class="reference external" href="http://omics.informatics.indiana.edu/mg/RAPSearch2/">http://omics.informatics.indiana.edu/mg/RAPSearch2/</a></li>
+<li>Version: 2.23</li>
+<li>License: GPL</li>
+</ul>
+</li>
+<li>minimap2<ul>
+<li>Citation: Li, H. (2017) <a class="reference external" href="https://arxiv.org/abs/1708.01492">Minimap2: fast pairwise alignment for long nucleotide sequences. arXiv:1708.01492</a></li>
+<li>Site: <a class="reference external" href="https://github.com/lh3/minimap2">https://github.com/lh3/minimap2</a></li>
+<li>Version: 2.10</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>diamond<ul>
+<li>Citation: Buchfink, Xie C., D. Huson (2015) <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/254020072">Fast and sensitive protein alignment using DIAMOND, Nature Methods 12, 59-60</a></li>
+<li>Site: <a class="reference external" href="https://github.com/bbuchfink/diamond">https://github.com/bbuchfink/diamond</a></li>
+<li>Version: v0.9.22.123</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="taxonomy-classification">
+<h2>9.4. Taxonomy Classification<a class="headerlink" href="#taxonomy-classification" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Kraken<ul>
+<li>Citation: Wood, D.E. and Salzberg, S.L. (2014) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/24580807">Kraken: ultrafast metagenomic sequence classification using exact alignments, Genome biology, 15, R46.</a></li>
+<li>Site: <a class="reference external" href="http://ccb.jhu.edu/software/kraken/">http://ccb.jhu.edu/software/kraken/</a></li>
+<li>Version: 1.0</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>Metaphlan<ul>
+<li>Citation: Segata, N., et al. (2012) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22688413">Metagenomic microbial community profiling using unique clade-specific marker genes, Nature methods, 9, 811-814.</a></li>
+<li>Site: <a class="reference external" href="http://huttenhower.sph.harvard.edu/metaphlan2">http://huttenhower.sph.harvard.edu/metaphlan2</a></li>
+<li>Version: 2.7.7</li>
+<li>License: Artistic License</li>
+</ul>
+</li>
+<li>GOTTCHA<ul>
+<li>Citation: Tracey Allen K. Freitas, Po-E Li, Matthew B. Scholz, Patrick S. G. Chain (2015) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25765641">Accurate Metagenome characterization using a hierarchical suite of unique signatures. Nucleic Acids Research (DOI: 10.1093/nar/gkv180)</a></li>
+<li>Site: <a class="reference external" href="http://lanl-bioinformatics.github.io/GOTTCHA/">http://lanl-bioinformatics.github.io/GOTTCHA/</a></li>
+<li>Version: 1.0b</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>GOTTCHA2<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://gitlab.com/poeli/GOTTCHA2">https://gitlab.com/poeli/GOTTCHA2</a></li>
+<li>Version: 2.2.0</li>
+<li>License:</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="phylogeny">
+<h2>9.5. Phylogeny<a class="headerlink" href="#phylogeny" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>FastTree<ul>
+<li>Citation: Morgan N. Price, Paramvir S. Dehal, and Adam P. Arkin. 2009. <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/19377059">FastTree: Computing Large Minimum Evolution Trees with Profiles instead of a Distance Matrix. Mol Biol Evol (2009) 26 (7): 1641-1650</a></li>
+<li>Site: <a class="reference external" href="http://www.microbesonline.org/fasttree/">http://www.microbesonline.org/fasttree/</a></li>
+<li>Version: 2.1.9</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>RAxML<ul>
+<li>Citation: Stamatakis,A. 2014. <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/24451623">RAxML version 8: A tool for phylogenetic analysis and post-analysis of large phylogenies. Bioinformatics, 30:1312-1313</a></li>
+<li>Site: <a class="reference external" href="http://sco.h-its.org/exelixis/web/software/raxml/index.html">http://sco.h-its.org/exelixis/web/software/raxml/index.html</a></li>
+<li>Version: 8.0.26</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>Bio::Phylo<ul>
+<li>Citation: Rutger A Vos, Jason Caravas, Klaas Hartmann, Mark A Jensen and Chase Miller, (2011). <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/21352572">Bio::Phylo - phyloinformatic analysis using Perl. BMC Bioinformatics 12:63.</a></li>
+<li>Site: <a class="reference external" href="http://search.cpan.org/~rvosa/Bio-Phylo/">http://search.cpan.org/~rvosa/Bio-Phylo/</a></li>
+<li>Version: 0.58</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li>PhaME<ul>
+<li>Citation: Sanaa Afroz Ahmed, Chien-Chi Lo, Po-E Li, Karen W Davenport, Patrick S.G. Chain. <a class="reference external" href="http://dx.doi.org/10.1101/032250">From raw reads to trees: Whole genome SNP phylogenetics across the tree of life. bioRxiv doi: http://dx.doi.org/10.1101/032250</a></li>
+<li>Site: <a class="reference external" href="https://github.com/LANL-Bioinformatics/PhaME/">https://github.com/LANL-Bioinformatics/PhaME/</a></li>
+<li>Version: 1.0</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="specialty-genes">
+<h2>9.6. Specialty Genes<a class="headerlink" href="#specialty-genes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>ShortBRED<ul>
+<li>Citation: Kaminski J, et al. (2015) <a class="reference external" href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004557">High-specificity targeted functional profiling in microbial communities with ShortBRED. PLoS Comput Biol.18;11(12):e1004557</a>.</li>
+<li>Site: <a class="reference external" href="https://huttenhower.sph.harvard.edu/shortbred">https://huttenhower.sph.harvard.edu/shortbred</a></li>
+<li>Version: 0.9.4M</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>RGI (Resistance Gene Identifier)<ul>
+<li>Citation: McArthur &amp; Wright. (2015) <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S1369527415000958?via%3Dihub">Bioinformatics of antimicrobial resistance in the age of molecular epidemiology. Current Opinion in Microbiology, 27, 45-50.</a></li>
+<li>Site: <a class="reference external" href="https://card.mcmaster.ca/analyze/rgi">https://card.mcmaster.ca/analyze/rgi</a></li>
+<li>Version: 3.1.1</li>
+<li>License:  Apache Software License</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="visualization-and-graphic-user-interface">
+<h2>9.7. Visualization and Graphic User Interface<a class="headerlink" href="#visualization-and-graphic-user-interface" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>jsPhyloSVG<ul>
+<li>Citation: Smits SA, Ouverney CC, (2010) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20805892">jsPhyloSVG: A Javascript Library for Visualizing Interactive and Vector-Based Phylogenetic Trees on the Web. PLoS ONE 5(8): e12267.</a></li>
+<li>Site: <a class="reference external" href="http://www.jsphylosvg.com">http://www.jsphylosvg.com</a></li>
+<li>Version: 1.55</li>
+<li>License: GPL</li>
+</ul>
+</li>
+<li>JBrowse<ul>
+<li>Citation: Skinner, M.E., et al. (2009) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/19570905">JBrowse: a next-generation genome browser, Genome research, 19, 1630-1638.</a></li>
+<li>Site: <a class="reference external" href="http://jbrowse.org">http://jbrowse.org</a></li>
+<li>Version: 1.11.6</li>
+<li>License: Artistic License 2.0/LGPLv.1</li>
+</ul>
+</li>
+<li>KronaTools<ul>
+<li>Citation: Ondov, B.D., Bergman, N.H. and Phillippy, A.M. (2011) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/21961884">Interactive metagenomic visualization in a Web browser, BMC bioinformatics, 12, 385.</a></li>
+<li>Site: <a class="reference external" href="http://sourceforge.net/projects/krona/">http://sourceforge.net/projects/krona/</a></li>
+<li>Version: 2.7</li>
+<li>License: BSD</li>
+</ul>
+</li>
+<li>JQuery<ul>
+<li>Site: <a class="reference external" href="http://jquery.com/">http://jquery.com/</a></li>
+<li>Version: 1.10.2</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>JQuery Mobile<ul>
+<li>Site: <a class="reference external" href="http://jquerymobile.com">http://jquerymobile.com</a></li>
+<li>Version: 1.4.3</li>
+<li>License: CC0</li>
+</ul>
+</li>
+<li>DataTables<ul>
+<li>Site: <a class="reference external" href="https://datatables.net">https://datatables.net</a></li>
+<li>Version: 1.10.11</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>jQuery File Tree<ul>
+<li>Site: <a class="reference external" href="http://www.abeautifulsite.net/jquery-file-tree/">http://www.abeautifulsite.net/jquery-file-tree/</a></li>
+<li>Version: 1.01</li>
+<li>License: GPL and MIT</li>
+</ul>
+</li>
+<li>Raphael - JavaScript Vector Library<ul>
+<li>Site: <a class="reference external" href="http://dmitrybaranovskiy.github.io/raphael/">http://dmitrybaranovskiy.github.io/raphael/</a></li>
+<li>Version: 1.4.3</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>Tooltipster<ul>
+<li>Site: <a class="reference external" href="http://iamceege.github.io/tooltipster/">http://iamceege.github.io/tooltipster/</a></li>
+<li>Version: 3.2.6</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>Lazy Load XT<ul>
+<li>Site: <a class="reference external" href="http://ressio.github.io/lazy-load-xt/">http://ressio.github.io/lazy-load-xt/</a></li>
+<li>Version: 1.0.6</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>Plupload<ul>
+<li>Site: <a class="reference external" href="http://www.plupload.com">http://www.plupload.com</a></li>
+<li>Version: 2.1.7</li>
+<li>License: GPLv2 and OEM</li>
+</ul>
+</li>
+<li>hello.js<ul>
+<li>Site: <a class="reference external" href="http://adodson.com/hello.js/">http://adodson.com/hello.js/</a></li>
+<li>Version: 1.8.1</li>
+<li>License: MIT</li>
+</ul>
+</li>
+<li>bokeh<ul>
+<li>Citation: Bokeh Development Team (2014). Bokeh: Python library for interactive visualization</li>
+<li>Site: <a class="reference external" href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></li>
+<li>Version: 0.12.10</li>
+<li>License: BSD 3-Clause</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="utility">
+<h2>9.8. Utility<a class="headerlink" href="#utility" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">BEDTools</p>
+<ul class="simple">
+<li>Citation: Quinlan, A.R. and Hall, I.M. (2010) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20110278">BEDTools: a flexible suite of utilities for comparing genomic features, Bioinformatics, 26, 841-842.</a></li>
+<li>Site: <a class="reference external" href="https://github.com/arq5x/bedtools2">https://github.com/arq5x/bedtools2</a></li>
+<li>Version: 2.19.1</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li><p class="first">R</p>
+<ul class="simple">
+<li>Citation: R Core Team (2013). R: A language and environment for statistical   computing. R Foundation for Statistical Computing, Vienna, Austria.   URL <a class="reference external" href="http://www.R-project.org/">http://www.R-project.org/</a>.</li>
+<li>Site: <a class="reference external" href="http://www.r-project.org/">http://www.r-project.org/</a></li>
+<li>Version: 3.3.2</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li><p class="first">R_3.3.2_Packages</p>
+<blockquote>
+<div><ul class="simple">
+<li>Custom built direcotry containing all the packages required to install R packages offline</li>
+<li>The majority of the packages were downloaded automatically using the following R commands.</li>
+</ul>
+<p># Function to get dependencies and imports for a given list of packages.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">getPackages</span> <span class="o">&lt;-</span> <span class="n">function</span><span class="p">(</span><span class="n">packs</span><span class="p">){</span>
+        <span class="n">packages</span> <span class="o">&lt;-</span> <span class="n">unlist</span><span class="p">(</span>
+        <span class="n">tools</span><span class="p">::</span><span class="n">package_dependencies</span><span class="p">(</span><span class="n">packs</span><span class="p">,</span> <span class="n">available</span><span class="o">.</span><span class="n">packages</span><span class="p">(),</span> <span class="n">which</span><span class="o">=</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;Depends&quot;</span><span class="p">,</span> <span class="s2">&quot;Imports&quot;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="n">TRUE</span><span class="p">)</span>
+        <span class="p">)</span>
+<span class="n">packages</span> <span class="o">&lt;-</span> <span class="n">union</span><span class="p">(</span><span class="n">packs</span><span class="p">,</span> <span class="n">packages</span><span class="p">)</span>
+<span class="n">packages</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p># Use the function by providing the names of the desired packages.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">packages</span> <span class="o">&lt;-</span> <span class="n">getPackages</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;packageName&quot;</span><span class="p">,</span> <span class="s2">&quot;packageName2&quot;</span><span class="p">))</span>
+<span class="c1"># For example</span>
+<span class="c1">#packages &lt;- getPackages(c(&quot;MetaComp&quot;,&quot;gtable&quot;,&quot;gridExtra&quot;,&quot;devtools&quot;,&quot;phyloseq&quot;,&quot;webshot&quot;,&quot;plotly&quot;,&quot;shiny&quot;,&quot;DT&quot;))</span>
+</pre></div>
+</div>
+<p># Download packages to current/desired directory.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">download</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="n">packages</span><span class="p">,</span> <span class="n">destdir</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul>
+<li><p class="first">The packages specific to bioconductor needed to be manually downloade from the site</p>
+</li>
+<li><p class="first">stringi defaults to downloading icudt55I.zip from online, the following method, from their documentation, was used to build a custom stringi package to avoid connecting to the internet.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>1. File the `git clone https://github.com/gagolews/stringi.git` command.
+2. Edit the `.Rbuildignore` file and get rid of the `^src/icu55/data` line.
+3. Run `R CMD build stringi_dir_name`.
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">MetaComp: EDGE Taxonomy Assignments Visualization</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://cran.r-project.org/">https://cran.r-project.org/</a></li>
+<li>Version: 1.0.2</li>
+<li>License:</li>
+</ul>
+</li>
+<li><p class="first">GNU_parallel</p>
+<ul class="simple">
+<li>Citation: O. Tange (2011): GNU Parallel - The Command-Line Power Tool, ;login: The USENIX Magazine, February 2011:42-47</li>
+<li>Site: <a class="reference external" href="http://www.gnu.org/software/parallel/">http://www.gnu.org/software/parallel/</a></li>
+<li>Version: 20140622</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li><p class="first">tabix</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="http://sourceforge.net/projects/samtools/files/tabix/">http://sourceforge.net/projects/samtools/files/tabix/</a></li>
+<li>Version: 0.2.6</li>
+<li>License:</li>
+</ul>
+</li>
+<li><p class="first">Primer3</p>
+<ul class="simple">
+<li>Citation: Untergasser, A., et al. (2012) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/22730293">Primer3–new capabilities and interfaces, Nucleic acids research, 40, e115.</a></li>
+<li>Site: <a class="reference external" href="http://primer3.sourceforge.net/">http://primer3.sourceforge.net/</a></li>
+<li>Version: 2.3.5</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li><p class="first">SAMtools</p>
+<ul class="simple">
+<li>Citation: Li, H., et al. (2009) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/19505943">The Sequence Alignment/Map format and SAMtools, Bioinformatics, 25, 2078-2079.</a></li>
+<li>Site: <a class="reference external" href="http://www.htslib.org/">http://www.htslib.org/</a></li>
+<li>Version: 1.6</li>
+<li>License: MIT</li>
+</ul>
+</li>
+</ul>
+<ul id="faqcs-ref">
+<li><p class="first">FaQCs</p>
+<ul class="simple">
+<li>Citation: Chienchi Lo, PatrickS.G. Chain (2014) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/25408143">Rapid evaluation and Quality Control of Next Generation Sequencing Data with FaQCs. BMC Bioinformatics. 2014 Nov 19;15</a></li>
+<li>Site: <a class="reference external" href="https://github.com/LANL-Bioinformatics/FaQCs">https://github.com/LANL-Bioinformatics/FaQCs</a></li>
+<li>Version: 2.08</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li><p class="first">NanoPlot</p>
+<ul class="simple">
+<li>Citation: De Coster W, et al.(2018) <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pubmed/29547981">NanoPack: visualizing and processing long read sequencing data, Bioinformatics. 2018 Mar 14.</a></li>
+<li>Site: <a class="reference external" href="https://github.com/wdecoster/NanoPlot">https://github.com/wdecoster/NanoPlot</a></li>
+<li>Version: 1.13.0</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li><p class="first">Porechop</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://github.com/rrwick/Porechop">https://github.com/rrwick/Porechop</a></li>
+<li>Version: 0.2.3</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+<li><p class="first">wigToBigWig</p>
+<ul class="simple">
+<li>Citation: Kent, W.J., et al. (2010) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20639541">BigWig and BigBed: enabling browsing of large distributed datasets, Bioinformatics, 26, 2204-2207.</a></li>
+<li>Site: <a class="reference external" href="https://genome.ucsc.edu/goldenPath/help/bigWig.html#Ex3">https://genome.ucsc.edu/goldenPath/help/bigWig.html#Ex3</a></li>
+<li>Version: 4</li>
+<li>License:</li>
+</ul>
+</li>
+<li><p class="first">sratoolkit</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://github.com/ncbi/sra-tools">https://github.com/ncbi/sra-tools</a></li>
+<li>Version: 2.8.1</li>
+<li>License:</li>
+</ul>
+</li>
+<li><p class="first">ea-utils</p>
+<ul class="simple">
+<li>Citation: Erik Aronesty (2011) <a class="reference external" href="https://code.google.com/archive/p/ea-utils/">ea-utils : “Command-line tools for processing biological sequencing data”</a></li>
+<li>Site: <a class="reference external" href="https://code.google.com/archive/p/ea-utils/">https://code.google.com/archive/p/ea-utils/</a></li>
+<li>Version: 1.1.2-537</li>
+<li>License: MIT License</li>
+</ul>
+</li>
+<li><p class="first">Anaconda2 (Python 2)</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://anaconda.org">https://anaconda.org</a></li>
+<li>Version: 4.1.1</li>
+<li>License: 3-clause BSD</li>
+</ul>
+</li>
+<li><p class="first">Anaconda2Packages</p>
+<ul>
+<li><p class="first">Custom built directory containing all the required python2 packages for offline installation.</p>
+</li>
+<li><p class="first">This was generated primarially using the command.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">download</span> <span class="n">packageName</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Some packages were manually downloaded into the directory to install via conda</p>
+</li>
+<li><p class="first">Dependencies were manually downladed as they were discovered</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Anaconda3 (Python 3)</p>
+<ul class="simple">
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://anaconda.org">https://anaconda.org</a></li>
+<li>Version: 5.1.0</li>
+<li>License: 3-clause BSD</li>
+</ul>
+</li>
+<li><p class="first">Anaconda3Packages</p>
+<ul>
+<li><p class="first">Custom built directory containing all the required python3 packages for offline installation.</p>
+</li>
+<li><p class="first">This was generated primarially using the command.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">download</span> <span class="n">packageName</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="amplicon-analysis">
+<h2>9.9. Amplicon Analysis<a class="headerlink" href="#amplicon-analysis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>QIIME<ul>
+<li>Citation: Caporaso et al. (2010) <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/20383131">QIIME allows analysis of high-throughput community sequencing data. Nat Methods. 2010 May;7(5):335-6</a></li>
+<li>Site: <a class="reference external" href="http://qiime.org/">http://qiime.org/</a></li>
+<li>Version: 1.9.1</li>
+<li>License: GPLv2</li>
+</ul>
+</li>
+<li>DETEQT: Diagnostic targeted sequencing adjudication<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://github.com/LANL-Bioinformatics/DETEQT">https://github.com/LANL-Bioinformatics/DETEQT</a></li>
+<li>Version: 0.3.0</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="rna-seq-analysis">
+<h2>9.10. RNA-Seq Analysis<a class="headerlink" href="#rna-seq-analysis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>PyPiReT: Pipeline for Reference based Transcriptomics.<ul>
+<li>Citation:</li>
+<li>Site: <a class="reference external" href="https://github.com/mshakya/PyPiReT">https://github.com/mshakya/PyPiReT</a></li>
+<li>Version: 0.3.2</li>
+<li>License: GPLv3</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="10. FAQs and Troubleshooting">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="database.html" class="btn btn-neutral" title="8. Databases"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; <a href="copyright.html">Copyright</a> 2014-2017, EDGE Development Team.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'develop',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
