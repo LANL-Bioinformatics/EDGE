@@ -53,9 +53,11 @@ our @EXPORT = qw
     getTaxName
     getTaxDepth
     getTaxIDFromGI
+    getTaxIDFromName
     getTaxIDFromAcc
     getAccFromSeqID
     getTaxParent
+    name2taxID
     loadTaxonomy
     loadUpdatedGI
 );
@@ -76,6 +78,7 @@ my @taxDepths   ;
 my @taxParents  ;
 my @taxRanks    ;
 my @taxNames    ;
+my %nameTax     ;
 my %updatedGI   ;
 my %taxIDByAcc  ;
 my %taxIDByGI   ;
@@ -83,6 +86,18 @@ my $taxIDByGIStr;
 my %invalidAccs ;
 my %missingAccs ;
 
+#######################################################
+# sub: name2taxID
+# input scientifc name and return its taxonomy ID
+# argument: taxonomy scientific name
+# return: <taxonomy id>
+#######################################################
+sub name2taxID{
+    checkTaxonomy();
+    my ($name) = @_;
+    return $nameTax{$name};
+
+}
 #################################################################
 # sub: acc2taxID
 # function: input a Accession number and return its taxomomy ID.
@@ -630,6 +645,10 @@ sub loadTaxonomy
 		$taxDepths[$id] = $depth;
 		$taxRanks[$id] = $rank;
 		$taxNames[$id] = $name;
+		$nameTax{$name}=$id;
+		$name =~ s/\W/ /g;
+		$name =~ s/_/ /g;
+		$nameTax{$name}=$id;
 	}
 
 	print STDERR "Done parsing taxonomy.tab\n" if $DEBUG;
