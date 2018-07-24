@@ -1,3 +1,25 @@
+-- Version 20180724
+EDGE version 2.3.0
+* Update Kraken version from 0.10.4 beta to 1.0
+* Update Metaphlan from 1.7.7 to 2.7.7
+* Add global numCPU option for runReadsToGenome and runReadsToContig scripts
+* Add Qiime taxonomy plot bar chart and alpha diversity analysis for only one sample
+* fix bug: fasta header correction for consensus pipeline
+* fix bug: project rerun in docker container. remove some system call
+* update PyPiRt version from 0.3 to 0.3.2. ID to SampleID.
+
+EDGE GUI version 2.3.0
+* Add Take Notes Button in result page
+* Update userManagement API to return all fields of project page in json to speed up page loading
+* Update Metaphlan to Metaphlan2
+* Multiple SRA number input with comma separated
+* Add Phred Quality Offset for QC module
+* fix bug: project report selection
+
+Database:
+* MiniKraken database update from version 2014 to 20171101 8GB version.
+* Add Metaphlan2 database
+
 -- Version 20180618
 EDGE version 2.2.0
 * Update pangia from 2.4.5 to 2.4.10
