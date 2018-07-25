@@ -334,6 +334,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           mkdir -p $tool_rep_dir
           echo \"====> Copying result list to report directory...\";
           [[ -e \"$outdir/$prefix.out.list\" ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.list.txt;
+          [[ -e \"$outdir/$prefix.out.megan\" ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.megan;
           [[ -e \"$outdir/$prefix.full.tsv\" ]] && cp  $outdir/$prefix.full.tsv $tool_rep_dir/$fnb-$tool.full.tsv;
           [[ -e \"$outdir/$prefix.krona.html\" ]] && cp  $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
           [[ -e \"$outdir/.finished\" ]] && cp  $outdir/.finished $tool_rep_dir/.finished;
