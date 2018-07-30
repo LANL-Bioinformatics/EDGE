@@ -2033,10 +2033,24 @@ A complete version of EDGE is available as a variety of packages that can fit in
 <form id="edge-uploadfile-form" data-ajax="false" enctype="multipart/form-data">
         <div role="main" id="edge-content-uploadfile" class="ui-content edge-content edge-main-page">
                 <h2>Upload files</h2>
-		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">5gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
+		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">1gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
         	<div id="uploader">
                     <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
             	</div>
+		<span style="display:none" id="docker-file-transfer" class="ui-content edge-content">
+			<h2>Alternative uploading methods</h2>
+			<p class="edge_tool_note">
+			<div id="edge-uploadfile-notice">
+				Web uploader is designed to upload small files. When the sizes of uploading files are <strong>>1000MB</strong>, please use one of following options:
+				<ul>
+					<li>Directly copy files to user's MyUploads directory from the host OS (mounted EDGE_input directory while docker run):
+					<ul>- The path is: <div class="edge-uploadfile-myuploads-path">/path/to/EDGE_input/<span class="edge-uploadfile-scp-path"></span>/MyUploads/</div></ul>
+					<ul>- For example: <div class="edge-uploadfile-myuploads-path">cp /path/to/your_seq.fastq /path/to/EDGE_input/<span class="edge-uploadfile-scp-path"></span>/MyUploads/</div></ul>
+					</li>
+				</ul>
+			</div>
+			</p>
+		</span>
             	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
             	<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         </div> <!--  uploadfile-form -->
@@ -2137,7 +2151,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.3.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;"></span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo">

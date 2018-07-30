@@ -475,6 +475,11 @@ sub ref_extract
 
 sub runPipeline {
 	my $proj_count=1;
+
+	if(scalar @pnames == 0){
+		&addMessage("PARAMS","failure","No projects found in the batch excel file.");
+	}
+
 	foreach my $pname (@pnames){
 		my $proj_dir = "$out_dir/$pname";
 		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);

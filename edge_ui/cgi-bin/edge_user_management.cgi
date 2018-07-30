@@ -95,6 +95,7 @@ elsif ($action eq "login"){
 		my $user_dir_old=md5_hex($username);
 		my $user_dir=md5_hex(lc($username));
 		make_path("$edge_input/$user_dir/MyProjects/",{chmod => 0755,});
+		make_path("$edge_input/$user_dir/MyUploads/",{chmod => 0755,});
 		if ( $user_dir_old ne $user_dir && -d "$edge_input/$user_dir_old"){
 			move_recursive("$edge_input/$user_dir_old", "$edge_input/$user_dir");
 			remove_tree("$edge_input/$user_dir_old");

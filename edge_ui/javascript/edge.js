@@ -127,7 +127,7 @@ $( document ).ready(function()
 
 	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
 		allMainPage.hide();
-		var maxFileSize = localStorage.maxFileSize || '10mb';
+		var maxFileSize = localStorage.maxFileSize || '100mb';
 		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
 		$( "#edge-content-uploadfile" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
@@ -137,6 +137,10 @@ $( document ).ready(function()
 				});
 				$( "#edge-upload-maxFileSize").html("0 kb");
 					showWarning("Please login to upload files.");
+					$("#edge-uploadfile-notice").hide();
+				}else{
+					$( "#edge-uploadfile-notice").show();
+					$("span.edge-uploadfile-scp-path").html( localStorage.udir );
 				}
         });
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
@@ -2554,7 +2558,7 @@ $( document ).ready(function()
         //upload files  
         function uploadFiles(userDir){
 		var target = (umSystemStatus)? "MyUploads/":"Uploads/";
-		var maxFileSize = localStorage.maxFileSize || '10mb';
+		var maxFileSize = localStorage.maxFileSize || '100mb';
                 var uploader = $("#uploader").pluploadQueue({
                     // General settings
                     runtimes : 'html5,flash,silverlight,html4',
