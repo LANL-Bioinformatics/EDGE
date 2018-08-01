@@ -1,6 +1,6 @@
 ## The sql command to update from EDGE v1.1 db schema to new db schema 
 
-CREATE TABLE reports (
+CREATE TABLE IF NOT EXISTS reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(3000),
@@ -12,7 +12,7 @@ CREATE TABLE reports (
     updated DATETIME
 );
 
-CREATE TABLE users_reports (
+CREATE TABLE IF NOT EXISTS users_reports (
     user_id INT NOT NULL,
     report_id INT NOT NULL,
     role varchar(255) NOT NULL DEFAULT 'owner',
