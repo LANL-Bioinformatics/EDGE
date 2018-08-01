@@ -475,7 +475,7 @@ sub ref_extract
 
 sub runPipeline {
 	my $proj_count=1;
-
+	
 	if(scalar @pnames == 0){
 		&addMessage("PARAMS","failure","No projects found in the batch excel file.");
 	}
@@ -490,7 +490,11 @@ sub runPipeline {
     	
 		if ($opt{"edge-batch-input-excel"}){
 			$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"} ||  $projlist->{$pname}->{"q1"}=~ /^http|ftp/i);
-    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"} ||  $projlist->{$pname}->{"s"}=~ /^http|ftp/i);
+    			if ( -f $projlist->{$pname}->{"s"} ||  $projlist->{$pname}->{"s"}=~ /^http|ftp/i){
+				$single_files = $projlist->{$pname}->{"s"};
+			}elsif( $projlist->{$pname}->{"s"} && $projlist->{$pname}->{"s"} =~ /,/){
+				$single_files = join(" ",split(/,/,$projlist->{$pname}->{"s"}));
+			}
 		}else{
 			for (0..$#edge_input_pe1)
 			{
@@ -568,8 +572,12 @@ sub runPipeline_cluster {
 		my $process_parameters = "-c $config_out -o $proj_dir -cpu $num_cpu -noColorLog ";
     	
  	   	if ($opt{"edge-batch-input-excel"}){
-    		$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"} ||  $projlist->{$pname}->{"q1"}=~ /^http|ftp/i);
-    		$single_files = $projlist->{$pname}->{"s"} if ( -f $projlist->{$pname}->{"s"} || $projlist->{$pname}->{"s"}=~  /^http|ftp/i);
+ 	   		$paired_files = qq|$projlist->{$pname}->{"q1"} $projlist->{$pname}->{"q2"}| if ( -f $projlist->{$pname}->{"q1"} ||  $projlist->{$pname}->{"q1"}=~ /^http|ftp/i);
+			if ( -f $projlist->{$pname}->{"s"} ||  $projlist->{$pname}->{"s"}=~ /^http|ftp/i){
+				$single_files = $projlist->{$pname}->{"s"};
+			}elsif( $projlist->{$pname}->{"s"} && $projlist->{$pname}->{"s"} =~ /,/){
+				$single_files = join(" ",split(/,/,$projlist->{$pname}->{"s"}));
+			}
 		}else{
 			for (0..$#edge_input_pe1)
 			{
@@ -784,10 +792,22 @@ sub checkParams {
 		my %namesUsed;
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
-    		$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
-    		$projlist->{$pname}->{"s"} = "$input_dir/$projlist->{$pname}->{'s'}" if ($projlist->{$pname}->{"s"} =~ /^\w/ && $projlist->{$pname}->{"s"} !~ /^http|ftp/i);
-    		my $pe1=$projlist->{$pname}->{"q1"};
-    		my $pe2=$projlist->{$pname}->{"q2"};
+			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
+			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
+			foreach my $i (0..$#single_files){
+				my $sf = $single_files[$i];
+				$sf =~ s/\s+//g;
+				if ( $sf =~ /^\w/ && $sf !~ /^http|ftp/i){
+					$sf= "$input_dir/$sf";
+					$single_files[$i] = $sf;
+				}
+    				&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $sf of $pname.") if ( -f $sf and $sf =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    				&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the $sf file path of $pname.") if ($sf && $sf !~ /^http|ftp/i && ! -e $sf);
+			}
+			$projlist->{$pname}->{"s"} = join(",",@single_files);
+
+			my $pe1=$projlist->{$pname}->{"q1"};
+			my $pe2=$projlist->{$pname}->{"q2"};
 			my $se=$projlist->{$pname}->{"s"};
 
 			if ($namesUsed{$pname}){
@@ -799,11 +819,9 @@ sub checkParams {
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $se of $pname.") if (-f $se and $se =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the s file path of $pname.") if ($se && $se !~ /^http|ftp/i && ! -e $se);
     			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2);
     	}
 	}else{  ## Single project input
@@ -1512,7 +1530,7 @@ sub createSampleMetadataFile {
 
 sub getSRAmetaData{
 	my $accession=shift;
-	my $accession =~ s/\s+//g;
+	$accession =~ s/\s+//g;
 	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy} || $sys->{proxy};
 	$proxy = "--proxy \'$proxy\' " if ($proxy);
 	my $url="https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$accession&result=read_run&display=report&fields=run_accession,sample_accession,study_accession,study_title,experiment_title,scientific_name,instrument_model,instrument_platform,library_layout,base_count&limit=1000";

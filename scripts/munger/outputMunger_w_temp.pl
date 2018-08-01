@@ -1787,7 +1787,7 @@ sub pull_summary {
 		}
 		if(/SRA_id=(.*)/)
 		{
-			push @INFILES, $1;
+			push @INFILES, $1 if ($1);
 		}
 		#parse reference files
 		if( /runPipeline .*-ref (\S+)/){
@@ -1825,7 +1825,7 @@ sub pull_summary {
 			$vars->{ASSEMBLEDCONTIG}=$1;
 		}
 		if (/^inputContigs=(.*)/){
-			push @INFILES, $1;
+			push @INFILES, $1 if $1;
 			$vars->{INPUTCONTIG}=$1;
 		}
 		if (/^fastqjoin-usejoined-only=(.*)/){
