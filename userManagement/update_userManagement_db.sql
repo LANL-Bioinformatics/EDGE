@@ -29,3 +29,7 @@ ALTER TABLE users_projects ADD CONSTRAINT displayChk CHECK (display IN ('yes','n
 
 ALTER TABLE projects ADD run_submitted DATETIME;
 ALTER TABLE projects ADD running_time TIME;
+
+#clean up projects
+DELETE FROM users_projects WHERE project_id in (select id FROM projects WHERE status='delete');
+DELETE FROM projects WHERE status='delete';
