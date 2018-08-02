@@ -134,8 +134,8 @@ print "Reading Gaps file.\n";
 my $skip_query_ref=read_gap($gapfile);
 
 print "Printing Summary Statistics.\n";
-print_summary();
 read_directory($indir);
+print_summary();
 
 print "Creating SNP alignment.\n";
 create_ALLsnp_array();
