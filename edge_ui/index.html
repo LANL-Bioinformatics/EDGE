@@ -1339,7 +1339,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			<div class="ui-field-contain edge-fastq-options" id="edge-taxa-tool-select">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn2, Kraken and reads mapping to NCBI RefSeq using BWA."></a></legend>
+					<legend>Classification Tools<a href="#" class="tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-reads-taxa-tooltip"></a></legend>
 					<label for="edge-taxa-enabled-tools" class="select">Run With Following Databases</label>
 					<select name="edge-taxa-enabled-tools" id="edge-taxa-enabled-tools" multiple="multiple" data-mini="true" data-native-menu="false" data-icon="grid" data-iconpos="right">
 						<option>Choose Classification Tools:</option>
@@ -1416,7 +1416,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<li>Contig-based Taxonomy Classification</li>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Contigs Classification<a href="#" class='tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn' title="EDGE will map contigs to NCBI genomes and make a taxonomic inference for each contig."></a></legend>
+					<legend>Contigs Classification<a href="#" class='tooltip ui-btn ui-alt-icon ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn' title="EDGE will map contigs to NCBI genomes using bwa and make a taxonomic inference for each contig."></a></legend>
 					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw1" value="1" checked="checked">
 					<label for="edge-contig-taxa-sw1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-contig-taxa-sw" id="edge-contig-taxa-sw2" value="0">

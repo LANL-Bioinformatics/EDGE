@@ -633,6 +633,9 @@ $( document ).ready(function()
 	$('#edge-piret-method-l').tooltipster(
 		'content', $('<span>For detecting differentially expressed genes, all of which are R packages. This option provides users with multiple tools to use which can be spcified using following keywords:<table border="1"><tr><th>Methods</th><th>Descriptions</th></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/edgeR.html" target="_blank">edgeR</a></td><td>Uses edgeR.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/DESeq2.html" target="_blank">DESeq2</a></td><td>Uses DESeq2.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/ballgown.html" target="_blank">ballgown</a></td><td>Uses ballgown. Appropriate for eukaryotes.</td></tr><td>DEedge</td><td>Uses both edgeR and DESeq2.</td></tr><tr><td>DEgown</td><td>Uses DESeq2 and ballgown.</td></tr><tr><td>balledgeR</td><td>Uses ballgown and edgeR.</td></tr><tr><td>all</td><td>Uses all of the above methods.</td></tr></table></span>')
 	);
+	$("#edge-reads-taxa-tooltip").tooltipster(
+		'content',$('<span>EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn2, Kraken and reads mapping to NCBI RefSeq using BWA. Each tools has its own database and you can find the taxonomy information table <a href="https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html" target="_blank">[here]</a></span>')
+	);
 	$("#edge-qiime-pro-tooltip").tooltipster(
 		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
 	);
@@ -2205,7 +2208,7 @@ $( document ).ready(function()
 					if (data == 'nanoEDGE'){
 						$(this).parent('div').on('click',function(){
 							foldRightPanel();
-							pipeline="EDGE"
+							pipeline="EDGE";
 							setRunPipeline(pipeline,true);
 							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
 						})
