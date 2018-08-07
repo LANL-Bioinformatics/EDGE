@@ -615,7 +615,7 @@ foreach my $keys(sort{$a<=>$b}keys %gap_location){
    }
    $last=$keys;;
 }
-if ($last == $ref_len){
+if ($last <= $ref_len){
      print GAPF "$start\t$last\n";
      my $gap_length=$last-$start+1;
      $gap_total+=$gap_length;

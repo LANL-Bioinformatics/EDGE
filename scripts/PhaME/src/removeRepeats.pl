@@ -127,7 +127,7 @@ foreach my $repeat(sort {$a<=>$b} keys %repeats){
 }
 if ($length>$r_end){
    $start= $r_end;
-   $end= $length+1;
+   $end= $length;
    $contig=$reference.'_'.$start.'_'.$end;
 #   print "$start\t$end\n";
    my $output= substr($sequence,$start-1,$end-$start+1);
