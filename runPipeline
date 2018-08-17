@@ -4089,6 +4089,7 @@ sub writeJBrowseInfo
     my $abs_outDir = Cwd::abs_path("$outDir");
     my $outputDir = "$abs_outDir/JBrowse";
     my $log="$outputDir/log.txt";
+    my $contigTax="$outDir/AssemblyBasedAnalysis/Taxonomy/${project_name}.ctg_class.top.csv";
     my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
     my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
     &make_dir($outputDir);
@@ -4113,6 +4114,7 @@ sub writeJBrowseInfo
     $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
     $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
     $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
+    $cmd .= "--in-ctg-tax-assign '$contigTax' " if ( -e $contigTax);
     $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
     $cmd .= "--in-orf-ar-gff3 '$ARGenesGFF' " if ( -e "$ARGenesGFF");
     $cmd .= "--in-orf-vf-gff3 '$VFGenesGFF' " if ( -e "$VFGenesGFF");

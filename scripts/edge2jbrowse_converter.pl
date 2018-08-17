@@ -26,6 +26,7 @@ my $res=GetOptions(\%opt,
     'gff3out=s',                 #edge_analysis.gff3
     # generate JBrowse tracks -----------------------------------------------------------------------------
     'in-ctg-fa=s',               #AssemblyBasedAnalysis/contigs.fa
+    'in-ctg-tax-assign=s',
     'in-ref-fa=s',               
     'in-ctg-anno-gff3=s',        #AssemblyBasedAnalysis/Annotation/PROKKA.gff
     'in-orf-ar-gff3=s',	         #AssemblyBasedAnalysis/SpecialtyGenes/With_AR_markers_hit
@@ -62,6 +63,7 @@ $opt{'in-ctg2ref-coords'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/co
 $opt{'in-ctg2ref-snps'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.SNPs_report.txt";
 $opt{'in-ctg2ref-indels'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.Indels_report.txt";
 $opt{'in-ctg-fa'}              ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigs.fa";
+$opt{'in-ctg-tax-assign'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Taxonomy/ctg_class.top.csv";
 $opt{'in-ctg-anno-gff3'}       ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Annotation/PROKKA.gff";
 $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.primers.gff3";
 $opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
@@ -119,7 +121,7 @@ sub main {
 
 		if( -e $opt{'in-ctg-anno-gff3'} ){
 			print "#  - amending annotation gff3...";
-			&fixProkkaGff( $opt{'in-ctg-anno-gff3'}, "$opt{outdir}/contig_annotation.gff3" );
+			&fixProkkaGff( $opt{'in-ctg-anno-gff3'}, $opt{'in-ctg-tax-assign'},"$opt{outdir}/contig_annotation.gff3" );
 			executeCommand("cat $opt{outdir}/contig_annotation.gff3 >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}
@@ -451,9 +453,20 @@ sub fixRefGff3 {
 }
 
 sub fixProkkaGff {
-	my ($infile,$outfile) = @_;
+	my ($infile,$tax_file,$outfile) = @_;
 	my $out_text;
-	
+	my %tax;
+	if ( -e $tax_file){
+		open (my $fh, "<", $tax_file);
+		while(<$fh>){
+			chomp;
+			my @array=split /\t/,$_;
+			next if $array[1] ne "species";
+			$tax{$array[0]}{name}=$array[2];
+			$tax{$array[0]}{taxid}=$array[3];
+		}
+		close $fh;
+	}
 	open IN, $infile or die "Can't run PROKKA GFF3: $!\n";
 
 	while(<IN>){
@@ -478,6 +491,9 @@ sub fixProkkaGff {
 		else{
 			chomp;
 			next if /^#/;
+			my @fields=split /\t/,$_;
+			my $tax_id=($tax{$fields[0]}{taxid})?";db_xref=taxon:$tax{$fields[0]}{taxid}":"";
+			my $tax_name=($tax{$fields[0]}{name})?";organism=$tax{$fields[0]}{name}":"";
 			s/;product=([^;]+)/;Product=$1;Description=$1/i unless /;Description=/;
 			if( /;gene=/i ){
 				s/;gene=([^;]+)/;gene=$1;Name=$1/i;
@@ -485,7 +501,7 @@ sub fixProkkaGff {
 			else{
 				s/\tID=([^;]+)/\tID=$1;Name=$1/i;
 			}
-			$out_text .= "$_\n";
+			$out_text .= "$_$tax_id$tax_name\n";
 		}
 	}
 	$/ = "\n";
