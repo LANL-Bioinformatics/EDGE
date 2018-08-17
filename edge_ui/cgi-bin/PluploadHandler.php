@@ -333,7 +333,7 @@ class PluploadHandler
             }
 	    $fileType = mime_content_type($source_path);
             while ($buff = fread($in, 4096)) {
-                if(preg_match("/text/i", $fileType)){
+                if(preg_match("/text/i", $fileType) && !preg_match("/\.gz/", $target_path)){
                     $buff = preg_replace('~\r\n?~', "\n", $buff);
                 }
                 fwrite($out, $buff);
