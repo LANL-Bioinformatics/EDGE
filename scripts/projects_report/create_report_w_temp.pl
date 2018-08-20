@@ -248,6 +248,11 @@ if($settings->{'tax-tools'} eq "on") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL_BWA} =1;
 			$tax_tools{"bwa"} = 1;
+		}  elsif($field eq "kraken-mini") {
+			$vars->{TAX} = 1;
+			$vars->{TAX_TOOL} = 1;
+			$vars->{TAX_TOOL_KRAKEN} =1;
+			$tax_tools{"kraken_mini"} = 1;
 		}  elsif($field eq "kraken") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL} = 1;
@@ -500,6 +505,7 @@ sub pull_reports {
 		my $out_dir = "$project_out_dir/$project";
 		$proj->{PROJ} = $project;
 		my $report = "$out_dir/HTML_Report/report_web.html";
+		my $pangiaReport = "$out_dir/ReadsBasedAnalysis/Taxonomy/report/1_allReads/pangia/allReads-pangia.list.txt";
 		if(!-e $report) {
 			##call outputMunger_w_temp.pl to generate report
 			`$RealBin/../munger/outputMunger_w_temp.pl $out_dir $report`;
@@ -1650,6 +1656,54 @@ sub pull_reports {
 					}#end if
 					#PanGIA
 					if(/<li><span class="li-report-content-title">PanGIA<\/span><div class="li-report-content">/) {
+						#get pangia result list
+						my @parts;
+						open(PR, $pangiaReport);				
+						while(<PR>) {
+							chomp;
+							@parts = split(/\t/);
+							next if($parts[0] ne "species");
+							my $cols = @parts;
+							my $tool;
+
+							if($cols > 70) {
+								#new pangia result
+								next if($parts[13] < $pangia_score);
+								$tool->{PROJNAME} = $proj->{PROJNAME};
+								$tool->{PROJ} = $proj->{PROJ};
+								$tool->{PROPROJURL} = $vars->{PROJURL};
+								$tool->{LS_TAX} = $parts[1];
+								$tool->{LS_TAX_LINK} = 'http://www.ncbi.nlm.nih.gov/genome/?term="'.$parts[1].'"';
+								$tool->{LS_READS} = $parts[5];
+								$tool->{LS_COV} = $parts[8];
+								$tool->{LS_DOC} = $parts[9];
+								$tool->{LS_RS} = $parts[7];
+								$tool->{LS_SCORE} = $parts[13];
+								my $abu = $parts[14];
+								$tool->{LS_ABUNDANCE} = $abu*100;
+							} else {							
+								#old pangia result
+								next if($parts[13] < $pangia_score);
+								$tool->{PROJNAME} = $proj->{PROJNAME};
+								$tool->{PROJ} = $proj->{PROJ};
+								$tool->{PROPROJURL} = $vars->{PROJURL};
+								$tool->{LS_TAX} = $parts[1];
+								$tool->{LS_TAX_LINK} = 'http://www.ncbi.nlm.nih.gov/genome/?term="'.$parts[1].'"';
+								$tool->{LS_READS} = $parts[5];
+								$tool->{LS_COV} = $parts[16];
+								$tool->{LS_DOC} = $parts[11];
+								$tool->{LS_RS} = $parts[7];
+								$tool->{LS_SCORE} = $parts[13];
+								my $abu = $parts[14];
+								$tool->{LS_ABUNDANCE} = $abu*100;
+							}
+																
+							push @{$proj->{TAX_TOOL_PANGIA_LOOP}}, $tool;
+							push @{$reports_map{$project}{'tax-tool-pangia'}}, $tool;
+						}
+						close(PR);
+						
+						#end
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
@@ -1660,38 +1714,9 @@ sub pull_reports {
 										last;
 									}
 								}
-								my $str;
 								while(<IN>) {
 									chomp;
 									s/^\s+|\s+$//g;
-									if(/<tr>/) {
-										$str = '';
-									} elsif(/<\/tr>/) {
-										##parse tool summary
-										if($str =~ /<td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
-											my $tool;
-											$tool->{PROJNAME} = $proj->{PROJNAME};
-											$tool->{PROJ} = $proj->{PROJ};
-											$tool->{PROPROJURL} = $vars->{PROJURL};
-											$tool->{LS_TAX} = $2;
-											$tool->{LS_READS} = $3;
-											$tool->{LS_COV} = $4;
-											$tool->{LS_DOC} = $5;
-											$tool->{LS_RS} = $6;
-											$tool->{LS_SCORE} = $7;
-											$tool->{LS_ABUNDANCE} = $8;
-											if($tool->{LS_TAX} =~ /<a href='(.*)' target='_blank'>(.*)<\/a>/) {
-												$tool->{LS_TAX} = $2;
-												$tool->{LS_TAX_LINK} = $1;
-											}
-											if($tool->{LS_SCORE}>= $pangia_score) {			
-												push @{$proj->{TAX_TOOL_PANGIA_LOOP}}, $tool;
-												push @{$reports_map{$project}{'tax-tool-pangia'}}, $tool;
-											}
-										} 
-									} else {
-										$str .= $_;
-									}
 									if(/<\/tbody>/) {
 										last;
 									}
@@ -1725,7 +1750,7 @@ sub pull_reports {
 						next;						
 					}#end if
 					#Metaphlan2
-					if(/<li><span class="li-report-content-title">Metaphlan2<\/span><div class="li-report-content">/) {
+					if(/<li><span class="li-report-content-title">Metaphlan\d?<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
@@ -1865,7 +1890,7 @@ sub pull_reports {
 						next;						
 					}#end if 
 					#Kraken mini
-					if(/<li><span class="li-report-content-title">Kraken \(mini database\)<\/span><div class="li-report-content">/) {
+					if(/<li><span class="li-report-content-title">Kraken.*<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
@@ -1909,17 +1934,17 @@ sub pull_reports {
 							}
 
 							##get files/figures					
-							if(/<a data-ajax='false' href='(.*allReads-kraken\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT_TXT} = "SVG";
 								next;
 							}					
-							if(/<a data-ajax='false' href='(.*allReads-kraken\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT_TXT} = "HTML";
 								next;
 							}								
-							if(/<a data-ajax='false' href='(.*allReads-kraken\.list\.txt)'> Abundance <\/a>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.list\.txt)'> Abundance <\/a>/) {
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE} = $1;
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE_TXT} = "TXT";
 								last;
