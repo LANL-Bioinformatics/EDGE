@@ -1,3 +1,16 @@
+-- Version 20180829
+EDGE version 2.3.1
+* fix bug: blank SRA accesion variable 
+* Add comma separated single reads support for batch submit
+* Add script to update existing projects status, runtime, submission time
+* Add contig taxonomy classification info (species) into JBrowse annotation gff track 
+* Assign HOME to EDGE_HOME when not using regular user runing PanGIA
+* Update samtools from 1.6 to 1.9
+* Auto Adjust bwa alignment score by reads length for PanGIA pipeline.
+
+EDGE GUI 2.3.1
+* fix bug: corrupted gz file using Upload function
+
 -- Version 20180724
 EDGE version 2.3.0
 * Update Kraken version from 0.10.4 beta to 1.0
