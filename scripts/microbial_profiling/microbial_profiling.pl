@@ -228,6 +228,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
 			$cmd = &param_replace( $cmd, $file_info, $tools, $idx, $tool );
 			$qsub_cmd = &param_replace( $qsub_cmd, $file_info, $tools, $idx, $tool );
 			if ($tools->{system}->{RUN_TOOL_AS_JOB}){
+				unlink $log;
 				&_notify("[RUN_TOOL] [$tool] COMMAND: $qsub_cmd\n");
 				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 				#&_notify("$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd\n");

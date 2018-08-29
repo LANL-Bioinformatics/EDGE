@@ -965,13 +965,13 @@ echo "
 
 install_samtools()
 {
-local VER=1.6
+local VER=1.9
 echo "------------------------------------------------------------------------------
                            Compiling samtools-$VER
 ------------------------------------------------------------------------------
 "
 tar xvzf samtools-$VER.tar.gz
-cd samtools-1.6
+cd samtools-$VER
 #make CFLAGS='-g -fPIC -Wall -O2'
 ./configure --prefix=$rootdir
 make
@@ -1962,7 +1962,7 @@ then
   then
       samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`; 
   fi
-  if  ( echo $samtools_installed_VER | awk '{if($1>=1.3) exit 0; else exit 1}' )
+  if  ( echo $samtools_installed_VER | awk '{if($1>=1.7) exit 0; else exit 1}' )
   then
       echo "samtools is found"
   else
