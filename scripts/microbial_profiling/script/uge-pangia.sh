@@ -96,6 +96,12 @@ then
     BG_JSON_OPT="-lb $BG_JSON"
 fi
 
+if [[ -z "$HOME" ]]
+then
+	#for parallel in pangia 
+	HOME=$EDGE_HOME
+fi
+
 pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
 
 # prepare pangia-vis
