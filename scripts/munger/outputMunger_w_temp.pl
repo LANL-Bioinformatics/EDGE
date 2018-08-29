@@ -1609,6 +1609,7 @@ sub pull_taxa {
 				}
 								
 				$tool->{CPTOOL_PANGIA_TSV} = "$projname.tsv" if ( -e "$proj_pvis_dir/$projname.tsv");
+				$tool->{CPTOOL_PANGIA_PROJNAME} = $vars->{PROJNAME};
 
 				if( !-e "$sys_pvis_dir/$projname/report.tsv" && -e "$proj_pvis_dir/report.tsv" ){
 					symlink("$proj_pvis_dir", "$sys_pvis_dir/$projname");
