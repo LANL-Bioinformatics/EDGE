@@ -250,8 +250,10 @@ $( document ).ready(function()
 	function replaceUMurl() {
 		var umhref = (umSystemURL.indexOf(location.hostname)>0 || umSystemURL.indexOf("localhost")>0)? location.protocol  + "//" + location.host + "/userManagement": umSystemURL;
 		$('#begin-password-reset').find('iframe').attr("src", umhref + "/resetPasswd.jsp");
-		$('#signUpForm').find('iframe').attr("src", umhref + "/register.jsp");
-		$('#UpdateProfileForm').find('iframe').attr("src", umhref + "/userUpdate.jsp");
+		setTimeout(function(){
+			$('#signUpForm').find('iframe').attr("src", umhref + "/register.jsp");
+		},100);
+		//$('#UpdateProfileForm').find('iframe').attr("src", umhref + "/userUpdate.jsp");
 	}
 	function check_login(){
 		if ( localStorage.sid && localStorage.sid !='' && localStorage.sid !='undefined' ){
