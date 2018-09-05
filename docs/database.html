@@ -186,8 +186,12 @@
 <h1>8. Databases<a class="headerlink" href="#databases" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="edge-provided-databases">
 <h2>8.1. EDGE provided databases<a class="headerlink" href="#edge-provided-databases" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="taxnomomy-database-info-table">
+<h3>8.1.1. Taxnomomy Database Info Table<a class="headerlink" href="#taxnomomy-database-info-table" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html">https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html</a></p>
+</div>
 <div class="section" id="ncbi-refseq">
-<h3>8.1.1. NCBI Refseq<a class="headerlink" href="#ncbi-refseq" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.2. NCBI Refseq<a class="headerlink" href="#ncbi-refseq" title="Permalink to this headline">¶</a></h3>
 <p>EDGE prebuilt blast db and bwa_index of NCBI RefSeq genomes.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
@@ -208,13 +212,13 @@
 <p>see $EDGE_HOME/database/bwa_index/id_mapping.txt for all gi/accession to genome name lookup table.</p>
 </div>
 <div class="section" id="krona-taxonomy">
-<h3>8.1.2. Krona taxonomy<a class="headerlink" href="#krona-taxonomy" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.3. Krona taxonomy<a class="headerlink" href="#krona-taxonomy" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>paper: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=21961884">http://www.ncbi.nlm.nih.gov/pubmed/?term=21961884</a></li>
 <li>website: <a class="reference external" href="http://sourceforge.net/p/krona/home/krona/">http://sourceforge.net/p/krona/home/krona/</a></li>
 </ul>
 <div class="section" id="update-krona-taxonomy-db">
-<h4>8.1.2.1. Update Krona taxonomy db<a class="headerlink" href="#update-krona-taxonomy-db" title="Permalink to this headline">¶</a></h4>
+<h4>8.1.3.1. Update Krona taxonomy db<a class="headerlink" href="#update-krona-taxonomy-db" title="Permalink to this headline">¶</a></h4>
 <p>Download these files from <a class="reference external" href="ftp://ftp.ncbi.nih.gov/pub/taxonomy">ftp://ftp.ncbi.nih.gov/pub/taxonomy</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">ncbi</span><span class="o">.</span><span class="n">nih</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">taxonomy</span><span class="o">/</span><span class="n">gi_taxid_nucl</span><span class="o">.</span><span class="n">dmp</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">wget</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">ncbi</span><span class="o">.</span><span class="n">nih</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">taxonomy</span><span class="o">/</span><span class="n">gi_taxid_prot</span><span class="o">.</span><span class="n">dmp</span><span class="o">.</span><span class="n">gz</span>
@@ -228,7 +232,7 @@
 </div>
 </div>
 <div class="section" id="metaphlan2-database">
-<h3>8.1.3. Metaphlan2 database<a class="headerlink" href="#metaphlan2-database" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.4. Metaphlan2 database<a class="headerlink" href="#metaphlan2-database" title="Permalink to this headline">¶</a></h3>
 <p>MetaPhlAn2 relies on unique clade-specific marker genes identified from ~17,000 reference genomes (~13,500 bacterial and archaeal, ~3,500 viral, and ~110 eukaryotic)</p>
 <ul class="simple">
 <li>paper: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=22688413">http://www.ncbi.nlm.nih.gov/pubmed/?term=22688413</a></li>
@@ -236,7 +240,7 @@
 </ul>
 </div>
 <div class="section" id="human-genome">
-<h3>8.1.4. Human Genome<a class="headerlink" href="#human-genome" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.5. Human Genome<a class="headerlink" href="#human-genome" title="Permalink to this headline">¶</a></h3>
 <p>The bwa index is prebuilt in the EDGE.
 The human hs_ref_GRCh38 sequences from NCBI ftp site.</p>
 <ul class="simple">
@@ -244,30 +248,30 @@ The human hs_ref_GRCh38 sequences from NCBI ftp site.</p>
 </ul>
 </div>
 <div class="section" id="minikraken-db">
-<h3>8.1.5. MiniKraken DB<a class="headerlink" href="#minikraken-db" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.6. MiniKraken DB<a class="headerlink" href="#minikraken-db" title="Permalink to this headline">¶</a></h3>
 <p>Kraken is a system for assigning taxonomic labels to short DNA sequences, usually obtained through metagenomic studies. MiniKraken is default in EDGE and is a pre-built 8 GB database constructed from complete bacterial, archaeal, and viral genomes in RefSeq (as of Oct. 12, 2017).</p>
 <ul class="simple">
 <li>paper: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=24580807">http://www.ncbi.nlm.nih.gov/pubmed/?term=24580807</a></li>
 <li>website: <a class="reference external" href="http://ccb.jhu.edu/software/kraken/">http://ccb.jhu.edu/software/kraken/</a></li>
 </ul>
-<p>Full Kraken database is available on <a class="reference external" href="ftp://ftp.lanl.gov/public/genome/EDGE/full_kraken_db/">LANL FTP</a>
+<p>Full Kraken database is available on <a class="reference external" href="https://edge-dl.lanl.gov/EDGE/full_kraken_db/">LANL FTP</a>
 User can use it as custom kraken db. The database is large (155G after unzip) and using it requires ~150 GB memory too.</p>
 </div>
 <div class="section" id="gottcha-db">
-<h3>8.1.6. GOTTCHA DB<a class="headerlink" href="#gottcha-db" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.7. GOTTCHA DB<a class="headerlink" href="#gottcha-db" title="Permalink to this headline">¶</a></h3>
 <p>A novel, annotation-independent and signature-based metagenomic taxonomic profiling tool.</p>
 <ul class="simple">
 <li>website: <a class="reference external" href="http://lanl-bioinformatics.github.io/GOTTCHA/">http://lanl-bioinformatics.github.io/GOTTCHA/</a></li>
-<li>ftp: <a class="reference external" href="ftp://ftp.lanl.gov/public/genome/gottcha/">ftp://ftp.lanl.gov/public/genome/gottcha/</a></li>
+<li>ftp: <a class="reference external" href="https://edge-dl.lanl.gov/gottcha/">https://edge-dl.lanl.gov/gottcha/</a></li>
 <li>version: v20150825</li>
 </ul>
 </div>
 <div class="section" id="snpdb">
-<h3>8.1.7. SNPdb<a class="headerlink" href="#snpdb" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.8. SNPdb<a class="headerlink" href="#snpdb" title="Permalink to this headline">¶</a></h3>
 <p>SNP database based on whole genome comparison. Current available db are <a class="reference internal" href="#snp-db"><span class="std std-ref">Ecoli, Yersinia, Francisella, Brucella, Bacillus</span></a> .</p>
 </div>
 <div class="section" id="invertebrate-vectors-of-human-pathogens">
-<h3>8.1.8. Invertebrate Vectors of Human Pathogens<a class="headerlink" href="#invertebrate-vectors-of-human-pathogens" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.9. Invertebrate Vectors of Human Pathogens<a class="headerlink" href="#invertebrate-vectors-of-human-pathogens" title="Permalink to this headline">¶</a></h3>
 <p>The bwa index is prebuilt in the EDGE.</p>
 <ul class="simple">
 <li>paper: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=22135296">http://www.ncbi.nlm.nih.gov/pubmed/?term=22135296</a></li>
@@ -276,14 +280,14 @@ User can use it as custom kraken db. The database is large (155G after unzip) an
 <p>version: 2014 July 24</p>
 </div>
 <div class="section" id="ncbi-nucleotide-database-nt-database">
-<h3>8.1.9. NCBI Nucleotide database (NT) database<a class="headerlink" href="#ncbi-nucleotide-database-nt-database" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.10. NCBI Nucleotide database (NT) database<a class="headerlink" href="#ncbi-nucleotide-database-nt-database" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>website: <a class="reference external" href="ftp://ftp.ncbi.nih.gov/blast/db/">ftp://ftp.ncbi.nih.gov/blast/db/</a></li>
 <li>version: 2016 April 26</li>
 </ul>
 </div>
 <div class="section" id="vfdb">
-<h3>8.1.10. VFDB<a class="headerlink" href="#vfdb" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.11. VFDB<a class="headerlink" href="#vfdb" title="Permalink to this headline">¶</a></h3>
 <p>A Microbial database of virulence factors</p>
 <ul class="simple">
 <li>paper: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=26578559">http://www.ncbi.nlm.nih.gov/pubmed/?term=26578559</a></li>
@@ -292,7 +296,7 @@ User can use it as custom kraken db. The database is large (155G after unzip) an
 </ul>
 </div>
 <div class="section" id="ardb">
-<h3>8.1.11. ARDB<a class="headerlink" href="#ardb" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.12. ARDB<a class="headerlink" href="#ardb" title="Permalink to this headline">¶</a></h3>
 <p>Antibiotic Resistance Genes Database</p>
 <ul class="simple">
 <li>website: <a class="reference external" href="http://ardb.cbcb.umd.edu/index.html">http://ardb.cbcb.umd.edu/index.html</a></li>
@@ -300,7 +304,7 @@ User can use it as custom kraken db. The database is large (155G after unzip) an
 </ul>
 </div>
 <div class="section" id="card">
-<h3>8.1.12. CARD<a class="headerlink" href="#card" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.13. CARD<a class="headerlink" href="#card" title="Permalink to this headline">¶</a></h3>
 <p>The Comprehensive Antibiotic Resistance Database</p>
 <ul class="simple">
 <li>website: <a class="reference external" href="https://card.mcmaster.ca/">https://card.mcmaster.ca/</a></li>
@@ -308,7 +312,7 @@ User can use it as custom kraken db. The database is large (155G after unzip) an
 </ul>
 </div>
 <div class="section" id="amplicon-16s-18s-its">
-<h3>8.1.13. Amplicon: 16s/18s/ITS<a class="headerlink" href="#amplicon-16s-18s-its" title="Permalink to this headline">¶</a></h3>
+<h3>8.1.14. Amplicon: 16s/18s/ITS<a class="headerlink" href="#amplicon-16s-18s-its" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><p>For QIIME (Quantitative insights into Microbial Ecology) analysis</p>
 <ul class="simple">

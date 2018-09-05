@@ -202,56 +202,56 @@
 <li><p class="first">Please ensure that your system has the <a class="reference internal" href="system_requirement.html"><span class="doc">essential software building packages</span></a>. installed properly before proceeding following installation.</p>
 </li>
 <li><p class="first">Download the codebase, databases and third party tools.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre>
-## Codebase is ~207Mb and contains all the scripts and HTML needed to make EDGE run
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_main.tgz
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Codebase is ~207Mb and contains all the scripts and HTML needed to make EDGE run</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_main</span><span class="o">.</span><span class="n">tgz</span>
 
-## Third party tools is ~2.8Gb and contains the underlying programs needed to do the analysis
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_thirdParty_softwares.tgz
+<span class="c1">## Third party tools is ~2.8Gb and contains the underlying programs needed to do the analysis</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_thirdParty_softwares</span><span class="o">.</span><span class="n">tgz</span>
 
-## Pipeline database is ~17Gb and contains the other databases needed for EDGE
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_pipeline_databases.tgz
+<span class="c1">## Pipeline database is ~17Gb and contains the other databases needed for EDGE</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_pipeline_databases</span><span class="o">.</span><span class="n">tgz</span>
 
-## BWA index is ~41Gb and contains the databases for bwa taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_bwa_index.tgz
+<span class="c1">## BWA index is ~41Gb and contains the databases for bwa taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_bwa_index</span><span class="o">.</span><span class="n">tgz</span>
 
-## HOST genomes BWA index is ~41Gb for Host removal, including human, bacteria, phiX, viruses, invertebrate vectors of human pathogens
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_HostIndex.tgz
+<span class="c1">## HOST genomes BWA index is ~41Gb for Host removal, including human, bacteria, phiX, viruses, invertebrate vectors of human pathogens</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_HostIndex</span><span class="o">.</span><span class="n">tgz</span>
 
-## NCBI Genomes is ~21Gb and contain the full genomes for prokaryotes and some viruses
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_NCBI_genomes.tgz
+<span class="c1">## NCBI Genomes is ~21Gb and contain the full genomes for prokaryotes and some viruses</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_NCBI_genomes</span><span class="o">.</span><span class="n">tgz</span>
 
-## GOTTCHA database is ~16Gb and contains the custom databases for the GOTTCHA taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_GOTTCHA_db.tgz
+<span class="c1">## GOTTCHA database is ~16Gb and contains the custom databases for the GOTTCHA taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA_db</span><span class="o">.</span><span class="n">tgz</span>
 
-## Amplicon database is ~78Mb and contains the databases for Qiime 16s and 18s ITS pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_amplicons_db.tgz
+<span class="c1">## Amplicon database is ~78Mb and contains the databases for Qiime 16s and 18s ITS pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_amplicons_db</span><span class="o">.</span><span class="n">tgz</span>
 
-## NT database is ~25Gb and contains the NCBI nt database for contig identification
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_nt_20160426.tgz
+<span class="c1">## NT database is ~25Gb and contains the NCBI nt database for contig identification</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_nt_20160426</span><span class="o">.</span><span class="n">tgz</span>
 
-## ShortBRED database is ~27Mb and contains the databases used by ShortBRED for virulence factors and read based antibiotic resistance analysis
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_ShortBRED_Database.tgz
+<span class="c1">## ShortBRED database is ~27Mb and contains the databases used by ShortBRED for virulence factors and read based antibiotic resistance analysis</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_ShortBRED_Database</span><span class="o">.</span><span class="n">tgz</span>
 
-## PanGIA database is ~12Gb and contains the databases used for the PanGIA taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_PanGIA_db.tgz
+<span class="c1">## PanGIA database is ~12Gb and contains the databases used for the PanGIA taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_PanGIA_db</span><span class="o">.</span><span class="n">tgz</span>
 
-## Diamond database is ~16Gb and contains the databases from RefSeq for protein based taxonomic identification
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_diamond_db.tgz
+<span class="c1">## Diamond database is ~16Gb and contains the databases from RefSeq for protein based taxonomic identification</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_diamond_db</span><span class="o">.</span><span class="n">tgz</span>
 
-## MetaPhlAn2 database is 1.1Gb contains the databases used for the MetaPhlAn2 taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_metaphlan2DB.tgz
+<span class="c1">## MetaPhlAn2 database is 1.1Gb contains the databases used for the MetaPhlAn2 taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_metaphlan2DB</span><span class="o">.</span><span class="n">tgz</span>
 
-(Optional)
-## Other Host bwa index ~18Gb for host removal, including pig, sheep, cow, monkey, hamster. and goat.
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_otherHostIndex.tgz
+<span class="p">(</span><span class="n">Optional</span><span class="p">)</span>
+<span class="c1">## Other Host bwa index ~18Gb for host removal, including pig, sheep, cow, monkey, hamster. and goat.</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_otherHostIndex</span><span class="o">.</span><span class="n">tgz</span>
 
-## GOTTCHA2 databases are 27Gb and ~1Gb and contains the custom databases for the GOTTCHA2 taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_GOTTCHA2_bac_db.tgz
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_GOTTCHA2_virus_db.tgz
+<span class="c1">## GOTTCHA2 databases are 27Gb and ~1Gb and contains the custom databases for the GOTTCHA2 taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA2_bac_db</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_GOTTCHA2_virus_db</span><span class="o">.</span><span class="n">tgz</span>
 
-## For machine with < 32Gb memory, we suggest to use the smaller BWA index (~14Gb) and contains the databases for bwa taxonomic identification pipeline
-wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_bwa_mini_index.tgz</pre></div>
+<span class="c1">## For machine with &lt; 32Gb memory, we suggest to use the smaller BWA index (~14Gb) and contains the databases for bwa taxonomic identification pipeline</span>
+<span class="n">wget</span> <span class="o">-</span><span class="n">c</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">edge</span><span class="o">-</span><span class="n">dl</span><span class="o">.</span><span class="n">lanl</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">EDGE</span><span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">edge_dev_bwa_mini_index</span><span class="o">.</span><span class="n">tgz</span>
+</pre></div>
 </div>
 </li>
 </ol>
@@ -287,10 +287,10 @@ wget -c https://bioedge.lanl.gov/resource/dev/edge_dev_bwa_mini_index.tgz</pre><
 </div>
 <p>5 Unpack the databases:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># unpack databases</span>
-<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_v1</span><span class="o">.</span><span class="mi">5</span><span class="n">_pipeline_databases</span><span class="o">.</span><span class="n">tgz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_pipeline_databases</span><span class="o">.</span><span class="n">tgz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_GOTTCHA_db</span><span class="o">.</span><span class="n">tgz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_bwa_index</span><span class="o">.</span><span class="n">tgz</span>
-<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_v1</span><span class="o">.</span><span class="mi">5</span><span class="n">_NCBI_genomes</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_NCBI_genomes</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_amplicons_db</span><span class="o">.</span><span class="n">tgz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">edge_dev_nt_20160426</span><span class="o">.</span><span class="n">tgz</span>
 <span class="n">tar</span> <span class="o">-</span><span class="n">xvzf</span> <span class="n">edge_dev_ShortBRED_Database</span><span class="o">.</span><span class="n">tgz</span>
@@ -861,6 +861,7 @@ sudo chmod 744 /usr/share/tomcat/webapps/userManagement/WEB-INF/classes/sys.prop
 </div></blockquote>
 <p>It will ask <a class="reference external" href="installation.html#user-management-system-installation-tomcat">tomcat service username and password</a> (tomcat-users.xml:) before creating EDGE user account (email).</p>
 <p>If “HTTP Status 401” error shows, please make sure the tomcat username and password in the <a class="reference external" href="installation.html#user-management-system-installation-tomcat">first step</a> match with what entered here.</p>
+<p>If “HTTP Status 403” error shows, please make sure the tomcat rolename in the <a class="reference external" href="installation.html#user-management-system-installation-tomcat">first step</a> match with /var/lib/tomcat/webapps/userManagementWS/WEB-INF/web.xml and where the web.xml file existed or not.</p>
 <p class="last">Should this script fail, the userManagement is not set up correctly.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">perl</span> <span class="n">createAdminAccount</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">e</span> <span class="o">&lt;</span><span class="n">email</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">fn</span> <span class="o">&lt;</span><span class="n">first</span> <span class="n">name</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">ln</span> <span class="o">&lt;</span><span class="n">last</span> <span class="n">name</span><span class="o">&gt;</span>
@@ -985,7 +986,7 @@ edge_dbpasswd=edge_user_password
 </ol>
 </div>
 <div class="section" id="edge-configuration">
-<span id="id1"></span><h3>4.1.6. EDGE configuration<a class="headerlink" href="#edge-configuration" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3>4.1.6. EDGE configuration<a class="headerlink" href="#edge-configuration" title="Permalink to this headline">¶</a></h3>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">EDGE system configuration file is $EDGE_HOME/edge_ui/sys.proprties. You can edit this file to turn on/off EDGE functions/modules here. (on=1, off=0);</p>
@@ -1127,7 +1128,7 @@ Therefore, we highly recommended using <a class="reference external" href="http:
 The <a class="reference external" href="installation.html#edge-installation">EDGE databases</a> are not included in the image. You will need to download and mount the databases, input and output directories after you launch the VM. Below are instructions to run EDGE VM on your local server:</p>
 <ol class="arabic simple">
 <li>Install <a class="reference external" href="http://www.vmware.com/products/player/playerpro-evaluation.html">VMware Workstation player</a> .</li>
-<li>Download the EDGE VM image (EDGE_vm_dev_RC2.ova) from <a class="reference external" href="ftp://ftp.lanl.gov/public/genome/EDGE/dev/VirtualMachine/">LANL FTP site</a>.</li>
+<li>Download the EDGE VM image (EDGE_vm_dev_RC2.ova) from <a class="reference external" href="https://edge-dl.lanl.gov/EDGE/dev/VirtualMachine/">LANL FTP site</a>.</li>
 <li>Download the <a class="reference external" href="installation.html#edge-installation">EDGE databases</a> and follow instruction to unpack them.</li>
 <li>Import the EDGE VM image. If the first time import fails (due to strict OVF specification), click <strong>“Retry”</strong>; this will allow import of the image.</li>
 </ol>
