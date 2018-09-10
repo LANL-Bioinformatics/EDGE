@@ -986,13 +986,13 @@ echo "
 
 install_bcftools()
 {
-local VER=1.6
+local VER=1.9
 echo "------------------------------------------------------------------------------
                            Compiling bcftools-$VER
 ------------------------------------------------------------------------------
 "
 tar xvzf bcftools-$VER.tar.gz
-cd bcftools-1.6
+cd bcftools-$VER
 ./configure --prefix=$rootdir
 make
 make install
@@ -1345,6 +1345,7 @@ ln -fs $anaconda3bin/python3 $rootdir/bin
 tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
+$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
@@ -1980,7 +1981,7 @@ then
   then
       bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`;
   fi
-  if  ( echo $bcftools_installed_VER | awk '{if($1>=1.3) exit 0; else exit 1}' )
+  if  ( echo $bcftools_installed_VER | awk '{if($1>=1.7) exit 0; else exit 1}' )
   then
       echo "bcftools is found"
   else
