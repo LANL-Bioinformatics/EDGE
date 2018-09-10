@@ -2812,6 +2812,7 @@ sub runReadsToGenome
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
+    my $variant_call_ploidy =  (defined $configuration->{r2g_variant_call_ploidy})? $configuration->{r2g_variant_call_ploidy} : "haploid";
     &make_dir($outputDir);
     symlink("$outputDir", "$outDir/ReferenceBasedAnalysis/readsMappingToRef");
     if ($noColorLog)
@@ -2856,6 +2857,7 @@ sub runReadsToGenome
     }
 
     $parameters .= " -no_snp " if ($variant_call == 0);
+    $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");

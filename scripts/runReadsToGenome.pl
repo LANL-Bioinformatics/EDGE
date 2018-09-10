@@ -59,6 +59,7 @@ my $min_alt_bases=3;  # minimum number of alternate bases
 my $max_depth=1000000; # maximum read depth
 my $min_depth=7; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
+my $ploidy = "";  # default diploid.  other option: haploid
 
 
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
@@ -84,6 +85,7 @@ GetOptions(
             'max_depth' => \$max_depth,
             'min_depth' => \$min_depth,
             'snp_gap_filter' => \$snp_gap_filter,
+	    'ploidy' => \$ploidy,
             'cpu=i' => \$numCPU,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
@@ -318,7 +320,8 @@ for my $ref_file_i ( 0..$#ref_files){
 		## SNP call
 		if (!$no_snp){
 			print "SNPs/Indels call on $ref_file_name\n";
-			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call -cO b - > $bcf_output 2>/dev/null`;
+			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : ""; 
+			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -cO b - > $bcf_output 2>/dev/null`;
 			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth > $vcf_output`;
 		}
 
@@ -1004,7 +1007,8 @@ Usage: perl $0
                -debug                    <bool> default: off
                -cpu                      number of CPUs [4]. will overwrite aligner options. 
 	
-               # Variant Filter parameters
+               # Variant calling/Filter parameters
+	       -ploidy                   haploid or diploid
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
                -min_alt_bases            minimum number of alternate bases [3]
                -max_depth                maximum read depth [1000000]
