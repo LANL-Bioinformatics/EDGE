@@ -238,7 +238,7 @@
 			<h4>Pre-processing</h4>
 			
 			<ol>
-			<li><span class="li-report-content-title">Raw Reads</span><div class="li-report-content">
+			<li id="countTag"><span class="li-report-content-title">Raw Reads</span><div class="li-report-content">
 				<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 				  <thead>
 					<tr>
@@ -254,7 +254,7 @@
 				</table>
 			</div></li>
 			<TMPL_IF NAME="OUT_QC_SW">
-			<li><span class="li-report-content-title">Quality Trimming</span><div class="li-report-content">
+			<li id="qcTag" ><span class="li-report-content-title">Quality Trimming</span><div class="li-report-content">
 				<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 				  <thead>
 					<tr>
@@ -387,7 +387,7 @@
 				<TMPL_IF NAME="OUT_AS_PC_SW">
 				<li><span class="li-report-content-title">Stats of Provided Contigs</span><div class="li-report-content">
 				<TMPL_ELSE>
-				<li><span class="li-report-content-title">De Novo Assembly by <TMPL_VAR NAME=ASSEMBLER></span><div class="li-report-content">
+				<li id="asTag"><span class="li-report-content-title">De Novo Assembly by <TMPL_VAR NAME=ASSEMBLER></span><div class="li-report-content">
 					<TMPL_IF NAME="ASSYERR">
 					<p class="error"><TMPL_VAR NAME=ASSYERR></p>
 					</TMPL_IF>
@@ -434,7 +434,7 @@
 					</TMPL_UNLESS>
 				</div></li>
 				<TMPL_UNLESS NAME="OUT_CONLY_SW">
-				<li><span class="li-report-content-title">Assembly Validation by Read Mapping</span><div class="li-report-content">
+				<li id="r2cTag"><span class="li-report-content-title">Assembly Validation by Read Mapping</span><div class="li-report-content">
 					<TMPL_UNLESS NAME="ASSYERR">
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 					  <thead>
@@ -485,7 +485,7 @@
 				</div></li>
 				</TMPL_UNLESS>
 				<TMPL_IF NAME="OUT_AN_SW">
-				<li><span class="li-report-content-title">Annotation</span><div class="li-report-content">
+				<li id="annoTag"><span class="li-report-content-title">Annotation</span><div class="li-report-content">
 					<TMPL_IF NAME="ANOERR">
 						<p class="error"><TMPL_VAR NAME=ANOERR></p>
 					<TMPL_ELSE>
@@ -566,7 +566,7 @@
 			<!--<p>Reference file: <TMPL_VAR NAME=REFFILE></p>-->
 			<ol>
 			<TMPL_IF NAME="OUT_R2G_SW">
-				<li><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
+				<li id="r2gTag"><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					<ol>
 						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
 							<!--<table data-role='table' class='output-table output-table-twocol ui-responsive'>
@@ -740,7 +740,7 @@
 				</TMPL_IF>
 
 				<TMPL_IF NAME="OUT_C2G_SW">
-				<li><span class="li-report-content-title">Contigs Mapped to Reference(s)</span><div class="li-report-content">
+				<li id="c2gTag"><span class="li-report-content-title">Contigs Mapped to Reference(s)</span><div class="li-report-content">
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 					  <thead>
 						<tr>
@@ -859,7 +859,7 @@
 			<ol>
 				<p class="edge_tool_note">Each tool has its own database and you can find the taxonomy information table <a href="https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html" target="_new">[here]</a>.</p>
 				<TMPL_IF NAME="OUT_RCP_SW">
-				<li><span class="li-report-content-title">Read-based Taxonomy Classification</span><div class="li-report-content">
+				<li id="rtaxTag"><span class="li-report-content-title">Read-based Taxonomy Classification</span><div class="li-report-content">
 				<ol>
 				<p><TMPL_VAR NAME=CPRESULT DEFAULT=-></p>
 					<li><span class="li-report-content-title">Comparative Overview of Selected Tools</span><div class="li-report-content">
@@ -1036,7 +1036,7 @@
 				</div></li>
 				</TMPL_IF>
 				<TMPL_IF NAME="OUT_CCP_SW">
-				<li><span class="li-report-content-title">Assembly-based Community Profiling</span><div class="li-report-content">
+				<li id="ctaxTag"><span class="li-report-content-title">Assembly-based Community Profiling</span><div class="li-report-content">
 					<div id="edge-output-ccp-summary">
 						<table data-role='table' class='output-table ui-responsive'>
 						  <thead>
@@ -1160,7 +1160,7 @@
 
 		<TMPL_IF NAME="OUT_SP_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>Phylogenetic Analysis</h4>
+			<h4 id="phyloTag">Phylogenetic Analysis</h4>
 	
 				<TMPL_IF NAME="SPWARN">
 				<p class="error"><TMPL_VAR NAME=SPWARN></p>
@@ -1229,7 +1229,7 @@
 
 		<TMPL_IF NAME="OUT_SG_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>Gene Family Analysis</h4>
+			<h4 id="gfaTag">Gene Family Analysis</h4>
 			<ol>
 				<TMPL_IF NAME="OUT_RSG_SW">
 					<li><span class="li-report-content-title">Reads Gene Family Analysis</span><div class="li-report-content">
@@ -1479,7 +1479,7 @@
 	</TMPL_IF> <!-- OUT_SG_SW -->
 	<TMPL_IF NAME="OUT_PA_SW">
 		<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>PCR Primer Analysis</h4>
+			<h4 id="pdTag">PCR Primer Analysis</h4>
 			<ol>
 				<TMPL_IF NAME="OUT_PA_V_SW">
 				<li><span class="li-report-content-title">Primer Validation</span><div class="li-report-content">

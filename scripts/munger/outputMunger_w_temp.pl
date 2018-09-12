@@ -1879,6 +1879,18 @@ sub pull_summary {
 			else{
 				$cnt+=100;
 				$prog->{$cnt}->{GNLANALYSIS}=$step;
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#countTag\">$step</a>" if ($step eq "Count Fastq");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#qcTag\">$step</a>" if ($step eq "Quality Trim and Filter");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#asTag\">$step</a>" if ($step eq "Assembly");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2cTag\">$step</a>" if ($step eq "Reads Mapping To Contigs");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2gTag\">$step</a>" if ($step eq "Reads Mapping To Reference");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#rtaxTag\">$step</a>" if ($step eq "Reads Taxonomy Classification");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#ctaxTag\">$step</a>" if ($step eq "Contigs Taxonomy Classification");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#c2gTag\">$step</a>" if ($step eq "Contigs Mapping To Reference");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#annoTag\">$step</a>" if ($step eq "Contigs Annotation");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#phyloTag\">$step</a>" if ($step eq "Phylogenetic Analysis");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#gfaTag\">$step</a>" if ($step eq "Gene Family Analysis");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#pdTag\">$step</a>" if ($step eq "Primer Design");
 				$map{"$step"}=$cnt;
 			}
 		}

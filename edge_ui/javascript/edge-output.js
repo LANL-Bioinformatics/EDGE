@@ -26,13 +26,18 @@ $( document ).ready(function()
 	$( "#edge-content-report p.extra-text-link > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
 	$( "#edge-content-report .iframe_label > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
 	$( "#edge-content-report .jb_link" ).attr( "target", "new_window");
-	$( "#edge-content-report table.output-table td > a:not(a[data-rel='popup'])" ).attr( "target", "new_window");
+	$( "#edge-content-report table.output-table td > a:not(a[data-rel='popup'],.anchorlink)" ).attr( "target", "new_window");
 	$( ".edge-compare-output .iframe_label > a:not(a[data-rel='popup'])" ).attr( "target", "_blank");
 
 	$( "#edge-content-report span.li-report-content-title" ).on("click",function(){
 		$(this).next().slideToggle();
 	});
-
+	$( ".anchorlink").on("click",function(e){
+		e.preventDefault();
+		$('html, body').animate({
+			scrollTop: $($(this).attr('href')).offset().top - 80 }, 300, 'linear'
+		);
+	});
 	$( "#edge-content-report a.open-jbrowse-iframe" ).on("click",function(){
 		var iobg = $(this).next();
 		if( iobg.prop("tagName") == "IFRAME" && iobg.is(":visible") ){
