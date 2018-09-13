@@ -90,7 +90,7 @@ if ($opt{nanopore}){
 	# gottcha2 doesn't expose aligner options.
 	$opt{"gottcha2-opts"} = "";
 	$opt{"bwa-opts"}="-a \'-x ont2d\'";
-	$opt{"pangia-opts"}= "\'-sb -se --nanopore\' ";
+	$opt{"pangia-opts"}= "-sb -se --nanopore ";
 }
 
 foreach my $tool ( @tools ){
