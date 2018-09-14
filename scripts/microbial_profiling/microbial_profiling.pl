@@ -378,7 +378,8 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 		if( $idx == 1 ){
 			foreach my $rank (("genus","species","strain")){
 				if ( ! -e "$p_repdir/heatmap_TOOL-$tool.$rank.pdf" ){
-					print $post_fh "merge_list_specTaxa_by_tool.pl $p_outdir/*/$tool/*.list -p $fnb --top $heatmap_top -l $rank > $tmpdir/$tool.$rank.heatmap.matrix;\n";
+					print $post_fh "merge_list_specTaxa_by_tool.pl $p_outdir/*/$tool/*.list -p $fnb --top $heatmap_top -l $rank -otu $tmpdir/$tool.$rank.otu.txt -output $tmpdir/$tool.$rank.heatmap.matrix;\n";
+					print $post_fh "biom convert -i $tmpdir/$tool.$rank.otu.txt -o $tool_rep_dir/$fnb-$tool.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy 2>/dev/null\n";
 					print $post_fh "heatmap_distinctZ_noClust_zeroRowAllow.py --maxv 100 -s $heatmap_scale --in $tmpdir/$tool.$rank.heatmap.matrix --out $p_repdir/heatmap_TOOL-$tool.$rank.pdf  2>/dev/null\n";
 				}
 			}
@@ -398,9 +399,13 @@ convert_list2radarChart.pl --level species --outdir $p_repdir --outprefix radarc
 convert_list2radarChart.pl --level strain  --outdir $p_repdir --outprefix radarchart_DATASET $fnb_rep_dir/*/*.list.txt &
 
 echo \"==> Generating matrix for heatmap by tools...\";
-merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l genus   > $tmpdir/$fnb.genus.heatmap.matrix & 
-merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l species > $tmpdir/$fnb.species.heatmap.matrix &
-merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l strain  > $tmpdir/$fnb.strain.heatmap.matrix &
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l genus   --otu $tmpdir/$fnb.genus.otu.txt --output $tmpdir/$fnb.genus.heatmap.matrix & 
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l species --otu $tmpdir/$fnb.species.otu.txt --output $tmpdir/$fnb.species.heatmap.matrix &
+merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l strain  --otu $tmpdir/$fnb.strain.otu.txt --output $tmpdir/$fnb.strain.heatmap.matrix &
+
+biom convert -i $tmpdir/$fnb.genus.otu.txt -o $p_repdir/$fnb.genus.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
+biom convert -i $tmpdir/$fnb.species.otu.txt -o $p_repdir/$fnb.species.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
+biom convert -i $tmpdir/$fnb.strain.otu.txt -o $p_repdir/$fnb.strain.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
 
 wait
 

@@ -53,18 +53,23 @@ my %tool_order=(
 	'motus'           => 24,
 	'kraken_mini'     => 25,
 	'kraken'          => 26,
+	'kraken2'         => 27,
 	'gottcha-genDB-b' => 30,
 	'gottcha-speDB-b' => 40,
+	'gottcha2-speDB-b'=> 41,
 	'gottcha-strDB-b' => 50,
 	'gottcha-genDB-v' => 60,
 	'gottcha-speDB-v' => 70,
+	'gottcha2-speDB-v'=> 71,
 	'gottcha-strDB-v' => 80,
 	'sequedex-opg'    => 90,
 	'sequedex-tol'    => 100,
 	'metacv'          => 120,
 	'metaphyler-bn'   => 130,
 	'metaphyler-bx'   => 140,
-	'metaphyler-srv'  => 150
+	'metaphyler-srv'  => 150,
+	'pangia'          => 160,
+	'diamond'         => 170
 );
 
 ############################
