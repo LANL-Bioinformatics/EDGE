@@ -1320,6 +1320,7 @@ $anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
+$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
 matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
 rm -r Anaconda2Packages/
