@@ -403,6 +403,8 @@ merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -
 merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l species --otu $tmpdir/$fnb.species.otu.txt --output $tmpdir/$fnb.species.heatmap.matrix &
 merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -l strain  --otu $tmpdir/$fnb.strain.otu.txt --output $tmpdir/$fnb.strain.heatmap.matrix &
 
+wait 
+
 biom convert -i $tmpdir/$fnb.genus.otu.txt -o $p_repdir/$fnb.genus.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
 biom convert -i $tmpdir/$fnb.species.otu.txt -o $p_repdir/$fnb.species.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
 biom convert -i $tmpdir/$fnb.strain.otu.txt -o $p_repdir/$fnb.strain.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
