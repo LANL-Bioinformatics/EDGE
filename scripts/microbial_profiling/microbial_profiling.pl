@@ -260,6 +260,8 @@ else{
 if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 	my $timelimit = $tools->{system}->{QSUB_TIMELIMIT};
 	my $wait=1;
+	my $qstat_cmd = $tools->{system}->{QSTAT_COMMAND};
+	my $qdel_cmd = $tools->{system}->{QDEL_COMMAND};
 	while ($wait){
 		my $qsub_job_exit=0;
 		foreach my $id (keys %job_ids){
@@ -267,7 +269,7 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 				$qsub_job_exit++;
 				next;
 			}
-			my $job_status=`qstat -j $id 2>&1`;
+			my $job_status=`$qstat_cmd $id 2>&1`;
 			my $time = $job_ids{$id}->{time};
 			my $tool = $job_ids{$id}->{tool};
 			my $outdir = $job_ids{$id}->{outdir};
@@ -281,7 +283,7 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 				$job_ids{$id}->{finish}=1;
 			}
 			if ((time-$time) > $timelimit){
-				`qdel -j $id`;
+				`$qdel_cmd $id`;
 				$qsub_job_exit++;
 				$job_ids{$id}->{finish}=1;
 				&_notify("[RUN_TOOL] [$tool] Error: TIME OUT\n");

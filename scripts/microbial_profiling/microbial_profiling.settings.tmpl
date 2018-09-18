@@ -17,6 +17,8 @@ RUN_TOOLS=1
 RUN_TOOL_AS_JOB=0
 QSUB_TIMELIMIT=172800
 QSUB_COMMAND=qsub -pe smp %THREADS% -j y -m abe -cwd -N %TOOL%-%PREFIX% -o %OUTDIR%/%LOGDIR%/%PREFIX%-%TOOL%.log
+QSTAT_COMMAND=qstat -j
+QDEL_COMMAND=qdel -j
 
 ;; settings for STEP4:
 ;; The reports, heatmaps and MEGAN-plots will be generated after all tools are done. Unless the wrapper will
