@@ -862,6 +862,17 @@ div.edge-collapsible-options .ui-btn {
         }
 }
 
+@media (max-width: 30em) {
+        .edge-home .app-showcase {
+                display: grid;
+        }
+        #edge-apps-home .ui-grid-b > .ui-block-a,
+        #edge-apps-home .ui-grid-b > .ui-block-b,
+        #edge-apps-home .ui-grid-b > .ui-block-c {
+                width:70%;
+        }
+}
+
 @media (min-width: 35em) {
 	.edge-block-content {
 		min-height: 18em;
