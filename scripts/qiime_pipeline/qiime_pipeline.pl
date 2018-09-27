@@ -748,7 +748,7 @@ sub fix_mapping_file {
 			s/\s+// for (@header);
 			if (! /BarcodeSequence/){splice @header, 1, 0, 'BarcodeSequence'; $miss_barcode=1;}
 			if (! /LinkerPrimerSequence/){splice @header, 2, 0, 'LinkerPrimerSequence'; $miss_primer=1;}
-			if (! /Description/){splice @header, -1, 0, 'Description'; $miss_desc=1;}
+			if (! /Description/){splice @header, @header, 0, 'Description'; $miss_desc=1;}
 			print $ofh join("\t",@header),"\n";
 		}elsif(/^#/){
 			print $ofh $_,"\n";
@@ -759,7 +759,7 @@ sub fix_mapping_file {
 					else{ $array[1] =~ s/\s+//g;}
 			if ($miss_primer){ splice @array, 2, 0, ''; $validate_options{"-p"}=1;}
 					else{ $array[2] =~ s/\s+//g;}
-			if ($miss_desc){ splice @array, -1, 0, 'NA';}
+			if ($miss_desc){ splice @array, @array, 0, 'NA';}
 			print $ofh join("\t",@array),"\n";
 		}
 	}
