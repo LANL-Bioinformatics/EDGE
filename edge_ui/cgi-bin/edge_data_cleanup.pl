@@ -16,7 +16,7 @@ exit if ( $ENV{"REQUEST_METHOD"} );
 exit if (!$keep_days or $keep_days =~ /\D+/);
 #my @dirs = ($out_dir,$input_dir);
 my $ncbi_tmp = "$edgeui_wwwroot/ncbi";
-my @dirs = ($out_dir);
+my @dirs = ("$out_dir/");
 push @dirs, $ncbi_tmp if (-d $ncbi_tmp);
 
 my $keep_secs = $keep_days * 24 * 60 * 60;
