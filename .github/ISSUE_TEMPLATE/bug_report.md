@@ -20,10 +20,11 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+**Desktop (please complete the following information if applicable):**
  - OS: [e.g. iOS]
  - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - Browser Version [e.g. 22]
+ - EDGE version [e.g. 2.3.1]
 
 **Additional context**
-If you ran a project, can you provide process.log, error.log and the failed module log files. If it is system error, the tomcat, apache and mysql logs are helpful.
+If you ran a project, please provide process.log, error.log and the failed module log files. If it is system error, the tomcat, apache and mysql logs are helpful.
