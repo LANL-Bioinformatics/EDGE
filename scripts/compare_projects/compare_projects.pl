@@ -47,7 +47,7 @@ if (!$project_dir_names && !$out_dir){ print "$usage\n";exit;}
 my $EDGE_HOME = $ENV{EDGE_HOME}||Cwd::abs_path("$workingDir/../..");
 my $edge_www="$EDGE_HOME/edge_ui"; 
 ## Instantiate the variables
-$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-inv,gottcha2-speDB-e-ptz,gottcha2-speDB-e-ptg,bwa,kraken,metaphlan,metaphlan2,pangia,diamond";
+$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-pln,gottcha2-speDB-e-ptz,gottcha2-speDB-e-fug,bwa,kraken,metaphlan,metaphlan2,pangia,diamond";
 $html_outfile ||= "$out_dir/compare_project.html";
 my $vars;
 
@@ -150,9 +150,9 @@ sub runMetaComp {
 		'gottcha2-speDB-b' => 'GOTTCHA2 Bacterial Species',
 		'gottcha2-genDB-v' => 'GOTTCHA2 Viral Genus', 
 		'gottcha2-speDB-v' => 'GOTTCHA2 Viral Species', 
-		'gottcha2-speDB-e-inv' => 'GOTTCHA2 Species Invertebrate',
+		'gottcha2-speDB-e-pln' => 'GOTTCHA2 Species Plant',
 		'gottcha2-speDB-e-ptz' => 'GOTTCHA2 Species Protozoa',
-		'gottcha2-speDB-e-ptg' => 'GOTTCHA2 Species Pathogen'
+		'gottcha2-speDB-e-fug' => 'GOTTCHA2 Species Fungi'
 	);
 	foreach my $tool (split /,/,$tax_tools){
 		my $title;

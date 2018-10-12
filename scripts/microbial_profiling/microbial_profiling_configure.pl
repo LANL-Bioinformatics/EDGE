@@ -52,17 +52,17 @@ $opt{"gottcha-v-strDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k
 $opt{"gottcha-b-strDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain";
 $opt{"gottcha-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus";
 $opt{"gottcha-b-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus";
-$opt{"gottcha2-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Virus.genus.fna";
-$opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Bacteria.species.fna";
-$opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Virus.species.fna";
-$opt{"gottcha2-e-invDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna";
-$opt{"gottcha2-e-ptgDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna";
-$opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna";
+$opt{"gottcha2-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz";
+$opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Bacteria.species.fna.gz";
+$opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz";
+$opt{"gottcha2-e-plnDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz";
+$opt{"gottcha2-e-fugDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz";
+$opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz";
 $opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd";
 
 #PanGIA configs
 my $config_json = readListFromJson($opt{"configJson"});
-$opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$EDGE_HOME/database/PanGIA/NCBI_genomes_refseq86*.fa";
+$opt{"pangia-db"} = $config_json->{"edge-taxa-pangia-db"} || "$EDGE_HOME/database/PanGIA/NCBI_genomes_refseq89*.fa";
 $opt{"pangia-bg"} = "-b $EDGE_HOME/database/PanGIA/background/$config_json->{'edge-taxa-pangia-bg'}" if $config_json->{'edge-taxa-pangia-bg'};
 $opt{"pangia-ra"} = $config_json->{"edge-taxa-pangia-ra"} || "DEPTH_COV";
 $opt{"pangia-ms"} = $config_json->{"edge-taxa-pangia-ms"} || "0" ;
@@ -136,12 +136,12 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -gottcha-b-strDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.strain
     -gottcha-v-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus
     -gottcha-b-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus
-    -gottcha2-v-genDB   $EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.genus.fna
-    -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna
-    -gottcha2-v-speDB   $EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
-    -gottcha2-e-invDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.invertebrate.species.fna
-    -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.protozoa.species.fna
-    -gottcha2-e-ptgDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-release75.Euk_only.pathogen.species.fna
+    -gottcha2-v-genDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz
+    -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Bacteria.species.fna.gz
+    -gottcha2-v-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz
+    -gottcha2-e-plnDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz
+    -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz
+    -gottcha2-e-fugDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz
     -diamond-db         $EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
     --nanopore          
 

@@ -46,9 +46,9 @@ HEATMAP_DISPLAY_TOP=60
 ;; Tool section:
 ;; Create a section for each tool 
 
-<TMPL_IF NAME="gottcha2-speDB-e-inv">
-[gottcha2-speDB-e-inv]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-invDB>
+<TMPL_IF NAME="gottcha2-speDB-e-pln">
+[gottcha2-speDB-e-pln]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-plnDB>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
@@ -58,15 +58,15 @@ COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
-<TMPL_IF NAME="gottcha2-speDB-e-ptg">
-[gottcha2-speDB-e-ptg]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-ptgDB>
+<TMPL_IF NAME="gottcha2-speDB-e-fug">
+[gottcha2-speDB-e-fug]
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-e-fugDB>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
 <TMPL_IF NAME="gottcha-genDB-b">
 [gottcha-genDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-genDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-genDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -74,7 +74,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-genDB-v">
 [gottcha-genDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-genDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-genDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -88,7 +88,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-speDB-b">
 [gottcha-speDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d <TMPL_VAR NAME=gottcha-b-speDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL%  -d <TMPL_VAR NAME=gottcha-b-speDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -103,7 +103,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-speDB-v">
 [gottcha-speDB-v]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-speDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-speDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -117,7 +117,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-strDB-b">
 [gottcha-strDB-b]
-COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-strDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh  -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-b-strDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
@@ -125,7 +125,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha-strDB-v">
 [gottcha-strDB-v]
-COMMAND=uge-gottcha.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-strDB> <TMPL_VAR NAME=gottcha-opts> -s %SPLITRIM_DIR%
+COMMAND=uge-gottcha.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -q %TRIM_MINQ% -f %TRIM_FIXL% -d <TMPL_VAR NAME=gottcha-v-strDB> <TMPL_VAR NAME=gottcha-opts> -s "%SPLITRIM_DIR%"
 TRIM_MINQ=<TMPL_VAR NAME="splitrim-minq">
 TRIM_FIXL=30
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
