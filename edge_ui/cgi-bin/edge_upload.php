@@ -32,6 +32,7 @@ function check_uploadFile($input){
         }
 
         $line_of_text = fgets($file_handle);
+        $line_of_text .= fgets($file_handle);
         if (preg_match("/^>|^@|project|ID|^LOCUS|xml|gff/i",$line_of_text)){
                 return true;
         }else{
