@@ -7,6 +7,7 @@ use lib "$RealBin/../../lib";
 use HTML::Template;
 use POSIX qw{strftime};
 use JSON;
+use Cwd;
 
 my $out_dir       = $ARGV[0];
 my $html_outfile  = $ARGV[1];
@@ -19,6 +20,7 @@ my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 my $www_root    = $sys->{edgeui_wwwroot};
 $ENV{EDGE_HOME} ||= "../../";
+my $abs_outDir=Cwd::abs_path("$out_dir");
 
 ## Instantiate the variables
 my $getting_paired=0;
@@ -529,7 +531,7 @@ sub check_analysis {
 }
 
 sub prep_jbrowse_link {
- 	`ln -s $www_root/$out_dir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$out_dir/JBrowse");
+ 	`ln -s $abs_outDir $www_root/JBrowse/data/$projname` if (! -e "$www_root/JBrowse/data/$projname" && -e "$abs_outDir/JBrowse");
 	$vars->{JB_CTG_ANNO}     = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA";
 	$vars->{JB_CTG_ANNO_BAM} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CBAM"; 
 	$vars->{JB_CTG_ANNO_PCR} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fctg_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CPCR_V%2CPCR"; 
@@ -799,7 +801,7 @@ sub pull_anno {
 	chomp @kegg_maps;
 	if (scalar(@kegg_maps)>0){
 		$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname";
-		`ln -s $www_root/$out_dir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
+		`ln -s $abs_outDir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
 	}
 }
 
@@ -1603,7 +1605,7 @@ sub pull_taxa {
 
 			if( $row->{CPTOOL}=~/pangia/ ){
 				my $sys_pvis_dir="$ENV{'EDGE_HOME'}/thirdParty/pangia/pangia-vis/data";
-				my $proj_pvis_dir="$www_root/$tool->{CPTOOL_DIR}/pangia-vis";
+				my $proj_pvis_dir= (-e Cwd::abs_path("$tool->{CPTOOL_DIR}/pangia-vis"))?Cwd::abs_path("$tool->{CPTOOL_DIR}/pangia-vis"):"$www_root/$tool->{CPTOOL_DIR}/pangia-vis";
 				if( !-e "$sys_pvis_dir/$projname.tsv" && -e "$proj_pvis_dir/$projname.tsv" ){
 					`ln -s $proj_pvis_dir/* $sys_pvis_dir`;
 				}
