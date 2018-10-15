@@ -3230,6 +3230,8 @@ sub runAssembly
         my ($file_name, $file_path, $file_suffix)=fileparse("$AssemblerContigs", qr/\.[^.]*/);
         rename("$file_path/assembly_graph.fastg", "$final_contig_fastG_file") if ( -e "$file_path/assembly_graph.fastg");
         rename("$file_path/assembly_graph_with_scaffolds.gfa", "$outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
+    }elsif($assembler =~ /lrasm/){
+        &executeCommand("mv -f $AssemblerOutDir/Assembly/unitig.gfa $final_contig_fastG_file") if ( -e "$AssemblerOutDir/Assembly/unitig.gfa");
     }
 
     # rename contigs id by project name
