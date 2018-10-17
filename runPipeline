@@ -3175,8 +3175,8 @@ sub runAssembly
         $AssemblerOutDir = "$outputDir/megahit";
         $AssemblerContigs = "$AssemblerOutDir/final.contig.fa";
         $AssemblerLog = "$AssemblerOutDir/log";
-        my $megahit_preset = $configuration->{megahit_preset};
-        $cmd = "megahit -o $AssemblerOutDir -t $numCPU --presets $megahit_preset ";
+        my $megahit_preset = ($configuration->{megahit_preset} =~ /meta-/)? "--presets $configuration->{megahit_preset}":"";
+        $cmd = "megahit -o $AssemblerOutDir -t $numCPU $megahit_preset ";
         if ($pairFile){
             my ($p1,$p2) = split /\s+/,$pairFile;
             $cmd .= "-1 $p1 -2 $p2 ";

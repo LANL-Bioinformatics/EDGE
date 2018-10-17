@@ -147,7 +147,7 @@ cd idba-1.1.1
 sed -i.bak 's/kMaxShortSequence = 128/kMaxShortSequence = 351/' src/sequence/short_sequence.h
 sed -i.bak 's/kNumUint64 = 4/kNumUint64 = 6/' src/basic/kmer.h
 #src/sequence/short_sequence.h:    static const uint32_t kMaxShortSequence = 128
-./configure --prefix=$rootdir
+./configure --prefix=$rootdir CXXFLAGS='-g -O2 -std=c++03'
 make 
 make install
 cp bin/idba_ud $rootdir/bin/.
@@ -184,13 +184,13 @@ echo "
 }
 
 install_megahit(){
-local VER=1.0.3
-## --version MEGAHIT v1.0.3
+local VER=1.1.3
+## --version MEGAHIT v1.1.3
 echo "------------------------------------------------------------------------------
                            Installing megahit $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf megahit-v$VER.tar.gz 
+tar xvzf megahit-$VER.tar.gz 
 cd megahit-$VER
 make
 cp -f megahit* $rootdir/bin/
@@ -373,7 +373,7 @@ echo "
 
 install_R()
 {
-local VER=3.3.2
+local VER=3.5.1
 echo "------------------------------------------------------------------------------
                            Compiling R $VER
 ------------------------------------------------------------------------------
@@ -396,20 +396,16 @@ echo "--------------------------------------------------------------------------
                            installing R packages
 ------------------------------------------------------------------------------
 "
-# echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gtable_0.1.2.tar.gz\",\"gridExtra_2.0.0.tar.gz\"), repos = NULL, type=\"source\")}" | $rootdir/bin/Rscript -
-tar xzf R_3.3.2_Packages.tgz  
-echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file - 
-echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"Cairo\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"Cairo\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-#echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:R_3.3.2_Packages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "install.packages(c(\"MetaComp-1.0.2.tgz\"), repos = NULL, type=\"source\")" | $rootdir/bin/Rscript --no-init-file  - 
-rm -r R_3.3.2_Packages/
-# need internet for following R packages.
-# echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages('devtools',repos='https://cran.rstudio.com/')}" | $rootdir/bin/Rscript -
-#echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {source('https://bioconductor.org/biocLite.R'); biocLite('phyloseq')} " | $rootdir/bin/Rscript -
-#echo "library(devtools); options(unzip='internal'); install_github(repo = 'seninp-bioinfo/MetaComp', ref = 'v1.3');" | $rootdir/bin/Rscript -
+local VER=3.5.1
+tar xzf R-${VER}-Packages.tgz  
+echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file - 
+echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"Cairo\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"Cairo\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"plotly\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"plotly\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+rm -r Rpackages/
 echo "
 ------------------------------------------------------------------------------
                            R packages installed
@@ -927,7 +923,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf primer3-2.3.5.tar.gz
 cd primer3-2.3.5/src
-make
+make CC_OPTS='-fpermissive -g -Wall -D__USE_FIXED_PROTOTYPES__'
 cp primer3_core $rootdir/bin/.
 cp oligotm $rootdir/bin/.
 cp ntthal $rootdir/bin/.
@@ -1664,7 +1660,7 @@ else
     then
     {
 	R_VER=`$rootdir/bin/R --version | perl -nle 'print $& if m{version \d+\.\d+}'`;
-	if  ( echo $R_VER | awk '{if($2>="3.3") exit 0; else exit 1}' )
+	if  ( echo $R_VER | awk '{if($2>="3.5") exit 0; else exit 1}' )
 	then
 	{
         	echo "R $R_VER found"
@@ -2042,9 +2038,9 @@ fi
 
 if ( checkSystemInstallation megahit  )
 then
-  ## --version MEGAHIT v1.0.3
+  ## --version MEGAHIT v1.1.3
   megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if  ( echo $megahit_VER | awk '{if($1>="1.0.3") exit 0; else exit 1}' )
+  if  ( echo $megahit_VER | awk '{if($1>="1.1.3") exit 0; else exit 1}' )
   then
     echo "megahit $megahit_VER found"
   else
