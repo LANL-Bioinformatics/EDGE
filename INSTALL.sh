@@ -19,7 +19,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer RAPSearch2 diamond minimap2 )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
 taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
@@ -634,7 +634,9 @@ echo "--------------------------------------------------------------------------
                            Compiling gottcha-1.0b
 ------------------------------------------------------------------------------
 "
-tar xvzf gottcha.tar.gz
+tar xzf gottcha.tar.gz
+rm -rf gottcha/ext/opt/dmd2/
+tar xzf dmd.2.082.0.linux.tgz -C gottcha/ext/opt
 cd gottcha
 ./INSTALL.sh
 ln -sf $PWD/bin/gottcha.pl $rootdir/bin/
@@ -867,26 +869,6 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            minimap2 compiled
-------------------------------------------------------------------------------
-"
-}
-
-install_RAPSearch2()
-{
-local VER=2.23
-echo "------------------------------------------------------------------------------
-                           Compiling RAPSearch2 $VER
-------------------------------------------------------------------------------
-"
-tar xvzf RAPSearch${VER}_64bits.tar.gz
-cd RAPSearch${VER}_64bits
-./install
-cp bin/rapsearch $rootdir/bin/rapsearch2
-cp bin/prerapsearch $rootdir/bin/.
-cd $rootdir/thirdParty
-echo "
-------------------------------------------------------------------------------
-                           RAPSearch2 $VER compiled
 ------------------------------------------------------------------------------
 "
 }
@@ -1314,6 +1296,7 @@ $anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
+$anaconda2bin/conda install Anaconda2Packages/rapsearch-2.24-1.tar.bz2
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
@@ -1900,21 +1883,6 @@ then
 else
   echo "bowtie2 is not found"
   install_bowtie2
-fi
-
-if ( checkSystemInstallation rapsearch2 )
-then
-  rapsearch_VER=`rapsearch2 2>&1| grep 'rapsearch v2' | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if  ( echo $rapsearch_VER | awk '{if($1>="2.23") exit 0; else exit 1}' )
-  then
-    echo "RAPSearch2 $rapsearch_VER found"
-  else
-    install_RAPSearch2
-  fi
-
-else
-  echo "RAPSearch2 is not found"
-  install_RAPSearch2
 fi
 
 if ( checkSystemInstallation diamond )
