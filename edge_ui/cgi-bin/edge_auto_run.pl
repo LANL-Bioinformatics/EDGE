@@ -7,7 +7,7 @@ use strict;
 use FindBin qw($RealBin);
 use lib "$RealBin/../../lib";
 use POSIX qw(strftime);
-
+use Getopt::Long;
 ######################################################################################
 # DATA STRUCTURE:
 #
@@ -19,6 +19,9 @@ use POSIX qw(strftime);
 ######################################################################################
 
 exit if ( $ENV{"REQUEST_METHOD"} );
+
+my $debug=0;
+GetOptions("debug" => \$debug);
 
 # read system params from sys.properties
 my $sysconfig    = "$RealBin/../sys.properties";
@@ -33,7 +36,9 @@ my $cluster 	= $sys->{cluster};
 my $list; # ref for project list
 
 my ($memUsage, $cpuUsage, $diskUsage) = &getSystemUsage();
+print join("\n",$memUsage, $cpuUsage, $diskUsage),"\n" if ($debug);
 if ( ($memUsage > 99 or $cpuUsage > 99 or $diskUsage > 98) and !$cluster){
+	print STDERR "No enough computation resource to run CPU/MEM/DISK\n";
 	exit;
 }
 
@@ -54,16 +59,18 @@ if( scalar keys %$list && $sys->{edgeui_auto_run} ){
 		$proj_dir = $list->{$i}->{PROJDIR};
 		$domain   = $list->{$i}->{PROJDOMAIN}; 
 		my $run=0;
-		#print $list->{$i}->{PROJNAME},"\t$list->{$i}->{TIME}\t$list->{$i}->{STATUS}\n" if  $list->{$i}->{STATUS} ne "finished";
+		print $list->{$i}->{PROJNAME},"\t$list->{$i}->{TIME}\t$list->{$i}->{STATUS}\n" if  $list->{$i}->{STATUS} ne "finished" && $debug;
 		if ($list->{$i}->{STATUS} eq "unstarted"){
 			$run = &availableToRun($list->{$i}->{CPU}, $num_cpu_used ) if $list->{$i}->{STATUS} eq "unstarted";
 			if($run or $cluster){
 				#my $cmd="$RealBin/edge_action.cgi $proj rerun '' '' '' '' $domain 0 2>> $proj_dir/error.log";
 				chdir $RealBin;
 				my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" "" $domain 0 2>> $proj_dir/error.log`;
-				#print STDERR "$json";
-				#print STDERR "$cmd\n";
+				print STDERR "$json\n" if ($debug);
+				#print STDERR "$cmd\n" if ($debug);
 				$num_cpu_used += $list->{$i}->{CPU};
+			}else{
+				
 			}
 		}
 	}
