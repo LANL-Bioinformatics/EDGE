@@ -1486,8 +1486,8 @@ $( document ).ready(function()
 			type: "POST",
 			dataType: "json",
 			cache: false,
-			//data: $( "#edge-run-pipeline-form" ).serialize(),
-			data: ( page.find("form").serialize() +'&'+ addParam +'&'+ addRecParam ),
+			data: ($( "#edge-run-pipeline-form" ).serialize() +'&'+ addParam +'&'+ addRecParam),
+			//data: ( page.find("form").serialize() +'&'+ addParam +'&'+ addRecParam ),
 			beforeSend: function(){
 				$(".list-info, .list-info-delete").fadeOut().remove(); //clear div
 				page.find("input").removeClass("highlight");
