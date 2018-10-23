@@ -24,10 +24,45 @@ taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
+metagenome_tools=( MaxBin )
 pipeline_tools=( DETEQT reference-based_assembly PyPiReT )
-all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
+all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_MaxBin(){
+local VER=2.2.5
+echo "------------------------------------------------------------------------------
+                           Installing MaxBin
+------------------------------------------------------------------------------
+"
+tar xzf FragGeneScan1.31.tar.gz 
+cd FragGeneScan1.31
+make clean
+make fgs
+cd $rootdir/thirdParty
+
+tar xzf MaxBin-$VER.tar.gz 
+cd MaxBin-$VER
+cd src
+make
+cd ..
+cat << _EOM > setting
+[FragGeneScan] $rootdir/thirdParty/FragGeneScan1.31
+[Bowtie2] $rootdir/bin
+[HMMER3] $rootdir/bin
+[IDBA_UD] $rootdir/bin
+_EOM
+ln -sf $rootdir/thirdParty/MaxBin-$VER $rootdir/bin/MaxBin
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           MaxBin installed
+------------------------------------------------------------------------------
+"
+
+}
+
+
 install_diamond(){
 local VER=0.9.10
 echo "------------------------------------------------------------------------------
@@ -1463,6 +1498,11 @@ print_tools_list()
    do
 	   echo "* $i"
    done
+   echo -e "\nMetagenome"
+   for i in "${metagenome_tools[@]}"
+   do
+	   echo "* $i"
+   done
    echo -e "\nUtility"
    for i in "${utility_tools[@]}"
    do
@@ -1543,6 +1583,13 @@ then
         done
         echo -e "Phylogeny tools installed.\n"
         exit 0;; 
+      Metagenome)
+        for tool in "${metagenome_tools[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Metagenome tools installed.\n"
+        exit 0;; 
       Utility)
         for tool in "${utility_tools[@]}"
         do
@@ -1578,7 +1625,7 @@ then
         done
         ;;
       *)
-        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" || containsElement "$f" "${pipeline_tools[@]}" )
+        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${metagenome_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" || containsElement "$f" "${pipeline_tools[@]}" )
         then
             install_$f
         else
@@ -2054,6 +2101,20 @@ then
 else
   echo "phage_finder_v2 is not found"
   install_phageFinder
+fi
+
+if [ -x $rootdir/bin/MaxBin/src/MaxBin ]
+then
+  MaxBin_VER = `$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
+  if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
+  then
+    echo "MaxBin2 is found"
+  else
+    install_MaxBin2
+  fi
+else
+  echo "MaxBin2 is not found"
+  install_MaxBin2
 fi
 
 if ( checkLocalInstallation gottcha.pl  )
