@@ -10,8 +10,17 @@ projcode=
 projowner=
 projrunhost=
 
+[Download Fastq]
+DoFastqDownload=auto
+
+[Download SRA]
+DoSRADownload=0
+## SRA accessions ByrRun, ByExp, BySample, ByStudy 
+SRA_id=SRX674271
+
 [Count Fastq]
 DoCountFastq=auto
+fastq_source=not
 
 [Quality Trim and Filter]
 DoQC=1
