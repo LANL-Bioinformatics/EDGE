@@ -297,6 +297,9 @@ if ( -s $contigFile )
         #phagefinder if Bacteria
         &phageFinder($annotationGFF,$annotationFAA,$annotationFNA) if ($tax_kingdom ne "Viruses" and $configuration->{DoProPhageDetection});
     }
+    if ($configuration->{DoBinning}){
+        &runBinning($contigFile);
+    }
 
 }
 
@@ -665,7 +668,7 @@ sub runSpecialtyGenesProfiling {
 	}
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $wgs_reads = "$pair_read " if ($pair_read);
-    $wgs_reads .= "$single_end_read " if ( -s $single_end_read);
+    $wgs_reads .= "$single_end_read " if ( $single_end_read && -s $single_end_read);
     if ( !-e "$VFDB_ini"){
         open (my $fh_ini,">$VFDB_ini") or  die "Cannot write to $VFDB_ini\n";
         print $fh_ini "[LOGIN]\n";
@@ -1818,7 +1821,7 @@ sub runAnnotation
     &lprint (" Generating annotation plot\n");
     &executeCommand("$RealBin/scripts/plot_gff3_stats.pl --input $outputDir_abs_path/$project_name.gff --title $project_name --prefix $outputDir_abs_path/annotation_stats --outfmt PDF 1>$gff_plot_log 2>\&1");
 	
-    if ( &check_server_up("http://rest.kegg.jp/")){
+    if ( &check_server_up("http://rest.kegg.jp/")  && $configuration->{DoKeggOmicsView} ){
         &lprint (" Generating KEGG MAP\n");
         my $basename = basename($abs_outDir);
         eval { system("$RealBin/bin/opaver_anno.pl -g $outputDir_abs_path/$project_name.gff -o $outputDir_abs_path/kegg_map -p $project_name > $kegg_map_log 2>\&1"); };
@@ -1846,6 +1849,51 @@ sub runAnnotation
     &printRunTime($time);
     &touchFile("$outputDir/runAnnotation.finished");
     return ($outGFF,$outFAA,$outFNA);
+}
+
+sub runBinning{
+    my $contigFile = shift;
+    my $time=time();
+    my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning";
+    my $MaxBin_exe = "$RealBin/bin/MaxBin/run_MaxBin.pl";
+    my $MaxBin_summary = "$outputDir/${project_name}_bin.summary";
+    &make_dir($outputDir);
+    my $abund_file = "$outDir/AssemblyBasedAnalysis/readsMappingToContig/magnitudes.txt";
+    if ($noColorLog)
+    {
+        &lprint ("[Contigs Binning]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Contigs Binning]\n",'yellow'));
+    }
+    if ( -e "$outputDir/contigsBinning.finished")
+    {
+       &lprint ("Contigs Binning Finished\n"); 
+       return;
+    }
+    my $cmd;
+    my $contig_size_cutoff = $configuration->{'contig_size_cut_for_binning'};  
+    my $binning_itr = $configuration->{'binning-max-itr'};
+    my $binning_prob = $configuration->{'binning-prob'};
+    my $binning_markerset = $configuration->{'binning-markerset'};
+    if ( -e $configuration->{'binning-abund-file'}){
+    	$abund_file = $configuration->{'binning-abund-file'};
+    }
+    if (! -e $abund_file){
+    	&lprint("Error. No abundance info file for Contigs Binning\n");
+    }
+    
+    $cmd = "$MaxBin_exe -contig $contigFile -out $outputDir/${project_name}_bin -abund $abund_file -thread $numCPU -plotmarker -min_contig_length $contig_size_cutoff -max_iteration $binning_itr -prob_threshold $binning_prob -markerset $binning_markerset "; 
+    $cmd .= " 2>\&1 1>/dev/null";
+    
+    &lprint (" Running \n $cmd\n");
+    &executeCommand($cmd);
+    &executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir $MaxBin_summary > $MaxBin_summary.json");
+    &printRunTime($time);
+    &touchFile("$outputDir/contigsBinning.finished");
+    return;
+
 }
 
 sub pcrDesign

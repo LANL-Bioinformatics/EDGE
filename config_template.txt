@@ -145,6 +145,15 @@ contig_size_cut_for_annotation=700
 ## support tools: Prokka or RATT
 annotateProgram=Prokka
 annotateSourceGBK=
+DoKeggOmicsView=
+
+[Contigs Binning]
+DoBinning=0
+contig_size_cut_for_binning=1000
+binning-max-itr=50
+binning-prob=0.9
+binning-markerset=107
+binning-abund-file=
 
 [ProPhage Detection]
 DoProPhageDetection=1

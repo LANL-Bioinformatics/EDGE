@@ -73,6 +73,7 @@ eval {
 	&pull_blast();
 #	print STDOUT "blast\n";
 	&pull_sra_download();
+	&pull_binning();
 	&pull_targetedNGS();
 	&pull_piret();
 	&pull_qiime();
@@ -341,6 +342,14 @@ sub pull_piret{
 	
 }
 
+sub pull_binning {
+	my $output_dir = "$out_dir/AssemblyBasedAnalysis/Binning";
+	return unless -e "$output_dir/contigsBinning.finished";
+	my $proj_realname = $vars->{PROJNAME};
+	my $bin_summary_result = "$output_dir/${proj_realname}_bin.summary.json";
+	$vars->{BINNRESULT} = $bin_summary_result;
+}
+
 sub pull_targetedNGS {
 	my $output_dir = "$out_dir/DETEQT";
 	return unless -e "$output_dir/runDETEQT.finished";
@@ -508,6 +517,7 @@ sub check_analysis {
 	$vars->{OUT_CONLY_SW} = 1 if ($vars->{OUT_AS_PC_SW} && ! -e "$out_dir/QcReads/fastqCount.txt");
 	$vars->{OUT_C2G_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
 	$vars->{OUT_AN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
+	$vars->{OUT_BINN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Binning/contigsBinning.finished";
 	$vars->{OUT_R2G_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
 	$vars->{OUT_RA_SW}    = 1 if $vars->{OUT_C2G_SW} || $vars->{OUT_R2G_SW};
 	$vars->{OUT_UM_CP_SW} = 1 if -e "$out_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
@@ -1890,6 +1900,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#ctaxTag\">$step</a>" if ($step eq "Contigs Taxonomy Classification");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#c2gTag\">$step</a>" if ($step eq "Contigs Mapping To Reference");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#annoTag\">$step</a>" if ($step eq "Contigs Annotation");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#binningTag\">$step</a>" if ($step eq "Contigs Binning");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#phyloTag\">$step</a>" if ($step eq "Phylogenetic Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#gfaTag\">$step</a>" if ($step eq "Gene Family Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#pdTag\">$step</a>" if ($step eq "Primer Design");

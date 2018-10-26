@@ -1015,6 +1015,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-grid-a">
 					<div class="ui-block-a edge-fastq-options"><a href="#" data-id="edge-assembly-parameters" class="ui-btn ui-mini ui-btn-active"> Assembly</a></div>
 					<div class="ui-block-b"><a href="#" data-id="edge-annotation-parameters" class="ui-btn ui-mini">Annotation</a></div>
+					<div class="ui-block-c"><a href="#" data-id="edge-binning-parameters" class="ui-btn ui-mini">Binning</a></div>
 				</div>
 			</div>
 			<div id="edge-assembly-parameters" class="edge-fastq-options">
@@ -1175,8 +1176,18 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom5" value="Metagenome">
 				<label for="edge-anno-kingdom5">Metagenome</label>
 			</fieldset>
-			<p class="edge_tool_note">Please choose the genome type you would like to annotate for Prokka to do genome annotation.</p>
 			</div>
+			<p class="edge_tool_note">Please choose the genome type you would like to annotate for Prokka to do genome annotation.</p>
+			<div id="edge-anno-kegg" class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>KEGG Pathway View<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Visualize Prokka annotation in KEGG map. Need Internet Connection"></a></legend>
+					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw1" value="1" checked="checked">
+					<label for="edge-anno-kegg-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw2" value="0">
+					<label for="edge-anno-kegg-sw2">No</label>
+				</fieldset>
+			</div>
+
 			<div id="edge-anno-source">
 				<div class="ui-field-contain input-type-file">
                                 	<label for="edge-anno-source-file">Annotation Source Genbank</label>
@@ -1186,6 +1197,37 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<p class="edge_tool_note">Please provide the reference/source annotation (Genbank file), EDGE will use RATT to transfer the annotation from the reference genome. The reference genome must be close relative to the sample.</p>
                         </div>
 			</div> <!-- edge-annotation-parameters -->
+			<div id="edge-binning-parameters">
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Binning</legend>
+						<input type="radio" data-mini="true" name="edge-binning-sw" id="edge-binning-sw1" value="1">
+						<label for="edge-binning-sw1">Yes</label>
+						<input type="radio" data-mini="true" name="edge-binning-sw" id="edge-binning-sw2" value="0" checked="checked">
+						<label for="edge-binning-sw2">No</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain"><label for="edge-binning-size-cut">Minimum Contig Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-binning-size-cut" id="edge-binning-size-cut" value="1000"></div>
+				<div class="ui-field-contain"><label for="edge-binning-max-itr">Maximum EM Algorithm Iteration</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-binning-max-itr" id="edge-binning-max-itr" value="50"></div>
+				<div class="ui-field-contain">
+					<label for="edge-binning-prob">EM Probability<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Probability threshold for EM final classification." ></a></label>
+					<input type="range" name="edge-binning-prob" id="edge-binning-prob" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.90" step=".01">
+				</div>
+				<div class="ui-field-contain" id="edge-binning-marker-sw">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Marker Gene Sets<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="By default MaxBin will look for 107 marker genes present in >95% of bacteria. Alternatively you can also choose 40 marker gene sets that are universal among bacteria and archaea (Wu et al., PLoS ONE 2013). This option may be better suited for environment dominated by archaea; however it tend to split genomes into more bins. You can choose between different marker gene sets and see which one works better."></a></legend>
+						<input type="radio" name="edge-binning-markerset" id="edge-binning-markerset1" value="107" checked="checked">
+						<label for="edge-binning-markerset1">107</label>
+						<input type="radio" name="edge-binning-markerset" id="edge-binning-markerset2" value="40">
+						<label for="edge-binning-markerset2">40</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain input-type-file">
+					<label for="edge-binning-abund-file">Abundance File<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-binning-abund-file-tooltip"></a></label>
+					<input type="text" data-mini="true" name="edge-binning-abund-file" id="edge-binning-abund-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+				</div>
+			</div><!-- edge-binning-parameters -->
 		</div>
 
 		<div id="edge-runEDGE-rba" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">

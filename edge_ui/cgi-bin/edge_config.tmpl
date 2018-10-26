@@ -167,9 +167,19 @@ contig_size_cut_for_annotation=<TMPL_VAR NAME=edge-anno-size-cut DEFAULT=700>
 annotateProgram=<TMPL_VAR NAME=edge-anno-tool DEFAULT=prokka>
 ## provide SourceGBK for RATT to transfer annotation
 annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
+DoKeggOmicsView=<TMPL_VAR NAME=edge-anno-kegg-sw DEFAULT=1>
 
 [ProPhage Detection]
 DoProPhageDetection=auto
+
+
+[Contigs Binning]
+DoBinning=<TMPL_VAR NAME=edge-binning-sw DEFAULT=0>
+contig_size_cut_for_binning=<TMPL_VAR NAME=edge-binning-size-cut DEFAULT=1000>
+binning-max-itr=<TMPL_VAR NAME=binning-max-itr DEFAULT=50>
+binning-prob=<TMPL_VAR NAME=binning-prob DEFAULT=0.9>
+binning-markerset=<TMPL_VAR NAME=binning-markerset DEFAULT=107>
+binning-abund-file=<TMPL_VAR NAME=binning-abund-file>
 
 <TMPL_IF NAME=edge-phylo-sw>
 [Phylogenetic Analysis]

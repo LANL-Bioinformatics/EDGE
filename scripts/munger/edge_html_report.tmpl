@@ -539,6 +539,15 @@
 					</TMPL_IF>
 				</div></li> 
 				</TMPL_IF>
+				<TMPL_IF NAME="OUT_BINN_SW">
+				<li id="binningTag"><span class="li-report-content-title">Binning</span><div class="li-report-content">
+					<table data-role="none" id="edge-binning-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=BINNRESULT>'></table>
+					<p class='extra-text-link'>Link to 
+						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning'> Directory </a>
+					</p>
+				</div></li> 
+				</TMPL_IF>
 				<TMPL_IF NAME="OUT_AB_SW">
 					<TMPL_UNLESS NAME="OUT_RA_SW">
 					<li><span class="li-report-content-title">Contigs Blast</span><div class="li-report-content">

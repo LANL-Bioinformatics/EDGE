@@ -638,6 +638,9 @@ $( document ).ready(function()
 	$("#edge-reads-taxa-tooltip").tooltipster(
 		'content',$('<span>EDGE uses multiple tools for taxonomy classification including GOTTCHA (bacterial & viral databases), MetaPhlAn2, Kraken and reads mapping to NCBI RefSeq using BWA. Each tool has its own database and you can find the taxonomy information table <a href="https://lanl-bioinformatics.github.io/EDGE/docs/taxonomyDBtable.html" target="_blank">[here]</a></span>')
 	);
+	$("#edge-binning-abund-file-tooltip").tooltipster(
+                'content',$('<span>Required when input is contig only. Please make sure that your abundance information is provided in the following format (\\t stands for a tab delimiter):<br/>(contig header)\\t(abundance)<br/>For example:<br/>A0001    30.89<br/>A0002    20.02</span>')
+        );
 	$("#edge-qiime-pro-tooltip").tooltipster(
 		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
 	);
@@ -1721,10 +1724,12 @@ $( document ).ready(function()
 			if($('#edge-anno-tool1').is(':checked')){
 				$('#edge-anno-source').hide();
 				$('#edge-anno-kingdom').show();
+				$('#edge-anno-kegg').show();
 			}
 			if($('#edge-anno-tool2').is(':checked')){
 				$('#edge-anno-source').show();
 				$('#edge-anno-kingdom').hide();
+				$('#edge-anno-kegg').hide();
 			}
 		});
 

@@ -394,7 +394,7 @@ for my $ref_file_i ( 0..$#ref_files){
 		my $ref_len = $ref_hash->{$ref_name}->{len};
 		my $ref_GC = $ref_hash->{$ref_name}->{GC};
 		my $ref_desc = $ref_hash->{$ref_name}->{desc};
-		my $mapped_reads = $ref_hash->{$ref_name}->{reads};
+		my $mapped_reads = $ref_hash->{$ref_name}->{reads}||"0";
 		my $stats_print_string = $ref_name."\t".$ref_len."\t".$ref_GC."\t".$mapped_reads."\t";
 		# generate coverage file
 		my $coverage_output="$outDir/${prefix}_${ref_name}.coverage";
