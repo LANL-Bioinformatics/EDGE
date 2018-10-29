@@ -541,6 +541,19 @@
 				</TMPL_IF>
 				<TMPL_IF NAME="OUT_BINN_SW">
 				<li id="binningTag"><span class="li-report-content-title">Binning</span><div class="li-report-content">
+					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+					  <thead>
+						<tr>
+						  <th data-priority='1'>Contigs</th>
+						  <th data-priority='2'>Stats</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr><td>Total Contigs</td><td><TMPL_VAR NAME=ASSYNUMCONTIGS DEFAULT=-></td></tr>
+						<tr><td>Binned Contigs</td><td><TMPL_VAR NAME=BINNCOUNT DEFAULT=-></td></tr>
+						<tr><td>unBinned Contigs</td><td><TMPL_VAR NAME=UNBINCOUNT DEFAULT=-></td></tr>
+					  </tbody>
+					</table>
 					<table data-role="none" id="edge-binning-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=BINNRESULT>'></table>
 					<p class='extra-text-link'>Link to 
 						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->

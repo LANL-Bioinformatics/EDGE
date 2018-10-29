@@ -346,8 +346,55 @@ sub pull_binning {
 	my $output_dir = "$out_dir/AssemblyBasedAnalysis/Binning";
 	return unless -e "$output_dir/contigsBinning.finished";
 	my $proj_realname = $vars->{PROJNAME};
-	my $bin_summary_result = "$output_dir/${proj_realname}_bin.summary.json";
-	$vars->{BINNRESULT} = $bin_summary_result;
+	my $bin_summary_result = "$output_dir/${proj_realname}_bin.summary";
+	my $bin_json_summary_result = "$output_dir/${proj_realname}_bin.summary.json";
+	open (my $fh_summary, "<", $bin_summary_result) or die "Cannot open $bin_summary_result\n";
+	open (my $out_fh_summary, ">", "$bin_summary_result.tmp") or die "Cannot write to $bin_summary_result.tmp\n";
+	my $binned_count=0;
+	while(<$fh_summary>){
+		next if $_ !~ /\w/;
+		chomp;
+		my @array = split /\t/;
+		if (/Bin name/){
+            my $header = join("\t",@array,"Count");
+            print $out_fh_summary $header,"\n";
+		}else{
+			my $bin_fasta_file = "$output_dir/$array[0]";
+			my ($seq_count,$base_count) = fasta_count($bin_fasta_file);
+			$array[0] = "<a href='$bin_fasta_file' target=_'new'>$array[0]</a>";
+			print $out_fh_summary join("\t",@array,$seq_count),"\n";
+			$binned_count += $seq_count;
+		}
+	}
+	close $out_fh_summary;
+	close $fh_summary;
+	system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$bin_json_summary_result,"$bin_summary_result.tmp");
+	unlink "$bin_summary_result.tmp";
+	$vars->{BINNRESULT} = $bin_json_summary_result;
+	$vars->{BINNCOUNT} = $binned_count;
+	$vars->{UNBINCOUNT} = $vars->{ASSYNUMCONTIGS} - $binned_count;
+}
+
+sub fasta_count
+{
+    my $fastaFile=shift;
+    my $seqCount=0;
+    my $baseCount=0;
+    open (my $fh, $fastaFile) or die "Cannot open $fastaFile";
+    while (<$fh>)
+    {  
+        if (/>/)
+        {
+            $seqCount++;
+        }
+        else
+        {
+            chomp;
+            $baseCount += length ($_);
+        }
+    }
+    close $fh;
+    return ($seqCount,$baseCount);
 }
 
 sub pull_targetedNGS {
@@ -1869,6 +1916,9 @@ sub pull_summary {
 		}
 		if(/^piret_p_value=(.*)/){
 			$vars->{PIRETPVALUE} = $1 ;
+		}
+		if(/^contig_size_cut_for_binning=(.*)/){
+		    $vars->{BINNLENCUT} = $1 || 1000;
 		}
 		if( /^\[(.*)\]/ ){
 			my $step = $1;
