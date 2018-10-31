@@ -1328,7 +1328,7 @@ $anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
@@ -1362,6 +1362,7 @@ tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/conda install -c bioconda rgi=4.2.2
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "

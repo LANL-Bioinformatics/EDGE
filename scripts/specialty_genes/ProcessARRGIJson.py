@@ -106,9 +106,9 @@ def processJson(resultfile, orf):
 
 	rgiTable = []
 	rgiTable.append(
-		["ORF_ID", "CONTIG", "START", "STOP", "ORIENTATION", "CUT_OFF", "PASS_EVALUE", "Best_Hit_evalue",
+		["ORF_ID", "CONTIG", "START", "STOP", "ORIENTATION", "CUT_OFF", "PASS_BitScore", "Best_Hit_BitScore", "Best_Hit_evalue",
 		 "Best_Hit_ARO_Name", "Best_Hit_ARO", "Best_Hit_Categories", "Best_Identities", "ARO", "ARO_name",
-		 "Model_type", "SNP", "AR0_category", "bit_score", "Predicted_Protein", "CARD_Protein_Sequence", "LABEL", "ID"])
+		 "Model_type", "SNP", "ARO_category", "bit_score", "Predicted_Protein", "CARD_Protein_Sequence", "LABEL", "ID"])
 	for item in data:
 		bestevalue = False
 		maxBitScore = False
@@ -135,53 +135,58 @@ def processJson(resultfile, orf):
 
 			for it in data[item]:
 				cgList = []
+				AMRfamList = []
 				if checkKeyExisted("ARO_category", data[item][it]):
 					for aroctkey in data[item][it]["ARO_category"]:
-						cgList.append(str(
+						if(data[item][it]["ARO_category"][aroctkey]["category_aro_class_name"] == "AMR Gene Family"):                                                                   
+						    AMRfamList.append(str(data[item][it]["ARO_category"][aroctkey]["category_aro_name"].encode('ascii','replace')))     
+						else:
+							cgList.append(str(
 							data[item][it]["ARO_category"][aroctkey]["category_aro_name"].encode('ascii',
-							                                                                     'replace')))
+							                                                                     'replace')))                                                                
+						                                                                    		
 
 				if data[item][it]["model_type_id"] == 40293:
-					temp = data[item][it]["SNP"]["original"] + str(data[item][it]["SNP"]["position"]) + \
-					       data[item][it]["SNP"]["change"]
+					temp = data[item][it]["snp"]["original"] + str(data[item][it]["snp"]["position"]) + \
+					       data[item][it]["snp"]["change"]
 					snpList.append(convert(temp))
 				elif data[item][it]["model_type_id"] == 40292:
 					snpList.append("n/a")
-
+				
 				AROlist.append(convert(data[item][it]["ARO_accession"]))
 				AROnameList.append(convert(data[item][it]["ARO_name"]))
-				bitScoreList.append(data[item][it]["bit-score"])
-				pass_evalue = str(data[item][it]["pass_evalue"]).split("|")[0]
+				bitScoreList.append(data[item][it]["bit_score"])
+				pass_bitscore = str(data[item][it]["pass_bitscore"]).split("|")[0]
 				AROcatList.append(cgList)
 				typeList.append(convert(data[item][it]["model_type"]))
 				cutoffList.append(convert(data[item][it]["type_match"]))
-				idenPercent = float(data[item][it]["max-identities"]) / len(data[item][it]["query"])
-				'''print>>sys.stderr, data[item][it]["max-identities"]
+				idenPercent = float(data[item][it]["max_identities"]) / len(data[item][it]["query"])
+				'''print>>sys.stderr, data[item][it]["max_identities"]
 				print>>sys.stderr, len(data[item][it]["query"])
 				print (str(269/289) + "haha")
-				print>>sys.stderr, float(data[item][it]["max-identities"] % len(data[item][it]["query"]))'''
+				print>>sys.stderr, float(data[item][it]["max_identities"] % len(data[item][it]["query"]))'''
 				identityList.append(idenPercent)
 
 				if startCompare:
-					if maxBitScore < data[item][it]["bit-score"]:
+					if maxBitScore < data[item][it]["bit_score"]:
 						bestevalue = data[item][it]["evalue"]
-						maxBitScore = data[item][it]["bit-score"]
+						maxBitScore = data[item][it]["bit_score"]
 						bestARO = data[item][it]["ARO_accession"]
 						bestAROName = data[item][it]["ARO_name"]
-						bestAROCat = cgList
-						SequenceFromBroadStreet = data[item][it]["SequenceFromBroadStreet"]
+						bestAROCat = AMRfamList
+						SequenceFromBroadStreet = data[item][it]["sequence_from_broadstreet"]
 						if "orf_prot_sequence" in data[item][it]:
 							predictedProtein = data[item][it]["orf_prot_sequence"]
 						if "hsp_num:" in it:
 							hitID = it
 				else:
 					startCompare = True
-					maxBitScore = data[item][it]["bit-score"]
+					maxBitScore = data[item][it]["bit_score"]
 					bestevalue = data[item][it]["evalue"]
 					bestAROName = data[item][it]["ARO_name"]
 					bestARO = data[item][it]["ARO_accession"]
-					bestAROCat = cgList
-					SequenceFromBroadStreet = data[item][it]["SequenceFromBroadStreet"]
+					bestAROCat = AMRfamList
+					SequenceFromBroadStreet = data[item][it]["sequence_from_broadstreet"]
 					if "orf_prot_sequence" in data[item][it]:
 						predictedProtein = data[item][it]["orf_prot_sequence"]
 					if "hsp_num:" in it:
@@ -200,12 +205,12 @@ def processJson(resultfile, orf):
 		AROcatList = list(chain.from_iterable(AROcatList))
 		AROcatalphaSet = set(AROcatList)
 		AROsortedList = sorted(list(AROcatalphaSet))
-
+		
 		if typeList:
 			if orf == "1":
 				# for protein RGI runs where there's no | or seq_start/stop/strand
 				if findnthbar(item, 4) == "":
-					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_evalue, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
+					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
 					                 max(identityList), ', '.join(map(lambda x: "ARO:" + x, AROlist)),
 					                 ', '.join(list(arocatset)), ', '.join(list(tl)), snpList,
 					                 ', '.join(AROsortedList), ', '.join(map(str, bitScoreList)), predictedProtein,
@@ -213,14 +218,14 @@ def processJson(resultfile, orf):
 				else:
 					rgiTable.append([findnthbar(item, 0), findORFfrom(item), int(findnthbar(item, 4)) - 1,
 					                 int(findnthbar(item, 5)) - 1, findnthbar(item, 3), ', '.join(list(clist)),
-					                 pass_evalue, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
+					                 pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
 					                 ', '.join(map(lambda x: "ARO:" + x, AROlist)), ', '.join(list(arocatset)),
 					                 ', '.join(list(tl)), snpList, ', '.join(AROsortedList),
 					                 ', '.join(map(str, bitScoreList)), predictedProtein, SequenceFromBroadStreet,
 					                 geneID, hitID])
 			else:
 				if findnthbar2(item, 1) == "":
-					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_evalue, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
+					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
 					                 max(identityList), ', '.join(map(lambda x: "ARO:" + x, AROlist)),
 					                 ', '.join(list(arocatset)), ', '.join(list(tl)), snpList,
 					                 ', '.join(AROsortedList), ', '.join(map(str, bitScoreList)), predictedProtein,
@@ -231,7 +236,7 @@ def processJson(resultfile, orf):
 					                 int(findnthbar2(item, 1)) - 1,
 					                 int(findnthbar2(item, 2)) - 1,
 					                 findnthbar2(item, 3),
-					                 ', '.join(list(clist)), pass_evalue, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
+					                 ', '.join(list(clist)), pass_evalue, maxBitScore, pass_bitscore, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
 					                 ', '.join(map(lambda x: "ARO:" + x, AROlist)), ', '.join(list(arocatset)),
 					                 ', '.join(list(tl)), snpList, ', '.join(AROsortedList),
 					                 ', '.join(map(str, bitScoreList)), predictedProtein, SequenceFromBroadStreet,
@@ -242,7 +247,7 @@ def processJson(resultfile, orf):
 
 
 def getGFFInfo (rgiHitList, gffTableList, outGFFList, outCoordsList, idList):
-	(orfID, contig, start, stop, orientation, cutOff, passEvalue, bestHitBitScore, bestHitEvalue, bestHitAROName,
+	(orfID, contig, start, stop, orientation, cutOff, PASS_BitScore, bestHitBitScore, bestHitEvalue, bestHitAROName,
 	 bestHitARO, bestHitCategories, identities, aros, aroNames, modelType, snps, aroCategories, bitscores,
 	 predictedProtein, cardProtein, label, hitID) = rgiHitList
 
@@ -279,7 +284,7 @@ def getGFFInfo (rgiHitList, gffTableList, outGFFList, outCoordsList, idList):
 			newAttributeList.append("rgi_AROs=" + aros)
 			newAttributeList.append("rgi_ARO_names=" + aroNames)
 			newAttributeList.append("rgi_SNPs=" + snps)
-			newAttributeList.append("rgi_pass_evalue=" + passEvalue)
+			newAttributeList.append("rgi_pass_bitscore=" + PASS_BitScore)
 			newAttributeList.append("rgi_ARO_categories=" + aroCategories)
 			newAttributeList.append("rgi_best_bitscore=" + bestHitBitScore)
 			newAttributeList.append("rgi_best_evalue=" + bestHitEvalue)
@@ -385,7 +390,7 @@ def main(args):
 	for rgiHitList in rgiTableList:
 		# print rgiHitList[0]
 
-		(orfID, contig, start, stop, orientation, cutOff, passEvalue, bestHitBitScore, bestHitEvalue, bestHitAROName, bestHitARO, bestHitCategories, identities, aros, aroNames, modelType, snps, aroCategories, bitscores, predictedProtein, cardProtein, label, hitID) = rgiHitList
+		(orfID, contig, start, stop, orientation, cutOff, passBitScore, bestHitBitScore, bestHitEvalue, bestHitAROName, bestHitARO, bestHitCategories, identities, aros, aroNames, modelType, snps, aroCategories, bitscores, predictedProtein, cardProtein, label, hitID) = rgiHitList
 
 		(outGFFList, outCoordsList, idList) = getGFFInfo(rgiHitList, gffTableList, outGFFList, outCoordsList, idList)
 
@@ -396,7 +401,8 @@ def main(args):
 		          'bestHitBitScore': bestHitBitScore,
 		          'bestHitEvalue': bestHitEvalue,
 		          'cutOff': cutOff,
-		          'passEvalue': passEvalue,
+		          'passBitScore': passBitScore,
+		          'aroCategory': aroCategories,
 		          'snps': snps,
 		          'otherHits': aroNames}
 

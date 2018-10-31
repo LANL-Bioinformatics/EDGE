@@ -628,11 +628,12 @@ sub runSpecialtyGenesProfiling {
     my $annotationGFF = shift;
     my $search_tool = $configuration->{SpecialtyGenesSearchTool} || "rapsearch2";
     my $ShortBRED_PATH = "$RealBin/bin/ShortBRED";
-    my $rgi_PATH = "$RealBin/thirdParty/Anaconda2/bin";
+    my $rgi_PATH = "$RealBin/thirdParty/Anaconda3/bin";
     my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
     my $identity = $configuration->{ShortBREDMinPercIdentity} || "0.95";
     my $pctlength = $configuration->{ShortBREDMinPercLength} || "0.95"; 
     my $time=time();
+    my $CARD_json = "$RealBin/database/ShortBRED/AR/card.json";
     my $VF_markers = "$RealBin/database/ShortBRED/VF/VFDB_9aa_markers.faa";
     my $AR_markers = "$RealBin/database/ShortBRED/AR/ShortBRED_ABR_101bp_markers.faa";
     my $AR_metadata = "$RealBin/database/ShortBRED/AR/ShortBRED_ABR_Metadata.tab";
@@ -709,19 +710,21 @@ sub runSpecialtyGenesProfiling {
 	# ORF Based Analysis
 	if ($configuration->{DoORFsSpecialtyGenes} and -s $annotationFAA and -s $annotationGFF and ! -e "$outDir/AssemblyBasedAnalysis/SpecialtyGenes/runSpecialtyGenesProfiling.finished")
 	{
-       	my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
-       	my $log = "$outputDir/log.txt";
-       	my $cmd;
-        &make_dir($outputDir);
+       	    my $outputDir= "$outDir/AssemblyBasedAnalysis/SpecialtyGenes";
+       	    my $log = "$outputDir/log.txt";
+            my $cmd;
+            &make_dir($outputDir);
 		
 		
 	# AR
-		$cmd = "cd $outputDir; $rgi_PATH/rgi -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU 1>>$log 2>&1";
-			&lprint ("	Running \n $cmd \n");
-			&executeCommand($cmd);
-		$cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
-			&lprint ("	Running \n $cmd \n");
-			&executeCommand($cmd);
+            $cmd = "cd $outputDir; $rgi_PATH/rgi load -i $CARD_json --local 1>>$log 2>&1";
+            &executeCommand($cmd);
+	    $cmd = "cd $outputDir; $rgi_PATH/rgi main -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU --local 1>>$log 2>&1";
+            &lprint ("	Running \n $cmd \n");
+	    &executeCommand($cmd);
+            $cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
+	    &lprint ("	Running \n $cmd \n");
+            &executeCommand($cmd);
 	
 	# VF
        $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $VF_markers --results $outputDir/${project_name}_VF_genes_ShortBRED.txt --tmp $outputDir/${project_name}_VF_genes_tmp --marker_results $outputDir/${project_name}_VF_genes_markers.txt --SBhits $outputDir/${project_name}_VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";

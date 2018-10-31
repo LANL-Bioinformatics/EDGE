@@ -1135,11 +1135,11 @@ sub pull_specialty_gene_profiling {
 						my $bestHitAROName = $detailsHash->{bestHitName};
 						$detailInfo->{BESTHIT} = '<a href=\'https://card.mcmaster.ca/aro/'."$bestHitARO"."'>$bestHitAROName</a>";
 						$detailInfo->{SNPS} = $detailsHash->{snps};
-						$detailInfo->{BITSCORE} = $detailsHash->{bestBitScore};
-						$detailInfo->{PASSEVALUE} = $detailsHash->{passEvalue};
+						$detailInfo->{BITSCORE} = $detailsHash->{bestHitBitScore};
+						$detailInfo->{PASSBITSCORE} = $detailsHash->{passBitScore};
 						$detailInfo->{EVALUE} = $detailsHash->{bestHitEvalue};
 						$detailInfo->{CUTOFF} = $detailsHash->{cutOff};
-						$detailInfo->{AROCATEGORIES} = $detailsHash->{bestHitCategories};
+						$detailInfo->{AROCATEGORIES} = $detailsHash->{aroCategory};
 						$detailInfo->{OTHERHITS} = $detailsHash->{otherHits};
 						$categoryCount++;
 						push @{$categoryInfo->{LOOP_DETAIL_RES}}, $detailInfo;
