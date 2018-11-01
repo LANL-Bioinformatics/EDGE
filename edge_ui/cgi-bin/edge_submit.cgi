@@ -620,6 +620,9 @@ sub runPipeline_cluster {
 			&addMessage("CLUSTER","failure","FAILED to submit $cluster_job_script: $error");
 		} else {
 			&addMessage("CLUSTER","info","job id: $job_id");
+			open (my $fh, ">>",$cluster_job_log );
+			print $fh "Cluster job id: $job_id\n";
+			close $fh;
 		}
 		$proj_count++;
 	}
