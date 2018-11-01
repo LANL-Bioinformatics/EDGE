@@ -416,6 +416,7 @@ elsif( $action eq 'rerun' ){
 	if( ! defined $pid ){
 		if($cluster) {
 			my $cluster_job_script = "$proj_dir/clusterSubmit.sh";
+			my $cluster_job_log = "$proj_dir/clusterJob.log";
 			if(!-e $cluster_job_script) {
 				$info->{INFO} = "Failed to restart this project. File $cluster_job_script not found.";
 			} else {
@@ -434,6 +435,9 @@ elsif( $action eq 'rerun' ){
 					print $fh2 "\n*** [$time] EDGE_UI: This project has been restarted. (unstarted) ***\n"; 
 					close $fh;
 					close $fh2;
+					open (my $jfh,">>",$cluster_job_log);
+					print $jfh "Cluster job id: $job_id\n";
+					close $jfh;
 				}
 			}
 		} else {
