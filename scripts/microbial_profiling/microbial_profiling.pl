@@ -278,9 +278,12 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 			if ($job_status =~ /do not exist/){
 				$qsub_job_exit++;
 				my $runningtime = &timeInterval($time);
-				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if (`grep -a -i ERROR $log`);
+				if (`grep -a -i ERROR $log`){
+					&_notify("[RUN_TOOL] [$tool] Error occured.\n");
+				}else{
+					`touch "$outdir/.finished"`;
+				}
 				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
-				`touch "$outdir/.finished"`;
 				$job_ids{$id}->{finish}=1;
 			}
 			if ((time-$time) > $timelimit){
