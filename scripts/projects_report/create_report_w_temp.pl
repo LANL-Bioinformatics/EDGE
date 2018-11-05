@@ -788,7 +788,7 @@ sub pull_reports {
 					chomp;
 					s/^\s+|\s+$//g;
 					##assembly
-					if(/<li><span class="li-report-content-title">De Novo Assembly by (.*)<\/span><div class="li-report-content">/ || /<li><span class="li-report-content-title">Stats of Provided Contigs<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">De Novo Assembly by (.*)<\/span><div class="li-report-content">/ || /<li><span class="li-report-content-title">Stats of Provided Contigs<\/span><div class="li-report-content">/) {
 						$proj->{AA_ASSEMBLY_TOOL} = $1;
 						$reports_map{$project}{'aa-assembly-tool'} = $1;
 						while(<IN>) {
@@ -842,7 +842,7 @@ sub pull_reports {
 						next;
 					}
 					##read mapping
-					if(/<li><span class="li-report-content-title">Assembly Validation by Read Mapping<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Assembly Validation by Read Mapping<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							if(/<tr><td>Number of Mapped Reads<\/td><td>(.*)<\/td><\/tr>/) {
 								$proj->{AA_MAPPING_MAPPEDREADS} = $1;
@@ -900,7 +900,7 @@ sub pull_reports {
 						next;
 					}
 					##annotation
-					if(/<li><span class="li-report-content-title">Annotation<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Annotation<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							if(/<tr><td>CDS<\/td><td>(.*)<\/td><\/tr>/) {
 								$proj->{AA_ANNOTATION_CDS} = $1;
@@ -1248,7 +1248,7 @@ sub pull_reports {
 					s/^\s+|\s+$//g;
 					##Read-based
 					my $img;
-					if(/<li><span class="li-report-content-title">Read-based Taxonomy Classification<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Read-based Taxonomy Classification<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
@@ -2031,7 +2031,7 @@ sub pull_reports {
 					}#end if
 				
 					##assembly-based
-					if(/<li><span class="li-report-content-title">Assembly-based Community Profiling<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Assembly-based Community Profiling<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							###get stats
 							if(/<div id="edge-output-ccp-summary">/) {
