@@ -47,6 +47,7 @@ my ($webhostname) = $domain =~ /^(\S+?)\./;
 my $debug       = $sys->{debug};
 my $request_uri = $ENV{'REQUEST_URI'};
 my $max_num_jobs = $sys->{"max_num_jobs"};
+my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -132,6 +133,11 @@ if ($ARGV[0] && $ARGV[1] && $ARGV[2]){
 
 }
 ###################
+
+if ($maintenance){
+	addMessage("RUN_PIPELINE","failure","System is under maintenance. Please submit later or contact system administrator.");
+	returnStatus();
+}
 
 #check session
 if( $sys->{user_management} ){

@@ -39,6 +39,7 @@ my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
 $um_url ||= "$protocol//$domain/userManagement";
+my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
 
 my $cluster     = $sys->{cluster};
 
@@ -93,6 +94,11 @@ if($action eq "form") {
 } elsif ($action eq "create") {
 	my $html;
 	my $report_name = $opt{'report'};
+	if ($maintenance){
+		print "Content-Type: text/html\n\n",
+                       "<h3 class='error'>System is under maintenance. Please submit later or contact system administrator.</h3>";
+		exit;
+	}
 	if ($username && $password){
 		$report_name = &addReport2DB($opt{'edge-report-name'},$opt{'edge-report-desc'});
 	}

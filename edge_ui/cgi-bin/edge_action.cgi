@@ -83,6 +83,7 @@ my $proj_rel_dir = "$out_rel_dir/$pname";
 my $list;
 my $permission;
 my $max_num_jobs = $sys->{"max_num_jobs"};
+my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
 
 #cluster
 my $cluster 	= $sys->{cluster};
@@ -111,6 +112,11 @@ if ( ($memUsage > 99 or $cpuUsage > 99) and $action ne 'interrupt' and !$cluster
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
+if ($maintenance){
+	$info->{INFO}   = "System is under maintenance. Please submit later or contact system administrator.";
+	&returnStatus();
+}
+
 
 #session check
 my $real_name = $pname;
