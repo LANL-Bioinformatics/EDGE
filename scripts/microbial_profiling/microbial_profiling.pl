@@ -236,11 +236,14 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				my ($job_id) = $code =~ /Your job (\d+)/;
 				#&_notify("$code\n");
 				&_notify("[RUN_TOOL] [$tool] cluster job id: $job_id\n");
-				$job_ids{$job_id}->{tool}=$tool;
-				$job_ids{$job_id}->{time}=$time;
-				$job_ids{$job_id}->{outdir}=$outdir;
-				$job_ids{$job_id}->{log}=$log;
-				&_notify("[RUN_TOOL] [$tool] Error occured: qsub error\n") if (!$job_id);
+				if ($job_id){
+					$job_ids{$job_id}->{tool}=$tool;
+					$job_ids{$job_id}->{time}=$time;
+					$job_ids{$job_id}->{outdir}=$outdir;
+					$job_ids{$job_id}->{log}=$log;
+				}else{
+					&_notify("[RUN_TOOL] [$tool] Error occured: qsub error\n");
+				}
 			}else{
 				&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
 				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
@@ -294,6 +297,7 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 			}
 		}
 		last if scalar(keys %job_ids) ==  $qsub_job_exit; 
+		last if ! %job_ids;
 		sleep 5;
 	}		
 }
