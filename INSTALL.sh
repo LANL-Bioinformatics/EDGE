@@ -160,6 +160,10 @@ tar xvzf PyPiReT-$VER.tgz
 cd PyPiReT
 Org_PATH=$PATH;
 export PATH=$rootdir/thirdParty/Anaconda3/bin:$PATH;
+if [ -e $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret ]
+then
+  rm -rf $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret
+fi 
 ./INSTALL.sh
 ln -sf $rootdir/thirdParty/PyPiReT $rootdir/bin/PyPiReT
 export PATH=$Org_PATH
@@ -244,7 +248,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------"
 tar xvzf racon-v$VER.tar.gz
 cd racon-v$VER
-mkdir build
+mkdir -p build
 cd build
 $anaconda2bin/cmake -DCMAKE_BUILD_TYPE=Release ..
 make
@@ -2071,7 +2075,7 @@ fi
 if ( checkSystemInstallation lrasm  )
 then
   racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
-  if ( echo $racon_installed_VER | awk '{if($1>=1.3.0) exit 0; else exit 1}' )
+  if ( echo $racon_installed_VER | awk '{if($1>=1.3.1) exit 0; else exit 1}' )
   then
     echo "racon $racon_installed_VER found"
   else
@@ -2106,16 +2110,16 @@ fi
 
 if [ -x $rootdir/bin/MaxBin/src/MaxBin ]
 then
-  MaxBin_VER = `$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
+  MaxBin_VER=`$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
   if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
   then
     echo "MaxBin2 is found"
   else
-    install_MaxBin2
+    install_MaxBin
   fi
 else
   echo "MaxBin2 is not found"
-  install_MaxBin2
+  install_MaxBin
 fi
 
 if ( checkLocalInstallation gottcha.pl  )
