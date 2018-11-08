@@ -857,7 +857,8 @@ sub pull_anno {
 	my @kegg_maps = `ls $out_dir/AssemblyBasedAnalysis/Annotation/kegg_map/*png 2>/dev/null`; 
 	chomp @kegg_maps;
 	if (scalar(@kegg_maps)>0){
-		$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=$projname";
+		my $init_map = $1 if ($kegg_maps[0] =~ /ec(\d+)/);
+		$vars->{ANOKEGG} = "opaver_web/pathway_anno.html?data=${projname}&mapid=$init_map";
 		`ln -s $abs_outDir/AssemblyBasedAnalysis/Annotation/kegg_map $www_root/opaver_web/data/$projname` if ( ! -e "$www_root/opaver_web/data/$projname");
 	}
 }
