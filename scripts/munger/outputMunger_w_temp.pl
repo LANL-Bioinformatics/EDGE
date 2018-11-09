@@ -1629,9 +1629,9 @@ sub pull_taxa {
 							$res_row->{CPABU_REA} = _reformat_val($t[2]);
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[2]/$creads*100);
 						}
-						if ($count <5){
+						#if ($count <5){
 							push @{$tool->{LOOP_CPTOOL_RES}}, $res_row;
-						}
+						#}
 						push @{$tool->{LOOP_CPTOOL_DOWNLOAD}},$res_row;
 						++$count;
 					}
@@ -1640,6 +1640,8 @@ sub pull_taxa {
 			}
 			$tool->{CPTOOL_ID}    = $cnt++;
 			$tool->{CPTOOL_LABEL} = $row->{CPTOOL};
+			$vars->{CPTOOL_ANCHOR} .= "<a data-ajax='false' class='showTax ui-btn ui-btn-inline ui-mini' data-tag=$tool->{CPTOOL_LABEL}Tag >$tool->{CPTOOL_LABEL}</a>";
+			$tool->{CPTOOL_LABEL_LIST_ID} = "$tool->{CPTOOL_LABEL}Tag";
 			$tool->{CPTOOL_LABEL} =~ s/\b(\w)/\U$1/g;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (bacterial species database)" if $row->{CPTOOL} =~ /gottcha-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;

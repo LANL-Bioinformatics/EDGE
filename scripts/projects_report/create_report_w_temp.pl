@@ -1366,11 +1366,11 @@ sub pull_reports {
 					}
 
 					##assembly tools
-					if(/<li><span class="li-report-content-title">GOTTCHA \(bacterial species database\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">GOTTCHA \(bacterial species database\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1438,11 +1438,11 @@ sub pull_reports {
 						next;						
 					}#end if
 
-					if(/<li><span class="li-report-content-title">GOTTCHA2 \(bacterial species database\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">GOTTCHA2 \(bacterial species database\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1511,11 +1511,11 @@ sub pull_reports {
 						next;						
 					}#end if
 					#GOTTCHA viral
-					if(/<li><span class="li-report-content-title">GOTTCHA \(viral species database\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">GOTTCHA \(viral species database\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1582,11 +1582,11 @@ sub pull_reports {
 						next;						
 					}#end if
 					#GOTTCHA2 viral
-					if(/<li><span class="li-report-content-title">GOTTCHA2 \(viral species database\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">GOTTCHA2 \(viral species database\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1655,7 +1655,7 @@ sub pull_reports {
 						next;						
 					}#end if
 					#PanGIA
-					if(/<li><span class="li-report-content-title">PanGIA<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">PanGIA<\/span><div class="li-report-content">/) {
 						#get pangia result list
 						my @parts;
 						open(PR, $pangiaReport);				
@@ -1707,7 +1707,7 @@ sub pull_reports {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1750,11 +1750,11 @@ sub pull_reports {
 						next;						
 					}#end if
 					#Metaphlan2
-					if(/<li><span class="li-report-content-title">Metaphlan\d?<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Metaphlan\d?<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1820,11 +1820,11 @@ sub pull_reports {
 						next;						
 					}#end if
 					#BWA
-					if(/<li><span class="li-report-content-title">BWA \(reads mapping\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">BWA \(reads mapping\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1890,11 +1890,11 @@ sub pull_reports {
 						next;						
 					}#end if 
 					#Kraken mini
-					if(/<li><span class="li-report-content-title">Kraken.*<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Kraken.*<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1960,11 +1960,11 @@ sub pull_reports {
 						next;						
 					}#end if
 					#Diamond
-					if(/<li><span class="li-report-content-title">Diamond<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Diamond<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>/) {
+							if(/edge-output-tool-summary/ && /table/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {

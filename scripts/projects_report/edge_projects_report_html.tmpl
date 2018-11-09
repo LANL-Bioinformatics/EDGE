@@ -13,11 +13,14 @@
 	<link rel="stylesheet" href="css/edge.css"/>
 	<link rel='stylesheet' href='css/edge-output.css'/>
 	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
+	<link rel='stylesheet' href='css/jquery.dataTables.min.css'/>	
+	<link rel='stylesheet' href='css/jquery.dataTables.custom.css'/>	
 	<link rel='stylesheet' href='css/tooltipster.css'/>
 	<script src="javascript/jquery.js"></script>
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/edge-output.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
+	<script src="javascript/jquery.dataTables.min.js" ></script>
 	<script src="javascript/jsphylosvg-min.js"></script>    
 	<script src="javascript/jquery.tooltipster.min.js"></script>
 	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
@@ -1035,7 +1038,7 @@
 					
 					<TMPL_IF NAME="TAX_TOOL_GBS">
 						<h4>GOTTCHA (bacterial species database)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1088,7 +1091,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_GVS">
 						<h4>GOTTCHA (viral species database)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1142,7 +1145,7 @@
 					
 					<TMPL_IF NAME="TAX_TOOL_GBS2">
 						<h4>GOTTCHA2 (bacterial species database)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1199,7 +1202,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_GVS2">
 						<h4>GOTTCHA2 (viral species database)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1256,7 +1259,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_PANGIA">
 						<h4>PanGIA</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1315,7 +1318,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_METAPHLAN">
 						<h4>Metaphlan2</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1366,7 +1369,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_BWA">
 						<h4>BWA (reads mapping)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1417,7 +1420,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_KRAKEN">
 						<h4>Kraken (mini database)</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1468,7 +1471,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_TOOL_DIAMOND">
 						<h4>Diamond</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>

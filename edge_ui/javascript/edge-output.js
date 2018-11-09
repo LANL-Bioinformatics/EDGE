@@ -842,5 +842,24 @@ $( document ).ready(function()
 			}
 		});
 	});
+        $('.edge-output-tool-summary').removeClass("ui-table-reflow ui-table");
+	$('.edge-output-tool-summary').find(".ui-table-cell-label").remove();
+	$('.edge-output-tool-summary').each(function(){
+		var dom=this;
+		$(dom).DataTable({
+			"pageLength": 10,
+		});
+	});
+	$('.showTax').on("click",function(){
+		var tag=$(this).attr("data-tag");
+		$(".rtaxToolresult").hide();
+		if (tag == "ALL"){
+			$(".rtaxToolresult").show();
+		}else{
+			$('#'+ tag).show();
+		}
+	});
+
+	$('.showTax').first().click();
 });
 //# sourceURL=edge-output.js

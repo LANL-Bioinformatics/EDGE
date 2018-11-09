@@ -957,15 +957,14 @@
 							|<a data-ajax='false' href='<TMPL_VAR NAME=CPABUN DEFAULT=->'> Abundance </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=CPDIR DEFAULT=->'> Directory </a></p>
 					</div></li>
-
+					<p style="text-align: left;font-size: 0.85em;"><TMPL_VAR NAME=CPTOOL_ANCHOR><a data-ajax='false' class="showTax ui-btn ui-btn-inline ui-mini" data-tag="ALL">All</a></p>
 			  		<TMPL_LOOP NAME=LOOP_CPTOOL>
-					<li><span class="li-report-content-title"><TMPL_VAR NAME=CPTOOL_LABEL DEFAULT=-></span><div class="li-report-content">
-
-					<table data-role='table' id="edge-output-tool-summary" data-filter="true" class='output-table ui-responsive'>
+					<li class="rtaxToolresult" id="<TMPL_VAR NAME=CPTOOL_LABEL_LIST_ID>"><span class="li-report-content-title"><TMPL_VAR NAME=CPTOOL_LABEL DEFAULT=-></span><div class="li-report-content">
+					<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
 					  	<thead>
 							<tr>
 						  	<th data-priority='persist'>Level</th>
-						  	<th data-priority='1'>Top 5 Taxa</th>
+						  	<th data-priority='1'>Taxa</th>
 						  	<th data-priority='1'>Reads</th>
 							<TMPL_IF NAME="CPTOOL_CPABU_PMD">
 						  	<th data-priority='3'>% Plasmid</th>
@@ -1042,17 +1041,19 @@
 						</div>
 					</div>
 
+				
+					</div>
+					<TMPL_ELSE/>
+					[Not available]
+					</TMPL_IF>
 						<p class='extra-text-link'>Link to 
 							<TMPL_IF NAME="CPTOOL_PANGIA_TSV">
 							|<a data-ajax='false' href='/pangia-vis?r=pangia-vis/data/<TMPL_VAR NAME=CPTOOL_PANGIA_TSV DEFAULT=blank.tsv>&p=<TMPL_VAR NAME=CPTOOL_PANGIA_PROJNAME>'> PanGIA-VIS </a>
 							</TMPL_IF>
 							|<a data-ajax='false' href='<TMPL_VAR NAME=CPTOOL_ABU DEFAULT=->'> Abundance </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=CPTOOL_DIR DEFAULT=->'> Directory </a>
-							</p>
-					</div></li>
-					<TMPL_ELSE/>
-					[Not available]
-					</TMPL_IF>
+						</p>
+					</li>
 					</TMPL_LOOP>
 				</ol>
 				</div></li>
