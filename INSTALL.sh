@@ -1366,6 +1366,9 @@ tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/conda --add channels defaults
+$anaconda3bin/conda --add channels bioconda
+$anaconda3bin/conda --add channels conda-forge
 $anaconda3bin/conda install -c bioconda rgi=4.2.2
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
