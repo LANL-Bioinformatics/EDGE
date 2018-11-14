@@ -1640,8 +1640,6 @@ sub pull_taxa {
 			}
 			$tool->{CPTOOL_ID}    = $cnt++;
 			$tool->{CPTOOL_LABEL} = $row->{CPTOOL};
-			$vars->{CPTOOL_ANCHOR} .= "<a data-ajax='false' class='showTax ui-btn ui-btn-inline ui-mini' data-tag=$tool->{CPTOOL_LABEL}Tag >$tool->{CPTOOL_LABEL}</a>";
-			$tool->{CPTOOL_LABEL_LIST_ID} = "$tool->{CPTOOL_LABEL}Tag";
 			$tool->{CPTOOL_LABEL} =~ s/\b(\w)/\U$1/g;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (bacterial species database)" if $row->{CPTOOL} =~ /gottcha-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;
@@ -1651,7 +1649,9 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "Kraken"	if $vars->{KRAKENDB};
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;
-
+			$vars->{CPTOOL_ANCHOR} .= "<option value=$row->{CPTOOL}Tag class='showTax'>$tool->{CPTOOL_LABEL}</option>";
+			$tool->{CPTOOL_LABEL_LIST_ID} = "$row->{CPTOOL}Tag";
+			
 			$tool->{CPTOOL}       = $row->{CPTOOL};
 			$tool->{CPTOOL_TREE}  = "$vars->{CPDIR}/1_$reads_type/$row->{CPTOOL}/$reads_type-$row->{CPTOOL}.tree.svg";
 			$tool->{CPTOOL_TREE_PNG} = "$out_dir/HTML_Report/images/$reads_type-$row->{CPTOOL}.tree.png";

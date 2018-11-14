@@ -850,14 +850,15 @@ $( document ).ready(function()
 			"pageLength": 10,
 		});
 	});
-	$('.showTax').on("click",function(){
-		var tag=$(this).attr("data-tag");
+	$(".rtaxToolresult").hide();
+	var firstTaxToolResultTag = $('#showTaxSelect option').eq(1).val();
+	$('#'+ firstTaxToolResultTag).show();
+	$('#showTaxSelect').on('change',function(){
 		$(".rtaxToolresult").hide();
-		if (tag == "ALL"){
-			$(".rtaxToolresult").show();
-		}else{
+		$('#showTaxSelect option:selected').each(function(){
+			var tag=$(this).val();
 			$('#'+ tag).show();
-		}
+		});
 	});
 
 	$('.showTax').first().click();

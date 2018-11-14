@@ -957,7 +957,12 @@
 							|<a data-ajax='false' href='<TMPL_VAR NAME=CPABUN DEFAULT=->'> Abundance </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=CPDIR DEFAULT=->'> Directory </a></p>
 					</div></li>
-					<p style="text-align: left;font-size: 0.85em;"><TMPL_VAR NAME=CPTOOL_ANCHOR><a data-ajax='false' class="showTax ui-btn ui-btn-inline ui-mini" data-tag="ALL">All</a></p>
+					<fieldset class="ui-mini ui-btn-inline">
+						<select name="showTaxSelect" id="showTaxSelect" multiple="multiple" data-native-menu="false" >
+							<option>Choose tools to display</option>
+							<TMPL_VAR NAME=CPTOOL_ANCHOR>
+						</select>
+					</fieldset>
 			  		<TMPL_LOOP NAME=LOOP_CPTOOL>
 					<li class="rtaxToolresult" id="<TMPL_VAR NAME=CPTOOL_LABEL_LIST_ID>"><span class="li-report-content-title"><TMPL_VAR NAME=CPTOOL_LABEL DEFAULT=-></span><div class="li-report-content">
 					<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
