@@ -40,15 +40,16 @@ my ($pPrimer,$primerRenameFile)= &readPrimerSeq($primer_file);
 # index reference 
 if ( ! -e "$ref_file.bwt")
 {
-    system("bwa index $ref_file 2>/dev/null");
+    system("bwa index $ref_file 2>&1 1>/dev/null");
 }
 
 # run bwa mapping
 system("bwa mem -t $numCPUs -p -k 5 -A 1 -B 1 -O 3 -E 1 -T 5 -v 1 $ref_file $primerRenameFile > $outDir/$prefix.sam 2>/dev/null");
-system("samtools view -huS $outDir/$prefix.sam | samtools sort -T $outDir -O BAM -o $outDir/$prefix.bam -" );
+system("samtools view -HS $outDir/$prefix.sam > $outDir/$prefix.name.sam" );
 system("rm $ref_file.*") if (-e "$ref_file.bwt");
         
 open (my $sam_fh, "$outDir/$prefix.sam") or die "Cannot read $outDir/$prefix.sam\n";
+open (my $sam_ofh, ">>", "$outDir/$prefix.name.sam") or die "Cannot write $outDir/$prefix.name.sam\n";
 #p001    97      gi|49183039|ref|NC_005945.1|    4524337 22      20M     =       4525115 798     TATCGTGCACCAACTCCACC    *       NM:i:0  AS:i:20 XS:i:15
 #p001    145     gi|49183039|ref|NC_005945.1|    4525115 36      20M     =       4524337 -798    TCGTCGCCTTATCAGCACTC    *       NM:i:0  AS:i:20 XS:i:12
 
@@ -63,6 +64,7 @@ while(<$sam_fh>)
     my $ref_seq;
     my $primer_seq;
     my @samFields =split /\t/,$_;
+    my @samFields_name_replace = @samFields;
     next if ( $samFields[1] & 2048 ); #Chimera
     next if ( $samFields[1] & 256 ); #not primary alignment
     # not primary alignment
@@ -78,6 +80,8 @@ while(<$sam_fh>)
        $ref_seq=substr($pRef->{$samFields[2]}->{seq},$samFields[3]-1,$pPrimer->{"$samFields[0]/1"}->{len});
        $primer_seq=$pPrimer->{"$samFields[0]/1"}->{seq};
        $primer_seq=&ReverseComplement($primer_seq) if ($samFields[1] &16);
+       $samFields_name_replace[0] = $primerId;
+       print $sam_ofh join("\t",@samFields_name_replace),"\n";
     }
     if ($samFields[1] & 128) # reverse primer
     {
@@ -85,6 +89,8 @@ while(<$sam_fh>)
        $ref_seq=substr($pRef->{$samFields[2]}->{seq},$samFields[3]-1,$pPrimer->{"$samFields[0]/2"}->{len});
        $primer_seq=$pPrimer->{"$samFields[0]/2"}->{seq};
        $primer_seq=&ReverseComplement($primer_seq) if ($samFields[1] &16);
+       $samFields_name_replace[0] = $primerId;
+       print $sam_ofh join("\t",@samFields_name_replace),"\n";
     }
     # primer not match
     if ($samFields[1] &4)
@@ -130,13 +136,14 @@ while(<$sam_fh>)
         }
         else
         {
-            $result{$samFields[0]} .= "PCR success! \n" . $reason;
             if ($samFields[6] ne "=")
             {
-                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to differenct input sequences. ($samFields[2] vs $samFields[6])\n";
+            	$result{$samFields[0]} .= "Alignment success! \n" . $reason;
+                $result{$samFields[0]} .= " WARNINGS:  The primers pair match to different input sequences. ($samFields[2] vs $samFields[6])\n";
             }
             else
             {
+            	$result{$samFields[0]} .= "PCR success! \n" . $reason;
                 my ($start,$end,$amplicon_size,$direction);
                 if ( $samFields[8] < 0 )
                 {
@@ -163,9 +170,12 @@ while(<$sam_fh>)
     
 }    
 close $sam_fh;
+close $sam_ofh;
 
+system("samtools view -huS $outDir/$prefix.name.sam | samtools sort -T $outDir -O BAM -o $outDir/$prefix.bam -" );
 print $result{$_},"----------\n" foreach (sort keys %result);
 unlink "$outDir/$prefix.sam";
+#unlink "$outDir/$prefix.name.sam";
 unlink $primerRenameFile;
 exit(0);
 
