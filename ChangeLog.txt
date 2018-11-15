@@ -1,3 +1,32 @@
+-- Version 2018
+EDGE 2.4.0
+* Update bcftools from 1.6 to 1.9
+* Add Python package lzstring, h5py
+* Add biom format output for taxonomy classification module.
+* Fix bug: data clean script in docker or symlink directory
+* Fix bug: the fix mapping file Description column
+* Update gottcha2 and pangia codes for corresponding database update
+* Update megahit from 1.0.3 to 1.1.3.
+* Update R from 3.3.2 to 3.5.1
+* Update rgi from 3.1.1 to 4.2.2
+* Update gottcha dmd complier and use conda to install rapsearch2
+* Add MaxBin tools for metagenome contig binning
+* Add debug flag in auto_run script
+
+EDGE GUI 2.4.0
+* Add Ploidy option for Variant calling
+* Add anchor link in the result page to quick accession module result
+* Add one more line for LibreOffice xlsx format check
+* Adjust mobile portrait width for front page
+* Fix bug: the reset function disabled show on the registration iframe page.
+* Add Binning tag in Assembly and Annotation Module
+* Update Taxonomy tool result display by user select options
+
+Database:
+GOTTCHA2: update to refseq90
+PANGIA: update to refseq89
+CARD: update to 3.0.0 
+
 -- Version 20180829
 EDGE version 2.3.1
 * fix bug: blank SRA accesion variable 

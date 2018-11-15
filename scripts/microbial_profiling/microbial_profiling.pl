@@ -319,7 +319,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 	chomp $pwd;
 
 	print $post_fh "
-      export PATH=$Bin:$Bin/../:$Bin/script/:$Bin/bin/:\$PATH;
+      export PATH=$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{EDGE_HOME}/thirdParty/Anaconda2/bin:\$PATH;
 	  cd $pwd;
 
       echo \"[Post-processing #$idx $fnb]\";
@@ -415,9 +415,9 @@ merge_list_specTaxa_by_dataset.pl $fnb_rep_dir/*/*.list.txt --top $heatmap_top -
 
 wait 
 
-biom convert -i $tmpdir/$fnb.genus.otu.txt -o $p_repdir/$fnb.genus.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
-biom convert -i $tmpdir/$fnb.species.otu.txt -o $p_repdir/$fnb.species.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
-biom convert -i $tmpdir/$fnb.strain.otu.txt -o $p_repdir/$fnb.strain.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy &
+biom convert -i $tmpdir/$fnb.genus.otu.txt -o $p_repdir/$fnb.genus.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy 2>/dev/null &
+biom convert -i $tmpdir/$fnb.species.otu.txt -o $p_repdir/$fnb.species.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy 2>/dev/null &
+biom convert -i $tmpdir/$fnb.strain.otu.txt -o $p_repdir/$fnb.strain.biom --to-hdf5 --table-type='OTU table' --process-obs-metadata taxonomy 2>/dev/null &
 
 wait
 

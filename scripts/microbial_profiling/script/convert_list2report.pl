@@ -110,6 +110,7 @@ sub restore_settings {
 		next if /^$/;
 		next if /^#/;
 		next if /^;/;
+		next if (! /\S/);
 		if ( /^\[(.+)\]$/ ){
 			$section = $1;
 			$set->{$section}->{ORDER} = $count++;

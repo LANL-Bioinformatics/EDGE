@@ -147,7 +147,7 @@ sub runMetaComp {
 	my $tool_list;
 	my $count=0;
 	my %tool_name = (
-		'gottcha2-speDB-b' => 'GOTTCHA2 Bacterial Species',
+		'gottcha2-speDB-b' => 'GOTTCHA2 BacteriaViruses Species',
 		'gottcha2-genDB-v' => 'GOTTCHA2 Viral Genus', 
 		'gottcha2-speDB-v' => 'GOTTCHA2 Viral Species', 
 		'gottcha2-speDB-e-pln' => 'GOTTCHA2 Species Plant',

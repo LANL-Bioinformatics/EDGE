@@ -96,7 +96,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha2-speDB-b">
 [gottcha2-speDB-b]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-b-speDB>
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-b-speDB> <TMPL_VAR NAME=gottcha2-opts>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
@@ -111,7 +111,7 @@ OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 
 <TMPL_IF NAME="gottcha2-speDB-v">
 [gottcha2-speDB-v]
-COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-v-speDB>
+COMMAND=uge-gottcha2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=gottcha2-v-speDB> <TMPL_VAR NAME=gottcha2-opts>
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 

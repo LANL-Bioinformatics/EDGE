@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_vmem=10G
+#$ -l h_vmem=100G,mem_free=40G
 #$ -j y
 #$ -cwd
 
@@ -16,7 +16,7 @@ ARGUMENTS:
 
 OPTIONS:
    -t      Number of threads. [default is 4]
-   -a      BWA alignment parameters. [default is "mem -k 30 -T 0 -B 100 -O 100 -E 100"]
+   -a      minimap2 options
    -q      minQ: minimum quality of any single base [default is 20]
    -f      fixL: chunk all fragments of reads into smaller fragments of length [default is 30]
    -m      minL (*** disabled, don't use ***)
@@ -37,7 +37,7 @@ OUTPATH=
 LVL="species"
 THREADS=4
 PRE_SPLITRIM=
-DB=$EDGE_HOME/database/GOTTCHA2/Virus_VIPR_HIVdb_IRD_NCBI_xHuBaAr_noEngStv.species.fna
+DB=$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna
 
 while getopts "i:o:p:l:d:t:a:q:f:m:s:h" OPTION
 do
@@ -78,13 +78,13 @@ mkdir -p $OUTPATH
 
 set -xe;
 
-gottcha.py -r $RELABD_COL -m full -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha2.py -r $RELABD_COL -m full -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
 
 awk -F\\t '{if($NF=="" || $NF=="NOTE"){print $_}}' $OUTPATH/$PREFIX.full.tsv | cut -f -10 > $OUTPATH/$PREFIX.summary.tsv
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv > $OUTPATH/$PREFIX.out.list
 awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$4"\t"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv >> $OUTPATH/$PREFIX.out.list
 
-gottcha.py -r $RELABD_COL --database $DB -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
+gottcha2.py -r $RELABD_COL --database $DB -s $OUTPATH/$PREFIX.gottcha_*.sam -m lineage -c > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
 ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html

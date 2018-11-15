@@ -1438,7 +1438,7 @@ sub pull_reports {
 						next;						
 					}#end if
 
-					if(/<span class="li-report-content-title">GOTTCHA2 \(bacterial species database\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">GOTTCHA2 \(BacteriaViruses species database\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;

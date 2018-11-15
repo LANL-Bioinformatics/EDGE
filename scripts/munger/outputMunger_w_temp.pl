@@ -1643,7 +1643,7 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} =~ s/\b(\w)/\U$1/g;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (bacterial species database)" if $row->{CPTOOL} =~ /gottcha-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA (viral species database)"     if $row->{CPTOOL} =~ /gottcha-.*-v/;
-			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (bacterial species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
+			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (BacteriaViruses species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
 			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/;
 			$tool->{CPTOOL_LABEL} = "Kraken"	if $vars->{KRAKENDB};

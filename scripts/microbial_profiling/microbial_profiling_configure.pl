@@ -53,8 +53,8 @@ $opt{"gottcha-b-strDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_
 $opt{"gottcha-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus";
 $opt{"gottcha-b-genDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus";
 $opt{"gottcha2-v-genDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz";
-$opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Bacteria.species.fna.gz";
-$opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz";
+$opt{"gottcha2-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna";
+$opt{"gottcha2-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release90.cg.Viruses.species.fna";
 $opt{"gottcha2-e-plnDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz";
 $opt{"gottcha2-e-fugDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz";
 $opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz";
@@ -137,7 +137,7 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -gottcha-v-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.genus
     -gottcha-b-genDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.genus
     -gottcha2-v-genDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.genus.fna.gz
-    -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Bacteria.species.fna.gz
+    -gottcha2-b-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna
     -gottcha2-v-speDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Virus.species.fna.gz
     -gottcha2-e-plnDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plant.species.fna.gz
     -gottcha2-e-ptzDB   $EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz
