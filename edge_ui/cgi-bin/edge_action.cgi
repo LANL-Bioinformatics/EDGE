@@ -723,11 +723,11 @@ elsif( $action eq 'getreadsbytaxa'){
 	if( $cptool_for_reads_extract =~ /gottcha2/i ){
 		my $gottcha2_db="";
 		if ($cptool_for_reads_extract =~ /speDB-b/){
-			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release75.Bacteria.species.fna";
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna";
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"});
 		}
 		if ($cptool_for_reads_extract =~ /speDB-v/){
-			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release81.Virus.species.fna";
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release90.cg.Viruses.species.fna";
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"});
 		}
 		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
