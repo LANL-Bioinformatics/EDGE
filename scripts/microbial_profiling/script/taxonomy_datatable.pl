@@ -22,6 +22,7 @@ GetOptions( \%opt,
             'metaphlan2=s',
             'pangia=s',
             'diamond=s',
+	    'centrifuge=s',
             'taxfile=s',
             'help|?' 
 );
@@ -29,7 +30,7 @@ if ( $opt{help} || scalar keys %opt == 0 ) { &Usage(); }
 
 my $prefix = $opt{prefix} || "_";
 my ($gottcha, $gottcha2, $bwa, $kraken, $metaphlan, $pangia, $diamond);
-my @tools = ("gottcha","gottcha2","bwa","kraken","metaphlan2","pangia","diamond");
+my @tools = ("gottcha","gottcha2","bwa","kraken","metaphlan2","pangia","diamond","centrifuge");
 my $time = time;
 
 my $html_file = "${prefix}_taxonomyDBtable.html";
@@ -166,12 +167,13 @@ Usage: $0  -gottcha db.ann ...
 Options:
 -prefix         Output file prefix (default: _)
 -gottcha        ann file
--gottcha2       ann file
+-gottcha2       stats file
 -bwa            ann file
 -pangia         ann file
--metaphlan      mpa_v20_m200_marker_info.txt
+-metaphlan2      mpa_v20_m200_marker_info.txt
 -kraken   	seqid2taxid.map
 -diamond	seq.headers
+-centrifuge     centrifuge-inspect -n > dbinfo.txt
 -taxfile        existing taxonomy tsv file
 -help           Show this usage
 
@@ -198,27 +200,38 @@ sub get_info{
 		my $tax_name="";
 		my $taxId;
 		my $acc='';
-
+		if ($tool eq "centrifuge"){
+			$id_string = $line;
+			$taxId = $1 if $line =~ /cid\|(\d+)/;
+		}
 		if ($tool eq "gottcha"){
 			$id_string=$array[1];
 		}
-		if ($tool eq "gottcha2" or $tool eq "pangia"){
+		if ($tool eq "pangia"){
 			my @array2 = split /\|/,$array[1];
 			$id_string=$array2[0]; 
+		}
+		if ($tool eq "gottcha2" ){
+			$id_string=$array[2];
+			$taxId = $id_string;
 		}
 		if ($tool eq "bwa"){
 			next if $id_string !~ /\./;
 		}
-		if ($tool eq "metaphlan"){
+		if ($tool =~ /metaphlan/){
 			$id_string=$array[0];
 			if ($id_string =~ /^GeneID/){
 				$tax_name = $1 if $line =~ /clade': '\w__(\w+)'/;
 				$tax_name =~ s/_/ /g;
 				$taxId = name2taxID($tax_name);
 			}
+			
 		}
 		if ($tool eq 'kraken'){
 			$id_string=$array[0];
+			if ($id_string =~ /taxid\|(\d+)/){
+				$taxId = $1;
+			}
 		}
 		if ($tool eq 'diamond'){
 			$id_string=$array[0];
