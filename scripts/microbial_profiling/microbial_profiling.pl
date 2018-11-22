@@ -235,7 +235,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				$code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
 				my ($job_id) = $code =~ /Your job (\d+)/;
 				#&_notify("$code\n");
-				&_notify("[RUN_TOOL] [$tool] cluster job id: $job_id\n");
+				&_notify("[RUN_TOOL] [$tool] cluster info: $code\n");
 				if ($job_id){
 					$job_ids{$job_id}->{tool}=$tool;
 					$job_ids{$job_id}->{time}=$time;
