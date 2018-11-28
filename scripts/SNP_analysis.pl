@@ -415,7 +415,8 @@ sub process_snp_file
                        $ref_pos = $ref_pos-2;
                   }elsif ($snps{$ref_pos-1})
                   {
-                       $snp_codon=$snps{$ref_pos-1}->{snp_base}.$snp.substr($ref_codon,2,1);
+                       #$snp_codon=$snps{$ref_pos-1}->{snp_base}.$snp.substr($ref_codon,2,1);
+                       $snp_codon=substr($ref_codon,0,1).$snps{$ref_pos-1}->{snp_base}.$snp;
                        #delete $snps{$ref_pos};
                        $snps{$ref_pos}->{ref_aa}="Merged with SNP ".($ref_pos-1);
                        $snps{$ref_pos}->{product}="";
@@ -456,8 +457,7 @@ sub process_snp_file
                   }
                   else
                   {
-                    substr($codon,1,1,$snp);
-                    $snp_codon=$codon;
+                       $snp_codon=substr($ref_codon,0,1).$snp.substr($ref_codon,2,1);
                   }
                   #print $ref_codon,"\t",$snp_codon,"\n";
                 }
