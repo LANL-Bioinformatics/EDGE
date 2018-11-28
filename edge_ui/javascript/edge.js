@@ -646,7 +646,7 @@ $( document ).ready(function()
 	);
 	
 	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
-		'content', $('<span>If the barcode has been removed from reads fastq file (demultiplexd.), please provide corresponding fastq file containing the barcode reads for each amplicon sequence. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
+		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
 	$("#edge-qiime-UPARSE-tooltip").tooltipster(
 		'content',$('<span>Use UPARSE pipeline clusters NGS amplicon reads into OTUs. <a href="http://drive5.com/uparse/" target="_blank">Edgar, R.C. (2013) Nature Methods</a></span>')
@@ -2754,7 +2754,7 @@ $( document ).ready(function()
 			$('#edge-qiime-pipeline-dir-input').hide();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");
 			$("#edge-qiime-mapping-file-tooltip").tooltipster(
-				'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="http://qiime.org/documentation/file_formats.html" target="_blank">Click here</a> for detail.</span>')
+				'content', $('<span>Metadata mapping files are used through-out QIIME, and provide per-sample metadata. The header for this mapping file starts with a pound (#) character, and generally requires a "SampleID", "BarcodeSequence", and a "Description", all tab separated. <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_blank">Click here</a> for detail.</span>')
 			);
 			inputSourceCheck($( ":radio[name='edge-qiime-rt-sw']:checked"));
 			//integrityCheck();
