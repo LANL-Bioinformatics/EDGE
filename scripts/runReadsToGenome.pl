@@ -56,10 +56,10 @@ my $no_snp=0;
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
 # varinat filter
 my $min_alt_bases=3;  # minimum number of alternate bases
+my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $max_depth=1000000; # maximum read depth
 my $min_depth=7; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
-my $ploidy = "";  # default diploid.  other option: haploid
 
 
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
@@ -82,10 +82,10 @@ GetOptions(
             'consensus=i' => \$gen_consensus,
             'min_indel_candidate_depth' => \$min_indel_candidate_depth,
             'min_alt_bases' => \$min_alt_bases,
+	    'min_alt_ratio' => \$min_alt_ratio,
             'max_depth' => \$max_depth,
             'min_depth' => \$min_depth,
             'snp_gap_filter' => \$snp_gap_filter,
-	    'ploidy' => \$ploidy,
             'cpu=i' => \$numCPU,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
@@ -320,9 +320,8 @@ for my $ref_file_i ( 0..$#ref_files){
 		## SNP call
 		if (!$no_snp){
 			print "SNPs/Indels call on $ref_file_name\n";
-			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : ""; 
-			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -cO b - > $bcf_output 2>/dev/null`;
-			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth > $vcf_output`;
+			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call -cO b - > $bcf_output 2>/dev/null`;
+			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth -r $min_alt_ratio > $vcf_output`;
 		}
 
 		## index BAM file 
@@ -394,7 +393,7 @@ for my $ref_file_i ( 0..$#ref_files){
 		my $ref_len = $ref_hash->{$ref_name}->{len};
 		my $ref_GC = $ref_hash->{$ref_name}->{GC};
 		my $ref_desc = $ref_hash->{$ref_name}->{desc};
-		my $mapped_reads = $ref_hash->{$ref_name}->{reads}||"0";
+		my $mapped_reads = $ref_hash->{$ref_name}->{reads} || "0";
 		my $stats_print_string = $ref_name."\t".$ref_len."\t".$ref_GC."\t".$mapped_reads."\t";
 		# generate coverage file
 		my $coverage_output="$outDir/${prefix}_${ref_name}.coverage";
@@ -1007,10 +1006,10 @@ Usage: perl $0
                -debug                    <bool> default: off
                -cpu                      number of CPUs [4]. will overwrite aligner options. 
 	
-               # Variant calling/Filter parameters
-	       -ploidy                   haploid or diploid
+               # Variant Filter parameters
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
                -min_alt_bases            minimum number of alternate bases [3]
+               -min_alt_ratio            minimum ratio of alternate bases [0.3]
                -max_depth                maximum read depth [1000000]
                -min_depth                minimum read depth [7]
                -snp_gap_filter           SNP within INT bp around a gap to be filtered [3]
