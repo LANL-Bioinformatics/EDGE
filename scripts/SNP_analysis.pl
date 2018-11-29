@@ -65,12 +65,16 @@ elsif($gff_file)
 my ($basename,$dir,$ext)= fileparse($SNPs_file, qr/\.[^.]*/);
 &print_timeInterval($time,"Printing result to $basename.SNPs_report.txt and $basename.Indels_report.txt"); 
 open (OUT ,">$outDir/$basename.SNPs_report.txt") or die "$!";
-print OUT "Chromosome\tSNP_position\tRef_codon\tSub_codon\taa_Ref\taa_Sub\tSynonymous\tProduct\tCDS_start\tCDS_end\tCDS_strand\n";
+if ($format =~ /vcf/i){
+    print OUT "Chromosome\tSNP_position\tRef_codon\tSub_codon\taa_Ref\taa_Sub\tSynonymous\tProduct\tCDS_start\tCDS_end\tCDS_strand\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
+}else{
+    print OUT "Chromosome\tSNP_position\tRef_codon\tSub_codon\taa_Ref\taa_Sub\tSynonymous\tProduct\tCDS_start\tCDS_end\tCDS_strand\n";
+}
+
 open (OUT2, ">$outDir/$basename.Indels_report.txt") or die "$!";
 if ($format =~ /vcf/i)
 {
-   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\n";
-
+   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
 }
 else
 {
@@ -106,7 +110,16 @@ foreach my $locus_id (keys %{$result})
                   $product,"\t",
                   $snps{$pos}->{cds_s},"\t",
                   $snps{$pos}->{cds_e},"\t",
-                  $strand,"\n";
+                  $strand;
+       if ($format =~ /vcf/i){
+           print OUT "\t",
+                  $snps{$pos}->{dpalt},"\t",
+                  $snps{$pos}->{depth},"\t",
+                  $snps{$pos}->{alt_ratio},"\t",
+                  $snps{$pos}->{alt_f_r},"\t",
+                  $snps{$pos}->{MQ};
+       }
+       print OUT "\n";
   }
   
   
@@ -130,9 +143,18 @@ foreach my $locus_id (keys %{$result})
                    length($seq),"\t";
       }       
       print  OUT2 $indel{$pos}->{type},"\t",
-                 $indel{$pos}->{prodcut},"\t",
+             $indel{$pos}->{prodcut},"\t",
              $indel{$pos}->{cds_s},"\t",
-             $indel{$pos}->{cds_e},"\n";
+             $indel{$pos}->{cds_e};
+      if ($format =~ /vcf/i){
+           print OUT2 "\t",
+                  $indel{$pos}->{dpalt},"\t",
+                  $indel{$pos}->{depth},"\t",
+                  $indel{$pos}->{alt_ratio},"\t",
+                  $indel{$pos}->{alt_f_r},"\t",
+                  $indel{$pos}->{MQ};
+      }
+      print OUT2 "\n";
   }
 }
 close OUT;
@@ -315,6 +337,7 @@ sub process_snp_file
       my $snp_quality;
       my $vcf_info;
       my $vcf_info2;
+      my ($dp, $dp_alt, $dp_alt_ratio, $dp_f_r, $mean_quality);
       my ($ref_pos,$ref_base,$snp,$snp_pos,$buff,$dist,$ref_direction,$snp_direction,$ref_id,$query_id);
       if ($format =~ /nucmer/i) 
       {
@@ -323,6 +346,13 @@ sub process_snp_file
       elsif ($format =~ /vcf/i)
       {
           ($ref_id,$ref_pos,$tmp, $ref_base,$snp,$snp_quality,$tmp,$vcf_info, $vcf_info2,$tmp)=split /\t/,$snps_line;
+	  if ( $vcf_info =~ /DP4=(\d+),(\d+),(\d+),(\d+)/i) {
+              $dp = $1 + $2 + $3 + $4;
+              $dp_alt = $3 + $4;
+              $dp_alt_ratio = sprintf("%.2f",$dp_alt/$dp);
+              $dp_f_r = "$3:$4";
+          }
+          $mean_quality = $1 if ($vcf_info =~ /MQ=(\d+)/);
       }
       else
       { 
@@ -383,6 +413,11 @@ sub process_snp_file
              $indel{$ref_pos}->{cds_s}=$start;
              $indel{$ref_pos}->{cds_e}=$end;
              $indel{$ref_pos}->{Locus}=$ref_id;
+             $indel{$ref_pos}->{depth}=$dp;
+             $indel{$ref_pos}->{dpalt}=$dp_alt;
+             $indel{$ref_pos}->{alt_ratio}=$dp_alt_ratio;
+             $indel{$ref_pos}->{alt_f_r}=$dp_f_r;
+             $indel{$ref_pos}->{MQ}=$mean_quality;
           }
           else #SNPs
           { 
@@ -391,6 +426,11 @@ sub process_snp_file
              if (length($snp)>1) {@snps=split /,/,$snp;}else {@snps=$snp;}
              foreach my $snp (@snps){
                $snps{$ref_pos}->{snp_base}=$snp;
+               $snps{$ref_pos}->{depth}=$dp;
+               $snps{$ref_pos}->{dpalt}=$dp_alt;
+               $snps{$ref_pos}->{alt_ratio}=$dp_alt_ratio;
+               $snps{$ref_pos}->{alt_f_r}=$dp_f_r;
+               $snps{$ref_pos}->{MQ}=$mean_quality;
                my $mod = ($ref_pos-$start+1) % 3;
                if ($mod % 3 == 0) # third base
                {
@@ -539,6 +579,11 @@ sub process_snp_file
              $indel{$ref_pos}->{cds_s}="";
              $indel{$ref_pos}->{cds_e}="";
              $indel{$ref_pos}->{Locus}=$ref_id;
+             $indel{$ref_pos}->{depth}=$dp;
+             $indel{$ref_pos}->{dpalt}=$dp_alt;
+             $indel{$ref_pos}->{alt_ratio}=$dp_alt_ratio;
+             $indel{$ref_pos}->{alt_f_r}=$dp_f_r;
+             $indel{$ref_pos}->{MQ}=$mean_quality;
           }
           else # not in CDS SNPs
           {  
@@ -553,6 +598,11 @@ sub process_snp_file
              $snps{$ref_pos}->{cds_e}="";
              $snps{$ref_pos}->{Locus}=$ref_id;
              $snps{$ref_pos}->{strand}="";
+             $snps{$ref_pos}->{depth}=$dp;
+             $snps{$ref_pos}->{dpalt}=$dp_alt;
+             $snps{$ref_pos}->{alt_ratio}=$dp_alt_ratio;
+             $snps{$ref_pos}->{alt_f_r}=$dp_f_r;
+             $snps{$ref_pos}->{MQ}=$mean_quality;
           }
           
       }# not in CDS
