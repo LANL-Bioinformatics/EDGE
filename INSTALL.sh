@@ -1337,7 +1337,7 @@ $anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/rapsearch-2.24-1.tar.bz2
-ln -s $anaconda2bin/bin/rapsearch $anaconda2bin/bin/rapsearch2
+ln -s $anaconda2bin/rapsearch $anaconda2bin/rapsearch2
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
