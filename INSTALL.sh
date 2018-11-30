@@ -1785,7 +1785,7 @@ else
   install_BLAST+
 fi
 
-if ( checkSystemInstallation blastall )
+if ( checkLocalInstallation blastall )
 then
   echo "blastall is found"
 else
