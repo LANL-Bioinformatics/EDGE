@@ -2312,38 +2312,38 @@ unlink $InputLogPDF;
  if ( -e $QCstatsPDF)
  {
      if ($ont_flag){
-       push @conversions, "convert -density 120 -flatten $nanoplot_length_Histogram $imagesDir/QC_read_length.png";
-       push @conversions, "convert -density 120 -flatten $nanoplot_loglength_Histogram $imagesDir/QC_read_loglength.png";
-       push @conversions, "convert -density 120 -flatten $nanoplot_length_quality_plot $imagesDir/QC_length_quality.png";
+       push @conversions, "convert -strip -density 120 -flatten $nanoplot_length_Histogram $imagesDir/QC_read_length.png";
+       push @conversions, "convert -strip -density 120 -flatten $nanoplot_loglength_Histogram $imagesDir/QC_read_loglength.png";
+       push @conversions, "convert -strip -density 120 -flatten $nanoplot_length_quality_plot $imagesDir/QC_length_quality.png";
      }else{
        my $page_count = `perl $RealBin/scripts/pdfPageCount.pl $QCstatsPDF`;
        chomp $page_count;
        my $qc_3d_page = $page_count - 2 ;
        my $qc_boxplot_page = $page_count - 3 ;
-       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[1] $imagesDir/QC_read_length.png";
-       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[2] $imagesDir/QC_GC_content.png";
-       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[3] $imagesDir/QC_nucleotide_content.png";
-       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_3d_page] $imagesDir/QC_quality_report.png";
-       push @conversions, "convert -density 120 -flatten ${QCstatsPDF}[$qc_boxplot_page] $imagesDir/QC_quality_boxplot.png";
+       push @conversions, "convert -strip -density 120 -flatten ${QCstatsPDF}[1] $imagesDir/QC_read_length.png";
+       push @conversions, "convert -strip -density 120 -flatten ${QCstatsPDF}[2] $imagesDir/QC_GC_content.png";
+       push @conversions, "convert -strip -density 120 -flatten ${QCstatsPDF}[3] $imagesDir/QC_nucleotide_content.png";
+       push @conversions, "convert -strip -density 120 -flatten ${QCstatsPDF}[$qc_3d_page] $imagesDir/QC_quality_report.png";
+       push @conversions, "convert -strip -density 120 -flatten ${QCstatsPDF}[$qc_boxplot_page] $imagesDir/QC_quality_boxplot.png";
     }
  }
- push @conversions, "convert -density 120 -flatten $hostReomvalPDF $imagesDir/HostRemovalStats.png" if (-e $hostReomvalPDF);
- push @conversions, "convert -density 120 -flatten ${contigStatsPDF}[0] $imagesDir/Assembly_length.png" if (-e $contigStatsPDF);
- push @conversions, "convert -density 120 -flatten ${contigStatsPDF}[1] $imagesDir/Assembly_GC_content.png" if (-e $contigStatsPDF);
- push @conversions, "convert -density 120 -flatten ${readsMappingToContigPDF}[0] $imagesDir/Assembly_CovDepth_vs_Len.png" if (-e $readsMappingToContigPDF);
- push @conversions, "convert -density 120 -flatten ${readsMappingToContigPDF}[1] $imagesDir/Assembly_Cov_vs_Len.png" if (-e $readsMappingToContigPDF);
- push @conversions, "convert -density 120 -flatten ${readsMappingToContigPDF}[2] $imagesDir/Assembly_GC_vs_CovDepth.png" if (-e $readsMappingToContigPDF);
- push @conversions, "convert -density 120 -flatten $annotationStatsPDF $imagesDir/annotation_stats_plots.png" if (-e $annotationStatsPDF);
- push @conversions, "convert -density 120 -flatten ${contigMappingToRefPDF}[0] $imagesDir/contigsMappingToRef_coverage.png" if (-e $contigMappingToRefPDF);
- push @conversions, "convert -density 120 -flatten ${readsMappingToRefPDF}[0] $imagesDir/readsMappingToRef_fold_histogram.png" if (-e $readsMappingToRefPDF);
- push @conversions, "convert -density 120 -flatten ${readsMappingToRefPDF}[1] $imagesDir/readsMappingToRef_coverage.png" if (-e $readsMappingToRefPDF);
+ push @conversions, "convert -strip -density 120 -flatten $hostReomvalPDF $imagesDir/HostRemovalStats.png" if (-e $hostReomvalPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${contigStatsPDF}[0] $imagesDir/Assembly_length.png" if (-e $contigStatsPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${contigStatsPDF}[1] $imagesDir/Assembly_GC_content.png" if (-e $contigStatsPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${readsMappingToContigPDF}[0] $imagesDir/Assembly_CovDepth_vs_Len.png" if (-e $readsMappingToContigPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${readsMappingToContigPDF}[1] $imagesDir/Assembly_Cov_vs_Len.png" if (-e $readsMappingToContigPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${readsMappingToContigPDF}[2] $imagesDir/Assembly_GC_vs_CovDepth.png" if (-e $readsMappingToContigPDF);
+ push @conversions, "convert -strip -density 120 -flatten $annotationStatsPDF $imagesDir/annotation_stats_plots.png" if (-e $annotationStatsPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${contigMappingToRefPDF}[0] $imagesDir/contigsMappingToRef_coverage.png" if (-e $contigMappingToRefPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${readsMappingToRefPDF}[0] $imagesDir/readsMappingToRef_fold_histogram.png" if (-e $readsMappingToRefPDF);
+ push @conversions, "convert -strip -density 120 -flatten ${readsMappingToRefPDF}[1] $imagesDir/readsMappingToRef_coverage.png" if (-e $readsMappingToRefPDF);
  if ($inputContigs){
-        push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[2] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
-        push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
+        push @conversions, "convert -strip -density 120 -flatten ${contigTaxonomyPDF}[2] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
+        push @conversions, "convert -strip -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
  }else{
- 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
- 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[4] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
- 	push @conversions, "convert -density 120 -flatten ${contigTaxonomyPDF}[5] $imagesDir/contigClassification_phylum_scatterplot.png" if ( -e "$contigTaxonomyPDF");
+ 	push @conversions, "convert -strip -density 120 -flatten ${contigTaxonomyPDF}[3] $imagesDir/contigClassification_phylum_barplot.png" if ( -e "$contigTaxonomyPDF");
+ 	push @conversions, "convert -strip -density 120 -flatten ${contigTaxonomyPDF}[4] $imagesDir/contigClassification_phylum_barplot2.png" if ( -e "$contigTaxonomyPDF");
+ 	push @conversions, "convert -strip -density 120 -flatten ${contigTaxonomyPDF}[5] $imagesDir/contigClassification_phylum_scatterplot.png" if ( -e "$contigTaxonomyPDF");
  }
  foreach my $file(split /,/, $taxonomyPDFfiles) 
  {
@@ -2352,7 +2352,7 @@ unlink $InputLogPDF;
      my $size_opt = ($file_name =~ /tree/)? "-resize 240":"-density 120";
      push @conversions, "convert $size_opt -flatten $file $imagesDir/$file_name.png" if (-e $file);
  }
- #push @conversions, "convert -density 120 -flatten $primerCheckPDF $imagesDir/pcrValidation.png" if (-e $primerCheckPDF);
+ #push @conversions, "convert -strip -density 120 -flatten $primerCheckPDF $imagesDir/pcrValidation.png" if (-e $primerCheckPDF);
  
 &printRunTime($time);
 return (\@conversions);
