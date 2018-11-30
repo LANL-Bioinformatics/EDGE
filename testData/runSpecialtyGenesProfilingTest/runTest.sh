@@ -11,12 +11,14 @@ test_result(){
 	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/SpecialtyGenes/testSpecialtyGenesProfiling_AR_genes_rgi.txt
 	Expect=$rootdir/Profiling_AR_genes_rgi.txt
 	Expect3=$rootdir/Profiling_AR_genes_rgi2.txt
+	Expect4=$rootdir/Profiling_AR_genes_rgi3.txt
 	Test2=$rootdir/TestOutput/ReadsBasedAnalysis/SpecialtyGenes/testSpecialtyGenesProfiling_VF_genes_ShortBRED_table.txt
 	Expect2=$rootdir/VF_genes_ShortBRED_table.txt
+	Expect5=$rootdir/VF_genes_ShortBRED_table2.txt
 	testName="EDGE Specialty Genes Profiling test";
-	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect3"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect3" || cmp -s "$Test" "$Expect4"
 	then
-		if cmp -s "$Test2" "$Expect2"
+		if cmp -s "$Test2" "$Expect2" || cmp -s "$Test2" "$Expect5"
 		then
    			echo "$testName passed!"
  			touch "$rootdir/TestOutput/test.success"
