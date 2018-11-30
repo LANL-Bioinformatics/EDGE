@@ -419,6 +419,7 @@ sub parseProcessLog {
 			}
 		}
 		elsif( /^Do.*=(.*)$/ ){
+			next if (/KeggOmicsView/);
 			my $do = $1;
 			$prog->{$cnt}->{DO}= 'auto' if ($do eq 'auto');
 			$prog->{$cnt}->{DO}= 1 if ($do eq 1);

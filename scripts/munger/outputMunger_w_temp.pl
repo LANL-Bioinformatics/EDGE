@@ -1923,6 +1923,7 @@ sub pull_summary {
 		if(/^contig_size_cut_for_binning=(.*)/){
 		    $vars->{BINNLENCUT} = $1 || 1000;
 		}
+		next if (/KeggOmicsView/);
 		if( /^\[(.*)\]/ ){
 			my $step = $1;
 			if( $step eq "project" or $step eq "system"){
