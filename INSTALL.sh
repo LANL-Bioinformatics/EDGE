@@ -1371,6 +1371,7 @@ $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda install -c bioconda rgi=4.2.2
+$anaconda3bin/conda install -c conda-forge pandas
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
