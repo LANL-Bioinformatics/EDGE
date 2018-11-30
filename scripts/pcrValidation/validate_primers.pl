@@ -40,7 +40,7 @@ my ($pPrimer,$primerRenameFile)= &readPrimerSeq($primer_file);
 # index reference 
 if ( ! -e "$ref_file.bwt")
 {
-    system("bwa index $ref_file 2>&1 1>/dev/null");
+    system("bwa index $ref_file 1>/dev/null");
 }
 
 # run bwa mapping
