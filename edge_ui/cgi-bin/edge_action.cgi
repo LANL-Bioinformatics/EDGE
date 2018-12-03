@@ -22,7 +22,7 @@ use File::Path qw(make_path remove_tree);
 use File::Copy;
 use Email::Valid;
 
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 require "$RealBin/../cluster/clusterWrapper.pl";
 ##sample metadata
 require "$RealBin/../metadata_scripts/metadata_api.pl";
@@ -1321,14 +1321,24 @@ sub sendMail{
   $recipients =~ s/ //g;
   $recipients = join(',', grep (!/$sender/, split(',',$recipients)));
   if (`which sendmail`){
-    open(MAIL, "|sendmail -t") or die "$!\n";
-    print MAIL "To: $recipients\n";
-    print MAIL "From: $sender\n";
-    print MAIL "Subject: $subject\n\n";
-   # print MAIL "Content-Type: text/html; charset=ISO-8859-1\n";
-   # print MAIL "Content-Disposition: inline\n";
-    print MAIL "$msg";
-    close MAIL;
+    my $pid = fork();
+    die "Fork failed: $!" if !defined $pid;
+    if ($pid==0){
+    # releases browser from waiting child to finish
+      open STDERR, ">/dev/null";
+      open STDIN, "</dev/null";
+      open STDOUT, ">/dev/null";
+
+      open(MAIL, "|sendmail -t") or die "$!\n";
+      print MAIL "To: $recipients\n";
+      print MAIL "From: $sender\n";
+      print MAIL "Subject: $subject\n\n";
+      # print MAIL "Content-Type: text/html; charset=ISO-8859-1\n";
+      # print MAIL "Content-Disposition: inline\n";
+      print MAIL "$msg";
+      close MAIL;
+      exit;
+    }
   }
 }
 
