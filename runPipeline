@@ -2649,7 +2649,7 @@ sub runHostRemoval
     }
     
     if ( ! -e $host){
-    	&lprint("No host file input. Skip anaylysis");
+    	&lprint("No host file input. Skip analysis");
     	return($pairFile,$unpairFile);
     }
     my $host_index_dir=$outputDir;
