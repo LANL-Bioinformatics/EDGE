@@ -2149,19 +2149,19 @@ else
   install_gottcha2
 fi
 
-if [ -x $rootdir/thirParty/pangia/pangia.py ]
-then
-  pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
-  then
-    echo "PANGIA $pangia_VER is found"
-  else
-    install_pangia
-  fi
-else
-  echo "PANGIA is not found"
-  install_pangia
-fi
+#if [ -x $rootdir/thirParty/pangia/pangia.py ]
+#then
+#  pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+#  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
+#  then
+#    echo "PANGIA $pangia_VER is found"
+#  else
+#    install_pangia
+#  fi
+#else
+#  echo "PANGIA is not found"
+#  install_pangia
+#fi
 
 if ( checkLocalInstallation metaphlan2.py  )
 then
