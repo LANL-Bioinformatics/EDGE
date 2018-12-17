@@ -11,7 +11,7 @@ use File::Basename;
 use POSIX qw(strftime);
 use Data::Dumper;
 use Email::Valid;
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();

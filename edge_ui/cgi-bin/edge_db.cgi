@@ -4,7 +4,7 @@ use strict;
 use CGI qw(:standard);
 use DBI;
 use FindBin qw($RealBin);
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 
 my $cgi   = CGI->new;
 my %opt   = $cgi->Vars();

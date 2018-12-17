@@ -6,7 +6,7 @@ use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
 use JSON;
 use File::Basename;
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 require "../metadata_scripts/metadata_api.pl";
 
 my $cgi   = CGI->new;

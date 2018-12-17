@@ -2,7 +2,7 @@
 use strict;
 use FindBin qw($RealBin);
 use lib "$RealBin/../../lib";
-require "edge_user_session.cgi";
+require "./edge_user_session.cgi";
 use CGI;
 my $query = CGI->new;
 my $sid = $query->param( 'sid' );
