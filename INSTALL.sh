@@ -2225,7 +2225,7 @@ fi
 
 if [ -x $anaconda3bin/bokeh ]
 then
-  bokeh_VER=`$anaconda3bin/boke --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if ( echo $bokeh_VER | awk '{if($1=="0.12.10") exit 0; else exit 1}' )
   then
     echo "bokeh $bokeh_VER is found"
