@@ -54,6 +54,7 @@ my %tool_order=(
 	'kraken_mini'     => 25,
 	'kraken'          => 26,
 	'kraken2'         => 27,
+	'centrifuge'      => 28,
 	'gottcha-genDB-b' => 30,
 	'gottcha-speDB-b' => 40,
 	'gottcha2-speDB-b'=> 41,

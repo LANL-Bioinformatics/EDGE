@@ -47,7 +47,7 @@ if (!$project_dir_names && !$out_dir){ print "$usage\n";exit;}
 my $EDGE_HOME = $ENV{EDGE_HOME}||Cwd::abs_path("$workingDir/../..");
 my $edge_www="$EDGE_HOME/edge_ui"; 
 ## Instantiate the variables
-$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-pln,gottcha2-speDB-e-ptz,gottcha2-speDB-e-fug,bwa,kraken,metaphlan,metaphlan2,pangia,diamond";
+$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-pln,gottcha2-speDB-e-ptz,gottcha2-speDB-e-fug,bwa,kraken,centrifuge,metaphlan,metaphlan2,pangia,diamond";
 $html_outfile ||= "$out_dir/compare_project.html";
 my $vars;
 
@@ -190,6 +190,7 @@ sub runMetaComp {
 				$plot_filename = "$out_dir/${tool}_merged_heatmap";
 				my $tool_for_Rscript = ($tool =~/kraken/i)?"kraken":($tool=~/gottcha2/i)?"gottcha2":"$tool";
 				$tool_for_Rscript =~ s/metaphlan\d/metaphlan/;
+				$tool_for_Rscript = "kraken" if ($tool=~/centrifuge/);
 				$cmd = "Rscript $RealBin/merge_and_plot.R $out_dir/$tool.list.fof.txt $out_dir/$tool.merged_assignments.txt $rank \'$title\' $plot_filename $tool_for_Rscript";
 				$cmd .= " 1>>$log 2>\&1 ";
 				system($cmd) if (! -s "$plot_filename.pdf");

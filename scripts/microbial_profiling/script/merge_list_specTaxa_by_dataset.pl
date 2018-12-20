@@ -46,7 +46,8 @@ my %tool_order=(
 	'metacv'           => 17,
 	'bwa'              => 18,
 	'pangia'           => 19,
-	'diamond'          => 20 
+	'centrifuge'       => 20,
+	'diamond'          => 21 
 );
 
 #parsing filter
