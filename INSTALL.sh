@@ -20,7 +20,7 @@ assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
-taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia )
+taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia centrifuge )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
@@ -539,6 +539,27 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            kraken-$VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_centrifuge()
+{
+local VER=1.0.4
+echo "------------------------------------------------------------------------------
+                           Install centrifuge-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf centrifuge-$VER-beta.tgz
+cd centrifuge-$VER-beta
+make 
+cp centrifuge $rootdir/bin/
+cp centrifuge-* $rootdir/bin/
+
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           centrifuge-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1911,6 +1932,20 @@ then
 else
   echo "kraken is not found"
   install_kraken
+fi
+
+if ( checkLocalInstallation centrifuge )
+then
+  centrifuge_VER=`centrifuge --version | grep "centrifuge-class version" | perl -nle 'print $1 if m{(\d+\.\d+\.\d+)}'`;
+  if  ( echo $centrifuge_VER | awk '{if($1>=1.0.4) exit 0; else exit 1}' )
+  then
+    echo "centrifuge $centrifuge_VER found"
+  else
+    install_centrifuge
+  fi
+else
+  echo "centrifuge is not found"
+  install_centrifuge
 fi
 
 if ( checkSystemInstallation tabix )

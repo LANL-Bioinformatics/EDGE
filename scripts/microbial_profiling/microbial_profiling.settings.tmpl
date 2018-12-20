@@ -161,6 +161,12 @@ COMMAND=uge-kraken.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -n "--
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
+<TMPL_IF NAME="centrifuge">
+[centrifuge]
+COMMAND=uge-centrifuge.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=centrifuge-db>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
 <TMPL_IF NAME="metascope">
 [metascope]
 COMMAND=uge-metascope.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% 

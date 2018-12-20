@@ -1457,6 +1457,7 @@ sub Reads_taxonomyAssignment
     $cmd0 .= " -bwa-db ". $configuration->{'custom-bwa-db'} if (-e $configuration->{'custom-bwa-db'});
     $cmd0 .= " -metaphlan-db ". $configuration->{'custom-metaphlan-db'} if (-e $configuration->{'custom-metaphlan-db'});
     $cmd0 .= " -kraken-db ". $configuration->{'custom-kraken-db'} if (-e $configuration->{'custom-kraken-db'});
+    $cmd0 .= " -centrifuge-db ". $configuration->{'custom-centrifuge-db'} if ($configuration->{'custom-centrifuge-db'});
     $cmd0 .= " -pangia-db ". $configuration->{'custom-pangia-db'} if (-e $configuration->{'custom-pangia-db'});
     $cmd0 .= " -diamond-db ". $configuration->{'custom-diamond-db'} if (-e $configuration->{'custom-diamond-db'});
     $cmd0 .= " -gottcha-v-speDB ". $configuration->{'custom-gottcha-speDB-v'} if (-e $configuration->{'custom-gottcha-speDB-v'});
