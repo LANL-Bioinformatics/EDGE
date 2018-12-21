@@ -12,6 +12,7 @@ projrunhost=
 
 [Download Fastq]
 DoFastqDownload=auto
+fastq_source=not
 
 [Download SRA]
 DoSRADownload=0
@@ -96,6 +97,20 @@ DoReadsTaxonomy=1
 AllReads=1
 #enabledTools=gottcha-genDB-b,bwa
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa,metaphlan2,kraken
+custom-gottcha-genDB-b=
+custom-gottcha-speDB-b=
+custom-gottcha-strDB-b=
+custom-gottcha-genDB-v=
+custom-gottcha-speDB-v=
+custom-gottcha-strDB-v=
+custom-gottcha2-speDB-b=
+custom-gottcha2-genDB-v=
+custom-gottcha2-speDB-v=
+custom-bwa-db=
+custom-metaphlan-db=
+custom-kraken-db=
+custom-pangia-db=
+custom-diamond-db=
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference
