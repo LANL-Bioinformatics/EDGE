@@ -1629,6 +1629,9 @@ sub pull_taxa {
 							$res_row->{CPABU_REA} = _reformat_val($t[2]);
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[2]/$creads*100);
 						}
+						if( $toolname =~ /centrifuge|kraken/i ){
+							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
+						}
 						#if ($count <5){
 							push @{$tool->{LOOP_CPTOOL_RES}}, $res_row;
 						#}
@@ -1646,7 +1649,8 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (BacteriaViruses species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
 			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/;
-			$tool->{CPTOOL_LABEL} = "Kraken"	if $vars->{KRAKENDB};
+			$tool->{CPTOOL_LABEL} = "Kraken2"	if $vars->{KRAKENDB};
+			$tool->{CPTOOL_LABEL} = "Kraken2"       if $row->{CPTOOL} =~ /kraken2/;
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;
 			$vars->{CPTOOL_ANCHOR} .= "<option value=$row->{CPTOOL}Tag class='showTax'>$tool->{CPTOOL_LABEL}</option>";
@@ -1661,7 +1665,7 @@ sub pull_taxa {
 
 			$tool->{CPTOOL_TREE}  = "" unless -e $tool->{CPTOOL_TREE};
 			$tool->{CPTOOL_KRONA} = "" unless -e $tool->{CPTOOL_KRONA};
-			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia/);
+			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia|centrifuge|kraken/);
 
 			if( $row->{CPTOOL}=~/pangia/ ){
 				my $sys_pvis_dir="$ENV{'EDGE_HOME'}/thirdParty/pangia/pangia-vis/data";

@@ -12,6 +12,8 @@ mkdir -p $rootdir/bin
 export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
+if [ -z $HOME ]; then export HOME=$rootdir; fi	
+
 anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
 anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
@@ -20,7 +22,7 @@ assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
-taxonomy_tools=( kraken metaphlan2 kronatools gottcha gottcha2 pangia centrifuge )
+taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 pangia centrifuge )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
@@ -159,7 +161,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf PyPiReT-$VER.tgz
 cd PyPiReT
 Org_PATH=$PATH;
-export PATH=$rootdir/thirdParty/Anaconda3/bin:$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
 if [ -e $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret ]
 then
   rm -rf $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret
@@ -524,16 +526,16 @@ echo "
 "
 }
 
-install_kraken()
+install_kraken2()
 {
-local VER=1.0
+local VER=2.0.7
 echo "------------------------------------------------------------------------------
-                           Install kraken-$VER
+                           Install kraken-$VER-beta
 ------------------------------------------------------------------------------
 "
 tar xvzf kraken-$VER.tgz
-cd kraken-$VER
-./install_kraken.sh $rootdir/bin/
+cd kraken2-$VER-beta
+./install_kraken2.sh $rootdir/bin/
 
 cd $rootdir/thirdParty
 echo "
@@ -1920,18 +1922,18 @@ else
 fi
 
 
-if ( checkLocalInstallation kraken )
+if ( checkLocalInstallation kraken2 )
 then
-  kraken_VER=`kraken --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
-  if  ( echo $kraken_VER | awk '{if($1>=1.0) exit 0; else exit 1}' )
+  kraken_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  if  ( echo $kraken2_VER | awk '{if($1>=2.0) exit 0; else exit 1}' )
   then
-    echo "kraken $kraken_VER found"
+    echo "kraken2 $kraken2_VER found"
   else
-    install_kraken
+    install_kraken2
   fi
 else
-  echo "kraken is not found"
-  install_kraken
+  echo "kraken2 is not found"
+  install_kraken2
 fi
 
 if ( checkLocalInstallation centrifuge )

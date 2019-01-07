@@ -47,7 +47,7 @@ if (!$project_dir_names && !$out_dir){ print "$usage\n";exit;}
 my $EDGE_HOME = $ENV{EDGE_HOME}||Cwd::abs_path("$workingDir/../..");
 my $edge_www="$EDGE_HOME/edge_ui"; 
 ## Instantiate the variables
-$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-pln,gottcha2-speDB-e-ptz,gottcha2-speDB-e-fug,bwa,kraken,centrifuge,metaphlan,metaphlan2,pangia,diamond";
+$tax_tools ||= "gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,gottcha2-genDB-v,gottcha2-speDB-v,gottcha2-speDB-e-pln,gottcha2-speDB-e-ptz,gottcha2-speDB-e-fug,bwa,kraken,kraken2,centrifuge,metaphlan,metaphlan2,pangia,diamond";
 $html_outfile ||= "$out_dir/compare_project.html";
 my $vars;
 

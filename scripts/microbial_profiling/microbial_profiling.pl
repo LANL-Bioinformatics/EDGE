@@ -348,6 +348,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           [[ -e \"$outdir/$prefix.out.megan\" ]] && cp  $outdir/$prefix.out.list $tool_rep_dir/$fnb-$tool.megan;
           [[ -e \"$outdir/$prefix.full.tsv\" ]] && cp  $outdir/$prefix.full.tsv $tool_rep_dir/$fnb-$tool.full.tsv;
           [[ -e \"$outdir/$prefix.krona.html\" ]] && cp  $outdir/$prefix.krona.html $tool_rep_dir/$fnb-$tool.krona.html;
+          [[ -e \"$outdir/$prefix.classification.csv\" ]] && cp $outdir/$prefix.classification.csv $tool_rep_dir/$fnb-$tool.classification.csv;
           [[ -e \"$outdir/.finished\" ]] && cp  $outdir/.finished $tool_rep_dir/.finished;
           if [ -e \"$outdir/$prefix.sam\" ]
           then
@@ -368,7 +369,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
           if [ -e \"$outdir/$prefix.out.read_classification\" ]
           then
             cp $outdir/$prefix.out.read_classification $tool_rep_dir/$fnb-$tool.read_classification
-          fi          
+          fi
 
           echo \"====> Generating phylo_dot_plot for each tool...\";
           if [ -e \"$outdir/$prefix.out.tab_tree\" ]

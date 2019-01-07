@@ -738,6 +738,14 @@ elsif( $action eq 'getreadsbytaxa'){
 		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"});
 		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -t2 -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
+	if( $cptool_for_reads_extract =~ /centrifuge/i ){
+                my $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
+                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$1}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+        }
+        if( $cptool_for_reads_extract =~ /kraken/i ){
+                my $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
+                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$2}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+        }
 
 	# bring process to background and return to ajax
 	open (my $fh,">","$readstaxa_outdir/run.sh");
@@ -751,8 +759,8 @@ elsif( $action eq 'getreadsbytaxa'){
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
-	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") ){
-		$info->{INFO}   = "The result bam does not exist.";
+	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") && ! glob("$readstaxa_outdir/*.classification.csv") ){
+		$info->{INFO}   = "The result bam/csv does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
 	{
