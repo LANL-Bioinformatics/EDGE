@@ -63,7 +63,7 @@ $opt{'in-ctg2ref-coords'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/co
 $opt{'in-ctg2ref-snps'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.SNPs_report.txt";
 $opt{'in-ctg2ref-indels'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.Indels_report.txt";
 $opt{'in-ctg-fa'}              ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigs.fa";
-$opt{'in-ctg-tax-assign'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Taxonomy/ctg_class.top.csv";
+$opt{'in-ctg-tax-assign'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Taxonomy/lca_ctg.tsv";
 $opt{'in-ctg-anno-gff3'}       ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Annotation/PROKKA.gff";
 $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.primers.gff3";
 $opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
@@ -461,9 +461,9 @@ sub fixProkkaGff {
 		while(<$fh>){
 			chomp;
 			my @array=split /\t/,$_;
-			next if $array[1] ne "species";
-			$tax{$array[0]}{name}=$array[2];
-			$tax{$array[0]}{taxid}=$array[3];
+			#next if $array[1] ne "species";
+			$tax{$array[0]}{name}=$array[6];
+			$tax{$array[0]}{taxid}=$array[4];
 		}
 		close $fh;
 	}

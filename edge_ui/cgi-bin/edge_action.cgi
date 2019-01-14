@@ -670,10 +670,11 @@ elsif( $action eq 'getcontigbytaxa'){
 	}	
 	my $assemble_outdir="$proj_dir/AssemblyBasedAnalysis";
 	my $taxa_outdir="$assemble_outdir/Taxonomy";
+	my $taxa_result = "$taxa_outdir/${real_name}.ctg.tsv.lineage";
 	my $relative_taxa_outdir= "$proj_rel_dir/AssemblyBasedAnalysis/Taxonomy" ;
 	(my $out_fasta_name = $taxa_for_contig_extract) =~ s/[ .']/_/;
 	$out_fasta_name = "$real_name"."_"."$out_fasta_name"."_contigas.fasta";
-	my $cmd = "$EDGE_HOME/scripts/contig_classifier_by_bwa/extract_fasta_by_taxa.pl -fasta $assemble_outdir/${real_name}_contigs.fa -csv $taxa_outdir/$real_name.ctg_class.top.csv -taxa \"$taxa_for_contig_extract\" -rank genus > $taxa_outdir/$out_fasta_name";
+	my $cmd = "awk -F \"\t\" '\$18==\"$taxa_for_contig_extract\" {print \$1}' $taxa_result | $EDGE_HOME/scripts/get_seqs.pl - $assemble_outdir/${real_name}_contigs.fa > $taxa_outdir/$out_fasta_name";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract $taxa_for_contig_extract contig fasta";
 	

@@ -992,12 +992,14 @@ sub runQiimeAnalysis{
 sub runUnmappedContigToRefSeq
 {
     my $file=shift;
-    my $db="$RealBin/database/bwa_index/NCBI-Bacteria-Virus.fna";
+    my $db="$RealBin/database/miccrDB/NCBI-Bacteria-Virus.fna.mmi";
     my $time=time();
     my $outputDir="$abs_outDir/ReferenceBasedAnalysis/UnmappedContigs";
     my $prefix="UnmappedContigs";
     my $log="$outputDir/log.txt";
-    if ( -s "$outputDir/UnmappedContigs.ctg_class.csv" )
+    my $platform="asm10";
+    my $tax_lca_result="$outputDir/$prefix.lca_ctg.tsv";
+    if ( -s "$tax_lca_result" )
     {
        &lprint ("  Done mapping $prefix.\n");
        return 0;
@@ -1005,11 +1007,12 @@ sub runUnmappedContigToRefSeq
 
     &lprint ("  Mapping unmapped contigss to RefSeq...\n");
     &make_dir($outputDir);
-    my $cmd = "$RealBin/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $db --threads $numCPU --prefix $prefix --input $file";
+    my $cmd="$RealBin/thirdParty/miccr/miccr.py -x $platform -d $db -t $numCPU -p $prefix -i $file" ;
     $cmd .= " 1>$log 2>\&1 ";
     chdir $outputDir;
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);
+    &get_unclassified_fasta($file,$tax_lca_result,"",$log);
     chdir $workingDir;
     &printRunTime($time);
     &lprint ("  Done mapping $prefix.\n");
@@ -1055,14 +1058,16 @@ sub runUnmappedReadsToRefSeq
 sub Contigs_taxonomyAssignment
 {
     my $file=shift;
-    my $db="$RealBin/database/bwa_index/NCBI-Bacteria-Virus.fna";
+    my $db="$RealBin/database/miccrDB/NCBI-Bacteria-Virus.fna.mmi";
     my $time=time();
     my $outputDir="$abs_outDir/AssemblyBasedAnalysis/Taxonomy";
     my $prefix="$project_name";
     my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
-    my $tax_assignments_result="$outputDir/$prefix.ctg_class.csv";
-	my $tax_lca_result="$outputDir/$prefix.ctg_class.LCA.csv";
+    my $tax_assignments_result="$outputDir/$prefix.ctg.tsv";
+    my $tax_lca_result="$outputDir/$prefix.lca_ctg.tsv";
+    my $unclassified_fasta="$outputDir/$prefix.unclassified.fasta";
     my $log="$outputDir/log.txt";
+    my $platform = "asm10";
     if ($noColorLog)
     {
         &lprint ("[Contigs Taxonomy Classification]\n");
@@ -1078,12 +1083,15 @@ sub Contigs_taxonomyAssignment
     }  
     &make_dir($outputDir);
     unlink "$outputDir/ContigsTaxonomy.finished";
-    my $cmd="$RealBin/scripts/contig_classifier_by_bwa/contig_classifier_by_bwa.pl --db $db --threads $numCPU --prefix $prefix --input $file";
+    my $cmd="$RealBin/thirdParty/miccr/miccr.py -x $platform -d $db -t $numCPU -p $prefix -i $file" ;
     $cmd .= " 1>$log 2>&1";
     &lprint (" Running \n $cmd\n");
     chdir $outputDir;
     &executeCommand($cmd);
-    $cmd="$RealBin/scripts/contig_classification_plot.R $cov_table $tax_assignments_result $prefix";
+    &get_unclassified_fasta($file,$tax_lca_result,$unclassified_fasta,$log);
+    $cmd="$RealBin/thirdParty/miccr/utils/add_lineage.py $RealBin/database/miccrDB/ $tax_assignments_result > $tax_assignments_result.lineage";
+    &executeCommand($cmd);
+    $cmd="Rscript $RealBin/thirdParty/miccr/utils/classification_plot.R $tax_assignments_result.lineage $prefix $cov_table";
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);
     my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
@@ -1093,6 +1101,53 @@ sub Contigs_taxonomyAssignment
     &touchFile("$outputDir/ContigsTaxonomy.finished");
     return 0;
 }
+
+sub get_unclassified_fasta{
+   my $input = shift;
+   my $classified_result = shift;
+   my $output = shift;
+   my $log = shift;
+   my %result;
+#Total Contigs: (\d+) \((\d+) bp\); Classified Contigs: (\d+) \((\d+) bp\); Unclassified Contigs: (\d+) \((\d+) bp\);/){
+   my $total_classified_count = 0;
+   my $total_classified_len = 0;
+   open (my $fh, "<", $classified_result) or die "Cannot read $classified_result\n";
+   my $header = <$fh>;
+   while(<$fh>){
+       chomp;
+       my @f = split /\t/,$_;
+       $result{$f[0]}=1;
+       $total_classified_len += $f[9];
+       $total_classified_count++;
+   }
+   close $fh;
+   my $ofh;
+   if ($output){
+       open ($ofh, ">" , $output) or die "Cannot Write $output\n";
+   }
+   open (my $fafh, "<" , $input ) or die "Cannot read $input\n";
+   my $seq_id;
+   my $total_count=0;
+   my $total_len=0;
+   while(<$fafh>){
+       chomp;
+       if ($_=~ /^>(\S+)/){
+           $total_count++;
+           $seq_id=$1;
+           print $ofh "$_\n" if (!$result{$seq_id} && $output);
+       }else{
+           print $ofh "$_\n" if (!$result{$seq_id} && $output);
+           $total_len += length($_);
+       }
+   }
+   close $ofh if ($output);
+   close $fafh;
+   open (my $log_fh , ">>" , $log) or die "Cannote write $log\n";
+   print $log_fh "Total Contigs: $total_count ($total_len bp); Classified Contigs: $total_classified_count ($total_classified_len bp); ";
+   print $log_fh "Unclassified Contigs: ". ($total_count - $total_classified_count) .  " (". ($total_len - $total_classified_len) . " bp);\n";
+   close $log_fh;
+}
+
 
 sub Download_SRA
 {
@@ -4144,7 +4199,7 @@ sub writeJBrowseInfo
     my $abs_outDir = Cwd::abs_path("$outDir");
     my $outputDir = "$abs_outDir/JBrowse";
     my $log="$outputDir/log.txt";
-    my $contigTax="$outDir/AssemblyBasedAnalysis/Taxonomy/${project_name}.ctg_class.top.csv";
+    my $contigTax="$outDir/AssemblyBasedAnalysis/Taxonomy/${project_name}.lca_ctg.tsv";
     my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
     my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
     &make_dir($outputDir);

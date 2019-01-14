@@ -22,7 +22,7 @@ assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
-taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 pangia centrifuge )
+taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 pangia centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
@@ -724,10 +724,29 @@ ln -sf $rootdir/database/GOTTCHA2 ./database
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           gottcha-2.1 BETA
+                           gottcha-2.1 BETA installed
 ------------------------------------------------------------------------------
 "
 }
+
+install_miccr()
+{
+local VER=0.0.2
+echo "------------------------------------------------------------------------------
+                           Installing miccr-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf miccr-$VER.tgz
+cd miccr
+ln -sf $rootdir/database/miccrDB ./database
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           miccr-$VER installed
+------------------------------------------------------------------------------
+"
+}
+
 
 install_pangia()
 {
@@ -2184,6 +2203,20 @@ then
 else
   echo "GOTTCHA2 is not found"
   install_gottcha2
+fi
+
+if [ -x $rootdir/thirParty/miccr/miccr.py ]
+then
+  miccr_VER=`$rootdir/thirParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
+  then
+    echo "miccr $miccr_VER is found"
+  else
+    install_miccr
+  fi
+else
+  echo "miccr is not found"
+  install_miccr
 fi
 
 #if [ -x $rootdir/thirParty/pangia/pangia.py ]

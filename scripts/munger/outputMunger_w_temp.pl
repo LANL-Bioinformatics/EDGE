@@ -1471,20 +1471,25 @@ sub pull_contig_taxa {
 	}
 	close $ccLog;
 	my $proj_realname = $vars->{PROJNAME};
-	return unless -e "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.top.csv";
-	open (my $ccp_top, "<", "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.top.csv") or die $!;
-	my %uniq;
+	return unless -e "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg.tsv.lineage";
+	open (my $ccp_top, "<", "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg.tsv.lineage") or die $!;
+	my (%uniq, %gen);
 	while(<$ccp_top>){
 		chomp;
 		my @array = split /\t/,$_;
-		next if ($array[1] ne "genus");
-		$uniq{$array[2]}++;
+		if ($array[17] and $array[17] ne "genus"){
+			if (! $uniq{$array[17]}{$array[0]}){
+				$gen{$array[17]}++;
+				$uniq{$array[17]}{$array[0]}=1;
+			}
+			
+		}
 	}
 	close $ccp_top;
-	foreach my $spe (sort { $uniq{$b} <=> $uniq{$a} } keys %uniq){
+	foreach my $spe (sort { $gen{$b} <=> $gen{$a} } keys %gen){
 		my $row;
 		$row->{CCPSPE}=$spe;
-		$row->{CCPSPENUM}=$uniq{$spe};
+		$row->{CCPSPENUM}=$gen{$spe};
 		push @{$vars->{LOOP_CCPSPE}},$row;
 	}
 	if ( ! -e "$out_dir/AssemblyBasedAnalysis/Taxonomy/$proj_realname.ctg_class.LCA.json" ){
