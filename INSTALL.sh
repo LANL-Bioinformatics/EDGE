@@ -12,7 +12,7 @@ mkdir -p $rootdir/bin
 export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
-if [ -z $HOME ]; then export HOME=$rootdir; fi	
+if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
 
 anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
 anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
@@ -22,7 +22,7 @@ assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
-taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 pangia centrifuge miccr )
+taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
@@ -755,21 +755,21 @@ echo "--------------------------------------------------------------------------
                            Installing PANGIA $VER BETA
 ------------------------------------------------------------------------------
 "
-if [ -e $rootdir/thirdPart/pangia/pangia-vis/data ]
+if [ -e $rootdir/thirdParty/pangia/pangia-vis/data ]
 then
-  mv $rootdir/thirdPart/pangia/pangia-vis/data $rootdir/thirdPart/pangia-vis-data
+  mv $rootdir/thirdParty/pangia/pangia-vis/data $rootdir/thirdParty/pangia-vis-data
 fi
-if [ -e $rootdir/thirdPart/pangia ]
+if [ -e $rootdir/thirdParty/pangia ]
 then
-  rm -rf $rootdir/thirdPart/pangia
+  rm -rf $rootdir/thirdParty/pangia
 fi
 
 tar xvzf pangia-$VER.tar.gz
 cd pangia
-if [ -e $rootdir/thirdPart/pangia-vis-data ]
+if [ -e $rootdir/thirdParty/pangia-vis-data ]
 then
-  cp -f $rootdir/thirdPart/pangia-vis-data/* $rootdir/thirdPart/pangia/pangia-vis/data/
-rm -rf $rootdir/thirdPart/pangia-vis-data
+  cp -f $rootdir/thirdParty/pangia-vis-data/* $rootdir/thirdParty/pangia/pangia-vis/data/
+rm -rf $rootdir/thirdParty/pangia-vis-data
 fi 
 
 cd $rootdir/thirdParty
@@ -2560,7 +2560,7 @@ fi
 sed -i 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
-sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
+#sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
 
 TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]
@@ -2591,7 +2591,7 @@ $anaconda3bin/conda clean -y -a
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
 (crontab -l ; echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1") | crontab -
-(crontab -l ; echo "*/1 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
+#(crontab -l ; echo "*/1 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
 
 echo "
 
