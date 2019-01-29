@@ -3074,7 +3074,7 @@ sub processProvideContigs
     {
         my $contig_number = ($providedContigFile=~/\.gz$/i )? `zcat | grep -c \">\" $providedContigFile`:`grep -c \">\" $providedContigFile`;
         chomp $contig_number;
-        ($contig_file, $contig_for_annotation)=&rename_filter_fasta($providedContigFile,$outputDir,$contig_min_length,$contig_number);
+        ($contig_file, $contig_for_annotation)=&rename_filter_fasta($providedContigFile,$outputDir,$contig_min_length,$contig_number,1);
     }else
     {
         &lprint("failed: The provided contigs file is not in FASTA format. Will skip downstream assembly based analysis. \n") ;
@@ -3539,6 +3539,7 @@ sub rename_filter_fasta
     my $outputDir = shift;
     my $size_filter=shift;
     my $max_seq_number=shift;
+    my $filter_only=shift;
     my $output= "$outputDir/${project_name}_contigs.fa";
     my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     $max_seq_number ||= 100000;
@@ -3559,6 +3560,7 @@ sub rename_filter_fasta
          $seq =~ s/ //g;
          $seq =~ s/\n//g;
          $seq =~ s/\r//g;
+         $seq = uc($seq);
          my $len = length($seq);
          my $GC_num = $seq=~ tr/GCgc/GCgc/; 
          my $GC_content = sprintf("%.2f",$GC_num/$len);
@@ -3566,11 +3568,12 @@ sub rename_filter_fasta
          next if ($len < $size_filter);
          $seq =~ s/(.{70})/$1\n/g; 
          chomp $seq;
+         my $fasta_header = ($filter_only)? "$id" : "${project_name}_$serial_id $id_info GC_content_$GC_content";
          if ($len >= $contig_size_for_annotation)
          {
-             print $ofh2 ">${project_name}_$serial_id $id_info GC_content_$GC_content\n" . $seq."\n";
+	     print $ofh2 ">$fasta_header\n" . $seq."\n";
          }
-         print $ofh ">${project_name}_$serial_id $id_info GC_content_$GC_content\n" . $seq."\n";
+         print $ofh ">$fasta_header\n" . $seq."\n";
          $serial_id++; 
     }    
     $/="\n";
