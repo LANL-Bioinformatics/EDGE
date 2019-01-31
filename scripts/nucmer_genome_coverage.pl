@@ -278,7 +278,7 @@ for(i in 1: dim(data.hits)[1]) {
 # get margin coordiates
 pa<-par('usr');
 # plot gap regions
-if (dim(data.gaps)[1])>0){
+if ( dim(data.gaps)[1] > 0){
 	for(i in 1:dim(data.gaps)[1]){
 		rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)	
 	}
