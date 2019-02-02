@@ -169,14 +169,20 @@ par(mar=c(5,6,4,2))
 # read the data
 data.hits.all  <- read.table(file=\"${prefix}.coordsR\", header=TRUE, dec=\".\")
 data.gaps.all  <- read.table(file=\"${prefix}_ref_zero_cov_coord.txt\")\n";
-
-foreach my $ref (keys  %reference){
+ 
+my $ref_count=0;
+foreach my $ref (sort { $reference{$b}->{len} <=> $reference{$a}->{len} } keys  %reference){
   my $mapped_contig_count = scalar( keys %{$ref_used{$ref}});
   $reference{$ref}->{mappedCount} = $mapped_contig_count;
   $variantCount_r->{$ref}->{INDELs} = $variantCount_r->{$ref}->{INDELs} || 0;
   $variantCount_r->{$ref}->{SNPs} = $variantCount_r->{$ref}->{SNPs} || 0;
-  system("mummerplot --fat -png $prefix.delta -r \"$ref\" --large  --prefix ${prefix}_${ref}_dotplot 2>/dev/null") if (`which gnuplot 2>/dev/null`);
-  system("rm -f ${prefix}_${ref}_dotplot.*plot ${prefix}_${ref}_dotplot.gp ${prefix}_${ref}_dotplot.filter");
+  $ref_count++;
+  if ($ref_count <= 50 ){
+        (my $output_prefix = $ref) =~  s/\W/\_/g;
+        $output_prefix = ${prefix}."_".$output_prefix."_dotplot";
+  	system("mummerplot --fat -png $prefix.delta -r \"$ref\" --large  --prefix $output_prefix 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
+  	system("rm -f $output_prefix.*plot $output_prefix.gp $output_prefix.filter");
+  }
 }
 
 foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mappedCount}} keys %reference)
@@ -278,7 +284,7 @@ for(i in 1: dim(data.hits)[1]) {
 # get margin coordiates
 pa<-par('usr');
 # plot gap regions
-if ( dim(data.gaps)[1] > 0){
+if (dim(data.gaps)[1] > 0){
 	for(i in 1:dim(data.gaps)[1]){
 		rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)	
 	}
@@ -303,7 +309,7 @@ close OUT2;
 close UNUSEDREF;
 print Rplot "garbage <- dev.off();\nq()\n";
 close Rplot;
-system ("R --vanilla --slave --silent < ${prefix}.R 2>/dev/null");
+system ("R --vanilla --slave --silent < ${prefix}.R 2>/dev/null"); 
 unlink "$prefix.R";
 unlink "${prefix}.coordsR";
 
