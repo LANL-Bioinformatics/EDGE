@@ -1434,6 +1434,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 $anaconda2bin/pip install checkm-genome
+echo "$rootdir/database/checkM" |  $anaconda2bin/checkm data setRoot
 tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
 cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
 cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
