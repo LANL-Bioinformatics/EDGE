@@ -299,6 +299,9 @@ if ( -s $contigFile )
     }
     if ($configuration->{DoBinning}){
         &runBinning($contigFile);
+	if ($configuration->{DoCheckM}){
+		&runCheckM("$outDir/AssemblyBasedAnalysis/Binning");
+	}
     }
 
 }
@@ -1952,6 +1955,41 @@ sub runBinning{
     &touchFile("$outputDir/contigsBinning.finished");
     return;
 
+}
+
+sub runCheckM{
+    my $MaxBin_dir = shift;
+    my $time=time();
+    my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
+    my $MaxBin_summary = "$outputDir/CheckM.txt";
+    #my $checkM_env = "$RealBin/thirdParty/Anaconda2/bin";
+    #my $run_script = "$outputDir/runCheckM.sh";
+    &make_dir($outputDir);
+    if ($noColorLog)
+    {
+        &lprint ("[Binning CheckM]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Binning CheckM]\n",'yellow'));
+    }
+    if ( -e "$outputDir/BinningCheckM.finished")
+    {
+       &lprint ("Binning CheckM Finished\n");
+       return;
+    }
+    my $cmd = "checkm lineage_wf --force_overwrite -f $MaxBin_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
+    $cmd .= " 2>\&1 1>/dev/null";
+
+    &lprint (" Running \n $cmd\n");
+    &executeCommand2("$cmd");
+
+    $cmd = " checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
+    &executeCommand2("$cmd");
+
+    &printRunTime($time);
+    &touchFile("$outputDir/BinningCheckM.finished");
+    return;
 }
 
 sub pcrDesign

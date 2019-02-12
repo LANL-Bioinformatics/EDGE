@@ -87,6 +87,7 @@ lrasm_num_consensus=<TMPL_VAR NAME=edge-lrasm-num-consensus DEFAULT=3>
 lrasm_preset=<TMPL_VAR NAME=edge-lrasm-preset DEFAULT=ont>
 lrasm_ec=<TMPL_VAR NAME=edge-lrasm-ec DEFAULT=1>
 
+
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
@@ -115,7 +116,6 @@ r2g_consensus_min_cov=<TMPL_VAR NAME=edge-r2g-con-min-cov DEFAULT=5>
 r2g_consensus_min_baseQ=<TMPL_VAR NAME=edge-r2g-con-min-baseQ DEFAULT=20>
 r2g_variant_call=<TMPL_VAR NAME=edge-r2g-variantcall-sw DEFAULT=1>
 r2g_variant_call_ploidy=<TMPL_VAR NAME=edge-r2g-variantcall-ploidy DEFAULT="haploid">
-
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
@@ -172,14 +172,16 @@ DoKeggOmicsView=<TMPL_VAR NAME=edge-anno-kegg-sw DEFAULT=1>
 [ProPhage Detection]
 DoProPhageDetection=auto
 
-
 [Contigs Binning]
 DoBinning=<TMPL_VAR NAME=edge-binning-sw DEFAULT=0>
 contig_size_cut_for_binning=<TMPL_VAR NAME=edge-binning-size-cut DEFAULT=1000>
 binning-max-itr=<TMPL_VAR NAME=binning-max-itr DEFAULT=50>
 binning-prob=<TMPL_VAR NAME=binning-prob DEFAULT=0.9>
 binning-markerset=<TMPL_VAR NAME=binning-markerset DEFAULT=107>
-binning-abund-file=<TMPL_VAR NAME=binning-abund-file>
+binning-abund-file=<TMPL_VAR NAME=edge-binning-abund-file>
+
+[Binning CheckM]
+DoCheckM=<TMPL_VAR NAME=edge-binning-checkM-sw DEFAULT=0>
 
 <TMPL_IF NAME=edge-phylo-sw>
 [Phylogenetic Analysis]

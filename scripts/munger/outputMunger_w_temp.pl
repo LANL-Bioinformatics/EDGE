@@ -373,6 +373,44 @@ sub pull_binning {
 	$vars->{BINNRESULT} = $bin_json_summary_result;
 	$vars->{BINNCOUNT} = $binned_count;
 	$vars->{UNBINCOUNT} = $vars->{ASSYNUMCONTIGS} - $binned_count;
+	
+	my $checkM_outdir = "$out_dir/AssemblyBasedAnalysis/Binning/CheckM";
+	if ( -e "$checkM_outdir/checkM.txt"){
+		my $checkM_json_output = "$checkM_outdir/CheckM.json";
+		my $info;
+		my @header;
+		open (my $cfh, "<", "$checkM_outdir/CheckM.txt") or die "Cannot read $checkM_outdir/checkM.txt\n";
+		while(<$cfh>){
+			chomp;
+			next if ($_ =~ /---/);
+			$_ =~ s/^\s+//;
+			my @array = split /\s\s+/,$_;
+			if ( $_ =~ /Marker lineage/){
+				@header=@array;
+				foreach my $header (@header){
+					my $columns;
+					$columns->{title} = $header; 
+					$columns->{data} = $header;
+					push @{$info->{columns}},$columns;
+				}
+			}else{
+				my $data;
+				foreach my $i (0..$#array){
+					$data->{$header[$i]}=$array[$i];
+				}
+				push @{$info->{data}},$data;
+			}
+		}
+		close $cfh;
+		my $json = to_json($info);
+		if ($json){
+			open (my $ofh, ">", $checkM_json_output);
+			print $ofh $json;
+			close $ofh;
+		}	
+		$vars->{CHECKMRESULT} = $checkM_json_output;
+		$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
+	}
 }
 
 sub fasta_count
@@ -565,6 +603,7 @@ sub check_analysis {
 	$vars->{OUT_C2G_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
 	$vars->{OUT_AN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
 	$vars->{OUT_BINN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Binning/contigsBinning.finished";
+	$vars->{OUT_BINN_CHECKM_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Binning/CheckM/BinningCheckM.finished";
 	$vars->{OUT_R2G_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
 	$vars->{OUT_RA_SW}    = 1 if $vars->{OUT_C2G_SW} || $vars->{OUT_R2G_SW};
 	$vars->{OUT_UM_CP_SW} = 1 if -e "$out_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";

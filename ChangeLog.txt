@@ -16,6 +16,7 @@ EDGE 2.4.0
 * Add Centrifuge taxonomy classification tool
 * Update Kraken to Kraken-2.0.7
 * Update Contig taxonomy classification from bwa to minimap2, perl to python
+* Add CheckM v1.0.13 tool for assessing the quality of metagenome Binning
 
 EDGE GUI 2.4.0
 * Add Ploidy option for Variant calling
@@ -24,13 +25,15 @@ EDGE GUI 2.4.0
 * Adjust mobile portrait width for front page
 * Fix bug: the reset function disabled show on the registration iframe page.
 * Add Binning tag in Assembly and Annotation Module
+* Add CheckM switch in Assembly and Annotation Module
 * Update Taxonomy tool result display by user select options
 * Add extract reads fastq for Kraken result
 
 Database:
-GOTTCHA2: update to refseq90
-PANGIA: update to refseq89
-Kraken2: New db from refseq (as of Dec 20, 2018)
+GOTTCHA2: update to Refseq90
+Kraken2: New db from Refseq (as of Dec 20, 2018)
+MiccrDB: New db from Refseq (as of Dec 20, 2018)
+CheckM_DB: source https://data.ace.uq.edu.au/public/CheckM_databases/ (2015 Jan)
 CARD: update to 3.0.0 
 
 -- Version 20180829

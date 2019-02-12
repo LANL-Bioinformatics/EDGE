@@ -26,13 +26,13 @@ taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
-metagenome_tools=( MaxBin )
+metagenome_tools=( MaxBin checkM )
 pipeline_tools=( DETEQT reference-based_assembly PyPiReT )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
 install_MaxBin(){
-local VER=2.2.5
+local VER=2.2.6
 echo "------------------------------------------------------------------------------
                            Installing MaxBin
 ------------------------------------------------------------------------------
@@ -1379,6 +1379,9 @@ $anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/rapsearch-2.24-1.tar.bz2
+$anaconda2bin/conda config --add channels defaults
+$anaconda2bin/conda config --add channels bioconda
+$anaconda2bin/conda config --add channels conda-forge
 ln -s $anaconda2bin/rapsearch $anaconda2bin/rapsearch2
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
@@ -1412,13 +1415,32 @@ $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda install -c bioconda rgi=4.2.2
-$anaconda3bin/conda install -c conda-forge pandas
+$anaconda3bin/conda install -y -c bioconda rgi=4.2.2
+$anaconda3bin/conda install -y -c conda-forge pandas
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda3 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_checkM()
+{
+local VER=1.0.13
+echo "------------------------------------------------------------------------------
+                        Installing checkM $VER
+------------------------------------------------------------------------------
+"
+$anaconda2bin/pip install checkm-genome
+tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
+cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
+cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
+cp  pplacer-Linux-v1.1.alpha19/rppr $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         checkM $VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2291,6 +2313,20 @@ then
 else
     echo "NanoPlot is not found"
     install_NanoPlot
+fi
+
+if [ -x $anaconda2bin/checkm ]
+then
+  checkM_VER=`$anaconda2bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $checkM_VER | awk '{if($1 >="1.0.11") exit 0; else exit 1}' )
+  then
+    echo "checkM $checkM_VER is found"
+  else
+    install_checkM
+  fi
+else
+  echo "checkM is not found"
+  install_checkM
 fi
 
 if [ -x $anaconda3bin/bokeh ]

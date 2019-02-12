@@ -1227,6 +1227,15 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<input type="text" data-mini="true" name="edge-binning-abund-file" id="edge-binning-abund-file" placeholder="absolute file path/select file">
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 				</div>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>CheckM<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="CheckM provides functions to assess the quality of genomes recovered from isolates, single cells, or metagenomes (Binned contigs). It provides robust estimates of genome completeness and contamination by using collocated sets of genes that are ubiquitous and single-copy within a phylogenetic lineage. Memory hog warning!!! At least 32GB"></a></legend>
+						<input type="radio" data-mini="true" name="edge-binning-checkM-sw" id="edge-binning-checkM-sw1" value="1">
+						<label for="edge-binning-checkM-sw1">Yes</label>
+						<input type="radio" data-mini="true" name="edge-binning-checkM-sw" id="edge-binning-checkM-sw2" value="0" checked="checked">
+						<label for="edge-binning-checkM-sw2">No</label>
+					</fieldset>
+				</div>
 			</div><!-- edge-binning-parameters -->
 		</div>
 
