@@ -2361,8 +2361,8 @@ fi
 
 if ( checkLocalInstallation PyPiReT)
 then
-  PiReT_VER=`$rootdir/bin/PyPiReT/bin/runPiReT -V | perl -nle 'print $& if m{Version \d+\.\d+\.*\d*}'`;
-  if  ( echo $PiReT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
+  PiReT_VER=`grep "version=" $rootdir/bin/PyPiReT/bin/runPiReT | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
   then
     echo "PyPiReT is found"
   else
@@ -2621,7 +2621,7 @@ fi
 
 
 ## Cleanup
-rm -r $rootdir/thirdParty/Anaconda3Packages/
+rm -rf $rootdir/thirdParty/Anaconda3Packages/
 $anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
 
