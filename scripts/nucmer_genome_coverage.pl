@@ -193,6 +193,7 @@ foreach my $ref (sort { $reference{$b}->{len} <=> $reference{$a}->{len} } keys  
 }
 
 system("mummerplot --fat -png $prefix.delta --large --prefix $prefix.dotplot 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
+system("rm -f $prefix.*plot $prefix.gp $prefix.filter");
 
 foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mappedCount}} keys %reference)
 {

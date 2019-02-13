@@ -856,6 +856,7 @@ sub pull_contigmapping {
 	$vars->{CMREFTOLREF}      = $tol_ref_number;
 	$vars->{CMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{CMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
+	$vars->{CMREFDOTPLOT} = "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.dotplot.png" if (-e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.dotplot.png");
 	## display unmapped contigs mapping to RefSeq
 	$vars->{CMREF_UM} = 1 if -e "$out_dir/ReferenceBasedAnalysis/UnmappedContigs/log.txt";
 	if ($vars->{CMREF_UM}){

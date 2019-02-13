@@ -839,7 +839,18 @@
 					<p><TMPL_VAR NAME=CMREFTOLREFHASHIT DEFAULT=-> out of <TMPL_VAR NAME=CMREFTOLREF DEFAULT=-> reference(s) is(are) covered by input contigs.  <TMPL_VAR NAME=CMREFTABLENOTE></p>
 					<!--<p class="iframe_label jbrowse_iframe">Show contigs mapping to the reference using JBrowse in <a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_CDS_CTG DEFAULT=->'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
 					</p>-->
-						
+					<TMPL_IF NAME="OUT_IMAGE_READY">
+					<TMPL_IF NAME="CMREFDOTPLOT">
+					<div class="ui-grid-c ui-responsive edge-report-plots">
+						<div class="ui-block-a">
+							<span class="iframe_label">Dotplot <a data-ajax='false' href='<TMPL_VAR NAME=CMREFDOTPLOT DEFAULT=->'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="<TMPL_VAR NAME=CMREFDOTPLOT DEFAULT=->" alt="dotplot">
+							</a>
+						</div>
+					</div>
+					</TMPL_IF>
+					</TMPL_IF>
 					<p>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_REF_CDS_CTG DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>
 					
 					<p class='extra-text-link'>Link to
