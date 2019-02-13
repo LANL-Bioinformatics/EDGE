@@ -13,13 +13,17 @@ my $identity_cutoff=85;
 my $end_cutoff=0.05;
 my $query_cov_cutoff=0;
 my $ref_cov_cutoff=0;
+my $dotplot=0;
+my $mincluster=65;
 my $prefix="Output";
 my $delta_file;
 GetOptions('e=f', \$end_cutoff,
            'i=f', \$identity_cutoff,
  #          'q=f',  \$query_cov_cutoff,
  #          'r=f',  \$ref_cov_cutoff
+           'c=i',  \$mincluster,
            'p=s'  , \$prefix,
+           'd'    ,  \$dotplot,
            'delta=s', \$delta_file  
           );
           
@@ -33,7 +37,9 @@ if (scalar(@ARGV)<1){
    print  "      -e      ratio of the query length on each end is ignored (default 0.05, >=90% query should align)\n";
 #   print  "      -r     at least this percent alignment coverage in the reference sequence [0..100]\n";
 #   print  "      -q     at least this percent alignment coverage in the query sequence [0..100]\n";
+   print  "      -c      mincluster   Sets the minimum length of a cluster of matches (default 65)\n";
    print  "      -i      at least this percent identifity between alignement [0..100] (default 85)\n";
+   print  "      -d      dotplot for first 50 reference if gnuplot existed\n";
    print  "      -p      output prefix\n";
    print  "      -delta  provide delta file to skip nucmer alignment step.\n";
    exit;
@@ -52,7 +58,7 @@ if ($delta_file)
 }
 else
 {
-   system ("nucmer --maxmatch --prefix=$prefix $referenceFile $queryFile  2>/dev/null");
+   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile ");
    system ("show-coords -clTr $prefix.delta > $prefix.coords");
    system ("delta-filter -1 -i $identity_cutoff $prefix.delta > $prefix.filterforSNP");
    system ("show-snps -CT $prefix.filterforSNP > $prefix.snps");
@@ -63,6 +69,7 @@ my ($numSNPs,$numINDELs,$variantCount_r)=&SNP_INDEL_COUNT("$prefix.snps");
 print $log_fh "Mapping criteria\n";
 #$end_cutoff=0.5 if ($end_cutoff>0.5);
 #printf (">= %.1f%% query length in the middle should align\n",100-$end_cutoff*100*2);
+printf $log_fh ("nucmer -c the minimum length of a cluster of matches %d \n",$mincluster);
 printf $log_fh ("Aligned portion should be >= %.2f %% identity\n",$identity_cutoff);
 
 my %query_used;
@@ -177,13 +184,15 @@ foreach my $ref (sort { $reference{$b}->{len} <=> $reference{$a}->{len} } keys  
   $variantCount_r->{$ref}->{INDELs} = $variantCount_r->{$ref}->{INDELs} || 0;
   $variantCount_r->{$ref}->{SNPs} = $variantCount_r->{$ref}->{SNPs} || 0;
   $ref_count++;
-  if ($ref_count <= 50 ){
+  if ($ref_count <= 50  && $dotplot){
         (my $output_prefix = $ref) =~  s/\W/\_/g;
         $output_prefix = ${prefix}."_".$output_prefix."_dotplot";
   	system("mummerplot --fat -png $prefix.delta -r \"$ref\" --large  --prefix $output_prefix 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
   	system("rm -f $output_prefix.*plot $output_prefix.gp $output_prefix.filter");
   }
 }
+
+system("mummerplot --fat -png $prefix.delta --large --prefix $prefix.dotplot 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
 
 foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mappedCount}} keys %reference)
 {

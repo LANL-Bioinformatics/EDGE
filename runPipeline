@@ -3074,7 +3074,7 @@ sub runContigToGenome
     }  
     unlink "$outputDir/runContigToGenome.finished";
     my $parameters;    
-    $parameters .= " -e 1 -i $identity_cutoff";
+    $parameters .= " -d -e 1 -i $identity_cutoff";
     $parameters .= " -p $outPrefix ";
     $parameters .= " $referenceFile $contigFile";
     my $command = "perl $RealBin/scripts/nucmer_genome_coverage.pl $parameters";
