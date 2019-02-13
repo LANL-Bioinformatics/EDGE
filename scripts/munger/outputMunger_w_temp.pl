@@ -375,42 +375,48 @@ sub pull_binning {
 	$vars->{UNBINCOUNT} = $vars->{ASSYNUMCONTIGS} - $binned_count;
 	
 	my $checkM_outdir = "$out_dir/AssemblyBasedAnalysis/Binning/CheckM";
-	if ( -e "$checkM_outdir/checkM.txt"){
+	if ( -e "$checkM_outdir/CheckM.txt"){
 		my $checkM_json_output = "$checkM_outdir/CheckM.json";
-		my $info;
-		my @header;
-		open (my $cfh, "<", "$checkM_outdir/CheckM.txt") or die "Cannot read $checkM_outdir/checkM.txt\n";
-		while(<$cfh>){
-			chomp;
-			next if ($_ =~ /---/);
-			$_ =~ s/^\s+//;
-			my @array = split /\s\s+/,$_;
-			if ( $_ =~ /Marker lineage/){
-				@header=@array;
-				foreach my $header (@header){
-					my $columns;
-					$columns->{title} = $header; 
-					$columns->{data} = $header;
-					push @{$info->{columns}},$columns;
-				}
-			}else{
-				my $data;
-				foreach my $i (0..$#array){
-					$data->{$header[$i]}=$array[$i];
-				}
-				push @{$info->{data}},$data;
-			}
-		}
-		close $cfh;
-		my $json = to_json($info);
-		if ($json){
-			open (my $ofh, ">", $checkM_json_output);
-			print $ofh $json;
-			close $ofh;
-		}	
+		&tab2json("$checkM_outdir/CheckM.txt",$checkM_json_output);
 		$vars->{CHECKMRESULT} = $checkM_json_output;
 		$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
 	}
+}
+
+sub tab2json{
+	my $tab_file = shift;
+	my $json_output = shift;
+	my $info;
+	my @header;
+	open (my $cfh, "<", "$tab_file") or die "Cannot read $tab_file\n";
+	while(<$cfh>){
+		chomp;
+		next if ($_ =~ /---/);
+		$_ =~ s/^\s+//;
+		my @array = split /\t/,$_;
+		if ( $_ =~ /Marker lineage/){
+			@header=@array;
+			foreach my $header (@header){
+				my $columns;
+				$columns->{title} = $header; 
+				$columns->{data} = $header;
+				push @{$info->{columns}},$columns;
+			}
+		}else{
+			my $data;
+			foreach my $i (0..$#array){
+				$data->{$header[$i]}=$array[$i];
+			}
+			push @{$info->{data}},$data;
+		}
+	}
+	close $cfh;
+	my $json = to_json($info);
+	if ($json){
+		open (my $ofh, ">", $json_output);
+		print $ofh $json;
+		close $ofh;
+	}	
 }
 
 sub fasta_count

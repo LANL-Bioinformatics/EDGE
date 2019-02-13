@@ -1962,8 +1962,12 @@ sub runCheckM{
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
     my $MaxBin_summary = "$outputDir/CheckM.txt";
-    #my $checkM_env = "$RealBin/thirdParty/Anaconda2/bin";
-    #my $run_script = "$outputDir/runCheckM.sh";
+    my $evalue = '1e-10';  # -e
+    my $overlap_length_perc = 0.7;  # -l 
+    my $multi = 10;  # -m
+    my $unique =10;  # -u 
+    my $aai_strain = 0.9; # --aai_strain
+    my $reduced_tree = 0; # -r
     &make_dir($outputDir);
     if ($noColorLog)
     {
@@ -1978,13 +1982,13 @@ sub runCheckM{
        &lprint ("Binning CheckM Finished\n");
        return;
     }
-    my $cmd = "checkm lineage_wf --force_overwrite -f $MaxBin_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
-    $cmd .= " 2>\&1 1>/dev/null";
+    # -r, --reduced_tree    use reduced tree (requires <16GB of memory)
+    my $cmd = "checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $MaxBin_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
 
     &lprint (" Running \n $cmd\n");
     &executeCommand2("$cmd");
 
-    $cmd = " checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
+    $cmd = "checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
     &executeCommand2("$cmd");
 
     &printRunTime($time);

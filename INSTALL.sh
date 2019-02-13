@@ -448,6 +448,7 @@ echo "if(\"plotly\" %in% rownames(installed.packages()) == FALSE)  {install.pack
 echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 echo "if(\"gplots\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gplots\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 rm -r Rpackages/
+echo "options(bitmapType='cairo')" > $HOME/.Rprofile
 echo "
 ------------------------------------------------------------------------------
                            R packages installed
