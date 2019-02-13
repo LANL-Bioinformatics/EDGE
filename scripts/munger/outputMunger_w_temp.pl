@@ -2003,6 +2003,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#c2gTag\">$step</a>" if ($step eq "Contigs Mapping To Reference");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#annoTag\">$step</a>" if ($step eq "Contigs Annotation");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#binningTag\">$step</a>" if ($step eq "Contigs Binning");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#checkMTag\">$step</a>" if ($step eq "Binning CheckM");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#phyloTag\">$step</a>" if ($step eq "Phylogenetic Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#gfaTag\">$step</a>" if ($step eq "Gene Family Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#pdTag\">$step</a>" if ($step eq "Primer Design");
