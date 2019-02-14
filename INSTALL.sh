@@ -1369,6 +1369,7 @@ ln -fs $anaconda2bin/python $rootdir/bin
 ln -fs $anaconda2bin/pip $rootdir/bin
 ln -fs $anaconda2bin/conda $rootdir/bin
 tar -xvzf Anaconda2Packages.tgz
+$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
@@ -1435,7 +1436,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 $anaconda2bin/pip install checkm-genome
-echo "$rootdir/database/checkM" |  $anaconda2bin/checkm data setRoot
+$anaconda2bin/checkm data setRoot "$rootdir/database/checkM"
 tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
 cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
 cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
