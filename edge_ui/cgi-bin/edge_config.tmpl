@@ -172,6 +172,25 @@ DoKeggOmicsView=<TMPL_VAR NAME=edge-anno-kegg-sw DEFAULT=1>
 [ProPhage Detection]
 DoProPhageDetection=auto
 
+<TMPL_IF NAME=edge-sma-sw>
+[Secondary Metabolite Analysis]
+DoSMA=<TMPL_VAR NAME=edge-sma-sw DEFAULT=0>
+antismash-taxon=<TMPL_VAR NAME=antismash-taxon DEFAULT='bacteria'>
+antismash-clusterblast=<TMPL_VAR NAME=antismash-clusterblast>
+antismash-subclusterblast=<TMPL_VAR NAME=antismash-subclusterblast>
+antismash-knownclusterblast=<TMPL_VAR NAME=antismash-knownclusterblast>
+antismash-smcogs=<TMPL_VAR NAME=antismash-smcogs>
+antismash-asf=<TMPL_VAR NAME=antismash-asf>
+antismash-fullhmm=<TMPL_VAR NAME=antismash-fullhmm>
+antismash-cassis=<TMPL_VAR NAME=antismash-cassis>
+antismash-tta=<TMPL_VAR NAME=antismash-tta>
+antismash-borderpredict=<TMPL_VAR NAME=antismash-borderpredict>
+antismash-inclusive=<TMPL_VAR NAME=antismash-inclusive>
+antismash-inclusive-cdsnr=<TMPL_VAR NAME=antismash-inclusive-cdsnr DEFAULT=5>
+antismash-inclusive-threshold=<TMPL_VAR NAME=antismash-inclusive-threshold DEFAULT=0.6>
+antismash-inclusive-npfams=<TMPL_VAR NAME=antismash-inclusive-npfams DEFAULT=5>
+</TMPL_IF>
+
 [Contigs Binning]
 DoBinning=<TMPL_VAR NAME=edge-binning-sw DEFAULT=0>
 contig_size_cut_for_binning=<TMPL_VAR NAME=edge-binning-size-cut DEFAULT=1000>

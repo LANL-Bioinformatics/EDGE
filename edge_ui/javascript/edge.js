@@ -1732,6 +1732,36 @@ $( document ).ready(function()
 				$('#edge-anno-kegg').hide();
 			}
 		});
+		$('#edge-r2g-con-options').hide();
+		$(":radio[name='edge-r2g-getconsensus-sw']").on("change",function(){
+			if($('#edge-r2g-getconsensus-sw1').is(':checked')){
+				$('#edge-r2g-con-options').show();
+			}
+			if($('#edge-r2g-getconsensus-sw2').is(':checked')){
+				$('#edge-r2g-con-options').hide();
+			}
+		});
+		$('#edge-sma-parameters').hide();
+		$(":radio[name='edge-sma-sw']").on("change", function(){
+			if($('#edge-sma-sw1').is(':checked')){
+				$('#edge-sma-parameters').show();
+			}
+			if($('#edge-sma-sw2').is(':checked')){
+				$('#edge-sma-parameters').hide();
+			}
+		});
+
+		$('.antismash-fungi-only-option').hide();
+		$(":radio[name='antismash-taxon']").on("change", function(){
+                        if($('#edge-sma-taxon-1').is(':checked')){
+                                $('.antismash-fungi-only-option').hide();
+                                $('.antismash-bacteria-only-option').show();
+			}
+                        if($('#edge-sma-taxon-2').is(':checked')){
+                                $('.antismash-fungi-only-option').show();
+                                $('.antismash-bacteria-only-option').hide();
+			}
+		});
 
 		$('#edge-spades-parameters').hide();
 		$('#edge-megahit-parameters').hide();
@@ -2741,6 +2771,7 @@ $( document ).ready(function()
 			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 			//reset metadata form
 			resetMetadata();
+			sync_input();
 		}
 		if (pipeline === 'qiime'){
 			$(".edge-main-pipeline-input").hide();

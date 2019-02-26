@@ -19,7 +19,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
 assembly_tools=( idba spades megahit lrasm racon )
-annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED )
+annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
@@ -1448,6 +1448,21 @@ echo "
 "
 }
 
+install_antismash()
+{
+local VER=4.1.0
+echo "------------------------------------------------------------------------------
+                        Installing antiSMASH $VER
+------------------------------------------------------------------------------
+"
+$anaconda2bin/conda create -n antismash antismash
+echo "
+------------------------------------------------------------------------------
+                         antiSMASH $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_bokeh()
 {
 local VER=0.12.10
@@ -1909,7 +1924,7 @@ else
   install_prokka
 fi
 
-if [ -x $rootdir/thirdParty/RATT/start.ratt.sh   ]
+if [ -x "$rootdir/thirdParty/RATT/start.ratt.sh" ]
 then
   echo "RATT is found"
 else
@@ -2186,7 +2201,7 @@ else
   install_lrasm
 fi
 
-if [ -x $rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh  ]
+if [ -x "$rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh" ]
 then
   echo "phage_finder_v2.1 is found"
 else
@@ -2194,7 +2209,7 @@ else
   install_phageFinder
 fi
 
-if [ -x $rootdir/bin/MaxBin/src/MaxBin ]
+if [ -x "$rootdir/bin/MaxBin/src/MaxBin" ]
 then
   MaxBin_VER=`$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
   if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
@@ -2216,7 +2231,7 @@ else
   install_gottcha
 fi
 
-if [ -x $rootdir/thirParty/gottcha2/gottcha.py ]
+if [ -x "$rootdir/thirParty/gottcha2/gottcha2.py" ]
 then
   gottcha2_VER=`$rootdir/thirParty/gottcha2/gottcha.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
   if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
@@ -2230,7 +2245,7 @@ else
   install_gottcha2
 fi
 
-if [ -x $rootdir/thirParty/miccr/miccr.py ]
+if [ -x "$rootdir/thirParty/miccr/miccr.py" ]
 then
   miccr_VER=`$rootdir/thirParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
   if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
@@ -2244,7 +2259,7 @@ else
   install_miccr
 fi
 
-#if [ -x $rootdir/thirParty/pangia/pangia.py ]
+#if [ -x "$rootdir/thirParty/pangia/pangia.py" ]
 #then
 #  pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
 #  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
@@ -2318,7 +2333,21 @@ else
     install_NanoPlot
 fi
 
-if [ -x $anaconda2bin/checkm ]
+if [ -x "$anaconda2bin/../env/antismash/bin/antismash" ]
+then
+  antismash_VER=`$anaconda2bin/../env/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $antismash_VER | awk '{if($1 >="4.1.0") exit 0; else exit 1}' )
+  then
+    echo "antiSMASH $antismash_VER is found"
+  else
+    install_antismash
+  fi
+else
+  echo "antiSMASH is not found"
+  install_antismash
+fi
+
+if [ -x "$anaconda2bin/checkm" ]
 then
   checkM_VER=`$anaconda2bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if ( echo $checkM_VER | awk '{if($1 >="1.0.11") exit 0; else exit 1}' )
@@ -2332,7 +2361,7 @@ else
   install_checkM
 fi
 
-if [ -x $anaconda3bin/bokeh ]
+if [ -x "$anaconda3bin/bokeh" ]
 then
   bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if ( echo $bokeh_VER | awk '{if($1=="0.12.10") exit 0; else exit 1}' )
@@ -2516,7 +2545,7 @@ else
   install_perl_mailtools
 fi
 
-if [ -x $rootdir/edge_ui/JBrowse/bin/prepare-refseqs.pl ]
+if [ -x "$rootdir/edge_ui/JBrowse/bin/prepare-refseqs.pl" ]
 then
   echo "JBrowse is found"
 else

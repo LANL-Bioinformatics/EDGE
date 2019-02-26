@@ -539,6 +539,17 @@
 					</TMPL_IF>
 				</div></li> 
 				</TMPL_IF>
+				<TMPL_IF NAME="OUT_SMA_SW">
+				<li id="antismashTag"><span class="li-report-content-title">Secondary Metabolite Analysis</span><div class="li-report-content">
+					<div style="border: 1px solid #ddd; height:600px;">
+						<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=AntiSmash_OUT_INDEX>'>[fullwindow]</a></span>
+						<iframe data-src='<TMPL_VAR NAME=AntiSmash_OUT_INDEX>'>Your browser does not support iframes</iframe>
+					</div>
+					<p class='extra-text-link'>Link to
+						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/AntiSmash'> Directory </a>
+					</p>
+				</div>
+				</TMPL_IF>
 				<TMPL_IF NAME="OUT_BINN_SW">
 				<li id="binningTag"><span class="li-report-content-title">Binning</span><div class="li-report-content">
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>

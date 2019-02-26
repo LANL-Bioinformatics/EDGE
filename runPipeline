@@ -297,6 +297,10 @@ if ( -s $contigFile )
         #phagefinder if Bacteria
         &phageFinder($annotationGFF,$annotationFAA,$annotationFNA) if ($tax_kingdom ne "Viruses" and $configuration->{DoProPhageDetection});
     }
+    if ($configuration->{DoSMA}){ #Secondary Metabolite Analysis
+	my $input_for_antismash = ( -e "$outDir/AssemblyBasedAnalysis/Annotation/$project_name.gbk")? "$outDir/AssemblyBasedAnalysis/Annotation/$project_name.gbk" : $contigFile;
+        &runAntiSmash($input_for_antismash);
+    }
     if ($configuration->{DoBinning}){
         &runBinning($contigFile);
 	if ($configuration->{DoCheckM}){
@@ -1994,6 +1998,69 @@ sub runCheckM{
     &printRunTime($time);
     &touchFile("$outputDir/BinningCheckM.finished");
     return;
+}
+
+sub runAntiSmash {
+    my $input_file = shift;
+    my $time=time();
+    my $outputDir = "$outDir/AssemblyBasedAnalysis/AntiSmash";
+    my $log = "$outputDir/log.txt";
+    my $run_script = "$outputDir/runAntiSmash.sh";
+    my $taxon = $configuration->{'antismash-taxon'} || 'bacteria';
+    my $clusterblast = $configuration->{'antismash-clusterblast'}  || '0';
+    my $subclusterblast = $configuration->{'antismash-subclusterblast'}  || '1';
+    my $knownclusterblast = $configuration->{'antismash-knownclusterblast'} || "1";
+    my $smcogs = $configuration->{'antismash-smcogs'} || '0';
+    my $asf = $configuration->{'antismash-asf'} || "1";
+    my $fullhmm = $configuration->{'antismash-fullhmm'} || '0';
+    my $cassis = $configuration->{'antismash-cassis'} || '0'; ## fungi only
+    my $tta = $configuration->{'antismash-tta'} || '0'; ## bacteria only
+    my $borderpredict = $configuration->{'antismash-borderpredict'} || '0';
+    my $inclusive = $configuration->{'antismash-inclusive'} || '0';
+    my $inclusive_cdsnr = $configuration->{'antismash-inclusive-cdsnr'} || '5';
+    my $inclusive_threshold  = $configuration->{'antismash-inclusive-threshold'} || '0.6';
+    my $inclusive_npfams = $configuration->{'antismash-inclusive-npfams'} || '5' ;
+   
+    &make_dir($outputDir);
+    if ($noColorLog)
+    {
+        &lprint ("[Secondary Metabolite Analysis]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Secondary Metabolite Analysis]\n",'yellow'));
+    }
+    if ( -e "$outputDir/runSMA.finished")
+    {
+       &lprint ("Secondary Metabolite Analysis Finished\n");
+       return;
+    }
+    my $cmd = "antismash -c $numCPU --taxon $taxon --logfile $log --outputfolder $outputDir ";
+    $cmd .= " --clusterblast" if ($clusterblast);
+    $cmd .= " --subclusterblast" if ($subclusterblast);
+    $cmd .= " --knownclusterblast" if ($knownclusterblast);
+    $cmd .= " --smcogs" if ($smcogs);
+    $cmd .= " --asf" if ($asf);
+    $cmd .= " --full-hmmer" if ($fullhmm);
+    $cmd .= " --cassis" if ($cassis && $taxon =~ /fungi/i);
+    $cmd .= " --tta" if ($tta && $taxon=~/bacteria/i);
+    $cmd .= " --borderpredict" if ($borderpredict);
+    $cmd .= " --inclusive" if ($inclusive);
+    $cmd .= " --cf_cdsnr $inclusive_cdsnr" if ($inclusive_cdsnr != 5 );
+    $cmd .= " --cf_threshold $inclusive_threshold" if ($inclusive_threshold != 0.6);
+    $cmd .= " --cf_npfams $inclusive_npfams" if ($inclusive_npfams != 5); 
+    $cmd .= " $input_file";
+    &lprint ("  Running \n  $cmd \n");
+    my $antismash_env = "$RealBin/thirdParty/Anaconda2/envs/antismash";
+    open (my $fh, ">", $run_script);
+    print $fh  "source $RealBin/thirdParty/Anaconda2/bin/activate $antismash_env 1>/dev/null\n";
+    print $fh $cmd," 2>/dev/null\n";
+    close $fh;
+    &executeCommand2("/bin/sh $run_script");
+    &touchFile("$outputDir/runSMA.finished");
+    &printRunTime($time);
+
+    return 0;
 }
 
 sub pcrDesign

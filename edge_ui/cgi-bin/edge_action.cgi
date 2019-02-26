@@ -1608,7 +1608,8 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Contigs Taxonomy Classification"}->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Taxonomy/ContigsTaxonomy.finished";
 	$module_ctl->{"Contigs Blast"}                  ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished";
 	$module_ctl->{"Contigs Binning"}                ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Binning/contigsBinning.finished";
-        $module_ctl->{"Binning CheckM"}                 ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Binning/CheckM/BinningCheckM.finished";
+	$module_ctl->{"Secondary Metabolite Analysis"}  ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/AntiSmash/runSMA.finished";
+	$module_ctl->{"Binning CheckM"}                 ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Binning/CheckM/BinningCheckM.finished";
 	$module_ctl->{"Contigs Annotation"}             ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
 	$module_ctl->{"Phylogenetic Analysis"}          ->{"general"}       = "$proj_dir/SNP_Phylogeny/SNPtree.finished";
 	$module_ctl->{"Phylogenetic Analysis"}          ->{"SRA"}           = "$proj_dir/SNP_Phylogeny/SRAreads/download.finished";

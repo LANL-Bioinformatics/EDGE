@@ -47,6 +47,7 @@ eval {
 	&pull_host_rev();
 #	print STDOUT "host rev\n";
 	&pull_anno();
+	&pull_antismash();
 #	print STDOUT "anno\n";
 	&pull_referenceName();
 #	print STDOUT "reference name\n";
@@ -86,6 +87,13 @@ output_html();
 #print STDOUT "end output html\n";
 #
 #
+
+sub pull_antismash{
+	my $output_dir = "$out_dir/AssemblyBasedAnalysis/AntiSmash";
+	if(-e "$output_dir/index.html"){
+		 $vars->{AntiSmash_OUT_INDEX} = "$output_dir/index.html";
+	}
+}
 
 sub pull_qiime{
 	my $output_dir = "$out_dir/QiimeAnalysis";
@@ -608,6 +616,7 @@ sub check_analysis {
 	$vars->{OUT_CONLY_SW} = 1 if ($vars->{OUT_AS_PC_SW} && ! -e "$out_dir/QcReads/fastqCount.txt");
 	$vars->{OUT_C2G_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
 	$vars->{OUT_AN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Annotation/runAnnotation.finished";
+	$vars->{OUT_SMA_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/AntiSmash/runSMA.finished";
 	$vars->{OUT_BINN_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Binning/contigsBinning.finished";
 	$vars->{OUT_BINN_CHECKM_SW}    = 1 if -e "$out_dir/AssemblyBasedAnalysis/Binning/CheckM/BinningCheckM.finished";
 	$vars->{OUT_R2G_SW}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
@@ -2009,6 +2018,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#ctaxTag\">$step</a>" if ($step eq "Contigs Taxonomy Classification");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#c2gTag\">$step</a>" if ($step eq "Contigs Mapping To Reference");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#annoTag\">$step</a>" if ($step eq "Contigs Annotation");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#antismashTag\">$step</a>" if ($step eq "Secondary Metabolite Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#binningTag\">$step</a>" if ($step eq "Contigs Binning");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#checkMTag\">$step</a>" if ($step eq "Binning CheckM");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#phyloTag\">$step</a>" if ($step eq "Phylogenetic Analysis");
