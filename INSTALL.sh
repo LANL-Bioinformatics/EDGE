@@ -346,18 +346,19 @@ echo "
 
 install_bedtools()
 {
+local VER=2.27.1
 echo "------------------------------------------------------------------------------
-                           Installing bedtools-2.19.1
+                           Installing bedtools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf bedtools-2.19.1.tar.gz
-cd bedtools2-2.19.1
+tar xvzf bedtools-$VER.tar.gz
+cd bedtools2
 make 
 cp -fR bin/* $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           bedtools-2.19.1 installed
+                           bedtools-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1806,7 +1807,13 @@ install_Rpackages
 
 if ( checkSystemInstallation bedtools )
 then
-  echo "bedtools is found"
+  bedtoolsVER=`bedtools --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  if  ( echo  $bedtoolsVER | awk '{if($1>="2.27") exit 0; else exit 1}' )
+  then 
+     echo "bedtools $bedtoolsVER is found"
+  else
+     install_bedtools
+  fi
 else
   echo "bedtools is not found"
   install_bedtools 
