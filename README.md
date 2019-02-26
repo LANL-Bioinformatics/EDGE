@@ -21,7 +21,7 @@ Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bisho
 
 ## Copyright
 
-Copyright (2019).  Triad National Security, LLC. All rights reserved.
+Copyright (2018).  Triad National Security, LLC. All rights reserved.
  
 This program was produced under U.S. Government contract 89233218CNA000001 for Los Alamos National 
 Laboratory (LANL), which is operated by Triad National Security, LLC for the U.S. Department of Energy/National 
