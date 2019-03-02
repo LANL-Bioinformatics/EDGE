@@ -2014,7 +2014,7 @@ fi
 
 if ( checkLocalInstallation kraken2 )
 then
-  kraken_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  kraken2_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
   if  ( echo $kraken2_VER | awk '{if($1>=2.0) exit 0; else exit 1}' )
   then
     echo "kraken2 $kraken2_VER found"
