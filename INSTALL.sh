@@ -2177,7 +2177,7 @@ fi
 
 if ( checkSystemInstallation spades.py )
 then
-  spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
   if ( echo $spades_VER | awk '{if($1>="3.9.0") exit 0; else exit 1}' )
   then
     echo "SPAdes $spades_VER found"
