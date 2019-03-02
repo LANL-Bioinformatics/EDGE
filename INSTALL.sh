@@ -1480,7 +1480,7 @@ if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
 then
   rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
 fi
-$anaconda2bin/conda create -n antismash antismash
+$anaconda2bin/conda create -y -n antismash antismash
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
