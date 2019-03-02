@@ -260,23 +260,24 @@ DoJBrowse=<TMPL_VAR NAME=edge-jbroswe-sw DEFAULT=1>
 <TMPL_IF NAME=edge-qiime-sw>
 [Qiime analysis]
 DoQiimeAnalysis=<TMPL_VAR NAME=edge-qiime-sw DEFAULT=0>
+## Greengenes, SILVA, SILVA-V3-V4 or ITS
 qiime_amplicon_type=<TMPL_VAR NAME=edge-qiime-at-sw DEFAULT="GreenGenes">
 qiime_input_dir=<TMPL_VAR NAME=edge-qiime-reads-dir-input DEFAULT=>
-qiime_paired_reads_orientation=<TMPL_VAR NAME=edge-qiime-pro-sw DEFAULT="fr">
 qiime_mapping_file=<TMPL_VAR NAME=edge-qiime-mapping-files>
 qiime_barcode_file=<TMPL_VAR NAME=edge-qiime-barcode-fq-files>
-qiime_barcode_len=<TMPL_VAR NAME=edge-qiime-barcode-length DEFAULT=6>
 qiime_phred_offset=<TMPL_VAR NAME=edge-qiime-phred-offset DEFAULT=33>
-qiime_q_threshold=<TMPL_VAR NAME=edge-qiime-phred-quality-threshold DEFAULT=3>
+qiime_sampling_depth=<TMPL_VAR NAME=edge-qiime-sampling-depth DEFAULT=1000>
+qiime_qcMethod=<TMPL_VAR NAME=edge-qiime-qcMethod DEFAULT="dada2">
+qiime_trimLeftForward=<TMPL_VAR NAME=edge-qiime-trimLeftForward DEFAULT="20">
+qiime_trimLeftReverse=<TMPL_VAR NAME=edge-qiime-trimLeftReverse DEFAULT="20">
+qiime_truncLenForward=<TMPL_VAR NAME=edge-qiime-truncLenForward DEFAULT="0">
+qiime_truncLenReverse=<TMPL_VAR NAME=edge-qiime-truncLenReverse DEFAULT="0">
+qiime_trimLen=<TMPL_VAR NAME=edge-qiime-trimLen DEFAULT="20">
+qiime_truncLen=<TMPL_VAR NAME=edge-qiime-truncLen DEFAULT="0">
+qiime_autoDepth=<TMPL_VAR NAME=edge-qiime-autoDepth>
+qiime_q_threshold=<TMPL_VAR NAME=edge-qiime-phred-quality-threshold DEFAULT=4>
 qiime_max_n=<TMPL_VAR NAME=edge-qiime-max-n DEFAULT=1>
 qiime_min_per_read_length_fraction=<TMPL_VAR NAME=edge-qiime-min-per-read-length-fraction DEFAULT=0.5>
-qiime_UPARSE=<TMPL_VAR NAME=edge-qiime-UPARSE-sw DEFAULT=0>
-qiime_minimum_otu_size=<TMPL_VAR NAME=edge-qiime-minimum-otu-size DEFAULT=2>
-qiime_similarity=<TMPL_VAR NAME=edge-qiime-similarity DEFAULT=0.94>
-qiime_sampling_depth=<TMPL_VAR NAME=edge-qiime-sampling-depth DEFAULT=1000>
-qiime_filter_taxa=<TMPL_VAR NAME=edge-qiime-filter-taxa>
-qiime_substract_ntc=<TMPL_VAR NAME=edge-qiime-substract-ntc>
-qiime_chart_type=<TMPL_VAR NAME=edge-qiime-taxa-charttype>
 </TMPL_IF>
 
 <TMPL_IF NAME=edge-targetedngs-sw>

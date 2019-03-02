@@ -980,13 +980,16 @@ sub checkParams {
 				
 			}
 		}
-		&addMessage("PARAMS", "edge-qiime-barcode-length","Invalid input. Natural number required.") unless $opt{"edge-qiime-barcode-length"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qiime-phred-quality-threshold", "Invalid input. Input should in range 0-41.") unless ( $opt{"edge-qiime-phred-quality-threshold"} >= 0 && $opt{"edge-qiime-phred-quality-threshold"} <=41 );
 		&addMessage("PARAMS", "edge-qiime-max-n","Invalid input. Natural number required.") unless $opt{"edge-qiime-max-n"}=~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qiime-min-per-read-length-fraction","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-min-per-read-length-fraction"} >=0 && $opt{"edge-qiime-min-per-read-length-fraction"} <=1 );
-		&addMessage("PARAMS", "edge-qiime-minimum-otu-size","Invalid input. Natural number required.") unless $opt{"edge-qiime-minimum-otu-size"}=~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qiime-similarity","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qiime-similarity"} >=0 && $opt{"edge-qiime-similarity"} <=1 );
 		&addMessage("PARAMS", "edge-qiime-sampling-depth","Invalid input. Natural number required.") unless $opt{"edge-qiime-sampling-depth"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-trimLeftForward","Invalid input. Natural number required.") unless $opt{"edge-qiime-trimLeftForward"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-trimLeftReverse","Invalid input. Natural number required.") unless $opt{"edge-qiime-trimLeftReverse"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-truncLenForward","Invalid input. Natural number required.") unless $opt{"edge-qiime-truncLenForward"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-truncLenReverse","Invalid input. Natural number required.") unless $opt{"edge-qiime-truncLenReverse"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-trimLen","Invalid input. Natural number required.") unless $opt{"edge-qiime-trimLen"}=~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qiime-trunLen","Invalid input. Natural number required.") if $opt{"edge-qiime-trunLen"} && $opt{"edge-qiime-trunLen"} !~ /^\d+$/;
 
 		
 	} else {##sample metadata

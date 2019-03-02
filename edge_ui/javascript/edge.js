@@ -641,15 +641,12 @@ $( document ).ready(function()
 	$("#edge-binning-abund-file-tooltip").tooltipster(
                 'content',$('<span>Required when input is contig only. Please make sure that your abundance information is provided in the following format (\\t stands for a tab delimiter):<br/>(contig header)\\t(abundance)<br/>For example:<br/>A0001    30.89<br/>A0002    20.02</span>')
         );
-	$("#edge-qiime-pro-tooltip").tooltipster(
-		'content',$('<span><a href="images/pe_orientation.png" target="_blank"><img src="images/pe_orientation.png" width="460px"></img></a></span>')
+	$("#edge-qiime-qcm-tooltip").tooltipster(
+		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27214047" target="_blank">DADA2</a> is a pipeline for detecting and correcting (where possible) Illumina amplicon sequence data. <a href="http://msystems.asm.org/content/2/2/e00191-16" target="_blank">Deblur</a> uses sequence error profiles to associate erroneous sequence reads with the true biological sequence from which they are derived, resulting in high quality sequence variant data.</span>')
 	);
 	
 	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
 		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
-	);
-	$("#edge-qiime-UPARSE-tooltip").tooltipster(
-		'content',$('<span>Use UPARSE pipeline clusters NGS amplicon reads into OTUs. <a href="http://drive5.com/uparse/" target="_blank">Edgar, R.C. (2013) Nature Methods</a></span>')
 	);
 	
 
@@ -746,20 +743,21 @@ $( document ).ready(function()
 			$( ".edge-fastq-options").hide();
 			$( "a[data-id=edge-annotation-parameters]" ).click();
 		}
+		$('#btnAdd-edge-qiime-mapping-file').hide();
 		if ( $(obj).val() == "pe"){
 			$('.edge-input-se-block').hide();
 			$('.edge-input-pe-block').show();
-			$('#edge-qiime-pro-sw').show();
-			$('#btnAdd-edge-input-pe').show();
-			$('#btnAdd-edge-input-se').hide();
+			//$('#edge-qiime-pro-sw').show();
+			//$('#btnAdd-edge-input-pe').show();
+			//$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').hide();
 		}
 		if ( $(obj).val() == "se"){
 			$('.edge-input-pe-block').hide();
 			$('.edge-input-se-block').show();
-			$('#edge-qiime-pro-sw').hide();
-			$('#btnAdd-edge-input-pe').hide();
-			$('#btnAdd-edge-input-se').show();
+			//$('#edge-qiime-pro-sw').hide();
+			//$('#btnAdd-edge-input-pe').hide();
+			//$('#btnAdd-edge-input-se').show();
 			$('#edge-qiime-pipeline-dir-input').hide();
 		}
 		if ( $(obj).val() == "dedir"){
@@ -1813,6 +1811,17 @@ $( document ).ready(function()
 			inputSourceCheck(this);
 		});
 		
+		$('.deblur-options').hide();
+		$(":radio[name='edge-qiime-qcMethod']").on("change", function(){
+			if($('#edge-qiime-qcMethod1').is(':checked')){
+				$('.deblur-options').hide();
+				$('.dada2-options').show();
+			}
+			if($('#edge-qiime-qcMethod2').is(':checked')){
+				$('.dada2-options').hide();
+				$('.deblur-options').show();
+			}
+		});
 		$(":radio[name='edge-targetedngs-platform']").on("change", function(){
 			if($('#edge-targetedngs-platform1').is(':checked')){
 				$('#edge-targetedngs-mode1').closest('div').show();
@@ -2781,6 +2790,8 @@ $( document ).ready(function()
 			$('#edge-fastq-input-block').show();
 			$('.edge-input-se-block').hide();
 			$('.edge-input-pe-block').show();
+			$('.deblur-options').hide();
+			$('.dada2-options').show();
 			$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').hide();
 			replace_label_string($("#edge-qiime-mapping-file-tooltip").parent('label'),"Experimental Design File","Metadata Mapping File");

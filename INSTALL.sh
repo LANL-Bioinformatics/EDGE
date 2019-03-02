@@ -27,7 +27,7 @@ phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Anaconda2 Anaconda3 )
 metagenome_tools=( MaxBin checkM )
-pipeline_tools=( DETEQT reference-based_assembly PyPiReT )
+pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
@@ -1386,7 +1386,7 @@ $anaconda2bin/conda config --add channels defaults
 $anaconda2bin/conda config --add channels bioconda
 $anaconda2bin/conda config --add channels conda-forge
 ln -s $anaconda2bin/rapsearch $anaconda2bin/rapsearch2
-$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
 $anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
 matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
@@ -1449,6 +1449,26 @@ echo "
 "
 }
 
+install_qime2()
+{
+local VER=2019.1
+echo "------------------------------------------------------------------------------
+                        Installing QIIME2 $VER
+------------------------------------------------------------------------------
+"
+if [ -e "$rootdir/thirdParty/Anaconda3/envs/qiime2" ]
+then
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
+fi
+
+$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.1-py36-linux-conda.yml
+echo "
+------------------------------------------------------------------------------
+                         QIIME2 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_antismash()
 {
 local VER=4.1.0
@@ -1456,6 +1476,10 @@ echo "--------------------------------------------------------------------------
                         Installing antiSMASH $VER
 ------------------------------------------------------------------------------
 "
+if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
+then
+  rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
+fi
 $anaconda2bin/conda create -n antismash antismash
 echo "
 ------------------------------------------------------------------------------
@@ -2338,6 +2362,20 @@ then
 else
     echo "NanoPlot is not found"
     install_NanoPlot
+fi
+
+if [ -x "$anaconda3bin/../env/qiime2/bin/qiime" ]
+then
+  qiime2_VER=`$anaconda2bin/../env/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  if ( echo $qiime2_VER | awk '{if($1 >="2019.1") exit 0; else exit 1}' )
+  then
+    echo "QIIME2 $qiime2_VER is found"
+  else
+    install_qiime2
+  fi
+else
+  echo "QIIME2 is not found"
+  install_qiime2
 fi
 
 if [ -x "$anaconda2bin/../env/antismash/bin/antismash" ]

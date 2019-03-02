@@ -929,11 +929,13 @@ sub runQiimeAnalysis{
     my $pairedFile=shift;
     my $time=time();
     my $outputDir="$outDir/QiimeAnalysis";
-    #my $log="$outputDir/log.txt";
+    my $run_script = "$outputDir/runQiime.sh";
+    my $log="$outputDir/processLog.txt";
     if ($noColorLog)
     {
         &lprint ("[Qiime analysis]\n");
     }
+    #my $seq_max_n=$configuration->{qiime_max_n} || 1;
     else
     {
         &lprint (colored ("[Qiime analysis]\n",'yellow'));
@@ -949,47 +951,61 @@ sub runQiimeAnalysis{
     my @pairedFile= @$pairedFile;
     my $qiime_input_dir=$configuration->{qiime_input_dir};
     my $amplicon_type=$configuration->{qiime_amplicon_type} || "Greengenes";
-    my $pe_orientation=$configuration->{qiime_paired_reads_orientation} || "fr"; 
-    my $barcode_len=$configuration->{qiime_barcode_len} || 6;
-    my $quality_cutoff=$configuration->{qiime_q_threshold} || 3;
-    my $phred_offset=$configuration->{qiime_phred_offset} || 33;
-    my $min_reads_q_fraction=$configuration->{qiime_min_per_read_length_fraction} || 0.5;
-    my $min_otu_size=$configuration->{qiime_minimum_otu_size} || 2;
-    my $seq_max_n=$configuration->{qiime_max_n} || 1;
-    my $similarity=$configuration->{qiime_similarity} || 0.94;
+    my $qc_method=$configuration->{qiime_qcMethod} || "dada2";
+    my $trimLeftForward=$configuration->{qiime_trimLeftForward} || "20";
+    my $trimLeftReverse=$configuration->{qiime_trimLeftReverse} || "20";
+    my $truncLenForward=($configuration->{qiime_truncLenForward})? $configuration->{qiime_truncLenForward}: '0';
+    my $truncLenReverse=($configuration->{qiime_truncLenReverse})? $configuration->{qiime_truncLenReverse}: '0';
+    my $trimLen=$configuration->{qiime_trimLen} || "20";
+    my $truncLen=($configuration->{qiime_truncLen})? $configuration->{qiime_truncLen}: '0';
     my $sampling_depth_cutoff=$configuration->{qiime_sampling_depth} || 1000;
-    my $negative_taxa=$configuration->{qiime_filter_taxa};
-    my $ntc_list=$configuration->{qiime_substract_ntc};
-    my $UPARSE_opt=$configuration->{qiime_UPARSE};
+    my $autoDepth=$configuration->{qiime_autoDepth}; 
+    my $phred_offset=$configuration->{qiime_phred_offset} || 33;
     my $barcode_files=$configuration->{qiime_barcode_file};
     my $mapping_files=$configuration->{qiime_mapping_file};
-    my $chart_type=$configuration->{qiime_chart_type} || "area,bar";
+    my $quality_cutoff=$configuration->{qiime_q_threshold} || 4;
+    my $min_reads_q_fraction=$configuration->{qiime_min_per_read_length_fraction} || 0.5;
+    my $seq_max_n=$configuration->{qiime_max_n} || 1;
+    my $title=$configuration->{projname};
     
     if (!$mapping_files){
 	&lprint("ERROR: No mapping file");
 	exit;
     }
 
-    my $cmd = "perl $RealBin/scripts/qiime_pipeline/qiime_pipeline.pl -c $numCPU -target $amplicon_type -t $project_name -o $outputDir " ;
-	if ($qiime_input_dir){
-		$cmd .= " -d $qiime_input_dir ";
-		$barcode_len = 'not-barcoded';
-	}else{
-    	$cmd .= " -p $_ " foreach (@pairedFile);
-    	$cmd .= " -u $_ " foreach (@unpairedFile);
-	}
-    $cmd .= " -m $mapping_files ";
-    $cmd .= " -pe_orientation $pe_orientation " if (@pairedFile);
-    $cmd .= " -barcode_type $barcode_len -q $quality_cutoff -n $seq_max_n -min_per_read_length_fraction $min_reads_q_fraction -min_otu_size $min_otu_size -similarity $similarity -e $sampling_depth_cutoff ";
+    my $cmd = "$RealBin/scripts/qiime_pipeline/qiime_pipeline.py --zip -c $numCPU --target $amplicon_type --target $project_name --qcMethod $qc_method -o $outputDir " ;
+    if ($qiime_input_dir){
+        $cmd .= " -d $qiime_input_dir ";
+    }else{
+        $cmd .= " -p $_ " foreach (@pairedFile);
+        $cmd .= " -s $_ " foreach (@unpairedFile);
+    }
+    $cmd .= " -m $mapping_files --samplingDepth $sampling_depth_cutoff ";
+    $cmd .= " --autoDepth " if ($autoDepth);
     $cmd .= " -b $barcode_files " if ($barcode_files && is_fastq($barcode_files));
-    $cmd .= " -UPARSE " if($UPARSE_opt);
-    $cmd .= " -filter_taxa $negative_taxa " if($negative_taxa);
-    $cmd .= " -substract_NTC $ntc_list " if($ntc_list);
-    $cmd .= " -phred_offset $phred_offset ";
-    $cmd .= " -chart_type $chart_type ";
-   # $cmd .= " 1>$log 2>&1 ";
+    $cmd .= " --phred_offset $phred_offset ";
+    if ($qc_method =~ /dada/i){
+        $cmd .= " --trimLeftForward $trimLeftForward --trimLeftReverse $trimLeftReverse ";
+        $cmd .= " --truncLenForward $truncLenForward " if ($truncLenForward);
+        $cmd .= " --truncLenReverse $truncLenReverse " if ($truncLenReverse);
+        $cmd .= " --trimLen $trimLen ";
+    }
+    if ($qc_method =~ /deblur/i){
+        $cmd .= " --minQuality $quality_cutoff ";
+        $cmd .= " --minLengthFraction $min_reads_q_fraction ";
+        $cmd .= " --maxAmbiguous $seq_max_n ";
+    }
+    $cmd .= " --truncLen $truncLen " if ($truncLen);
+    $cmd .= " > $log ";
     &lprint ("  Running \n  $cmd \n");
-    &executeCommand($cmd);
+    open (my $fh, ">", $run_script);
+    my $qiime2_env_path = "$RealBin/thirdParty/Anaconda3/envs/qiime2";
+    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $qiime2_env_path 1>/dev/null\n";
+    print $fh "export PYTHONUNBUFFERED=on\n";
+    print $fh $cmd,"\n";
+    close $fh;
+    &executeCommand2("/bin/sh $run_script");
+    #&executeCommand($cmd);
 
     &printRunTime($time);
     &touchFile("$outputDir/runQiimeAnalysis.finished");

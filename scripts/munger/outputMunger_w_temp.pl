@@ -97,11 +97,12 @@ sub pull_antismash{
 
 sub pull_qiime{
 	my $output_dir = "$out_dir/QiimeAnalysis";
-	if (-e "$output_dir/analysis/index.html"){
-		$vars->{QIIME_OUT_INDEX} = "$output_dir/analysis/index.html"; 
-	}else{
-		$vars->{QIIME_OUT_INDEX} = "$output_dir/otus/index.html"; 
-	} 
+	if (-e "$output_dir/index.html"){
+		$vars->{QIIME_OUT_INDEX} = "$output_dir/index.html"; 
+	}
+	#else{
+	#	$vars->{QIIME_OUT_INDEX} = "$output_dir/otus/index.html"; 
+	#} 
 }
 
 sub pull_piret{
@@ -2095,7 +2096,11 @@ sub pull_summary {
 	$ord = $map{"Qiime analysis"} if ($vars->{LOG_qiime_SW});
 	my %toolmap;
 	my $step_runtime;
-	open PROC_CUR, "<", "$out_dir/process_current.log" or die $!;
+	if ($vars->{LOG_qiime_SW}){
+		open PROC_CUR, "<", "$out_dir/QiimeAnalysis/processLog.txt" or die $!;
+	}else{
+		open PROC_CUR, "<", "$out_dir/process_current.log" or die $!;
+	}
 	while(<PROC_CUR>) {
 		chomp;
 		#parse input files

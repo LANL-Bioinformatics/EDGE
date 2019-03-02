@@ -91,7 +91,7 @@
 			<li class="ui-first-child"><a href="#edge-app-home" class="ui-btn ui-btn-icon-right ui-icon-home">Home</a></li>
                         <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
 			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE</a></li>
-			<li><a href="#edge-qiime-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run Qiime</a></li>
+			<li><a href="#edge-qiime-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run Qiime2</a></li>
 			<li><a href="#edge-targetedngs-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run DETEQT</a></li>
 			<li><a href="#edge-piret-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run PiReT (BETA)</a></li>
 			<li id="edge-report-list-li" data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed ui-li-static ui-body-inherit">
@@ -207,10 +207,10 @@
 				</div>
 				<div data="runQiime" class="app-info">
 					<div class="app-name-version">
-						<div class="app-version">1.9.1</div>
-						<div class="app-name">Run QIIME</div>
+						<div class="app-version">2019.1</div>
+						<div class="app-name">Run QIIME2</div>
 					</div>
-					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and ITS</div>
+					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and Fungal ITS</div>
 				</div>
 			</div>
 		</div>
@@ -415,7 +415,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
 		<h2>Input Your Sample</h2>
 		<p class="edge-main-pipeline-input">EDGE requires <b>Illumina FASTQ</b> sequence data files in FASTQ format or <b>Contigs</b> sequence data file in FASTA format. EDGE allows both paired-end and single-end sequences.</p>
-		<p class="edge-qiime-pipeline-input">The <a href="http://qiime.org/tutorials/open_reference_illumina_processing.html" target="_blank">Qiime</a> pipeline requires sequence data files in FASTQ format and a <a href="http://qiime.org/documentation/file_formats.html" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_new">documentation</a> for more information.</p>
+		<p class="edge-qiime-pipeline-input">The <a href="https://qiime2.org/" target="_blank">Qiime2</a> pipeline requires sequence data files in FASTQ format and a <a href="https://docs.qiime2.org/2019.1/tutorials/metadata/" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.Or directory with demultiplexed fastq files.  Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_new">documentation</a> for more information.</p>
 		<p class="edge-targetedngs-pipeline-input">The <a href="https://chienchilo.bitbucket.io/targetedNGS/" target="_blank">DETEQT</a> is a pipeline for diagnostic targeted sequencing adjudication. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-deteqt" target="_new">documentation</a> for more information.</p>
 		<p class="edge-piret-pipeline-input">The <a href="https://github.com/mshakya/PyPiReT" target="_blank">PiReT</a> is a pipeline for Reference based Transcriptomics analysis. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-piret" target="_new">documentation</a> for more information.</p>
 		<div data-role="collapsible-set">
@@ -438,8 +438,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<label for="edge-qiime-at-sw1">16s (GreenGenes)</label>
 							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw2" value="SILVA">
 							<label for="edge-qiime-at-sw2">16s/18s (SILVA)</label>
-							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="ITS">
-							<label for="edge-qiime-at-sw3">Fungal ITS</label>
+							<!--<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="SILVA-V3-V4">
+							<label for="edge-qiime-at-sw3">16s V3-V4 (SILVA)</label>-->
+							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw4" value="ITS">
+							<label for="edge-qiime-at-sw4">Fungal ITS</label>
 						</fieldset>
 					</div>
 					<div class="ui-field-contain edge-main-pipeline-input">
@@ -482,22 +484,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
 					<legend>Reads Type</legend>
-						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="pe" checked="checked">
-						<label for="edge-qiime-rt-sw1">Paired Reads</label>
-						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="se">
-						<label for="edge-qiime-rt-sw2">Unpaired Reads</label>
-						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="dedir">
-						<label for="edge-qiime-rt-sw3">De-multiplexed Reads Dir</label>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw1" value="dedir" checked="checked">
+						<label for="edge-qiime-rt-sw1">De-multiplexed Reads Dir</label>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw2" value="pe">
+						<label for="edge-qiime-rt-sw2">Paired Reads</label>
+						<input type="radio" data-mini="true" name="edge-qiime-rt-sw" id="edge-qiime-rt-sw3" value="se">
+						<label for="edge-qiime-rt-sw3">Unpaired Reads</label>
 					</fieldset>
 					
-					<fieldset id="edge-qiime-pro-sw" data-role="controlgroup" data-mini="true" data-type="horizontal" class="edge-qiime-pipeline-input ui-field-contain">
-					<legend>Reads Orientation<a href="#" class="tooltip ui-btn  ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-pro-tooltip"></a></legend>
-						<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw1" value="fr" checked="checked">
-						<label for="edge-qiime-pro-sw1">FR</label>
-						<input type="radio" data-mini="true" name="edge-qiime-pro-sw" id="edge-qiime-pro-sw2" value="rf">
-						<label for="edge-qiime-pro-sw2">RF</label>
-					</fieldset>
-						
 					<div id="edge-fastq-input-block">
 						<p class="edge-center edge-main-pipeline-input">Sequencing Reads:</p>
 						<div id="edge-input-pe-block1" class="edge-input-pe-block"> 
@@ -1828,15 +1822,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-qiime-barcode-fq-file-input-1">Barcode Fastq File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-barcode-fq-file-tooltip"></a></label>
 					<input data-mini="true" type="text" name="edge-qiime-barcode-fq-file-input[]" id="edge-qiime-barcode-fq-file-input-1" placeholder="absolute file path/select file">
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
-					<a href="#" class="btnAdd-edge-qiime-barcode-fq-file" data-role="button" data-icon="plus" data-iconpos="notext">Add</a>
 					</div>
 
 				</div>
-				<div class="ui-field-contain">
-					<label for="edge-qiime-barcode-length">Barcode Length</label>
-					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-barcode-length" id="edge-qiime-barcode-length" min="3" max="20" value="6">
-				</div>
-				<li>Reads Filters</li>
+				<li>Reads Quality Control and Feature Table Construction</li>
 				<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Quality Offset<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The ascii offset to use when decoding phred scores (either 33 or 64). Offset 64 is used for old illumina Fastq file."></a></legend>
@@ -1847,58 +1836,66 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</fieldset>
 				</div>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
-					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="19">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Quality Control Method<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-qcm-tooltip"></a></legend>
+						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod1" value="dada2" checked="checked">
+						<label for="edge-qiime-qcMethod1">DADA2</label>
+						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod2" value="deblur">
+						<label for="edge-qiime-qcMethod2">Deblur</label>
+					</fieldset>
 				</div>
-				<div class="ui-field-contain">
+				<div class="ui-field-contain dada2-options">
+					<label for="edge-qiime-trimLeftForward">Trim 5'end Forward<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This is for Dada2 QC on paired end reads. The number of bases to trim from the 5'end of the forward (R1) read to e.g. remove PCR primer sequences."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trimLeftForward" id="edge-qiime-trimLeftForward" min="0" max="150" value="20">
+				</div>
+				<div class="ui-field-contain dada2-options">
+					<label for="edge-qiime-trimLeftReverse">Trim 5'end Reverse<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This is for Dada2 QC on paired end reads. This is the number of bases to trim from the 5'end of the reverse (R2) read to e.g. remove PCR primer sequences."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trimLeftReverse" id="edge-qiime-trimLeftReverse" min="0" max="150" value="20">
+				</div>
+				<div class="ui-field-contain dada2-options">
+					<label for="edge-qiime-truncLenForward">Truncation Len Forward<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This truncates the 3'end of the of the forward read (R1), which will be the bases that were sequenced in the last cycles. Reads that are shorter than this value will be discarded. After this parameter is applied there must still be at least a 20 nucleotide overlap between the forward and reverse reads. If 0 is provided, no truncation or length filtering will be performed."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-truncLenForward" id="edge-qiime-truncLenForward" min="0" max="300" value="0">
+				</div>
+				<div class="ui-field-contain dada2-options">
+					<label for="edge-qiime-truncLenReverse">Truncation Len Reverse<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This truncates the 3'end of the of the reverse read (R2), which will be the bases that were sequenced in the last cycles. Reads that are shorter than this value will be discarded. After this parameter is applied there must still be at least a 20 nucleotide overlap between the forward and reverse reads. If 0 is provided, no truncation or length filtering will be performed."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-truncLenReverse" id="edge-qiime-truncLenReverse" min="0" max="300" value="0">
+				</div>
+				<div class="ui-field-contain dada2-options">
+					<label for="edge-qiime-trimLen">SE Trim Length<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This is for Dada2 QC on single end reads. This is the number of bases to trim from the 5'end of the reads to e.g. remove PCR primer sequences."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trimLen" id="edge-qiime-trimLen" min="0" max="150" value="20">
+				</div>
+				<div class="ui-field-contain deblur-options">
+					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="4">
+				</div>
+				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-max-n">Max "N" base<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-max-n" id="edge-qiime-max-n" min="0" max="100" value="1">
 				</div>
-				<div class="ui-field-contain">
+				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-min-per-read-length-fraction">Min Per Read Length Fraction<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length."></a></label>
 					<input type="range" name="edge-qiime-min-per-read-length-fraction" id="edge-qiime-min-per-read-length-fraction" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
 				</div>
-				<li>OTU Clustering Options/Filters</li>
-				<!--<div class="ui-field-contain">
-					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>UPARSE<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="dge-qiime-UPARSE-tooltip"></a></legend>
-						<input type="radio" data-mini="true" name="edge-qiime-UPARSE-sw" id="edge-qiime-UPARSE-sw1" value="1">
-						<label for="edge-qiime-UPARSE-sw1">Yes</label>
-						<input type="radio" data-mini="true" name="edge-qiime-UPARSE-sw" id="edge-qiime-UPARSE-sw2" value="0" checked="checked">
-						<label for="edge-qiime-UPARSE-sw2">No</label>
-					</fieldset>
-				</div>-->
-				<div class="ui-field-contain">
-					<label for="edge-qiime-minimum-otu-size">Minimum OTU Size<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum OTU size (in number of sequences) to retain the OTU"></a></label>
-					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-minimum-otu-size" id="edge-qiime-minimum-otu-size" min="1" max="20" value="2">
+				<div class="ui-field-contain dada2-options deblur-options">
+					<label for="edge-qiime-trunLen">SE Truncation Len<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This truncates the 3' end of the of the single end reads, which will be the bases that were sequenced in the last cycles. Reads that are shorter than this value will be discarded. If 0 is provided, no truncation or length filtering will be performed."></a></label>
+					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trunLen" id="edge-qiime-trunLen" min="0" max="350" value="0">
 				</div>
+				
+				<li>Sampling</li>
 				<div class="ui-field-contain">
-					<label for="edge-qiime-similarity">Similarity<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Sequence similarity threshold for clustering algorithm"></a></label>
-					<input type="range" name="edge-qiime-similarity" id="edge-qiime-similarity" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.94" step=".01">
-				</div>
-				<div class="ui-field-contain">
-					<label for="edge-qiime-sampling-depth">Depth Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Filter sample less this amount of sequences. The minimium of sequenceing depth of samples after this filter will be to use for even sub-sampling and maximum rarefaction depth. Depend on the 'biom summary table' to decide on this value for re-run."></a></label>
+					<label for="edge-qiime-sampling-depth">Sampling Depth<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Filter sample less this amount of sequences. It will use this number to do sub-sampling for each input for maximum rarefaction depth and beta diversity analysis. Depend on the 'feature table summary' to decide on this value for re-run."></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-sampling-depth" id="edge-qiime-ampling-depth" min="100" max="50000" value="1000">
 				</div>
 				
 				<div class="ui-field-contain">
-					<label for=edge-qiime-filter-taxa">Taxonomy Filter<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Comma-separated list of taxa to discard from OTU table e.g: p__Bacteroidetes,p__Firmicutes"></a></label>
-					<input data-mini="true" type="text" name="edge-qiime-filter-taxa" id="edge-qiime-filter-taxa" placeholder="e.g: p__Bacteroidetes,p__Firmicutes">
-				</div>
-				<div class="ui-field-contain">
-					<label for=edge-qiime-substract-ntc">Substract NTC<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Comma-separated list of Sample ID to substarct observation count from No Template Control (NTC) and remove NTC samples from OTU table"></a></label>
-					<input data-mini="true" type="text" name="edge-qiime-substract-ntc" id="edge-qiime-substract-ntc" placeholder="e.g: NTC_ID_01">
-				</div>
-				<div class="ui-field-contain">
-					<fieldset data-role="controlgroup" data-type="horizontal">
-						<legend>Taxonomy Summary Chart Type</legend>
-						<input type="checkbox" data-mini="true" name="edge-qiime-taxa-charttype" id="edge-qiime-taxa-charttype-1" value="area" checked="checked">
-						<label for="edge-qiime-taxa-charttype-1">Area-plot</label>
-						<input type="checkbox" data-mini="true" name="edge-qiime-taxa-charttype" id="edge-qiime-taxa-charttype-2" value="bar" checked="checked">
-						<label for="edge-qiime-taxa-charttype-2">Bar-plot</label>
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Auto-Adjust Sampling Depth<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Automatically adjust the sampling to the minimum sequences count of all samples. The minimum > sampling Depth option above. If no sample has depth > sampling Depth option, it will use the maximum sample (only one sample will be used.)"></a></legend>
+						<input type="radio" data-mini="true" name="edge-qiime-autoDepth" id="edge-qiime-autoDepth1" value="1" checked="checked">
+						<label for="edge-qiime-autoDepth1">Yes</label>
+						<input type="radio" data-mini="true" name="edge-qiime-autoDepth" id="edge-qiime-autoDepth2" value="0">
+						<label for="edge-qiime-autoDepth2">No</label>
 					</fieldset>
  				</div>
-
 				</ol>
 
 			</div>
