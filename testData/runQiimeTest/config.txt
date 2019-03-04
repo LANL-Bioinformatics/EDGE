@@ -177,22 +177,23 @@ DoJBrowse=0
 DoQiimeAnalysis=1
 qiime_amplicon_type=GreenGenes
 qiime_input_dir=
-qiime_paired_reads_orientation=fr
-qiime_mapping_file=map.txt
-qiime_barcode_file=barcodes.fastq.gz
-qiime_barcode_len=12
-qiime_phred_offset=64
-qiime_q_threshold=19
+qiime_mapping_file=/panfs/biopan01/edge_prod/edge_ui/EDGE_input/717a7b442758ab656e87122f864c9c4d/PublicData/testData/runQiimeTest/map.txt
+qiime_barcode_file=/panfs/biopan01/edge_prod/edge_ui/EDGE_input/717a7b442758ab656e87122f864c9c4d/PublicData/testData/runQiimeTest/barcodes.fastq.gz
+qiime_phred_offset=33
+qiime_sampling_depth=1000
+qiime_qcMethod=dada2
+qiime_trimLeftForward=20
+qiime_trimLeftReverse=20
+qiime_truncLenForward=0
+qiime_truncLenReverse=0
+qiime_trimLen=20
+qiime_truncLen=0
+qiime_autoDepth=1
+qiime_q_threshold=4
 qiime_max_n=1
 qiime_min_per_read_length_fraction=0.5
-qiime_UPARSE=0
-qiime_minimum_otu_size=2
-qiime_similarity=0.94
-qiime_sampling_depth=1000
-qiime_filter_taxa=
-qiime_substract_ntc=
 
 
 
 [HTML Report]
-DoHTMLReport=1
+eoHTMLReport=1

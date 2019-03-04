@@ -526,15 +526,16 @@ if __name__ == '__main__':
     
     os.chdir(abs_output)
     
-    if not os.path.isfile('input/index.html'):
-    	mappingfileTable_cmd=('qiime metadata tabulate --m-input-file %s --o-visualization input/sample-metadata.qzv') % (mappingFile)
-    	process_cmd(mappingfileTable_cmd,"Sample metadata summary")
-    	qiime_export_html('input/sample-metadata.qzv','input')
 
     # Import Reads Data
     if not os.path.isfile('input/input.qza'):
         process_cmd(import_cmd,"Importing reads")
     
+    # smaple metadata to index.html
+    if not os.path.isfile('input/index.html'):
+    	mappingfileTable_cmd=('qiime metadata tabulate --m-input-file %s --o-visualization input/sample-metadata.qzv') % (mappingFile)
+    	process_cmd(mappingfileTable_cmd,"Sample metadata summary")
+    	qiime_export_html('input/sample-metadata.qzv','input')
     ## Demultiplex
     if not os.path.isfile('demux/index.html'):
         mkdir_p('demux')
@@ -675,7 +676,7 @@ if __name__ == '__main__':
             shutil.rmtree('DiversityAnalysis')
         diversity_cmd = ("qiime diversity core-metrics-phylogenetic --i-phylogeny PhyloAnalysis/rooted-tree.qza --i-table QCandFT/table.qza "
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
-                         "--p-n-jobs %d " ) % (samplingDepth,mappingFile,argvs.cpus)
+                         "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
         process_cmd(diversity_cmd, 'Alpha and Beta diversity analyses')
         qiime_export_html('DiversityAnalysis/unweighted_unifrac_emperor.qzv','DiversityAnalysis/unweighted_unifrac_emperor')
         qiime_export_html('DiversityAnalysis/jaccard_emperor.qzv','DiversityAnalysis/jaccard_emperor')

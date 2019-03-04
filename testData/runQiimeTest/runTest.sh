@@ -8,8 +8,8 @@ fi
 test_result(){
 	MainErrLog=$rootdir/TestOutput/error.log
 	TestLog=$rootdir/TestOutput/QiimeAnalysis/errorLog.txt
-	Test=$rootdir/TestOutput/QiimeAnalysis/analysis/biom_table_summary.txt
-	Expect=$rootdir/biom_table_summary.txt
+	Test=$rootdir/TestOutput/QiimeAnalysis/TaxonomyAnalysis/Table/metadata.tsv
+	Expect=$rootdir/metadata.tsv
 	testName="EDGE Qiime Analysis pipeline test";
 	if cmp -s "$Test" "$Expect"
 	then

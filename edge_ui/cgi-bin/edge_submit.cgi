@@ -556,15 +556,13 @@ sub runPipeline_cluster {
 		$num_cpu = $cluster_job_max_cpu;
 	}
 
+
 	if($cluster_job_resource =~ /<CPU\/2>/) {
 		#uge
-		if($num_cpu %2 == 1) {
-			$num_cpu --;
-		}
-
-		my $binding_cpu = $num_cpu/2;
+		my $binding_cpu = ($num_cpu %2 == 1)? ($num_cpu-1)/2 : $num_cpu/2;
 		$cluster_job_resource =~ s/<CPU\/2>/$binding_cpu/;
 	}
+
 	$cluster_job_resource =~ s/<CPU>/$num_cpu/;
 
 	foreach my $pname (@pnames){
