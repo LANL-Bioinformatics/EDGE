@@ -488,11 +488,13 @@ if __name__ == '__main__':
         else:
             process_cmd('gzip -c ' + argvs.barcode[0] + ' > ' + input_path + '/barcodes.fastq.gz')
         if argvs.single:
+            read_type='se'
             if argvs.single[0].lower().endswith('.gz'):
                 symlink_force(os.path.abspath(argvs.single[0]), input_path + '/sequences.fastq.gz')
             else:
                 process_cmd('gzip -c ' + argvs.single[0] + ' > ' + input_path + '/sequences.fastq.gz')
         elif argvs.paired:
+            read_type='pe'
             demux_type = 'emp-paired'
             import_type = 'EMPPairedEndSequences'
             if argvs.paired[0].lower().endswith('.gz'):
