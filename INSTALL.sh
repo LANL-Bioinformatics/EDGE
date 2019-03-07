@@ -2366,7 +2366,7 @@ fi
 
 if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
 then
-  qiime2_VER=`$anaconda2bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
   if ( echo $qiime2_VER | awk '{if($1 >="2019.1") exit 0; else exit 1}' )
   then
     echo "QIIME2 $qiime2_VER is found"
