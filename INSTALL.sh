@@ -2029,7 +2029,7 @@ fi
 if ( checkLocalInstallation centrifuge )
 then
   centrifuge_VER=`centrifuge --version | grep "centrifuge-class version" | perl -nle 'print $1 if m{(\d+\.\d+\.\d+)}'`;
-  if  ( echo $centrifuge_VER | awk '{if($1>=1.0.4) exit 0; else exit 1}' )
+  if  ( echo $centrifuge_VER | awk '{if($1>="1.0.4") exit 0; else exit 1}' )
   then
     echo "centrifuge $centrifuge_VER found"
   else
@@ -2178,7 +2178,7 @@ fi
 if ( checkSystemInstallation spades.py )
 then
   spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
-  if ( echo $spades_VER | awk '{if($1>="3.9.0") exit 0; else exit 1}' )
+  if ( echo $spades_VER | awk '{if($1>="3.11.0") exit 0; else exit 1}' )
   then
     echo "SPAdes $spades_VER found"
   else
@@ -2262,9 +2262,9 @@ else
   install_gottcha
 fi
 
-if [ -x "$rootdir/thirParty/gottcha2/gottcha2.py" ]
+if [ -x "$rootdir/thirdParty/gottcha2/gottcha2.py" ]
 then
-  gottcha2_VER=`$rootdir/thirParty/gottcha2/gottcha.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
+  gottcha2_VER=`$rootdir/thirdParty/gottcha2/gottcha2.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
   if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
   then
     echo "GOTTCHA2 $gottcha2_VER is found"
@@ -2276,9 +2276,9 @@ else
   install_gottcha2
 fi
 
-if [ -x "$rootdir/thirParty/miccr/miccr.py" ]
+if [ -x "$rootdir/thirdParty/miccr/miccr.py" ]
 then
-  miccr_VER=`$rootdir/thirParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
+  miccr_VER=`$rootdir/thirdParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
   if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
   then
     echo "miccr $miccr_VER is found"
@@ -2290,9 +2290,9 @@ else
   install_miccr
 fi
 
-#if [ -x "$rootdir/thirParty/pangia/pangia.py" ]
+#if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
 #then
-#  pangia_VER=`$rootdir/thirParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+#  pangia_VER=`$rootdir/thirdParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
 #  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
 #  then
 #    echo "PANGIA $pangia_VER is found"
