@@ -87,7 +87,7 @@ foreach my $acc ( @ARGV ){
 	print STDERR "Processing $acc ($sra_type)...\n";
 
 	#gathering reads information from NCBI-SRA / EBI-ENA
-	$readInfo = getReadInfo( $acc, $readInfo); #retrieve runs infor for each accession
+	$readInfo = getReadInfo( $acc, $readInfo, $sra_type); #retrieve runs infor for each accession
 
 	if( !defined $readInfo->{$acc} ){
 		die "ERROR: No sequence found. Please check if $acc is a valid SRA/ERA/DRA number or your internet connection.\n";
@@ -355,7 +355,7 @@ sub getEnaFastq {
 
 
 sub getReadInfo {
-	my ($acc, $readInfo) = @_;
+	my ($acc, $readInfo, $sra_type) = @_;
 	my $url;
 	my $web_result;
 	my @lines;
@@ -384,7 +384,7 @@ sub getReadInfo {
 		my $platform = $f[18]; #platform
 		my $library  = $f[15]; #LibraryLayout
 		my $url      = $f[9];  #download_path
-
+		next if ($sra_type eq "ByRun" && $run_acc !~ /$acc/i);
 		print STDERR "Run $run_acc has size 0 MB\n" if (!$size_MB);
 	
 		$readInfo->{$acc}->{$run_acc}->{exp_acc}  = $exp_acc;
@@ -425,6 +425,7 @@ sub getReadInfo {
 		my @url  = split ';', $f[29]; #fastq_ftp
 		my @md5  = split ';', $f[28]; #fastq_md5
 		my @size = split ';', $f[27]; #fastq_bytes
+		next if ($sra_type eq "ByRun" && $run_acc !~ /$acc/i);
 
 		$readInfo->{$acc}->{$run_acc}->{platform} = $platform;
 		$readInfo->{$acc}->{$run_acc}->{exp_acc}  = $exp_acc;
