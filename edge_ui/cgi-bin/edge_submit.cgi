@@ -510,7 +510,7 @@ sub runPipeline {
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		unless ($pipeline eq 'qiime' &&  -d $edge_qiime_input_dir){
+		unless ($pipeline eq 'qiime' &&  -d $opt{"edge-qiime-reads-dir-input"}){
  			$process_parameters .= " -p $paired_files " if ($paired_files);
  			$process_parameters .= " -u $single_files " if ($single_files);
  		}
@@ -591,7 +591,7 @@ sub runPipeline_cluster {
 			$single_files = join " ", @edge_input_se;
 		}
 		$process_parameters .= " --debug " if ($debug);
-		unless ($pipeline eq 'qiime' &&  -d $edge_qiime_input_dir){
+		unless ($pipeline eq 'qiime' &&  -d $opt{"edge-qiime-reads-dir-input"}){
  			$process_parameters .= " -p $paired_files " if ($paired_files);
  			$process_parameters .= " -u $single_files " if ($single_files);
  		}
