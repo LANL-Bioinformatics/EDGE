@@ -725,9 +725,13 @@ if __name__ == '__main__':
         qiime_export_html('TaxonomyAnalysis/taxa-bar-plots.qzv','TaxonomyAnalysis/barplots')
 
     
-    ## Creating a OTU table with taxonomy annotations
-    if os.path.isfile('QCandFT/table-summary/feature-table.tsv') and os.path.isfile('TaxonomyAnalysis/Table/metadata.tsv'):
-        ft=pd.read_csv('QCandFT/table-summary/feature-table.tsv',delimiter='\t',encoding='utf-8',header=1)
+    ## Creating a OTU table with taxonomy annotations use rarefied_table
+    if not os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv'):
+        qiime_export_html('DiversityAnalysis/rarefied_table.qza','DiversityAnalysis/rarefied-table-summary')
+        biom_otu_cmd=('biom convert -i %s -o %s --to-tsv') % ("DiversityAnalysis/rarefied-table-summary/feature-table.biom","DiversityAnalysis/rarefied-table-summary/feature-table.tsv")
+        process_cmd(biom_otu_cmd, 'Generate Biom OTU Rarefied FeatureTable')
+    if os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv') and os.path.isfile('TaxonomyAnalysis/Table/metadata.tsv'):
+        ft=pd.read_csv('DiversityAnalysis/rarefied-table-summary/feature-table.tsv',delimiter='\t',encoding='utf-8',header=1)
         tax=pd.read_csv('TaxonomyAnalysis/Table/metadata.tsv',delimiter='\t',encoding='utf-8',skiprows=[1])
         if not os.path.isfile('TaxonomyAnalysis/Table/feature-table-taxanomy.tsv'):
             ft.merge(tax,left_on='#OTU ID',right_on='id').drop(['id'],axis=1).to_csv("TaxonomyAnalysis/Table/feature-table-taxanomy.tsv",sep="\t",index=False)
