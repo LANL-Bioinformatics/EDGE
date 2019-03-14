@@ -827,8 +827,8 @@ tar xvzf glimmer302b.tar.gz
 cd glimmer3.02/SimpleMake
 make
 cp ../bin/* $rootdir/bin/.
-cp ../scripts/* $rootdir/scripts/.
-for i in $rootdir/scripts/*.csh
+cp ../scripts/* $rootdir/bin/.
+for i in $rootdir/bin/*.csh
 do 
  sed -i.bak 's!/fs/szgenefinding/Glimmer3!'$rootdir'!' $i
  sed -i.bak 's!/fs/szgenefinding/Glimmer3!'$rootdir'!' $i
