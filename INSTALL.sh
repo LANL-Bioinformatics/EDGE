@@ -264,7 +264,7 @@ echo "
 }
 
 install_lrasm(){
-local VER=0.1.0
+local VER=0.2.0
 echo "------------------------------------------------------------------------------
                            Installing long_read_assembly $VER
 ------------------------------------------------------------------------------
@@ -941,7 +941,7 @@ echo "
 
 install_minimap2()
 {
-local VER=2.10
+local VER=2.16
 echo "------------------------------------------------------------------------------
                            Compiling minimap2 $VER
 ------------------------------------------------------------------------------
@@ -2087,7 +2087,7 @@ fi
 if ( checkSystemInstallation minimap2 )
 then
   minimap2_VER=`minimap2 --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+)}'`;
-  if  ( echo $minimap2_VER | awk '{if($1>="2.10") exit 0; else exit 1}' )
+  if  ( echo $minimap2_VER | awk '{if($1>="2.16") exit 0; else exit 1}' )
   then
     echo "minimap2 $minimap2_VER found"
   else
@@ -2204,7 +2204,7 @@ else
   install_megahit
 fi
 
-if ( checkSystemInstallation lrasm  )
+if ( checkSystemInstallation racon  )
 then
   racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
   if ( echo $racon_installed_VER | awk '{if($1>=1.3.1) exit 0; else exit 1}' )
@@ -2221,7 +2221,7 @@ fi
 if ( checkSystemInstallation lrasm  )
 then
   lrasm_VER=`lrasm --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if  ( echo $lrasm_VER | awk '{if($1>="0.1.0") exit 0; else exit 1}' )
+  if  ( echo $lrasm_VER | awk '{if($1>="0.2.0") exit 0; else exit 1}' )
   then
     echo "lrasm $lrasm_VER found"
   else
