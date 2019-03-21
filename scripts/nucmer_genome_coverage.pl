@@ -58,7 +58,7 @@ if ($delta_file)
 }
 else
 {
-   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile ");
+   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile 2>/dev/null");
    system ("show-coords -clTr $prefix.delta > $prefix.coords");
    system ("delta-filter -1 -i $identity_cutoff $prefix.delta > $prefix.filterforSNP");
    system ("show-snps -CT $prefix.filterforSNP > $prefix.snps");
@@ -499,7 +499,7 @@ sub SNP_INDEL_COUNT
         {
 		if ($r_base eq '.'){ #insertion
                         $indel{$r_tag}->{$r_position}->{seq} .= $q_base;
-			$count{$r_tag}->{INDELs}++;
+			#$count{$r_tag}->{INDELs}++;
                 }
                 if ($q_base eq '.'){ # deletion
                         if ($indel{$r_tag}->{$r_position-$delet_base})
@@ -507,7 +507,7 @@ sub SNP_INDEL_COUNT
                                 $r_position = $r_position - $delet_base;
                                 $indel{$r_tag}->{$r_position}->{seq}.= $r_base;
                                 $delet_base++;
-				$count{$r_tag}->{INDELs}++;
+			#	$count{$r_tag}->{INDELs}++;
                         }else {
                                 $indel{$r_tag}->{$r_position}->{seq}.= $r_base;
                                 $delet_base=1;
@@ -520,6 +520,7 @@ sub SNP_INDEL_COUNT
     close $fh;
     foreach my $id (keys %indel){
         my %pos = %{$indel{$id}};
+	$count{$id}->{INDELs} = scalar (keys %pos);
         $Indels_count += scalar (keys %pos);
     }
     return ($SNPs_count, $Indels_count,\%count);

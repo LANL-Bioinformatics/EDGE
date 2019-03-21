@@ -1136,9 +1136,9 @@ sub pull_reports {
 								$reports_map{$project}{'ref-mapped-contigs'} = $1;
 								next;
 							}
-							if(/<tr><td>Proportion<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_PROPORTION_PCT} = $1;
-								$reports_map{$project}{'ref-proportion-pct'} = $1;
+							if(/<tr><td>Contigs That Mapped With > 85% Identity<\/td><td>(.*)<\/td><\/tr>/) {
+								$proj->{REF_MAPPED_CONTIGS_PASS} = $1;
+								$reports_map{$project}{'ref-mapped-contigs-pass'} = $1;
 								next;
 							}
 							if(/<tr><td>Average Fold<\/td><td>(.*)<\/td><\/tr>/) {
@@ -2553,17 +2553,17 @@ sub create_ref_reads_stats_csv {
 sub create_ref_contigs_stats_csv {
 	my $file_name = shift;
 	#get header
-	my $content = "Project/Run Name,Number of Mapped Contigs,Proportion,Average Fold,Linear Coverage,Average Identity,SNPs,InDels\n";
+	my $content = "Project/Run Name,Number of Mapped Contigs,Contigs That Mapped With > 85% Identity,Average Fold,Linear Coverage,Average Identity,SNPs,InDels\n";
 	#get runs
 	my $celltext;
 	foreach my $project (@projects) {
 		($celltext = $reports_map{$project}{'run-name'}) =~ s/"/""/g;
 		$content .= "\"$celltext\"".",";
 
-		($celltext = $reports_map{$project}{'ref-mapped-contigs'}) =~ s/,|\s+|bp//g;
+		($celltext = $reports_map{$project}{'ref-mapped-contigs'}) =~ s/,|bp//g;
 		$content .= "\"$celltext\"".",";
 
-		($celltext = $reports_map{$project}{'ref-proportion-pct'}) =~ s/,|\s+|bp//g;
+		($celltext = $reports_map{$project}{'ref-mapped-contigs-pass'}) =~ s/,|bp//g;
 		$content .= "\"$celltext\"".",";
 
 		($celltext = $reports_map{$project}{'ref-contig-avg-fold'}) =~ s/,|\s+|bp//g;

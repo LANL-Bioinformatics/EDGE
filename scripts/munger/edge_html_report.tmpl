@@ -799,8 +799,8 @@
 						</tr>
 					  </thead>
 					  <tbody>
-						<tr><td>Number of Mapped Contigs</td><td><TMPL_VAR NAME=CMMAPPED DEFAULT=-></td></tr>
-						<tr><td>Proportion</td><td><TMPL_VAR NAME=CMMAPPEDPCT DEFAULT=->%</td></tr>
+						<tr><td>Number of Mapped Contigs</td><td><TMPL_VAR NAME=CMMAPPED DEFAULT=-> (<TMPL_VAR NAME=CMMAPPEDPCT DEFAULT=->%)</td></tr>
+						<tr><td>Contigs That Mapped With > 85% Identity</td><td><TMPL_VAR NAME=CMMAPPEDPASS DEFAULT=-> (<TMPL_VAR NAME=CMMAPPEDPASSPCT DEFAULT=->%)</td></tr>
 						<tr><td>Average Fold</td><td><TMPL_VAR NAME=CMAVEFOLD DEFAULT=->X</td></tr>
 						<tr><td>Linear Coverage</td><td><TMPL_VAR NAME=CMREFCOV DEFAULT=-></td></tr>
 						<tr><td>Average Identity</td><td><TMPL_VAR NAME=CMREFIDY DEFAULT=-></td></tr>

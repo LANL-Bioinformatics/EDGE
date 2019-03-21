@@ -839,7 +839,7 @@ sub pull_contigmapping {
 
 	return unless -e "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table";
 	my $ref_display_limit = 100;
-	my ($tol_ref_number, $tol_ref_hashit) = (0,0);
+	my ($tol_ref_number, $tol_ref_hashit, $over85id_map_count) = (0,0,0);
 	my $cnt=0;
 	open(my $reffh, "<", "$out_dir/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_avg_coverage.table") or die $!;
 	while(<$reffh>) {
@@ -858,11 +858,14 @@ sub pull_contigmapping {
 				$refinfo->{"CMREFMAPPEDPCT"}= sprintf "%.2f", $temp[3]/$vars->{CMREADS}*100;
 				push @{$vars->{LOOP_CMREF}}, $refinfo;
 			}
+			$over85id_map_count += $temp[3];
 			$tol_ref_hashit++ if $temp[3];
 			$tol_ref_number++;
 		}
 	}
 	close($reffh);
+	$vars->{CMMAPPEDPASS} = $over85id_map_count;
+	$vars->{CMMAPPEDPASSPCT} = sprintf "%.2f", $over85id_map_count/$vars->{CMREADS}*100;
 	$vars->{CMREFTOLREF}      = $tol_ref_number;
 	$vars->{CMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{CMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
