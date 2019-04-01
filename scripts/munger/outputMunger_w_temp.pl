@@ -1959,6 +1959,10 @@ sub pull_summary {
 			push @INFILES, $1 if $1;
 			$vars->{INPUTCONTIG}=$1;
 		}
+		if (/^lrasm_algorithm=(.*)/){
+			my $lrasm_algorithm = $1;
+			$vars->{ASSEMBLER}="lrasm-$lrasm_algorithm" if ($vars->{ASSEMBLER} =~ /lrasm/);
+		}
 		if (/^fastqjoin-usejoined-only=(.*)/){
 			$vars->{JOINEDPEONLY}=$1;
 		}

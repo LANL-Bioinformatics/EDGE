@@ -3422,6 +3422,7 @@ sub runAssembly
 		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
 		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
 		$cmd .= " -e" if $configuration->{lrasm_ec};
+		$cmd .= " -a $configuration->{lrasm_algorithm} " if ($configuration->{lrasm_algorithm});
 		$cmd .= " $unpairFile " if (-s $unpairFile);
 		$cmd .= " 2>/dev/null";
     }

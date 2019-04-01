@@ -438,8 +438,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<label for="edge-qiime-at-sw1">16s (GreenGenes)</label>
 							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw2" value="SILVA">
 							<label for="edge-qiime-at-sw2">16s/18s (SILVA)</label>
-							<!--<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="SILVA-V3-V4">
-							<label for="edge-qiime-at-sw3">16s V3-V4 (SILVA)</label>-->
+							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw3" value="SILVA-V3-V4">
+							<label for="edge-qiime-at-sw3">16s V3-V4 (SILVA)</label>
 							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw4" value="ITS">
 							<label for="edge-qiime-at-sw4">Fungal ITS</label>
 						</fieldset>
@@ -1046,7 +1046,16 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<p class="edge_tool_note">LRASM is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Error Correction</legend>
+					<legend>Algorithm<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-lrasm-algorithm-tooltip"></a></legend>
+					<input type="radio" name="edge-lrasm-algorithm" id="edge-lrasm-algorithm1" value="miniasm" checked="checked">
+					<label for="edge-lrasm-algorithm1">miniasm</label>
+					<input type="radio" name="edge-lrasm-algorithm" id="edge-lrasm-algorithm2" value="wtdbg2">
+					<label for="edge-lrasm-algorithm2">wtdbg2</label>
+				</fieldset>
+				</div>
+				<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Error Correction<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info      ui-btn-icon-notext my-tooltip-btn" title="Reads Error-correction by racon using all-vs-all pairwise overlaps between reads including dual overlaps. This step is computationally intensive in terms of memory and time usage."></a></legend>
 					<input type="radio" name="edge-lrasm-ec" id="edge-lrasm-ec1" value="1">
 					<label for="edge-lrasm-ec1">Yes</label>
 					<input type="radio" name="edge-lrasm-ec" id="edge-lrasm-ec2" value="0" checked="checked">
