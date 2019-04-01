@@ -1541,10 +1541,10 @@ $( document ).ready(function()
 					// display error information
 					if(! $.isEmptyObject(obj.PARAMS)){
 						$.each(obj.PARAMS, function(i,v){
-							$("#"+i).addClass("highlight");
-							$("#"+i).parents('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
+							$("input[id^='"+i+"']").addClass("highlight");
+							$("input[id^='"+i+"']").parents('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
 							$( "#edge-submit-info" ).fadeIn("fast");
-							var label = $("label[for='"+i+"']").text();
+							var label = $("label[for^='"+i+"']").text();
 							var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>"+label+": "+v+"</a></li>";
 							
 							$(dom).appendTo("#edge-submit-info").on("click", function(){
