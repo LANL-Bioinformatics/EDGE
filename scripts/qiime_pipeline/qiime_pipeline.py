@@ -488,11 +488,13 @@ if __name__ == '__main__':
         else:
             process_cmd('gzip -c ' + argvs.barcode[0] + ' > ' + input_path + '/barcodes.fastq.gz')
         if argvs.single:
+            read_type='se'
             if argvs.single[0].lower().endswith('.gz'):
                 symlink_force(os.path.abspath(argvs.single[0]), input_path + '/sequences.fastq.gz')
             else:
                 process_cmd('gzip -c ' + argvs.single[0] + ' > ' + input_path + '/sequences.fastq.gz')
         elif argvs.paired:
+            read_type='pe'
             demux_type = 'emp-paired'
             import_type = 'EMPPairedEndSequences'
             if argvs.paired[0].lower().endswith('.gz'):
@@ -526,15 +528,16 @@ if __name__ == '__main__':
     
     os.chdir(abs_output)
     
-    if not os.path.isfile('input/index.html'):
-    	mappingfileTable_cmd=('qiime metadata tabulate --m-input-file %s --o-visualization input/sample-metadata.qzv') % (mappingFile)
-    	process_cmd(mappingfileTable_cmd,"Sample metadata summary")
-    	qiime_export_html('input/sample-metadata.qzv','input')
 
     # Import Reads Data
     if not os.path.isfile('input/input.qza'):
         process_cmd(import_cmd,"Importing reads")
     
+    # smaple metadata to index.html
+    if not os.path.isfile('input/index.html'):
+    	mappingfileTable_cmd=('qiime metadata tabulate --m-input-file %s --o-visualization input/sample-metadata.qzv') % (mappingFile)
+    	process_cmd(mappingfileTable_cmd,"Sample metadata summary")
+    	qiime_export_html('input/sample-metadata.qzv','input')
     ## Demultiplex
     if not os.path.isfile('demux/index.html'):
         mkdir_p('demux')
@@ -675,7 +678,7 @@ if __name__ == '__main__':
             shutil.rmtree('DiversityAnalysis')
         diversity_cmd = ("qiime diversity core-metrics-phylogenetic --i-phylogeny PhyloAnalysis/rooted-tree.qza --i-table QCandFT/table.qza "
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
-                         "--p-n-jobs %d " ) % (samplingDepth,mappingFile,argvs.cpus)
+                         "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
         process_cmd(diversity_cmd, 'Alpha and Beta diversity analyses')
         qiime_export_html('DiversityAnalysis/unweighted_unifrac_emperor.qzv','DiversityAnalysis/unweighted_unifrac_emperor')
         qiime_export_html('DiversityAnalysis/jaccard_emperor.qzv','DiversityAnalysis/jaccard_emperor')
@@ -722,9 +725,13 @@ if __name__ == '__main__':
         qiime_export_html('TaxonomyAnalysis/taxa-bar-plots.qzv','TaxonomyAnalysis/barplots')
 
     
-    ## Creating a OTU table with taxonomy annotations
-    if os.path.isfile('QCandFT/table-summary/feature-table.tsv') and os.path.isfile('TaxonomyAnalysis/Table/metadata.tsv'):
-        ft=pd.read_csv('QCandFT/table-summary/feature-table.tsv',delimiter='\t',encoding='utf-8',header=1)
+    ## Creating a OTU table with taxonomy annotations use rarefied_table
+    if not os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv'):
+        qiime_export_html('DiversityAnalysis/rarefied_table.qza','DiversityAnalysis/rarefied-table-summary')
+        biom_otu_cmd=('biom convert -i %s -o %s --to-tsv') % ("DiversityAnalysis/rarefied-table-summary/feature-table.biom","DiversityAnalysis/rarefied-table-summary/feature-table.tsv")
+        process_cmd(biom_otu_cmd, 'Generate Biom OTU Rarefied FeatureTable')
+    if os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv') and os.path.isfile('TaxonomyAnalysis/Table/metadata.tsv'):
+        ft=pd.read_csv('DiversityAnalysis/rarefied-table-summary/feature-table.tsv',delimiter='\t',encoding='utf-8',header=1)
         tax=pd.read_csv('TaxonomyAnalysis/Table/metadata.tsv',delimiter='\t',encoding='utf-8',skiprows=[1])
         if not os.path.isfile('TaxonomyAnalysis/Table/feature-table-taxanomy.tsv'):
             ft.merge(tax,left_on='#OTU ID',right_on='id').drop(['id'],axis=1).to_csv("TaxonomyAnalysis/Table/feature-table-taxanomy.tsv",sep="\t",index=False)
