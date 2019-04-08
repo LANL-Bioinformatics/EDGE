@@ -1391,13 +1391,14 @@ sub count_fasta {
 	my $file = shift;
 	my $count=0;
 	my $FASTA;
+	my $grep = ( $file=~/\.gz$/i )?"zgrep":"grep";
 	if (is_fasta($file)){
 		open ($FASTA, "-|")
-			or exec ("grep", "-c", ">", $file);
+			or exec ($grep, "-c", ">", $file);
 	}
 	if (is_genbank($file)){
 		open ($FASTA, "-|")
-			or exec ("grep", "-c", "^LOCUS", $file);
+			or exec ($grep, "-c", "^LOCUS", $file);
 	}
 	while(<$FASTA>){chomp; $count = $_;}
 	close $FASTA;
