@@ -1101,6 +1101,10 @@ $( document ).ready(function()
 		}
 		else if (action == "reconfig"){
 			$( "div.edge-action-panel" ).panel('close');
+			if (focusProjStatus == "running"){
+				showWarning("Project still runinng. Reconfig project later");
+				return false;
+			}
 			reconfig( focusProjConfigFile );
 		}
 		else{
