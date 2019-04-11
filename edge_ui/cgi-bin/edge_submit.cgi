@@ -607,7 +607,7 @@ sub runPipeline_cluster {
 			} elsif (/<JOB_RESOURCE_REQUEST>/) {
 				s/<JOB_RESOURCE_REQUEST>/$cluster_job_resource/;
 			} elsif(/<JOB_NOTIFY>/) {
-				s/<JOB_NOTIFY>/$cluster_job_notify/;
+				s/<JOB_NOTIFY>/$cluster_job_notify,$username/;
 			} elsif (/<JOB_LOG>/) {
 				s/<JOB_LOG>/$cluster_job_log/;
 			} elsif (/<COMMAND>/) {
