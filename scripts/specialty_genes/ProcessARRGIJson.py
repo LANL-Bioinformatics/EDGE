@@ -288,7 +288,7 @@ def getGFFInfo (rgiHitList, gffTableList, outGFFList, outCoordsList, idList):
 			newAttributeList.append("rgi_ARO_categories=" + aroCategories)
 			newAttributeList.append("rgi_best_bitscore=" + bestHitBitScore)
 			newAttributeList.append("rgi_best_evalue=" + bestHitEvalue)
-			newAttributeList.append("Card_rotein_sequence=" + cardProtein)
+			newAttributeList.append("Card_protein_sequence=" + cardProtein)
 			newAttributeList.append("rgi_protein_sequence=" + predictedProtein)
 			gffAttributes = ";".join(newAttributeList)
 			gffRGIEntry = [gffSeqName, gffSource, gffFeature, gffStart, gffStop, gffScore, gffStrand, gffFrame,

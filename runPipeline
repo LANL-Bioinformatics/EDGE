@@ -732,6 +732,8 @@ sub runSpecialtyGenesProfiling {
             $cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
 	    &lprint ("	Running \n $cmd \n");
             &executeCommand($cmd);
+	    $cmd = "python $RealBin/scripts/specialty_genes/gff_to_faa.py $annotationFAA $outputDir/${project_name}_AR_genes_rgi.gff > $outputDir/${project_name}_AR_genes_rgi.faa";
+            &executeCommand($cmd) if ( -s "$outputDir/${project_name}_AR_genes_rgi.gff");
 	
 	# VF
        $cmd = "$ShortBRED_PATH/shortbred_quantify.py --genome $annotationFAA --markers $VF_markers --results $outputDir/${project_name}_VF_genes_ShortBRED.txt --tmp $outputDir/${project_name}_VF_genes_tmp --marker_results $outputDir/${project_name}_VF_genes_markers.txt --SBhits $outputDir/${project_name}_VF_genes_SBhits.txt --search_program $search_tool --id $identity --threads $numCPU 1>>$log 2>&1";
@@ -740,6 +742,8 @@ sub runSpecialtyGenesProfiling {
        $cmd = "python $RealBin/scripts/specialty_genes/ProcessVFSBResults.py -t orf -m $VFDB_ini -i $outputDir/${project_name}_VF_genes_ShortBRED.txt -s $outputDir/${project_name}_VF_genes_SBhits.txt -g $annotationGFF -p $outputDir/${project_name}_VF_genes_ShortBRED 1>>$log 2>&1";
       	 	&lprint ("  Running \n  $cmd \n");
        		&executeCommand($cmd);
+		$cmd = "python $RealBin/scripts/specialty_genes/gff_to_faa.py $annotationFAA $outputDir/${project_name}_VF_genes_ShortBRED.gff > $outputDir/${project_name}_VF_genes_ShortBRED.faa";
+		&executeCommand($cmd) if (-s "$outputDir/${project_name}_VF_genes_ShortBRED.gff");
        	&touchFile("$outputDir/runSpecialtyGenesProfiling.finished");
     }
     &printRunTime($time);
