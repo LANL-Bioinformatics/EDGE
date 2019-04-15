@@ -1875,7 +1875,7 @@ sub runAnnotation
 	    # convert genbank to embl for RATT annotation transfer
 	    copy("$sourceGBK", "$outputDir_abs_path/RATT/source/source.gbk");
   	    &executeCommand("genbank2embl.pl $outputDir_abs_path/RATT/source/source.gbk 2>/dev/null");
-            $cmd = ("$RealBin/scripts/runRATT.sh $ref_abs_path $contig_abs_path $project_name Species 1>$log 2>\&1 ");
+            $cmd = ("$RealBin/scripts/Annotation/runRATT.sh $ref_abs_path $contig_abs_path $project_name Species 1>$log 2>\&1 ");
 	}
     }
     if ($annotateProgram =~ /prokka/i)
@@ -1889,7 +1889,7 @@ sub runAnnotation
     if ($annotateProgram =~ /RATT/i)
     { 
 	chdir $outputDir_abs_path;
-        &executeCommand("cat $outputDir_abs_path/RATT/*final.embl | embl2genbank.pl - $outGenbank" );
+	&executeCommand("cat $outputDir_abs_path/RATT/*final.embl | $RealBin/scripts/Annotation/fix_RATT_embl_feature.pl - > RATT/all.embl && embl2genbank.pl RATT/all.embl $outGenbank 2>/dev/null" );
 	&executeCommand("genbank2fasta.pl -translation $outGenbank > $outFAA");
 	&executeCommand("genbank2fasta.pl -genome $outGenbank > $outFNA");
         &executeCommand("$RealBin/scripts/genbank2gff3.pl -e 3 --outdir stdout --typesource contig $outGenbank >$project_name.gff");
