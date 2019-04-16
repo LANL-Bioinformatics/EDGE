@@ -64,7 +64,7 @@ foreach my $hash_ref ( @projectlist) {
 	next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" );
 	my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
 	my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
-print "$processlog\n";
+#print "$processlog\n";
 		
 	if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
 		$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
@@ -86,7 +86,7 @@ print "$processlog\n";
 	if (!$list->{$id}->{PROJSTATUS}){
 		$list->{$id}->{PROJSTATUS} = $status;
 		$list->{$id}->{PROJSTATUS} = "Running" if ($status =~ /running/);
-		$list->{$id}->{PROJSTATUS} = "Failure" if ($status =~ /failure/);
+		$list->{$id}->{PROJSTATUS} = "failed" if ($status =~ /fail/);
 	}
 	$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
 	$list->{$id}->{REAL_PROJNAME} = $project_name if (!$list->{$id}->{REAL_PROJNAME});
@@ -247,7 +247,7 @@ sub pull_summary {
 		}
 		elsif( /failed/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";
-			$list->{$cnt}->{PROJSTATUS} = "Failure";
+			$list->{$cnt}->{PROJSTATUS} = "failed";
 		}
 		elsif( /All Done/){
 			$list->{$cnt}->{PROJSTATUS} = "Complete";
