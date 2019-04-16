@@ -16,7 +16,7 @@ $( document ).ready(function()
 	var focusProjRunningStep;
 	var focusProjInfo;
 
-	var interval = 1000*7; //check every 7 secs
+	var interval = 1000*15; //check every 7 secs
 	var updateProjInterval;
 	var updateLogInterval;
 	var checkpidInterval1;
@@ -1875,29 +1875,33 @@ $( document ).ready(function()
 				$('#btnAdd-edge-input-pe').hide();
 				$('.edge-input-pe-block').hide();
 				$('#edge-fastq-input-block > .edge-center').hide();
-				$('#edge-qc-minl').val('1000');
-				$('#splitrim-minq').val('7');
 				$('.edge-notnanopore-options').hide();
 				$('.edge-nanopore-options').show();
 				$( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
-				$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler4" ).click().checkboxradio("refresh");
-				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+				if (type != "reconfig"){
+					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler4" ).click().checkboxradio("refresh");
+					$('#edge-qc-minl').val('1000');
+					$('#splitrim-minq').val('7');
+					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+				}
 			}
 			if($('#edge-fastq-source-sw2').is(':checked')){
 				$('#btnAdd-edge-input-pe').show();
 				$('.edge-input-pe-block').show();
 				$('#edge-fastq-input-block > .edge-center').show();
-				$('#edge-qc-minl').val('50');
-				$('#splitrim-minq').val('20');
 				$('.edge-notnanopore-options').show();
 				$('.edge-nanopore-options').hide();
 				$( "a[data-id=edge-joinpe-parameters]").removeClass('ui-disabled');
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
-				$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
-				$( "#edge-r2g-aligner1, #edge-r2c-aligner1, #edge-assembler1" ).click().checkboxradio("refresh");
+				if (type != "reconfig"){
+					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
+					$( "#edge-r2g-aligner1, #edge-r2c-aligner1, #edge-assembler1" ).click().checkboxradio("refresh");
+					$('#edge-qc-minl').val('50');
+					$('#splitrim-minq').val('20');
+				}
 			}
 		});
 	};
@@ -2908,12 +2912,12 @@ $( document ).ready(function()
 				}
 				else if(  $('#'+key).data('role') == "slider" ){
 					$('#'+key).val(value).slider("refresh");
-					sync_input();
+					sync_input('reconfig');
 				}
 				else if(  $("input:radio[name="+key+"]").is(':radio') ){
 					
 					if( $("input:radio[name="+key+"]:checked").val() != value ){
-						$("input:radio[name="+ key +"][value="+ value  +"]").prop('checked', true)
+						$("input:radio[name="+ key +"][value="+ value  +"]").prop('checked', true);
 						$("input:radio[name="+key+"]").checkboxradio("refresh");
 						
 						//$("input:radio[name="+key+"]").trigger("change");
@@ -2967,6 +2971,7 @@ $( document ).ready(function()
 			});	
 
 			
+			sync_input('reconfig');
 			$( "#edge-content-pipeline").find( "input:radio[id^='edge']" ).each( function(){
 				if ($("label[for='" + $(this).attr('id') + "']").hasClass('ui-radio-on')){
 					$(this).trigger('change');
@@ -2981,7 +2986,7 @@ $( document ).ready(function()
 			// trigger all change / clicks
 			$( "#edge-content-pipeline").find( "div[id^='edge']" ).trigger('change');
 			$( ".edge-additional-options-toggle" ).trigger('click');
-			$(".edge-tabs").find("a").trigger('click');
+			$(".edge-tabs").find("a").first().trigger('click');
 			toggle_input_fields( "reconfig" );
 			integrityCheck();
 		});
