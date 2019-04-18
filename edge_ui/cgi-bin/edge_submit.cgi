@@ -377,6 +377,7 @@ sub createConfig {
 			$opt_orig->{"edge-input-se[]"} = $projlist->{$pname}->{"s"};
 			$opt_orig->{"edge-proj-desc"} = $projlist->{$pname}->{"description"};
 			$opt_orig->{"edge-proj-name"} = $real_names[$i];
+			$opt_orig->{"edge-ref-file"} = $projlist->{$pname}->{"reference"};
                 }
 		#backup config first
 		move ("$config_out", "$config_out.bak") if( -e $config_out );
@@ -440,9 +441,12 @@ sub createConfig {
 			$opt{'edge-qiime-mapping-files'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files && $pipeline eq "qiime";
 			$opt{'edge-targetedngs-samplefile'} = join ",", @edge_qiime_mapping_files if @edge_qiime_mapping_files && $pipeline eq "targetedngs";
 			$opt{'edge-qiime-barcode-fq-files'} = join ",", @edge_qiime_barcode_input if @edge_qiime_barcode_input;
-
-			$opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} if ($opt{"edge-batch-input-excel"});
-			$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname if ($opt{"edge-batch-input-excel"});
+			if ($opt{"edge-batch-input-excel"}){
+				$opt{"edge-proj-desc"} = $projlist->{$pname}->{"description"} ; 
+				$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname  ;
+				$opt{"edge-ref-file"} = $projlist->{$pname}->{"reference"} if ($projlist->{$pname}->{"reference"});
+				$opt{"edge-ref-sw"} = 1 if ($projlist->{$pname}->{"reference"});
+			}
 			$opt{"edge-proj-id"} = $pname;
 			$opt{"edge-proj-code"} = $projlist->{$pname}->{projCode};
 			$opt{"edge-proj-runhost"} = ($request_uri =~ /edge_ui/)?"$protocol//$domain/edge_ui":"$protocol//$domain";
@@ -800,6 +804,7 @@ sub checkParams {
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
 			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
+			$projlist->{$pname}->{"reference"} = "$input_dir/$projlist->{$pname}->{'reference'}" if ($projlist->{$pname}->{"reference"} =~ /^\w/ && $projlist->{$pname}->{"reference"} !~ /^http|ftp/i);
 			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
 			foreach my $i (0..$#single_files){
 				my $sf = $single_files[$i];
@@ -816,21 +821,29 @@ sub checkParams {
 			my $pe1=$projlist->{$pname}->{"q1"};
 			my $pe2=$projlist->{$pname}->{"q2"};
 			my $se=$projlist->{$pname}->{"s"};
+			my $ref=$projlist->{$pname}->{"reference"};
 
 			if ($namesUsed{$pname}){
 				&addMessage("PARAMS","edge-batch-input-excel", "Duplicate project name found.");
 			}else{
-    			$namesUsed{$pname}=1;
+    				$namesUsed{$pname}=1;
+    			}
+			my $field_id = "edge-batch-input-excel";
+    			&addMessage("PARAMS",$field_id,"Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
+    			&addMessage("PARAMS",$field_id,"Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
+    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $ref of $pname.") if (-f $ref and $ref =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+    			&addMessage("PARAMS",$field_id,"Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
+    			&addMessage("PARAMS",$field_id,"Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
+    			&addMessage("PARAMS",$field_id,"Input error. Please check the reference file path of $pname") if ($ref && $ref !~ /^http|ftp/i && ! -e $ref);
+			&addMessage("PARAMS",$field_id,"Invalid input. Fasta or Genbank format required of $pname") if ( -e $ref && ! is_fasta($ref) && ! is_genbank($ref));
+    			&addMessage("PARAMS",$field_id,"Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
+    			&addMessage("PARAMS",$field_id,"Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2);
+			if ( -e "$ref"){
+				$opt{"edge-ref-file[]"}=$ref;
+			}
     		}
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2);
-    	}
 	}else{  ## Single project input
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Please input at least 3 characters but less than 30.") if( length($opt{"edge-proj-name"}) < 3  || length($pname) > 30 );
