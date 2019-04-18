@@ -13,14 +13,18 @@ function addHostList(){
 	});
 }
 
+
+
+
 var target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa";
 var target_dialog = ["edge-ref-file-fromlist-dialog","edge-phylo-ref-select-dialog","edge-hostrm-file-fromlist-dialog","edge-get-contigs-by-taxa-dialog"];
+
 
 $.mobile.document
     // The custom selectmenu plugin generates an ID for the listview by suffixing the ID of the
     // native widget with "-menu". Upon creation of the listview widget we want to place an
     // input field before the list to be used for a filter.
-    .on( "listviewcreate", target_menu, function( event ) {
+   .on( "listviewcreate", target_menu, function( event ) {
         var input,
             list = $( event.target ),
             form = list.jqmData( "filter-form" ),
@@ -83,8 +87,9 @@ $.mobile.document
 								var index = 0;
 								while ( index < genomeIds.length){
 									var name= genomeIds[index];
+									var accessionIds = response[name].join();
 									name = name.replace(/_uid\d+$/, "");
-									OptiontToInsert[index] = "<option value="+name+">"+name+"</option>";
+									OptiontToInsert[index] = "<option value="+name+" title=" + accessionIds +  ">"+name+"</option>";
 									testToInsert[index] = "<li>" + name + "</li>";
 									index++;
 								}
@@ -102,7 +107,8 @@ $.mobile.document
 				filter: function( event, ui ) {
 						if($(this).children().length){
 							$(this).children().first().addClass("ui-screen-hidden");
-							$(this).find('a').each(function(){
+							$(this).find('a').each(function(index){
+								$(this).attr("title",$select_menu.find('option').eq(index).attr("title"));
 								var wordLen = $(this).html().length;
 								if (wordLen> 50){
 									$(this).css("font-size","11px");
