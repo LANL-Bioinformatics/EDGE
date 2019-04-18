@@ -6,6 +6,7 @@ EDGE 2.4.0
 * Fix bug: data clean script in docker or symlink directory
 * Fix bug: the fix mapping file Description column
 * Fix bug: contig map to reference INDELs counting and show >85% mapped contig number
+* Fix bug: RATT annotatiom embl format
 * Update gottcha2 and pangia codes for corresponding database update
 * Update megahit from 1.0.3 to 1.1.3.
 * Update R from 3.3.2 to 3.5.1
@@ -24,6 +25,8 @@ EDGE 2.4.0
 * Add AntiSmash v4.1.0 tool for secondary metbolite analysis
 * Add QIIME2 pipeline and installation/requirement 
 * Add script to extract VF/AMR protein
+* Add "reference" column support for batch submit input excel file
+* Add Chromium v75.0.3767.0
 
 EDGE GUI 2.4.0
 * Add Ploidy option for Variant calling
@@ -38,6 +41,8 @@ EDGE GUI 2.4.0
 * Add Secondary Metabolite Analysis Annotation
 * Update Qiime to version 2
 * Add wtdbg2 long reads assembly algorithm option
+* Hover to show accession id for genome search result list
+* Update final_report.pdf to match with web based summary result page
 
 Database:
 GOTTCHA2: update to Refseq90

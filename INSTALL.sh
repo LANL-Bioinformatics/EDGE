@@ -20,7 +20,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop Rpackages )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop RpackagesChromium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
@@ -395,6 +395,20 @@ echo "
 ------------------------------------------------------------------------------
 "
 }
+
+install_Chromium(){
+echo "------------------------------------------------------------------------------
+                           Installing Chromium 
+------------------------------------------------------------------------------
+"
+unzip chrome-linux.zip
+echo "
+------------------------------------------------------------------------------
+                           Chromium 75.0.3767.0
+------------------------------------------------------------------------------
+"
+}
+
 
 install_ea-utils(){
 echo "------------------------------------------------------------------------------
@@ -1953,6 +1967,14 @@ then
 else
   echo "prokka is not found"
   install_prokka
+fi
+
+if [ -x "$rootdir/thirdParty/chrome-linux/chrome" ]
+then
+   echo "Chromium is found"
+else
+   echo "Chromium is not found"
+   install_Chromium
 fi
 
 if [ -x "$rootdir/thirdParty/RATT/start.ratt.sh" ]

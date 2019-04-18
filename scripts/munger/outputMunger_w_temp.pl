@@ -566,6 +566,7 @@ sub output_html {
 	$vars->{PROJNAME} ||= $projname;
 	$vars->{PROJID} ||= $projname;
 	$vars->{DIRECTLINK} = "?proj=$projname";
+	$vars->{STANDALONE} = 1 if ($mode ne "web");
 	#reformat number with thousand separator
 	foreach my $var ( keys %$vars ){
 		next if ($var eq "PROJID");
@@ -1927,7 +1928,9 @@ sub pull_summary {
 		elsif( /^reference=(\S+)/ ){
 			 $vars->{REFFILE} = $1;
 		}
-
+		if (/Version:(.*)/){
+			$vars->{EDGEversion} = $1;
+		}
 		if( /Total Running time: (\d+:\d+:\d+)/){
 			$vars->{LASTRUNTIME} = $1;
 			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
