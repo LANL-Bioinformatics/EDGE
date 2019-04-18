@@ -85,7 +85,7 @@ foreach my $hash_ref ( @projectlist) {
 	$list->{$id}->{PROJNAME} = $id;
 	if (!$list->{$id}->{PROJSTATUS}){
 		$list->{$id}->{PROJSTATUS} = $status;
-		$list->{$id}->{PROJSTATUS} = "Running" if ($status =~ /running/);
+		$list->{$id}->{PROJSTATUS} = "running" if ($status =~ /running/);
 		$list->{$id}->{PROJSTATUS} = "failed" if ($status =~ /fail/);
 	}
 	$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
