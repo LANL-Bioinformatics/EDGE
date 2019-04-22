@@ -167,7 +167,7 @@ $( document ).ready(function()
 		}
 		if( params.proj){
 			updateProject(params.proj);
-			updateReport(params.proj);
+			//updateReport(params.proj);
 			// to add page for dialog perform correctly
 			setRunPipeline("EDGE",true);	
 			updateReport(params.proj);
