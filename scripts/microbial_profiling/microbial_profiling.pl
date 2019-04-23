@@ -248,7 +248,13 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				&_notify("[RUN_TOOL] [$tool] COMMAND: $cmd\n");
 				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 				$code = system("$cmd > $log 2>&1");
-				&_notify("[RUN_TOOL] [$tool] Error occured.\n") if $code;
+				if ($code){
+					if (`grep -a -i "No target reads" $log`){
+						&_notify("[RUN_TOOL] [$tool] Warning: No target reads found.\n");
+					}else{
+						&_notify("[RUN_TOOL] [$tool] Error occured.\n");
+					}
+				}
 				my $runningtime = &timeInterval($time);
 				&_notify("[RUN_TOOL] [$tool] Running time: $runningtime\n");
 				`touch "$outdir/.finished"` if !$code;
@@ -281,7 +287,9 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 			if ($job_status =~ /do not exist/){
 				$qsub_job_exit++;
 				my $runningtime = &timeInterval($time);
-				if (`grep -a -i ERROR $log`){
+				if (`grep -a -i "No target reads" $log`){
+					&_notify("[RUN_TOOL] [$tool] Warning: No target reads found.\n");
+				}elsif (`grep -a -i ERROR $log`){
 					&_notify("[RUN_TOOL] [$tool] Error occured.\n");
 				}else{
 					`touch "$outdir/.finished"`;

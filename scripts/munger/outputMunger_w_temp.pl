@@ -1714,7 +1714,7 @@ sub pull_taxa {
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (BacteriaViruses species database)" if $row->{CPTOOL} =~ /gottcha2-.*-b/;
 			$tool->{CPTOOL_LABEL} = "GOTTCHA2 (viral species database)"     if $row->{CPTOOL} =~ /gottcha2-.*-v/;
 			$tool->{CPTOOL_LABEL} = "Kraken (mini database)"       if $row->{CPTOOL} =~ /kraken/;
-			$tool->{CPTOOL_LABEL} = "Kraken2"	if $vars->{KRAKENDB};
+			$tool->{CPTOOL_LABEL} = "Kraken2"	if $vars->{KRAKENDB} && $row->{CPTOOL} =~ /kraken/;
 			$tool->{CPTOOL_LABEL} = "Kraken2"       if $row->{CPTOOL} =~ /kraken2/;
 			$tool->{CPTOOL_LABEL} = "BWA (reads mapping)"          if $row->{CPTOOL} =~ /bwa/;
 			$tool->{CPTOOL_LABEL} = "PanGIA"          if $row->{CPTOOL} =~ /pangia/;
