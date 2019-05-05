@@ -473,12 +473,13 @@ echo "
 
 install_GNU_parallel()
 {
+local VER=20190422
 echo "------------------------------------------------------------------------------
                            Compiling GNU parallel
 ------------------------------------------------------------------------------
 "
-tar xvzf parallel-20140622.tar.gz
-cd parallel-20140622
+tar xvzf parallel-$VER.tar.gz
+cd parallel-$VER
 ./configure --prefix=$rootdir 
 make
 make install
