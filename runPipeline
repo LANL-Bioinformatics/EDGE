@@ -3669,8 +3669,9 @@ sub rename_filter_fasta
     my $outputDir = shift;
     my $size_filter=shift;
     my $max_seq_number=shift;
-    my $filter_only=shift;
+    my $id_mapping=shift;
     my $output= "$outputDir/${project_name}_contigs.fa";
+    my $id_map= "$outputDir/id_map.txt";
     my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
     $max_seq_number ||= 100000;
     my $serial_id= "0" x length($max_seq_number);
@@ -3678,6 +3679,7 @@ sub rename_filter_fasta
     my ($fh,$pid)=open_file($fasta);
     open (my $ofh, "> $output") or die "Cannot write $output\n";
     open (my $ofh2, "> $contig_for_annotation" ) or die "Cannot write $contig_for_annotation\n";
+    open (my $idmap_ofh, "> $id_map") or die "Cannot write $id_map\n";
     $/ = ">";
     while (my $line=<$fh>)
     {
@@ -3698,7 +3700,18 @@ sub rename_filter_fasta
          next if ($len < $size_filter);
          $seq =~ s/(.{70})/$1\n/g; 
          chomp $seq;
-         my $fasta_header = ($filter_only)? "$id" : "${project_name}_$serial_id $id_info GC_content_$GC_content";
+         my $fasta_header;
+         if($configuration->{DoAnnotation}){
+             # genbank format limit the LOCUS name length
+             if ($id_mapping){
+                 $fasta_header = ( length($id) > 20 ) ? "contig_$serial_id $id" : "$id contig_$serial_id";
+                 print $idmap_ofh "contig_$serial_id\t$id\n";
+             }else{
+                 $fasta_header = ( length($project_name) > 20 ) ? "contig_$serial_id $id_info GC_content_$GC_content": "${project_name}_$serial_id $id_info GC_content_$GC_content";
+             }
+         }else{
+             $fasta_header = ($id_mapping)? "$id" : "${project_name}_$serial_id $id_info GC_content_$GC_content";
+         }
          if ($len >= $contig_size_for_annotation)
          {
 	     print $ofh2 ">$fasta_header\n" . $seq."\n";
@@ -3710,6 +3723,8 @@ sub rename_filter_fasta
     close $fh;
     close $ofh;
     close $ofh2;
+    close $idmap_ofh if ($id_mapping && $configuration->{DoAnnotation});
+    if ( -z $id_map) { unlink $id_map ; }
     return ($output,$contig_for_annotation);
 }
 
