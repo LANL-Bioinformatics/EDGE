@@ -955,40 +955,40 @@ sub pull_reports {
 					s/^\s+|\s+$//g;
 					##reads mapped
 					my $img;
-					if(/<li><span class="li-report-content-title">Reads Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Reads Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							chomp;
 							s/^\s+|\s+$//g;
-							if(/<tr><td>Number of Mapped Reads<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_MAPPED_READS} = $1;
-								$reports_map{$project}{'ref-mapped-reads'} = $1;
-								next;
-							}
-							if(/<tr><td>% of Total Post-QC Reads<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_POST_QC_READS_PCT} = $1;
-								$reports_map{$project}{'ref-post-qc-reads-pct'} = $1;
-								next;
-							}
-							if(/<tr><td>Average Fold<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_READ_AVG_FOLD} = $1;
-								$reports_map{$project}{'ref-read-avg-fold'} = $1;
-								next;
-							}
-							if(/<tr><td>Linear Coverage<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_READ_LINEAR_COV} = $1;
-								$reports_map{$project}{'ref-read-linear-cov'} = $1;
-								next;
-							}
-							if(/<tr><td>SNPs<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_READ_SNPS} = $1;
-								$reports_map{$project}{'ref-read-snps'} = $1;
-								next;
-							}
-							if(/<tr><td>InDels<\/td><td>(.*)<\/td><\/tr>/) {
-								$proj->{REF_READ_INDELS} = $1;
-								$reports_map{$project}{'ref-read-indels'} = $1;
-								next;
-							}
+							#if(/<tr><td>Number of Mapped Reads<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_MAPPED_READS} = $1;
+							#	$reports_map{$project}{'ref-mapped-reads'} = $1;
+							#	next;
+							#}
+							#if(/<tr><td>% of Total Post-QC Reads<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_POST_QC_READS_PCT} = $1;
+							#	$reports_map{$project}{'ref-post-qc-reads-pct'} = $1;
+							#	next;
+							#}
+							#if(/<tr><td>Average Fold<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_READ_AVG_FOLD} = $1;
+							#	$reports_map{$project}{'ref-read-avg-fold'} = $1;
+							#	next;
+							#}
+							#if(/<tr><td>Linear Coverage<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_READ_LINEAR_COV} = $1;
+							#	$reports_map{$project}{'ref-read-linear-cov'} = $1;
+							#	next;
+							#}
+							#if(/<tr><td>SNPs<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_READ_SNPS} = $1;
+							#	$reports_map{$project}{'ref-read-snps'} = $1;
+							#	next;
+							#}
+							#if(/<tr><td>InDels<\/td><td>(.*)<\/td><\/tr>/) {
+							#	$proj->{REF_READ_INDELS} = $1;
+							#	$reports_map{$project}{'ref-read-indels'} = $1;
+							#	next;
+							#}
 
 							###get references
 							if(/<th data-priority='1'>Reference<\/th>/) {
@@ -1123,13 +1123,13 @@ sub pull_reports {
 								last;
 							}
 							
-							if(/<li><span class="li-report-content-title">Contigs Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
+							if(/<span class="li-report-content-title">Contigs Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
 								last;
 							}
 						}
 					}
 					##contigs mapped
-					if(/<li><span class="li-report-content-title">Contigs Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
+					if(/<span class="li-report-content-title">Contigs Mapped to Reference\(s\)<\/span><div class="li-report-content">/) {
 						while(<IN>) {
 							if(/<tr><td>Number of Mapped Contigs<\/td><td>(.*)<\/td><\/tr>/) {
 								$proj->{REF_MAPPED_CONTIGS} = $1;

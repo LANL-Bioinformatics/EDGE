@@ -102,7 +102,7 @@ then
 	HOME=$EDGE_HOME
 fi
 
-pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -d $DB $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
+pangia.py --debug -r $FIELD -i $FASTQ -t $THREADS -o $OUTPATH -p $PREFIX -db $DB -sp 5:95 $BG_JSON_OPT -ms $MIN_SCORE -mr $MIN_READ -mb $MIN_RSNB -ml $MIN_LEN $OPTIONS
 
 # prepare pangia-vis
 #DIRMD5=`echo ${OUTPATH/\/ReadsBasedAnalysis*/} | rev | cut -d'/' -f1 | rev`
