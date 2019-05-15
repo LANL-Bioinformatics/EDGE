@@ -3707,7 +3707,7 @@ sub rename_filter_fasta
                  $fasta_header = ( length($id) > 20 ) ? "contig_$serial_id $id" : "$id contig_$serial_id";
                  print $idmap_ofh "contig_$serial_id\t$id\n";
              }else{
-                 $fasta_header = ( length($project_name) > 20 ) ? "contig_$serial_id $id_info GC_content_$GC_content": "${project_name}_$serial_id $id_info GC_content_$GC_content";
+                 $fasta_header = ( length($project_name) > 20 || $project_name =~/^Assembly/i ) ? "contig_$serial_id $id_info GC_content_$GC_content": "${project_name}_$serial_id $id_info GC_content_$GC_content";
              }
          }else{
              $fasta_header = ($id_mapping)? "$id" : "${project_name}_$serial_id $id_info GC_content_$GC_content";
