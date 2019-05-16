@@ -851,8 +851,11 @@ $( document ).ready(function()
 		});
 	});
 	$(".rtaxToolresult").hide();
-	var firstTaxToolResultTag = $('#showTaxSelect option').eq(1).val();
-	$('#'+ firstTaxToolResultTag).show();
+	if ($(".rtaxToolresult").length < 2){
+		var firstTaxToolResultTag = $('#showTaxSelect option').eq(1).val();
+		$('#'+ firstTaxToolResultTag).show();
+		$("#showTaxSelect").parent().hide();
+	}
 	$('#showTaxSelect').on('change',function(){
 		$(".rtaxToolresult").hide();
 		$('#showTaxSelect option:selected').each(function(){
