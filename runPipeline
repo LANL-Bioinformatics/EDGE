@@ -4417,7 +4417,7 @@ sub generateHTMLreport
     my $cmd="$RealBin/scripts/munger/outputMunger_w_temp.pl $abs_outDir > $log";
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd");
-    $cmd="$RealBin/thirdParty/chrome-linux/chrome --headless --disable-gpu --no-sandbox  --virtual-time-budget=10000 --print-to-pdf=$outDir/final_report.pdf $outputDir/report.html 2>/dev/null";
+    $cmd="$RealBin/thirdParty/chrome-linux/chrome --headless --allow-file-access-from-files --disable-gpu --no-sandbox  --virtual-time-budget=10000 --print-to-pdf=$outDir/final_report.pdf $outputDir/report.html 2>/dev/null";
     &executeCommand("$cmd") if ( -x "$RealBin/thirdParty/chrome-linux/chrome");
     &printRunTime($time);
     &touchFile("$outputDir/writeHTMLReport.finished")
