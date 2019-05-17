@@ -977,7 +977,7 @@ sub runQiimeAnalysis{
 	exit;
     }
 
-    my $cmd = "$RealBin/scripts/qiime_pipeline/qiime_pipeline.py --zip -c $numCPU --target $amplicon_type --target $project_name --qcMethod $qc_method -o $outputDir " ;
+    my $cmd = "$RealBin/scripts/qiime_pipeline/qiime_pipeline.py --zip -c $numCPU --target $amplicon_type --title $project_name --qcMethod $qc_method -o $outputDir " ;
     if ($qiime_input_dir){
         $cmd .= " -d $qiime_input_dir ";
     }else{
