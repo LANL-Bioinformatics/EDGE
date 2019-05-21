@@ -3419,6 +3419,29 @@ sub runAssembly
         $cmd .= "-r $unpairFile " if (-s $unpairFile);
         $cmd .= " 2>&1 ";
     }
+    if ($assembler =~ /unicycler/){
+        $AssemblerOutDir = "$outputDir/unicycler";
+        $AssemblerContigs = "$AssemblerOutDir/assembly.fasta";
+        $AssemblerLog = "$AssemblerOutDir/unicycler.log";
+        my $long_reads_file = $configuration->{unicycler_lreads_file};
+        my $unicycler_min_lreads = $configuration->{unicycler_min_lreads} || "2000";
+        my $filtered_long_reads = "$AssemblerOutDir/long_reads.fasta";
+        ## filter long reads 
+        if ( -s $long_reads_file){
+            &lprint("Filter long reads with $unicycler_min_lreads (bp) cutoff \n");
+            &executeCommand("seqtk seq -A -L $unicycler_min_lreads  $long_reads_file > $filtered_long_reads");
+        }
+	
+        $cmd = "export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm'; $RealBin/thirdParty/Anaconda3/bin/unicycler -t $numCPU -o $AssemblerOutDir ";
+	$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar ";
+        if ($pairFile){
+            my ($p1,$p2) = split /\s+/,$pairFile;
+            $cmd .= "-1 $p1 -2 $p2 ";
+        }
+        $cmd .= "-s $unpairFile " if (-s $unpairFile);
+        $cmd .= "-l $filtered_long_reads " if (-s $filtered_long_reads);
+        $cmd .= " 2>&1 1>/dev/null";
+    }
     if ($assembler =~ /lrasm/){
 		$AssemblerOutDir = "$outputDir/lrasm";
 		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
@@ -3468,6 +3491,8 @@ sub runAssembly
         rename("$file_path/assembly_graph_with_scaffolds.gfa", "$outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
     }elsif($assembler =~ /lrasm/){
         &executeCommand("mv -f $AssemblerOutDir/Assembly/unitig.gfa $final_contig_fastG_file") if ( -e "$AssemblerOutDir/Assembly/unitig.gfa");
+    }elsif($assembler =~ /unicycler/){
+        copy("$AssemblerOutDir/assembly.gfa",$final_contig_fastG_file) if ( -e "$AssemblerOutDir/assembly.gfa");
     }
 
     # rename contigs id by project name
@@ -3910,10 +3935,11 @@ sub extract_long_reads
     my $paired_fasta=shift;
     my $single_fasta=shift;
     my $outputDir=shift;
+    my $len_cutoff=shift || 350;
     my $short_paired_fasta="$outputDir/short_paired.fa";
     my $short_single_fasta="$outputDir/short_single.fa";
     my $long_fasta="$outputDir/long.fa";
-    my $len_cutoff=350;
+   
     open (my $o_paired, ">$short_paired_fasta") or die "Cannot write $short_paired_fasta\n";
     open (my $o_single, ">$short_single_fasta") or die "Cannot write $short_single_fasta\n";
     open (my $o_long, ">$long_fasta") or die "Cannot write $long_fasta\n";

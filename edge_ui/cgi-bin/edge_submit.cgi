@@ -1221,6 +1221,7 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-assembly-maxk", "Invalid input. Natural number required.")     unless $opt{"edge-assembly-maxk"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-assembly-step", "Invalid input. Natural number required.")     unless $opt{"edge-assembly-step"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-assembly-minc", "Invalid input. Natural number required.")     unless $opt{"edge-assembly-minc"} =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-edge-unicycler-min-lreads", "Invalid input. Natural number required.")     unless $opt{"edge-unicycler-min-lreads"} =~ /^\d+$/;
 		if ($opt{"edge-assembled-contig-sw"}){
 			$opt{"edge-assembled-contig-file"} = $input_dir."/".$opt{"edge-assembled-contig-file"} if ($opt{"edge-assembled-contig-file"} =~ /^\w/);
 			&addMessage("PARAMS","edge-assembled-contig-file", "File not found. Please check the contig file input.") if ( ! -e $opt{"edge-assembled-contig-file"});
@@ -1229,8 +1230,10 @@ sub checkParams {
 			$opt{"edge-assembled-contig-file"}="";
 			$opt{"edge-spades-pacbio-file"} = $input_dir."/".$opt{"edge-spades-pacbio-file"} if ($opt{"edge-spades-pacbio-file"} =~ /^\w/);
 			&addMessage("PARAMS", "edge-spades-pacbio-file", "Invalid input. Fasta/q format required..") if ( -e $opt{"edge-spades-pacbio-file"} && ! is_fasta($opt{"edge-spades-pacbio-file"}) && ! is_fastq($opt{"edge-spades-pacbio-file"}));
-			 $opt{"edge-spades-nanopore-file"} = $input_dir."/".$opt{"edge-spades-nanopore-file"} if ( $opt{"edge-spades-nanopore-file"} =~ /^\w/);
+			$opt{"edge-spades-nanopore-file"} = $input_dir."/".$opt{"edge-spades-nanopore-file"} if ( $opt{"edge-spades-nanopore-file"} =~ /^\w/);
 			&addMessage("PARAMS", "edge-spades-nanoport-file", "Invalid input. Fasta format required..") if ( -e $opt{"edge-spades-nanopore-file"} && ! is_fasta($opt{"edge-spades-nanopore-file"})  && ! is_fastq($opt{"edge-spades-nanopore-file"}));
+			$opt{"edge-unicycler-lreads-file"} = $input_dir."/".$opt{"edge-unicycler-lreads-file"} if ($opt{"edge-unicycler-lreads-file"}  =~ /^\w/);
+			&addMessage("PARAMS","edge-unicycler-lreads-file", "Invalid input. Fasta/q format required..") if ( -e $opt{"edge-unicycler-lreads-file"} && ! is_fasta($opt{"edge-unicycler-lreads-file"}) && ! is_fastq($opt{"edge-unicycler-lreads-file"}));
 		}
 	}
 	if ( $opt{"edge-anno-sw"} ){

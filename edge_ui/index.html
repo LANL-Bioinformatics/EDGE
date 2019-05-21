@@ -1037,13 +1037,35 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-assembler2">SPAdes</label>
 					<input type="radio" name="edge-assembler" id="edge-assembler3" value="megahit">
 					<label for="edge-assembler3">MEGAHIT</label>
-					<input type="radio" name="edge-assembler" id="edge-assembler4" value="lrasm">
-					<label for="edge-assembler4">LRASM</label>
+					<input type="radio" name="edge-assembler" id="edge-assembler4" value="unicycler">
+					<label for="edge-assembler4">UniCycler</label>
+					<input type="radio" name="edge-assembler" id="edge-assembler5" value="lrasm">
+					<label for="edge-assembler5">LRASM</label>
 				</fieldset>
 			</div>
 			
+			<div id="edge-unicycler-parameters">
+				<p class="edge_tool_note"><a href="https://github.com/rrwick/Unicycler" target="_blank">Unicycler</a> is an assembly pipeline for bacterial genomes. It can assemble Illumina-only read sets where it functions as a SPAdes-optimise. For the best possible assemblies, give it both Illumina reads and long reads, and it will conduct a hybrid assembly.</p>
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Bridging mode<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Normal = moderate contig size and misassembly rate; Conservative = smaller contigs, lowest misassembly rate; Bold = longest contigs, higher misassembly rate."></a></legend>
+						<input type="radio" name="edge-unicycler-mode" id="edge-unicycler-mode1" value="normal" checked="checked">
+						<label for="edge-unicycler-mode1">Normal</label>
+						<input type="radio" name="edge-unicycler-mode" id="edge-unicycler-mode2" value="conservative">
+						<label for="edge-unicycler-mode2">Conservative</label>
+						<input type="radio" name="edge-unicycler-mode" id="edge-unicycler-mode3" value="bold">
+						<label for="edge-unicycler-mode3">Bold</label>
+					</fieldset>
+				</div>
+				<div class="ui-field-contain input-type-file">
+					<label for="edge-unicycler-lreads-file">Long Reads Fasta/q</label>
+					<input type="text" data-mini="true" name="edge-unicycler-lreads-file" id="edge-unicycler-lreads-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+				</div>
+				<div class="ui-field-contain"><label for="edge-unicycler-min-lreads">Minimum Long Reads Cutoff (bp)</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-unicycler-min-lreads" id="edge-unicycler-min-lreads" value="2000" min="1000"></div>
+			</div>
 			<div id="edge-lrasm-parameters">
-				<p class="edge_tool_note">LRASM is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
+				<p class="edge_tool_note"><a href="https://gitlab.com/chienchi/long_read_assembly" target="_blank">LRASM</a> is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Algorithm<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-lrasm-algorithm-tooltip"></a></legend>
@@ -1075,13 +1097,13 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 				
 			<div id="edge-idba-parameters">
-				<p class="edge_tool_note">IDBA_UD performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>
+				<p class="edge_tool_note"><a href="https://github.com/loneknightpy/idba" target="_blank">IDBA_UD</a> performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>
 				<div class="ui-field-contain"><label for="edge-assembly-mink">Minimum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-mink" id="edge-assembly-mink" value="31"></div>
 				<div class="ui-field-contain"><label for="edge-assembly-maxk">Maximum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-maxk" id="edge-assembly-maxk" value="121"></div>
 				<div class="ui-field-contain"><label for="edge-assembly-step">Step Size</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-step" id="edge-assembly-step" value="20"></div>
 			</div>
 			<div id="edge-spades-parameters">
-				<p class="edge_tool_note">SPAdes performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
+				<p class="edge_tool_note"><a href="https://github.com/ablab/spades" target="_blank">SPAdes</a> performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
 				<div class="ui-field-contain">
 					<label for="edge-spades-algorithm">Algorithm</label>
 					<select id="edge-spades-algorithm" data-mini="true" name="edge-spades-algorithm" data-native-menu="false">
@@ -1104,7 +1126,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 			</div>
 			<div id="edge-megahit-parameters">
-				<p class="edge_tool_note">MEGAHIT is an ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph which achieves low memory assembly. </p>
+				<p class="edge_tool_note"><a href="https://github.com/voutcn/megahit" target="_blank">MEGAHIT</a> is an ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph which achieves low memory assembly. </p>
 				<div class="ui-field-contain">
 					<label for="edge-megahit-preset">Preset<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-megahit-preset-l"></a></label>
 					<select id="edge-megahit-preset" data-mini="true" name="edge-megahit-preset" data-native-menu="false">
@@ -1534,7 +1556,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						    <option value="gottcha2-speDB-v" selected=""> GOTTCHA2 Species</option>
 						</optgroup>-->
             				        <!--<optgroup label="PanGIA Databases">
-						    <option value="pangia"> NCBI Refseq89.mask_rrna </option>
+						    <option value="pangia"> PanGIA NCBI Refseq89.mask_rrna </option>
 						</optgroup>-->
 						
 						<optgroup label="Reads Mapping">
@@ -2140,7 +2162,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<label for="signIn-email" class="ui-hidden-accessible">Email Address</label>
 		<input type="text" name="signIn-email" id="signIn-email" placeholder="Email Address" value="">
 		<label for="signIn-password" class="ui-hidden-accessible">Password</label>
-		<input type="password" name="signIn-password" id="signIn-password" placeholder="Password" autocomplete="off" value="">
+		<input type="password" name="signIn-password" id="signIn-password" placeholder="Password" autocomplete="new-password" value="">
 		<a href="#dlg-invalid-credentials" data-rel="popup"  data-position-to="window" id="signIn-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active" data-overlay-theme="b">Submit</a>
 		<label class="inline-small"><input type="checkbox" data-role="none" name="chck-rememberme" id="chck-rememberme">Remember my email</label>
 		<div class="sign-option-block">
@@ -2199,8 +2221,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		<!--<label for="UpdateProfile-email">Email</label>
 		<input type="text" name="UpdateProfile-email" id="UpdateProfile-email" value="" disabled >-->
         	<label for="UpdateProfile-password" class="ui-hidden-accessible">New Password</label>
-        	<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="off">
-        	<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="off">
+        	<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="new-password">
+        	<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="new-password">
         	<center><a href="#" id="updateProfile-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active">Update</a>
         	<a href="#" id="updateProfile-cancel-btn" class="ui-btn ui-btn-inline ui-corner-all ">Cancel</a></center>
 	</div> <!--  updateProfile dialog -->

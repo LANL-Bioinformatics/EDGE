@@ -14,13 +14,14 @@ export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
 
+gcc_version=$(gcc -dumpversion)
 anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
 anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
-assembly_tools=( idba spades megahit lrasm racon )
+assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop RpackagesChromium )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk RpackagesChromium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
@@ -243,6 +244,27 @@ echo "
 "
 }
 
+install_unicycler(){
+local VER=0.4.7
+echo "------------------------------------------------------------------------------
+                           Installing Unicycler $VER
+------------------------------------------------------------------------------"
+if  ( echo ${gcc_version%.*} | awk '{if($1>="4.9") exit 0; else exit 1}' )
+then
+	tar xvzf Unicycler-$VER.tar.gz
+	sed -i.bak 's,min(8,min(4,g' Unicycler-$VER/setup.py
+	$anaconda3bin/pip install Unicycler-$VER/
+else
+	$anaconda3bin/conda install -c bioconda unicycler
+fi
+
+echo "
+------------------------------------------------------------------------------
+                           Unicycler $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_racon(){
 local VER=1.3.1
 echo "------------------------------------------------------------------------------
@@ -343,6 +365,24 @@ echo "
 "
 }
 
+
+install_seqtk(){
+local VER=1.3
+echo "------------------------------------------------------------------------------
+                           Installing seqtk-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf seqtk-$VER.tgz
+cd seqtk-$VER
+make 
+cp -fR seqtk $rootdir/bin/. 
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           seqtk-$VER installed
+------------------------------------------------------------------------------
+"
+}
 
 install_bedtools()
 {
@@ -767,7 +807,7 @@ echo "
 
 install_pangia()
 {
-local VER=2.4.11
+local VER=1.0.0
 echo "------------------------------------------------------------------------------
                            Installing PANGIA $VER BETA
 ------------------------------------------------------------------------------
@@ -785,8 +825,8 @@ tar xvzf pangia-$VER.tar.gz
 cd pangia
 if [ -e $rootdir/thirdParty/pangia-vis-data ]
 then
-  cp -f $rootdir/thirdParty/pangia-vis-data/* $rootdir/thirdParty/pangia/pangia-vis/data/
-rm -rf $rootdir/thirdParty/pangia-vis-data
+  cp -rf $rootdir/thirdParty/pangia-vis-data/* $rootdir/thirdParty/pangia/pangia-vis/data/
+  rm -rf $rootdir/thirdParty/pangia-vis-data
 fi 
 
 cd $rootdir/thirdParty
@@ -1505,7 +1545,7 @@ echo "
 
 install_bokeh()
 {
-local VER=0.12.10
+local VER=1.1.0
 echo "------------------------------------------------------------------------------
                         Installing bokeh $VER
 ------------------------------------------------------------------------------
@@ -1901,6 +1941,13 @@ else
   install_GNU_parallel
 fi
 
+if ( checkSystemInstallation seqtk )
+then
+  echo "seqtk is found"
+else
+  install_seqtk
+fi
+
 if ( checkSystemInstallation blastn )
 then
    BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
@@ -2227,7 +2274,21 @@ else
   install_megahit
 fi
 
-if ( checkSystemInstallation racon  )
+if [ -x "$rootdir/thirdParty/Anaconda3/bin/unicycler" ]
+then
+  unicycler_installed_VER=`$rootdir/thirdParty/Anaconda3/bin/unicycler --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  if ( echo $unicycler_installed_VER | awk '{if($1>=0.4.7) exit 0; else exit 1}' )
+  then
+    echo "Unicycler $unicycler_installed_VER found"
+  else
+    install_unicycler
+  fi
+else
+  echo "unicycler is not found"
+  install_unicycler
+fi
+
+if ( checkSystemInstallation racon )
 then
   racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
   if ( echo $racon_installed_VER | awk '{if($1>=1.3.1) exit 0; else exit 1}' )

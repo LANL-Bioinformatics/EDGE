@@ -84,7 +84,7 @@ Usage: perl $0
                -d                        output directory
                -aligner                  bwa or bowtie (default: bwa)
                -bwa_options <String>     bwa options
-                                         type "bwa aln" to see options
+                                         type "bwa mem" to see options
                                          default: "-t 4 "
                                          -t        <int> number of threads [4] 
                                          -I        the input is in the Illumina 1.3+ FASTQ-like format
