@@ -21,7 +21,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk RpackagesChromium )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
