@@ -39,12 +39,19 @@ n=1
 lc=0.85
 ## Trim reads with adapters or contamination sequences
 adapter=/PATH/adapter.fasta
-## phiX filter, boolean, 1=yes, 0=no
-phiX=0
+porechop=0
+## Trim polyA (>15)
+polyA=0
 ## Cut # bp from 5 end before quality trimming/filtering 
 5end=0
 ## Cut # bp from 3 end before quality trimming/filtering 
 3end=0
+
+[Join PE Reads]
+DoJoinPE=0
+fastqjoin-maxdiff=8
+fastqjoin-minoverlap=6
+fastqjoin-usejoined-only=0
 
 [Host Removal]
 ## boolean, 1=yes, 0=no
@@ -60,7 +67,7 @@ DoAssembly=1
 assembledContigs=
 inputContigs=
 minContigSize=200
-## spades or idba_ud or megahit or lrasm
+## spades, idba_ud, megahit, unicycler, or lrasm 
 assembler=idba_ud
 idbaOptions="--pre_correction  --mink 31"
 ## for spades
@@ -70,10 +77,16 @@ SpadesPacbioFile=
 SpadesNanoporeFile=
 ## for megahit
 megahit_preset=meta
+## for unicycler
+unicycler_mode=normal
+unicycler_lreads_file=
+unicycler_min_lreads=2000
 ## for lrasm
 lrasm_num_consensus=3
 lrasm_preset=ont
 lrasm_ec=1
+# support miniasm and wtdbg2
+lrasm_algorithm=miniasm
 
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
@@ -81,10 +94,11 @@ DoReadsMappingContigs=auto
 ## support bowtie or bwa
 edge-r2c-aligner=bowtie
 edge-r2c-aligner-options=
+r2c_extract_unmapped=0
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
-DoReadsMappingReference=
+DoReadsMappingReference=0
 ## support bowtie or bwa
 edge-r2g-aligner=bowtie
 edge-r2g-aligner-options=
@@ -100,13 +114,14 @@ r2g_consensus_alt_prop=0.5
 r2g_consensus_min_cov=5
 r2g_consensus_min_baseQ=20
 r2g_variant_call=1
+r2g_variant_call_ploidy=haploid
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
 DoReadsTaxonomy=1
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=0
-enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan2,bwa,kraken,diamond
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,gottcha2-speDB-b,metaphlan2,bwa,kraken2,diamond
 splitrim-minq=20
 custom-gottcha-genDB-b=
 custom-gottcha-speDB-b=
@@ -158,6 +173,23 @@ binning-abund-file=
 [ProPhage Detection]
 DoProPhageDetection=1
 
+[Secondary Metabolite Analysis]
+DoSMA=0
+antismash-taxon=bacteria
+antismash-clusterblast=
+antismash-subclusterblast=
+antismash-knownclusterblast=
+antismash-smcogs=
+antismash-asf=
+antismash-fullhmm=
+antismash-cassis=
+antismash-tta=
+antismash-borderpredict=
+antismash-inclusive=
+antismash-inclusive-cdsnr=5
+antismash-inclusive-threshold=0.6
+antismash-inclusive-npfams=5
+
 [Phylogenetic Analysis]
 DoSNPtree=1
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
@@ -171,6 +203,15 @@ SNPrefGenome=
 treeMaker=FastTree
 ## SRA accessions ByrRun, ByExp, BySample, ByStudy
 SNP_SRA_ids=
+PhaMEbootstrap=0
+PhaMEbootstrap_num=100
+
+[Gene Family Analysis]
+DoReadsSpecialtyGenes=0
+DoORFsSpecialtyGenes==0
+SpecialtyGenesSearchTool=rapsearch2
+ShortBREDMinPercIdentity=
+ShortBREDMinPercLength=
 
 [Primer Validation]
 DoPrimerValidation=1
@@ -193,6 +234,60 @@ len_max=27
 tm_diff=5
 ## display # top results for each target
 top=5
+
+[Qiime analysis]
+DoQiimeAnalysis=0
+## Greengenes, SILVA, SILVA-V3-V4 or ITS
+qiime_amplicon_type=SILVA
+qiime_input_dir=
+qiime_mapping_file=
+qiime_barcode_file=
+qiime_phred_offset=33
+qiime_sampling_depth=1000
+qiime_qcMethod=dada2
+qiime_trimLeftForward=20
+qiime_trimLeftReverse=20
+qiime_truncLenForward=250
+qiime_truncLenReverse=250
+qiime_trimLen=20
+qiime_truncLen=0
+qiime_autoDepth=1
+qiime_q_threshold=4
+qiime_max_n=1
+qiime_min_per_read_length_fraction=0.5
+
+[DETEQT analysis]
+DoDETEQT=0
+targetedNGS_ref=
+targetedNGS_input_dir=
+targetedNGS_sample_file=
+targetedNGS_q_cutoff=0.8145
+targetedNGS_depth_cutoff=1000
+targetedNGS_len_cutoff=100
+targetedNGS_mode=PE
+targetedNGS_platform=illumina
+targetedNGS_expectedCoverage=1
+targetedNGS_expectedIdentity=1
+targetedNGS_expectedBaseQ=37
+targetedNGS_expectedMapQ=60
+targetedNGS_coverageWeight=0.25
+targetedNGS_identityWeight=0.25
+targetedNGS_baseqWeight=0.25
+targetedNGS_mapqWeight=0.25
+
+[PiReT transcriptomics analysis]
+DoPiReTAnalysis=0
+piret_input_dir=
+piret_exp_design_file=
+piret_kingdom=prokarya
+piret_prokaryote_fasta=
+piret_prokaryote_gff=
+piret_eukarya_fasta=
+piret_eukarya_gff=
+piret_p_value=0.001
+piret_method=DEedge
+piret_stranded=0
+piret_index=
 
 [Generate JBrowse Tracks]
 DoJBrowse=1
