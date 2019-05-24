@@ -1969,13 +1969,15 @@ sub runBinning{
     }
     if (! -e $abund_file){
     	&lprint("Error. No abundance info file for Contigs Binning\n");
+	return;
     }
     
     $cmd = "$MaxBin_exe -contig $contigFile -out $outputDir/${project_name}_bin -abund $abund_file -thread $numCPU -plotmarker -min_contig_length $contig_size_cutoff -max_iteration $binning_itr -prob_threshold $binning_prob -markerset $binning_markerset "; 
     $cmd .= " 2>\&1 1>/dev/null";
     
     &lprint (" Running \n $cmd\n");
-    &executeCommand($cmd);
+    eval{system($cmd);};
+    #&executeCommand($cmd);
     &printRunTime($time);
     &touchFile("$outputDir/contigsBinning.finished");
     return;
@@ -1984,9 +1986,10 @@ sub runBinning{
 
 sub runCheckM{
     my $MaxBin_dir = shift;
+    my $MaxBin_summary = "$MaxBin_dir/${project_name}_bin.summary";
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
-    my $MaxBin_summary = "$outputDir/CheckM.txt";
+    my $CheckM_summary = "$outputDir/CheckM.txt";
     my $evalue = '1e-10';  # -e
     my $overlap_length_perc = 0.7;  # -l 
     my $multi = 10;  # -m
@@ -2002,13 +2005,17 @@ sub runCheckM{
     {
         &lprint (colored ("[Binning CheckM]\n",'yellow'));
     }
+    if ( ! -e "$MaxBin_summary"){
+       &lprint ("No Binning result for CheckM\n");
+       return;
+    }
     if ( -e "$outputDir/BinningCheckM.finished")
     {
        &lprint ("Binning CheckM Finished\n");
        return;
     }
     # -r, --reduced_tree    use reduced tree (requires <16GB of memory)
-    my $cmd = "checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $MaxBin_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
+    my $cmd = "checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
 
     &lprint (" Running \n $cmd\n");
     &executeCommand2("$cmd");
