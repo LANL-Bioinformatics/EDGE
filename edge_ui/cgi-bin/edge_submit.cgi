@@ -1319,6 +1319,7 @@ sub parse_qiime_mapping_files{
 				my @array = split /\t/,$_;
 				$array[$file_column_index] =~ tr/"//d;
 				$array[$file_column_index] =~ s/^\s+|\s+$//g;
+				$array[$file_column_index] =~ s/\s*,\s*/,/g;
 				my @files = map { "$file_path/$_" } split /,|\s+|:/,$array[$file_column_index];
 				if (scalar(@files) % 2){
 					push @se_files,@files;
