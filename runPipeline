@@ -949,7 +949,8 @@ sub runQiimeAnalysis{
     {
        &lprint ("Qiime analysis Finished\n"); 
        return 0;
-    }  
+    }
+    remove_tree("$outputDir") if ( -d $outputDir);
     &make_dir($outputDir);
     unlink "$outputDir/runQiimeAnalysis.finished";
     my @unpairedFile= @$unpairedFile;
@@ -957,11 +958,11 @@ sub runQiimeAnalysis{
     my $qiime_input_dir=$configuration->{qiime_input_dir};
     my $amplicon_type=$configuration->{qiime_amplicon_type} || "Greengenes";
     my $qc_method=$configuration->{qiime_qcMethod} || "dada2";
-    my $trimLeftForward=$configuration->{qiime_trimLeftForward} || "20";
-    my $trimLeftReverse=$configuration->{qiime_trimLeftReverse} || "20";
+    my $trimLeftForward=(defined $configuration->{qiime_trimLeftForward})?$configuration->{qiime_trimLeftForward} : "20";
+    my $trimLeftReverse=(defined $configuration->{qiime_trimLeftReverse})?$configuration->{qiime_trimLeftReverse} : "20";
     my $truncLenForward=($configuration->{qiime_truncLenForward})? $configuration->{qiime_truncLenForward}: '0';
     my $truncLenReverse=($configuration->{qiime_truncLenReverse})? $configuration->{qiime_truncLenReverse}: '0';
-    my $trimLen=$configuration->{qiime_trimLen} || "20";
+    my $trimLen=(defined $configuration->{qiime_trimLen} )?$configuration->{qiime_trimLen} : "20";
     my $truncLen=($configuration->{qiime_truncLen})? $configuration->{qiime_truncLen}: '0';
     my $sampling_depth_cutoff=$configuration->{qiime_sampling_depth} || 1000;
     my $autoDepth=$configuration->{qiime_autoDepth}; 
