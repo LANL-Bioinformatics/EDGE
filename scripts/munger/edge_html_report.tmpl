@@ -552,6 +552,9 @@
 				</TMPL_IF>
 				<TMPL_IF NAME="OUT_BINN_SW">
 				<li id="binningTag"><span class="li-report-content-title">Binning</span><div class="li-report-content">
+					<TMPL_IF NAME="ERROR_Binning">
+					<p class="error"><TMPL_VAR NAME=ERROR_Binning></p>
+					</TMPL_IF>
 					<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 					  <thead>
 						<tr>
@@ -565,7 +568,9 @@
 						<tr><td>unBinned Contigs</td><td><TMPL_VAR NAME=UNBINCOUNT DEFAULT=-></td></tr>
 					  </tbody>
 					</table>
+					<TMPL_IF NAME=BINNRESULT>
 					<table data-role="none" id="edge-binning-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=BINNRESULT>'></table>
+					</TMPL_IF>
 					<p class='extra-text-link'>Link to 
 						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning'> Directory </a>
