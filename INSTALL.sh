@@ -136,7 +136,7 @@ echo "
 }
 
 install_DETEQT(){
-local VER=0.3.0
+local VER=0.3.1
 echo "------------------------------------------------------------------------------
                            Installing DETEQT $VER
 ------------------------------------------------------------------------------
@@ -2507,7 +2507,7 @@ fi
 if ( checkLocalInstallation DETEQT )
 then
   DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
-  if  ( echo $DETEQT_VER | awk '{if($2>="0.3.0") exit 0; else exit 1}' )
+  if  ( echo $DETEQT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
   then
     echo "DETEQT is found"
   else
