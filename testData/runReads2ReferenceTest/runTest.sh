@@ -11,8 +11,9 @@ test_result(){
 	TestLog=$rootdir/TestOutput/ReadsBasedAnalysis/readsMappingToRef/mapping.log
 	Test=$rootdir/TestOutput/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
 	Expect=$rootdir/readsToRef.alnstats.txt
+	Expect2=$rootdir/readsToRef.alnstats2.txt
 	testName="EDGE Reads to Reference Mapping test";
-	if cmp -s "$Test" "$Expect"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2"  
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"

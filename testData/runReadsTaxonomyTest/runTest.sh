@@ -16,18 +16,26 @@ test_result(){
 	Expect4=$rootdir/summary4.txt
 	Expect5=$rootdir/summary5.txt
 	Expect6=$rootdir/summary6.txt
+	Expect7=$rootdir/summary7.txt
+	Expect8=$rootdir/summary8.txt
 	testName="EDGE Reads Taxonomy test";
-	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2" || cmp -s "$Test" "$Expect3" || cmp -s "$Test" "$Expect4" || cmp -s "$Test" "$Expect5" || cmp -s "$Test" "$Expect6"
+	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect2" || cmp -s "$Test" "$Expect3" || cmp -s "$Test" "$Expect4" || cmp -s "$Test" "$Expect5"
 	then
 		echo "$testName passed!"
 		touch "$rootdir/TestOutput/test.success"
 	else
-		echo "$testName failed!"
-		if [ -f "$TestLog" ]
-		then
-			cat $TestLog >> $MainErrLog
+		if cmp -s "$Test" "$Expect6" || cmp -s "$Test" "$Expect7" ||  cmp -s "$Test" "$Expect8"
+		then 
+			echo "$testName passed!"
+			touch "$rootdir/TestOutput/test.success"
+		else
+			echo "$testName failed!"
+			if [ -f "$TestLog" ]
+			then
+				cat $TestLog >> $MainErrLog
+			fi
+			touch "$rootdir/TestOutput/test.fail"
 		fi
-		touch "$rootdir/TestOutput/test.fail"
 	fi
 }
 
@@ -39,7 +47,6 @@ if [ ! -f "$rootdir/TestOutput/test.success" ]
 then
 	rm -rf $rootdir/TestOutput
 fi
-
 perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -p $rootdir/../Ecoli_10x.1.fastq $rootdir/../Ecoli_10x.2.fastq || true
 
 rm -rf $rootdir/TestOutput/QcReads

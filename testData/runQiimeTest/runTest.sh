@@ -8,20 +8,32 @@ fi
 test_result(){
 	MainErrLog=$rootdir/TestOutput/error.log
 	TestLog=$rootdir/TestOutput/QiimeAnalysis/errorLog.txt
-	Test=$rootdir/TestOutput/QiimeAnalysis/TaxonomyAnalysis/Table/metadata.tsv
-	Expect=$rootdir/metadata.tsv
-	testName="EDGE Qiime Analysis pipeline test";
-	if cmp -s "$Test" "$Expect"
+	Test=$rootdir/TestOutput/QiimeAnalysis/TaxonomyAnalysis/Table/feature-table-taxanomy.tsv
+	Test2=$rootdir/TestOutput/QiimeAnalysis/TaxonomyAnalysis/Table/metadata.tsv
+	Test3=$rootdir/TestOutput/QiimeAnalysis/DiversityAnalysis/table.html
+	Expect=$rootdir/feature-table-taxanomy.tsv
+	testName="EDGE Qiime2 Analysis pipeline test";
+	if [ -s $Test3 ] 
 	then
-   		echo "$testName passed!"
-   		touch "$rootdir/TestOutput/test.success"
+		if [ -s $Test2 -a -s $Test ]
+		then
+   			echo "$testName passed!"
+   			touch "$rootdir/TestOutput/test.success"
+		else
+   			echo "$testName failed on Taxonomy Anaylysis!"
+			if [ -f "$TestLog" ]
+			then
+				cat $TestLog >> $MainErrLog
+			fi
+   			touch "$rootdir/TestOutput/test.fail"
+		fi
 	else
-   		echo "$testName failed!"
+		echo "$testName failed! on Diversity Analysis!"
 		if [ -f "$TestLog" ]
 		then
 			cat $TestLog >> $MainErrLog
 		fi
-   		touch "$rootdir/TestOutput/test.fail"
+		touch "$rootdir/TestOutput/test.fail"
 	fi
 }
 

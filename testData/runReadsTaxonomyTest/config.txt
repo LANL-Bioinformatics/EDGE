@@ -12,7 +12,6 @@ projrunhost=
 
 [Download Fastq]
 DoFastqDownload=auto
-fastq_source=not
 
 [Download SRA]
 DoSRADownload=0
@@ -21,6 +20,7 @@ SRA_id=
 
 [Count Fastq]
 DoCountFastq=auto
+fastq_source=not
 
 [Quality Trim and Filter]
 ## boolean, 1=yes, 0=no
@@ -96,7 +96,7 @@ DoReadsTaxonomy=1
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=1
 #enabledTools=gottcha-genDB-b,bwa
-enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa,metaphlan2,kraken
+enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa,metaphlan2,kraken2
 custom-gottcha-genDB-b=
 custom-gottcha-speDB-b=
 custom-gottcha-strDB-b=
