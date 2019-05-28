@@ -264,7 +264,7 @@ if ($referenceGenome)
         &runUnmappedContigToRefSeq($unusedContigFasta) if $configuration->{MapUnmappedContigs} && -s $unusedContigFasta;
 	}
     #SNP/INDEL analysis
-    &variantAnalysis($c2g_SNP_INDEL_file,$c2g_Gap,$r2gVCF,$r2gGap,$gff3File) if ($configuration->{DoVariantAnalysis});
+    &variantAnalysis($c2g_SNP_INDEL_file,$c2g_Gap,$r2gVCF,$r2gGap,$gff3File, $referenceGenome) if ($configuration->{DoVariantAnalysis});
 }
 else # reference unknown 
 {
@@ -1593,6 +1593,7 @@ sub variantAnalysis
     my $r2g_vcf_file=shift;
     my $r2g_gap_file=shift;
     my $gff3File=shift;
+    my $ref_fasta = shift;
     my $time=time();
     my $outputDir="$outDir/AssemblyBasedAnalysis/contigMappingToRef/";
     my $log = "$outputDir/variantAnalysis.log";
@@ -1623,8 +1624,9 @@ sub variantAnalysis
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     unlink "$outputDir/variantAnalysis.finished";
     unlink "$r2g_outputDir/variantAnalysis.finished";
+    my $fastainput =  (`grep "##FASTA" $gff3File`)? "": "-fasta $ref_fasta";
     if ($c2g_SNP_INDEL_File and -s $c2g_SNP_INDEL_File){
-      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $c2g_SNP_INDEL_File -format nucmer -output $outputDir 2>$log";
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $c2g_SNP_INDEL_File $fastainput -format nucmer -output $outputDir 2>$log";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
     }
@@ -1634,7 +1636,7 @@ sub variantAnalysis
       &executeCommand($cmd);
     }
     if ($r2g_vcf_file and -s $r2g_vcf_file){
-      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $r2g_vcf_file -format vcf -output $r2g_outputDir 2>>$log2";
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $r2g_vcf_file $fastainput -format vcf -output $r2g_outputDir 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
     }
