@@ -256,7 +256,7 @@ def getGFFInfo (rgiHitList, gffTableList, outGFFList, outCoordsList, idList):
 		(gffSeqName, gffSource, gffFeature, gffStart, gffStop, gffScore, gffStrand, gffFrame, gffAttributes) = gffEntry
 		gffAttributeList = gffAttributes.split(';')
 		newAttributeList = []
-		if geneRGI in gffAttributeList[0]:
+		if geneRGI == gffAttributeList[0].split('=')[1]:
 			#print gffAttributeList[0]
 			#print geneRGI, gffAttributeList
 			for gffAttribute in gffAttributeList:
