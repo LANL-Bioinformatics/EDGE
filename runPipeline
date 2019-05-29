@@ -389,7 +389,7 @@ my $mail_subject= "EDGE project $project_name complete";
 my $recipient = $configuration->{projowner};
 $recipient = "$recipient,$sys->{email_recipient}" if ($sys->{email_recipient});
 my $projID= $configuration->{projcode} || $configuration->{projid};
-my $mail_msg = "EDGE project $project_name (Description: $configuration->{projdesc}) has been done. Please login to ".
+my $mail_msg = "EDGE project $project_name (Description: $configuration->{projdesc}) is complete. Please login to ".
                "$configuration->{projrunhost}/ to see the result.".
                "\nOr click link below\n\n $configuration->{projrunhost}/?proj=$projID\n";
 &sendMail($sys->{cluster_job_notify},$recipient,$mail_subject,$mail_msg) if ($sys->{email_notification} && $recipient);
