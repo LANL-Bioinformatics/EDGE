@@ -649,7 +649,7 @@ $( document ).ready(function()
 		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
- 		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy.</span>')
+ 		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy.</span>')
  	);
 
 	// filter serach callBack function
