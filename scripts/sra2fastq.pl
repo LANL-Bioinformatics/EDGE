@@ -51,7 +51,7 @@ my $res=GetOptions(
     'filesize-restrict|fr=s' => \$FLSZ_R,
     'runs-restrict|r|rr=s'   => \$RUN_R,
     'download-interface=s'   => \$Download_tool,
-    'proxy'                  => \$user_proxy,
+    'proxy=s'                => \$user_proxy,
     'no_proxy'               => \$no_proxy,
     'clean|n'                => \$CLEAN,
     'help|?'        => sub{usage()}
