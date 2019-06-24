@@ -462,7 +462,7 @@ for my $file ( @files ) {
     while ( my $seq = $in->next_seq() ) {
         my $seq_name = $seq->accession_number;
 	$seq_name = $seq->id if $seq_name eq "unknown";
-	my $seq_version = $seq->seq_version();
+	my $seq_version = ($seq->seq_version())? $seq->seq_version(): 1 ;
         my $end = $seq->length;
         my @to_print;
 
