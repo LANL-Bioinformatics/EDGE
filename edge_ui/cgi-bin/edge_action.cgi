@@ -358,6 +358,7 @@ elsif( $action eq 'delete' ){
 	else{
 		if ($username && $password){
 			&updateDBProjectStatus($pname,"delete");
+			unlink $user_proj_dir;
 		}
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Output directory not found.";
@@ -1643,6 +1644,12 @@ sub cleanProjectForNewConfig {
 				}else{
 					last;
 				}
+				if ($param eq "reference"){
+ 					remove_tree("$proj_dir/ReferenceBasedAnalysis/*");
+ 				}
+				if ($param eq "assembler"){
+ 					remove_tree("$proj_dir/AssemblyBasedAnalysis/*");
+ 				}
 			}
 		}
 	}
