@@ -3082,8 +3082,9 @@ sub runReadsToGenome
     }
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
-    unlink "$outGap";
-    unlink "$outVCF";
+    unlink $outGap;
+    unlink glob("$outputDir/*.vcf");
+    unlink glob("$outputDir/*gap.coords");
     
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
