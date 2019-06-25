@@ -1010,7 +1010,7 @@ sub runQiimeAnalysis{
     print $fh "export PYTHONUNBUFFERED=on\n";
     print $fh $cmd,"\n";
     close $fh;
-    &executeCommand2("/bin/sh $run_script");
+    &executeCommand2("/bin/bash $run_script");
     #&executeCommand($cmd);
 
     &printRunTime($time);
