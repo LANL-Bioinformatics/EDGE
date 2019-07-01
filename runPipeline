@@ -508,7 +508,7 @@ sub runPiReT {
     print $fh $cmd,"\n";
     #print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
     close $fh;
-    &executeCommand2("/bin/sh $run_script");
+    &executeCommand2("/bin/bash $run_script");
     #unlink "$outputDir/$piret_indir_basename";
     &touchFile("$outputDir/runPiret.finished");
 

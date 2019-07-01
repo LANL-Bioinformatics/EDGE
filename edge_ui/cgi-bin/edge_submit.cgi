@@ -1069,11 +1069,11 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-piret-prok-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-fasta-file"} && ! -e $opt{"edge-piret-prok-fasta-file"} );
 		&addMessage("PARAMS", "edge-piret-prok-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-prok-fasta-file"} && ! is_fasta($opt{"edge-piret-prok-fasta-file"}) );
 		&addMessage("PARAMS", "edge-piret-prok-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-gff-file"} && ! -e $opt{"edge-piret-prok-gff-file"} );
-		&addMessage("PARAMS", "edge-piret-prok-gff-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-prok-gff-file"} && ! is_gff($opt{"edge-piret-prok-gff-file"}) );
+		&addMessage("PARAMS", "edge-piret-prok-gff-file","Invalid input. GFF format required.") if ( -e $opt{"edge-piret-prok-gff-file"} && ! is_gff($opt{"edge-piret-prok-gff-file"}) );
 		&addMessage("PARAMS", "edge-piret-euk-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-fasta-file"} && ! -e $opt{"edge-piret-euk-fasta-file"} );
 		&addMessage("PARAMS", "edge-piret-euk-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-euk-fasta-file"} && ! is_fasta($opt{"edge-piret-euk-fasta-file"}) );
 		&addMessage("PARAMS", "edge-piret-euk-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-gff-file"} && ! -e $opt{"edge-piret-euk-gff-file"} );
-		&addMessage("PARAMS", "edge-piret-euk-gff-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-euk-gff-file"} && ! is_gff($opt{"edge-piret-euk-gff-file"}) );
+		&addMessage("PARAMS", "edge-piret-euk-gff-file","Invalid input. GFF format required.") if ( -e $opt{"edge-piret-euk-gff-file"} && ! is_gff($opt{"edge-piret-euk-gff-file"}) );
 		&addMessage("PARAMS","edge-piret-pvalue","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-piret-pvalue"} >=0 && $opt{"edge-piret-pvalue"} <=1 );
 		
 		
