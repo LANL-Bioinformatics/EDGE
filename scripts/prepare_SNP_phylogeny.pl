@@ -132,6 +132,7 @@ if ($genomes || $genomesFiles)
 		map{
 			my ($name,$path,$suffix)=fileparse("$_",qr/\.[^.]*/);
 			open (my $fh, $_) or die "Cannot read $_\n";
+			$name =~ s/contig/ctg/g;
 			open (my $ofh, ">$refdir/$name.fna") or die "Cannot write $refdir/$name.fna\n";
 			print $ofh ">$name\n";
 			while(my $line=<$fh>){

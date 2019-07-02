@@ -2893,6 +2893,7 @@ $( document ).ready(function()
 		//add time stamp to avoid caching.
 		var ts = new Date().getTime();
 		focusProjConfigFile = focusProjConfigFile + "?_=" + ts;
+		$( "#edge-form-reset" ).trigger('click');
 
 		$.getJSON( focusProjConfigFile, function( data ) {
 			// show all hidden input to be reconfiged
