@@ -915,6 +915,7 @@ sub checkParams {
 			&addMessage("PARAMS",'edge-input-contig-file',"Input error. Please check the file path.") if (! -e $opt{'edge-input-contig-file'} );
 			&addMessage("PARAMS",'edge-input-contig-file',"Invalid input. Fasta format required") if ( -e $opt{'edge-input-contig-file'} && ! is_fasta($opt{'edge-input-contig-file'}) && $opt{'edge-input-contig-file'} !~ /^http|ftp/i );
 			&addMessage("PARAMS",'edge-binning-abund-file',"Please provide abundance file for Contig Binning") if ( $opt{'edge-binning-sw'} && ! -e $opt{'edge-binning-abund-file'} );
+			$opt{"edge-binning-checkM-sw"} = 0 if (! $opt{'edge-binning-sw'});
  			$opt{"edge-qc-sw"}       = 0;
  			$opt{'edge-joinpe-sw'}   = 0;
  			$opt{"edge-hostrm-sw"}   = 0;
