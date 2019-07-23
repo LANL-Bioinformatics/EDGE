@@ -814,6 +814,7 @@ sub checkParams {
 					$single_files[$i] = $sf;
 				}
     				&addMessage("PARAMS","edge-batch-input-excel","Invalid characters detected in $sf of $pname.") if ( -f $sf and $sf =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+				$opt{$param} =~ s/ //g  if ($param =~ /file|input|custom-/);
     				&addMessage("PARAMS","edge-batch-input-excel","Input error. Please check the $sf file path of $pname.") if ($sf && $sf !~ /^http|ftp/i && ! -e $sf);
 			}
 			$projlist->{$pname}->{"s"} = join(",",@single_files);
