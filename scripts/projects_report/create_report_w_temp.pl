@@ -258,6 +258,11 @@ if($settings->{'tax-tools'} eq "on") {
 			$vars->{TAX_TOOL} = 1;
 			$vars->{TAX_TOOL_KRAKEN} =1;
 			$tax_tools{"kraken"} = 1;
+		}  elsif($field eq "kraken2") {
+			$vars->{TAX} = 1;
+			$vars->{TAX_TOOL} = 1;
+			$vars->{TAX_TOOL_KRAKEN} =1;
+			$tax_tools{"kraken2"} = 1;
 		}  elsif($field eq "diamond") {
 			$vars->{TAX} = 1;
 			$vars->{TAX_TOOL} = 1;
@@ -1934,17 +1939,17 @@ sub pull_reports {
 							}
 
 							##get files/figures					
-							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\d?\.*\.tree\.svg)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_TREE_PLOT_TXT} = "SVG";
 								next;
 							}					
-							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\d?\.*\.krona\.html)'>\[fullwindow\]<\/a><\/span>/) {
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT} = $1;
 								$proj->{TAX_TOOL_KRAKEN_KRONA_PLOT_TXT} = "HTML";
 								next;
 							}								
-							if(/<a data-ajax='false' href='(.*allReads-kraken.*\.list\.txt)'> Abundance <\/a>/) {
+							if(/<a data-ajax='false' href='(.*allReads-kraken\d?\.*\.list\.txt)'> Abundance <\/a>/) {
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE} = $1;
 								$proj->{TAX_TOOL_KRAKEN_ABUNDANCE_TXT} = "TXT";
 								last;
