@@ -137,6 +137,12 @@ COMMAND=uge-pangia.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d "<T
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
+<TMPL_IF NAME="pangia-orig">
+[pangia-orig]
+COMMAND=uge-pangia-orig.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d "<TMPL_VAR NAME=pangia-db-orig>" -c <TMPL_VAR NAME=pangia-rc> -a '-ams <TMPL_VAR NAME=bwaScoreCut DEFAULT=30> <TMPL_VAR NAME=pangia-opts DEFAULT="-sb -se">' -r <TMPL_VAR NAME=pangia-ra> -S <TMPL_VAR NAME=pangia-ms> -R <TMPL_VAR NAME=pangia-mr> -B <TMPL_VAR NAME=pangia-mb> -L <TMPL_VAR NAME=pangia-ml> <TMPL_VAR NAME=pangia-bg|>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
 <TMPL_IF NAME="metaphlan">
 [metaphlan]
 COMMAND=uge-metaphlan.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=metaphlan-db>

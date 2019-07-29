@@ -725,14 +725,14 @@ elsif( $action eq 'getreadsbytaxa'){
 	if( $cptool_for_reads_extract =~ /gottcha2/i ){
 		my $gottcha2_db="";
 		if ($cptool_for_reads_extract =~ /speDB-b/){
-			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaViruses.species.fna";
+			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-r90.cg.BacteriaArchaeaViruses.species.fna";
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-b"});
 		}
 		if ($cptool_for_reads_extract =~ /speDB-v/){
 			$gottcha2_db = "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release90.cg.Viruses.species.fna";
 			$gottcha2_db = $config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"} if ($config->{"Reads Taxonomy Classification"}->{"custom-gottcha2-speDB-v"});
 		}
-		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
+		$cmd = "$EDGE_HOME/thirdParty/gottcha2/gottcha2.py -d $gottcha2_db -s $readstaxa_outdir/*.sam -e $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq 2>\&1 1>>$readstaxa_outdir/ReadsExtractLog.txt  &";
 	}
 	# PanGIA Only
 	if( $cptool_for_reads_extract =~ /pangia/i ){
@@ -1636,11 +1636,11 @@ sub cleanProjectForNewConfig {
 					unlink $module_ctl->{$module}->{$task};
 				}
 				if ($param eq "reference"){
- 					remove_tree("$proj_dir/ReferenceBasedAnalysis");
- 				}
+					remove_tree("$proj_dir/ReferenceBasedAnalysis");
+				} 
 				if ($param eq "assembler"){
- 					remove_tree("$proj_dir/AssemblyBasedAnalysis");
- 				}
+					remove_tree("$proj_dir/AssemblyBasedAnalysis");
+				}
 				if($param =~ /^custom-(\w+)-/){
 					unlink glob("$proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/$1*/.finished");
 					unlink glob("$proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/$1*/.finished");

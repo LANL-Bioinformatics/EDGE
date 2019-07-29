@@ -78,7 +78,7 @@ mkdir -p $OUTPATH
 
 set -xe;
 
-gottcha2.py -r $RELABD_COL -m full -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha2.py -r $RELABD_COL -i $FASTQ -t $THREADS --outdir $OUTPATH -p $PREFIX --database $DB
 
 awk -F\\t '{if($NF=="" || $NF=="NOTE"){print $_}}' $OUTPATH/$PREFIX.full.tsv | cut -f -10 > $OUTPATH/$PREFIX.summary.tsv
 awk -F\\t '{if(NR==1){out=$1"\t"$2"\tROLLUP\tASSIGNED"; { for(i=3;i<=NF;i++){out=out"\t"$i}}; print out;}}' $OUTPATH/$PREFIX.summary.tsv > $OUTPATH/$PREFIX.out.list
