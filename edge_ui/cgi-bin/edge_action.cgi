@@ -1635,6 +1635,12 @@ sub cleanProjectForNewConfig {
 				foreach my $task ( keys %{$module_ctl->{$module}} ){
 					unlink $module_ctl->{$module}->{$task};
 				}
+				if ($param eq "reference"){
+ 					remove_tree("$proj_dir/ReferenceBasedAnalysis");
+ 				}
+				if ($param eq "assembler"){
+ 					remove_tree("$proj_dir/AssemblyBasedAnalysis");
+ 				}
 				if($param =~ /^custom-(\w+)-/){
 					unlink glob("$proj_dir/ReadsBasedAnalysis/Taxonomy/report/*/$1*/.finished");
 					unlink glob("$proj_dir/ReadsBasedAnalysis/UnmappedReads/report/*/$1*/.finished");
@@ -1644,12 +1650,6 @@ sub cleanProjectForNewConfig {
 				}else{
 					last;
 				}
-				if ($param eq "reference"){
- 					remove_tree("$proj_dir/ReferenceBasedAnalysis/*");
- 				}
-				if ($param eq "assembler"){
- 					remove_tree("$proj_dir/AssemblyBasedAnalysis/*");
- 				}
 			}
 		}
 	}
