@@ -327,7 +327,7 @@ echo "
 
 install_prokka()
 {
-local VER=1.13
+local VER=1.14.0
 echo "------------------------------------------------------------------------------
                            Installing prokka-$VER
 ------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ tar xvzf prokka-$VER.tar.gz
 cd prokka-$VER
 # remove old perl modules
 # https://github.com/tseemann/prokka/issues/293
-rm -rf perl5
+#rm -rf perl5
 cd $rootdir/thirdParty
 ln -sf $rootdir/thirdParty/prokka-$VER/bin/prokka $rootdir/bin/prokka
 $rootdir/thirdParty/prokka-$VER/bin/prokka --setupdb
@@ -533,7 +533,7 @@ echo "
 
 install_BLAST+()
 {
-local VER=2.5.0
+local VER=2.9.0
 echo "------------------------------------------------------------------------------
                            Install ncbi-blast-$VER+-x64
 ------------------------------------------------------------------------------
@@ -1427,7 +1427,7 @@ ln -fs $anaconda2bin/conda $rootdir/bin
 tar -xvzf Anaconda2Packages.tgz
 $anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
 $anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
 $anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
@@ -1951,7 +1951,7 @@ fi
 if ( checkSystemInstallation blastn )
 then
    BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-   if ( echo $BLAST_VER | awk '{if($1>="2.4.0") exit 0; else exit 1}' )
+   if ( echo $BLAST_VER | awk '{if($1>="2.8.0") exit 0; else exit 1}' )
    then
      echo "BLAST+ $BLAST_VER found"
    else
