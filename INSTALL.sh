@@ -210,7 +210,7 @@ echo "
 
 
 install_spades(){
-local VER=3.11.1
+local VER=3.13.1
 echo "------------------------------------------------------------------------------
                            Installing SPAdes $VER
 ------------------------------------------------------------------------------
@@ -1915,7 +1915,7 @@ fi
 if ( checkSystemInstallation fastq-dump )
 then
   sratoolkit_VER=`fastq-dump --version | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if  ( echo $sratoolkit_VER | awk '{if($1>="2.8.1") exit 0; else exit 1}' )
+  if  ( echo $sratoolkit_VER | awk '{if($1>="2.9.2") exit 0; else exit 1}' )
   then
     echo "sratoolkit $sratoolkit_VER found"
   else
@@ -2248,7 +2248,7 @@ fi
 if ( checkSystemInstallation spades.py )
 then
   spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
-  if ( echo $spades_VER | awk '{if($1>="3.11.0") exit 0; else exit 1}' )
+  if ( echo $spades_VER | awk '{if($1>="3.13.0") exit 0; else exit 1}' )
   then
     echo "SPAdes $spades_VER found"
   else
