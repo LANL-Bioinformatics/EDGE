@@ -462,7 +462,7 @@ if __name__ == '__main__':
     mappingFile = os.path.abspath(argvs.mappingFile)
     if mappingFile.lower().endswith(('.xlsx','.xls')):
         if not dependency_check("xlsx2csv"):
-            shutil.rmtree(abs_output) 
+            shutil.rmtree(abs_output, ignore_errors=True) 
             sys.exit("[ERROR] Executable xlsx2csv not found.")
         process_cmd("xlsx2csv -d tab %s %s/tmp_sample_metadata.txt" % (mappingFile,abs_output)) 
     else:
@@ -504,13 +504,13 @@ if __name__ == '__main__':
                 process_cmd('gzip -c ' + argvs.paired[0] + ' > ' + input_path + '/forward.fastq.gz')
                 process_cmd('gzip -c ' + argvs.paired[1] + ' > ' + input_path + '/reverse.fastq.gz')
         else:
-            shutil.rmtree(abs_output) 
+            shutil.rmtree(abs_output, ignore_errors=True) 
             sys.exit( "ERROR: Expected barcode with emp single end or paired end data" )
 
         import_cmd = ("qiime tools import --type  %s --input-path %s --output-path %s/input.qza" )  % (import_type, input_path, input_path)
     
     if (argvs.single or argvs.paired) and (not argvs.barcode):
-        shutil.rmtree(abs_output) 
+        shutil.rmtree(abs_output , ignore_errors=True) 
         sys.exit( "ERROR: Expected barcode with emp single end or paired end data" )
 
     if argvs.dir:
@@ -675,7 +675,7 @@ if __name__ == '__main__':
     
     if not os.path.isfile('DiversityAnalysis/unweighted_unifrac_emperor.qzv') and num_sample_over_samplingDepth > 2 :
         if os.path.exists('DiversityAnalysis'):
-            shutil.rmtree('DiversityAnalysis')
+            shutil.rmtree('DiversityAnalysis' , ignore_errors=True)
         diversity_cmd = ("qiime diversity core-metrics-phylogenetic --i-phylogeny PhyloAnalysis/rooted-tree.qza --i-table QCandFT/table.qza "
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
                          "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
