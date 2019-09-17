@@ -184,7 +184,7 @@ def fix_mappingFile(mappingFile,out_dir):
     num_sample = 0
     for line in f:
         if not line.strip():continue
-        temp = [ x.strip() for x in line.split('\t')]
+        temp = [ x.strip(' "') for x in line.split('\t')]
         temp[0] = temp[0].replace('.', '-').replace('_', '-')
         new_line = "\t".join(temp)
         ff.write(new_line + "\n")
