@@ -257,6 +257,7 @@ def add_html_table(analysis_type):
                 tab_list.append('<li id="%s_boxplot" class="%s"><a href="#">%s</a></li>' % (val, activate_class, alpha_analysis_title[i]))
                 src_list.append("'%s_boxplot':'./%s_boxplot/index.html'" % (val ,val))
 
+    frame_height = 600 if analysis_type == 'beta' else 1400
     first_src_file = src_list[0].split(':')[1] if len(src_list) > 0 else ""
     html="""<!DOCTYPE html>
 <html>
@@ -277,7 +278,7 @@ def add_html_table(analysis_type):
           %s
         </ul>
         </div>
-        <iframe id="tab-frame" src=%s height="600px"></iframe>
+        <iframe id="tab-frame" src=%s height="%dpx"></iframe>
         <!--<div class="row">
             <div class="col-lg-12">
             <h1>Beta Diversity PCoA Plots</h1>
@@ -309,7 +310,7 @@ def add_html_table(analysis_type):
         if (document.querySelector('.active').id != this.id) {
             document.querySelector('.active').className = '';
             this.className = 'active';
-            frame.height = '600px';
+            frame.height = '%dpx';
             frame.contentWindow.location.replace(frameSrc[this.id]);
         }
       }
@@ -325,7 +326,7 @@ def add_html_table(analysis_type):
       //window.addEventListener('message', frameLoad);
     </script>
   </body>
-</html>""" % ("\n".join(tab_list), first_src_file ,",\n".join(src_list))
+</html>""" % ("\n".join(tab_list), first_src_file , frame_height, ",\n".join(src_list), frame_height)
 
     out_html = 'DiversityAnalysis/table.html' if ( analysis_type == 'beta' ) else 'DiversityAnalysis/alpha-table.html'   
     if len(tab_list) > 0 :
