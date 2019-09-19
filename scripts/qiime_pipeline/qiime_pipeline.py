@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__    = "Chienchi Lo, Bioscience Division, Los Alamos National Laboratory"
 __date__      = "2018/09/20"
 __copyright__ = "BSD 3-Clause"
@@ -219,7 +219,7 @@ def get_fastq_manifest(mappingFile,in_dir,out_dir):
                     type='se'
             else:
                 sys.exit("[ERROR] 'Files' column not found in meta data mapping file.")
-
+   
             f_fq = f_fq.replace('"', '')
             mf.write('%s,%s/%s,%s\n' % (temp[0],abs_inDir,f_fq,'forward'))
             symlink_force(abs_inDir+'/'+ f_fq,out_dir + '/input/' + os.path.basename(f_fq))
@@ -233,21 +233,31 @@ def get_fastq_manifest(mappingFile,in_dir,out_dir):
     return type , mf_file       
             
 
-def add_emperor_table():
+def add_html_table(analysis_type):
     tab_list=list()
     src_list=list()
-    if os.path.isfile('DiversityAnalysis/bray_curtis_emperor/emperor.html'):
-        tab_list.append('<li id="bray_curtis_pcoa" class="active"><a href="#">Bray-Curtis</a></li>')
-        src_list.append("'bray_curtis_pcoa': './bray_curtis_emperor/emperor.html'")
-    if os.path.isfile('DiversityAnalysis/jaccard_emperor/emperor.html'):
-        tab_list.append('<li id="jaccard_pcoa"><a href="#">Jaccard</a></li>')
-        src_list.append("'jaccard_pcoa': './jaccard_emperor/emperor.html'")
-    if os.path.isfile('DiversityAnalysis/unweighted_unifrac_emperor/emperor.html'):
-        tab_list.append('<li id="unweighted_unifrac_pcoa"><a href="#">unweighted UniFrac</a></li>')
-        src_list.append("'unweighted_unifrac_pcoa': './unweighted_unifrac_emperor/emperor.html'")
-    if os.path.isfile('DiversityAnalysis/weighted_unifrac_emperor/emperor.html'):
-        tab_list.append('<li id="weighted_unifrac_pcoa"><a href="#">weighted UniFrac</a></li>')
-        src_list.append("'weighted_unifrac_pcoa': './weighted_unifrac_emperor/emperor.html'")   
+    if ( analysis_type == 'beta' ):
+        beta_emperor_result = ['bray_curtis','jaccard','unweighted_unifrac','weighted_unifrac']
+        beta_emperor_title = ['Bray-Curtis','Jaccard','Unweighted Unifrac','Weighted Unifrac']
+        activate_class_count = 0 
+        for i, val in enumerate(beta_emperor_result):
+            if os.path.isfile("DiversityAnalysis/%s_emperor/emperor.html" % val ):
+                activate_class_count += 1
+                activate_class = "active" if activate_class_count < 2 else ""
+                tab_list.append('<li id="%s_pcoa" class="%s"><a href="#">%s</a></li>' % (val, activate_class, beta_emperor_title[i]))
+                src_list.append("'%s_pcoa':'./%s_emperor/emperor.html'" % (val ,val))
+    elif ( analysis_type == 'alpha' ):
+        alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
+        alpha_analysis_title = ['Evenness','Faith_pd','Observed OTUs','Shannon']
+        activate_class_count = 0 
+        for i, val in enumerate(alpha_analysis_result):
+            if os.path.isfile("DiversityAnalysis/%s_boxplot/index.html" % val ):
+                activate_class_count += 1
+                activate_class = "active" if activate_class_count < 2 else ""
+                tab_list.append('<li id="%s_boxplot" class="%s"><a href="#">%s</a></li>' % (val, activate_class, alpha_analysis_title[i]))
+                src_list.append("'%s_boxplot':'./%s_boxplot/index.html'" % (val ,val))
+
+    first_src_file = src_list[0].split(':')[1] if len(src_list) > 0 else ""
     html="""<!DOCTYPE html>
 <html>
   <head>
@@ -267,7 +277,7 @@ def add_emperor_table():
           %s
         </ul>
         </div>
-        <iframe id="tab-frame" src="./bray_curtis_emperor/emperor.html" height="600px"></iframe>
+        <iframe id="tab-frame" src=%s height="600px"></iframe>
         <!--<div class="row">
             <div class="col-lg-12">
             <h1>Beta Diversity PCoA Plots</h1>
@@ -315,10 +325,11 @@ def add_emperor_table():
       //window.addEventListener('message', frameLoad);
     </script>
   </body>
-</html>""" % ("\n".join(tab_list),",\n".join(src_list))
-    
+</html>""" % ("\n".join(tab_list), first_src_file ,",\n".join(src_list))
+
+    out_html = 'DiversityAnalysis/table.html' if ( analysis_type == 'beta' ) else 'DiversityAnalysis/alpha-table.html'   
     if len(tab_list) > 0 :
-        with open( 'DiversityAnalysis/table.html', "w") as f:
+        with open( out_html, "w") as f:
             f.write(html)
             f.close()
 
@@ -361,6 +372,9 @@ def html_report(template):
     if os.path.isfile('DiversityAnalysis/alpha-rarefaction/index.html'):
         tab_list.append('<li id="alpha-rarefaction"><a href="#">Alpha Rarefaction</a></li>')
         src_list.append("'alpha-rarefaction': './DiversityAnalysis/alpha-rarefaction/index.html'")
+    if os.path.isfile('DiversityAnalysis/alpha-table.html'):
+        tab_list.append('<li id="alpha-boxplots"><a href="#">Alpha-Diversity Boxplots</a></li>')
+        src_list.append("'alpha-boxplots': './DiversityAnalysis/alpha-table.html'")
     if os.path.isfile('DiversityAnalysis/table.html'):
         tab_list.append('<li id="PCoA-plots"><a href="#">PCoA plots</a></li>')
         src_list.append("'PCoA-plots': './DiversityAnalysis/table.html'")
@@ -464,7 +478,7 @@ if __name__ == '__main__':
     mappingFile = os.path.abspath(argvs.mappingFile)
     if mappingFile.lower().endswith(('.xlsx','.xls')):
         if not dependency_check("xlsx2csv"):
-            shutil.rmtree(abs_output, ignore_errors=True) 
+            shutil.rmtree(abs_output,ignore_errors=True) 
             sys.exit("[ERROR] Executable xlsx2csv not found.")
         process_cmd("xlsx2csv -d tab %s %s/tmp_sample_metadata.txt" % (mappingFile,abs_output)) 
     else:
@@ -506,13 +520,13 @@ if __name__ == '__main__':
                 process_cmd('gzip -c ' + argvs.paired[0] + ' > ' + input_path + '/forward.fastq.gz')
                 process_cmd('gzip -c ' + argvs.paired[1] + ' > ' + input_path + '/reverse.fastq.gz')
         else:
-            shutil.rmtree(abs_output, ignore_errors=True) 
+            shutil.rmtree(abs_output,ignore_errors=True) 
             sys.exit( "ERROR: Expected barcode with emp single end or paired end data" )
 
         import_cmd = ("qiime tools import --type  %s --input-path %s --output-path %s/input.qza" )  % (import_type, input_path, input_path)
     
     if (argvs.single or argvs.paired) and (not argvs.barcode):
-        shutil.rmtree(abs_output , ignore_errors=True) 
+        shutil.rmtree(abs_output,ignore_errors=True) 
         sys.exit( "ERROR: Expected barcode with emp single end or paired end data" )
 
     if argvs.dir:
@@ -561,18 +575,20 @@ if __name__ == '__main__':
         # ME added the 'single/paired' switch
         if argvs.qcMethod.lower() == 'dada2':
             if argvs.single or read_type == 'se':
-        
+                chimera_method = "consensus"       
                 dada2_cmd = ("qiime dada2 denoise-single --i-demultiplexed-seqs demux/demux.qza "
+                            "--p-chimera-method %s "
                             "--o-representative-sequences QCandFT/rep-seqs.qza "
                             "--o-table QCandFT/table.qza "
                             "--o-denoising-stats QCandFT/stats-dada2.qza "
                             "--p-trunc-len %d "
                             "--p-trim-left %d "
-                            "--p-n-threads %d "  ) % (argvs.truncLen, argvs.trimLen, argvs.cpus)
+                            "--p-n-threads %d "  ) % (chimera_method, argvs.truncLen, argvs.trimLen, argvs.cpus)
             
             elif argvs.paired or read_type == 'pe':
 
                 dada2_cmd = ("qiime dada2 denoise-paired --i-demultiplexed-seqs demux/demux.qza "
+                            "--p-chimera-method %s "
                             "--o-representative-sequences QCandFT/rep-seqs.qza "
                             "--o-table QCandFT/table.qza "
                             "--o-denoising-stats QCandFT/stats-dada2.qza "
@@ -580,7 +596,7 @@ if __name__ == '__main__':
                             "--p-trim-left-r %d "
                             "--p-trunc-len-f %d "
                             "--p-trunc-len-r %d "
-                            "--p-n-threads %d "  ) % (argvs.trimLeftForward, argvs.trimLeftReverse, argvs.truncLenForward, argvs.truncLenReverse, argvs.cpus)
+                            "--p-n-threads %d "  ) % (chimera_method, argvs.trimLeftForward, argvs.trimLeftReverse, argvs.truncLenForward, argvs.truncLenReverse, argvs.cpus)
                             
             process_cmd(dada2_cmd,"Dada2 QC and FeatureTable construction")
             stats_cmd = ('qiime metadata tabulate --m-input-file QCandFT/stats-dada2.qza --o-visualization QCandFT/stats-dada2.qzv')
@@ -677,16 +693,30 @@ if __name__ == '__main__':
     
     if not os.path.isfile('DiversityAnalysis/unweighted_unifrac_emperor.qzv') and num_sample_over_samplingDepth > 2 :
         if os.path.exists('DiversityAnalysis'):
-            shutil.rmtree('DiversityAnalysis' , ignore_errors=True)
+            shutil.rmtree('DiversityAnalysis',ignore_errors=True)
         diversity_cmd = ("qiime diversity core-metrics-phylogenetic --i-phylogeny PhyloAnalysis/rooted-tree.qza --i-table QCandFT/table.qza "
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
                          "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
         process_cmd(diversity_cmd, 'Alpha and Beta diversity analyses')
-        qiime_export_html('DiversityAnalysis/unweighted_unifrac_emperor.qzv','DiversityAnalysis/unweighted_unifrac_emperor')
-        qiime_export_html('DiversityAnalysis/jaccard_emperor.qzv','DiversityAnalysis/jaccard_emperor')
-        qiime_export_html('DiversityAnalysis/bray_curtis_emperor.qzv','DiversityAnalysis/bray_curtis_emperor')
-        qiime_export_html('DiversityAnalysis/weighted_unifrac_emperor.qzv','DiversityAnalysis/weighted_unifrac_emperor')
-        add_emperor_table()
+        beta_analysis_results = ['unweighted_unifrac_emperor','jaccard_emperor','bray_curtis_emperor','weighted_unifrac_emperor']
+        for x in beta_analysis_results:
+            if os.path.isfile("DiversityAnalysis/%s.qzv" % x ):
+                qiime_export_html("DiversityAnalysis/%s.qzv" % x ,"DiversityAnalysis/%s" % x)
+        add_html_table('beta')
+   
+        alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
+        for x in alpha_analysis_result:
+            if os.path.isfile("DiversityAnalysis/%s.qza" % x) :
+                cmd = ("qiime diversity alpha-group-significance --i-alpha-diversity DiversityAnalysis/%s.qza "
+                       "--m-metadata-file %s --o-visualization DiversityAnalysis/%s-group-significance.qzv ") % (x, mappingFile,x)
+                process_cmd(cmd)
+
+                if os.path.isfile("DiversityAnalysis/%s-group-significance.qzv" % x) :
+                    qiime_export_html("DiversityAnalysis/%s-group-significance.qzv" % x,"DiversityAnalysis/%s_boxplot" % x)
+
+        add_html_table('alpha')
+
+    
    
     # Alpha rarefaction plotting
     max_rarefaction_depth = argvs.maxRarefactionDepth if argvs.maxRarefactionDepth > 0 else samplingDepth
@@ -708,6 +738,9 @@ if __name__ == '__main__':
     elif (argvs.target.lower() == 'its'):
         nb_classifier = target_path + '/ITS.classifier.qza'
 
+    #  QCandFT/table.qza is the full data 
+    #  use rarefied_table for sub-sampling taxanomy plots  
+    data_table = 'DiversityAnalysis/rarefied_table.qza' if os.path.isfile('DiversityAnalysis/rarefied_table.qza') else 'QCandFT/table.qza'
     if not os.path.isfile('TaxonomyAnalysis/taxa-bar-plots.qzv'):
         mkdir_p('TaxonomyAnalysis')    
         taxa_cmd = ("qiime feature-classifier classify-sklearn --i-classifier %s " 
@@ -718,18 +751,16 @@ if __name__ == '__main__':
         process_cmd(taxa_table_cmd, 'Taxonomic tabulate')
         qiime_export_html('TaxonomyAnalysis/taxonomy.qzv','TaxonomyAnalysis/Table')
 
-        #  QCandFT/table.qza is the full data 
-        #  use rarefied_table for sub-sampling taxanomy plots  
-        taxa_barplot_cmd = ("qiime taxa barplot --i-table DiversityAnalysis/rarefied_table.qza --i-taxonomy TaxonomyAnalysis/taxonomy.qza "
+        taxa_barplot_cmd = ("qiime taxa barplot --i-table %s --i-taxonomy TaxonomyAnalysis/taxonomy.qza "
                             "--m-metadata-file %s " 
-                            "--o-visualization TaxonomyAnalysis/taxa-bar-plots.qzv") % (mappingFile)
+                            "--o-visualization TaxonomyAnalysis/taxa-bar-plots.qzv") % (data_table, mappingFile)
         process_cmd(taxa_barplot_cmd, 'Taxonomic barplots')
         qiime_export_html('TaxonomyAnalysis/taxa-bar-plots.qzv','TaxonomyAnalysis/barplots')
 
     
     ## Creating a OTU table with taxonomy annotations use rarefied_table
     if not os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv'):
-        qiime_export_html('DiversityAnalysis/rarefied_table.qza','DiversityAnalysis/rarefied-table-summary')
+        qiime_export_html(data_table,'DiversityAnalysis/rarefied-table-summary')  
         biom_otu_cmd=('biom convert -i %s -o %s --to-tsv') % ("DiversityAnalysis/rarefied-table-summary/feature-table.biom","DiversityAnalysis/rarefied-table-summary/feature-table.tsv")
         process_cmd(biom_otu_cmd, 'Generate Biom OTU Rarefied FeatureTable')
     if os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv') and os.path.isfile('TaxonomyAnalysis/Table/metadata.tsv'):
