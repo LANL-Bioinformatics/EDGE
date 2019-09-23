@@ -572,11 +572,11 @@ if __name__ == '__main__':
     # Quality control and Feature Table contruction
     if not os.path.isfile('QCandFT/rep-seq-table/index.html'):
         mkdir_p('QCandFT')
+        chimera_method = "consensus"       
         
         # ME added the 'single/paired' switch
         if argvs.qcMethod.lower() == 'dada2':
             if argvs.single or read_type == 'se':
-                chimera_method = "consensus"       
                 dada2_cmd = ("qiime dada2 denoise-single --i-demultiplexed-seqs demux/demux.qza "
                             "--p-chimera-method %s "
                             "--o-representative-sequences QCandFT/rep-seqs.qza "

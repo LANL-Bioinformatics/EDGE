@@ -3008,6 +3008,7 @@ sub runReadsToContig
     $parameters .= " -d $outputDir -pre $outPrefix -ref $contigFile"; 
     if ($configuration->{r2c_aligner} =~ /bowtie/){
 	$r2c_aligner_options =~ s/-p\s*\d+//;
+	$r2c_aligner_options .= ' -k 10 ' if ($r2c_aligner_options !~ /-k/);    
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /bwa/){
 	$r2c_aligner_options =~ s/-t\s*\d+//;
