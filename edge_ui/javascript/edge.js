@@ -1011,11 +1011,12 @@ $( document ).ready(function()
 	});
 
 	$( ".edge-collapsible-options > select" ).on( "change", function() {
-		sync_input();
+		collapsible_select_sync();
 	});
 
 	$( "#edge-all-on-btn" ).on( "click", function() {
 		$("#edge-runEDGE-modules").find(".edge-collapsible-options > select").val(1).slider("refresh");
+		collapsible_select_sync();
 		sync_input();
 	});
 	$( "#edge-all-exp-btn" ).on( "click", function() {
@@ -1031,6 +1032,7 @@ $( document ).ready(function()
 		$('.ui-select select').selectmenu('refresh',true);
 		$('#edge-proj-cpu').val(localStorage.runCPU);
 		sync_input();
+		collapsible_select_sync();
 	});
 
 	$( ".edge-collapsible-options div.ui-slider-switch" ).on( "mouseover", function() {
@@ -1671,8 +1673,8 @@ $( document ).ready(function()
 			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").removeClass('ui-disabled');
 		}
 	}
-	function sync_input( type ) {	//disable inputs for default tools and sync radio buttons
-		
+
+	function collapsible_select_sync() {  //disable/enable inputs 
 		$( ".edge-collapsible-options > select" ).each( function() {
 			var inputOpt = $(this).parents('div[data-role="collapsible"]');
 			$(inputOpt).find("input").prop("disabled", false);
@@ -1688,6 +1690,10 @@ $( document ).ready(function()
 				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');
 			}
 		});
+		
+	}
+	function sync_input( type ) {	//for default tools and sync radio buttons
+		
 		$("#edge-assembly-sw").on("change", function(){
 			if ( $(this).val() == 0 ){
 				/*if ( $( "#edge-anno-sw1" ).is(':chekced') ){
@@ -2804,6 +2810,7 @@ $( document ).ready(function()
 			//reset metadata form
 			resetMetadata();
 			sync_input();
+			collapsible_select_sync();
 		}
 		if (pipeline === 'qiime'){
 			$(".edge-main-pipeline-input").hide();
@@ -2868,6 +2875,7 @@ $( document ).ready(function()
 			$("#edge-runEDGE-pa" ).collapsible( "option", "collapsed", false );
 			$("#edge-runEDGE-pa" ).find(".edge-collapsible-options > select").val(1).slider("refresh");
 			$("#edge-runEDGE-pa" ).find(".ui-collapsible-heading").hide();
+			collapsible_select_sync();
 			sync_input();
 		}
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
@@ -2892,8 +2900,8 @@ $( document ).ready(function()
 	function reconfig(){
 		//add time stamp to avoid caching.
 		var ts = new Date().getTime();
-		focusProjConfigFile = focusProjConfigFile + "?_=" + ts;
 		$( "#edge-form-reset" ).trigger('click');
+		focusProjConfigFile = focusProjConfigFile + "?_=" + ts;
 
 		$.getJSON( focusProjConfigFile, function( data ) {
 			// show all hidden input to be reconfiged
