@@ -255,7 +255,7 @@ then
 	sed -i.bak 's,min(8,min(4,g' Unicycler-$VER/setup.py
 	$anaconda3bin/pip install Unicycler-$VER/
 else
-	$anaconda3bin/conda install -c bioconda unicycler
+	$anaconda3bin/conda install -y -c bioconda unicycler
 fi
 
 echo "
