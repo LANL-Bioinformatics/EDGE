@@ -2115,6 +2115,9 @@ $( document ).ready(function()
 					"pageLength": 25,
 					"deferRender": true,
 					"responsive": true,
+					"initComplete": function() {
+						$(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete','off').css('overflow','hidden').css('margin','auto');
+					},
 					"drawCallback" : function(settings){
 						$( ".edge-project-page-link").unbind('click').on('click', function(e){
 							e.preventDefault();
