@@ -51,12 +51,13 @@ my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
 
 #cluster
 my $cluster 	= $sys->{cluster};
+my $scheduler   = $sys->{scheduler} || 'sge';
 my $cluster_qsub_options= $sys->{cluster_qsub_options};
 my $cluster_job_resource= $sys->{cluster_job_resource};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $cluster_job_notify = $sys->{cluster_job_notify};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
-my $cluster_tmpl = "$RealBin/../cluster/clusterSubmit.tmpl";
+my $cluster_tmpl = $scheduler eq 'slurm'? "$RealBin/../cluster/clusterSubmit_slurm.tmpl": "$RealBin/../cluster/clusterSubmit.tmpl";
 &LoadSGEenv($sys) if ($cluster);
 
 $sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
@@ -216,7 +217,7 @@ if ($msg->{SUBMISSION_STATUS} eq 'success'){
 
 my ($vital, $name2pid, $error);
 if($cluster) {
-	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	($vital, $name2pid, $error) = checkProjVital_cluster($scheduler, $cluster_job_prefix);
 	if($error) {
 		&addMessage("CLUSTER","failure",$error);
 	}
@@ -623,7 +624,7 @@ sub runPipeline_cluster {
 		close CT;
 		&addMessage("CLUSTER","info","Create job script: clusterSubmit.sh");
 		
-		my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
+		my ($job_id,$error) = clusterSubmitJob($scheduler, $cluster_job_script,$cluster_qsub_options);
 		if($error) {
 			&addMessage("CLUSTER","failure","FAILED to submit $cluster_job_script: $error");
 		} else {

@@ -63,6 +63,8 @@ edge_phylo_genome_file_max=20
 
 ##configure cluster system  1: with 0: without
 cluster=0
+scheduler=sge
+slurm_bin=/cm/shared/apps/slurm/18.08.4/bin
 sge_bin=/cm/shared/apps/sge/2011.11p1/bin/linux-x64
 sge_root=/cm/shared/apps/sge/2011.11p1
 sge_cell=default
@@ -72,6 +74,8 @@ cluster_job_prefix=EDGE_pipeline_
 cluster_qsub_options=
 ##uge
 cluster_job_resource=mem_free=12G,h_vmem=12G -pe smp <CPU> -binding linear:<CPU/2>
+##slurm
+#cluster_job_resource=--mem-per-cpu=10G --cpus-per-task <CPU> 
 ##pbs
 ##cluster_job_resource=nodes=1:trailer:ppn=<CPU>,walltime=50:00:00,mem=100gb
 cluster_job_max_cpu=64

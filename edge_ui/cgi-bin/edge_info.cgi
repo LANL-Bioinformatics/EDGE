@@ -84,6 +84,7 @@ $umSystemStatus = ($umSystemStatus eq "false")?0:$umSystemStatus;
 
 #cluster
 my $cluster 	= $sys->{cluster};
+my $scheduler   = $sys->{scheduler}||'sge';
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 &LoadSGEenv($sys) if ($cluster);
@@ -109,7 +110,7 @@ if ($init){
 #check projects vital
 my ($vital, $name2pid, $error);
 if($cluster) {
-	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	($vital, $name2pid, $error) = checkProjVital_cluster($scheduler, $cluster_job_prefix);
 	if($error) {
 		$info->{INFO}->{ERROR}= "CLUSTER ERROR: $error";
 	}

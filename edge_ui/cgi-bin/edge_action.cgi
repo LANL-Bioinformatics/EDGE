@@ -87,6 +87,7 @@ my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
 
 #cluster
 my $cluster 	= $sys->{cluster};
+my $scheduler   = $sys->{scheduler}||'sge';
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_qsub_options= $sys->{cluster_qsub_options};
 &LoadSGEenv($sys) if ($cluster);
@@ -94,7 +95,7 @@ my $cluster_qsub_options= $sys->{cluster_qsub_options};
 #check projects vital
 my ($vital, $name2pid, $error);
 if($cluster) {
-	($vital, $name2pid, $error) = checkProjVital_cluster($cluster_job_prefix);
+	($vital, $name2pid, $error) = checkProjVital_cluster($scheduler,$cluster_job_prefix);
 	if($error) {
 		$info->{INFO} = "ERROR: $error";
 	}
@@ -303,7 +304,7 @@ elsif( $action eq 'delete' ){
 		if( $pid ){
 			my $invalid;
 			if($cluster) {
-				$invalid = clusterDeleteJob($pid);
+				$invalid = clusterDeleteJob($scheduler,$pid);
 				if( $invalid ){
 					$info->{INFO} = "Failed to kill the running cluster job. (Job ID: $pid)";
 				}
@@ -380,7 +381,7 @@ elsif( $action eq 'interrupt' ){
 		open (my $fh, ">>","$proj_dir/process_current.log");
 		open (my $fh2, ">>", "$proj_dir/process.log");
 		if($cluster) {
-			$invalid = clusterDeleteJob($pid);
+			$invalid = clusterDeleteJob($scheduler,$pid);
 			if( !$invalid ){
 				&updateDBProjectStatus($pname,"interrupted") if ($username && $password);
 				print $fh "\n*** [$time] EDGE_UI: This project has been interrupted. ***\n";
@@ -429,7 +430,7 @@ elsif( $action eq 'rerun' ){
 			} else {
 				&updateDBProjectStatus($pname,"running") if ($username && $password);
 				unlink "$proj_dir/HTML_Report/.complete_report_web";
-				my ($job_id,$error) = clusterSubmitJob($cluster_job_script,$cluster_qsub_options);
+				my ($job_id,$error) = clusterSubmitJob($scheduler, $cluster_job_script,$cluster_qsub_options);
 				if($error) {
 					$info->{INFO} = "Failed to restart this project: $error";
 				} else {

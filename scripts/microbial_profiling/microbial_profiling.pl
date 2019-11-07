@@ -232,8 +232,14 @@ if( $tools->{system}->{RUN_TOOLS} ){
 				&_notify("[RUN_TOOL] [$tool] COMMAND: $qsub_cmd\n");
 				&_notify("[RUN_TOOL] [$tool] Logfile: $log\n");
 				#&_notify("$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd\n");
-				$code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
-				my ($job_id) = $code =~ /Your job (\d+)/;
+				my $job_id;
+				if ($qsub_cmd =~ /qsub/){
+                                        $code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
+                                        ($job_id) = $code =~ /Your job (\d+)/;
+                                }elsif($qsub_cmd =~ /sbatch/){
+                                        $code = `$qsub_cmd --export=EDGE_HOME=$ENV{EDGE_HOME} --wrap="$script_dirname/script/$cmd" 2>&1 `;
+                                        ($job_id) = $code =~ /Submitted batch job (\d+)/;
+                                }
 				#&_notify("$code\n");
 				&_notify("[RUN_TOOL] [$tool] cluster info: $code\n");
 				if ($job_id){
@@ -284,7 +290,7 @@ if ($tools->{system}->{RUN_TOOL_AS_JOB}){
 			my $tool = $job_ids{$id}->{tool};
 			my $outdir = $job_ids{$id}->{outdir};
 			my $log = $job_ids{$id}->{log};
-			if ($job_status =~ /do not exist/){
+			if ($job_status =~ /do not exist|Invalid job id specified/){
 				$qsub_job_exit++;
 				my $runningtime = &timeInterval($time);
 				if (`grep -a -i "No target reads" $log`){

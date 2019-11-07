@@ -3,6 +3,7 @@
 #$ -l h_vmem=2.6G
 #$ -m abe
 #$ -j y
+#SBATCH --mem-per-cpu=10G
 
 set -e;
 

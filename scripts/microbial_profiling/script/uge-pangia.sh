@@ -2,7 +2,7 @@
 #$ -l h_vmem=2.6G
 #$ -j y
 #$ -cwd
-
+#SBATCH --mem-per-cpu=10G
 usage(){
 cat << EOF
 USAGE: $0 -i <FASTQ> -o <OUTDIR> -p <PREFIX> -d <DB> [OPTIONS]

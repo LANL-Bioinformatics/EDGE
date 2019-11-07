@@ -2,6 +2,7 @@
 #$ -l h_vmem=100G,mem_free=40G
 #$ -j y
 #$ -cwd
+#SBATCH --mem-per-cpu=10G
 
 usage(){
 cat << EOF

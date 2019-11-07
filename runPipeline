@@ -4601,7 +4601,13 @@ sub get_sys_memory
         chomp $total_mem;
     }
     if($sys->{cluster}){
-        my ($cluster_request_mem) = $sys->{cluster_job_resource} =~ /h_vmem=(\d+)/; # GB
+	my $scheduler = $sys->{scheduler} || 'sge';
+	my $cluster_request_mem=0;
+	if ($scheduler =~ /slurm/){
+            ($cluster_request_mem) = $sys->{cluster_job_resource} =~ /mem-per-cpu=(\d+)/; # GB
+        }elsif($scheduler =~ /uge|sge/){
+            ($cluster_request_mem) = $sys->{cluster_job_resource} =~ /h_vmem=(\d+)/; # GB
+        }
         $cluster_request_mem = $cluster_request_mem * 1024 * 1024; # kB
         $total_mem = ($total_mem > $cluster_request_mem)? $cluster_request_mem : $total_mem;
     }

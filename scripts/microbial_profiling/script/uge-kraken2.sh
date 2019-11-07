@@ -3,6 +3,7 @@
 #$ -M chienchi@lanl.gov
 #$ -m abe
 #$ -j y
+#SBATCH --mem-per-cpu=10G
 
 set -e;
 
