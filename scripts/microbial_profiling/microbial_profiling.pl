@@ -478,10 +478,30 @@ unless( $opt{debug} ){
 }
 
 ###############################################################
+sub getWallTime {
+  my $file_info = shift;
+	my $tools = shift;
+}
+
+sub calcWallTime {
+	my $file_info = shift;
+	my $tool = shift;
+  my %tool_factors;
+  my $raw_bases = 0;
+  $tool_factors{'pangia_slope'} = 3.201311449309384e-08;
+  $tool_factors{'pangia_offset'} = 2.3674022547929474;
+  $tool_factors{'g2b_slope'} = 1.1813524367558542e-08;
+  foreach my $idx ( sort {$a<=>$b} keys %$file_info )
+	{
+		$raw_bases += $file_info->{$idx}->{INFO}->{TOL_BASES};
+	}
+	my $cmd = $tools->{$tool}->{COMMAND};
+	my $slope =
+}
 
 sub prepSequence {
 	my $file_info = shift;
-	my $tools = shift;
+	my $tool = shift;
 
 	#flags
 	my ($FASTQ, $FASTQSE, $FASTQPE, $FASTA, $FASTA_EXTRACT, $SPLITRIM_DIR) = (0,0,0,0,0,0);
