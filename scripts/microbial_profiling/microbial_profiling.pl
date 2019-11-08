@@ -204,6 +204,8 @@ if( $tools->{system}->{RUN_TOOLS} ){
 		foreach my $tool ( @toolnames )
 		{
 			next if $tool eq 'system';
+
+			my $walltime = &calcWallTime($file_info, $tool, $tools);
 			my $input  = $file_info->{$idx}->{FASTQ};
 			my $fnb    = $file_info->{$idx}->{PREFIX};
 			my $outdir = "$p_outdir/$idx\_$fnb/$tool";
@@ -237,7 +239,7 @@ if( $tools->{system}->{RUN_TOOLS} ){
                                         $code = `$qsub_cmd -v EDGE_HOME=$ENV{EDGE_HOME} $script_dirname/script/$cmd 2>&1 `;
                                         ($job_id) = $code =~ /Your job (\d+)/;
                                 }elsif($qsub_cmd =~ /sbatch/){
-                                        $code = `$qsub_cmd --export=EDGE_HOME=$ENV{EDGE_HOME} --wrap="$script_dirname/script/$cmd" 2>&1 `;
+                                        $code = `$qsub_cmd --export=EDGE_HOME=$ENV{EDGE_HOME} --time=$walltime --wrap="$script_dirname/script/$cmd" 2>&1 `;
                                         ($job_id) = $code =~ /Submitted batch job (\d+)/;
                                 }
 				#&_notify("$code\n");
@@ -478,25 +480,23 @@ unless( $opt{debug} ){
 }
 
 ###############################################################
-sub getWallTime {
-  my $file_info = shift;
-	my $tools = shift;
-}
 
 sub calcWallTime {
 	my $file_info = shift;
 	my $tool = shift;
-  my %tool_factors;
-  my $raw_bases = 0;
-  $tool_factors{'pangia_slope'} = 3.201311449309384e-08;
-  $tool_factors{'pangia_offset'} = 2.3674022547929474;
-  $tool_factors{'g2b_slope'} = 1.1813524367558542e-08;
-  foreach my $idx ( sort {$a<=>$b} keys %$file_info )
+  	my $tools = shift;
+  	my $raw_bases = 0;
+	my $speedup = 2.56;
+	my $padding = 0.1;
+	
+	foreach my $idx ( sort {$a<=>$b} keys %$file_info )
 	{
 		$raw_bases += $file_info->{$idx}->{INFO}->{TOL_BASES};
 	}
-	my $cmd = $tools->{$tool}->{COMMAND};
-	my $slope =
+	my $slope = $tools->{$tool}->{SLOPE};
+	my $offset = $tools->{$tool}->{OFFSET};
+	my $walltime = ( $raw_bases * $slope + $offset)/$speedup;
+	return( $walltime + $walltime * $padding  )
 }
 
 sub prepSequence {
