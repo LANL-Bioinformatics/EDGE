@@ -484,10 +484,8 @@ unless( $opt{debug} ){
 sub calcWallTime {
 	my $file_info = shift;
 	my $tool = shift;
-  	my $tools = shift;
-  	my $raw_bases = 0;
-	my $speedup = 2.56;
-	my $padding = 0.1;
+  my $tools = shift;
+  my $raw_bases = 0;
 	
 	foreach my $idx ( sort {$a<=>$b} keys %$file_info )
 	{
@@ -495,8 +493,8 @@ sub calcWallTime {
 	}
 	my $slope = $tools->{$tool}->{SLOPE};
 	my $offset = $tools->{$tool}->{OFFSET};
-	my $walltime = ( $raw_bases * $slope + $offset)/$speedup;
-	return( $walltime + $walltime * $padding  )
+	my $walltime = $raw_bases * $slope + $offset;
+	return $walltime
 }
 
 sub prepSequence {
