@@ -1473,7 +1473,7 @@ $anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda install -y -c bioconda rgi=4.2.2
+$anaconda3bin/conda install -y -c bioconda rgi=5.1.0
 $anaconda3bin/conda install -y -c conda-forge pandas
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
