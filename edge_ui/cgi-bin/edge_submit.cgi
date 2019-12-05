@@ -1243,6 +1243,7 @@ sub checkParams {
 	if ( $opt{"edge-anno-sw"} ){
 		&addMessage("PARAMS", "edge-assembly-sw",  "You must turn on assembly function to do annotation.") unless $opt{"edge-assembly-sw"} >= 0; 
 		#&addMessage("PARAMS", "edge-anno-kingdom",  "Invalid input. Natural number required.")     unless $opt{"edge-assembly-mink"} >= 0; 	
+		$opt{"edge-anno-hmm-file"}  = $input_dir."/".$opt{"edge-anno-hmm-file"} if ( $opt{"edge-anno-hmm-file"} =~ /^\w/);
 		if ($opt{"edge-anno-tool"} =~ /RATT/){
 			 $opt{"edge-anno-source-file"}  = $input_dir."/".$opt{"edge-anno-source-file"} if ( $opt{"edge-anno-source-file"} =~ /^\w/);
 			&addMessage("PARAMS","edge-anno-source-file","File not found. Please provide the Genbank Source File") if ( ! $opt{"edge-anno-source-file"} );

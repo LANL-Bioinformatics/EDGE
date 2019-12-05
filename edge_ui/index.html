@@ -1180,7 +1180,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="ui-field-contain"><label for="edge-anno-size-cut">Minimum Contig Length for Annotation</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-anno-size-cut" id="edge-anno-size-cut" value="700"></div>
 			<div class="ui-field-contain">
                         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-                                <legend>Annotation Tool</legend>
+				<legend>Annotation Tool<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Prokka is ab initio annotation tool. RATT will transfer the annotation from the provided closest relatvie genome annotation."></a></legend>
                                 <input type="radio" name="edge-anno-tool" id="edge-anno-tool1" value="prokka" checked="checked">
                                 <label for="edge-anno-tool1">Prokka</label>
                                 <input type="radio" name="edge-anno-tool" id="edge-anno-tool2" value="RATT">
@@ -1189,7 +1189,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
                         </div>
 			<div id="edge-anno-kingdom" class="ui-field-contain">
 			<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-				<legend>Specify Kingdom</legend>
+				<legend>Specify Kingdom<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Please choose the genome type you would like to annotate for Prokka to do genome annotation."></a></legend>
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom1" value="Archaea">
 				<label for="edge-anno-kingdom1">Archaea</label>
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom2" value="Bacteria" checked="checked">
@@ -1202,7 +1202,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<label for="edge-anno-kingdom5">Metagenome</label>
 			</fieldset>
 			</div>
-			<p class="edge_tool_note">Please choose the genome type you would like to annotate for Prokka to do genome annotation.</p>
 			<div id="edge-anno-kegg" class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>KEGG Pathway View<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Visualize Prokka annotation in KEGG map. Need Internet Connection"></a></legend>
@@ -1215,11 +1214,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 
 			<div id="edge-anno-source">
 				<div class="ui-field-contain input-type-file">
-                                	<label for="edge-anno-source-file">Annotation Source Genbank</label>
+					<label for="edge-anno-source-file">Annotation Source Genbank<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Please provide the reference/source annotation (Genbank file), EDGE will use RATT to transfer the annotation from the reference genome. The reference genome must be close relative to the sample."></a></label>
                                 	<input type="text" data-mini="true" name="edge-anno-source-file" id="edge-anno-source-file" placeholder="absolute file path/select file">
                                 	<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
                         	</div>
-			<p class="edge_tool_note">Please provide the reference/source annotation (Genbank file), EDGE will use RATT to transfer the annotation from the reference genome. The reference genome must be close relative to the sample.</p>
                         </div>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1330,6 +1328,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<label for="edge-sma-cassis-sw2">Off</label>
 					</fieldset>
 				</div>
+				</div>
+			</div>
+			<div class="edge-right">|<a href="#" id="edge-anno-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
+			<div id="edge-anno-options" class="edge-additional-options">
+				<div class="ui-field-contain input-type-file">
+					<label for="edge-anno-hmm-file">Trusted HMM for Prokka<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Trusted HMM to first annotate from"></a></label>
+					<input type="text" data-mini="true" name="edge-anno-hmm-file" id="edge-anno-hmm-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 				</div>
 			</div>
 			</div> <!-- edge-annotation-parameters -->
