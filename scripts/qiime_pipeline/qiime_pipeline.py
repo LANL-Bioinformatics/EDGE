@@ -186,6 +186,15 @@ def fix_mappingFile(mappingFile,out_dir):
         if not line.strip():continue
         temp = [ x.strip(' "') for x in line.split('\t')]
         temp[0] = temp[0].replace('.', '-').replace('_', '-')
+        if line.lower().startswith('#'):
+            header = line.lower().split('\t')
+        else:
+            if len(temp) > len(header):
+                sys.exit("[Error] Metadata row contains more cells than are declared by the header. Row detail: %s" % line)
+            if len(temp) < len(header):
+                # fill short temp list with NaN
+                temp.extend( ['NaN'] * (len(header) - len(temp)) )
+            
         new_line = "\t".join(temp)
         ff.write(new_line + "\n")
         if not line.lower().startswith('#'):
@@ -670,12 +679,14 @@ if __name__ == '__main__':
     # Automatically adjust the sampling depth
     samplingDepth = argvs.samplingDepth
     median_depth = argvs.samplingDepth
+    num_sample_over_samplingDepth = num_sample
     depth_list=list()
     sample_freq_file = "QCandFT/table-summary/sample-frequency-detail.csv"
     if os.path.isfile(sample_freq_file):
         autoSamplingDepth, median_depth, depth_list = auto_determine_sampling_depth(sample_freq_file,samplingDepth)
-    if argvs.autoDepth and autoSamplingDepth:
-        samplingDepth = autoSamplingDepth
+
+        if argvs.autoDepth and autoSamplingDepth:
+            samplingDepth = autoSamplingDepth
 
     num_sample_over_samplingDepth=sum(1 for i in depth_list if i >= samplingDepth)
     #get_depth_cutoff_from_biom_summary_table
