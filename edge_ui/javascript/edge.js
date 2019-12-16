@@ -1680,6 +1680,7 @@ $( document ).ready(function()
 			$(inputOpt).find("input").prop("disabled", false);
 			$(inputOpt).find(".input-type-file select").prop("disabled", false);
 			$(inputOpt).find(".input-type-file div").css("pointer-events", 'auto');
+			$(inputOpt).find('input[data-type="range"]').slider("enable").slider("refresh");
 			
 			if( $(this).val()==0 ){
 				//$(inputOpt).find( "input:radio[value=1]" ).not("[name='edge-taxa-allreads']").prop("checked",false).checkboxradio( "refresh" );
@@ -1688,6 +1689,7 @@ $( document ).ready(function()
 				$(inputOpt).find("input").prop("disabled", true);
 				$(inputOpt).find(".input-type-file select").prop("disabled", true);
 				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');
+				$(inputOpt).find('input[data-type="range"]').slider("disable").slider("refresh");
 			}
 		});
 		
