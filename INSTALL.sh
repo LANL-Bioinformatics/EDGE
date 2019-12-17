@@ -549,7 +549,7 @@ fi
 
 tar xvzf $BLAST_ZIP
 cd ncbi-blast-$VER+
-cp -fR bin/* $rootdir/bin/.
+cp -fR bin/* $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1506,7 +1506,7 @@ echo "
 
 install_qiime2()
 {
-local VER=2019.1
+local VER=2019.10
 echo "------------------------------------------------------------------------------
                         Installing QIIME2 $VER
 ------------------------------------------------------------------------------
@@ -1516,7 +1516,7 @@ then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
 fi
 
-$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.1-py36-linux-conda.yml
+$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.10-py36-linux-conda.yml
 echo "
 ------------------------------------------------------------------------------
                          QIIME2 $VER Installed
@@ -2277,7 +2277,7 @@ fi
 if [ -x "$rootdir/thirdParty/Anaconda3/bin/unicycler" ]
 then
   unicycler_installed_VER=`$rootdir/thirdParty/Anaconda3/bin/unicycler --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
-  if ( echo $unicycler_installed_VER | awk '{if($1>=0.4.7) exit 0; else exit 1}' )
+  if ( echo $unicycler_installed_VER | awk '{if($1>="0.4.7") exit 0; else exit 1}' )
   then
     echo "Unicycler $unicycler_installed_VER found"
   else
@@ -2291,7 +2291,7 @@ fi
 if ( checkSystemInstallation racon )
 then
   racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
-  if ( echo $racon_installed_VER | awk '{if($1>=1.3.1) exit 0; else exit 1}' )
+  if ( echo $racon_installed_VER | awk '{if($1>="1.3.1") exit 0; else exit 1}' )
   then
     echo "racon $racon_installed_VER found"
   else
@@ -2451,7 +2451,7 @@ fi
 if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
 then
   qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if ( echo $qiime2_VER | awk '{if($1 >="2019.1") exit 0; else exit 1}' )
+  if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
   then
     echo "QIIME2 $qiime2_VER is found"
   else
