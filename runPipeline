@@ -1995,6 +1995,7 @@ sub runCheckM{
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
     my $CheckM_summary = "$outputDir/CheckM.txt";
+    my $checkm_PATH="$RealBin/thirdParty/Anaconda3/bin";
     my $evalue = '1e-10';  # -e
     my $overlap_length_perc = 0.7;  # -l 
     my $multi = 10;  # -m
@@ -2020,7 +2021,7 @@ sub runCheckM{
        return;
     }
     # -r, --reduced_tree    use reduced tree (requires <16GB of memory)
-    my $cmd = "checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
+    my $cmd = "$checkm_PATH/checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
 
     &lprint (" Running \n $cmd\n");
     &executeCommand2("$cmd");

@@ -1486,13 +1486,13 @@ echo "
 
 install_checkM()
 {
-local VER=1.0.13
+local VER=1.1.1
 echo "------------------------------------------------------------------------------
                         Installing checkM $VER
 ------------------------------------------------------------------------------
 "
-$anaconda2bin/pip install checkm-genome
-echo -e "$rootdir/database/checkM\n" | $anaconda2bin/checkm data setRoot
+$anaconda3bin/pip install checkm-genome
+echo -e "$rootdir/database/checkM\n" | $anaconda3bin/checkm data setRoot
 tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
 cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
 cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
@@ -2476,10 +2476,10 @@ else
   install_antismash
 fi
 
-if [ -x "$anaconda2bin/checkm" ]
+if [ -x "$anaconda3bin/checkm" ]
 then
-  checkM_VER=`$anaconda2bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $checkM_VER | awk '{if($1 >="1.0.11") exit 0; else exit 1}' )
+  checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $checkM_VER | awk '{if($1 >="1.1.0") exit 0; else exit 1}' )
   then
     echo "checkM $checkM_VER is found"
   else
