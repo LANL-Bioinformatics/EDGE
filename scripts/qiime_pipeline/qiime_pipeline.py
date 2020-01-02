@@ -710,10 +710,12 @@ if __name__ == '__main__':
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
                          "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
         process_cmd(diversity_cmd, 'Alpha and Beta diversity analyses')
-        beta_analysis_results = ['unweighted_unifrac_emperor','jaccard_emperor','bray_curtis_emperor','weighted_unifrac_emperor']
+        beta_analysis_results = ['unweighted_unifrac','jaccard','bray_curtis','weighted_unifrac']
         for x in beta_analysis_results:
-            if os.path.isfile("DiversityAnalysis/%s.qzv" % x ):
-                qiime_export_html("DiversityAnalysis/%s.qzv" % x ,"DiversityAnalysis/%s" % x)
+            if os.path.isfile("DiversityAnalysis/%s_emperor.qzv" % x ):
+                qiime_export_html("DiversityAnalysis/%s_emperor.qzv" % x ,"DiversityAnalysis/%s_emperor" % x)
+            if os.path.isfile("DiversityAnalysis/%s_distance_matrix.qza" % x ):
+                qiime_export_html("DiversityAnalysis/%s_distance_matrix.qza" % x ,"DiversityAnalysis/%s_distance_matrix" % x)
         add_html_table('beta')
    
         alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
