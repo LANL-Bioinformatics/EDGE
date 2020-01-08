@@ -59,7 +59,7 @@ def setup_argparse():
 
     optGrp = parser.add_argument_group('Parameters')
     optGrp.add_argument('--target', metavar='<STR>', default='Greengenes', type=str, help='Greengenes, SILVA, SILVA-V3-V4 or ITS. [default: Greengenes]\nGreengenes and SILVA-V3-V4 are for 16s. SILVA is for 16s/18s. ITS is from https://unite.ut.ee/ and for fungal rDNA ITS sequences.\n## the trained qza files in data/')
-    optGrp.add_argument('--qcMethod', metavar='<STR>', default='dada2', type=str, help='Quality control method. dada2 or deblur [default: dada2]')
+    optGrp.add_argument('--qcMethod', metavar='<STR>', default='dada2', type=str, help='Quality control method. dada2 or deblur or otus[default: dada2]')
     
     # ME
     # optGrp.add_argument('--singleOrPairedQC', metavar='<STR>', default='single', type=str, help = 'Choose whether to use single or paired QC. single or paired [defaule: single]')
@@ -71,9 +71,10 @@ def setup_argparse():
     
     optGrp.add_argument('--trimLen', metavar='<INT>', default=20, type=int, help = 'This is for Dada2 QC on single end reads. This is the number of bases to trim from the reads to e.g. remove PCR primer sequences.[default: 20]')    
     optGrp.add_argument('--truncLen', metavar='<INT>', default=0, type=str, help='This works for Dada2 and Deblur on single end reads to truncate sequences at position [default: 0] no truncate')
-    optGrp.add_argument('--minQuality',metavar='<INT>',default=4, type=int,help='This is for Deblur QC. The minimum acceptable PHRED score. All PHRED scores less that this value are considered to be low PHRED scores. [default: 4]' )
-    optGrp.add_argument('--minLengthFraction',metavar='<FLOAT>',default=0.75,type=float, help='This is for Deblur QC. The minimum length that a sequence read can be following truncation and still be retained. This length should be provided as a fraction of the input sequence length. [default: 0.75]')
-    optGrp.add_argument('--maxAmbiguous',metavar='<INT>',type=int,default=0,help='This is for Deblur QC. The maximum number of ambiguous (i.e., N) base calls. This is applied after trimming sequences based on `min_length_fraction. [default: 0]')
+    optGrp.add_argument('--minQuality',metavar='<INT>',default=4, type=int,help='This is for Deblur and OTUs QC. The minimum acceptable PHRED score. All PHRED scores less that this value are considered to be low PHRED scores. [default: 4]' )
+    optGrp.add_argument('--minLengthFraction',metavar='<FLOAT>',default=0.75,type=float, help='This is for Deblur and OTUs QC. The minimum length that a sequence read can be following truncation and still be retained. This length should be provided as a fraction of the input sequence length. [default: 0.75]')
+    optGrp.add_argument('--maxAmbiguous',metavar='<INT>',type=int,default=0,help='This is for Deblur and OTUs QC. The maximum number of ambiguous (i.e., N) base calls. This is applied after trimming sequences based on `min_length_fraction. [default: 0]')
+    optGrp.add_argument('--percIdentity',metavar='<FLOAT>',type=float,default=0.99,help='This is for OTUs clustering. The percent identity at which clustering should be performed. This parameter maps to vsearch\'s --id parameter.  [default: 0.99]')
     #optGrp.add_argument('--minOTUsize', metavar='<INT>', default=2, type=int, help='the minimum OTU size (in number of sequences) to retain the OTU')
     optGrp.add_argument('--samplingDepth', metavar='<INT>', default=1000, type=int, help='Filter sample less this amount of sequences.The minimium of sequenceing depth of samples after this filter will be  use for even sub-sampling and maximum rarefaction depth.')
     optGrp.add_argument('--autoDepth', action='store_true', help='Automatically adjust the sampling to the minimum sequences count of all samples. The minimum > samplingDepth option above.')
@@ -370,6 +371,9 @@ def html_report(template):
     if os.path.isfile('QCandFT/filter-stats/index.html'):
         tab_list.append('<li id="filter-stats"><a href="#">Filter QC Stats</a></li>')
         src_list.append("'filter-stats': './QCandFT/filter-stats/index.html'")
+    #if os.path.isfile('QCandFT/chimera-stats/index.html'):
+    #    tab_list.append('<li id="chimera-stats"><a href="#">Chimera QC Stats</a></li>')
+    #    src_list.append("'chimera-stats': './QCandFT/chimera-stats/index.html'")
     if os.path.isfile('QCandFT/deblur-stats/index.html'):
         tab_list.append('<li id="deblur-stats"><a href="#">Deblur QC Stats</a></li>')
         src_list.append("'deblur-stats': './QCandFT/deblur-stats/index.html'")
@@ -466,10 +470,12 @@ if __name__ == '__main__':
         print("    Truncate R2 Seq At Pos : %s" % argvs.truncLenReverse)
         print("    Num bases trim         : %s" % (argvs.trimLen if argvs.trimLen > 0 and not argvs.truncLenForward  else 'False'))    
     
-    if argvs.qcMethod.lower() == 'deblur':
+    if argvs.qcMethod.lower() == 'deblur' or argvs.qcMethod.lower() == 'otus':
         print("    Minimum Quality:       : %s" % argvs.minQuality)
         print("    Minimum Len Fraction   : %s" % argvs.minLengthFraction)
         print("    Maximum # Ambiguous    : %s" % argvs.maxAmbiguous)
+    if argvs.qcMethod.lower() == 'otus':
+        print("    Percent Identity       : %s" % argvs.percIdentity)
 
     print("    Truncate Seq At Pos    : %s" % (argvs.truncLen if argvs.truncLen > 0 and not argvs.truncLenForward else 'False'))
     print("    Minimum Sampling Depth : %s" % ('Auto' if argvs.autoDepth else argvs.samplingDepth ))
@@ -612,7 +618,7 @@ if __name__ == '__main__':
             stats_cmd = ('qiime metadata tabulate --m-input-file QCandFT/stats-dada2.qza --o-visualization QCandFT/stats-dada2.qzv')
             process_cmd(stats_cmd, 'Tabulate QC Stats')
             qiime_export_html('QCandFT/stats-dada2.qzv','QCandFT/filter-stats')
-        elif argvs.qcMethod.lower() == 'deblur':
+        elif argvs.qcMethod.lower() == 'deblur' or  argvs.qcMethod.lower() == 'otus':
             file_for_check_truncate_len = 'demux/quality-plot.html'
             if argvs.paired or read_type == 'pe':
                 join_cmd = ('qiime vsearch join-pairs --i-demultiplexed-seqs demux/demux.qza --o-joined-sequences demux/demux-joined.qza')
@@ -640,28 +646,80 @@ if __name__ == '__main__':
             
             if not os.path.isfile('QCandFT/filtered.qza'):
                 process_cmd(qf_cmd,"Quality-filter q-score")
+
+            if not os.path.isfile('QCandFT/filter-stats/index.html'):
+                stats_cmd = ('qiime metadata tabulate --m-input-file QCandFT/filter-stats.qza --o-visualization QCandFT/filter-stats.qzv')
+                process_cmd(stats_cmd, 'Tabulate QC Stats')
+                qiime_export_html('QCandFT/filter-stats.qzv','QCandFT/filter-stats')
+            
+            # Deblur
             # need use denoise-other for other db and provide reference sequence
             # data/sh_refs_qiime_ver8_dynamic_02.02.2019.fasta
-            if (argvs.target.lower() == 'its'):
-                reference_seqs_opts = '--i-reference-seqs ' + target_path + '/sh_refs_qiime_ver8_dynamic_02.02.2019.fasta'
-                deblur_method = 'denoise-other'
-            else:
-                reference_seqs_opts = ""
-                deblur_method = 'denoise-16S'
+            if argvs.qcMethod.lower() == 'deblur':
+                if (argvs.target.lower() == 'its'):
+                    reference_seqs_opts = '--i-reference-seqs ' + target_path + '/ITS.qza'
+                    deblur_method = 'denoise-other'
+                else:
+                    reference_seqs_opts = ""
+                    deblur_method = 'denoise-16S'
            
-            trim_length = argvs.truncLen if argvs.truncLen > 0 else auto_determine_truncate_len_deblur(file_for_check_truncate_len)
+                trim_length = argvs.truncLen if argvs.truncLen > 0 else auto_determine_truncate_len_deblur(file_for_check_truncate_len)
            
-            deblur_cmd = ("qiime deblur %s %s --i-demultiplexed-seqs QCandFT/filtered.qza "
+                deblur_cmd = ("qiime deblur %s %s --i-demultiplexed-seqs QCandFT/filtered.qza "
                           "--p-trim-length %d --o-representative-sequences QCandFT/rep-seqs.qza "
                           "--o-table QCandFT/table.qza --p-sample-stats --o-stats QCandFT/deblur-stats.qza "
                           "--p-jobs-to-start %d " )  % (deblur_method,reference_seqs_opts,trim_length,argvs.cpus)
-            process_cmd(deblur_cmd,"Deblur QC and FeatureTable construction")
-            stats_cmd = ('qiime metadata tabulate --m-input-file QCandFT/filter-stats.qza --o-visualization QCandFT/filter-stats.qzv')
-            process_cmd(stats_cmd, 'Tabulate QC Stats')
-            qiime_export_html('QCandFT/filter-stats.qzv','QCandFT/filter-stats')
-            deblur_vis_cmd = ('qiime deblur visualize-stats --i-deblur-stats QCandFT/deblur-stats.qza --o-visualization QCandFT/deblur-stats.qzv')
-            process_cmd(deblur_vis_cmd, 'Deblur vis-Stats')
-            qiime_export_html('QCandFT/deblur-stats.qzv','QCandFT/deblur-stats')
+                process_cmd(deblur_cmd,"Deblur QC and FeatureTable construction")
+                deblur_vis_cmd = ('qiime deblur visualize-stats --i-deblur-stats QCandFT/deblur-stats.qza --o-visualization QCandFT/deblur-stats.qzv')
+                process_cmd(deblur_vis_cmd, 'Deblur vis-Stats')
+                qiime_export_html('QCandFT/deblur-stats.qzv','QCandFT/deblur-stats')
+            # OTU clustering
+            elif argvs.qcMethod.lower() == 'otus':
+                reference_seqs = target_path + '/gg-13-8-99.qza'
+                if (argvs.target.lower() == 'silva'):
+                    reference_seqs = target_path + '/silva-132-99.qza'
+                elif (argvs.target.lower() == 'silva-v3-v4'):
+                    reference_seqs = target_path + '/silva_132_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_7LevelTaxonomy_naiveBayesClassifier.qza'
+                elif (argvs.target.lower() == 'its'):
+                    reference_seqs = target_path + '/ITS.qza'
+
+                if not os.path.isfile('QCandFT/filtered-dedup-seq.qza'):
+                    dedup_cmd = ("qiime vsearch dereplicate-sequences --i-sequences QCandFT/filtered.qza --o-dereplicated-table QCandFT/filtered-dedup-table.qza "
+                                "--o-dereplicated-sequences QCandFT/filtered-dedup-seq.qza")
+                    process_cmd(dedup_cmd,"Dereplicate sequences")
+        
+                if not os.path.isfile('QCandFT/clustered-seqs.qza'):
+                    clustering_cmd = ("qiime vsearch cluster-features-open-reference --i-sequences QCandFT/filtered-dedup-seq.qza "
+                                "--i-table QCandFT/filtered-dedup-table.qza "
+                                "--o-clustered-table QCandFT/clustered-table.qza "
+                                "--o-clustered-sequences QCandFT/clustered-seqs.qza "
+                                "--o-new-reference-sequences QCandFT/new-ref-seqs.qza "
+                                "--i-reference-sequences %s "
+                                "--p-perc-identity %f "
+                                "--p-threads %d ") % (reference_seqs, argvs.percIdentity, argvs.cpus)
+                    process_cmd(clustering_cmd,"Open Reference OTU clustering")
+
+                if not os.path.isfile('QCandFT/non-chimeras.qza'):
+                    chimera_cmd = ("qiime vsearch uchime-ref --i-table QCandFT/clustered-table.qza --i-sequences QCandFT/clustered-seqs.qza "
+                                "--o-chimeras QCandFT/chimeras.qza "
+                                "--o-nonchimeras QCandFT/non-chimeras.qza "
+                                "--o-stats QCandFT/chimera-stats.qza "
+                                "--i-reference-sequences %s "
+                                "--p-threads %d ") % (reference_seqs, argvs.cpus)
+                    process_cmd(chimera_cmd, "Chimera Detection")
+
+                if not os.path.isfile('QCandFT/table.qza'):
+                    chimera_rmt_cmd = ("qiime feature-table filter-features --i-table QCandFT/clustered-table.qza --m-metadata-file QCandFT/non-chimeras.qza --o-filtered-table QCandFT/table.qza")
+                    process_cmd(chimera_rmt_cmd, "Chimera Remove from Features Table")
+                if not os.path.isfile('QCandFT/rep-seqs.qza'):
+                    chimera_rms_cmd = ("qiime feature-table filter-seqs --i-table QCandFT/table.qza --i-data QCandFT/clustered-seqs.qza --o-filtered-data QCandFT/rep-seqs.qza")
+                    process_cmd(chimera_rms_cmd, "Chimera Sequences Remove")
+
+                if not os.path.isfile('QCandFT/chimera-stats/index.html'):
+                    stats_cmd = ('qiime metadata tabulate --m-input-file QCandFT/chimera-stats.qza --o-visualization QCandFT/chimera-stats.qzv')
+                    process_cmd(stats_cmd, 'Tabulate Chimera Detection Stats')
+                    qiime_export_html('QCandFT/chimera-stats.qzv','QCandFT/chimera-stats')
+
         else:
             sys.exit( "ERROR: Expected QC methods are dada2 and deblur. Your input is %s" ) % (argvs.qcMethod)
 
