@@ -1903,15 +1903,15 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-qiime-trimLen">SE Trim Length<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This is for Dada2 QC on single end reads. This is the number of bases to trim from the 5'end of the reads to e.g. remove PCR primer sequences."></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trimLen" id="edge-qiime-trimLen" min="0" max="150" value="20">
 				</div>
-				<div class="ui-field-contain deblur-options">
+				<div class="ui-field-contain deblur-options otus-options">
 					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="4">
 				</div>
-				<div class="ui-field-contain deblur-options">
+				<div class="ui-field-contain deblur-options otus-options">
 					<label for="edge-qiime-max-n">Max "N" base<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-max-n" id="edge-qiime-max-n" min="0" max="100" value="1">
 				</div>
-				<div class="ui-field-contain deblur-options">
+				<div class="ui-field-contain deblur-options otus-options">
 					<label for="edge-qiime-min-per-read-length-fraction">Min Per Read Length Fraction<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length."></a></label>
 					<input type="range" name="edge-qiime-min-per-read-length-fraction" id="edge-qiime-min-per-read-length-fraction" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
 				</div>
