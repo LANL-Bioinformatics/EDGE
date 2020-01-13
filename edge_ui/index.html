@@ -1879,6 +1879,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<label for="edge-qiime-qcMethod1">DADA2</label>
 						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod2" value="deblur">
 						<label for="edge-qiime-qcMethod2">Deblur</label>
+						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod3" value="otus">
+						<label for="edge-qiime-qcMethod3">Open-Reference OTU</label>
 					</fieldset>
 				</div>
 				<div class="ui-field-contain dada2-options">
@@ -1912,6 +1914,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-min-per-read-length-fraction">Min Per Read Length Fraction<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length."></a></label>
 					<input type="range" name="edge-qiime-min-per-read-length-fraction" id="edge-qiime-min-per-read-length-fraction" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
+				</div>
+				<div class="ui-field-contain otus-options">
+					<label for="edge-qiime-otus-perc-identity">Clustering Percent Identity<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The percent identity at which clustering should be performed. This parameter maps to vsearch's --id parameter."></a></label>
+					<input type="range" name="edge-qiime-otus-perc-identity" id="edge-qiime-otus-perc-identity" data-mini="true" data-highlight="true" min="0.5" max="1.0" value="0.99" step=".01">
 				</div>
 				<div class="ui-field-contain dada2-options deblur-options">
 					<label for="edge-qiime-trunLen">SE Truncation Len<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This truncates the 3' end of the of the single end reads, which will be the bases that were sequenced in the last cycles. Reads that are shorter than this value will be discarded. If 0 is provided, no truncation or length filtering will be performed."></a></label>

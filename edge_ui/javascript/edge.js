@@ -642,7 +642,7 @@ $( document ).ready(function()
                 'content',$('<span>Required when input is contig only. Please make sure that your abundance information is provided in the following format (\\t stands for a tab delimiter):<br/>(contig header)\\t(abundance)<br/>For example:<br/>A0001    30.89<br/>A0002    20.02</span>')
         );
 	$("#edge-qiime-qcm-tooltip").tooltipster(
-		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27214047" target="_blank">DADA2</a> is a pipeline for detecting and correcting (where possible) Illumina amplicon sequence data. <a href="http://msystems.asm.org/content/2/2/e00191-16" target="_blank">Deblur</a> uses sequence error profiles to associate erroneous sequence reads with the true biological sequence from which they are derived, resulting in high quality sequence variant data.</span>')
+		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27214047" target="_blank">DADA2</a> is a pipeline for detecting and correcting (where possible) Illumina amplicon sequence data. <a href="http://msystems.asm.org/content/2/2/e00191-16" target="_blank">Deblur</a> uses sequence error profiles to associate erroneous sequence reads with the true biological sequence from which they are derived, resulting in high quality sequence variant data. <a href="https://docs.qiime2.org/2019.10/plugins/available/vsearch/cluster-features-open-reference/" target="_blank">Open-reference OTU</a> cluster the features against a reference database based on user-specified percent identity threshold of their sequences. Any sequences that do not match are then clustered de novo.</span>')
 	);
 	
 	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
@@ -1839,15 +1839,24 @@ $( document ).ready(function()
 		});
 		
 		$('.deblur-options').hide();
+		$('.otus-options').hide();
 		$(":radio[name='edge-qiime-qcMethod']").on("change", function(){
 			if($('#edge-qiime-qcMethod1').is(':checked')){
 				$('.deblur-options').hide();
+				$('.otus-options').hide();
 				$('.dada2-options').show();
 			}
 			if($('#edge-qiime-qcMethod2').is(':checked')){
 				$('.dada2-options').hide();
+				$('.otus-options').hide();
 				$('.deblur-options').show();
 			}
+			if($('#edge-qiime-qcMethod3').is(':checked')){
+				$('.dada2-options').hide();
+				$('.deblur-options').hide();
+				$('.otus-options').show();
+			}
+
 		});
 		$(":radio[name='edge-targetedngs-platform']").on("change", function(){
 			if($('#edge-targetedngs-platform1').is(':checked')){
@@ -2826,6 +2835,7 @@ $( document ).ready(function()
 			$('.edge-input-se-block').hide();
 			$('.edge-input-pe-block').show();
 			$('.deblur-options').hide();
+			$('.otus-options').hide();
 			$('.dada2-options').show();
 			$('#btnAdd-edge-input-se').hide();
 			$('#edge-qiime-pipeline-dir-input').hide();

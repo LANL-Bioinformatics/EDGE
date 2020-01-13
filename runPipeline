@@ -971,6 +971,7 @@ sub runQiimeAnalysis{
     my $mapping_files=$configuration->{qiime_mapping_file};
     my $quality_cutoff=$configuration->{qiime_q_threshold} || 4;
     my $min_reads_q_fraction=$configuration->{qiime_min_per_read_length_fraction} || 0.5;
+    my $perc_identity=$configuration->{qiime_percIdentity} || 0.99;
     my $seq_max_n=$configuration->{qiime_max_n} || 1;
     my $title=$configuration->{projname};
     
@@ -1000,6 +1001,9 @@ sub runQiimeAnalysis{
         $cmd .= " --minQuality $quality_cutoff ";
         $cmd .= " --minLengthFraction $min_reads_q_fraction ";
         $cmd .= " --maxAmbiguous $seq_max_n ";
+    }
+    if ($qc_method =~ /otus/i){
+	    $cmd .= " --percIdentity $perc_identity ";
     }
     $cmd .= " --truncLen $truncLen " if ($truncLen);
     $cmd .= " > $log ";
