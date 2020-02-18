@@ -3417,7 +3417,7 @@ sub runAssembly
             $cmd .= "--meta " ;
         }else{
             $cmd .= "--sc " if ($configuration->{SpadesAlgorithm} =~/singlecell/);
-            $cmd .= "--rna" if ($configuration->{SpadesAlgorithm} =~ /rna/);
+            $cmd .= "--rna " if ($configuration->{SpadesAlgorithm} =~ /rna/);
             $cmd .= "--plasmid " if ($configuration->{SpadesAlgorithm} =~ /plasmid/);
             $cmd .= "--s1 $unpairFile " if (-s $unpairFile);
             $cmd .= "--pacbio $pacbio_file " if ( -s $pacbio_file && (is_fasta($pacbio_file) || is_fastq($pacbio_file)));
