@@ -457,7 +457,7 @@ sub runPiReT {
     &prepareExpDesignAndConfig($exp_file,$piret_indir_basename,$outputDir);
 
     chdir "$outputDir";
-    my $cmd="$RealBin/thirdParty/PyPiReT/bin/runPiReT -k $kingdom -e $exp_design -d $outputDir -m $test_method -p $significant_pvalue -c $numCPU --config $luigi_config ";
+    my $cmd="$RealBin/thirdParty/piret/bin/piret -k $kingdom -e $exp_design -d $outputDir -m $test_method -p $significant_pvalue -c $numCPU --config $luigi_config ";
     $cmd .= "-i $index_ref " if ($index_ref);
     if ($kingdom eq 'prokarya')
     {
@@ -501,7 +501,7 @@ sub runPiReT {
     }
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
-    my $piret_env_path1 = "$RealBin/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret";
+    my $piret_env_path1 = "$RealBin/thirdParty/piret/thirdParty/miniconda/envs/piret";
     my $piret_env_path2 = "$RealBin/thirdParty/Anaconda3/envs/piret";
     my $piret_env = (-e $piret_env_path1)? $piret_env_path1 : ( -e $piret_env_path2)? $piret_env_path2 : "piret";
     print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $piret_env 1>/dev/null\n";
@@ -635,7 +635,7 @@ sub runSpecialtyGenesProfiling {
     my $annotationGFF = shift;
     my $search_tool = $configuration->{SpecialtyGenesSearchTool} || "rapsearch2";
     my $ShortBRED_PATH = "$RealBin/bin/ShortBRED";
-    my $rgi_PATH = "$RealBin/thirdParty/Anaconda3/bin";
+    #my $rgi_PATH = "$RealBin/thirdParty/Anaconda3/bin";
     my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
     my $identity = $configuration->{ShortBREDMinPercIdentity} || "0.95";
     my $pctlength = $configuration->{ShortBREDMinPercLength} || "0.95"; 
@@ -724,14 +724,18 @@ sub runSpecialtyGenesProfiling {
 		
 		
 	# AR
-            $cmd = "cd $outputDir; $rgi_PATH/rgi load -i $CARD_json --local 1>>$log 2>&1";
-            &executeCommand($cmd);
-	    $cmd = "cd $outputDir; $rgi_PATH/rgi main -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU --local 1>>$log 2>&1";
-            &lprint ("	Running \n $cmd \n");
+		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py36";
+		my $rgi_env_activate_cmd="source $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
+		my $deactivate_cmd="source deactivate || true";
+		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ";
+        &executeCommand($cmd);
+		&executeCommand($deactivate_cmd);
+	    $cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi main -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU --local 1>>$log 2>&1 ; $deactivate_cmd";
+        &lprint ("	Running \n $cmd \n");
 	    &executeCommand($cmd);
-            $cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
+        $cmd = "python $RealBin/scripts/specialty_genes/ProcessARRGIJson.py -i $outputDir/${project_name}_AR_genes_rgi.json -g $annotationGFF -p $outputDir/${project_name}_AR_genes_rgi 1>>$log 2>&1";
 	    &lprint ("	Running \n $cmd \n");
-            &executeCommand($cmd);
+        &executeCommand($cmd);
 	    $cmd = "python $RealBin/scripts/specialty_genes/gff_to_faa.py $annotationFAA $outputDir/${project_name}_AR_genes_rgi.gff > $outputDir/${project_name}_AR_genes_rgi.faa";
             &executeCommand($cmd) if ( -s "$outputDir/${project_name}_AR_genes_rgi.gff");
 	
@@ -2025,13 +2029,14 @@ sub runCheckM{
        return;
     }
     # -r, --reduced_tree    use reduced tree (requires <16GB of memory)
-    my $cmd = "$checkm_PATH/checkm lineage_wf -q --tab_table --force_overwrite -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
+    my $cmd = "cd $outputDir/.. ; $checkm_PATH/checkm lineage_wf --tmpdir . -q --tab_table -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
 
     &lprint (" Running \n $cmd\n");
     &executeCommand2("$cmd");
 
-    $cmd = "checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
-    &executeCommand2("$cmd");
+    # the function been removed from checkm 1.1.0
+    #$cmd = "$checkm_PATH/checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
+    #&executeCommand2("$cmd");
 
     &printRunTime($time);
     &touchFile("$outputDir/BinningCheckM.finished");
@@ -2236,7 +2241,7 @@ my $contigTaxonomyPDF="$outDir/AssemblyBasedAnalysis/Taxonomy/$project_name.cont
 my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 my $nanoplot_loglength_Histogram = "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf";
 my $nanoplot_length_Histogram = "$outDir/QcReads/HistogramReadlength.pdf";
-my $nanoplot_length_quality_plot= "$outDir/QcReads/Log_LengthvsQualityScatterPlot_kde.pdf";
+my $nanoplot_length_quality_plot= "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf";
 my $nanoplot_yield_by_length = "$outDir/QcReads/Yield_By_Length";
 my $mergeFiles="$InputLogPDF,";
 $mergeFiles.="$QCstatsPDF"."," if ( -e $QCstatsPDF);
@@ -2692,9 +2697,13 @@ sub runQC
 	# if adapte trim run Porechop
         my $cmd;
         if ($configuration->{"porechop"}){
-	  $cmd = "porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log";
-	  &lprint ("  Running \n  $cmd \n");
-	  &executeCommand($cmd);
+            my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py36";
+            my $porechop_env_activate = "source $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env";
+            my $deactivate_cmd = "source deactivate || true";
+            $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log ";
+            &lprint ("  Running \n  $cmd \n");
+            &executeCommand($cmd);
+	    &executeCommand($deactivate_cmd);
         }
         $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir ";
 	&lprint ("  Running \n  $cmd \n");
@@ -3146,7 +3155,7 @@ sub runReadsToGenome
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
 	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
-            $command = "cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
+            $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
             $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
@@ -3466,10 +3475,13 @@ sub runAssembly
 		$AssemblerOutDir = "$outputDir/lrasm";
 		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
 		$AssemblerLog = "$AssemblerOutDir/contigs.log";
+		my $minlength = "500";
+                my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
 		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
 		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
 		$cmd .= " -e" if $configuration->{lrasm_ec};
 		$cmd .= " -a $configuration->{lrasm_algorithm} " if ($configuration->{lrasm_algorithm});
+		$cmd .= " $minlength_opt " ;
 		$cmd .= " $unpairFile " if (-s $unpairFile);
 		$cmd .= " 2>/dev/null";
     }
@@ -3695,6 +3707,7 @@ sub correct_fasta_header {
 	open (my $ofh , ">", $output_fasta);
 	while (<$fh>){
 		chomp;
+		$_ =~ s/^>\s+/>/;
 		if (/^>(\S+)\s*(.*)/){
 			my $id = $1;
 			my $desc = $2;

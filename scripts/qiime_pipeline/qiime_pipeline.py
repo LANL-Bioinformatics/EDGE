@@ -573,7 +573,7 @@ if __name__ == '__main__':
     ## Demultiplex
     if not os.path.isfile('demux/index.html'):
         mkdir_p('demux')
-        demux_cmd = ("qiime demux %s --i-seqs %s/input.qza --m-barcodes-file %s --m-barcodes-column BarcodeSequence --o-per-sample-sequences demux/demux.qza") % (demux_type,input_path,mappingFile)
+        demux_cmd = ("qiime demux %s --i-seqs %s/input.qza --m-barcodes-file %s --m-barcodes-column BarcodeSequence --o-per-sample-sequences demux/demux.qza --o-error-correction-details demux/demux-details.qza") % (demux_type,input_path,mappingFile)
         if argvs.barcode:
             process_cmd(demux_cmd,"Demultiplexing")
         else:

@@ -580,13 +580,6 @@
 				<TMPL_IF NAME="OUT_BINN_CHECKM_SW">
 				<li id="checkMTag"><span class="li-report-content-title">CheckM</span><div class="li-report-content">
 					<table data-role="none" id="edge-binning-checkM-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=CHECKMRESULT>'></table>
-					<div class="ui-grid-a ui-responsive">
-						<div class="ui-block-a">
-							<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=CHECKMRESULT_PNG DEFAULT=->'>[full]</a></span>
-							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
-							<img class="preview_img" data-src="<TMPL_VAR NAME=CHECKMRESULT_PNG DEFAULT=->"  alt="CheckM Result plot">
-							</a>
-						</div>
 					</div>
 					<p class='extra-text-link'>Link to 
 						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->

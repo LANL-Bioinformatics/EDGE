@@ -398,7 +398,7 @@ sub pull_binning {
 		my $checkM_json_output = "$checkM_outdir/CheckM.json";
 		&tab2json("$checkM_outdir/CheckM.txt",$checkM_json_output);
 		$vars->{CHECKMRESULT} = $checkM_json_output;
-		$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
+		#$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
 	}
 }
 

@@ -67,6 +67,7 @@ $( document ).ready(function()
 	
 	//init page
 	edge_ui_init();
+	app_action();
 	//$("#edge-content-upload-li").hide();
 	$("#edge-phylo-ref-select-ref-div").hide();
 	if (! umSystemStatus ){
@@ -557,6 +558,7 @@ $( document ).ready(function()
 		   		$('#popupUser').popup('close');
 				//localStorage.clear();
 				localStorage.sid="";
+				localStorage.background="";
 				userType='';
 				$('#signIn-password').empty();
 				allMainPage.hide();
@@ -2248,107 +2250,109 @@ $( document ).ready(function()
 					$("div#popupUser  a").css("background",localStorage.background);
 				}
 			
-				// app actions
-				$('#edge-apps-home').find(".app-info").each(function(){
-					var data = $(this).attr('data');
-					if (data == 'newToEDGE'){
-						//$(this).siblings('.app-artwork').find('img').on('click',function(){
-						$(this).parent('div').on('click',function(){
-							allMainPage.hide();
-							foldRightPanel();
-							$("#edge-content-home").fadeIn();
-						})
-					}
-					if (data == 'runEDGE'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="EDGE";
-							setRunPipeline(pipeline,true);
-							$(":radio[name='edge-fastq-source']").trigger('change');
-						})
-					}
-					if (data == 'runQiime'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="qiime";
-							setRunPipeline(pipeline,true);
-						})
-					}
-					if (data == 'runDETEQT'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="targetedngs";
-							setRunPipeline(pipeline,true);
-						})
-					}
-					if (data == 'runPIRET'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="piret";
-							setRunPipeline(pipeline,true);
-						})
-					}
-					if (data == 'projectsReport'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							$( "a[href=#edge-report-pipeline]" ).click();
-						})
-					}
-					if (data == 'nanoEDGE'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="EDGE";
-							setRunPipeline(pipeline,true);
-							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-						})
-					}
-					if (data == 'contigEDGE'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="EDGE";
-							setRunPipeline(pipeline,true);
-							$('#edge-inputS-sw2').click().checkboxradio("refresh");
-							$(":radio[name='edge-fastq-source']").trigger('change');
-						})
-					}
-					if (data == 'sraEDGE'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="EDGE";
-							setRunPipeline(pipeline,true);
-							$('#edge-inputS-sw3').click().checkboxradio("refresh");
-							$(":radio[name='edge-fastq-source']").trigger('change');
-						})
-					}
-					if (data == 'projectspage'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							updateProjectsPage('user');
-						})
-					}
-					if (data == 'dataupload'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							$( "a[href=#edge-content-uploadfile]" ).click();
-						})
-					}
-					if (data == 'runPhaME'){
-						$(this).parent('div').on('click',function(){
-							foldRightPanel();
-							pipeline="EDGE";
-							setRunPipeline("phame",true);
-							$(":radio[name='edge-fastq-source']").trigger('change');
-						})
-					}
-					
-				});
 			},
 			error: function(data){
 				showWarning("Failed to initialized EDGE GUI interface. Please check server error log for detail.");
 			}
 		});
 	};
+	function app_action(){
+		// app actions
+		$('#edge-apps-home').find(".app-info").each(function(){
+			var data = $(this).attr('data');
+			if (data == 'newToEDGE'){
+				//$(this).siblings('.app-artwork').find('img').on('click',function(){
+				$(this).parent('div').on('click',function(){
+					allMainPage.hide();
+					foldRightPanel();
+					$("#edge-content-home").fadeIn();
+				})
+			}
+			if (data == 'runEDGE'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="EDGE";
+					setRunPipeline(pipeline,true);
+					$(":radio[name='edge-fastq-source']").trigger('change');
+				})
+			}
+			if (data == 'runQiime'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="qiime";
+					setRunPipeline(pipeline,true);
+				})
+			}
+			if (data == 'runDETEQT'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="targetedngs";
+					setRunPipeline(pipeline,true);
+				})
+			}
+			if (data == 'runPIRET'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="piret";
+					setRunPipeline(pipeline,true);
+				})
+			}
+			if (data == 'projectsReport'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					$( "a[href=#edge-report-pipeline]" ).click();
+				})
+			}
+			if (data == 'nanoEDGE'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="EDGE";
+					setRunPipeline(pipeline,true);
+					$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+				})
+			}
+			if (data == 'contigEDGE'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="EDGE";
+					setRunPipeline(pipeline,true);
+					$('#edge-inputS-sw2').click().checkboxradio("refresh");
+					$(":radio[name='edge-fastq-source']").trigger('change');
+				})
+			}
+			if (data == 'sraEDGE'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="EDGE";
+					setRunPipeline(pipeline,true);
+					$('#edge-inputS-sw3').click().checkboxradio("refresh");
+					$(":radio[name='edge-fastq-source']").trigger('change');
+				})
+			}
+			if (data == 'projectspage'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					updateProjectsPage('user');
+				})
+			}
+			if (data == 'dataupload'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					$( "a[href=#edge-content-uploadfile]" ).click();
+				})
+			}
+			if (data == 'runPhaME'){
+				$(this).parent('div').on('click',function(){
+					foldRightPanel();
+					pipeline="EDGE";
+					setRunPipeline("phame",true);
+					$(":radio[name='edge-fastq-source']").trigger('change');
+				})
+			}
+			
+		});
 
+	}
 	function updateProject(pname,force) {
 		focusProjName = sessionStorage.focusProjName;
 		$.ajax({
@@ -2824,6 +2828,7 @@ $( document ).ready(function()
 			//reset metadata form
 			resetMetadata();
 			sync_input();
+			edge_ui_init();
 			collapsible_select_sync();
 		}
 		if (pipeline === 'qiime'){
@@ -3007,7 +3012,9 @@ $( document ).ready(function()
 				}
 			});	
 
-			
+			//clean batch input, reconfig only work on single project
+ 			$( "#edge-batch-input-excel-1").val('');
+
 			sync_input('reconfig');
 			$( "#edge-content-pipeline").find( "input:radio[id^='edge']" ).each( function(){
 				if ($("label[for='" + $(this).attr('id') + "']").hasClass('ui-radio-on')){

@@ -20,9 +20,9 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
-annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash )
+annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
@@ -88,11 +88,14 @@ echo "--------------------------------------------------------------------------
                            Installing reference-based_assembly package
 ------------------------------------------------------------------------------
 "
+Org_PATH=$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
 tar xvzf reference-based_assembly.tgz
 cd reference-based_assembly
 ./INSTALL.sh
 ln -sf $rootdir/thirdParty/reference-based_assembly $rootdir/bin/
 cd $rootdir/thirdParty
+export PATH=$Org_PATH
 echo "
 ------------------------------------------------------------------------------
                            reference-based_assembly package installed
@@ -154,7 +157,7 @@ echo "
 }
 
 install_PyPiReT(){
-local VER=0.3.2
+local VER=1.0.0
 echo "------------------------------------------------------------------------------
                            Installing PyPiReT $VER
 ------------------------------------------------------------------------------
@@ -163,12 +166,12 @@ tar xvzf PyPiReT-$VER.tgz
 cd PyPiReT
 Org_PATH=$PATH;
 export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
-if [ -e $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret ]
+if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
 then
-  rm -rf $rootdir/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
 fi 
 ./INSTALL.sh
-ln -sf $rootdir/thirdParty/PyPiReT $rootdir/bin/PyPiReT
+ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
 export PATH=$Org_PATH
 cd $rootdir/thirdParty
 echo "
@@ -266,7 +269,7 @@ echo "
 }
 
 install_racon(){
-local VER=1.3.1
+local VER=1.4.13
 echo "------------------------------------------------------------------------------
                            Installing racon $VER
 ------------------------------------------------------------------------------"
@@ -274,7 +277,7 @@ tar xvzf racon-v$VER.tar.gz
 cd racon-v$VER
 mkdir -p build
 cd build
-$anaconda2bin/cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 cp -f bin/racon* $rootdir/bin/
 cd $rootdir/thirdParty
@@ -327,7 +330,7 @@ echo "
 
 install_prokka()
 {
-local VER=1.14.0
+local VER=1.14.5
 echo "------------------------------------------------------------------------------
                            Installing prokka-$VER
 ------------------------------------------------------------------------------
@@ -469,7 +472,7 @@ echo "
 
 install_R()
 {
-local VER=3.5.1
+local VER=3.6.3
 echo "------------------------------------------------------------------------------
                            Compiling R $VER
 ------------------------------------------------------------------------------
@@ -492,7 +495,7 @@ echo "--------------------------------------------------------------------------
                            installing R packages
 ------------------------------------------------------------------------------
 "
-local VER=3.5.1
+local VER=3.6.3
 tar xzf R-${VER}-Packages.tgz  
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file - 
 echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
@@ -533,7 +536,7 @@ echo "
 
 install_BLAST+()
 {
-local VER=2.9.0
+local VER=2.10.0
 echo "------------------------------------------------------------------------------
                            Install ncbi-blast-$VER+-x64
 ------------------------------------------------------------------------------
@@ -732,18 +735,18 @@ echo "
 
 install_bowtie2()
 {
+local VER=2.4.1
 echo "------------------------------------------------------------------------------
-                           Compiling bowtie2 2.2.6
+                           Install bowtie2 $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf bowtie2-2.2.6.tar.gz
-cd bowtie2-2.2.6
-make
+tar xvzf bowtie2-$VER-linux-x86_64.tgz
+cd bowtie2-$VER-linux-x86_64
 cp bowtie2* $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           bowtie2 compiled
+                           bowtie2 $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -996,7 +999,7 @@ echo "
 
 install_minimap2()
 {
-local VER=2.16
+local VER=2.17
 echo "------------------------------------------------------------------------------
                            Compiling minimap2 $VER
 ------------------------------------------------------------------------------
@@ -1082,7 +1085,7 @@ echo "
 
 install_samtools()
 {
-local VER=1.9
+local VER=1.10
 echo "------------------------------------------------------------------------------
                            Compiling samtools-$VER
 ------------------------------------------------------------------------------
@@ -1103,7 +1106,7 @@ echo "
 
 install_bcftools()
 {
-local VER=1.9
+local VER=1.10.2
 echo "------------------------------------------------------------------------------
                            Compiling bcftools-$VER
 ------------------------------------------------------------------------------
@@ -1414,49 +1417,52 @@ echo "
 
 install_Anaconda2()
 {
+local VER=2019.10
 echo "------------------------------------------------------------------------------
-                 Installing Python Anaconda2 4.1.1
+                 Installing Python Anaconda2 $VER
 ------------------------------------------------------------------------------
 "
 if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
-    bash Anaconda2-4.1.1-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
+    bash Anaconda2-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
 fi
 ln -fs $anaconda2bin/python $rootdir/bin
-ln -fs $anaconda2bin/pip $rootdir/bin
-ln -fs $anaconda2bin/conda $rootdir/bin
-tar -xvzf Anaconda2Packages.tgz
-$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
-$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
+#ln -fs $anaconda2bin/pip $rootdir/bin
+#ln -fs $anaconda2bin/conda $rootdir/bin
+
+#tar -xvzf Anaconda2Packages.tgz
+#$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
 #$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
-$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
 #$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
-$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
-$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
-$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
-$anaconda2bin/conda install Anaconda2Packages/rapsearch-2.24-1.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/conda config --add channels defaults
 $anaconda2bin/conda config --add channels bioconda
 $anaconda2bin/conda config --add channels conda-forge
-ln -s $anaconda2bin/rapsearch $anaconda2bin/rapsearch2
+$anaconda2bin/pip install biopython xlsx2csv
+$anaconda2bin/conda install -y mysql-connector-python
 #$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
-$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
-$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
+$anaconda2bin/pip install matplotlib==2.2.5
 matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-rm -r Anaconda2Packages/
+#rm -r Anaconda2Packages/
 echo "
 ------------------------------------------------------------------------------
-                         Python Anaconda2 4.1.1 Installed
+                         Python Anaconda2 $VER Installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_Anaconda3()
 {
-local VER=5.1.0
+local VER=2020.02
 echo "------------------------------------------------------------------------------
                  Installing Python Anaconda3 $VER
 ------------------------------------------------------------------------------
@@ -1465,16 +1471,16 @@ if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
     bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
 fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
-
-tar -xvzf Anaconda3Packages.tgz
-$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
-$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
-$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/conda update -n base -y conda
+#tar -xvzf Anaconda3Packages.tgz
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda install -y -c bioconda rgi=5.1.0
-$anaconda3bin/conda install -y -c conda-forge pandas
+$anaconda3bin/conda create -y -n py36
+$anaconda3bin/pip install CairoSVG pandas
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
@@ -1484,9 +1490,51 @@ echo "
 "
 }
 
+install_cmake(){
+echo "------------------------------------------------------------------------------
+                        Installing cmake
+------------------------------------------------------------------------------
+"
+$anaconda2bin/conda install -y libgcc cmake
+echo "
+------------------------------------------------------------------------------
+                         cmake Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_rapsearch2(){
+echo "------------------------------------------------------------------------------
+                        Installing rapsearch2 binary
+------------------------------------------------------------------------------
+"
+$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
+ln -s $anaconda2bin/rapsearch $rootdir/bin/rapsearch2
+echo "
+------------------------------------------------------------------------------
+                         Rapsearch2  Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_rgi(){
+local VER=5.1.0
+echo "------------------------------------------------------------------------------
+                        Installing RGI $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -n py36 -c bioconda rgi=5.1.0
+
+echo "
+------------------------------------------------------------------------------
+                         RGI $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_checkM()
 {
-local VER=1.1.1
+local VER=1.1.2
 echo "------------------------------------------------------------------------------
                         Installing checkM $VER
 ------------------------------------------------------------------------------
@@ -1526,7 +1574,7 @@ echo "
 
 install_antismash()
 {
-local VER=4.1.0
+local VER=4.2.0
 echo "------------------------------------------------------------------------------
                         Installing antiSMASH $VER
 ------------------------------------------------------------------------------
@@ -1535,7 +1583,7 @@ if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
 then
   rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
 fi
-$anaconda2bin/conda create -y -n antismash antismash
+$anaconda3bin/conda create -y -n antismash antismash=4.2.0
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
@@ -1550,7 +1598,8 @@ echo "--------------------------------------------------------------------------
                         Installing bokeh $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/pip install  --no-index --find-links=./Anaconda3Packages bokeh==$VER
+#$anaconda3bin/pip install  --no-index --find-links=./Anaconda3Packages bokeh==$VER
+$anaconda3bin/pip install bokeh==$VER
 echo "
 ------------------------------------------------------------------------------
                          bokeh $VER Installed
@@ -1564,7 +1613,8 @@ echo "--------------------------------------------------------------------------
                  	Installing NanoPlot
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
+$anaconda3bin/pip install NanoPlot
 ln -fs $anaconda3bin/NanoPlot $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
@@ -1578,8 +1628,9 @@ echo "--------------------------------------------------------------------------
                  	Installing Porechop
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
-ln -fs $anaconda3bin/porechop $rootdir/bin
+#$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
+$anaconda3bin/conda install -n py36 -y porechop
+ln -fs $anaconda3bin/../envs/py36/bin/porechop $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
                          Porechop Installed
@@ -1616,6 +1667,10 @@ containsElement () {
   local e
   for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
   return 1
+}
+
+versionStr() { 
+  echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; 
 }
 
 print_usage()
@@ -1809,6 +1864,14 @@ then
   done
 fi
 
+if ( checkSystemInstallation cmake )
+then
+  echo "cmake is found"
+else
+  echo "cmake is not found"
+  install_cmake
+fi
+
 if ( checkSystemInstallation inkscape )
 then
   echo "inkscape is found"
@@ -1863,7 +1926,7 @@ else
     then
     {
 	R_VER=`$rootdir/bin/R --version | perl -nle 'print $& if m{version \d+\.\d+}'`;
-	if  ( echo $R_VER | awk '{if($2>="3.5") exit 0; else exit 1}' )
+	if  ( echo $R_VER | awk '{if($2>="3.6") exit 0; else exit 1}' )
 	then
 	{
         	echo "R $R_VER found"
@@ -1951,7 +2014,7 @@ fi
 if ( checkSystemInstallation blastn )
 then
    BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-   if ( echo $BLAST_VER | awk '{if($1>="2.8.0") exit 0; else exit 1}' )
+   if [ $(versionStr $BLAST_VER) -ge $(versionStr "2.8.0") ]
    then
      echo "BLAST+ $BLAST_VER found"
    else
@@ -2183,7 +2246,7 @@ then
   then
       samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`; 
   fi
-  if  ( echo $samtools_installed_VER | awk '{if($1>=1.7) exit 0; else exit 1}' )
+  if [ $(versionStr $samtools_installed_VER) -ge $(versionStr "1.9") ]
   then
       echo "samtools is found"
   else
@@ -2201,7 +2264,7 @@ then
   then
       bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`;
   fi
-  if  ( echo $bcftools_installed_VER | awk '{if($1>=1.7) exit 0; else exit 1}' )
+  if [ $(versionStr $bcftools_installed_VER) -ge $(versionStr "1.9") ]
   then
       echo "bcftools is found"
   else
@@ -2291,7 +2354,7 @@ fi
 if ( checkSystemInstallation racon )
 then
   racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
-  if ( echo $racon_installed_VER | awk '{if($1>="1.3.1") exit 0; else exit 1}' )
+  if [ $(versionStr $racon_installed_VER) -ge $(versionStr "1.3.1") ]
   then
     echo "racon $racon_installed_VER found"
   else
@@ -2432,6 +2495,28 @@ else
     install_reference-based_assembly
 fi
 
+if ( checkLocalInstallation rapsearch2 )
+then
+    echo "rapsearch2 is found"
+else
+    echo "rapsearch2 is not found"
+    install_rapsearch2
+fi
+
+if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
+then
+  RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
+  then
+    echo "RGI $RGI_VER is found"
+  else
+    install_rgi
+  fi
+else
+  echo "RGI is not found"
+  install_rgi
+fi
+
 if ( checkLocalInstallation porechop )
 then
     echo "porechop is found"
@@ -2461,6 +2546,7 @@ else
   echo "QIIME2 is not found"
   install_qiime2
 fi
+
 
 if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
 then
@@ -2493,7 +2579,7 @@ fi
 if [ -x "$anaconda3bin/bokeh" ]
 then
   bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $bokeh_VER | awk '{if($1=="0.12.10") exit 0; else exit 1}' )
+  if ( echo $bokeh_VER | awk '{if($1=="1.1.0") exit 0; else exit 1}' )
   then
     echo "bokeh $bokeh_VER is found"
   else
@@ -2519,9 +2605,9 @@ else
 fi
 
 
-if ( checkLocalInstallation PyPiReT)
+if ( checkLocalInstallation piret)
 then
-  PiReT_VER=`grep "version=" $rootdir/bin/PyPiReT/bin/runPiReT | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
   if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
   then
     echo "PyPiReT is found"
@@ -2781,7 +2867,7 @@ fi
 
 
 ## Cleanup
-rm -rf $rootdir/thirdParty/Anaconda3Packages/
+#rm -rf $rootdir/thirdParty/Anaconda3Packages/
 $anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
 

@@ -121,7 +121,8 @@ sub main {
 
 		if( -e $opt{'in-ctg-anno-gff3'} ){
 			print "#  - amending annotation gff3...";
-			&fixProkkaGff( $opt{'in-ctg-anno-gff3'}, $opt{'in-ctg-tax-assign'},"$opt{outdir}/contig_annotation.gff3" );
+			&fixRefGff3( $opt{'in-ctg-anno-gff3'}, $opt{'in-ctg-fa'}, "$opt{outdir}/contig_annotation_tmp.gff3");
+			&fixProkkaGff(  "$opt{outdir}/contig_annotation_tmp.gff3", $opt{'in-ctg-tax-assign'},"$opt{outdir}/contig_annotation.gff3" );
 			executeCommand("cat $opt{outdir}/contig_annotation.gff3 >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}
@@ -401,7 +402,7 @@ sub fixRefGff3 {
 			foreach my $fn ( @fname ){
 				chomp $fn;
 				$fn =~ s/^>//;
-				if( $fn =~ /^$gn/ ){
+				if( $fn =~ /^$gn/ || $gn =~ /^$fn/ ){
 					$name_mapping{$gn} = $fn;
 					last;
 				}

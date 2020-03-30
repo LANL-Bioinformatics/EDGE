@@ -22,6 +22,6 @@ foreach my $file ( @files )
 	close REF;
 	close GSZ;
 
-	`genomeCoverageBed -split -bg -ibam $file -g $tempfile > $file.bedgraph`;
+	`genomeCoverageBed -split -bg -ibam $file -g $tempfile > $file.bedgraph 2>/dev/null`;
 	`wigToBigWig $file.bedgraph $tempfile $file.bw`;
 }

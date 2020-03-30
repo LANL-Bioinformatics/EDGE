@@ -1,6 +1,8 @@
 -- Version 2019
 EDGE 2.4.0
-* Update bcftools from 1.6 to 1.9
+* Update bcftools from 1.6 to 1.10.2
+* Update samtools from 1.9 to 1.10
+* Update racon from 1.3.1 to 1.4.13
 * Add Python package lzstring, h5py
 * Add biom format output for taxonomy classification module.
 * Fix bug: data clean script in docker or symlink directory
@@ -9,14 +11,16 @@ EDGE 2.4.0
 * Fix bug: RATT annotatiom embl format
 * Update gottcha2 and pangia codes for corresponding database update
 * Update megahit from 1.0.3 to 1.1.3.
-* Update R from 3.3.2 to 3.5.1
+* Update R from 3.3.2 to 3.6.3
 * Update rgi from 3.1.1 to 5.1.0
+* Update bowtie2 from 2.2.6 to 2.4.1
 * Update bedtools from 2.19.1 to 2.27.1
 * Update minimap2 from 2.10 to 2.16
-* Update prokka from 1.13 to 1.14
-* Update ncbi-blast from 2.5.0 to 2.9.0
+* Update prokka from 1.13 to 1.14.5
+* Update ncbi-blast from 2.5.0 to 2.10.0
 * Update SPAdes from 3.11.1 to 3.13.0
 * Update sratoolskit from 2.8.2 to 2.9.6
+* Update Anaconda2 and Anaconda3 to 2019.10 and 2020.02
 * Update lrasm from 0.1.0 to 0.2.0 which include new assembler wtdbg2
 * Update gottcha dmd complier and use conda to install rapsearch2
 * Add MaxBin tools for metagenome contig binning
@@ -25,8 +29,8 @@ EDGE 2.4.0
 * Add Centrifuge taxonomy classification tool
 * Update Kraken to Kraken-2.0.7
 * Update Contig taxonomy classification from bwa to minimap2, perl to python
-* Add CheckM v1.1.1 tool for assessing the quality of metagenome Binning
-* Add AntiSmash v4.1.0 tool for secondary metbolite analysis
+* Add CheckM v1.1.2 tool for assessing the quality of metagenome Binning
+* Add AntiSmash v4.2.0 tool for secondary metbolite analysis
 * Add QIIME2 pipeline and installation/requirement 
 * Add script to extract VF/AMR protein
 * Add "reference" column support for batch submit input excel file

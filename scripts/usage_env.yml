@@ -1,0 +1,36 @@
+name: edge-monitor
+channels:
+  - defaults
+dependencies:
+  - ca-certificates=2018.03.07=0
+  - certifi=2018.4.16=py36_0
+  - libcxx=4.0.1=h579ed51_0
+  - libcxxabi=4.0.1=hebd6815_0
+  - libedit=3.1.20170329=hb402a30_2
+  - libffi=3.2.1=h475c297_4
+  - ncurses=6.1=h0a44026_0
+  - openssl=1.0.2o=h26aff7b_0
+  - pip=10.0.1=py36_0
+  - python=3.6.5=hc167b69_1
+  - readline=7.0=hc1231fa_4
+  - setuptools=39.2.0=py36_0
+  - sqlite=3.24.0=ha441bb4_0
+  - tk=8.6.7=h35a86e2_3
+  - wheel=0.31.1=py36_0
+  - xz=5.2.4=h1de35cc_4
+  - zlib=1.2.11=hf3cbc9b_2
+  - pip:
+    - chardet==3.0.4
+    - idna==2.7
+    - psutil==5.4.6
+    - pyjwt==1.6.4
+    - pysocks==1.6.8
+    - python-crontab==2.3.4
+    - python-dateutil==2.7.3
+    - pytz==2018.4
+    - requests==2.19.1
+    - six==1.11.0
+    - twilio==6.14.4
+    - urllib3==1.23
+prefix: /Users/l197233/anaconda3/envs/edge-monitor
+

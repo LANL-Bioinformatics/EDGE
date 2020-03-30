@@ -1642,7 +1642,7 @@ sub getSRAmetaData{
 			$center = $parts[9];
 			$hostCondition = $parts[12];
 			$gender = $parts[13];   
-  			($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
+			#($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
 
 			$opt{'metadata-sample-name'} = $sampleName;
 			$opt{'metadata-sample-type'} = $sampleType;

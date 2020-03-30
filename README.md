@@ -21,7 +21,7 @@ Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bisho
 
 ## Copyright
 
-Copyright (2018).  Triad National Security, LLC. All rights reserved.
+Copyright (2019).  Triad National Security, LLC. All rights reserved.
  
 This program was produced under U.S. Government contract 89233218CNA000001 for Los Alamos National 
 Laboratory (LANL), which is operated by Triad National Security, LLC for the U.S. Department of Energy/National 
@@ -34,5 +34,5 @@ the public, perform publicly and display publicly, and to permit others to do so
 
 This is open source software; you can redistribute it and/or modify it under the terms of the GPLv3 License. If software 
 is modified to produce derivative works, such modified software should be clearly marked, so as not to confuse it with 
-the version available from LANL. Full text of the [GPLv3 License](https://github.com/losalamos/edge/blob/master/LICENSE) can be found in the License file in the main development 
+the version available from LANL. Full text of the [GPLv3 License](https://github.com/LANL-Bioinformatics/edge/blob/master/LICENSE) can be found in the License file in the main development 
 branch of the repository.
