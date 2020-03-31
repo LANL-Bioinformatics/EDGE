@@ -277,7 +277,7 @@ tar xvzf racon-v$VER.tar.gz
 cd racon-v$VER
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release -Dracon_build_wrapper=ON -Dspoa_optimize_for_portability=ON ..
 make
 cp -f bin/racon* $rootdir/bin/
 cd $rootdir/thirdParty
