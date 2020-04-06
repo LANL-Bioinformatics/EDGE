@@ -53,6 +53,7 @@ my $plot_only=0;
 my $skip_aln=0;
 my $no_plot=0;
 my $no_snp=0;
+my $no_indels=0;
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
 # varinat filter
 my $min_alt_bases=3;  # minimum number of alternate bases
@@ -94,6 +95,7 @@ GetOptions(
             'skip_aln'  => \$skip_aln,
             'no_plot'   => \$no_plot,
             'no_snp'    => \$no_snp,
+            'no_indels' => \$no_indels,
             'debug'     => \$debug,
             'help|?',  sub {Usage()}
 );
@@ -324,7 +326,8 @@ for my $ref_file_i ( 0..$#ref_files){
 		if (!$no_snp){
 			print "SNPs/Indels call on $ref_file_name\n";
 			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : "";
-			`bcftools mpileup -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -cO b - > $bcf_output 2>/dev/null`;
+			my $indel_o = ($no_indels)? " -I ":""; 
+			`bcftools mpileup $indel_o -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -cO b - > $bcf_output 2>/dev/null`;
 			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth > $vcf_output`;
 		}
 
@@ -1007,6 +1010,7 @@ Usage: perl $0
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off
                -no_snp                   <bool> default: off
+               -no_indels                <bool> default: off
                -debug                    <bool> default: off
                -cpu                      number of CPUs [4]. will overwrite aligner options. 
                
