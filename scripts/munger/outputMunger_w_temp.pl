@@ -1831,7 +1831,8 @@ sub pull_readmapping_ref {
 			$refinfo->{"RMREFTID"}=($refid=~/^\w{1,4}_?\w+\.?\d*$/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
-			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
+			#my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
+			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.fasta";
 			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
