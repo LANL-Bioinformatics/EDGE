@@ -3157,11 +3157,13 @@ sub runReadsToGenome
             my $bamFile = "$outputDir/$file_name.sort.bam";
 	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
-            $command .= " --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
+            $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
+            &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
+            &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  

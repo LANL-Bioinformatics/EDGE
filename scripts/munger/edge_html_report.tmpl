@@ -580,7 +580,6 @@
 				<TMPL_IF NAME="OUT_BINN_CHECKM_SW">
 				<li id="checkMTag"><span class="li-report-content-title">CheckM</span><div class="li-report-content">
 					<table data-role="none" id="edge-binning-checkM-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=CHECKMRESULT>'></table>
-					</div>
 					<p class='extra-text-link'>Link to 
 						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/CheckM'> Directory </a>
@@ -643,10 +642,10 @@
 							  <thead>
 								<tr>
 								  <th data-priority='1'>Reference</th>
-								  <th data-priority='6'>Name</th>
-								  <th data-priority='2'>Length</th>
+								  <th data-priority='6'>Ref Name</th>
+								  <th data-priority='2'>Ref Len</th>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
-								  <th data-priority='3'>Consensus</th>
+								  <th data-priority='3'>Consensus Genome</th>
 							          </TMPL_IF>
 								  <th data-priority='5'>GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
@@ -669,7 +668,7 @@
 									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
 							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
-									<td><a href="<TMPL_VAR NAME=RMREFCONSENSUS>" target="_blank">Download</a></td>
+									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><a href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download</a></td>
 							          	</TMPL_IF>
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
 									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>

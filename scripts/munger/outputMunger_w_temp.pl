@@ -398,7 +398,6 @@ sub pull_binning {
 		my $checkM_json_output = "$checkM_outdir/CheckM.json";
 		&tab2json("$checkM_outdir/CheckM.txt",$checkM_json_output);
 		$vars->{CHECKMRESULT} = $checkM_json_output;
-		#$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
 	}
 }
 
@@ -1833,9 +1832,17 @@ sub pull_readmapping_ref {
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			#my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
 			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.fasta";
+			my $consensus_file_compsition = "$consensus_file.comp";
+			
 			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
+			if ( -e $consensus_file_compsition ){
+				open (my $fh, "<", $consensus_file_compsition);
+				my @consensus_info = split(/\s+/, <$fh>);
+				close $fh;
+				$refinfo->{"RMREFCONSENSUSINFO"} = "Len: $consensus_info[1]; A: $consensus_info[2]; C: $consensus_info[3]; G: $consensus_info[4]; T: $consensus_info[5]; N: $consensus_info[8] ";
+			}
 			$ref->{$temp[0]}=$refinfo;
 		}
 	}
