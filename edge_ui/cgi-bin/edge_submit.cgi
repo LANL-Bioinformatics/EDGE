@@ -1107,8 +1107,8 @@ sub checkParams {
 		}
 		push @refs, @edge_ref_input if @edge_ref_input;
 		$opt{"edge-ref-file"} = join ",", @refs;
-		&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
-		&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
+		#&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
+		#&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
 		
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
@@ -1246,7 +1246,7 @@ sub checkParams {
 		$opt{"edge-anno-hmm-file"}  = $input_dir."/".$opt{"edge-anno-hmm-file"} if ( $opt{"edge-anno-hmm-file"} =~ /^\w/);
 		if ($opt{"edge-anno-tool"} =~ /RATT/){
 			 $opt{"edge-anno-source-file"}  = $input_dir."/".$opt{"edge-anno-source-file"} if ( $opt{"edge-anno-source-file"} =~ /^\w/);
-			&addMessage("PARAMS","edge-anno-source-file","File not found. Please provide the Genbank Source File") if ( ! $opt{"edge-anno-source-file"} );
+			 #&addMessage("PARAMS","edge-anno-source-file","File not found. Please provide the Genbank Source File") if ( ! $opt{"edge-anno-source-file"} );
 			&addMessage("PARAMS","edge-anno-source-file","Invalid input. Genbank format required") if ( -e $opt{"edge-anno-source-file"} && ! is_genbank($opt{"edge-anno-source-file"}) );
 		}
 	}
@@ -1642,7 +1642,7 @@ sub getSRAmetaData{
 			$center = $parts[9];
 			$hostCondition = $parts[12];
 			$gender = $parts[13];   
-			#($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
+  			($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
 
 			$opt{'metadata-sample-name'} = $sampleName;
 			$opt{'metadata-sample-type'} = $sampleType;

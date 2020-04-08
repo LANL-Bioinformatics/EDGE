@@ -109,7 +109,7 @@ r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bowtie">
 r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
 window_size=1000
 step_size=200
-reference=<TMPL_VAR NAME=edge-ref-file>
+reference=/home/edge/edge_dev/edge_ui/data/SARS-CoV2/NC_045512.2.gbk,<TMPL_VAR NAME=edge-ref-file>
 MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
 r2g_extract_mapped=<TMPL_VAR NAME=edge-r2g-getmapped-sw DEFAULT=0>
 r2g_extract_unmapped=<TMPL_VAR NAME=edge-r2g-getunmapped-sw DEFAULT=0>
@@ -124,7 +124,7 @@ r2g_variant_call_ploidy=<TMPL_VAR NAME=edge-r2g-variantcall-ploidy DEFAULT="hapl
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoReadsTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
+DoReadsTaxonomy=0
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=<TMPL_VAR NAME=edge-taxa-allreads DEFAULT=0>
 enabledTools=<TMPL_VAR NAME=edge-taxa-enabled-tools DEFAULT="bwa">
@@ -155,7 +155,7 @@ MapUnmappedContigs=<TMPL_VAR NAME=edge-ref-unmapped-contig-class DEFAULT=0>
 DoVariantAnalysis=auto
 
 [Contigs Taxonomy Classification]
-DoContigsTaxonomy=<TMPL_VAR NAME=edge-contig-taxa-sw DEFAULT=0>
+DoContigsTaxonomy=0
 
 [Contigs Blast]
 DoBlast=<TMPL_VAR NAME=edge-blast-sw DEFAULT=0>
@@ -171,12 +171,12 @@ contig_size_cut_for_annotation=<TMPL_VAR NAME=edge-anno-size-cut DEFAULT=700>
 ## support tools: Prokka or RATT
 annotateProgram=<TMPL_VAR NAME=edge-anno-tool DEFAULT=prokka>
 ## provide SourceGBK for RATT to transfer annotation
-annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
+annotateSourceGBK=/home/edge/edge_dev/edge_ui/data/SARS-CoV2/NC_045512.2.gbk
 customHMM=<TMPL_VAR NAME=edge-anno-hmm-file>
 DoKeggOmicsView=<TMPL_VAR NAME=edge-anno-kegg-sw DEFAULT=1>
 
 [ProPhage Detection]
-DoProPhageDetection=auto
+DoProPhageDetection=0
 
 <TMPL_IF NAME=edge-sma-sw>
 [Secondary Metabolite Analysis]
@@ -283,7 +283,6 @@ qiime_truncLen=<TMPL_VAR NAME=edge-qiime-truncLen DEFAULT="0">
 qiime_autoDepth=<TMPL_VAR NAME=edge-qiime-autoDepth>
 qiime_q_threshold=<TMPL_VAR NAME=edge-qiime-phred-quality-threshold DEFAULT=4>
 qiime_max_n=<TMPL_VAR NAME=edge-qiime-max-n DEFAULT=1>
-qiime_percIdentity=<TMPL_VAR NAME=edge-qiime-otus-perc-identity DEFAULT="0.99">
 qiime_min_per_read_length_fraction=<TMPL_VAR NAME=edge-qiime-min-per-read-length-fraction DEFAULT=0.5>
 </TMPL_IF>
 

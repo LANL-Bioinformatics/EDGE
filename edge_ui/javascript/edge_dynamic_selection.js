@@ -33,7 +33,7 @@ $.mobile.document
         // We store the generated form in a variable attached to the popup so we avoid creating a
         // second form/input field when the listview is destroyed/rebuilt during a refresh.
         if ( !form ) {
-            input = $( "<input data-type='search' placeholder='ex: Escherichia'></input>" );
+            input = $( "<input data-type='search' placeholder='ex: Wuhan'></input>" );
 			select = $("<div id='" + id + "-allnone-btn' style='width:130px;margin-left:auto;padding:0.3em'> Select <a href='#' id='"+ id + "-all'>All</a> | <a href='#' id='" + id + "-none'>None</a> </div>");
 			form = $( "<form></form>" ).append( input ).append(select);
             //form = $( "<form></form>" ).append( input );
@@ -66,7 +66,7 @@ $.mobile.document
 					var queries = value.split(/[ ,]+/);
 					var query="";
 					for ( idx = 0 ; idx < queries.length ; idx++ ) {
-							if (queries[idx] && queries[idx].length > 3){
+							if (queries[idx] && queries[idx].length > 2){
 								query += queries[idx] + " ";
 							}
 					}
@@ -235,7 +235,7 @@ function OrSearch( index, searchValue ) {
 	var idx;
 	var notMatch_cnt=0;
 	var search_cnt=0;
-	if (searchValue && searchValue.length > 3){  
+	if (searchValue && searchValue.length > 2){  
 		searchValue = searchValue.split(/[ ,]+/);
 	    var text = $(this).text().toLowerCase();
 	    var filttext = $(this).data("filtertext") || '';

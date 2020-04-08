@@ -1,16 +1,25 @@
 # EDGE Bioinformatics
 
-This is version 2.x.x-dev of EDGE Bioinformatics, a product of Los Alamos National Laboratory, Naval Medical Research Center, and the Defense Threat Reduction Agency.
+EDGE COVID-19 is a bioinformatics platform that provides standardized workflows for genome ‘assembly’ and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genomes. The basic workflow includes data quality control and filtering, alignment of reads to a reference genome ([NC_045512.2](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/)), creation of a consensus genome sequence based on the read alignments, and a preliminary Single Nucleotide Polymorphism analysis. 
 
-EDGE is a highly adaptable bioinformatics platform that allows laboratories to quickly analyze and interpret genomic sequence data. The bioinformatics platform allows users to address a wide range of use cases including assay validation and the characterization of novel biological threats, clinical samples, and complex environmental samples.
+The platform contains read alignment tools that accommodate Illumina or Nanopore data, including those generated using the SARS-CoV-2 ARTIC network sequencing workflows (https://artic.network/ncov-2019). It consists of a user-friendly GUI that drives a series of best-practice, open source bioinformatics software to aid in the reconstruction of complete genomes of SARS-CoV-2 from whole genome sequencing projects.
 
-To demo EDGE, go to https://bioedge.lanl.gov/ or https://edgebioinformatics.org/ and follow the "GUI" instructions from our documentation, found at https://edge.readthedocs.org/en/latest/introduction.html. It is also linked at the bottom of the EDGE homepage.
+This light-weight version is available as a [Docker container](https://hub.docker.com/r/bioedge/edge_ncov), able to run on any local hardware infrastructure or in the cloud, and is based on the original [EDGE Bioinformatics platform](https://edgebioinformatics.org).  At this moment, no reference sequence database is required, and it should be able to run on a laptop. 
+
+For users who want to use read- or assembly-based taxonomy classification tools to understand what organisms may be present within samples, we refer you to the original [EDGE Bioinformatics platform](https://edgebioinformatics.org) which harbors this workflow but requires a number of large databases to enable such a search. In initial tests, we recover Bat Coronavirus XXX as the genome in the databases as the closest near-neighbor to the SARS-CoV-2 genome sequence, but are actively working on generating new reference indexes to also allow hits to recent SARS-CoV-2 genomes. 
+
+Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA), perform *de novo* assembly, map reads to a reference genome to get the consensus SARS-CoV-2 sequence from the sequencing data. Users can also compare the assembled contigs to a reference sequence (default to NCBI refseq sequence [NC_045512.2](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/) and see the differences in both tabular and graphic form. 
 
 ## Documentation
 	
-[ReadTheDocs](http://edge.readthedocs.org)
+[EDGE COVID-19 Guide](https://docs.google.com/document/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub)
+[EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge_ncov)
 
-[PDF](https://readthedocs.org/projects/edge/downloads/pdf/develop/)
+## Requirements
+
+* Docker Engine version 19.03.2 or greater
+* The image size is around 11.8GB. This image is built on top of the official Ubuntu 18.04.3 LTS Base Image.
+* Recommended minimum computational resource : 8G memory, 4 CPUs, 20GB for the image.   
 
 ## Contact Info
 Support: The EDGE user's group is a Google group for users and developers: [edge-users@googlegroups.com](mailto:edge-users@googlegroups.com)
@@ -21,7 +30,7 @@ Po-E Li, Chien-Chi Lo, Joseph J. Anderson, Karen W. Davenport, Kimberly A. Bisho
 
 ## Copyright
 
-Copyright (2019).  Triad National Security, LLC. All rights reserved.
+Copyright (2020).  Triad National Security, LLC. All rights reserved.
  
 This program was produced under U.S. Government contract 89233218CNA000001 for Los Alamos National 
 Laboratory (LANL), which is operated by Triad National Security, LLC for the U.S. Department of Energy/National 

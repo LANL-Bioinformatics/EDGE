@@ -88,7 +88,7 @@ echo "--------------------------------------------------------------------------
                            Installing reference-based_assembly package
 ------------------------------------------------------------------------------
 "
-Org_PATH=$PATH;
+Org_PATH=$PATH
 export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
 tar xvzf reference-based_assembly.tgz
 cd reference-based_assembly
@@ -277,7 +277,7 @@ tar xvzf racon-v$VER.tar.gz
 cd racon-v$VER
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release -Dracon_build_wrapper=ON -Dspoa_optimize_for_portability=ON ..
+cmake -DCMAKE_BUILD_TYPE=Release -Dracon_build_wrapper=ON -Dspoa_optimize_for_portability=ON  ..
 make
 cp -f bin/racon* $rootdir/bin/
 cd $rootdir/thirdParty
@@ -498,13 +498,13 @@ echo "--------------------------------------------------------------------------
 local VER=3.6.3
 tar xzf R-${VER}-Packages.tgz  
 echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file - 
-echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 echo "if(\"Cairo\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"Cairo\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"plotly\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"plotly\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
-echo "if(\"gplots\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gplots\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"plotly\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"plotly\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+#echo "if(\"gplots\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gplots\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
 rm -r Rpackages/
 echo "options(bitmapType='cairo')" > $HOME/.Rprofile
 echo "
@@ -1426,39 +1426,24 @@ if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
     bash Anaconda2-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
 fi
 ln -fs $anaconda2bin/python $rootdir/bin
-#ln -fs $anaconda2bin/pip $rootdir/bin
-#ln -fs $anaconda2bin/conda $rootdir/bin
-
-#tar -xvzf Anaconda2Packages.tgz
-#$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
 $anaconda2bin/conda config --add channels defaults
 $anaconda2bin/conda config --add channels bioconda
 $anaconda2bin/conda config --add channels conda-forge
 $anaconda2bin/pip install biopython xlsx2csv
 $anaconda2bin/conda install -y mysql-connector-python
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
+#$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
+
 $anaconda2bin/pip install matplotlib==2.2.5
+
 matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-#rm -r Anaconda2Packages/
 echo "
 ------------------------------------------------------------------------------
                          Python Anaconda2 $VER Installed
 ------------------------------------------------------------------------------
 "
 }
+
 
 install_Anaconda3()
 {
@@ -1473,14 +1458,11 @@ fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/pip install CairoSVG pandas
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda create -y -n py36
-$anaconda3bin/pip install CairoSVG pandas
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
@@ -1638,6 +1620,7 @@ echo "
 "
 }
 
+
 checkSystemInstallation()
 {
     IFS=:
@@ -1672,6 +1655,7 @@ containsElement () {
 versionStr() { 
   echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; 
 }
+
 
 print_usage()
 {
@@ -1864,6 +1848,7 @@ then
   done
 fi
 
+
 if ( checkSystemInstallation cmake )
 then
   echo "cmake is found"
@@ -2011,74 +1996,74 @@ else
   install_seqtk
 fi
 
-if ( checkSystemInstallation blastn )
-then
-   BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
-   if [ $(versionStr $BLAST_VER) -ge $(versionStr "2.8.0") ]
-   then
-     echo "BLAST+ $BLAST_VER found"
-   else
-     install_BLAST+
-   fi
-else
-  echo "BLAST+ is not found"
-  install_BLAST+
-fi
+# if ( checkSystemInstallation blastn )
+# then
+#    BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+#    if [ $(versionStr $BLAST_VER) -ge $(versionStr "2.8.0") ]
+#    then
+#      echo "BLAST+ $BLAST_VER found"
+#    else
+#      install_BLAST+
+#    fi
+# else
+#   echo "BLAST+ is not found"
+#   install_BLAST+
+# fi
 
-if ( checkLocalInstallation blastall )
-then
-  echo "blastall is found"
-else
-  echo "blastall is not found"
-  install_blastall
-fi
+# if ( checkLocalInstallation blastall )
+# then
+#   echo "blastall is found"
+# else
+#   echo "blastall is not found"
+#   install_blastall
+# fi
 
-if ( checkSystemInstallation tRNAscan-SE )
-then
-  echo "tRNAscan-SE is found"
-else
-  echo "tRNAscan-SE is not found"
-  install_tRNAscan
-fi
+# if ( checkSystemInstallation tRNAscan-SE )
+# then
+#   echo "tRNAscan-SE is found"
+# else
+#   echo "tRNAscan-SE is not found"
+#   install_tRNAscan
+# fi
+# 
+# if ( checkLocalInstallation ktImportBLAST )
+# then
+#   Krona_VER=`$rootdir/bin/ktGetLibPath | perl -nle 'print $& if m{KronaTools-\d\.\d}' | perl -nle 'print $& if m{\d\.\d}'`;
+#   if  ( echo $Krona_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
+#   then
+#     echo "KronaTools $Krona_VER found"
+#   else
+#     install_kronatools
+#   fi
+# else
+#   echo "KronaTools is not found"
+#   install_kronatools
+# fi
 
-if ( checkLocalInstallation ktImportBLAST )
-then
-  Krona_VER=`$rootdir/bin/ktGetLibPath | perl -nle 'print $& if m{KronaTools-\d\.\d}' | perl -nle 'print $& if m{\d\.\d}'`;
-  if  ( echo $Krona_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
-  then
-    echo "KronaTools $Krona_VER found"
-  else
-    install_kronatools
-  fi
-else
-  echo "KronaTools is not found"
-  install_kronatools
-fi
 
-
-if ( checkLocalInstallation hmmpress )
-then
-  echo "hmmer3 is found"
-else
-  echo "hmmer3 is not found"
-  install_hmmer
-fi
-
-if ( checkLocalInstallation cmbuild )
-then
-  echo "infernal-1.1 is found"
-else
-  echo "infernal-1.1 is not found"
-  install_infernal
-fi
-
-if ( checkLocalInstallation prokka )
-then
-  echo "prokka is found"
-else
-  echo "prokka is not found"
-  install_prokka
-fi
+# if ( checkLocalInstallation hmmpress )
+# then
+#   echo "hmmer3 is found"
+# else
+#   echo "hmmer3 is not found"
+#   install_hmmer
+# fi
+# 
+# if ( checkLocalInstallation cmbuild )
+# then
+#   echo "infernal-1.1 is found"
+# else
+#   echo "infernal-1.1 is not found"
+#   install_infernal
+# fi
+# 
+# if ( checkLocalInstallation prokka )
+# then
+#   echo "prokka is found"
+# else
+#   echo "prokka is not found"
+#   install_prokka
+# fi
 
 if [ -x "$rootdir/thirdParty/chrome-linux/chrome" ]
 then
@@ -2096,37 +2081,37 @@ else
   install_RATT
 fi
 
-if ( checkSystemInstallation barrnap )
-then
-  echo "barrnap is found"
-else
-  echo "barrnap is not found"
-  install_barrnap
-fi
+# if ( checkSystemInstallation barrnap )
+# then
+#   echo "barrnap is found"
+# else
+#   echo "barrnap is not found"
+#   install_barrnap
+# fi
 
-if ( checkSystemInstallation glimmer3 )
-then
-  echo "glimmer is found"
-else
-  echo "glimmer is not found"
-  install_glimmer
-fi
+# if ( checkSystemInstallation glimmer3 )
+# then
+#   echo "glimmer is found"
+# else
+#   echo "glimmer is not found"
+#   install_glimmer
+# fi
 
-if ( checkSystemInstallation prodigal )
-then
-  echo "prodigal is found"
-else
-  echo "prodigal is not found"
-  install_prodigal
-fi
+# if ( checkSystemInstallation prodigal )
+# then
+#   echo "prodigal is found"
+# else
+#   echo "prodigal is not found"
+#   install_prodigal
+# fi
 
-if ( checkSystemInstallation aragorn )
-then
-  echo "aragorn is found"
-else
-  echo "aragorn is not found"
-  install_aragorn
-fi
+# if ( checkSystemInstallation aragorn )
+# then
+#   echo "aragorn is found"
+# else
+#   echo "aragorn is not found"
+#   install_aragorn
+# fi
 
 if ( checkSystemInstallation tbl2asn.orig )
 then
@@ -2136,42 +2121,42 @@ else
   install_tbl2asn
 fi
 
-if ( checkLocalInstallation ShortBRED/shortbred_quantify.py )
-then
-  echo "ShortBRED is found"
-else
-  echo "ShortBRED is not found"
-  install_ShortBRED
-fi
+# if ( checkLocalInstallation ShortBRED/shortbred_quantify.py )
+# then
+#   echo "ShortBRED is found"
+# else
+#   echo "ShortBRED is not found"
+#   install_ShortBRED
+# fi
 
 
-if ( checkLocalInstallation kraken2 )
-then
-  kraken2_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
-  if  ( echo $kraken2_VER | awk '{if($1>=2.0) exit 0; else exit 1}' )
-  then
-    echo "kraken2 $kraken2_VER found"
-  else
-    install_kraken2
-  fi
-else
-  echo "kraken2 is not found"
-  install_kraken2
-fi
+# if ( checkLocalInstallation kraken2 )
+# then
+#   kraken2_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+#   if  ( echo $kraken2_VER | awk '{if($1>=2.0) exit 0; else exit 1}' )
+#   then
+#     echo "kraken2 $kraken2_VER found"
+#   else
+#     install_kraken2
+#   fi
+# else
+#   echo "kraken2 is not found"
+#   install_kraken2
+# fi
 
-if ( checkLocalInstallation centrifuge )
-then
-  centrifuge_VER=`centrifuge --version | grep "centrifuge-class version" | perl -nle 'print $1 if m{(\d+\.\d+\.\d+)}'`;
-  if  ( echo $centrifuge_VER | awk '{if($1>="1.0.4") exit 0; else exit 1}' )
-  then
-    echo "centrifuge $centrifuge_VER found"
-  else
-    install_centrifuge
-  fi
-else
-  echo "centrifuge is not found"
-  install_centrifuge
-fi
+# if ( checkLocalInstallation centrifuge )
+# then
+#   centrifuge_VER=`centrifuge --version | grep "centrifuge-class version" | perl -nle 'print $1 if m{(\d+\.\d+\.\d+)}'`;
+#   if  ( echo $centrifuge_VER | awk '{if($1>="1.0.4") exit 0; else exit 1}' )
+#   then
+#     echo "centrifuge $centrifuge_VER found"
+#   else
+#     install_centrifuge
+#   fi
+# else
+#   echo "centrifuge is not found"
+#   install_centrifuge
+# fi
 
 if ( checkSystemInstallation tabix )
 then
@@ -2203,19 +2188,19 @@ else
   install_bowtie2
 fi
 
-if ( checkSystemInstallation diamond )
-then
-  diamond_VER=`diamond --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+.\d+)}'`;
-  if  ( echo $diamond_VER | awk '{if($1>="0.9.10") exit 0; else exit 1}' )
-  then
-    echo "diamond $diamond_VER found"
-  else
-    install_diamond
-  fi
-else
-  echo "diamond is not found"
-  install_diamond
-fi
+# if ( checkSystemInstallation diamond )
+# then
+#   diamond_VER=`diamond --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+.\d+)}'`;
+#   if  ( echo $diamond_VER | awk '{if($1>="0.9.10") exit 0; else exit 1}' )
+#   then
+#     echo "diamond $diamond_VER found"
+#   else
+#     install_diamond
+#   fi
+# else
+#   echo "diamond is not found"
+#   install_diamond
+# fi
 
 if ( checkSystemInstallation minimap2 )
 then
@@ -2248,7 +2233,7 @@ then
   fi
   if [ $(versionStr $samtools_installed_VER) -ge $(versionStr "1.9") ]
   then
-      echo "samtools is found"
+      echo "samtools $samtools_installed_VER is found"
   else
       echo "samtools is not found"
       install_samtools
@@ -2379,66 +2364,66 @@ else
   install_lrasm
 fi
 
-if [ -x "$rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh" ]
-then
-  echo "phage_finder_v2.1 is found"
-else
-  echo "phage_finder_v2 is not found"
-  install_phageFinder
-fi
+# if [ -x "$rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh" ]
+# then
+#   echo "phage_finder_v2.1 is found"
+# else
+#   echo "phage_finder_v2 is not found"
+#   install_phageFinder
+# fi
 
-if [ -x "$rootdir/bin/MaxBin/src/MaxBin" ]
-then
-  MaxBin_VER=`$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
-  if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
-  then
-    echo "MaxBin2 is found"
-  else
-    install_MaxBin
-  fi
-else
-  echo "MaxBin2 is not found"
-  install_MaxBin
-fi
+# if [ -x "$rootdir/bin/MaxBin/src/MaxBin" ]
+# then
+#   MaxBin_VER=`$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
+#   if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
+#   then
+#     echo "MaxBin2 is found"
+#   else
+#     install_MaxBin
+#   fi
+# else
+#   echo "MaxBin2 is not found"
+#   install_MaxBin
+# fi
 
-if ( checkLocalInstallation gottcha.pl  )
-then
-  echo "gottcha.pl  is found"
-else
-  echo "gottcha.pl  is not found"
-  install_gottcha
-fi
+# if ( checkLocalInstallation gottcha.pl  )
+# then
+#   echo "gottcha.pl  is found"
+# else
+#   echo "gottcha.pl  is not found"
+#   install_gottcha
+# fi
 
-if [ -x "$rootdir/thirdParty/gottcha2/gottcha2.py" ]
-then
-  gottcha2_VER=`$rootdir/thirdParty/gottcha2/gottcha2.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
-  if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
-  then
-    echo "GOTTCHA2 $gottcha2_VER is found"
-  else
-    install_gottcha2
-  fi
-else
-  echo "GOTTCHA2 is not found"
-  install_gottcha2
-fi
+# if [ -x "$rootdir/thirdParty/gottcha2/gottcha2.py" ]
+# then
+#   gottcha2_VER=`$rootdir/thirdParty/gottcha2/gottcha2.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
+#   if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
+#   then
+#     echo "GOTTCHA2 $gottcha2_VER is found"
+#   else
+#     install_gottcha2
+#   fi
+# else
+#   echo "GOTTCHA2 is not found"
+#   install_gottcha2
+# fi
 
-if [ -x "$rootdir/thirdParty/miccr/miccr.py" ]
-then
-  miccr_VER=`$rootdir/thirdParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
-  then
-    echo "miccr $miccr_VER is found"
-  else
-    install_miccr
-  fi
-else
-  echo "miccr is not found"
-  install_miccr
-fi
-
-#if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
-#then
+# if [ -x "$rootdir/thirdParty/miccr/miccr.py" ]
+# then
+#   miccr_VER=`$rootdir/thirdParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
+#   if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
+#   then
+#     echo "miccr $miccr_VER is found"
+#   else
+#     install_miccr
+#   fi
+# else
+#   echo "miccr is not found"
+#   install_miccr
+# fi
+# 
+# if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
+# then
 #  pangia_VER=`$rootdir/thirdParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
 #  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
 #  then
@@ -2446,32 +2431,32 @@ fi
 #  else
 #    install_pangia
 #  fi
-#else
+# else
 #  echo "PANGIA is not found"
 #  install_pangia
-#fi
+# fi
 
-if ( checkLocalInstallation metaphlan2.py  )
-then
-  metaphlan_VER=`metaphlan2.py -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if ( echo $metaphlan_VER | awk '{if($1>="2.7.7") exit 0; else exit 1}' )
-  then
-    echo "metaphlan2  is found"
-  else
-    install_metaphlan2
-  fi
-else
-  echo "metaphlan2 is not found"
-  install_metaphlan2
-fi
+# if ( checkLocalInstallation metaphlan2.py  )
+# then
+#   metaphlan_VER=`metaphlan2.py -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+#   if ( echo $metaphlan_VER | awk '{if($1>="2.7.7") exit 0; else exit 1}' )
+#   then
+#     echo "metaphlan2  is found"
+#   else
+#     install_metaphlan2
+#   fi
+# else
+#   echo "metaphlan2 is not found"
+#   install_metaphlan2
+# fi
 
-if ( checkLocalInstallation primer3_core  )
-then
-   echo "primer3  is found"
-else
-   echo "primer3  is not found"
-   install_primer3
-fi
+# if ( checkLocalInstallation primer3_core  )
+# then
+#    echo "primer3  is found"
+# else
+#    echo "primer3  is not found"
+#    install_primer3
+# fi
 
 if ( checkSystemInstallation FastTreeMP )
 then
@@ -2495,27 +2480,19 @@ else
     install_reference-based_assembly
 fi
 
-if ( checkLocalInstallation rapsearch2 )
-then
-    echo "rapsearch2 is found"
-else
-    echo "rapsearch2 is not found"
-    install_rapsearch2
-fi
-
-if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
-then
-  RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
-  then
-    echo "RGI $RGI_VER is found"
-  else
-    install_rgi
-  fi
-else
-  echo "RGI is not found"
-  install_rgi
-fi
+# if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
+# then
+#   RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+#   if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
+#   then
+#     echo "RGI $RGI_VER is found"
+#   else
+#     install_rgi
+#   fi
+# else
+#   echo "RGI is not found"
+#   install_rgi
+# fi
 
 if ( checkLocalInstallation porechop )
 then
@@ -2533,114 +2510,114 @@ else
     install_NanoPlot
 fi
 
-if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
-then
-  qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
-  then
-    echo "QIIME2 $qiime2_VER is found"
-  else
-    install_qiime2
-  fi
-else
-  echo "QIIME2 is not found"
-  install_qiime2
-fi
+# if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
+# then
+#   qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+#   if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
+#   then
+#     echo "QIIME2 $qiime2_VER is found"
+#   else
+#     install_qiime2
+#   fi
+# else
+#   echo "QIIME2 is not found"
+#   install_qiime2
+# fi
 
 
-if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
-then
-  antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $antismash_VER | awk '{if($1 >="4.1.0") exit 0; else exit 1}' )
-  then
-    echo "antiSMASH $antismash_VER is found"
-  else
-    install_antismash
-  fi
-else
-  echo "antiSMASH is not found"
-  install_antismash
-fi
+# if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
+# then
+#   antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+#   if ( echo $antismash_VER | awk '{if($1 >="4.1.0") exit 0; else exit 1}' )
+#   then
+#     echo "antiSMASH $antismash_VER is found"
+#   else
+#     install_antismash
+#   fi
+# else
+#   echo "antiSMASH is not found"
+#   install_antismash
+# fi
 
-if [ -x "$anaconda3bin/checkm" ]
-then
-  checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $checkM_VER | awk '{if($1 >="1.1.0") exit 0; else exit 1}' )
-  then
-    echo "checkM $checkM_VER is found"
-  else
-    install_checkM
-  fi
-else
-  echo "checkM is not found"
-  install_checkM
-fi
+# if [ -x "$anaconda3bin/checkm" ]
+# then
+#   checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+#   if ( echo $checkM_VER | awk '{if($1 >="1.1.0") exit 0; else exit 1}' )
+#   then
+#     echo "checkM $checkM_VER is found"
+#   else
+#     install_checkM
+#   fi
+# else
+#   echo "checkM is not found"
+#   install_checkM
+# fi
 
-if [ -x "$anaconda3bin/bokeh" ]
-then
-  bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $bokeh_VER | awk '{if($1=="1.1.0") exit 0; else exit 1}' )
-  then
-    echo "bokeh $bokeh_VER is found"
-  else
-    install_bokeh
-  fi
-else
-  echo "bokeh is not found"
-  install_bokeh
-fi
+# if [ -x "$anaconda3bin/bokeh" ]
+# then
+#   bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+#   if ( echo $bokeh_VER | awk '{if($1=="1.1.0") exit 0; else exit 1}' )
+#   then
+#     echo "bokeh $bokeh_VER is found"
+#   else
+#     install_bokeh
+#   fi
+# else
+#   echo "bokeh is not found"
+#   install_bokeh
+# fi
 
-if ( checkLocalInstallation DETEQT )
-then
-  DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
-  if  ( echo $DETEQT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
-  then
-    echo "DETEQT is found"
-  else
-   install_DETEQT
-  fi
-else
-  echo "DETEQT is not found"
-  install_DETEQT
-fi
-
-
-if ( checkLocalInstallation piret)
-then
-  PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
-  if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
-  then
-    echo "PyPiReT is found"
-  else
-   install_PyPiReT
-  fi
-else
-  echo "PyPiReT is not found"
-  install_PyPiReT
-fi
-
-if ( checkLocalInstallation opaver_anno.pl )
-then
-  opaver_VER=`opaver_anno.pl -h | perl -nle 'print $1 if m{Version: v(\d+\.\d+)}'`;
-  if  ( echo $opaver_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
-  then
-    echo "omics-pathwar-viewer is found"
-  else
-   install_omics-pathway-viewer
-  fi
-else
-  echo "omics-pathway-viewer is not found"
-  install_omics-pathway-viewer
-fi
+# if ( checkLocalInstallation DETEQT )
+# then
+#   DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
+#   if  ( echo $DETEQT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
+#   then
+#     echo "DETEQT is found"
+#   else
+#    install_DETEQT
+#   fi
+# else
+#   echo "DETEQT is not found"
+#   install_DETEQT
+# fi
 
 
-if ( checkSystemInstallation raxmlHPC-PTHREADS )
-then
-  echo "RAxML is found"
-else
-  echo "RAxML is not found"
-  install_RAxML
-fi
+# if ( checkLocalInstallation piret)
+# then
+#   PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+#   if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+#   then
+#     echo "PyPiReT is found"
+#   else
+#    install_PyPiReT
+#   fi
+# else
+#   echo "PyPiReT is not found"
+#   install_PyPiReT
+# fi
+# 
+# if ( checkLocalInstallation opaver_anno.pl )
+# then
+#   opaver_VER=`opaver_anno.pl -h | perl -nle 'print $1 if m{Version: v(\d+\.\d+)}'`;
+#   if  ( echo $opaver_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+#   then
+#     echo "omics-pathwar-viewer is found"
+#   else
+#    install_omics-pathway-viewer
+#   fi
+# else
+#   echo "omics-pathway-viewer is not found"
+#   install_omics-pathway-viewer
+# fi
+
+
+# if ( checkSystemInstallation raxmlHPC-PTHREADS )
+# then
+#   echo "RAxML is found"
+# else
+#   echo "RAxML is not found"
+#   install_RAxML
+# fi
 
 #if [ -f $rootdir/lib/Parallel/ForkManager.pm ]
 if ( checkPerlModule Parallel::ForkManager )

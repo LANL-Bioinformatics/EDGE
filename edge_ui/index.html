@@ -72,7 +72,7 @@
 	<div data-role="header" class="edge-header ui-header ui-bar-inherit">
 		<div class="edge-logo">
 			<a href=''><img src="images/edge_logo.svg">
-			<h2 class="ui-title" role="heading" aria-level="1">EDGE bioinformatics</h2>
+			<h2 class="ui-title" role="heading" aria-level="1">EDGE COVID-19</h2>
 			<h5></h5>
 			</a>
 		</div>
@@ -203,52 +203,14 @@
 			</div>
 			<div class="ui-block-c">
 				<div class="app-artwork">
-					<img alt="edge qiime workflow" src="images/Qiime.png">
+					<img alt="edge upload" src="images/upload.png">
 				</div>
-				<div data="runQiime" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">2019.10</div>
-						<div class="app-name">Run QIIME2</div>
-					</div>
-					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and Fungal ITS</div>
-				</div>
-			</div>
-		</div>
-		<div class="ui-grid-b ui-responsive app-showcase">
-			<div class="ui-block-a">
-				<div class="app-artwork">
-					<img alt="edge qiime workflow" src="images/deteqt.png">
-				</div>
-				<div data="runDETEQT" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">0.3.0</div>
-						<div class="app-name">Run DETEQT</div>
-					</div>
-					<div class="app-summary">Diagnostic targeted sequencing adjudication pipeline</div>
-				</div>
-			</div>
-			<div class="ui-block-b">
-				<div class="app-artwork">
-					<img alt="edge piret workflow" src="images/PiReT.png">
-				</div>
-				<div data="runPIRET" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">0.3.2 beta </div>
-						<div class="app-name">Run PiReT</div>
-					</div>
-					<div class="app-summary">A pipeline for Reference based Transcriptomics analysis.</div>
-				</div>
-			</div>
-			<div class="ui-block-c">
-				<div class="app-artwork">
-					<img alt="edge phame workflow" src="images/runPhame.png">
-				</div>
-				<div data="runPhaME" class="app-info">
+				<div data="dataupload" class="app-info">
 					<div class="app-name-version">
 						<div class="app-version">1.0.0</div>
-						<div class="app-name">Run PhaME</div>
+						<div class="app-name">Upload Data</div>
 					</div>
-					<div class="app-summary">Phylogenetic and Molecular Evolution (PhaME) analysis tool.</div>
+					<div class="app-summary">Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format.</div>
 				</div>
 			</div>
 		</div>
@@ -315,18 +277,6 @@
 					<div class="app-summary"></div>
 				</div>
 			</div>
-			<div class="ui-block-c">
-				<div class="app-artwork">
-					<img alt="edge upload" src="images/upload.png">
-				</div>
-				<div data="dataupload" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">1.0.0</div>
-						<div class="app-name">Upload Data</div>
-					</div>
-					<div class="app-summary">Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format.</div>
-				</div>
-			</div>
 		</div>
 	</div>
 	<div role="main" id="edge-content-home" class="ui-content edge-content edge-main-page">
@@ -342,34 +292,22 @@
 			<img src="images/mission-logo.png" alt='mission' />
 		</div>
 		<p>
-			EDGE bioinformatics is intended to help truly democratize the use of Next Generation Sequencing for exploring genomes and metagenomes. Given that bioinformatic analysis is now the rate limiting factor in genomics, we developed EDGE bioinformatics with a user-friendly interface that allows scientists to perform a number of tailored analyses using many cutting-edge tools. 
-A complete version of EDGE is available as a variety of packages that can fit individual needs, including <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">source code</a>, or images in <a href="https://edge.readthedocs.io/en/develop/installation.html#edge-vmware-ovf-image" target="_blank">VMware</a> and <a href="https://edge.readthedocs.io/en/develop/installation.html#edge-docker-image" target="_blank">Docker</a> formats. For basic information about EDGE, visit the <a href="docs/EDGE_ABCs.pdf" target="_blank">EDGE ABCs</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
+		EDGE COVID-19 is a bioinformatics platform that provides standardized workflows for genome 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS2 genomes. The basic workflow includes data quality control and filtering, alignment of reads to a reference genome, creation of a consensus genome sequence based on the read alignments, and a preliminary SNP analysis. </br></br>
 
-			<h3 class="edge-center">EDGE Workflow</h3>
-			<div class="edge-center">
-				<a href="#popup-sWorkflow" data-transition="fade" data-rel="popup" data-position-to="window"><img style="max-width:360px; height:auto; padding-right:1em;" src="images/sWorkflow_small.jpg" alt="EDGE_sWorkflow"/></a>
-				
-				<a href="#popup-workflow" data-transition="fade" data-rel="popup" data-position-to="window"><img style="max-width:360px; height:auto;" src="images/workflow_small.jpg" alt="EDGE_workflow"/></a>
-			</div>
-			<div data-role="popup" data-history="false" id="popup-sWorkflow" class="photopopup" data-overlay-theme="a" data-corners="false" data-tolerance="30,15">
-				<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
-				<a href="#" data-rel="back">
-				<img style="" src="images/sWorkflow.jpg" alt="workflow">
-				</a>
-			</div>
-			<div data-role="popup" data-history="false" id="popup-workflow" class="photopopup" data-overlay-theme="a" data-corners="false" data-tolerance="30,15">
-				<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
-				<a href="#" data-rel="back">
-				<img style="" src="images/workflow.jpg" alt="workflow">
-				</a>
-			</div>
+		The platform contains read alignment tools that accommodate Illumina or Nanopore data, including those generated using the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing workflows</a> with base-called fastq. It consists of a user-friendly GUI that drives a series of best-practice, open source bioinformatics software to aid in the reconstruction of complete genomes of SARS-CoV-2 from whole genome sequencing projects.</br></br>
+
+		This light-weight version is a Docker container, able to run on any local hardware infrastructure or in the cloud, and is based on the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a>.  At this moment, no reference sequence database is required, and it should be able to run on a laptop. </br></br>
+
+		For users who want to use read- or assembly-based taxonomy classification tools to understand what organisms may be present within samples, we refer you to the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a> which harbors this workflow but requires a number of large databases to enable such a search. In initial tests, we recover Bat Coronavirus XXX as the genome in the databases as closest near neighbor to the SARS-CoV-2 genome sequence, but are actively working on generating new reference indexes to also allow hits to recent SARS-CoV-2 genomes. </br></br>
+
+	Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA), perform <em>de novo</em> assembly, map reads to a  reference genome to get the consensus SARS-CoV-2 sequence from the sequencing data. Users can also compare the assembled contigs to a reference sequence (default to NCBI refseq sequence <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> and see the differences in both tabular and graphic form.  </br>
+
 		</p>
 		<h2>Features of EDGE</h2>
 		<p>
 			<ul>
 			<li>No need for high-level bioinformaticists</li>
 			<li>Allow users to address a wide range of use cases including the assembly/annotation and comparison of novel genomes, and the characterization of complex clinical or environmental samples</li>
-			<li>Can present the results of several taxonomy classification tools for easy comparison</li>
 			<li>Focus on accurate and rapid analysis</li>
 			<li>Enables sequencing as a solution in facilities where human-resources, space, bandwidth, and time are limited</li>
 			</ul>
@@ -379,17 +317,13 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<ul>
 			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>FASTQ data</b> or <b>Contig FASTA data</b> (there is currently limited capability of incorporating PacBio and Oxford Nanopore data into the Assembly module)</li>
 			<li>The EDGE bioinformatics web-based graphic user interface is primarily implemented using the JQuery Mobile javascript framework and HTML5 on the client-side, and implements perl CGI using Apache or Python on the server-side</li>
-			<li>The current version of EDGE pipeline has been extensively tested on Linux platforms with Ubuntu 14.04 and CentOS 6/7 operation system and will only work on 64bit Linux environments</li>
-			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 24GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
+			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 8GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
 			</ul>
 		</p>
 		<h2>Download & Updates</h2>
 		<p>
-			Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">LANL-Bioinformatics GitHub site</a>.<br/>
-                        VM image: <a href="https://edge.readthedocs.io/en/develop/installation.html#edge-vmware-ovf-image" target="_blank">location and instructions</a>.<br/>
-                        Docker image: <a href="https://edge.readthedocs.io/en/develop/installation.html#edge-docker-image" target="_blank">location and instructions</a>.<br/>
-                        <br/>
-                        Please visit <a href="https://lanl-bioinformatics.github.io/EDGE/" target="_blank">EDGE Homepage</a> for latest news and updates.
+                        EDGE COVID-19 Docker image: <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_blank">location and instructions</a>.<br/>
+			The full EDGE verison Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">LANL-Bioinformatics GitHub site</a>.<br/>
 		</p>
 		<h2>Tutorial & Help</h2>
 		<p>
@@ -553,7 +487,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						</div>
 						<div class="ui-field-contain">
 							<label for="edge-proj-desc">Use # of CPUs</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="%DEFAULT_CPU%"></div>
+							<input type="text" data-mini="true" data-clear-btn="false" name="edge-proj-cpu" id="edge-proj-cpu" value="1"></div>
 						<div class="ui-field-contain input-type-file">
 							<label for="edge-input-config">Config File</label>
 							<input data-mini="true" type="text" name="edge-input-config" id="edge-input-config" placeholder="(optional) absolute file path/select file">
@@ -568,7 +502,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
 				<div id="edge-batch-input-block1" class="edge-batch-input"> 
 					<div class="ui-field-contain input-type-file">
-						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "S", "Description"' for="edge-batch-input-block1"></a></label>
+						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1"></a></label>
 						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
 						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 					</div>
@@ -1000,7 +934,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-assembly-sw" name="edge-assembly-sw" data-role="slider" data-mini="true">
-						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+						<option value="0" selected="TRUE">Off</option><option value="1">On</option>
 					</select>
 					<label for="edge-assembly-sw">Assembly and Annotation</label>
 				</div>
@@ -1177,13 +1111,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-anno-sw2">No</label>
 				</fieldset>
 			</div>
+			<p class="edge_tool_note">EDGE will use <a href="http://ratt.sourceforge.net/" target="_new">RATT</a> to transfer the annotation from the reference genome, <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>.</p>
 			<div class="ui-field-contain"><label for="edge-anno-size-cut">Minimum Contig Length for Annotation</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-anno-size-cut" id="edge-anno-size-cut" value="700"></div>
 			<div class="ui-field-contain">
                         <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 				<legend>Annotation Tool<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Prokka is ab initio annotation tool. RATT will transfer the annotation from the provided closest relatvie genome annotation."></a></legend>
-                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool1" value="prokka" checked="checked">
+                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool1" value="prokka">
                                 <label for="edge-anno-tool1">Prokka</label>
-                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool2" value="RATT">
+                                <input type="radio" name="edge-anno-tool" id="edge-anno-tool2" value="RATT" checked="checked">
                                 <label for="edge-anno-tool2">RATT</label>
                         </fieldset>
                         </div>
@@ -1385,21 +1320,21 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-ref-sw" name="edge-ref-sw" data-role="slider" data-mini="true">
-						<option value="0">Off</option><option value="1">On</option>
+						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
 					</select>
 					<label for="edge-ref-sw">Reference-Based Analysis</label>
 				</div>
 			</h4>
-			<p class="edge_tool_note">Given one or multiple reference genome FASTA files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given a reference genome genbank file, EDGE will also turn on variant analysis.</p>
+			<p class="edge_tool_note">EDGE will use <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> as reference. You can add one or more reference genome files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given reference genomes in genbank format, EDGE will also turn on variant analysis.</p>
 			<div class="ui-field-contain input-type-file">
 				<label for="edge-ref-file-fromlist">Select Genome(s)</label>
 				<select id="edge-ref-file-fromlist" data-mini="true" name="edge-ref-file-fromlist" data-native-menu="false" multiple="multiple">
 					<option disabled>Select reference genome(s)...</option>
 				</select>
 			</div>
-			<p class="edge-center">and/or</p>
+			<!--<p class="edge-center">and/or</p>-->
 			<div id="edge-ref-file-block1" class="ui-field-contain input-type-file edge-ref-file-block">
-				<label for="edge-ref-file-1">Reference genome</label>
+				<label for="edge-ref-file-1">Extra Reference genome (Optional)</label>
 				<input type="text" data-mini="true" name="edge-ref-file[]" id="edge-ref-file-1" placeholder="absolute FASTA/GenBank file path/select file">
 				<div class="edge-file-selector">
 				<a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
@@ -1421,18 +1356,18 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="ui-field-contain edge-fastq-options">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Variant Call <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-variantcall-tooltip" ></a></legend>
-					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw1" value="1" checked="checked">
+					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw1" value="1">
 					<label for="edge-r2g-variantcall-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw2" value="0">
+					<input type="radio" data-mini="true" name="edge-r2g-variantcall-sw" id="edge-r2g-variantcall-sw2" value="0" checked="checked">
 					<label for="edge-r2g-variantcall-sw2">No</label>
 				</fieldset>
 			</div>
 			<div class="ui-field-contain edge-fastq-options">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Consensus Fasta <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Generated consensus Fasta from the mapping result. See additional for parameters" ></a></legend>
-					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw1" value="1">
+					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw1" value="1" checked="checked">
 					<label for="edge-r2g-getconsensus-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw2" value="0" checked="checked">
+					<input type="radio" data-mini="true" name="edge-r2g-getconsensus-sw" id="edge-r2g-getconsensus-sw2" value="0">
 					<label for="edge-r2g-getconsensus-sw2">No</label>
 				</fieldset>
 			</div>
@@ -1879,8 +1814,6 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<label for="edge-qiime-qcMethod1">DADA2</label>
 						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod2" value="deblur">
 						<label for="edge-qiime-qcMethod2">Deblur</label>
-						<input type="radio" data-mini="true" name="edge-qiime-qcMethod" id="edge-qiime-qcMethod3" value="otus">
-						<label for="edge-qiime-qcMethod3">Open-Reference OTU</label>
 					</fieldset>
 				</div>
 				<div class="ui-field-contain dada2-options">
@@ -1903,21 +1836,17 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-qiime-trimLen">SE Trim Length<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This is for Dada2 QC on single end reads. This is the number of bases to trim from the 5'end of the reads to e.g. remove PCR primer sequences."></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-trimLen" id="edge-qiime-trimLen" min="0" max="150" value="20">
 				</div>
-				<div class="ui-field-contain deblur-options otus-options">
+				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-phred-quality-threshold">PHRED Quality<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The maximum unacceptable Phred quality score (e.g.,for Q20 and better, specify -q 19)"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-phred-quality-threshold" id="edge-qiime-phred-quality-threshold" min="1" max="40" value="4">
 				</div>
-				<div class="ui-field-contain deblur-options otus-options">
+				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-max-n">Max "N" base<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum number of N characters allowed in a sequence to retain it -- this is applied after quality trimming, and is total over combined paired end reads if applicable"></a></label>
 					<input type="number" data-mini="true" data-clear-btn="true" name="edge-qiime-max-n" id="edge-qiime-max-n" min="0" max="100" value="1">
 				</div>
-				<div class="ui-field-contain deblur-options otus-options">
+				<div class="ui-field-contain deblur-options">
 					<label for="edge-qiime-min-per-read-length-fraction">Min Per Read Length Fraction<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The minimum number of consecutive high quality base calls to include a read (per single end read) as a fraction of the input read length."></a></label>
 					<input type="range" name="edge-qiime-min-per-read-length-fraction" id="edge-qiime-min-per-read-length-fraction" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.5" step=".01">
-				</div>
-				<div class="ui-field-contain otus-options">
-					<label for="edge-qiime-otus-perc-identity">Clustering Percent Identity<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="The percent identity at which clustering should be performed. This parameter maps to vsearch's --id parameter."></a></label>
-					<input type="range" name="edge-qiime-otus-perc-identity" id="edge-qiime-otus-perc-identity" data-mini="true" data-highlight="true" min="0.5" max="1.0" value="0.99" step=".01">
 				</div>
 				<div class="ui-field-contain dada2-options deblur-options">
 					<label for="edge-qiime-trunLen">SE Truncation Len<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="This truncates the 3' end of the of the single end reads, which will be the bases that were sequenced in the last cycles. Reads that are shorter than this value will be discarded. If 0 is provided, no truncation or length filtering will be performed."></a></label>
@@ -2247,7 +2176,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
         	<div id="uploader">
                     <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
             	</div>
-		<span style="display:none" id="docker-file-transfer" class="ui-content edge-content">
+		<span id="docker-file-transfer" class="ui-content edge-content">
 			<h2>Alternative uploading methods</h2>
 			<p class="edge_tool_note">
 			<div id="edge-uploadfile-notice">
@@ -2360,8 +2289,8 @@ A complete version of EDGE is available as a variety of packages that can fit in
 </form><!--  edgesite-form -->
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
-		<p>EDGE-UI v2.4.0 dev
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build</span>
+		<p>EDGE-UI v2.4.0
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200326</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo">

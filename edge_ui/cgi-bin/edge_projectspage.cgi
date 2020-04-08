@@ -72,7 +72,7 @@ if ( $username && $password || $um_config == 0){
 		$html .= "<a href='' title='Share Selected Projects' class='tooltip ui-btn ui-btn-d ui-icon-forward ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>share</a>";
 		$html .= '<a href="" title="Make Selected Projects Public" class="tooltip ui-btn ui-btn-d ui-icon-eye ui-btn-icon-notext ui-corner-all" data-role="button" role="button">publish</a>';
  	}
-	$html .= "<a href='' title='Compare Selected Projects Taxonomy Classification (HeatMap)' class='tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>compare</a>";
+	#$html .= "<a href='' title='Compare Selected Projects Taxonomy Classification (HeatMap)' class='tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>compare</a>";
  	if($sys->{edge_sample_metadata}) {
  		$html .= "<a href='' title='Export Selected Projects Metadata' class='tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-export</a>";
  	}
