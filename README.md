@@ -1,14 +1,20 @@
-# EDGE Bioinformatics
+# EDGE COVID-19
 
-EDGE COVID-19 is a bioinformatics platform that provides standardized workflows for genome ‘assembly’ and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genomes. The basic workflow includes data quality control and filtering, alignment of reads to a reference genome ([NC_045512.2](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/)), creation of a consensus genome sequence based on the read alignments, and a preliminary Single Nucleotide Polymorphism analysis. 
+EDGE COVID-19 is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.
 
-The platform contains read alignment tools that accommodate Illumina or Nanopore data, including those generated using the SARS-CoV-2 ARTIC network sequencing workflows (https://artic.network/ncov-2019). It consists of a user-friendly GUI that drives a series of best-practice, open source bioinformatics software to aid in the reconstruction of complete genomes of SARS-CoV-2 from whole genome sequencing projects.
+The default workflow in EDGE COVID-19 includes:
+                <ol>
+                        <li> data quality control (QC) and filtering,</li>
+                        <li> alignment of reads to the original (first available) reference genome (<a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>),</li>
+                        <li> creation of a consensus genome sequence based on the read alignments, and </li>
+                        <li> a preliminary Single Nucleotide Polymorphism and Variant analyses, with some detail such as location and resulting coding differences if any. </li>
+                </ol>
 
-This light-weight version is available as a [Docker container](https://hub.docker.com/r/bioedge/edge_ncov), able to run on any local hardware infrastructure or in the cloud, and is based on the original [EDGE Bioinformatics platform](https://edgebioinformatics.org).  At this moment, no reference sequence database is required, and it should be able to run on a laptop. 
+The EDGE COVID-19 platform can accommodate Illumina or ONT data, including ONT data from the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing protocols</a>. Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA). By default, only read QC, read mapping to the reference, and SNP/variant analysis are performed, however other functions (e.g. de novo assembly) are also available.  While command line execution is possible, the GUI provides an easy data submission and results viewing platform, with the graphical and tabular views of variant/SNP data and a genome browser to view read coverage and location of SNPs or variants, as well as the reference annotations.
 
-For users who want to use read- or assembly-based taxonomy classification tools to understand what organisms may be present within samples, we refer you to the original [EDGE Bioinformatics platform](https://edgebioinformatics.org) which harbors this workflow but requires a number of large databases to enable such a search. In initial tests, we recover Bat Coronavirus XXX as the genome in the databases as the closest near-neighbor to the SARS-CoV-2 genome sequence, but are actively working on generating new reference indexes to also allow hits to recent SARS-CoV-2 genomes. 
-
-Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA), perform *de novo* assembly, map reads to a reference genome to get the consensus SARS-CoV-2 sequence from the sequencing data. Users can also compare the assembled contigs to a reference sequence (default to NCBI refseq sequence [NC_045512.2](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/) and see the differences in both tabular and graphic form. 
+This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_new">Docker container</a>, able to run on any local hardware infrastructure or in the cloud. We have tested this Docker container on laptops and cloud, using several Illumina (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11177792" target="_new">SRR11177792</a>) and ONT (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11300652" target="_new">SRR11300652</a>) datasets.
+ 
+###### Note: For EDGE Bioinformatics users who would also like to use the phylogeny or read- and assembly-based taxonomy classification tools to identify all organisms that may be present within complex samples, we recommend using the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a> which harbors several tools and associated (large) databases that enable such a search. <em>In initial tests of taxonomy classification of SARS-CoV-2 samples (with no SARS-CoV-2 genomes in any of the databases), we recover Bat Coronavirus RaTG13 as the nearest neighbor.</em> 
 
 ## Documentation
 	
