@@ -12,8 +12,9 @@ Users can input/upload Illumina or Nanopore sequencing fastq files (and/or downl
 
 ## Documentation
 	
-[EDGE COVID-19 Guide](https://docs.google.com/document/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub)
-[EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge_ncov)
+* [EDGE COVID-19 Guide](https://docs.google.com/document/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub)
+
+* [EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge_ncov)
 
 ## Requirements
 
