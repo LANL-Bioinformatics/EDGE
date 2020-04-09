@@ -398,6 +398,7 @@ sub pull_binning {
 		my $checkM_json_output = "$checkM_outdir/CheckM.json";
 		&tab2json("$checkM_outdir/CheckM.txt",$checkM_json_output);
 		$vars->{CHECKMRESULT} = $checkM_json_output;
+		$vars->{CHECKMRESULT_PNG} = "$checkM_outdir/bin_qa_plot.png";
 	}
 }
 
@@ -672,6 +673,7 @@ sub pull_sampleMetadata {
 	my $metadata = "$out_dir/metadata_sample.txt";
 	if($sys->{edge_sample_metadata} && -s $metadata) {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
+		$vars->{SAMPLEMETADATA} = "metadata_sample.txt";
 	}
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
@@ -1833,8 +1835,19 @@ sub pull_readmapping_ref {
 			#my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
 			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.fasta";
 			my $consensus_file_compsition = "$consensus_file.comp";
-			
-			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
+			if ( -e $consensus_file ){
+				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
+				my $consensus_info = &consensus_fasta_stat($consensus_file);
+				foreach my $consensus_id (keys %$consensus_info){
+					if ($consensus_id =~ /$refid/i){
+						$refinfo->{"RMCONLEN"} = $consensus_info->{$consensus_id}->{length};
+						$refinfo->{"RMCONGC"} = $consensus_info->{$consensus_id}->{GC};
+						$refinfo->{"RMCONTOTALN"} = $consensus_info->{$consensus_id}->{total_N};
+						$refinfo->{"RMCONLEADN"} = $consensus_info->{$consensus_id}->{lead_N};
+						$refinfo->{"RMCONTAILN"} = $consensus_info->{$consensus_id}->{tail_N};
+					}
+				}
+			}
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 			if ( -e $consensus_file_compsition ){
@@ -1908,6 +1921,49 @@ sub pull_readmapping_ref {
 
 		$vars->{RMREF_UM_NOTE} = "Only top 5 results in terms of \"Mapped Reads\" are listed in the table.";
 	}
+}
+
+sub consensus_fasta_stat{
+	my $fasta = shift;
+	open (my $fh, "<", $fasta) or die "Cannot open $fasta";
+        my ($id, $seq, %info);
+        while(<$fh>){
+                chomp;
+                if(/^>(.*)/){
+                        if ($seq){
+				my ($lead_N) = $seq =~ /^(N*)/;
+				my ($tail_N) = $seq =~ /(N*)$/;
+                                my $total_N = $seq=~ tr/N/N/;
+                                my $total_G = $seq=~ tr/G/G/;
+                                my $total_C = $seq=~ tr/C/C/;
+				$info{$id}->{lead_N}=length($lead_N);
+				$info{$id}->{total_N}=$total_N;
+				$info{$id}->{tail_N}=length($tail_N);
+				$info{$id}->{length}=length($seq);
+				$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
+
+                        }
+                        $id = $1;
+                }
+                else{
+                        $seq .= uc($_);
+                }
+
+        }
+        if ($seq){
+		my ($lead_N) = $seq =~ /^(N*)/;
+		my ($tail_N) = $seq =~ /(N*)$/;
+		my $total_N = $seq=~ tr/N/N/;
+		my $total_G = $seq=~ tr/G/G/;
+		my $total_C = $seq=~ tr/C/C/;
+		$info{$id}->{lead_N}=length($lead_N);
+		$info{$id}->{total_N}=$total_N;
+		$info{$id}->{tail_N}=length($tail_N);
+		$info{$id}->{length}=length($seq);
+		$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
+        }
+        close $fh;
+	return \%info;
 }
 
 sub pull_summary {

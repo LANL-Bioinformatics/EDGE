@@ -229,14 +229,14 @@
 			</div>
 			<div class="ui-block-b">
 				<div class="app-artwork">
-					<img alt="edge contig" src="images/contig_edge.png">
+					<img alt="edge project list" src="images/projectlist.png">
 				</div>
-				<div data="contigEDGE" class="app-info">
+				<div data="projectspage" class="app-info">
 					<div class="app-name-version">
-						<div class="app-version"></div>
-						<div class="app-name">contig-EDGE</div>
+						<div class="app-version">1.0.0</div>
+						<div class="app-name">Project List</div>
 					</div>
-					<div class="app-summary">Run EDGE for assembled contig fasta files.</div>
+					<div class="app-summary"></div>
 				</div>
 			</div>
 			<div class="ui-block-c">
@@ -265,18 +265,6 @@
 					<div class="app-summary">Create summary tables for multiple projects.</div>
 				</div>
 			</div>
-			<div class="ui-block-b">
-				<div class="app-artwork">
-					<img alt="edge project list" src="images/projectlist.png">
-				</div>
-				<div data="projectspage" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">1.0.0</div>
-						<div class="app-name">Project List</div>
-					</div>
-					<div class="app-summary"></div>
-				</div>
-			</div>
 		</div>
 	</div>
 	<div role="main" id="edge-content-home" class="ui-content edge-content edge-main-page">
@@ -292,17 +280,23 @@
 			<img src="images/mission-logo.png" alt='mission' />
 		</div>
 		<p>
-		EDGE COVID-19 is a bioinformatics platform that provides standardized workflows for genome 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS2 genomes. The basic workflow includes data quality control and filtering, alignment of reads to a reference genome, creation of a consensus genome sequence based on the read alignments, and a preliminary SNP analysis. </br></br>
+		EDGE COVID-19 is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b> </p>
 
-		The platform contains read alignment tools that accommodate Illumina or Nanopore data, including those generated using the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing workflows</a> with base-called fastq. It consists of a user-friendly GUI that drives a series of best-practice, open source bioinformatics software to aid in the reconstruction of complete genomes of SARS-CoV-2 from whole genome sequencing projects.</br></br>
+		The default workflow in EDGE COVID-19 includes:
+		<ol>
+			<li> data quality control (QC) and filtering,</li>
+			<li> alignment of reads to the original (first available) reference genome (<a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>),</li>
+			<li> creation of a consensus genome sequence based on the read alignments, and </li>
+			<li> a preliminary Single Nucleotide Polymorphism and Variant analyses, with some detail such as location and resulting coding differences if any. </li>
+		</ol>
+		<p>
+		The EDGE COVID-19 platform can accommodate Illumina or ONT data, including ONT data from the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing protocols</a>. Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA). By default, only read QC, read mapping to the reference, and SNP/variant analysis are performed, however other functions (e.g. de novo assembly) are also available.  While command line execution is possible, the GUI provides an easy data submission and results viewing platform, with the graphical and tabular views of variant/SNP data and a genome browser to view read coverage and location of SNPs or variants, as well as the reference annotations.</p>
 
-		This light-weight version is a Docker container, able to run on any local hardware infrastructure or in the cloud, and is based on the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a>.  At this moment, no reference sequence database is required, and it should be able to run on a laptop. </br></br>
+		<p>This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_new">Docker container</a>, able to run on any local hardware infrastructure or in the cloud. We have tested this Docker container on laptops and cloud, using several Illumina (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11177792" target="_new">SRR11177792</a>) and ONT (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11300652" target="_new">SRR11300652</a>) datasets. </p>
+		
+		<p style="font-size:0.8em">Note: For EDGE Bioinformatics users who would also like to use the phylogeny or read- and assembly-based taxonomy classification tools to identify all organisms that may be present within complex samples, we recommend using the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a> which harbors several tools and associated (large) databases that enable such a search. <em>In initial tests of taxonomy classification of SARS-CoV-2 samples (with no SARS-CoV-2 genomes in any of the databases), we recover SARS coronavirus and Bat Coronavirus as the nearest neighbor.</em> </p>
 
-		For users who want to use read- or assembly-based taxonomy classification tools to understand what organisms may be present within samples, we refer you to the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a> which harbors this workflow but requires a number of large databases to enable such a search. In initial tests, we recover Bat Coronavirus XXX as the genome in the databases as closest near neighbor to the SARS-CoV-2 genome sequence, but are actively working on generating new reference indexes to also allow hits to recent SARS-CoV-2 genomes. </br></br>
 
-	Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA), perform <em>de novo</em> assembly, map reads to a  reference genome to get the consensus SARS-CoV-2 sequence from the sequencing data. Users can also compare the assembled contigs to a reference sequence (default to NCBI refseq sequence <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> and see the differences in both tabular and graphic form.  </br>
-
-		</p>
 		<h2>Features of EDGE</h2>
 		<p>
 			<ul>
@@ -315,7 +309,7 @@
 		<h2>Implementation</h2>
 		<p>
 			<ul>
-			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>FASTQ data</b> or <b>Contig FASTA data</b> (there is currently limited capability of incorporating PacBio and Oxford Nanopore data into the Assembly module)</li>
+			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>FASTQ data</b></li>
 			<li>The EDGE bioinformatics web-based graphic user interface is primarily implemented using the JQuery Mobile javascript framework and HTML5 on the client-side, and implements perl CGI using Apache or Python on the server-side</li>
 			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 8GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
 			</ul>
@@ -323,11 +317,15 @@
 		<h2>Download & Updates</h2>
 		<p>
                         EDGE COVID-19 Docker image: <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_blank">location and instructions</a>.<br/>
-			The full EDGE verison Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE" target="_blank">LANL-Bioinformatics GitHub site</a>.<br/>
+			The Source code: <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2" target="_blank">LANL-Bioinformatics GitHub site</a>.<br/>
 		</p>
 		<h2>Tutorial & Help</h2>
 		<p>
-			The EDGE tutorial video series is hosted in <a href="https://www.youtube.com/playlist?list=PL7DNo6h5wJsTh2l2GK3N86Imb-9fYQFfH" target="_blank">Youtube.</a> The detailed documentation and guide are hosted in <a href="https://edge.readthedocs.io/en/develop/" target="_blank">edge.readthedocs.io</a> in (<a href="https://media.readthedocs.org/pdf/edge/develop/edge.pdf" target="_blank">click here for PDF version</a>). User discussion group can be found <a href="https://groups.google.com/d/forum/edge-users" target="_blank">here</a>.
+			<ul>
+				<li>The detailed documentation and guide are hosted in <a href="https://docs.google.com/document/u/1/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub" target="_new">[here]</a>. (<a href="docs/EDGE_COVID-19_guide.pdf" target="_new">PDF version</a>) </li>
+				<li>The EDGE tutorial video series for original EDGE platform hosted in <a href="https://www.youtube.com/playlist?list=PL7DNo6h5wJsTh2l2GK3N86Imb-9fYQFfH" target="_blank">Youtube.</a> </li>
+				<li>User discussion group can be found <a href="https://groups.google.com/d/forum/edge-users" target="_blank">here</a>.</li>
+			</ul>
 		</p>
 		<h2>Publication</h2>
 		<p>
@@ -348,7 +346,7 @@
 <form id="edge-run-pipeline-form" autocomplete='off'>
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
 		<h2>Input Your Sample</h2>
-		<p class="edge-main-pipeline-input">EDGE requires <b>FASTQ</b> sequence data files in FASTQ format or <b>Contigs</b> sequence data file in FASTA format. EDGE allows both paired-end and single-end sequences.</p>
+		<p class="edge-main-pipeline-input">EDGE requires <b>FASTQ</b> sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences. <a href="docs/EDGE_COVID-19_guide.pdf" target="_new">User Guide</a></p>
 		<p class="edge-qiime-pipeline-input">The <a href="https://qiime2.org/" target="_blank">Qiime2</a> pipeline requires sequence data files in FASTQ format and a <a href="https://docs.qiime2.org/2019.10/tutorials/metadata/" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.Or directory with demultiplexed fastq files.  Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_new">documentation</a> for more information.</p>
 		<p class="edge-targetedngs-pipeline-input">The <a href="https://chienchilo.bitbucket.io/targetedNGS/" target="_blank">DETEQT</a> is a pipeline for diagnostic targeted sequencing adjudication. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-deteqt" target="_new">documentation</a> for more information.</p>
 		<p class="edge-piret-pipeline-input">The <a href="https://github.com/mshakya/PyPiReT" target="_blank">PiReT</a> is a pipeline for Reference based Transcriptomics analysis. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-piret" target="_new">documentation</a> for more information.</p>
@@ -383,8 +381,8 @@
 						<legend>Input Source</legend>
 							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw1" value="fastq" checked="checked">
 							<label for="edge-inputS-sw1">READS / FASTQ</label>
-							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw2" value="fasta">
-							<label for="edge-inputS-sw2">CONTIGS / FASTA</label>
+							<!--<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw2" value="fasta">
+							<label for="edge-inputS-sw2">CONTIGS / FASTA</label>-->
 							<input type="radio" data-mini="true" name="edge-inputS-sw" id="edge-inputS-sw3" value="sra">
 							<label for="edge-inputS-sw3">NCBI SRA</label>
 						</fieldset>
@@ -502,7 +500,7 @@
 				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
 				<div id="edge-batch-input-block1" class="edge-batch-input"> 
 					<div class="ui-field-contain input-type-file">
-						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "Description"' for="edge-batch-input-block1"></a></label>
+						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "S", "Description"' for="edge-batch-input-block1"></a></label>
 						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
 						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 					</div>
@@ -774,7 +772,7 @@
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-pp-sw" name="edge-pp-sw" data-role="slider" data-mini="true">
-						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+						<option value="0" selected="TRUE">Off</option><option value="1">On</option>
 					</select>
 					<label for="edge-pp-sw">Pre-processing</label>
 				</div>
@@ -1322,19 +1320,19 @@
 					<select id="edge-ref-sw" name="edge-ref-sw" data-role="slider" data-mini="true">
 						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
 					</select>
-					<label for="edge-ref-sw">Reference-Based Analysis</label>
+					<label for="edge-ref-sw">Reference-Based SARS-CoV-2 Genome Analysis</label>
 				</div>
 			</h4>
 			<p class="edge_tool_note">EDGE will use <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> as reference. You can add one or more reference genome files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given reference genomes in genbank format, EDGE will also turn on variant analysis.</p>
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-ref-file-fromlist">Select Genome(s)</label>
+				<label for="edge-ref-file-fromlist">Extra Reference Genome (Optional)</label>
 				<select id="edge-ref-file-fromlist" data-mini="true" name="edge-ref-file-fromlist" data-native-menu="false" multiple="multiple">
 					<option disabled>Select reference genome(s)...</option>
 				</select>
 			</div>
 			<!--<p class="edge-center">and/or</p>-->
 			<div id="edge-ref-file-block1" class="ui-field-contain input-type-file edge-ref-file-block">
-				<label for="edge-ref-file-1">Extra Reference genome (Optional)</label>
+				<label for="edge-ref-file-1">Extra Reference Genome (Optional)</label>
 				<input type="text" data-mini="true" name="edge-ref-file[]" id="edge-ref-file-1" placeholder="absolute FASTA/GenBank file path/select file">
 				<div class="edge-file-selector">
 				<a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a>
@@ -1345,9 +1343,9 @@
 			<div class="ui-field-contain edge-fastq-options" id="edge-r2g-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Reads Aligner<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE use default setting of the aligner. Bowtie2 default is for global alignment and BWA mem algorithm will do local alignment. If users would like to overwrite the setting, users can use 'Aligner Options' to do so. For example, use “–local” to run bowtie2 with local alignment mode. Or, use “-x ont2d” to run BWA mem with Nanopore reads."></a></legend>
-					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner1" value="bowtie" checked="checked">
+					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner1" value="bowtie">
 					<label for="edge-r2g-aligner1">Bowtie 2</label>
-					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner2" value="bwa">
+					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner2" value="bwa" checked="checked">
 					<label for="edge-r2g-aligner2">BWA mem</label>
 					<input type="radio" name="edge-r2g-aligner" id="edge-r2g-aligner3" value="minimap2">
 					<label for="edge-r2g-aligner3">Minimap2</label>
@@ -2290,7 +2288,7 @@
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200326</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200407</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo">

@@ -724,7 +724,7 @@ $( document ).ready(function()
 			$( ".edge-fastq-options").show();
 			$( "a[data-id=edge-assembly-parameters]" ).click();
 			$( "#edge-fastq-source-sw2").click().checkboxradio("refresh");
-			$( '#edge-fastq-source-block').hide();
+			$( '#edge-fastq-source-block').show();
 		}
 		if ( $(obj).val() == "fastq"){
 			$( "#edge-sra-input-block" ).hide();

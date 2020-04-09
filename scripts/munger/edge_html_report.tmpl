@@ -109,6 +109,12 @@
 				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/final_report.pdf'>final_report.pdf</a></td>
 				</tr>
 				</TMPL_IF>
+				<TMPL_IF NAME="SAMPLEMETADATA">
+				<tr>
+				  <td>MetaData</td>
+				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/metadata_sample.txt'>metadata_sample.txt</a></td>
+				</tr>
+				</TMPL_IF>
 				<TMPL_IF NAME="PIRETEXPDESIGN">
 				<tr>
 				  <td>Exp Design</td>
@@ -580,6 +586,14 @@
 				<TMPL_IF NAME="OUT_BINN_CHECKM_SW">
 				<li id="checkMTag"><span class="li-report-content-title">CheckM</span><div class="li-report-content">
 					<table data-role="none" id="edge-binning-checkM-result" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=CHECKMRESULT>'></table>
+					<div class="ui-grid-a ui-responsive">
+						<div class="ui-block-a">
+							<span class="iframe_label"><a data-ajax='false' href='<TMPL_VAR NAME=CHECKMRESULT_PNG DEFAULT=->'>[full]</a></span>
+							<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+							<img class="preview_img" data-src="<TMPL_VAR NAME=CHECKMRESULT_PNG DEFAULT=->"  alt="CheckM Result plot">
+							</a>
+						</div>
+					</div>
 					<p class='extra-text-link'>Link to 
 						<!--|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/<TMPL_VAR NAME=PROJNAME>_bin.marker.pdf'> Heatmap </a>-->
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/AssemblyBasedAnalysis/Binning/CheckM'> Directory </a>
@@ -609,7 +623,7 @@
 
 		<TMPL_IF NAME="OUT_RA_SW">
 		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
-			<h4>Reference-Based Analysis</h4>
+			<h4>Reference-Based SARS-CoV-2 Genome Analysis</h4>
 			<!--<p>Reference file: <TMPL_VAR NAME=REFFILE></p>-->
 			<ol>
 			<TMPL_IF NAME="OUT_R2G_SW">
@@ -641,15 +655,47 @@
 							</TMPL_IF>
 							  <thead>
 								<tr>
-								  <th data-priority='1'>Reference</th>
+								  <th data-priority='1'>SARS-CoV2 Reference</th>
 								  <th data-priority='6'>Ref Name</th>
-								  <th data-priority='2'>Ref Len</th>
-							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
-								  <th data-priority='3'>Consensus Genome</th>
-							          </TMPL_IF>
-								  <th data-priority='5'>GC%</th>
+								  <th data-priority='2'>Ref Length</th>
+								  <th data-priority='5'>Ref GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
 								  <th data-priority='3'>Mapped Reads%</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=LOOP_RMREF>
+								<tr>
+									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
+									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
+									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
+								</tr>
+								</TMPL_LOOP>
+							  </tbody>
+							</table>
+							</TMPL_IF>
+
+							<p><TMPL_VAR NAME=RMREFTOLREFHASHIT DEFAULT=-> out of <TMPL_VAR NAME=RMREFTOLREF DEFAULT=-> reference(s) is(are) covered by input reads.  <TMPL_VAR NAME=RMREFTABLENOTE></p>
+						</div></li>
+
+						<li><span class="li-report-content-title">Consensus Genome Statistics</span><div class="li-report-content">
+							<TMPL_IF NAME="RMREFTOLREFHASHIT">
+							<TMPL_IF NAME="STANDALONE">
+							<table data-role='table' class='output-table ui-responsive'>
+							<TMPL_ELSE>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+							</TMPL_IF>
+							  <thead>
+								<tr>
+								  <th data-priority='1'>SARS-CoV2 Reference</th>
+								  <th data-priority='4'>Consenesus Length</th>
+								  <th data-priority='6'>Consenesus GC%</th>
+								  <th data-priority='5'>Ns</th>
+								  <th data-priority='4'>5' Ns</th>
+								  <th data-priority='4'>3' Ns</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
 								  <th data-priority='3'>Fold std.</th>
@@ -659,20 +705,20 @@
 								  <th data-priority='4'>SNPs</th>
 								  <th data-priority='4'>INDELs</th>
 							          </TMPL_IF>
+							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
+								  <th data-priority='3'>Consensus Genome</th>
+							          </TMPL_IF>
 								</tr>
 							  </thead>
 							  <tbody>
 								<TMPL_LOOP NAME=LOOP_RMREF>
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
-							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
-									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><a href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download</a></td>
-							          	</TMPL_IF>
-									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
-									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
-									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
+									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><TMPL_VAR NAME=RMCONLEN DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
+									<td><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
 									<td><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
@@ -680,16 +726,16 @@
 									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
 							          	<TMPL_IF NAME=RMREFVARCALL>
 									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>							
+									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>			
+							          	</TMPL_IF>
+							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
+									<td><a class="ui-btn ui-btn-inline ui-mini" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download</a></td>
 							          	</TMPL_IF>
 								</tr>
 								</TMPL_LOOP>
 							  </tbody>
 							</table>
 							</TMPL_IF>
-
-							<p><TMPL_VAR NAME=RMREFTOLREFHASHIT DEFAULT=-> out of <TMPL_VAR NAME=RMREFTOLREF DEFAULT=-> reference(s) is(are) covered by input reads.  <TMPL_VAR NAME=RMREFTABLENOTE></p>
-
 							<TMPL_IF NAME="OUT_IMAGE_READY">
 							<div class="ui-grid-c ui-responsive edge-report-plots">
 								<TMPL_LOOP NAME=LOOP_RMREF_PLOT>
