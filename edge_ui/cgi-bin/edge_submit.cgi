@@ -1008,10 +1008,14 @@ sub checkParams {
 
 		
 	} else {##sample metadata
-		if ( $sys->{edge_sample_metadata} ){
-			#&addMessage("PARAMS", "country", "Metadata sample location country or lat&lng required.") unless ( $opt{'country'} || ($opt{'lat'} && $opt{'lng'})); 
-			#&addMessage("PARAMS", "edge-pg-collection-date", "Metadata sample collection date is required.") unless ( $opt{'edge-pg-collection-date'} ); 
-			#&addMessage("PARAMS", "edge-pg-seq-date", "Metadata sample sequencing date is required.") unless ( $opt{'edge-pg-seq-date'} ); 
+		if ( $sys->{edge_gisaid_metadata} ){
+			&addMessage("PARAMS", "metadata-virus-name", "Metadata virus name is required.") unless ( $opt{'metadata-virus-name'}); 
+			&addMessage("PARAMS", "metadata-virus-passage", "Metadata passage details/history is required.") unless ( $opt{'metadata-virus-passage'}); 
+			&addMessage("PARAMS", "metadata-sample-collection-date", "Metadata sample collection date is required.") unless ( $opt{'metadata-sample-collection-date'}); 
+			&addMessage("PARAMS", "metadata-sample-location", "Metadata sample location is required.") unless ( $opt{'metadata-sample-location'}); 
+			&addMessage("PARAMS", "metadata-sample-host", "Metadata sample host is required.") unless ( $opt{'metadata-sample-host'});
+			&addMessage("PARAMS", "metadata-sample-gender", "Metadata sample gender is required.") unless ( $opt{'metadata-sample-gender'});
+			&addMessage("PARAMS", "metadata-sample-age", "Metadata sample age is required.") unless ( $opt{'metadata-sample-age'});
 		} 
 	}
 	if ($pipeline eq "targetedngs"){
@@ -1429,6 +1433,20 @@ sub count_fasta {
 ##sample metadata
 sub createSampleMetadataFile {
 	foreach my $pname (@pnames){
+		if ( $sys->{edge_gisaid_metadata} ){
+			#gisaid sample metadata
+			my $metadata_out = "$out_dir/$pname/metadata_gisaid.txt";
+			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_gisaid.txt" if ($username && $password);
+			open OUT,  ">$metadata_out";
+			print OUT "virus_name=".$opt{'metadata-virus-name'}."\n"; 
+			print OUT "virus_passage=".$opt{'metadata-virus-passage'}."\n"; 
+			print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n";
+			print OUT "location=".$opt{'metadata-sample-location'}."\n";
+			print OUT "host=".$opt{'metadata-sample-host'}."\n";
+			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
+			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			close OUT;
+		} 
 		if ( $sys->{edge_sample_metadata} && ($opt{'metadata-study-title'} || $opt{'metadata-sample-name'} || $opt{'metadata-exp-title'})){
 			#travels
 			my $travel_out = "$out_dir/$pname/metadata_travels.txt";
@@ -1642,7 +1660,7 @@ sub getSRAmetaData{
 			$center = $parts[9];
 			$hostCondition = $parts[12];
 			$gender = $parts[13];   
-  			($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
+  			#($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
 
 			$opt{'metadata-sample-name'} = $sampleName;
 			$opt{'metadata-sample-type'} = $sampleType;

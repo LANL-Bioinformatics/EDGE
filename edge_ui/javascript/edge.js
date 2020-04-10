@@ -2466,7 +2466,13 @@ $( document ).ready(function()
 					$("#bsve-actions").hide();
 				}
 				//END sample metadata
-
+				// GISAID
+                if(obj.INFO.SHOWGISAID && focusProjIsOwner) {
+					$("#metadata-gisaid-actions").show();
+				} else {
+					$("#metadata-gisaid-actions").hide();
+				}
+				// END GISAID
 				// project list
 				if(! $.isEmptyObject(obj.LIST)){
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
@@ -3923,4 +3929,62 @@ $( document ).ready(function()
 			}
 		});
 	};
+	//GISAID
+	//upload to GISAID
+	$("#metadata-gisaid-upload").on("click", function(){
+		//console.log("gisaid upload");
+		page.find( ".edge-action-panel" ).panel( "close" );
+		upload2Gisaid();
+	});
+
+	function upload2Gisaid() {
+		if (!focusProjName){
+			showWarning("No focus project for the action");
+			return false;
+		}
+		$.ajax({
+			url: "./cgi-bin/edge_gisaid_upload.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: { "proj" : focusProjName, "projname":focusProjRealName, "sid":localStorage.sid, "action":"create-form", "userDir":localStorage.udir },
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				//console.log("got response");
+				allMainPage.hide();
+				$( "#edge-content-report" ).html(data);
+				$( "#edge-content-report div[data-role='popup']" ).popup();
+				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
+				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();
+				$( "#edge-content-report fieldset[data-role='controlgroup']" ).controlgroup();
+				$( "#edge-content-report" ).show();
+				$( "#edge-content-report" ).find("img").lazyLoadXT();
+				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
+				$( "#edge-content-report" ).enhanceWithin();
+								
+				$.getScript( "./javascript/edge-gisaid.js" )
+					.done(function( script, textStatus ) {
+					//	console.log( "edge-output.js loaded: " + textStatus );
+					})
+					.fail(function( jqxhr, settings, exception ) {
+						console.log( jqxhr, settings, exception );
+					});
+				
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("Failed to retrieve the report. Please REFRESH the page and try again."+data);
+			}
+		});
+	}
+	// END GISAID
 });

@@ -186,6 +186,15 @@ if( scalar @projlist ){
 			next;
 		}	
 	
+		## GISAID
+		my $gisaid_done = "$proj_dir/gisaid_submission.done";
+		if(!-e $gisaid_done){
+			$list->{$i}->{SHOWGISAID} = 1;
+		}else{
+			$list->{$i}->{SHOWGISAID} = 0;
+		}
+		## END GISAID
+
 		#status JSON
 		#if( -e $sjson ){
 		#	my $storedStatus = readListFromJson($sjson);
@@ -257,6 +266,10 @@ if( scalar @projlist ){
 	$info->{INFO}->{SHAREBSVE}   = $list->{$idx}->{SHAREBSVE} if ($list->{$idx}->{SHAREBSVE});
 	$info->{INFO}->{METABSVE}   = $list->{$idx}->{METABSVE} if ($list->{$idx}->{METABSVE});
 	## END sample metadata
+
+	## GISAID
+	$info->{INFO}->{SHOWGISAID}   = $list->{$idx}->{SHOWGISAID} if ($list->{$idx}->{SHOWGISAID});
+	## END GISAID
 }
 delete $list->{$_} foreach @delete;
 $info->{LIST} = $list if $list;
@@ -548,6 +561,15 @@ sub scanNewProjToList {
 				$list->{$cnt}->{METABSVE} = $bsveId;
 			}
 			## END sample metadata
+
+			## GISAID
+			my $gisaid_done = "$out_dir/$file/gisaid_submission.done";
+			if(!-e $gisaid_done){
+				$list->{$cnt}->{SHOWGISAID} = 1;
+			}else{
+				$list->{$cnt}->{SHOWGISAID} = 0;
+			}
+			## END GISAID
 		}
 	}
 	closedir(BIN);
@@ -734,6 +756,12 @@ sub getUserProjFromDB{
 		} 
 		## END sample metadata
 		
+		## GISAID
+		my $gisaid_done = "$proj_dir/gisaid_submission.done";
+		if(!-e $gisaid_done){
+			$list->{$id}->{SHOWGISAID} = 1;
+		}
+		## END GISAID
 	}
 }
 

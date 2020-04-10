@@ -59,6 +59,9 @@
 			<TMPL_IF NAME="PROJOWNER">
 			Owner:  <TMPL_VAR NAME=PROJOWNER DEFAULT=-><br/>
 			</TMPL_IF>
+			<TMPL_IF NAME="GISAID_SUBMIT_TIME">
+			<mark>This project was uploaded to GISAID on <TMPL_VAR NAME=GISAID_SUBMIT_TIME DEFAULT=-></mark><br/>
+			</TMPL_IF>
 		</p>
 
 		<div class='edge-right not-print'>expand |<a data-ajax='false' href='#' id='edge-out-expand-all'> all </a>|<a data-ajax='false' href='#' id='edge-out-expand-none'> none </a>| sections</div>

@@ -162,15 +162,10 @@
 
 			</ul>
 
-			<!-- sample metadata -->
-			<ul data-role="listview" data-inset="true" id="metadata-actions">
-				<li data-role='list-divider'>Sample Metatdata</li>
-				<li data-icon='edit'>     <a id='metadata-edit' class='edge-icon-bg-grey'>Edit</a>
-				<li data-icon='delete'>     <a href='#edge_confirm_dialog' id='action-metadata-delete-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-delete'>Delete</a>
-			</ul>
-			<ul data-role="listview" data-inset="true" id="bsve-actions">
-				<li data-role='list-divider'>BSVE</li>
-				<li data-icon='forward'>     <a href='#edge_confirm_dialog' id='action-metadata-bsve-submit-btn' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' class='edge-icon-bg-grey' data='metadata-bsveadd'>Share metadata/pathogens</a>
+			<!-- gisaid metadata -->
+			<ul data-role="listview" data-inset="true" id="metadata-gisaid-actions">
+				<li data-role='list-divider'>GISAID Tool</li>
+				<li data-icon='arrow-u'>     <a id='metadata-gisaid-upload' class='edge-icon-bg-grey'>Upload to EpiCov</a>
 			</ul>
 			<!-- END sample metadata -->
 		</div>
@@ -280,9 +275,9 @@
 			<img src="images/mission-logo.png" alt='mission' />
 		</div>
 		<p>
-		EDGE COVID-19 is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b> </p>
+		<em>EDGE COVID-19</em> is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b> </p>
 
-		The default workflow in EDGE COVID-19 includes:
+		The default workflow in <em>EDGE COVID-19</em> includes:
 		<ol>
 			<li> data quality control (QC) and filtering,</li>
 			<li> alignment of reads to the original (first available) reference genome (<a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>),</li>
@@ -290,7 +285,7 @@
 			<li> a preliminary Single Nucleotide Polymorphism and Variant analyses, with some detail such as location and resulting coding differences if any. </li>
 		</ol>
 		<p>
-		The EDGE COVID-19 platform can accommodate Illumina or ONT data, including ONT data from the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing protocols</a>. Users can input/upload Illumina or Nanopore sequencing fastq files (and/or download from NCBI SRA). By default, only read QC, read mapping to the reference, and SNP/variant analysis are performed, however other functions (e.g. de novo assembly) are also available.  While command line execution is possible, the GUI provides an easy data submission and results viewing platform, with the graphical and tabular views of variant/SNP data and a genome browser to view read coverage and location of SNPs or variants, as well as the reference annotations.</p>
+		The <em>EDGE COVID-19</em> platform can accommodate Illumina or ONT data, including ONT data from the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing protocols</a>. Users can input/upload Illumina or Nanopore sequencing FASTQ files (and/or download from NCBI SRA). For Illumina data, default analyses include only read QC, read mapping to the reference, and SNP/variant analysis. For ONT data, the data must be demultiplexed prior to uploading; the samples will be processed individually.  The SNP/variant calling is not on by default for ONT. However, other functions (e.g. de novo assembly for whole genome data) are also available for both sequencing platforms.  While command line execution is possible (see <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2" target="_new">here</a> and <a href="https://gitlab.com/chienchi/reference-based_assembly" target="_new">here</a>), the GUI provides an easy data submission and results viewing platform, with the graphical and tabular views of variant/SNP data and a genome browser to view read coverage and location of SNPs or variants, as well as the reference annotations. 
 
 		<p>This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_new">Docker container</a>, able to run on any local hardware infrastructure or in the cloud. We have tested this Docker container on laptops and cloud, using several Illumina (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11177792" target="_new">SRR11177792</a>) and ONT (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11300652" target="_new">SRR11300652</a>) datasets. </p>
 		
@@ -508,257 +503,79 @@
 			</div>
 		</div>
 
-<!-- sample metadata -->
-	<div id="edge-sample-metadata" class="edge-main-pipeline-input">
-		<div data-role="collapsible" id="edge-input-metadata" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
-			<h4 class="edge-main-pipeline-input">Input Metadata</h4>
+<!-- gisaid sample metadata -->
+				<div id="edge-sample-metadata" class="edge-main-pipeline-input">
+					<div data-role="collapsible" id="edge-input-metadata" data-collapsed-icon="carat-d"
+						data-expanded-icon="carat-u" data-collapsed="true">
+						<h4 class="edge-main-pipeline-input">Input Metadata</h4>
 
-			<div class="ui-corner-all custom-corners">
-			
-				<div class="ui-corner-all custom-corners">
-					<div class="ui-bar ui-bar-d">
-						<b><em>Study</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Describe the sequencing study including a title and a study type."></a>
-					</div>
-					<div class="ui-body ui-body-a ui-corner-all">
-						<div class="ui-field-contain">
-							<label for="metadata-study-title">Study Title</label>
-							 <input type="text" id="metadata-study-title" name="metadata-study-title" placeholder="Enter a new title or select an existing title from a list by entering a key word" class="metadata-input">
-						</div>
-						<div class="ui-field-contain" id="study-title-div" style="display:none;">
-							<label for="metadata-study-title-list"></label>
-							<div class="dblist-study">
-								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-study-title" id="metadata-study-title-list">
-						 		</ul>
-							</div>
-						</div>
-						<div class="ui-field-contain">
-							<label for="metadata-study-type">Study Type</label>
-							 <input type="text" id="metadata-study-type" name="metadata-study-type" placeholder="Enter a new type or select an existing type from a list by entering a key word" class="metadata-input">
-						</div>
-						<div class="ui-field-contain" id="study-type-div" style="display:none;">
-							<label for="metadata-study-type-list"></label>
-							<div class="dblist-study-type">
-								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-study-type" id="metadata-study-type-list">
-						 		</ul>
-							</div>
-						</div>
-					</div>
-				</div>
+						<div class="ui-corner-all custom-corners">
 
-				<br/><br/>
-				<div class="ui-corner-all custom-corners">
-					<div class="ui-bar ui-bar-d">
-						<b><em>Sample</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Since the sample is one of the most important objects to be described biologically, it is highly recommended to describe the sample in as much detail as possible."></a>
-					</div>
-					<div class="ui-body ui-body-a ui-corner-all">
-				        	
-					   	<div class="ui-field-contain">
-							<label for="metadata-sample-name">Sample Name</label>
-							<input type="text" data-mini="true" data-clear-btn="false" name="metadata-sample-name" id="metadata-sample-name" maxlength="30" placeholder="Sample Name" class="metadata-input">
-				            	</div>
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-d">
+									<b><em>Virus detail</em></b>
+								</div>
+								<div class="ui-body ui-body-a ui-corner-all">
+									<div class="ui-field-contain">
+										<label for="metadata-virus-name">Virus name</label>
+										<input type="text" id="metadata-virus-name" name="metadata-virus-name"
+											placeholder="hCoV-19/Country/Identifier/2020" class="metadata-input">
 
-				           	<div class="ui-field-contain">
-							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-								<legend>Sample Type</legend>
-								<input type="radio" name="metadata-sample-type" id="metadata-sample-type2" value="animal">
-								<label for="metadata-sample-type2">Animal</label>
-								<input type="radio" name="metadata-sample-type" id="metadata-sample-type3" value="environmental">
-								<label for="metadata-sample-type3">Environmental</label>
-								<input type="radio" name="metadata-sample-type" id="metadata-sample-type1" value="human" checked="checked">
-								<label for="metadata-sample-type1">Human</label>
-							</fieldset>
-				            	</div>
-
-				        	<div id="metadata-host-block" >
-					        	<div class="ui-field-contain" id="metadata-host-h">
-								<label for="metadata-host">Host</label>
-								<input type="text" data-mini="true" data-clear-btn="false" name="metadata-host-h" id="metadata-host-h" maxlength="30" value="human" readonly>
-				            		</div>
-					        	<div class="ui-field-contain" id="metadata-host-a">
-								<label for="metadata-host">Host</label>
-							 	<input type="text" id="metadata-host" name="metadata-host" placeholder="Enter a new host or select an existing host from a list by entering a key word" class="metadata-input">
-				            		</div>
-							<div class="ui-field-contain" id="host-list-div" style="display:none;">
-								<label for="metadata-host-list"></label>
-								<div class="dblist-pg-host">
-								<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-host" id="metadata-host-list">
-							 	</ul>
+									</div>
+									<div class="ui-field-contain">
+										<label for="metadata-virus-passage">Passage details/history</label>
+										<input type="text" id="metadata-virus-passage" name="metadata-virus-passage"
+											placeholder="Example: Original, Vero" class="metadata-input">
+									</div>
 								</div>
 							</div>
-				            		<div class="ui-field-contain">
-								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-									<legend>Host Condition</legend>
-									<input type="radio" name="metadata-host-condition" id="metadata-host-condition1" value="healthy">
-									<label for="metadata-host-condition1">Healthy</label>
-									<input type="radio" name="metadata-host-condition" id="metadata-host-condition2" value="diseased">
-									<label for="metadata-host-condition2">Diseased</label>
-									<input type="radio" name="metadata-host-condition" id="metadata-host-condition3" value="unknown" checked="checked">
-									<label for="metadata-host-condition3">Unknown</label>
-								</fieldset>
-				            		</div>
-				        	</div>
 
-				        	<div id="metadata-host-human" >
-					        	<div class="ui-field-contain">
-								<label for="metadata-host-gender-cb">Gender</label>
-								<input type="checkbox" name="metadata-host-gender-cb" id="metadata-host-gender-cb" data-mini="true">
-				            		</div>
-				            		<div class="ui-field-contain" id="human-gender">
-								<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-									<legend></legend>
-									<input type="radio" name="metadata-host-gender" id="metadata-host-gender1" value="male" checked="checked">
-									<label for="metadata-host-gender1">Male</label>
-									<input type="radio" name="metadata-host-gender" id="metadata-host-gender2" value="female">
-									<label for="metadata-host-gender2">Female</label>
-								</fieldset>
-				            		</div>
-					        	<div class="ui-field-contain">
-								<label for="metadata-host-age-cb" class="ui-btn ui-corner-all ui-btn-inherit ui-btn-icon-left ui-checkbox-off">Age</label>
-								<input type="checkbox" name="metadata-host-age-cb" id="metadata-host-age-cb" data-mini="true">
-				            		</div>
-					        	<div class="ui-field-contain" id="human-age">
-								<label for="metadata-host-age"></label>
-								<input type="number" name="metadata-host-age" id="metadata-host-age" data-mini="true" data-clear-btn="true" value="1" min="1" max="130">
-				            		</div>
-
-							<div data-role="collapsible" id="metadata-travels-collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
-								<h4 class="edge-main-pipeline-input">Recent Travels</h4>
-						    		<div id="metadata-travels">
-						    		</div>
-								<div class="ui-field-contain">
-									<a href="#" class="ui-btn ui-btn-icon-left ui-icon-plus ui-mini" id="add-travel">Add a travel</a>
+							<br /><br />
+							<div class="ui-corner-all custom-corners">
+								<div class="ui-bar ui-bar-d">
+									<b><em>Sample information</em></b>
 								</div>
-								<br/><br/>
+								<div class="ui-body ui-body-a ui-corner-all">
+
+									<div class="ui-field-contain">
+										<label for="metadata-sample-collection-date">Collection date</label>
+										<input type="text" data-role="date" data-mini="true" data-clear-btn="false"
+											name="metadata-sample-collection-date" id="metadata-sample-collection-date"
+											placeholder="Example: 2020-03-27, 2020-03 (collection in March, day unknown), 2020 (month and day unknown)"
+											maxlength="30" class="metadata-input metadata-input-date">
+									</div>
+
+									<div class="ui-field-contain">
+										<label>Location</label>
+										<input name="metadata-sample-location" id="metadata-sample-location" type="text"
+											placeholder="Continent/Country/Region" class="metadata-input">
+									</div>
+
+									<div class="ui-field-contain">
+										<label>Host</label>
+										<input name="metadata-sample-host" id="metadata-sample-host" type="text"
+											placeholder="Example: Human, Environment, Canine, Manis javanica, Rhinolophus affinis, unknown"
+											class="metadata-input">
+									</div>
+
+									<div class="ui-field-contain">
+										<label>Gender</label>
+										<input name="metadata-sample-gender" id="metadata-sample-gender" type="text"
+											placeholder="Example: Male, Female, or unknown" class="metadata-input">
+									</div>
+
+									<div class="ui-field-contain">
+										<label>Patient age</label>
+										<input name="metadata-sample-age" id="metadata-sample-age" type="text"
+											placeholder="Example: 65, 7 monthis, or unknown" class="metadata-input">
+									</div>
+								</div>
 							</div>
-
-							<div data-role="collapsible" id="metadata-symptoms-collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="true">
-								<h4 class="edge-main-pipeline-input">Symptoms</h4>
-								<p class="edge_tool_note">(please check all that apply):</p>
-						    		<div id="metadata-symptoms">
-						    		</div>
-							</div>
-				        	</div>
-
-
-						<div class="ui-field-contain">
-							<label for="metadata-isolation-source">Isolation Source</label>
-							 <input type="text" id="metadata-isolation-source" name="metadata-isolation-source" placeholder="Enter a new source or select an existing source from a list by entering a key word" class="metadata-input">
-						</div>
-						<div class="ui-field-contain" id="isolation-source-list-div" style="display:none;">
-							<label for="metadata-isolation-source-list"></label>
-							<div class="dblist-sample-source">
-							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-isolation-source" id="metadata-isolation-source-list">
-						 	</ul>
-							</div>
-						</div>
-				        	
-						<div class="ui-field-contain">
-							<label for="metadata-sample-collection-date">Collection Date</label>
-							<input type="text" data-role="date" data-mini="true" data-clear-btn="false" name="metadata-sample-collection-date" id="metadata-sample-collection-date" maxlength="30" class="metadata-input metadata-input-date">
-						</div>
-
-						<!-- geo autocomplete -->
-
-						<div id="metadata-sample-geo">
-							<div class="ui-field-contain">
-								<label>Location</label>
-							      	<input name="metadata-sample-location" id="metadata-sample-geocomplete" type="text" placeholder="Type in an address to let system auto fill the location fields below" class="metadata-input">
-							</div>
-
-							<div class="ui-field-contain">
-								<label></label>
-								<input name="locality" id="metadata-sample-city" data-mini="true" data-clear-btn="false" type="text" placeholder="City" class="metadata-input">
-							</div>
-
-
-							<div class="ui-field-contain">
-								<label></label>
-								<input name="administrative_area_level_1"  id="metadata-sample-state" data-mini="true" data-clear-btn="false"type="text" placeholder="State" class="metadata-input">
-							</div>
-
-							<div class="ui-field-contain">
-								<label></label>
-								<input name="country" id="metadata-sample-country" data-mini="true" data-clear-btn="false" type="text" placeholder="Country" class="metadata-input">
-							</div>
-
-
-							<div class="ui-field-contain">
-								<label></label>
-								<input name="lat" id="metadata-sample-lat" data-mini="true" data-clear-btn="false" type="text" placeholder="Latitude" class="metadata-input">
-							</div>
-
-							<div class="ui-field-contain">
-								<label></label>
-								<input name="lng" id="metadata-sample-lng" data-mini="true" data-clear-btn="false" type="text" placeholder="Longitude" class="metadata-input">
-							</div>
-						</div>
-
-						<!-- end geo -->
-					</div>
-				</div>
-				<br/><br/>
-
-				<div class="ui-corner-all custom-corners">
-					<div class="ui-bar ui-bar-d">
-						<b><em>Experiment</em></b><a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="Describe the experimental setup."></a>
-					</div>
-					<div class="ui-body ui-body-a ui-corner-all">
-						<div class="ui-field-contain">
-							<label for="metadata-exp-title">Experiment Title</label>
-							 <input type="text" id="metadata-exp-title" name="metadata-exp-title" placeholder="Experiment Title" class="metadata-input">
-						</div>
-						<div class="ui-field-contain">
-							<label for="metadata-seq-center">Sequencing Center</label>
-							 <input type="text" id="metadata-seq-center" name="metadata-seq-center" placeholder="Enter a new sequencing center or select an existing center from a list by entering a key word" class="metadata-input">
-						</div>
-						<div class="ui-field-contain" id="seq-center-list-div" style="display:none;">
-							<label for="edge-seq-center-list"></label>
-							<div class="dblist-seq-center">
-							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-seq-center" id="edge-seq-center-list">
-						 	</ul>
-							</div>
-						</div>
-						<div class="ui-field-contain">
-							<label for="metadata-sequencer">Sequencer</label>
-							 <input type="text" id="metadata-sequencer" name="metadata-sequencer" placeholder="Enter a new sequencer or select an existing sequencer from a list by entering a key word" class="metadata-input">
-						</div>
-						<div class="ui-field-contain" id="sequencer-list-div" style="display:none;">
-							<label for="edge-sequencer-list"></label>
-							<div class="dblist-sequencer">
-							<ul data-role="listview" data-mini="true" data-inset="true" data-filter="true" data-filter-reveal="true" data-input="#metadata-sequencer" id="edge-sequencer-list">
-						 	</ul>
-							</div>
-						</div>
-
-						<div class="ui-field-contain">
-							<label for="metadata-seq-date">Sequencing Date</label>
-							<input type="text" data-role="date" data-mini="true" data-clear-btn="false" name="metadata-seq-date" id="metadata-seq-date" maxlength="30" class="metadata-input metadata-input-date">
+							<br /><br />
 						</div>
 					</div>
 				</div>
-				<br/><br/>
-
-				<div class="ui-corner-all custom-corners">
-					<div class="ui-bar ui-bar-d">
-						<b><em>Other</em></b><a href="#popupInfo-other" data-rel="popup" data-transition="pop" class="my-tooltip-btn ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext" title="Learn more">Learn more</a>
-						<div data-role="popup" id="popupInfo-other" class="ui-content" data-theme="a" style="max-width:350px;">
-							<p>Enter your own metadata as:<br>field1=value1<br>field2=value2<br>field3=value3<br>...<br></p>
-						</div>
-					</div>
-					<div class="ui-body ui-body-a ui-corner-all">
-						<div class="ui-field-contain">
-							<label for="metadata-other">User Defined Metadata</label>
-							<textarea data-mini="true" rows="8" name="metadata-other" id="metadata-other" class="metadata-input"></textarea>
-						</div>
-					</div>
-				</div>
-
-			</div>
-			<br/><br/>
-		</div>
-	</div>
-<!-- END sample metadata -->
-
+<!-- END gisaid sample metadata -->
 		<p></p>
 		<h2 class="edge-main-pipeline-input">Choose Processes / Analyses</h2>
 		<p id='edge-runEDGE-modules-desc' class="edge-main-pipeline-input">EDGE provides many modules to do various analyses. You can choose to run or skip a specific process. Parameters/options are provided for most of the analyses.

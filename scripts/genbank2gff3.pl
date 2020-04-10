@@ -692,8 +692,7 @@ sub typeorder {
 
 sub sort_by_feattype {
   my($at,$bt)= ($a->primary_tag, $b->primary_tag);
-  return (typeorder($at) <=> typeorder($bt))  
-    or ($at cmp $bt);
+  return (typeorder($at) <=> typeorder($bt)) || ($at cmp $bt);
     ## or ($a->name() cmp $b->name());
 }
 

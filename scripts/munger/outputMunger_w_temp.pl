@@ -675,6 +675,12 @@ sub pull_sampleMetadata {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
 		$vars->{SAMPLEMETADATA} = "metadata_sample.txt";
 	}
+	my $gisaid_done = "$out_dir/gisaid_submission.done";
+	
+	if(-e $gisaid_done){
+		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]); 
+		$vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
+	} 
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
