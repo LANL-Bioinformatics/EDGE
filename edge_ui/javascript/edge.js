@@ -620,10 +620,10 @@ $( document ).ready(function()
 	$('#qc-q-tooltip').tooltipster(
 		'content', $('<span>Trim both end with the Phred quality. In brief, it will find the position in the read where trimming will end (argmax) based on the following equation: <img src="images/FaQCs.png"/> <br/> where l is the read length and Qu is the user-defined quality threshold, and trimming ends after the summation of Qu - Qi becomes negative.</span>')
 	);
-	$('.edge-sponsor-logo').tooltipster(
-		'content', $('<h2>Mission</h2><p>EDGE addresses the critical rate limiting step in Next Generation Sequencing (NGS)  of genomic data analysis and enables OCONUS laboratories and resource restricted sites to utilize NGS technology for DoD&#39s SENSE and SHAPE missions.</p><p>EDGE is built to be a highly adaptable bioinformatics platform that is capable of rapidly analyzing and interpreting genomic sequence data into actionable results. This capability significantly reduces  the need for human resources and costs associated with genomic analysis for BWA detection and Biosurveillance efforts.</p>')
-	);
-	$('.edge-sponsor-logo').tooltipster('option','arrow',false);
+//	$('.edge-sponsor-logo').tooltipster(
+//		'content', $('<h2>Mission</h2><p>EDGE addresses the critical rate limiting step in Next Generation Sequencing (NGS)  of genomic data analysis and enables OCONUS laboratories and resource restricted sites to utilize NGS technology for DoD&#39s SENSE and SHAPE missions.</p><p>EDGE is built to be a highly adaptable bioinformatics platform that is capable of rapidly analyzing and interpreting genomic sequence data into actionable results. This capability significantly reduces  the need for human resources and costs associated with genomic analysis for BWA detection and Biosurveillance efforts.</p>')
+//	);
+	//$('.edge-sponsor-logo').tooltipster('option','arrow',false);
 	$("#edge-phylo-sra-acc-tooltip").tooltipster(
 		'content', $('<span>(Internet requried) Input SRA accessions (comma separate for > 1 input) support studies (SRP*/ERP*/DRP*), experiments (SRX*/ERX*/DRX*), samples (SRS*/ERS*/DRS*), runs (SRR*/ERR*/DRR*), or submissions (SRA*/ERA*/DRA*).</span>')
 	);

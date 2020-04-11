@@ -271,9 +271,9 @@
                         <a href="https://twitter.com/share" class="twitter-share-button" data-hashtags="EDGEbioinfo"></a>
                         <div class="g-plusone" data-size="medium"></div>
                 </div>      -->
-		<div class="edge-sponsor-logo tooltip">
+	<!--	<div class="edge-sponsor-logo tooltip">
 			<img src="images/mission-logo.png" alt='mission' />
-		</div>
+	</div>-->
 		<p>
 		<em>EDGE COVID-19</em> is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b> </p>
 
@@ -340,6 +340,9 @@
 
 <form id="edge-run-pipeline-form" autocomplete='off'>
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
+		<div class="edge-sponsor-logo">
+                        <img src="images/logo_LANL.png" alt='LANL' style="height:30px"/>
+        	</div>
 		<h2>Input Your Sample</h2>
 		<p class="edge-main-pipeline-input">EDGE requires <b>FASTQ</b> sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences. <a href="docs/EDGE_COVID-19_guide.pdf" target="_new">User Guide</a></p>
 		<p class="edge-qiime-pipeline-input">The <a href="https://qiime2.org/" target="_blank">Qiime2</a> pipeline requires sequence data files in FASTQ format and a <a href="https://docs.qiime2.org/2019.10/tutorials/metadata/" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.Or directory with demultiplexed fastq files.  Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_new">documentation</a> for more information.</p>
@@ -2105,14 +2108,15 @@
 
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200407</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200409</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
+		<div class="edge-footer-logo-left">
+            		<a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
+		</div>
 		<div class="edge-footer-logo">
-            <a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
-			<a target="_new" href="http://www.med.navy.mil"><img src="images/logo_NMRC.png"/></a>
-			<a target="_new" href="http://www.dtra.mil"><img src="images/logo_JSTO.png"/></a>
 			<a target="_new" href="http://www.dtra.mil"><img src="images/logo_DTRA.png"/></a>
+			<a target="_new" href="https://www.energy.gov/"><img src="images/logo_DOE.png"/></a>
 			<a target="_new" href="http://nnsa.energy.gov/"><img src="images/logo_NNSA.png"/></a></div>
 	</div><!-- /footer -->
 </div><!-- /page -->
