@@ -153,15 +153,32 @@ if( $proj_list->{$pname} ){
 			my $zip_file = "$projDir/GISAID/${proj_real_name}_gisaid_data.zip";
 			my $zip_file_rel = "$projDir_rel/GISAID/${proj_real_name}_gisaid_data.zip";
 			my $cmd = "zip -j $zip_file $metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
-			`$cmd`;
-			$msg->{PATH} = $zip_file_rel;
-			#call pipeline
-			my $fasta = "$projDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.fasta";
-			$cmd = "gisaid_EpiCoV_uploader.py -m $metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
-			$cmd .= " -f $fasta ";
 			#`$cmd`;
+			#$msg->{PATH} = $zip_file_rel;
+			#
+			#call gisaid upload 
+			my $fasta = `ls $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta`;
+			chomp $fasta;
+			$cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
+			$cmd .= " -f $fasta --headless | tee $projDir/GISAID/submit.log";
+			open (my $fh,">","$projDir/GISAID/submit.sh");
+			print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
+			print $fh $cmd,"\n";
+			close $fh;
+			#my $return=`/bin/bash $projDir/GISAID/submit.sh`;
+			my $script_fh;
+			my $pid = open ($script_fh, "-|")
+				or exec ('/bin/bash', "$projDir/GISAID/submit.sh");
 			#create .done file after successful submission
-			#`touch $projDir/gisaid_submission.done`;
+			while(<$script_fh>){
+				if ($_ =~ /Complete/i){
+					`touch $projDir/gisaid_submission.done`;
+				}
+			}
+			if ( ! -e "$projDir/gisaid_submission.done"){
+					$msg->{SUBMISSION_STATUS}="failure";
+			}
+			unlink "$projDir/GISAID/submit.sh";
 			
 		} else {
 			$msg->{SUBMISSION_STATUS}="failure";

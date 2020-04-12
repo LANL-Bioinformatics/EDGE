@@ -20,9 +20,11 @@ $( document ).ready(function()
 
 	var loc = window.location.pathname.replace("//","/");
         var edge_path = loc.substring(0,loc.lastIndexOf('/'));
-	$("#edge-gisaid-form-submit").parent().hide();
+	//$("#edge-gisaid-form-submit").parent().hide();
+	$("#edge-gisaid-form-download").parent().hide();
 	//form submit
-	$( "#edge-gisaid-form-submit,#edge-gisaid-form-download" ).on( "click", function() {
+	$( "#edge-gisaid-form-submit" ).on( "click", function() {
+	//$( "#edge-gisaid-form-submit,#edge-gisaid-form-download" ).on( "click", function() {
 		var proj=$('#edge-output-projid').attr("data-pid");
 		$.ajax({
 			url: "./cgi-bin/edge_gisaid_upload.cgi",
@@ -60,21 +62,20 @@ $( document ).ready(function()
 								projID=this.NOTE.split(" ").pop();
 							}
 						}
-						//$( "#edge-submit-info" ).append(dom).fadeIn("fast");
+						$( "#edge-submit-info" ).append(dom).fadeIn("fast");
 					}
 				});
 
 				if( obj.SUBMISSION_STATUS == "success" ){
 					$( ".highlight").removeClass("highlight");
-					//console.log(obj.PATH)
-					window.open(edge_path + obj.PATH);
-					//$( "#edge-submit-info" ).fadeIn("fast");
+					//window.open(edge_path + obj.PATH);
+					$( "#edge-submit-info" ).fadeIn("fast");
 					//show message
-					//$( "#edge_integrity_dialog_header" ).text("Message");
-					//$( "#edge_integrity_dialog_content" ).text("Your project was successfully submitted to the GISAID.");
-					//setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					$( "#edge_integrity_dialog_content" ).text("Your project was successfully submitted to the GISAID.");
+					setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 
-					//updateReport($('#edge-output-projid').attr("data-pid"));
+					updateReport($('#edge-output-projid').attr("data-pid"));
 				}
 				else{
 					// display error information

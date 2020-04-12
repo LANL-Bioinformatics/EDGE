@@ -21,7 +21,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
@@ -1458,7 +1458,7 @@ fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
-$anaconda3bin/pip install CairoSVG pandas
+$anaconda3bin/pip install CairoSVG pandas 
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
@@ -1513,6 +1513,22 @@ echo "
 ------------------------------------------------------------------------------
 "
 }
+
+install_selenium(){
+local VER=3.141.0
+echo "------------------------------------------------------------------------------
+                        Installing selenium $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -c conda-forge firefox geckodriver selenium
+
+echo "
+------------------------------------------------------------------------------
+                         selenium $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
 
 install_checkM()
 {
@@ -1650,6 +1666,18 @@ containsElement () {
   local e
   for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
   return 1
+}
+
+checkPythonPackage()
+{
+        python -c "import $1; " 
+        return $?
+}
+
+checkPython3Package()
+{
+        python3 -c "import $1; " 
+        return $?
 }
 
 versionStr() { 
@@ -2618,6 +2646,19 @@ fi
 #   echo "RAxML is not found"
 #   install_RAxML
 # fi
+
+if ( checkPython3Package selenium )
+then
+        selenium_installed_VER=`python -c "import selenium; print(selenium.__version__)" || true`;
+        if [ $(versionStr $selenium_installed_VER) -ge $(versionStr "3.141.0") ]
+        then
+                echo " - found selenium $selenium_installed_VER"
+        else
+                install_selenium
+        fi
+else
+        install_selenium
+fi
 
 #if [ -f $rootdir/lib/Parallel/ForkManager.pm ]
 if ( checkPerlModule Parallel::ForkManager )
