@@ -93,14 +93,14 @@ $( document ).ready(function()
 	//updateProject(focusProjName);
 	
 	allMainPage.hide();
-	//$( "#edge-content-home" ).fadeIn();
-	$( "#edge-apps-home" ).fadeIn();
+	$( "#edge-content-home" ).fadeIn();
+	//$( "#edge-apps-home" ).fadeIn();
 	
 	$( "a[href=#edge-app-home]" ).on( "click", function(){
 		allMainPage.hide();
-		$( "#edge-apps-home" ).fadeIn();
-		//$( "#edge-content-intro" ).fadeIn();
-		foldLeftPanel();
+		//$( "#edge-apps-home" ).fadeIn();
+		$( "#edge-content-home" ).fadeIn();
+		//foldLeftPanel();
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
