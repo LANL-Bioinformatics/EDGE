@@ -746,6 +746,7 @@ $( document ).ready(function()
 			$( "#edge-sra-acc" ).val('');
 			$( "#edge-sample-metadata" ).hide();
 			$( '#edge-fastq-input-block').find('input').val('');
+			$( '#edge-assembled-contig-file').val('');
 			$( ".edge-fastq-options").hide();
 			$( "a[data-id=edge-annotation-parameters]" ).click();
 		}
