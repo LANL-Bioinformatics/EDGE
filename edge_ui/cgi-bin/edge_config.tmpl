@@ -97,7 +97,7 @@ lrasm_algorithm=<TMPL_VAR NAME=edge-lrasm-algorithm DEFAULT=miniasm>
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
 ## support bowtie or bwa or minimap2
-r2c_aligner=<TMPL_VAR NAME=edge-r2c-aligner DEFAULT="bowtie">
+r2c_aligner=<TMPL_VAR NAME=edge-r2c-aligner DEFAULT="bwa">
 r2c_aligner_options=<TMPL_VAR NAME=edge-r2c-aligner-options>
 r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
 
@@ -105,7 +105,7 @@ r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
 # Reads mapping to reference
 DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
 ## support bowtie or bwa or minimap2
-r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bowtie">
+r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bwa">
 r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
 window_size=1000
 step_size=200

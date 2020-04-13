@@ -1788,7 +1788,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-idba-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler2').is(':checked')){
 				$('#edge-megahit-parameters').hide();
@@ -1796,7 +1796,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-spades-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler3').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -1804,7 +1804,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-megahit-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler4').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -1812,7 +1812,7 @@ $( document ).ready(function()
 				$('#edge-megahit-parameters').hide();
 				$('#edge-lrasm-parameters').hide();
 				$('#edge-unicycler-parameters').show();
-				$('#edge-r2c-aligner1').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
 			}
 			if($('#edge-assembler5').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -1930,7 +1930,7 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
-					$( "#edge-r2g-aligner1, #edge-r2c-aligner1, #edge-assembler1" ).click().checkboxradio("refresh");
+					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).click().checkboxradio("refresh");
 					$('#edge-qc-minl').val('50');
 					$('#splitrim-minq').val('20');
 				}
