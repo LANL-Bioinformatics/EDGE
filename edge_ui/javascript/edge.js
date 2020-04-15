@@ -713,7 +713,7 @@ $( document ).ready(function()
 
 	function inputSourceCheck(obj){
 		if ( $(obj).val() == "sra" ){
-			console.log("sra");
+			//console.log("sra");
 			$( "#edge-fasta-input-block").hide();
 			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
@@ -1918,9 +1918,9 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
 				if (type != "reconfig"){
-					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).click().checkboxradio("refresh");
-					$('#edge-qc-minl').val('400');
-					$('#splitrim-minq').val('7');
+					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-qc-minl').prop('disabled',false).val('400');
+					$('#splitrim-minq').prop('disabled',false).val('7');
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
 				}
 			}
@@ -1935,9 +1935,9 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
-					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).click().checkboxradio("refresh");
-					$('#edge-qc-minl').val('50');
-					$('#splitrim-minq').val('20');
+					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-qc-minl').prop('disabled',false).val('50');
+					$('#splitrim-minq').prop('disabled',false).val('20');
 				}
 			}
 		});
@@ -3988,4 +3988,32 @@ $( document ).ready(function()
 		});
 	}
 	// END GISAID
+	$('#edge-sra-acc').focusout(function() {
+		var sra_acc = $.trim($(this).val());
+		if ( sra_acc ){
+			$.ajax({
+				url: "./cgi-bin/edge_action.cgi",
+				type: "POST",
+				dataType: "json",
+				cache: false,
+				data: { "action": 'checksra', "sra_acc": sra_acc ,'protocol': location.protocol, 'sid':localStorage.sid},
+				success: function(obj){
+					if( obj.STATUS == "SUCCESS" ){
+						if ( obj.PLATFORM && /nanopore|minion/.test(obj.PLATFORM.toString().toLowerCase()) ){
+							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+							var msg = "The "+ sra_acc + " is from Nanopre. EDGE will turn on Nanopore Reads Mode.";
+							showWarning(msg);
+						}else{
+							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");
+						}
+					}else{
+						showWarning(obj.INFO);
+					}
+				},
+				error: function(data){
+					showWarning("Check SRA accession FAILED:  Please try again or contact your system administrator.");
+				}
+			});
+		}
+	});
 });
