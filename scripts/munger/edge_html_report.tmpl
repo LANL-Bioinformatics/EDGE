@@ -115,7 +115,7 @@
 				<TMPL_IF NAME="SAMPLEMETADATA">
 				<tr>
 				  <td>MetaData</td>
-				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/metadata_sample.txt'>metadata_sample.txt</a></td>
+				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/<TMPL_VAR NAME=SAMPLEMETADATA>'>metadata_sample.txt</a></td>
 				</tr>
 				</TMPL_IF>
 				<TMPL_IF NAME="PIRETEXPDESIGN">
@@ -139,7 +139,29 @@
 			  </tbody>
 			</table>
 		</div>
-		
+<!--gisaid_metadata-->
+	<TMPL_IF NAME="GISAID_SAMPLE_METADATA">
+		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4>Sample Metadata</h4>
+			<table data-role='table' class='output-table output-table-twocol ui-responsive'>
+				<thead>
+					<tr>
+					  <th data-priority='1'></th>
+                                          <th data-priority='2'></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>Virus name</td><td><TMPL_VAR NAME=SMD_VIRUS_NAME DEFAULT=-></td></tr>
+					<tr><td>Passage details/history</td><td><TMPL_VAR NAME=SMD_VIRUS_PASSAGE DEFAULT=-></td></tr>
+					<tr><td>Collection date</td><td><TMPL_VAR NAME=SMD_COLLECTION_DATE DEFAULT=-></td></tr>
+					<tr><td>Location</td><td><TMPL_VAR NAME=SMD_LOCATION DEFAULT=-></td></tr>
+					<tr><td>Host</td><td><TMPL_VAR NAME=SMD_HOST DEFAULT=-></td></tr>
+					<tr><td>Gender</td><td><TMPL_VAR NAME=SMD_GENDER DEFAULT=-></td></tr>
+					<tr><td>Patient age</td><td><TMPL_VAR NAME=SMD_AGE DEFAULT=-></td></tr>
+				</tbody>
+			</table>
+		</div>
+	</TMPL_IF>
 <!--sample metadata -->	
 	<TMPL_IF NAME="OUT_SAMPLE_METADATA">
 		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
@@ -259,6 +281,7 @@
 					<tr><td>Reads</td><td><TMPL_VAR NAME=BEFOREREADS DEFAULT=-></td></tr>
 					<tr><td>Total Bases</td><td><TMPL_VAR NAME=BEFOREBASES DEFAULT=-> bp</td></tr>
 					<tr><td>Mean Read Length</td><td><TMPL_VAR NAME=BEFOREMRL DEFAULT=-> bp</td></tr>
+					<tr><td>Nanopore Reads</td><td><TMPL_VAR NAME=FROMNANOPORE DEFAULT=-></td></tr>
 				  </tbody>
 				</table>
 			</div></li>
@@ -695,22 +718,26 @@
 								<tr>
 								  <th data-priority='1'>SARS-CoV2 Reference</th>
 								  <th data-priority='4'>Consensus Length</th>
-								  <th data-priority='6'>Consensus GC%</th>
+								  <th data-priority='6' class='ui-table-cell-hidden'>Consensus GC%</th>
 								  <th data-priority='5'>Ns</th>
-								  <th data-priority='4'>5' Ns</th>
-								  <th data-priority='4'>3' Ns</th>
+								  <th data-priority='6'>5' Ns</th>
+								  <th data-priority='6'>3' Ns</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
-								  <th data-priority='3'>Fold std.</th>
+								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
 								  <th data-priority='4'>Gaps</th>
-								  <th data-priority='5'>Gap bases</th>
+								  <th data-priority='5'>Gap Bases</th>
 							          <TMPL_IF NAME=RMREFVARCALL>
 								  <th data-priority='4'>SNPs</th>
 								  <th data-priority='4'>INDELs</th>
 							          </TMPL_IF>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
 								  <th data-priority='3'>Consensus Genome</th>
+								  <TMPL_IF NAME="RMCONSUBMITOK_TH">
+								  <th data-priority='3' title="<TMPL_VAR NAME=RMCONSUMITVAL>">Recommend to Submit </th>
+								  </TMPL_IF>
 							          </TMPL_IF>
+							
 								</tr>
 							  </thead>
 							  <tbody>
@@ -718,13 +745,13 @@
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
 									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><TMPL_VAR NAME=RMCONLEN DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
-									<td><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
 									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
 							          	<TMPL_IF NAME=RMREFVARCALL>
@@ -732,7 +759,10 @@
 									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>			
 							          	</TMPL_IF>
 							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
-									<td><a class="ui-btn ui-btn-inline ui-mini" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download</a></td>
+									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download Fasta</a></td>
+									<TMPL_IF NAME="RMCONSUBMITOK">
+									<td><a class="edge-consensus-ok-to-submit edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-notext">OK</a></td>
+									</TMPL_IF>
 							          	</TMPL_IF>
 								</tr>
 								</TMPL_LOOP>

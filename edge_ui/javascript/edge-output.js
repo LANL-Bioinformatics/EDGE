@@ -8,6 +8,7 @@ $( document ).ready(function()
 	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
         var newWindowFooter = "<div class='edge-sp edge-sp-circle'></div></body></html>";
 	var newTitle = "EDGE bioinformatics";
+	var page = $( this );
 
 
 	$( "#edge-out-expand-all" ).on("click", function(){
@@ -388,6 +389,7 @@ $( document ).ready(function()
 	});
 
 	$("table td").tooltipster({multiple:true});
+	$("table th").tooltipster({multiple:true});
 
 	//krona iframe 
 /*	$( "#edge-content-report iframe" ).each(function(){
@@ -865,5 +867,9 @@ $( document ).ready(function()
 	});
 
 	$('.showTax').first().click();
+	$('.edge-consensus-ok-to-submit').on("click",function(){
+		page.find( ".edge-action-panel" ).panel( "open" );
+		$('html, body').animate({scrollTop: 300})
+	})
 });
 //# sourceURL=edge-output.js

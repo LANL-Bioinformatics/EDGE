@@ -675,8 +675,31 @@ sub pull_sampleMetadata {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
 		$vars->{SAMPLEMETADATA} = "metadata_sample.txt";
 	}
+	my $metadata_gisaid = "$out_dir/metadata_gisaid.txt";
+	if ( -e $metadata_gisaid){
+		$vars->{GISAID_SAMPLE_METADATA}   = 1;
+		$vars->{SAMPLEMETADATA} = "metadata_gisaid.txt";
+		open my $META_fh,  "<", $metadata_gisaid or die "Cannot open $metadata_gisaid $!";
+		while(<$META_fh>){
+			chomp;
+			next if(/^#/);
+			if ( /(.*)=(.*)/ ){
+				$vars->{SMD_VIRUS_NAME} = $2 if ($1 eq 'virus_name');
+				$vars->{SMD_VIRUS_PASSAGE} = $2 if ($1 eq 'virus_passage');
+				$vars->{SMD_COLLECTION_DATE} = $2 if ($1 eq 'collection_date');
+				$vars->{SMD_LOCATION} = $2 if($1 eq 'location');
+				$vars->{SMD_HOST} = $2 if ($1 eq 'host');
+				$vars->{SMD_GENDER} = $2 if ($1 eq 'gender');
+				$vars->{SMD_AGE} = $2 if($1 eq 'age');
+			}
+		}
+	}
+
+	my $gisiad_file = "$out_dir/gisaid_submission.txt";
+	if (-e $gisiad_file){
+		$vars->{SAMPLEMETADATA} = "gisaid_submission.txt";
+	}
 	my $gisaid_done = "$out_dir/gisaid_submission.done";
-	
 	if(-e $gisaid_done){
 		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]); 
 		$vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
@@ -1809,7 +1832,10 @@ sub pull_readmapping_ref {
 	my $ref_display_limit_plot = 4;
 	my $ref;
 	my $proj_realname = $vars->{PROJNAME};
-
+	my $consensus_length_recommand=25000;
+	my $consensus_dpcov_recommand=10;
+	my $consensus_Nper_recommand=0.05;
+	$vars->{RMCONSUMITVAL} = sprintf("Length > %d bp, Depth Coverage > %d X, N < %.1f %%",$consensus_length_recommand,$consensus_dpcov_recommand,$consensus_Nper_recommand*100 );
 	open(my $reffh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt") or die $!;
 	while(<$reffh>) {
 	#	if ($_ =~ /^(\d+) \+ \d+ in total/) 	{ $vars->{RMREFUSED} = $1; next; }
@@ -1851,6 +1877,10 @@ sub pull_readmapping_ref {
 						$refinfo->{"RMCONTOTALN"} = $consensus_info->{$consensus_id}->{total_N};
 						$refinfo->{"RMCONLEADN"} = $consensus_info->{$consensus_id}->{lead_N};
 						$refinfo->{"RMCONTAILN"} = $consensus_info->{$consensus_id}->{tail_N};
+						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
+							$refinfo->{'RMCONSUBMITOK'} = '1';
+							$vars->{'RMCONSUBMITOK_TH'}='1';
+						}
 					}
 				}
 			}
@@ -2032,6 +2062,10 @@ sub pull_summary {
 		}
 		if (/^kingdom=(.*)/){
 			$kingdom = $1;
+		}
+		if (/fastq_source=(.*)/){
+			my $fastq_source = $1;
+			$vars->{FROMNANOPORE}= ($fastq_source =~ /nanopore/i)?"Yes":"No";
 		}
 		if (/^assembler=(.*)/){
 			$vars->{ASSEMBLER}=$1;
