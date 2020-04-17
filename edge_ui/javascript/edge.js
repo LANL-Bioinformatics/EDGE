@@ -903,7 +903,7 @@ $( document ).ready(function()
         	
         	// bind the selector 
         	newElem.find(".edge-file-selector").on( "click", function() {
-			inputFileID = inputID + newNum;
+			inputFileID = $(this).prevAll().children().prop("id");
 		});
 		    
 		newElem.find(delbtnClass).on( "click", function() {
