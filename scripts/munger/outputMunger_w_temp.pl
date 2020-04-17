@@ -1854,6 +1854,7 @@ sub pull_readmapping_ref {
 			#$tol_snps += $temp[9];
 			#$tol_indels += $temp[10];
 			next if $temp[3] == 0;
+			$refinfo->{'STANDALONE'} = 1 if ($mode ne "web");
 			$refinfo->{"RMREFMAPPEDPCT"} = sprintf "%.2f", $temp[3]/$NUM_READS_FOR_DOWNSTREAM*100;
 			for my $i (0 .. $#temp) {
 				my $idx = $i+1;

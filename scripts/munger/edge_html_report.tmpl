@@ -115,7 +115,7 @@
 				<TMPL_IF NAME="SAMPLEMETADATA">
 				<tr>
 				  <td>MetaData</td>
-				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/<TMPL_VAR NAME=SAMPLEMETADATA>'>metadata_sample.txt</a></td>
+				  <td><a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/<TMPL_VAR NAME=SAMPLEMETADATA>'>metadata.txt</a></td>
 				</tr>
 				</TMPL_IF>
 				<TMPL_IF NAME="PIRETEXPDESIGN">
@@ -718,13 +718,19 @@
 								<tr>
 								  <th data-priority='1'>SARS-CoV2 Reference</th>
 								  <th data-priority='4'>Consensus Length</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Consensus GC%</th>
+								  </TMPL_UNLESS>
 								  <th data-priority='5'>Ns</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6'>5' Ns</th>
 								  <th data-priority='6'>3' Ns</th>
+								  </TMPL_UNLESS>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
+								  </TMPL_UNLESS>
 								  <th data-priority='4'>Gaps</th>
 								  <th data-priority='5'>Gap Bases</th>
 							          <TMPL_IF NAME=RMREFVARCALL>
@@ -734,7 +740,7 @@
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
 								  <th data-priority='3'>Consensus Genome</th>
 								  <TMPL_IF NAME="RMCONSUBMITOK_TH">
-								  <th data-priority='3' title="<TMPL_VAR NAME=RMCONSUMITVAL>">Recommend to Submit </th>
+								  <th data-priority='3' title="<TMPL_VAR NAME=RMCONSUMITVAL>">Ready to Submit </th>
 								  </TMPL_IF>
 							          </TMPL_IF>
 							
@@ -745,13 +751,19 @@
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
 									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><TMPL_VAR NAME=RMCONLEN DEFAULT=-></td>
+									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
+									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
+									<TMPL_UNLESS NAME="STANDALONE">
 									<td><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
+									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
+									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
+									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
 							          	<TMPL_IF NAME=RMREFVARCALL>

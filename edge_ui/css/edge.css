@@ -1,16 +1,17 @@
 /* Header */
 .edge-home .edge-header {
-	#background: #74b042 url(../images/bg_blue.png) no-repeat 30% center;
-	background-size: auto 60px;
+	background: #02497e url(../images/bg_blue2.png) repeat;
+	background-size: 50%;
 	border-bottom-color: #ddd;
-	background: linear-gradient(to bottom,#50a253 0,#4c954d 100%);
-	background: -webkit-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
-	background: -o-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
-	background: -moz-linear-gradient(to bottom,#50a253 0,#4c954d 100%);
+	/*background: linear-gradient(to bottom,#00467a 0,#02497e 100%);
+	background: -webkit-linear-gradient(to bottom,#00467a 0,#02497e 100%);
+	background: -o-linear-gradient(to bottom,#00467a 0,#02497e 100%);
+	background: -moz-linear-gradient(to bottom,#00467a 0,#02497e 100%);*/
 	/* background-image: linear-gradient(#74b042, #56A00E); */
 	left: 0;
 	right: 0;
 	width: 100%;
+	height: 90px;
 	position: fixed;
 	z-index: 1001;
     box-shadow: 0 0 20px #FFF;            /* outer white */
@@ -34,8 +35,8 @@
 	font-size: 0.7em;
 	position: absolute;
 	color: white;
-	margin: -2em;
-	margin-top: -1.6em;
+	margin: -1em;
+	margin-top: -1em;
 	margin-left: -7em;
 	text-shadow: none;
 	left: 15em;
@@ -190,7 +191,7 @@ input#signIn-password{
 	padding-left:35px;
 }
 
-.edge-home .edge-header .edge-user-btn  {
+.edge-home .edge-header #edge-user-btn  {
 	right: 8% ;
 	font-weight: 400;
 }
@@ -207,17 +208,17 @@ input#signIn-password{
 	text-shadow: none;
 }
 
-.edge-navmenu-button-div {
+.edge-home .edge-header .edge-navmenu-button-div {
 	position: relative;
-	right: 10% ;
+	right: 7% ;
 	height:1em;
 	text-align: right;
 	margin-left: 15em;
-	top: 1em;
+	margin-top: 1.2em;
 }
 
 .edge-navmenu-button-div .edge-nav-btn {
-	font-size: 12.5px;
+	font-size: 16px;
 	color: #FFF !important;
 	text-shadow: none;
 	font-weight: 400;
@@ -243,7 +244,7 @@ input#signIn-password{
 }
 
 div#popupUser a {
-	background: #50a253;
+	background: #00467a;
 	color: #FFF;
 	font-weight: 400;
 	text-shadow: none;
@@ -254,6 +255,7 @@ div#popupUser a {
 	position: relative;
 	float: left;
 	margin: auto 3em;
+	margin-top: 1em;
 }
 .edge-logo img {
 	width:36px;
@@ -415,7 +417,7 @@ pre code {
 
 /* Content */
 .edge-home .edge-content {
-	padding-top: 5em;
+	padding-top: 7em;
 }
 
 .edge-home .edge-content > h1,
@@ -854,6 +856,7 @@ div.edge-collapsible-options .ui-btn {
 #panel-folder .ui-btn-icon-notext.ui-corner-all {
 	-webkit-border-radius: .3125em;
 	border-radius: .3125em;
+	margin-top:2em;
 }
 
 .panel-folder {
@@ -893,7 +896,7 @@ div.edge-collapsible-options .ui-btn {
 		top: 8px;	
 	}
 	.edge-home .edge-header h5 {
-		margin: -1.8em;
+		margin: -1.5em;
 	}
 	.edge-navmenu-button-div {
 		right: 7% ;
@@ -922,19 +925,19 @@ div.edge-collapsible-options .ui-btn {
 	}
 
 	.edge-home .edge-header h5 {
-		margin: -2em;
+		margin: -1.5em;
 	}
 	
 	@media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) 
 	{
 		.edge-home .edge-header h5 {
-			margin: -1.6em;
+			margin: -1.5em;
 		}
 	}
 
 	.edge-navmenu-button-div {
 		right: 7% ;
-		top: 1.4em;
+		top: 1.2em;
 	}
 
 	#edge-project-title {
@@ -946,6 +949,7 @@ div.edge-collapsible-options .ui-btn {
 	}
 	.edge-home .edge-action-link {
 		right: 3%;
+		background:#e9e9e9;
 	}
 	.edge-home .edge-footer p {
 		float: right;
@@ -987,7 +991,7 @@ div.edge-collapsible-options .ui-btn {
 		display: block;
 	}
 	.edge-home .edge-navmenu-panel .ui-panel-inner {
-		margin-top: 5em;
+		margin-top: 6em;
 		margin-bottom: 5em;
 	}
 	.edge-home .edge-content {

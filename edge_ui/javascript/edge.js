@@ -95,13 +95,21 @@ $( document ).ready(function()
 	allMainPage.hide();
 	$( "#edge-content-home" ).fadeIn();
 	//$( "#edge-apps-home" ).fadeIn();
-	
-	$( "a[href=#edge-app-home]" ).on( "click", function(){
+	$( "a[href=#edge-getedge-covid19]").on("click" , function(){
+		window.open('https://hub.docker.com/r/bioedge/edge_ncov','edgencovdocker').focus()
+	});
+	$( "a[href=#edge-about]").on("click" , function(){
 		allMainPage.hide();
-		//$( "#edge-apps-home" ).fadeIn();
 		$( "#edge-content-home" ).fadeIn();
-		//foldLeftPanel();
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
+	});
+	$( "a[href=#edge-app-home]" ).on( "click", function(){
+		window.open('https://covid19.edgebioinformatics.org/',"_self").focus()
+		//allMainPage.hide();
+		//$( "#edge-apps-home" ).fadeIn();
+		//$( "#edge-content-home" ).fadeIn();
+		//foldLeftPanel();
+		//page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
 	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
 		pipeline="EDGE";
@@ -905,7 +913,7 @@ $( document ).ready(function()
         	
         	// bind the selector 
         	newElem.find(".edge-file-selector").on( "click", function() {
-			inputFileID = inputID + newNum;
+			inputFileID = $(this).prevAll().children().prop("id");
 		});
 		    
 		newElem.find(delbtnClass).on( "click", function() {
@@ -3905,7 +3913,7 @@ $( document ).ready(function()
 
 //END EDGE REPORTS
 	//ColorPick
-	var dfColor = localStorage.background || "#50a253";
+	var dfColor = localStorage.background || "#20a8d8";
 	$(".colorpicker").spectrum({
 		color: dfColor,
 		change: function(color){

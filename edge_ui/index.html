@@ -76,12 +76,12 @@
 			<h5></h5>
 			</a>
 		</div>
-		<a href="" class="edge-navmenu-link ui-nodisc-icon ui-btn-left ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">Menu</a>
+		<a href="" class="edge-navmenu-link ui-btn-left ui-nodisc-icon ui-btn ui-icon-bars ui-btn-icon-notext ui-corner-all" data-role="button" role="button">Menu</a>
                 <div class="edge-navmenu-button-div">
                         <a href="" class="edge-nav-btn ui-corner-all" id="edge-project-title" data-pid=""></a>
                         <a href="" class="edge-nav-btn ui-corner-all" id="edge-user-btn"      >Login</a>
                 </div>
-		<a href="" class="edge-action-link ui-nodisc-icon ui-btn-right ui-btn ui-icon-action ui-btn-icon-notext ui-corner-all no-show-logout " data-role="button" role="button" title="Job Widget">Action</a>
+		<a href="" data-theme="a" class="edge-action-link ui-btn-right ui-nodisc-icon ui-btn ui-icon-action ui-btn-icon-notext ui-corner-all no-show-logout " data-role="button" role="button" title="Job Widget">Action</a>
 	</div><!-- /header -->
 	<div id="panel-folder" class="panel-folder" style="top: 2.7em; left: -2px; z-index:100000">
 		<a id="panel-folder-btn" href="#" class="ui-btn ui-icon-carat-l ui-btn-icon-notext ui-corner-all">No text</a>
@@ -89,8 +89,10 @@
 	<div data-role="panel" id="edge-navmenu-panel" class="edge-navmenu-panel ui-panel ui-panel-position-left ui-panel-animate ui-panel-closed" data-position="left" data-display="overlay" data-theme="a">
 		<div class="ui-panel-inner"><ul class="edge-list ui-alt-icon ui-nodisc-icon ui-listview">
 			<li class="ui-first-child"><a href="#edge-app-home" class="ui-btn ui-btn-icon-right ui-icon-home">Home</a></li>
+			<li><a href="#edge-about" class="ui-btn ui-btn-icon-right ui-icon-info">About</a></li>
                         <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
-			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE</a></li>
+			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE COVID-19</a></li>
+			<li><a href="#edge-getedge-covid19" class="ui-btn ui-btn-icon-right ui-icon-cloud">Get EDGE COVID-19</a></li>
 			<li><a href="#edge-qiime-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run Qiime2</a></li>
 			<li><a href="#edge-targetedngs-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run DETEQT</a></li>
 			<li><a href="#edge-piret-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run PiReT (BETA)</a></li>
@@ -319,7 +321,7 @@
 			<ul>
 				<li>The detailed documentation and guide are hosted in <a href="https://docs.google.com/document/u/1/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub" target="_new">[here]</a>. (<a href="docs/EDGE_COVID-19_guide.pdf" target="_new">PDF version</a>) </li>
 				<li>The EDGE tutorial video series for original EDGE platform hosted in <a href="https://www.youtube.com/playlist?list=PL7DNo6h5wJsTh2l2GK3N86Imb-9fYQFfH" target="_blank">Youtube.</a> </li>
-				<li>User discussion group can be found <a href="https://groups.google.com/d/forum/edge-users" target="_blank">here</a>.</li>
+				<li>User discussion group can be found <a href="https://groups.google.com/d/forum/edge-users" target="_blank">here</a> or contact us at <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</li>
 			</ul>
 		</p>
 		<h2>Publication</h2>
@@ -893,9 +895,9 @@
 			<div class="ui-field-contain" id="edge-r2c-aligner-sw">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Validation Aligner<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE use default setting of the aligner. Bowtie2 default is for global alignment and BWA mem algorithm will do local alignment. If users would like to overwrite the setting, users can use 'Aligner Options' to do so. For example, use “–local” to run bowtie2 with local alignment mode. Or, use “-x ont2d” to run BWA mem with Nanopore reads."></a></legend>
-					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner1" value="bowtie" checked="checked">
+					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner1" value="bowtie" >
 					<label for="edge-r2c-aligner1">Bowtie 2</label>
-					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner2" value="bwa">
+					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner2" value="bwa"  checked="checked">
 					<label for="edge-r2c-aligner2">BWA mem</label>
 					<input type="radio" name="edge-r2c-aligner" id="edge-r2c-aligner3" value="minimap2">
 					<label for="edge-r2c-aligner3">Minimap2</label>
@@ -1904,7 +1906,7 @@
 		<ul data-role="listview" data-inset="true" data-icon="false">
 			<li><a href="#" id="signOutBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Log Out</a></li>
 			<li><a href="#UpdateProfileForm" id="UpdateProfileBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Update Profile</a></li>
-			<li><input type='text' data-role="none" data-mini="true" name='color' class="colorpicker no-show-logout" style="display: nono;"></li>
+			<!--<li><input type='text' data-role="none" data-mini="true" name='color' class="colorpicker no-show-logout" style="display: none;"></li>-->
 		</ul>
 	</div>
 
@@ -2106,18 +2108,19 @@
         </div> 
 </form><!--  edgesite-form -->
 
+		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200412</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200416</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
-            		<a target="_new" href="http://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
+            		<a target="_new" href="https://www.lanl.gov"><img src="images/logo_LANL.png"/></a>
 		</div>
 		<div class="edge-footer-logo">
-			<a target="_new" href="http://www.dtra.mil"><img src="images/logo_DTRA.png"/></a>
+			<a target="_new" href="https://www.dtra.mil"><img src="images/logo_DTRA.png"/></a>
 			<a target="_new" href="https://www.energy.gov/"><img src="images/logo_DOE.png"/></a>
-			<a target="_new" href="http://nnsa.energy.gov/"><img src="images/logo_NNSA.png"/></a></div>
+			<a target="_new" href="https://nnsa.energy.gov/"><img src="images/logo_NNSA.png"/></a></div>
 	</div><!-- /footer -->
 </div><!-- /page -->
 
