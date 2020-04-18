@@ -1022,43 +1022,50 @@ elsif($action eq 'define-gap-depth'){
 	print $fh $projnotes;
 	close $fh;
 }elsif($action eq 'checksra'){
-	my $acc = $opt{'sra_acc'};
-	$acc =~ s/ //g;
+	my @accs = split ',',$opt{'sra_acc'};
 	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy} || $sys->{proxy};
 	$proxy = "--proxy \'$proxy\' " if ($proxy);
-	my $url = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=$acc";
-	my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
-	my $SRA_fh;
-	my $pid = open ($SRA_fh, "-|")
-			or exec($cmd);
 	my $sra_num=0;
-	while(my $line=<$SRA_fh>){
-		chomp;
-		next if $line =~ /^Run/;
-		next unless $line =~ /\S/;
-		my @f = split ',', $line;
-		my $sub_acc  = $f[42]; #submission
-                my $exp_acc  = $f[10]; #experiment_accession
-                my $run_acc  = $f[0];  #run
-                my $size_MB  = $f[7];
-                my $platform = $f[18]; #platform
-                my $library  = $f[15]; #LibraryLayout
-                my $url      = $f[9];  #download_path
-		$info->{PLATFORM} = $platform;
-		$sra_num++;
-	}
-	close $SRA_fh;
-	if( $pid ){
-		#parent
-		$info->{PID}= ++$pid;
-		$info->{STATUS} = "SUCCESS";
-	}else{
-		#$info->{STATUS} = "FAILURE";
- 		$info->{INFO}   = "Failed to run NCBI SRA API search";
- 	}
-	if (!$sra_num){
-		$info->{STATUS} = "FAILURE";
-		$info->{INFO}   = "Failed to found $acc from NCBI-SRA.";
+	foreach my $acc (@accs){
+		$acc =~ s/ //g;
+		my $url = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=$acc";
+		my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
+		my $SRA_fh;
+		my $pid = open ($SRA_fh, "-|")
+				or exec($cmd);
+		my $line_num=0;
+		my $platform;
+		while(my $line=<$SRA_fh>){
+			chomp;
+			next if $line =~ /^Run/;
+			next unless $line =~ /\S/;
+			my @f = split ',', $line;
+			my $sub_acc  = $f[42]; #submission
+			my $exp_acc  = $f[10]; #experiment_accession
+			my $run_acc  = $f[0];  #run
+			my $size_MB  = $f[7];
+			my $platform = $f[18]; #platform
+ 			my $library  = $f[15]; #LibraryLayout
+ 			my $url      = $f[9];  #download_path
+			$info->{PLATFORM} = $platform;
+			$line_num++;
+		}
+		close $SRA_fh;
+		if( $pid ){
+			#parent
+			$sra_num++;
+			$info->{PID}= ++$pid;
+			$info->{INFO} .= "The $acc is from $platform.<br/>";
+			$info->{STATUS} = "SUCCESS";
+		}else{
+			#$info->{STATUS} = "FAILURE";
+ 			$info->{INFO}   = "Failed to run NCBI SRA API search";
+ 		}
+		if (!$line_num){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to found $acc from NCBI-SRA.";
+			&returnStatus();
+		}
 	}
 }
 

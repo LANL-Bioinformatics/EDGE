@@ -3927,7 +3927,7 @@ $( document ).ready(function()
 					if( obj.STATUS == "SUCCESS" ){
 						if ( obj.PLATFORM && /nanopore|minion/.test(obj.PLATFORM.toString().toLowerCase()) ){
 							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-							var msg = "The "+ sra_acc + " is from Nanopre. EDGE will turn on Nanopore Reads Mode.";
+							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else{
 							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");
