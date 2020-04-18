@@ -1926,6 +1926,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
 				if (type != "reconfig"){
+					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('400');
 					$('#splitrim-minq').prop('disabled',false).val('7');
@@ -1942,6 +1943,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
+					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
 					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('50');
@@ -4009,7 +4011,7 @@ $( document ).ready(function()
 					if( obj.STATUS == "SUCCESS" ){
 						if ( obj.PLATFORM && /nanopore|minion/.test(obj.PLATFORM.toString().toLowerCase()) ){
 							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-							var msg = "The "+ sra_acc + " is from Nanopre. EDGE will turn on Nanopore Reads Mode.";
+							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else{
 							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");

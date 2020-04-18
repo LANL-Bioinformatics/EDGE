@@ -868,8 +868,10 @@ $( document ).ready(function()
 
 	$('.showTax').first().click();
 	$('.edge-consensus-ok-to-submit').on("click",function(){
-		page.find( ".edge-action-panel" ).panel( "open" );
-		$('html, body').animate({scrollTop: 300})
+		if(localStorage.sid){
+			page.find( ".edge-action-panel" ).panel( "open" );
+			$('html, body').animate({scrollTop: 300})
+		}
 	})
 });
 //# sourceURL=edge-output.js
