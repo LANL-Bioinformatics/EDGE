@@ -656,10 +656,12 @@ sub getUserProjFromDB{
     #w Set the request parameters
 	my $service;
 	if ($username && $password){ 
-		$service = "WS/user/getProjects";
+		$service = "WS/user/getRuns";
+		#$service = "WS/user/getProjects";
 		#$data{project_display} = "yes";
 	}else{
-		$service = "WS/user/publishedProjects";
+		$service = "WS/user/publicRuns";
+		#$service = "WS/user/publishedProjects";
 	}
 
     # Encode the data structure to JSON
