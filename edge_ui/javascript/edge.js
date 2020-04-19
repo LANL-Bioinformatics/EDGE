@@ -197,6 +197,7 @@ $( document ).ready(function()
 					$('.no-show-logout').hide();
 					$('#edge-projet-list-li').hide();
 					$("#edge-user-btn").hide();
+					$("#edge-user-btn-signup").hide();
 					$( "a[href=#edge-content-pipeline]" ).hide();
 					$( "a[href=#edge-content-uploadfile]" ).hide();
 					$( "a[href=#edge-qiime-pipeline]" ).hide();
