@@ -3099,6 +3099,7 @@ sub runReadsToGenome
     unlink glob("$outputDir/*.vcf");
     unlink glob("$outputDir/*gap.coords");
     unlink "$outputDir/variantAnalysis.finished";
+    unlink "$outputDir/getConsensus.finished";
     
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
