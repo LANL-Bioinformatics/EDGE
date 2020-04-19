@@ -12,7 +12,7 @@ The default workflow in EDGE COVID-19 includes:
 
 The EDGE COVID-19 platform can accommodate Illumina or ONT data, including ONT data from the <a href="https://artic.network/ncov-2019" target="_new">SARS-CoV-2 ARTIC network sequencing protocols</a>. Users can input/upload Illumina or Nanopore sequencing FASTQ files (and/or download from NCBI SRA). For Illumina data, default analyses include only read QC, read mapping to the reference, and SNP/variant analysis. For ONT data, the data must be demultiplexed prior to uploading; the samples will be processed individually.  The SNP/variant calling is not on by default for ONT. However, other functions (e.g. de novo assembly for whole genome data) are also available for both sequencing platforms.  While command line execution is possible (see <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2" target="_new">here</a> and <a href="https://gitlab.com/chienchi/reference-based_assembly" target="_new">here</a>), the GUI provides an easy data submission and results viewing platform, with the graphical and tabular views of variant/SNP data and a genome browser to view read coverage and location of SNPs or variants, as well as the reference annotations.
 
-This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge_ncov" target="_new">Docker container</a>, able to run on any local hardware infrastructure or in the cloud. We have tested this Docker container on laptops and cloud, using several Illumina (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11177792" target="_new">SRR11177792</a>) and ONT (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11300652" target="_new">SRR11300652</a>) datasets.
+This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge-covid19" target="_new">Docker container</a>, able to run on any local hardware infrastructure or in the cloud. We have tested this Docker container on laptops and cloud, using several Illumina (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11177792" target="_new">SRR11177792</a>) and ONT (e.g. <a href="https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRR11300652" target="_new">SRR11300652</a>) datasets.
  
 ###### Note: For EDGE Bioinformatics users who would also like to use the phylogeny or read- and assembly-based taxonomy classification tools to identify all organisms that may be present within complex samples, we recommend using the original <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics platform</a> which harbors several tools and associated (large) databases that enable such a search. <em>In initial tests of taxonomy classification of SARS-CoV-2 samples (with no SARS-CoV-2 genomes in any of the databases), we recover SARS coronavirus and Bat Coronavirus as the nearest neighbor.</em> 
 
@@ -20,7 +20,7 @@ This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge_nc
 	
 * [EDGE COVID-19 Documentation](https://docs.google.com/document/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub)
 
-* [EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge_ncov)
+* [EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge-covid19)
 
 ## Requirements
 

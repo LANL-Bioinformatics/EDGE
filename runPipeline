@@ -2034,10 +2034,6 @@ sub runCheckM{
     &lprint (" Running \n $cmd\n");
     &executeCommand2("$cmd");
 
-    # the function been removed from checkm 1.1.0
-    #$cmd = "$checkm_PATH/checkm  bin_qa_plot -x fasta $outputDir $MaxBin_dir $outputDir";
-    #&executeCommand2("$cmd");
-
     &printRunTime($time);
     &touchFile("$outputDir/BinningCheckM.finished");
     return;
@@ -3086,22 +3082,23 @@ sub runReadsToGenome
     {
         &lprint (colored ("[Reads Mapping To Reference]\n",'yellow'));
     }
-    if ( $configuration->{r2g_get_consensus}){
-        if ( -e "$outputDir/getConsensus.finished"){
-            &lprint ("Reads Mapping to Reference Finished\n");
-            return ($outVCF,$outGap);
-        }
+    if ( -e "$outputDir/runReadsToGenome.finished"){
+        &lprint ("Reads Mapping to Reference Finished\n");
+        return ($outVCF,$outGap);
     }else{
-        if ( -e "$outputDir/runReadsToGenome.finished"){
-            &lprint ("Reads Mapping to Reference Finished\n");
-            return ($outVCF,$outGap);
-        }
+	    #if ( $configuration->{r2g_get_consensus}){
+	    #if ( -e "$outputDir/getConsensus.finished"){
+	    #   &lprint ("Reads Mapping to Reference Finished\n");
+	    #    return ($outVCF,$outGap);
+	    #}
+	    #}
     }
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     unlink $outGap;
     unlink glob("$outputDir/*.vcf");
     unlink glob("$outputDir/*gap.coords");
+    unlink "$outputDir/variantAnalysis.finished";
     
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
@@ -3162,8 +3159,8 @@ sub runReadsToGenome
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
-            &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
-            &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
+	    &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
+	    &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
@@ -3478,9 +3475,9 @@ sub runAssembly
 		$AssemblerOutDir = "$outputDir/lrasm";
 		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
 		$AssemblerLog = "$AssemblerOutDir/contigs.log";
-		my $minlength = "500";
-                my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
 		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
+		my $minlength = "400";
+		my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
 		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
 		$cmd .= " -e" if $configuration->{lrasm_ec};
 		$cmd .= " -a $configuration->{lrasm_algorithm} " if ($configuration->{lrasm_algorithm});
