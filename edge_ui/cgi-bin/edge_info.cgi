@@ -711,7 +711,8 @@ sub getUserProjFromDB{
 		if($sys->{edge_sample_metadata}) {
 			$list->{$id}->{SHOWMETA} = 1;
 		}
-		if($username eq  $hash_ref->{owner_email}) {
+		#if($username eq  $hash_ref->{owner_email}) {
+		if($hash_ref->{type} eq 'private') {
 			$list->{$id}->{ISOWNER} = 1;
 		}
 		my $metaFile = "$proj_dir/metadata_sample.txt";

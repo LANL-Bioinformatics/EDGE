@@ -59,7 +59,7 @@ my $proj_status;
 # Generates the project list (pname = encoded name) Scans output dir
 if( $sys->{user_management} && $pname !~ /\D/ && $sid ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
-	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password);
+	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password, $viewType);
 	if (!$proj_code){
 		my $html = "<p>The project does not exist. $proj_status </p>";
 		print "Content-Type: text/html\n\n",
@@ -188,6 +188,7 @@ sub getProjCodeFromDB{
 	$projectID = &getProjID($projectID);
 	my $username = shift;
 	my $password = shift;
+	my $mode=shift;
 
 	my %data = (
 		email => $username,
@@ -199,8 +200,12 @@ sub getProjCodeFromDB{
 	# Encode the data structure to JSON
 	my $data = to_json(\%data);
  	#w Set the request parameters
-	#my $url = $um_url ."WS/project/getInfo";
-	my $url = $um_url ."WS/user/getRuns";
+	my $url;
+	if ( $mode eq "admin" ){
+		$url = $um_url ."WS/user/admin/getRuns";
+	}else{
+		$url = $um_url ."WS/user/getRuns";
+	}
 	my $browser = LWP::UserAgent->new;
 	my $req = PUT $url;
 	$req->header('Content-Type' => 'application/json');
@@ -216,8 +221,8 @@ sub getProjCodeFromDB{
 		#print STDERR $result_json;
 		return ("","ERROR: $1");
 	}
-	my $array_ref =  decode_json($result_json);
 	my ($id,$project_name,$projCode,$projStatus);
+	my $array_ref =  decode_json($result_json);
 	foreach my $hash_ref (@$array_ref){
 		$id = $hash_ref->{id};
 		if ( $id == $projectID){

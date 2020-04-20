@@ -969,7 +969,7 @@ elsif($action eq 'define-gap-depth'){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_gap_out_dir/Gap_d${gap_depth_cutoff}VSReference.report.json";
 		&returnStatus();
-	}
+}
 	my $cmd;
 	unless ( -s $gap_outfile){
 		opendir( my $dh, $gap_out_dir);
@@ -1042,12 +1042,12 @@ elsif($action eq 'define-gap-depth'){
 			my @f = split ',', $line;
 			my $sub_acc  = $f[42]; #submission
 			my $exp_acc  = $f[10]; #experiment_accession
-			my $run_acc  = $f[0];  #run
-			my $size_MB  = $f[7];
-			my $platform = $f[18]; #platform
- 			my $library  = $f[15]; #LibraryLayout
- 			my $url      = $f[9];  #download_path
-			$info->{PLATFORM} = $platform;
+                	my $run_acc  = $f[0];  #run
+                	my $size_MB  = $f[7];
+                	$platform = $f[18]; #platform
+                	my $library  = $f[15]; #LibraryLayout
+                	my $url      = $f[9];  #download_path
+			$info->{PLATFORM} .= "$platform";
 			$line_num++;
 		}
 		close $SRA_fh;
@@ -1059,7 +1059,7 @@ elsif($action eq 'define-gap-depth'){
 			$info->{STATUS} = "SUCCESS";
 		}else{
 			#$info->{STATUS} = "FAILURE";
- 			$info->{INFO}   = "Failed to run NCBI SRA API search";
+ 			$info->{INFO}   = "Failed to run NCBI SRA API search.";
  		}
 		if (!$line_num){
 			$info->{STATUS} = "FAILURE";
