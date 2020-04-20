@@ -1146,11 +1146,16 @@
 					<label for="edge-ref-sw">Reference-Based SARS-CoV-2 Genome Analysis</label>
 				</div>
 			</h4>
-			<p class="edge_tool_note">EDGE will use <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> as reference. You can add one or more reference genome files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given reference genomes in genbank format, EDGE will also turn on variant analysis.</p>
+			<!--<p class="edge_tool_note">EDGE will use <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a> as reference. You can add one or more reference genome files, EDGE will turn on the analysis of the reads/contigs mapping to reference and JBrowse reference track generation. Given reference genomes in genbank format, EDGE will also turn on variant analysis.</p>-->
+			
+			<div class="ui-field-contain">
+				<label for="edge-selected-ref">Preselected Reference Genome</label>
+				<input type="text" data-mini="true" data-clear-btn="false" name="edge-selected-ref" id="edge-selected-ref" disabled value="NC_045512.2 Wuhan-Hu-1">
+			</div>
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-ref-file-fromlist">Select GenBank Reference Genome (Optional)</label>
+				<label for="edge-ref-file-fromlist">Select Additional GenBank Reference Genome(s) (Optional)</label>
 				<select id="edge-ref-file-fromlist" data-mini="true" name="edge-ref-file-fromlist" data-native-menu="false" multiple="multiple">
-					<option disabled>Select reference genome(s)...</option>
+					<option disabled>Select additional reference genome(s)...</option>
 				</select>
 			</div>
 			<!--<p class="edge-center">and/or</p>-->
@@ -2112,7 +2117,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200419</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200420</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
