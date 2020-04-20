@@ -131,7 +131,7 @@ if( $umSystemStatus ){
 		#if ( $forceupdate ne "true"  && -e $list_json) {
 		#	$list = readListFromJson($list_json);
 		#}else{
-			&getUserProjFromDB();
+		&getUserProjFromDB();
 			#}
 		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
 		#&cache_user_projects_info($username,$password,$viewType,$list);	
@@ -686,16 +686,16 @@ sub getUserProjFromDB{
 		$service = "WS/user/publicRuns";
 	}
 
-    # Encode the data structure to JSON
+	# Encode the data structure to JSON
 	my $data = to_json(\%data);
-    my $url = $um_url .$service;
-    #w Set the request parameters
+	my $url = $um_url .$service;
+	#w Set the request parameters
 	my $browser = LWP::UserAgent->new;
 	my $req = PUT $url;
-    $req->header('Content-Type' => 'application/json');
-    $req->header('Accept' => 'application/json');
-    #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
-    $req->header( "Content-Length" => length($data) );
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+	$req->header( "Content-Length" => length($data) );
 	$req->content($data);
 
 	my $response = $browser->request($req);
@@ -707,7 +707,7 @@ sub getUserProjFromDB{
 		return;
 	}
 	my $array_ref =  decode_json($result_json);
-	#print STDERR $result_json;
+	#print STDERR "\n\n",$result_json,"\n";
 	foreach my $hash_ref (@$array_ref)
 	{
 
@@ -727,15 +727,16 @@ sub getUserProjFromDB{
 		$list->{$id}->{STATUS} = $status;
 		$list->{$id}->{TIME} = $created;
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
-		$list->{$id}->{OWNER_FisrtN} = $hash_ref->{owner_firstname};
-		$list->{$id}->{OWNER_LastN} = $hash_ref->{owner_lastname};
+		$list->{$id}->{OWNER} = $hash_ref->{owner};
+		#$list->{$id}->{OWNER_LastN} = $hash_ref->{owner_lastname};
 		$list->{$id}->{PROJTYPE} = $hash_ref->{type} if ($username && $password);
 
 		## sample metadata
 		if($sys->{edge_sample_metadata}) {
 			$list->{$id}->{SHOWMETA} = 1;
 		}
-		if($username eq  $hash_ref->{owner_email}) {
+		#if($username eq  $hash_ref->{owner_email}) {
+		if($hash_ref->{type} eq 'private') {
 			$list->{$id}->{ISOWNER} = 1;
 		}
 		my $metaFile = "$proj_dir/metadata_sample.txt";
