@@ -61,7 +61,7 @@ if( $sys->{user_management} && $pname !~ /\D/ && $sid ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
 	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password);
 	if (!$proj_code){
-		my $html = "<p>The project does not exist</p>";
+		my $html = "<p>The project does not exist. $proj_status </p>";
 		print "Content-Type: text/html\n\n",
 		$html;
 		exit 0;
@@ -199,7 +199,8 @@ sub getProjCodeFromDB{
 	# Encode the data structure to JSON
 	my $data = to_json(\%data);
  	#w Set the request parameters
-	my $url = $um_url ."WS/project/getInfo";
+	#my $url = $um_url ."WS/project/getInfo";
+	my $url = $um_url ."WS/user/getRuns";
 	my $browser = LWP::UserAgent->new;
 	my $req = PUT $url;
 	$req->header('Content-Type' => 'application/json');
@@ -210,13 +211,19 @@ sub getProjCodeFromDB{
 
 	my $response = $browser->request($req);
 	my $result_json = $response->decoded_content;
-	# print $result_json if (@ARGV);
-	my $hash_ref = from_json($result_json);
-
-	my $id = $hash_ref->{id};
-	my $project_name = $hash_ref->{name};
-	my $projCode = $hash_ref->{code};
-	my $projStatus = $hash_ref->{status};
+	#print STDERR $result_json;
+	if ($result_json =~ /\"error_msg\":"(.*)"/){
+		#print STDERR $result_json;
+		return ("","ERROR: $1");
+	}
+	my $array_ref =  decode_json($result_json);
+	my ($id,$project_name,$projCode,$projStatus);
+	foreach my $hash_ref (@$array_ref){
+		$id = $hash_ref->{id};
+		$project_name = $hash_ref->{name};
+		$projCode = $hash_ref->{code};
+		$projStatus = $hash_ref->{status};
+	}
 	
 	return ($projCode,$projStatus);
 }
