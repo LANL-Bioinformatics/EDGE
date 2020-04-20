@@ -1059,12 +1059,12 @@ elsif($action eq 'define-gap-depth'){
 			$info->{STATUS} = "SUCCESS";
 		}else{
 			#$info->{STATUS} = "FAILURE";
- 			$info->{INFO}   = "Failed to run NCBI SRA API search";
+ 			$info->{INFO}   = "Failed to run NCBI SRA API search.";
  		}
 		if (!$line_num){
 			$info->{STATUS} = "FAILURE";
-			$info->{INFO}   = "Failed to found $acc from NCBI-SRA";
-			&returnStatus()
+			$info->{INFO}   = "Failed to found $acc from NCBI-SRA.";
+			&returnStatus();
 		}
 	}
 }
