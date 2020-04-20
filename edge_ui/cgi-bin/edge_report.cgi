@@ -220,9 +220,12 @@ sub getProjCodeFromDB{
 	my ($id,$project_name,$projCode,$projStatus);
 	foreach my $hash_ref (@$array_ref){
 		$id = $hash_ref->{id};
-		$project_name = $hash_ref->{name};
-		$projCode = $hash_ref->{code};
-		$projStatus = $hash_ref->{status};
+		if ( $id == $projectID){
+			$project_name = $hash_ref->{name};
+			$projCode = $hash_ref->{code};
+			$projStatus = $hash_ref->{status};
+			last;
+		}
 	}
 	
 	return ($projCode,$projStatus);
