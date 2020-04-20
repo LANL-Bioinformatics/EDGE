@@ -3086,22 +3086,24 @@ sub runReadsToGenome
     {
         &lprint (colored ("[Reads Mapping To Reference]\n",'yellow'));
     }
-    if ( $configuration->{r2g_get_consensus}){
-        if ( -e "$outputDir/getConsensus.finished"){
-            &lprint ("Reads Mapping to Reference Finished\n");
-            return ($outVCF,$outGap);
-        }
-    }else{
-        if ( -e "$outputDir/runReadsToGenome.finished"){
-            &lprint ("Reads Mapping to Reference Finished\n");
-            return ($outVCF,$outGap);
-        }
+    if ( -e "$outputDir/runReadsToGenome.finished"){
+        &lprint ("Reads Mapping to Reference Finished\n");
+        return ($outVCF,$outGap);
     }
+    #if ( $configuration->{r2g_get_consensus}){
+    #    if ( -e "$outputDir/getConsensus.finished"){
+    #        &lprint ("Reads Mapping to Reference Finished\n");
+    #        return ($outVCF,$outGap);
+    #    }
+    #}
+    
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     unlink $outGap;
     unlink glob("$outputDir/*.vcf");
     unlink glob("$outputDir/*gap.coords");
+    unlink "$outputDir/variantAnalysis.finished";
+    unlink "$outputDir/getConsensus.finished";
     
     my $parameters;    
     $parameters .= " -p \'$pairFile\'" if ($pairFile);

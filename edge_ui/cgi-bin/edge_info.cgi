@@ -128,13 +128,13 @@ if( $umSystemStatus ){
 		my $list_json = "$user_dir/.edgeinfo.json";
 		my $user_config = $sys->{edgeui_input}."/". md5_hex(lc($username))."/user.properties";
 		$info->{INFO}->{FORCE}=$forceupdate;
-		if ( $forceupdate ne "true"  && -e $list_json) {
-			$list = readListFromJson($list_json);
-		}else{
+		#if ( $forceupdate ne "true"  && -e $list_json) {
+		#	$list = readListFromJson($list_json);
+		#}else{
 			&getUserProjFromDB();
-		}
+		#}
 		&getProjInfoFromDB($pname) if ($pname and ! defined $list->{$pname});
-		&cache_user_projects_info($username,$password,$viewType,$list);	
+		#&cache_user_projects_info($username,$password,$viewType,$list);	
 	}
 	else{
 		&getUserProjFromDB();
@@ -691,7 +691,7 @@ sub getUserProjFromDB{
 		my $projCode = $hash_ref->{code};
 		my $project_name = $hash_ref->{name};
 		my $status = $hash_ref->{status};
-		my $created = $hash_ref->{created};
+		my $created = $hash_ref->{submitted};
 		my $proj_dir = (-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
 		next if (! -r "$proj_dir/process.log" && !$cluster);
 		next if ($cluster && ! -r "$proj_dir/clusterSubmit.sh");

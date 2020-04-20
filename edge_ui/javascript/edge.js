@@ -189,6 +189,7 @@ $( document ).ready(function()
 					$('.no-show-logout').hide();
 					$('#edge-projet-list-li').hide();
 					$("#edge-user-btn").hide();
+					$("#edge-user-btn-signup").hide();
 					$( "a[href=#edge-content-pipeline]" ).hide();
 					$( "a[href=#edge-content-uploadfile]" ).hide();
 					$( "a[href=#edge-qiime-pipeline]" ).hide();
@@ -205,6 +206,7 @@ $( document ).ready(function()
 							$('.no-show-logout').hide();
 							$('#edge-projet-list-li').hide();
 							$("#edge-user-btn").hide();
+							$("#edge-user-btn-signup").hide();
 							$( "a[href=#edge-content-pipeline]" ).hide();
 							$( "a[href=#edge-content-uploadfile]" ).hide();
 							$( "a[href=#edge-qiime-pipeline]" ).hide();
@@ -216,6 +218,7 @@ $( document ).ready(function()
 							localStorage.umStatus = false;
 							$('.no-show-logout').show();
 							$("#edge-user-btn").hide();
+							$("#edge-user-btn-signup").hide();
 							$("#action-unshare-btn").parent().hide();
 							$("#action-share-btn").parent().hide();
 							$("#action-publish-btn").parent().hide();
@@ -474,7 +477,7 @@ $( document ).ready(function()
 		$('#signInForm').popup('close');
 		setTimeout( function() { $('#begin-password-reset').popup('open'); }, 300 );
 	});
-	$('#signUpBtn').on('click', function(){
+	$('#signUpBtn,#edge-user-btn-signup').on('click', function(){
 		$('#signInForm').popup('close');
 		setTimeout( function() { $('#signUpForm').popup('open'); }, 300 );
 	});
