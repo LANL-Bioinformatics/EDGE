@@ -1,4 +1,4 @@
-LOCUS       MT291828               29858 bp    RNA     linear   VRL 07-APR-2020
+LOCUS       MT291828               29858 bp    RNA     linear   VRL 21-APR-2020
 DEFINITION  Severe acute respiratory syndrome coronavirus 2 isolate
             SARS-CoV-2/human/CHN/Wuhan_IME-WH03/2019, complete genome.
 ACCESSION   MT291828 GWHACAU01000001
@@ -14,9 +14,14 @@ REFERENCE   1  (bases 1 to 29858)
   TITLE     Direct Submission
   JOURNAL   Submitted (06-APR-2020) Beijing Institute of Microbiology and
             Epidemiology, Fengtai District, Beijing 100071, China
-COMMENT     ##Assembly-Data-START## Assembly Method :: CLC Genomic Workbench
-            v. V9.0 Assembly Name :: IME-WH03 Coverage :: 75.6 Sequencing
-            Technology :: Ion Torrent X5Plus ##Assembly-Data-END##
+COMMENT     This record was submitted to GenBank on behalf of the original
+            #submitter through Genome Warehouse (GWH,
+            https://bigd.big.ac.cn/gwh/) of the China National Center for
+            Bioinformation (CNCB)/National Genomics Data Center (NGDC,
+            https://bigd.big.ac.cn). ##Assembly-Data-START## Assembly Method
+            :: CLC Genomic Workbench v. V9.0 Assembly Name :: IME-WH03
+            Coverage :: 75.6 Sequencing Technology :: Ion Torrent X5Plus
+            ##Assembly-Data-END##
 FEATURES             Location/Qualifiers
      source          1..29858
                      /mol_type="genomic RNA"
@@ -191,7 +196,7 @@ FEATURES             Location/Qualifiers
      mat_peptide     12988..13404
                      /gene="ORF1ab"
                      /product="nsp10"
-     mat_peptide     join(13405..13431,13431..16199)
+     mat_peptide     join(13405..13431,13431..13433,13429..13431,13431..16199)
                      /gene="ORF1ab"
                      /product="RNA-dependent RNA polymerase"
      mat_peptide     16200..18002

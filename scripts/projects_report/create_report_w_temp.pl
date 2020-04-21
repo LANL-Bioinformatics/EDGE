@@ -673,6 +673,13 @@ sub pull_reports {
 						} 
 						next;
 					}
+					if/<tr><td>Nanopore Reads<\/td><td>(.*)<\/td><\/tr>/) {
+						if($type eq "raw-reads") {
+							$proj->{PRERAWREADNANOPORE} = $1;
+							$reports_map{$project}{'preprocess-nanopore-reads'} = $1;
+						}
+						next;
+					}
 					if(/<tr><td>Paired Reads<\/td><td>(.*)<\/td><\/tr>/) {
 						if($1 =~ /(.*) \((.*)\)/) {
 							$proj->{PRETRIMPAIREDREADS} = $1;
@@ -2325,7 +2332,7 @@ sub create_run_info_csv {
 sub create_raw_reads_csv {
 	my $file_name = shift;
 	#get header
-	my $content = "Project/Run Name,Reads,Total Bases,Mean Read Length\n";
+	my $content = "Project/Run Name,Reads,Total Bases,Mean Read Length,Nanopore Reads\n";
 	#get runs
 	my $celltext;
 	foreach my $project (@projects) {
@@ -2339,6 +2346,9 @@ sub create_raw_reads_csv {
 		$content .= "\"$celltext\"".",";
 
 		($celltext = $reports_map{$project}{'preprocess-raw-read-length'}) =~ s/,|\s+|bp//g;
+		$content .= "\"$celltext\"".",";
+
+		($celltext = $reports_map{$project}{'preprocess-nanopore-reads'}) =~ s/"/""/g;
 		$content .= "\"$celltext\""."\n";
 	}
 	

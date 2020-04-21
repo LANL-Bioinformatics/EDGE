@@ -629,6 +629,9 @@ $( document ).ready(function()
 		$(this).find(".tooltip").removeClass("ui-alt-icon");
 		$(this).find(".tooltip").hide();
 	});
+	$( '#edge-ref-file-fromlist-tooltip' ).tooltipster(
+		'content', $('<span> This is preloaded GenBank files from NCBI and named by [accesion number]_[strain name]_[year]. The full list is <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2/database/NCBI_genomes" target="_new">here.</a></span>')
+	);
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
 		'content', $('<span>Trim both end with the Phred quality. In brief, it will find the position in the read where trimming will end (argmax) based on the following equation: <img src="images/FaQCs.png"/> <br/> where l is the read length and Qu is the user-defined quality threshold, and trimming ends after the summation of Qu - Qi becomes negative.</span>')
@@ -2453,7 +2456,10 @@ $( document ).ready(function()
 				focusProjHasMeta = obj.INFO.HASMETA;
 				focusProjShareBSVE = obj.INFO.SHAREBSVE;
 				focusProjMetaBSVE = obj.INFO.METABSVE;
-
+				var NameMatcher = new RegExp(localStorage.fnname + " " + localStorage.lnname);
+				if (NameMatcher.test(obj.INFO.OWNER)) {
+					focusProjIsOwner = true;
+				}
 				if(focusProjIsOwner || userType == 'admin') {
 					$("#project-actions").show();
 				} else {

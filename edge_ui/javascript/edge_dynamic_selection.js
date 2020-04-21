@@ -33,7 +33,7 @@ $.mobile.document
         // We store the generated form in a variable attached to the popup so we avoid creating a
         // second form/input field when the listview is destroyed/rebuilt during a refresh.
         if ( !form ) {
-            input = $( "<input data-type='search' placeholder='ex: Wuhan'></input>" );
+            input = $( "<input data-type='search' placeholder='ex: Wuhan, 2020, USA, WIV'></input>" );
 			select = $("<div id='" + id + "-allnone-btn' style='width:130px;margin-left:auto;padding:0.3em'> Select <a href='#' id='"+ id + "-all'>All</a> | <a href='#' id='" + id + "-none'>None</a> </div>");
 			form = $( "<form></form>" ).append( input ).append(select);
             //form = $( "<form></form>" ).append( input );

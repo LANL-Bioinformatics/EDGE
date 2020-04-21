@@ -258,6 +258,7 @@ if( scalar @projlist ){
 	$info->{INFO}->{TIME}   = strftime "%F %X", localtime;
 	$info->{INFO}->{PROJTYPE} = $list->{$idx}->{PROJTYPE} if ($list->{$idx}->{PROJTYPE});
 	$info->{INFO}->{PROJCONFIG} = $list->{$idx}->{PROJCONFIG} if ($list->{$idx}->{PROJCONFIG});
+	$info->{INFO}->{OWNER} = $list->{$idx}->{OWNER} if($list->{$idx}->{OWNER});
 
 	## sample metadata
 	$info->{INFO}->{SHOWMETA}   = $list->{$idx}->{SHOWMETA} if ($list->{$idx}->{SHOWMETA});

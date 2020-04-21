@@ -227,14 +227,16 @@ if ($referenceGenome)
     my ($r2gUnmappedPaired,$r2gUnmappedSingle,$numOfunmappedReads);
 
     if ($QCpairFile or $QCunpairFile){
-        ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
+	if ($configuration->{DoReadsMappingReference}){
+            ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
 
-        if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
-            ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
-        }
-        if( $configuration->{MapUnmappedReads} ){
-            &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if ($numOfunmappedReads > 0);
-        }
+            if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
+                ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
+            }
+            if( $configuration->{MapUnmappedReads} ){
+                &runUnmappedReadsToRefSeq($r2gUnmappedPaired, $r2gUnmappedSingle) if ($numOfunmappedReads > 0);
+            }
+	}
     
         # taxonomy analysis
         if ($configuration->{DoReadsTaxonomy})
