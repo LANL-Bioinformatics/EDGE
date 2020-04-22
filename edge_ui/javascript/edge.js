@@ -2420,7 +2420,7 @@ $( document ).ready(function()
 				if (focusProjType){
 					(focusProjType.toLowerCase().indexOf("shared") >= 0)?
 							$("#action-unshare-btn").parent().show():$("#action-unshare-btn").parent().hide();
-					(focusProjType.toLowerCase().indexOf("publish") >= 0)?
+					(focusProjType.toLowerCase().indexOf("public") >= 0)?
 							$("#action-publish-btn").attr('data','unpublish').text("Make project private"):
 							$("#action-publish-btn").attr('data','publish').text("Make project public");
 					(focusProjType.toLowerCase().indexOf("guest") >= 0 && !debug)?
@@ -2434,6 +2434,10 @@ $( document ).ready(function()
 				focusProjHasMeta = obj.INFO.HASMETA;
 				focusProjShareBSVE = obj.INFO.SHAREBSVE;
 				focusProjMetaBSVE = obj.INFO.METABSVE;
+				var NameMatcher = new RegExp(localStorage.fnname + " " + localStorage.lnname);
+                                if (NameMatcher.test(obj.INFO.OWNER)) {
+                                        focusProjIsOwner = true;
+                                }
 
 				if(focusProjIsOwner || userType == 'admin') {
 					$("#project-actions").show();

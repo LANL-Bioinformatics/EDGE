@@ -59,9 +59,9 @@ my $proj_status;
 # Generates the project list (pname = encoded name) Scans output dir
 if( $sys->{user_management} && $pname !~ /\D/ && $sid ){
 	($username,$password,$viewType) = getCredentialsFromSession($sid);
-	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password, $viewType);
+	($proj_code,$proj_status)=&getProjCodeFromDB($pname, $username, $password);
 	if (!$proj_code){
-		my $html = "<p>The project does not exist. $proj_status </p>";
+		my $html = "<p>The project does not exist. $proj_status</p>";
 		print "Content-Type: text/html\n\n",
 		$html;
 		exit 0;
@@ -188,7 +188,6 @@ sub getProjCodeFromDB{
 	$projectID = &getProjID($projectID);
 	my $username = shift;
 	my $password = shift;
-	my $mode=shift;
 
 	my %data = (
 		email => $username,
@@ -200,12 +199,7 @@ sub getProjCodeFromDB{
 	# Encode the data structure to JSON
 	my $data = to_json(\%data);
  	#w Set the request parameters
-	my $url;
-	if ( $mode eq "admin" ){
-		$url = $um_url ."WS/user/admin/getRuns";
-	}else{
-		$url = $um_url ."WS/user/getRuns";
-	}
+	my $url = $um_url ."WS/project/getInfo";
 	my $browser = LWP::UserAgent->new;
 	my $req = PUT $url;
 	$req->header('Content-Type' => 'application/json');
@@ -216,22 +210,17 @@ sub getProjCodeFromDB{
 
 	my $response = $browser->request($req);
 	my $result_json = $response->decoded_content;
-	#print STDERR $result_json;
 	if ($result_json =~ /\"error_msg\":"(.*)"/){
 		#print STDERR $result_json;
 		return ("","ERROR: $1");
-	}
-	my ($id,$project_name,$projCode,$projStatus);
-	my $array_ref =  decode_json($result_json);
-	foreach my $hash_ref (@$array_ref){
-		$id = $hash_ref->{id};
-		if ( $id == $projectID){
-			$project_name = $hash_ref->{name};
-			$projCode = $hash_ref->{code};
-			$projStatus = $hash_ref->{status};
-			last;
-		}
-	}
+ 	}
+	# print $result_json if (@ARGV);
+	my $hash_ref = from_json($result_json);
+
+	my $id = $hash_ref->{id};
+	my $project_name = $hash_ref->{name};
+	my $projCode = $hash_ref->{code};
+	my $projStatus = $hash_ref->{status};
 	
 	return ($projCode,$projStatus);
 }
