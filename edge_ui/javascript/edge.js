@@ -1921,6 +1921,7 @@ $( document ).ready(function()
 				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 		});
+		$('.edge-nanopore-options').hide();
 		$(":radio[name='edge-fastq-source']").on("change", function(){
 			$( "#edge-r2g-aligner-sw, #edge-r2c-aligner-sw").find('input').prop('disabled',false);
 			
@@ -1937,6 +1938,7 @@ $( document ).ready(function()
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('400');
+					$('#edge-qc-q').prop('disabled',false).val('7');
 					$('#splitrim-minq').prop('disabled',false).val('7');
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
 				}
@@ -1953,6 +1955,7 @@ $( document ).ready(function()
 				if (type != "reconfig"){
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
+					$('#edge-qc-q').prop('disabled',false).val('20');
 					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('50');
 					$('#splitrim-minq').prop('disabled',false).val('20');

@@ -90,7 +90,7 @@
 	<div data-role="panel" id="edge-navmenu-panel" class="edge-navmenu-panel ui-panel ui-panel-position-left ui-panel-animate ui-panel-closed" data-position="left" data-display="overlay" data-theme="a">
 		<div class="ui-panel-inner"><ul class="edge-list ui-alt-icon ui-nodisc-icon ui-listview">
 			<li class="ui-first-child"><a href="#edge-app-home" class="ui-btn ui-btn-icon-right ui-icon-home">Genome Analytics HOME</a></li>
-			<li><a href="#edge-about" class="ui-btn ui-btn-icon-right ui-icon-info">ABOUT EDGE COVID-19</a></li>
+			<li><a href="#edge-about" class="ui-btn ui-btn-icon-right ui-icon-info">About EDGE COVID-19</a></li>
                         <li id="edge-content-upload-li" ><a href="#edge-content-uploadfile" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Upload Files</a></li>
 			<li><a href="#edge-content-pipeline" class="ui-btn ui-btn-icon-right ui-icon-carat-r">Run EDGE COVID-19</a></li>
 			<li><a href="#edge-getedge-covid19" class="ui-btn ui-btn-icon-right ui-icon-cloud">Get EDGE COVID-19</a></li>
@@ -347,7 +347,7 @@
                         <img src="images/logo_LANL.png" alt='LANL' style="height:30px"/>
         	</div>
 		<h2>Input Your Sample</h2>
-		<p class="edge-main-pipeline-input">EDGE requires <b>FASTQ</b> sequence data files in FASTQ format. EDGE allows both paired-end and single-end sequences. <a href="docs/EDGE_COVID-19_guide.pdf" target="_new">User Guide</a></p>
+		<p class="edge-main-pipeline-input">EDGE requires sequence data files in <b>FASTQ</b> format. EDGE accepts both paired-end and single-end sequence data files. <a href="docs/EDGE_COVID-19_guide.pdf" target="_new">User Guide</a></p>
 		<p class="edge-qiime-pipeline-input">The <a href="https://qiime2.org/" target="_blank">Qiime2</a> pipeline requires sequence data files in FASTQ format and a <a href="https://docs.qiime2.org/2019.10/tutorials/metadata/" target="_blank">mapping file</a>. The sequence file is either paired-end or single-end sequences.Or directory with demultiplexed fastq files.  Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-qiime" target="_new">documentation</a> for more information.</p>
 		<p class="edge-targetedngs-pipeline-input">The <a href="https://chienchilo.bitbucket.io/targetedNGS/" target="_blank">DETEQT</a> is a pipeline for diagnostic targeted sequencing adjudication. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-deteqt" target="_new">documentation</a> for more information.</p>
 		<p class="edge-piret-pipeline-input">The <a href="https://github.com/mshakya/PyPiReT" target="_blank">PiReT</a> is a pipeline for Reference based Transcriptomics analysis. Please see the <a href="https://edge.readthedocs.io/en/latest/gui.html#run-piret" target="_new">documentation</a> for more information.</p>
@@ -595,7 +595,7 @@
 			<h4>
 				<div class="ui-field-contain edge-collapsible-options">
 					<select id="edge-pp-sw" name="edge-pp-sw" data-role="slider" data-mini="true">
-						<option value="0" selected="TRUE">Off</option><option value="1">On</option>
+						<option value="0">Off</option><option value="1" selected="TRUE">On</option>
 					</select>
 					<label for="edge-pp-sw">Pre-processing</label>
 				</div>
@@ -630,7 +630,7 @@
 			</div>
 			<div class="ui-field-contain">
 				<label for="edge-qc-q">Trim Quality Level<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="qc-q-tooltip"></a></label>
-				<input type="number" name="edge-qc-q" id="edge-qc-q" data-mini="true" data-clear-btn="true" value="5">
+				<input type="number" name="edge-qc-q" id="edge-qc-q" data-mini="true" data-clear-btn="true" value="20">
 			</div>
 			<div class="ui-field-contain">
 				<label for="edge-qc-avgq">Average Quality Cutoff</label>
@@ -656,9 +656,9 @@
 			<div class="ui-field-contain edge-nanopore-options">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Remove Adapter</legend>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="1">
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="1" checked="checked">
 					<label for="edge-porechop-sw1">On</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="0" checked="checked">
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="0" >
 					<label for="edge-porechop-sw2">Off</label>
 				</fieldset>
 			</div>
