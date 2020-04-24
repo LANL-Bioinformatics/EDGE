@@ -2283,6 +2283,13 @@ else
   install_mummer
 fi
 
+if ( checkSystemInstallation jq )
+then 
+  echo "jq is found"
+else
+  ln -sf $rootdir/thirdParty/jq-linux64 $rootdir/bin/jq
+fi
+
 if ( checkLocalInstallation wigToBigWig )
 then
   echo "wigToBigWig is found"
