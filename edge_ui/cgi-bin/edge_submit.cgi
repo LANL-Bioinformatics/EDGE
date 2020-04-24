@@ -1109,11 +1109,16 @@ sub checkParams {
 			}
 			$num_selected += scalar(@edge_ref_input);
 		}
+		if ($opt{"edge-selected-ref-input-sw"} ){
+			my $preselected_ref = "$EDGE_HOME/edge_ui/data/SARS-CoV2/".$opt{"edge-selected-ref-input-sw"}.".gbk";
+			push @refs,$preselected_ref;
+		}
 		push @refs, @edge_ref_input if @edge_ref_input;
 		$opt{"edge-ref-file"} = join ",", @refs;
-		#&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
-		#&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
-		
+		if (!$opt{"edge-selected-ref-input-sw"} ){
+			&addMessage("PARAMS","edge-ref-file-1","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
+			&addMessage("PARAMS","edge-ref-file-fromlist","Reference not found. Please check the input referecne.") if( ! $opt{"edge-ref-file[]"} && !defined $opt{"edge-ref-file-fromlist"});
+		}
 		if ($edge_ref_genome_file_max && $num_selected > $edge_ref_genome_file_max){
 			&addMessage("PARAMS","edge-ref-file-fromlist","The maximum reference genome is $edge_ref_genome_file_max");
 		}

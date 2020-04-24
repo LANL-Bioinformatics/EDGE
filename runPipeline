@@ -727,8 +727,8 @@ sub runSpecialtyGenesProfiling {
 		
 	# AR
 		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py36";
-		my $rgi_env_activate_cmd="source $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
-		my $deactivate_cmd="source deactivate || true";
+		my $rgi_env_activate_cmd=". $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
+		my $deactivate_cmd=". deactivate || true";
 		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ";
         &executeCommand($cmd);
 		&executeCommand($deactivate_cmd);
@@ -2097,7 +2097,7 @@ sub runAntiSmash {
     print $fh  "source $RealBin/thirdParty/Anaconda2/bin/activate $antismash_env 1>/dev/null\n";
     print $fh $cmd," 2>/dev/null\n";
     close $fh;
-    &executeCommand2("/bin/sh $run_script");
+    &executeCommand2("/bin/bash $run_script");
     &touchFile("$outputDir/runSMA.finished");
     &printRunTime($time);
 
@@ -2677,6 +2677,15 @@ sub runQC
     }
     unlink "$outputDir/runQC.finished";
     my $parameters;
+    my $artic_priemr_file="$RealBin/edge_ui/data/". $configuration->{"porechop"} . ".fasta";
+    if ($ont_flag && -e $artic_priemr_file){
+	my $adapter_file = $artic_priemr_file;
+        if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}) ){
+            &executeCommand("cat $configuration->{'adapter'} $artic_priemr_file > $outputDir/adapters.fasta");
+	    $adapter_file="$outputDir/adapters.fasta";
+        }
+	$configuration->{"adapter"} = $adapter_file;
+    }
     $parameters .= " -p $pairedFile " if ($pairedFile);
     $parameters .= " -u $unpairedFile " if ( -s $unpairedFile);
     $parameters .= " -q $quality_cutoff --min_L $min_length --avg_q $avg_quality -n $num_N --lc $low_complexity --5end $cut_5_end --3end $cut_3_end";
@@ -2688,24 +2697,25 @@ sub runQC
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
     #my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
+    
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
-    
+
     if ($ont_flag){
 	# if adapte trim run Porechop
         my $cmd;
         if ($configuration->{"porechop"}){
             my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py36";
-            my $porechop_env_activate = "source $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env";
-            my $deactivate_cmd = "source deactivate || true";
+            my $porechop_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env";
+            my $deactivate_cmd = ". deactivate 2>/dev/null || true ";
             $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log ";
             &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
 	    &executeCommand($deactivate_cmd);
         }
-        $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir ";
+        $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
 	&lprint ("  Running \n  $cmd \n");
-        &executeCommand2($cmd);
+        &executeCommand($cmd);
     }
     
     &printRunTime($time);

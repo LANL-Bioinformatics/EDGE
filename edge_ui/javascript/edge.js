@@ -630,7 +630,7 @@ $( document ).ready(function()
 		$(this).find(".tooltip").hide();
 	});
 	$( '#edge-ref-file-fromlist-tooltip' ).tooltipster(
-		'content', $('<span> This is preloaded GenBank files from NCBI and named by [accesion number]_[strain name]_[year]. The full list is <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2/database/NCBI_genomes" target="_new">here.</a></span>')
+		'content', $('<span>These genomes are preloaded as GenBank files from NCBI; they are generally, but not exclusively, named as [accession number]_[strain name]_[year]. The full list is <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2/database/NCBI_genomes" target="_new">here.</a></span>')
 	);
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
@@ -1767,13 +1767,13 @@ $( document ).ready(function()
 				$('#edge-anno-kegg').hide();
 			}
 		});
-		//$('#edge-r2g-con-options').hide();
+		//$('.edge-r2g-con-options').hide();
 		$(":radio[name='edge-r2g-getconsensus-sw']").on("change",function(){
 			if($('#edge-r2g-getconsensus-sw1').is(':checked')){
-				$('#edge-r2g-con-options').show();
+				$('.edge-r2g-con-options').show();
 			}
 			if($('#edge-r2g-getconsensus-sw2').is(':checked')){
-				$('#edge-r2g-con-options').hide();
+				$('.edge-r2g-con-options').hide();
 			}
 		});
 		$('#edge-sma-parameters').hide();

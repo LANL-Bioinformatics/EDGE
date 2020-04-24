@@ -992,7 +992,12 @@ sub pull_qc {
 		if ($_ =~ /^Reads Length:\s(.+)/) { $vars->{BEFOREMRL} = $1; next; }
 	}
 	close ($qcfh);
-	$vars->{QCREPORT} = (-e "$out_dir/QcReads/NanoPlot-report.html" )?"NanoPlot-report.html":"QC_qc_report.pdf";
+	if (-e "$out_dir/QcReads/NanoPlot-report.html" ){
+	    $vars->{QCREPORT} = "NanoPlot-report.html";
+	    $vars->{QCSTATS} = "QC.stats.txt";
+	}else{
+	    $vars->{QCREPORT} = "QC_qc_report.pdf";
+	}
 	($NUM_READS_FOR_DOWNSTREAM) = ($vars->{AFTERREADS} =~ m/(\d+)/);
 }
 

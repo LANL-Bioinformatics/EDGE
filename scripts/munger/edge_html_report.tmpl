@@ -347,7 +347,10 @@
 				</TMPL_IF>
 			</div>
 			<p class='extra-text-link'>Link to
-				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCREPORT>'> QC Report </a>
+				<TMPL_IF NAME=QCSTATS>
+				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCSTATS>'> QC Report 1 </a>
+				</TMPL_IF>
+				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCREPORT>'> QC Report 2 </a>
 				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads'> Directory </a>
 			</p>
 			</li>
