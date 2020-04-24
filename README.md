@@ -18,7 +18,7 @@ This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge-co
 
 ## Documentation
 	
-* [EDGE COVID-19 Documentation](https://docs.google.com/document/d/e/2PACX-1vSNJntmg9Cc7dm1Agh0gXyp9LZCGQfNyiBgAiIYCY8CN8Lk2Ma8tBwEBhIut67ow5ItDuXtUsi0v2Du/pub)
+* [EDGE COVID-19 Documentation](https://github.com/LANL-Bioinformatics/EDGE/blob/SARS-CoV2/edge_ui/docs/EDGE_COVID-19_guide.pdf)
 
 * [EDGE Docker Hub](https://hub.docker.com/r/bioedge/edge-covid19)
 
@@ -29,7 +29,7 @@ This light-weight version is a <a href="https://hub.docker.com/r/bioedge/edge-co
 * Recommended minimum computational resource : 8G memory, 4 CPUs, 20GB for the image.   
 
 ## Contact Info
-Support: The EDGE user's group is a Google group for users and developers: [edge-users@googlegroups.com](mailto:edge-users@googlegroups.com)
+Support: The EDGE user's group is a Google group for users and developers: [edge-users@googlegroups.com](mailto:edge-users@googlegroups.com) or email us at edge-covid19@lanl.gov
 
 ## Citation
 
