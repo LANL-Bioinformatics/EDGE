@@ -183,6 +183,14 @@ if ($action eq 'rename' ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
+	if ($new_proj_name =~ /[^a-zA-Z0-9\-_\.]/){
+		$info->{INFO} = "ERROR: Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.";
+		&returnStatus();
+	}
+	if ( length($new_proj_name)  < 3  || length($new_proj_name) > 30 ){
+		$info->{INFO} = "ERROR: Invalid project name. Please input at least 3 characters but less than 30.";
+		&returnStatus();
+	}
 	renameProject($new_proj_name,$new_proj_desc);
 	#edgeDB: update run name
 	my $runFile = "$proj_dir/metadata_run.txt";
