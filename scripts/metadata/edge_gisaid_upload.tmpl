@@ -115,6 +115,12 @@
 									placeholder="Example: 65, 7 monthis, or unknown" class="metadata-input">
 							</div>
 							<div class="ui-field-contain">
+								<label for="metadata-sample-sequencing-tech">Sequencing technology</label>
+								<input name="metadata-sample-sequencing-tech" id="metadata-sample-sequencing-tech" type="text"
+									value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"
+									placeholder="Example: Illumina Miseq, Sanger, Nanopore MinION, Ion Torrent, etc." class="metadata-input">
+							</div>
+							<div class="ui-field-contain">
 								<label for="metadata-sample-assembly-method">Assembly method</label>
 								<input name="metadata-sample-assembly-method" id="metadata-sample-assembly-method" type="text"
 									value="<TMPL_VAR NAME=ASM_METHOD DEFAULT=>"

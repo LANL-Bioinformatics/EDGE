@@ -93,6 +93,10 @@ $( document ).ready(function()
 								}, 200);
 							});
 						});
+					}else{
+						$( "#edge-submit-info" ).fadeIn("fast");
+						var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID. Please check GISAID/submit.log in the project directory for detail.</a></li>";
+						$( "#edge-submit-info" ).append(dom).fadeIn("fast");
 					}
 				}
 				

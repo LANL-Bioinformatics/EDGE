@@ -109,6 +109,7 @@ if( $proj_list->{$pname} ){
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			close OUT;
 			#gisaid profile
 			$metadata_out = $sys->{edgeui_input}."/$userDir/gisaid_submission_profile.txt";
@@ -132,6 +133,7 @@ if( $proj_list->{$pname} ){
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			print OUT "assembly_method=$opt{'metadata-sample-assembly-method'}\n";
 			print OUT "originating_lab=".$opt{'metadata-orig-lab'}."\n"; 
 			print OUT "originating_address=".$opt{'metadata-orig-address'}."\n"; 
@@ -345,6 +347,7 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sample-host", "Host is required.") unless ( $opt{'metadata-sample-host'});
 	&addMessage("PARAMS", "metadata-sample-gender", "Gender is required.") unless ( $opt{'metadata-sample-gender'});
 	&addMessage("PARAMS", "metadata-sample-age", "Age is required.") unless ( $opt{'metadata-sample-age'});
+	&addMessage("PARAMS", "metadata-sample-sequencing-tech", "Sequencing Technology is required.") unless ( $opt{'metadata-sample-sequencing-tech'});
 	&addMessage("PARAMS", "metadata-sample-consensus", "Consensus FASTA is required.") unless ( $opt{'metadata-sample-consensus'} );
 
 

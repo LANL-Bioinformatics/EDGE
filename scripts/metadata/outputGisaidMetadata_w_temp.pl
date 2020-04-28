@@ -66,6 +66,12 @@ sub pull_consensusInfo{
 	}
 	close $log_fh;
 	$vars->{ASM_METHOD}="$align_tool $tool_version";
+
+	open (my $config_fh, "<" , "$out_dir/config.txt");
+	while(<$config_fh>){
+		if (/fastq_source=(\S+)/i){ my $platform=$1; $vars->{FASTQ_SOURCE}=($platform eq "nanopore")?"Nanopore":"Illumina";}
+	}
+	close $config_fh
 }
 sub pull_sampleMetadata {
 	my $metadata = "$out_dir/metadata_gisaid.txt";
@@ -82,6 +88,7 @@ sub pull_sampleMetadata {
              			$vars->{SM_HOST} =$2 if ($1 eq "host");
              			$vars->{SM_GENDER} =$2 if ($1 eq "gender");
              			$vars->{SM_AGE} =$2 if ($1 eq "age");
+             			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
               		}
       		  }
         	close CONF;

@@ -162,7 +162,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
         11 : "", #Outbreak Detail: Example: Date, Place, Family cluster
         12 : "", #Last vaccinated
         13 : "", #Treatment: Example: Include drug name, dosage
-        14 : "", #Sequencing technology: Nanopore MinION
+        14 : "sequencing_technology", #Sequencing technology: Nanopore MinION
         15 : "assembly_method", #Assembly method
         16 : "coverage", #Coverage
         17 : "", #Sample ID given by the provider

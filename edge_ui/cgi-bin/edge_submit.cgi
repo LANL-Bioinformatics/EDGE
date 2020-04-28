@@ -1016,6 +1016,7 @@ sub checkParams {
 			&addMessage("PARAMS", "metadata-sample-host", "Metadata sample host is required.") unless ( $opt{'metadata-sample-host'});
 			&addMessage("PARAMS", "metadata-sample-gender", "Metadata sample gender is required.") unless ( $opt{'metadata-sample-gender'});
 			&addMessage("PARAMS", "metadata-sample-age", "Metadata sample age is required.") unless ( $opt{'metadata-sample-age'});
+			&addMessage("PARAMS", "metadata-sample-sequencing-tech", "Metadata sample sequencing technology is required.") unless ( $opt{'metadata-sample-sequencing-tech'});
 		} 
 	}
 	if ($pipeline eq "targetedngs"){
@@ -1450,6 +1451,7 @@ sub createSampleMetadataFile {
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			close OUT;
 		} 
 		if ( $sys->{edge_sample_metadata} && ($opt{'metadata-study-title'} || $opt{'metadata-sample-name'} || $opt{'metadata-exp-title'})){
