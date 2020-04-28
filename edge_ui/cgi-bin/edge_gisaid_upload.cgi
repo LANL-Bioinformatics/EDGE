@@ -87,7 +87,7 @@ if( $proj_list->{$pname} ){
 			  #open LOG, ">/tmp/edge_report$$.log";
 			  #print LOG $html;
 			  #close LOG;
-	} elsif($action eq "upload2gisaid") {
+	} elsif($action eq "upload2gisaid" or $action eq "download") {
 		$msg->{SUBMISSION_STATUS}="success";
 
 		# validating parameters
@@ -150,13 +150,16 @@ if( $proj_list->{$pname} ){
 			$selected_consensus = "Consensus to ". $selected_consensus;
 			print OUT "coverage=$selected_consensus\n";
 			close OUT;
-
-			# download
-			my $zip_file = "$projDir/GISAID/${proj_real_name}_gisaid_data.zip";
-			my $zip_file_rel = "$projDir_rel/GISAID/${proj_real_name}_gisaid_data.zip";
-			my $cmd = "zip -j $zip_file $metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
-			#`$cmd`;
-			#$msg->{PATH} = $zip_file_rel;
+			my $cmd;
+			if ($action eq "download"){
+				# download
+				my $zip_file = "$projDir/GISAID/${proj_real_name}_gisaid_data.zip";
+				my $zip_file_rel = "$projDir_rel/GISAID/${proj_real_name}_gisaid_data.zip";
+				$cmd = "zip -j $zip_file $metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
+				`$cmd`;
+				$msg->{PATH} = $zip_file_rel;
+				&returnParamsStatus();
+			}
 			#
 			#call gisaid upload 
 			my $fasta = `ls $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta`;
@@ -358,5 +361,7 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-authors", "Authors is required.") unless ( $opt{'metadata-authors'});
 	&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});
 	&addMessage("PARAMS", "metadata-gisaid-id", "GISAID id is required.") unless ( $opt{'metadata-gisaid-id'});
-	&addMessage("PARAMS", "metadata-gisaid-pw", "GISAID password is required.") unless ( $opt{'metadata-gisaid-pw'});
+	if ($action eq 'upload2gisaid'){
+		&addMessage("PARAMS", "metadata-gisaid-pw", "GISAID password is required.") unless ( $opt{'metadata-gisaid-pw'});
+	}
 }
