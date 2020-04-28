@@ -2027,7 +2027,7 @@ sub consensus_fasta_stat{
 		my @field=split("\t",$_);
 		if ($field[2] eq '-' or $field[3] eq '-'){
 			$info2{$field[0]}->{indel_num}++;
-		}else{
+		}elsif($field[3] ne 'N'){
 			$info2{$field[0]}->{variants_num}++;
 		}
 	}

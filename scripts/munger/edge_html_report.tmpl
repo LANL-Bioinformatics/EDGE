@@ -348,9 +348,9 @@
 			</div>
 			<p class='extra-text-link'>Link to
 				<TMPL_IF NAME=QCSTATS>
-				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCSTATS>'> QC Report 1 </a>
+				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCSTATS>'> Primer Trim Report </a>
 				</TMPL_IF>
-				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCREPORT>'> QC Report 2 </a>
+				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads/<TMPL_VAR NAME=QCREPORT>'> QC Report </a>
 				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/QcReads'> Directory </a>
 			</p>
 			</li>
@@ -690,6 +690,11 @@
 								  <th data-priority='5'>Ref GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
 								  <th data-priority='3'>Mapped Reads%</th>
+								  <th data-priority='2'>Base Coverage</th>
+								  <th data-priority='2'>Avg Fold</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
+								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
+								  </TMPL_UNLESS>
 								</tr>
 							  </thead>
 							  <tbody>
@@ -701,10 +706,17 @@
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
 									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
 									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
+									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
+									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
+									<TMPL_UNLESS NAME="STANDALONE">
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
+									</TMPL_UNLESS>
 								</tr>
 								</TMPL_LOOP>
 							  </tbody>
 							</table>
+							<p class='extra-text-link'>Link to 
+								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 							</TMPL_IF>
 
 							<p><TMPL_VAR NAME=RMREFTOLREFHASHIT DEFAULT=-> out of <TMPL_VAR NAME=RMREFTOLREF DEFAULT=-> reference(s) is(are) covered by input reads.  <TMPL_VAR NAME=RMREFTABLENOTE></p>
@@ -729,17 +741,11 @@
 								  <th data-priority='6'>5' Ns</th>
 								  <th data-priority='6'>3' Ns</th>
 								  </TMPL_UNLESS>
-								  <th data-priority='2'>Base Coverage</th>
-								  <th data-priority='2'>Avg Fold</th>
+								  <th data-priority='2'>Variants</th>
+								  <th data-priority='2'>INDELs</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
-								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
+								  <th data-priority='6' class='ui-table-cell-hidden'>Change Log</th>
 								  </TMPL_UNLESS>
-								  <th data-priority='4'>Gaps</th>
-								  <th data-priority='5'>Gap Bases</th>
-							          <TMPL_IF NAME=RMREFVARCALL>
-								  <th data-priority='4'>SNPs</th>
-								  <th data-priority='4'>INDELs</th>
-							          </TMPL_IF>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
 								  <th data-priority='3'>Consensus Genome</th>
 								  <TMPL_IF NAME="RMCONSUBMITOK_TH">
@@ -762,17 +768,11 @@
 									<td><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
-									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
-									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
+									<td><TMPL_VAR NAME=RMCONVARIANT DEFAULT=0></td>
+									<td><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
 									<TMPL_UNLESS NAME="STANDALONE">
-									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
+									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
 									</TMPL_UNLESS>
-									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
-							          	<TMPL_IF NAME=RMREFVARCALL>
-									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>			
-							          	</TMPL_IF>
 							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
 									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download Fasta</a></td>
 									<TMPL_IF NAME="RMCONSUBMITOK">
@@ -783,7 +783,44 @@
 								</TMPL_LOOP>
 							  </tbody>
 							</table>
+							<p class='extra-text-link'>Link to 
+								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 							</TMPL_IF>
+						</div></li>
+						<li><span class="li-report-content-title">Variant Call</span><div class="li-report-content">
+							<TMPL_IF NAME="RMREFTOLREFHASHIT">
+							<TMPL_IF NAME="STANDALONE">
+							<table data-role='table' class='output-table ui-responsive'>
+							<TMPL_ELSE>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+							</TMPL_IF>
+							  <thead>
+								<tr>
+								  <th width="20%" data-priority='1'>SARS-CoV2 Reference</th>
+								  <th data-priority='2'>Gaps</th>
+								  <th data-priority='3'>Gap Bases</th>
+							          <TMPL_IF NAME=RMREFVARCALL>
+								  <th data-priority='2'>SNPs</th>
+								  <th data-priority='2'>INDELs</th>
+							          </TMPL_IF>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=LOOP_RMREF>
+								<tr>
+									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
+							          	<TMPL_IF NAME=RMREFVARCALL>
+									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
+									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>			
+							          	</TMPL_IF>
+								</tr>
+								</TMPL_LOOP>
+							  </tbody>
+							</table>
+							</TMPL_IF>
+
 							<TMPL_IF NAME="OUT_IMAGE_READY">
 							<div class="ui-grid-c ui-responsive edge-report-plots">
 								<TMPL_LOOP NAME=LOOP_RMREF_PLOT>
@@ -820,6 +857,9 @@
 
 								<TMPL_IF NAME="RMREFSNPFILE">
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNP Report </a>
+								</TMPL_IF>
+								<TMPL_IF NAME="RMREFINDELFILE">
+								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt'> INDELs Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFGAPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
@@ -874,10 +914,12 @@
 							</TMPL_IF>
 
 							<p><TMPL_VAR NAME=RMREF_UM_NOTE></p>
-
+							
+							<TMPL_IF NAME=RMREF_UM_DIR>
 							<p class='extra-text-link'>Link to
 								<TMPL_IF NAME="RMREF_UM">|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReferenceBasedAnalysis/UnmappedReads/UnmappedReads_coverage.txt'> Mapping Result </a></TMPL_IF>
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReferenceBasedAnalysis/UnmappedReads'> Directory </a></p>
+							</TMPL_IF>
 
 						</div></li>
 					</ol>
