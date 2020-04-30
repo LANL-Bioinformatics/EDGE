@@ -729,28 +729,28 @@
 			<div id="edge-hostrm-parameters">
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Run Host Removal</legend>
-					<input type="radio" data-mini="true" name="edge-hostrm-sw" id="edge-hostrm-sw1" value="1">
+					<legend>Human Host Removal<a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon" title="EDGE will use 'minimap2' against the Human Refrerecne Genome GRCh38."></a></legend>
+					<input type="radio" data-mini="true" name="edge-hostrm-sw" id="edge-hostrm-sw1" value="human_ref_GRCh38_all">
 					<label for="edge-hostrm-sw1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-hostrm-sw" id="edge-hostrm-sw2" value="0" checked="checked">
 					<label for="edge-hostrm-sw2">No</label>
 				</fieldset>
 			</div>
-			<div class="ui-field-contain input-type-file">
+			<!--<div class="ui-field-contain input-type-file">
 				<label for="edge-hostrm-file-fromlist">Select Genome(s)</label>
 				<select id="edge-hostrm-file-fromlist" data-mini="true" name="edge-hostrm-file-fromlist" data-native-menu="false" multiple="multiple">
 					<option disabled>Select host genome(s)...</option>
 				</select>
 			</div>
-			<p class="edge-center">and/or</p>
+			<p class="edge-center">and</p>-->
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-hostrm-file">Host FASTA File<a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon ui-alt-icon" title="EDGE will do 'bwa index' the input HOST FASTA. Please wait this HOST Removal step of the project run finished before using the HOST FASTA for new run again. Otherwise, the index step will conflict each other."></a></label>
+				<label for="edge-hostrm-file">Additional Host FASTA File<a href="#" class="tooltip ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn ui-nodisc-icon" title="EDGE will use 'minimap2' against the input HOST FASTA."></a></label>
 				<input type="text" name="edge-hostrm-file" id="edge-hostrm-file" data-mini="true" placeholder="absolute file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 			</div>
 			<div class="ui-field-contain">
 				<label for="edge-hostrm-similarity">Similarity (%)<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='(Reads aligned bases) / (Reads length) x 100' ></a></label>
-				<input type="number" name="edge-hostrm-similarity" id="edge-hostrm-similarity" data-mini="true" data-clear-btn="true" value="90">
+				<input type="number" name="edge-hostrm-similarity" id="edge-hostrm-similarity" data-mini="true" data-clear-btn="true" value="80">
 			</div>
 			<!--
 			<div class="ui-field-contain">
@@ -2133,7 +2133,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200428</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200430</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
