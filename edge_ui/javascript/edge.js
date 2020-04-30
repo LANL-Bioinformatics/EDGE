@@ -1935,6 +1935,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
 				if (type != "reconfig"){
+					$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('400');
@@ -1953,6 +1954,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
+					$( "#edge-porechop-sw4").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
 					$('#edge-qc-q').prop('disabled',false).val('20');
@@ -2207,7 +2209,7 @@ $( document ).ready(function()
 			complete: function(data){
 			},
 			success: function(obj) {
-				$( "a[data-id=edge-hostrm-parameters]" ).parent().hide();
+				//$( "a[data-id=edge-hostrm-parameters]" ).parent().hide();
 				$( "a[data-id=edge-binning-parameters]" ).parent().hide();
 				$('#edge-sma-sw1').parents('.ui-field-contain').hide();
 				$('#edge-anno-tool1').parents('.ui-field-contain').hide();
@@ -2265,6 +2267,12 @@ $( document ).ready(function()
 				}else{
 					$("#edge-primer-sw").val(0).slider("refresh");
 					$("#edge-primer-sw").closest('div[data-role="collapsible"]').hide();
+				}
+				if( obj.INFO.MHOST == "true"){
+					$( "a[data-id=edge-hostrm-parameters]" ).parent().show();
+				}else{
+					$("#edge-hostrm-sw").val(0).slider("refresh");
+					$( "a[data-id=edge-hostrm-parameters]" ).parent().hide();
 				}
 				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
 				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();

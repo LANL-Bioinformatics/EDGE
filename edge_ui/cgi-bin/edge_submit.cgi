@@ -422,7 +422,9 @@ sub createConfig {
 		else{
 			if ( $opt{"edge-hostrm-sw"} )
 			{
+				my $human_host="$EDGE_HOME/database/".$opt{"edge-hostrm-sw"}.".fa.gz";
 				my %hosts;
+				$hosts{$human_host}=1;
 				map { foreach my $h (@{$hostlist->{$_}}){$hosts{$h}=1;} } split /[\x0]/, $opt{"edge-hostrm-file-fromlist"} if defined $opt{"edge-hostrm-file-fromlist"};
 				$hosts{$opt{"edge-hostrm-file"}}=1 if (defined $opt{"edge-hostrm-file"} && -e $opt{"edge-hostrm-file"});
 				$opt{"edge-hostrm-file"} = join ",", keys %hosts;
@@ -1226,7 +1228,7 @@ sub checkParams {
 	}
 	if ( $opt{"edge-hostrm-sw"} ){
 		$opt{"edge-hostrm-file"} = $input_dir."/".$opt{"edge-hostrm-file"} if ($opt{"edge-hostrm-file"} =~ /^\w/);
-		&addMessage("PARAMS", "edge-hostrm-file",   "File not found. Please check the host input.") if ( !defined $opt{"edge-hostrm-file-fromlist"} && !-e $opt{"edge-hostrm-file"} );
+		#&addMessage("PARAMS", "edge-hostrm-file",   "File not found. Please check the host input.") if ( !defined $opt{"edge-hostrm-file-fromlist"} && !-e $opt{"edge-hostrm-file"} );
 		&addMessage("PARAMS", "edge-hostrm-file",   "Invalid input. Fasta format required") if ( -e $opt{"edge-hostrm-file"} && ! is_fasta($opt{"edge-hostrm-file"}));
 		&addMessage("PARAMS", "edge-hostrm-similarity", "Invalid input. Natural number required.")     unless $opt{"edge-hostrm-similarity"} =~ /^\d+$/;
 	}

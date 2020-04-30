@@ -21,6 +21,8 @@ use Storable 'dclone';
 require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 $ENV{PATH} = "/bin:/usr/bin";
+my $EDGE_HOME = $ENV{EDGE_HOME};
+$EDGE_HOME ||= "$RealBin/../..";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -863,6 +865,7 @@ sub loadInitSetup{
 	$info->{INFO}->{MQIIME}  = ( $sys->{m_qiime} )?"true":"false";
 	$info->{INFO}->{MTARGETEDNGS}  = ( $sys->{m_targetedngs} )?"true":"false";
 	$info->{INFO}->{MPIRET}  = ( $sys->{m_piret} )?"true":"false";
+	$info->{INFO}->{MHOST} = ( -e "$EDGE_HOME/database/human_ref_GRCh38_all.fa.gz" )?"true":"false";
 	#parameters
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,text,config,ini,xls,xlsx";

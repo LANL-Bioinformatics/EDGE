@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 #Purpose: remove host reads
-#     Human genome index for bwa > 0.6 is at /users/218819/scratch/data/databases/human_chromosomes/all_chromoaome.fasta
-# required bwa > 0.7
+# required minimap2 > 2.17
 
 use strict;
 use Getopt::Long;
@@ -13,11 +12,11 @@ $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
 
 umask 000;
 my (@pairedReadsFile, @unpairedReadsFile, $outDir, $ref);
-my $bwamemOpts="-T 50"; 
+my $minimap2Opts=" "; 
 my $numCPU=4; #number of threads [4]
 my $prefix="host_clean";
 my $outputHost=0;
-my $ref="/users/218819/scratch/data/databases/human_chromosomes/all_chromosome.fasta";
+my $ref="/panfs/biopan04/refdb/usrdb/human/human_ref_GRCh38_all.fa.gz";
 my $outFasta=0;
 my $similarity_cutoff=90;
 
@@ -29,8 +28,8 @@ GetOptions(
             'host'  => \$outputHost,
             'fasta' => \$outFasta,
             'similarity|s=f'  => \$similarity_cutoff,
-            'cpu=i'   => \$numCPU, # bwa option
-            'bwaMemOptions=s'   => \$bwamemOpts,    # bwa mem options
+            'cpu=i'   => \$numCPU, # minimap2 option
+            'minimap2Options=s'   => \$minimap2Opts,    # minimap2 mem options
             'o=s'   => \$outDir,
             'help|?'   => sub{&Usage("",1)}
 );
@@ -40,13 +39,13 @@ unless ($ref && $outDir) {&Usage("Missing and Output directory")};
 sub Usage
 {
      my $msg=shift;
-     my $printBwaMem=shift;
+     my $printminimap2Help=shift;
      print "\n     ".$msg."\n\n" if $msg;
      print <<"END";
  Usage: perl $0 [options] -p reads1.fastq reads2.fastq -ref host.fasta -o out_directory
         Input File:
         -ref          Host sequences in fasta  [default: human, if not provide, it will use
-                      /users/218819/scratch/data/databases/human_chromosomes/all_chromosome.fasta]
+                      /panfs/biopan04/refdb/usrdb/human/human_ref_GRCh38_all.fa.gz]
 
         -u            Unpaired reads, Single end reads
        
@@ -65,35 +64,19 @@ sub Usage
         Options:
         -similarity   <NUM > alignment similarity percentage (=~ matched/read_length*100) [default 90]
         
-        -bwaMemOptions   <String in quote> see "bwa mem" options with -h flag
-                         ex: '-T 60' 
+        -minimap2Options   <String in quote> see "minimap2" options with -help flag
+                         ex: '-x sr' for short reads;  '-x map-ont ' '-x map-pb'
                          
         -cpu          number of CPUs [4]
  
-        -h            print "bwa mem" options
+        -help            print "minimap2" options
 END
  
-if ($printBwaMem)
+if ($printminimap2Help)
 { 
+my $minimpa2Help=`minimap2`;
 print <<"END";
-
-bwa mem algorithm options:
-
-       -k INT     minimum seed length [19]
-       -w INT     band width for banded alignment [100]
-       -d INT     off-diagonal X-dropoff [100]
-       -r FLOAT   look for internal seeds inside a seed longer than {-k} * FLOAT [1.5]
-       -c INT     skip seeds with more than INT occurrences [10000]
-       -P         skip pairing; perform mate SW only
-       -A INT     score for a sequence match [1]
-       -B INT     penalty for a mismatch [4]
-       -O INT     gap open penalty [6]
-       -E INT     gap extension penalty; a gap of size k cost {-O} + {-E}*k [1]
-       -L INT     penalty for clipping [5]
-       -U INT     penalty for an unpaired read pair [9]
-       -T INT     minimum score to output [30]
-       -H         hard clipping
-
+	$minimpa2Help
 END
 }
 exit;
@@ -107,11 +90,7 @@ exit(0);
 
 sub checkFiles
 {
-    unless (-s "$ref.bwt")  # bwa index is existed. no need to check ref fasta file.
-    {
-        if (is_file_empty($ref)) { die "$ref is empty";}
-    }
- 
+    if (is_file_empty($ref)) { die "$ref is empty";}
     my %file;
     my @make_paired_paired_files;
     if (@pairedReadsFile)
@@ -174,12 +153,7 @@ sub runMapping
     open (my $stat_fh, ">$mappingStatsFile") or die "$! $mappingStatsFile\n";
     my $print_string;
     print $stat_fh "Remove Reads from Host ". basename($ref)."\n";
-    my $command = "bwa index $refFile";
-    if (! -e "$refFile.bwt")
-    {
-        #print colored ("Indexing the host sequences",'yellow'), "\n"; 
-       &executeCommand($command);
-    }
+    my $command = "";
 
     #print colored ("Running reads mapping to host sequence ... and log file: $mappingLogFile",'yellow'),"\n";
     if (@pairedReadsFile)
@@ -190,13 +164,13 @@ sub runMapping
         #if ( -z $mate1 || !$mate1) { die "One of the paired file is empty";}
         #if ( -z $mate2 || !$mate2) { die "One of the paired file is empty";}
         print $stat_fh $queryPairedFile,"\n";
-        if ( -s $queryPairedFile)
-        {
-           $bwamemOpts .= " -p ";
-        }
-        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryPairedFile 2>>$mappingLogFile| ";
+       # if ( -s $queryPairedFile)
+       # {
+       #    $minimap2Opts .= " -p ";
+       # }
+        $command = "minimap2 -aL $minimap2Opts -t $numCPU $refFile $queryPairedFile 2>>$mappingLogFile| ";
         print " $command\n"; 
-        open (my $fh, "$command") or die "$! bwa mem command failed\n";
+        open (my $fh, "$command") or die "$! minimap2 command failed\n";
         open (my $unalignedMate1_fh, ">>$unalignedMate1File") or die "$! $unalignedMate1File";
         open (my $unalignedMate2_fh, ">>$unalignedMate2File") or die "$! $unalignedMate2File";
         open (my $unalignedNonPaired_fh, ">>$unalignedNonPairedFile") or die "$! $unalignedNonPairedFile";
@@ -313,9 +287,9 @@ sub runMapping
       foreach my $queryUnpairedFile (@unpairedReadsFile)
       {
         print $stat_fh $queryUnpairedFile,"\n";
-        $command = "bwa mem $bwamemOpts -t $numCPU $refFile $queryUnpairedFile 2>$mappingLogFile2| ";
+        $command = "minimap2 -aL $minimap2Opts -t $numCPU $refFile $queryUnpairedFile 2>$mappingLogFile2| ";
         print " $command\n"; 
-        open (my $fh, "$command") or die "$! bwa mem command failed\n";
+        open (my $fh, "$command") or die "$! minimap2 command failed\n";
         open (my $unalignedNonPaired_fh, ">> $unalignedNonPairedFile") or die "$! $unalignedNonPairedFile";
         open (my $host_fh, ">>$host_fastq") or die "$host_fastq $!\n" if ($outputHost);
         while (<$fh>)
@@ -421,7 +395,8 @@ sub parseMappingLog
     open (my $fh, $log) or die "$! open $log failed\n";
     while (<$fh>)
     {  
-        if ($_=~ /read (\d+) sequences/)
+  #      if ($_=~ /read (\d+) sequences/)
+        if ($_=~ /mapped (\d+) sequences/)
         {
            $numReads += $1;
         }
@@ -443,11 +418,11 @@ sub open_file
     my $pid;
     if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
     else { $pid=open($fh,'<',$file) or die("$file: $!"); }
-    $SIG{'PIPE'} = 'IGNORE';
     return ($fh,$pid);
 }
 sub is_paired
 {
+    $SIG{'PIPE'}=sub{};
     my $paired_1=shift;
     my $paired_2=shift;
     my ($fh1,$pid1)=open_file($paired_1);
