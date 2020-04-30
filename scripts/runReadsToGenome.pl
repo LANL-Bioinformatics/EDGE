@@ -59,7 +59,7 @@ my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candida
 my $min_alt_bases=3;  # minimum number of alternate bases
 my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $max_depth=1000000; # maximum read depth
-my $min_depth=7; #minimum read depth
+my $min_depth=5; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
 
