@@ -59,7 +59,7 @@ my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candida
 my $min_alt_bases=3;  # minimum number of alternate bases
 my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $max_depth=1000000; # maximum read depth
-my $min_depth=5; #minimum read depth
+my $min_depth=7; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
 
@@ -324,6 +324,7 @@ for my $ref_file_i ( 0..$#ref_files){
 	unless ($plot_only){ # skip the alignment steps, SNP steps, assume bam and pileup files were generated.
 		## SNP call
 		if (!$no_snp){
+			#http://samtools.sourceforge.net/mpileup.shtml
 			print "SNPs/Indels call on $ref_file_name\n";
 			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : "";
 			my $indel_o = ($no_indels)? " -I ":""; 
