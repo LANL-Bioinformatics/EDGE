@@ -2848,10 +2848,10 @@ sub runHostRemoval
     my $unpairFile=shift;
     my $host=shift;
     my $time=time();
-    my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
-    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d ": ""; 
-    $min_score = "-T $configuration->{min_L}" if $ont_flag;
-    my $similarity_cutoff = $configuration->{"similarity"} || 90 ;
+    #my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x map-ont ": ""; 
+    #$min_score = "-T $configuration->{min_L}" if $ont_flag;
+    my $similarity_cutoff = $configuration->{"similarity"} || 80 ;
    # my $stats = "$QCoutDir/hostclean.stats.txt";
     my ($prefix, $dirs, $suffix) = fileparse($host,qr/\.[^.]*/);
     my $host_abs_path = Cwd::abs_path("$host");
@@ -2903,7 +2903,7 @@ sub runHostRemoval
     $parameters .= " -p $pairFile" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -ref ". $host;
-    $parameters .= " -bwaMemOptions \"$min_score $ont_flag\"";
+    $parameters .= " -minimap2Options \"$ont_flag\"";
     $parameters .= " -s $similarity_cutoff";
     $parameters .= " -o $outputDir -cpu $numCPU -host";
     $parameters .= " -prefix $prefix ";
