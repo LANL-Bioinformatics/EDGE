@@ -2657,7 +2657,7 @@ sub runQC
     my $cut_3_end = ($configuration->{"3end"})? $configuration->{"3end"}: 0;
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
     my $split_size = $configuration->{"split_size"} || 100000;
-    my $unpairedFile_output = ($configuration->{"porechop"})? "$outputDir/QC.unpaired.porechop.fastq":"$outputDir/QC.unpaired.trimmed.fastq";
+    my $unpairedFile_output = ($configuration->{"porechop"}  && $ont_flag )? "$outputDir/QC.unpaired.porechop.fastq":"$outputDir/QC.unpaired.trimmed.fastq";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0; 
     &make_dir($outputDir);
     if ($noColorLog)
