@@ -2849,6 +2849,7 @@ sub runHostRemoval
     my $host=shift;
     my $time=time();
     #my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
+    #-x splice
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x map-ont ": ""; 
     #$min_score = "-T $configuration->{min_L}" if $ont_flag;
     my $similarity_cutoff = $configuration->{"similarity"} || 80 ;
