@@ -2759,6 +2759,9 @@ $( document ).ready(function()
 					$( "#edge_integrity_dialog_header" ).text("Error");
 					$( "#edge_integrity_dialog_content" ).text( filename + " upload failed. " + msg);
 					setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+					if ( /invalid session/.test(msg.toString().toLowerCase()) ){
+						logout("Session expired. Please login again.");
+					}
 				}
 		       }
                     },
