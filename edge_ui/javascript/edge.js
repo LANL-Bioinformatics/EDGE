@@ -2269,6 +2269,11 @@ $( document ).ready(function()
 		// app actions
 		$('#edge-apps-home').find(".app-info").each(function(){
 			var data = $(this).attr('data');
+			if (data =='edgeCOVID19'){
+				$(this).parent('div').on('click',function(){
+ 					window.open('https://covid19.edgebioinformatics.org/', '_blank');
+				})
+			}
 			if (data == 'newToEDGE'){
 				//$(this).siblings('.app-artwork').find('img').on('click',function(){
 				$(this).parent('div').on('click',function(){
