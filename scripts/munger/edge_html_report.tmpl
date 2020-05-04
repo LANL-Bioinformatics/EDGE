@@ -381,7 +381,7 @@
 			</li>
 			</TMPL_IF>
 			<TMPL_IF NAME="OUT_HR_SW">
-			<li><span class="li-report-content-title">Host Removal and Filter</span><div class="li-report-content">
+			<li id="hostrmTag"><span class="li-report-content-title">Host Removal and Filter</span><div class="li-report-content">
 				<p>Host file: <TMPL_VAR NAME=HOSTFILE DEFAULT=->.</p>
 
 				<table data-role='table' class='output-table output-table-twocol ui-responsive'>
@@ -695,6 +695,7 @@
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
 								  </TMPL_UNLESS>
+								  <th data-priority='4'>Bam File</th>
 								</tr>
 							  </thead>
 							  <tbody>
@@ -711,6 +712,7 @@
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
 									</TMPL_UNLESS>
+									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFBAM>">Download Bam File</a></td>
 								</tr>
 								</TMPL_LOOP>
 							  </tbody>
@@ -742,6 +744,7 @@
 								  <th data-priority='6'>3' Ns</th>
 								  </TMPL_UNLESS>
 								  <th data-priority='2'>Variants</th>
+								  <th data-priority='2'>SNPs</th>
 								  <th data-priority='2'>INDELs</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Change Log</th>
@@ -769,6 +772,7 @@
 									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONVARIANT DEFAULT=0></td>
+									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
 									<td><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
@@ -800,7 +804,7 @@
 								  <th data-priority='2'>Gaps</th>
 								  <th data-priority='3'>Gap Bases</th>
 							          <TMPL_IF NAME=RMREFVARCALL>
-								  <th data-priority='2'>SNPs</th>
+								  <th data-priority='2'>Variants</th>
 								  <th data-priority='2'>INDELs</th>
 							          </TMPL_IF>
 								</tr>

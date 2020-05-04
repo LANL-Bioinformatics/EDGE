@@ -653,16 +653,16 @@
 				<label for="edge-qc-lc">Low Complexity Filter<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum fraction of mono-/di-nucleotide sequence" ></a></label>
 				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
 			</div>
-			<div class="ui-field-contain edge-nanopore-options">
+			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Trim ARTIC Protocol Primers</legend>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="artic_ncov2019_primer_schemes_V1">
 					<label for="edge-porechop-sw1">V1</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="artic_ncov2019_primer_schemes_V2" >
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="artic_ncov2019_primer_schemes_V2">
 					<label for="edge-porechop-sw2">V2</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw3" value="artic_ncov2019_primer_schemes_V3" checked="checked">
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw3" value="artic_ncov2019_primer_schemes_V3">
 					<label for="edge-porechop-sw3">V3</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw4" value="0">
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw4" value="0" checked="checked">
 					<label for="edge-porechop-sw4">Off</label>
 				</fieldset>
 			</div>
@@ -2133,7 +2133,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200430</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200503</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
