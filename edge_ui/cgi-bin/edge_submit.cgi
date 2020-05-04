@@ -1635,7 +1635,7 @@ sub getSRAmetaData{
 				my @its = split /\//, $collectionDate;
 				$collectionDate = $its[1]; 
 			}
-			print STDERR $collectionDate,"\n";;
+			#print STDERR $collectionDate,"\n";;
 			$location = $parts[2];
   			$sampleName = $parts[3];
  			$sampleName = $parts[8] unless $sampleName;
