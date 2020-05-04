@@ -2042,6 +2042,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#countTag\">$step</a>" if ($step eq "Count Fastq");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#qcTag\">$step</a>" if ($step eq "Quality Trim and Filter");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#asTag\">$step</a>" if ($step eq "Assembly");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#hostrmTag\">$step</a>" if ($step eq "Host Removal");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2cTag\">$step</a>" if ($step eq "Reads Mapping To Contigs");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2gTag\">$step</a>" if ($step eq "Reads Mapping To Reference");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#rtaxTag\">$step</a>" if ($step eq "Reads Taxonomy Classification");
