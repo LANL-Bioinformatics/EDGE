@@ -1872,6 +1872,8 @@ sub pull_readmapping_ref {
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			#my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
+			my $bam_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}.sort.bam";
+			$refinfo->{"RMREFBAM"}=$bam_file if ( -e $bam_file );
 			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.fasta";
 			my $consensus_log_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.changelog";
 			my $consensus_file_compsition = "$consensus_file.comp";
@@ -1896,6 +1898,7 @@ sub pull_readmapping_ref {
 					if ($consensus_id =~ /$refid/i){ 
 						$refinfo->{"RMCONINDEL"} = ($consensus_info2->{$consensus_id}->{indel_num})? $consensus_info2->{$consensus_id}->{indel_num}: "0";
 						$refinfo->{"RMCONVARIANT"} = ($consensus_info2->{$consensus_id}->{variants_num})? $consensus_info2->{$consensus_id}->{variants_num} : "0";
+						$refinfo->{"RMCONSNP"} = ($consensus_info2->{$consensus_id}->{snps_num})? $consensus_info2->{$consensus_id}->{snps_num} : "0";
 					}
 				}
 			}
@@ -2027,8 +2030,12 @@ sub consensus_fasta_stat{
 		my @field=split("\t",$_);
 		if ($field[2] eq '-' or $field[3] eq '-'){
 			$info2{$field[0]}->{indel_num}++;
-		}else{
-			$info2{$field[0]}->{variants_num}++;
+		}elsif($field[3] ne 'N'){
+			if ($field[5] > 0){
+				$info2{$field[0]}->{variants_num}++;
+			}else{
+				$info2{$field[0]}->{snps_num}++;
+			}
 		}
 	}
 	close $fh2;
@@ -2174,6 +2181,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#countTag\">$step</a>" if ($step eq "Count Fastq");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#qcTag\">$step</a>" if ($step eq "Quality Trim and Filter");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#asTag\">$step</a>" if ($step eq "Assembly");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#hostrmTag\">$step</a>" if ($step eq "Host Removal");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2cTag\">$step</a>" if ($step eq "Reads Mapping To Contigs");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#r2gTag\">$step</a>" if ($step eq "Reads Mapping To Reference");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#rtaxTag\">$step</a>" if ($step eq "Reads Taxonomy Classification");
@@ -2196,9 +2204,13 @@ sub pull_summary {
 		elsif( /^Do.*=(.*)$/ ){
 			my $do = $1;
 			$do =~ s/ //g;
-			$prog->{$cnt}->{GNLRUN}= "Auto" if $do eq 'auto';
-			$prog->{$cnt}->{GNLRUN}= "On" if $do eq 1;
-			$prog->{$cnt}->{GNLRUN}= "Off" if $do eq 0 && !$prog->{$cnt}->{GNLRUN};
+			if ($do eq 'auto'){
+				$prog->{$cnt}->{GNLRUN}= "Auto";
+			}elsif( $do eq 1 or $do =~ /\D/){
+				$prog->{$cnt}->{GNLRUN}= "On";
+			}elsif( $do eq 0){
+				$prog->{$cnt}->{GNLRUN}= "Off" if !$prog->{$cnt}->{GNLRUN};
+			}
 			
 			$prog->{$cnt}->{GNLSTATUS}="Skipped";
 			$prog->{$cnt}->{GNLSTATUS}="Incomplete" if $prog->{$cnt}->{GNLRUN} eq 'On';
