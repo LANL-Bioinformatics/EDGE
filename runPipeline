@@ -2678,7 +2678,7 @@ sub runQC
     unlink "$outputDir/runQC.finished";
     my $parameters;
     my $artic_priemr_file="$RealBin/edge_ui/data/". $configuration->{"porechop"} . ".fasta";
-    if ($ont_flag && -e $artic_priemr_file){
+    if (-e $artic_priemr_file){
 	my $adapter_file = $artic_priemr_file;
         if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}) ){
             &executeCommand("cat $configuration->{'adapter'} $artic_priemr_file > $outputDir/adapters.fasta");
@@ -2849,7 +2849,6 @@ sub runHostRemoval
     my $host=shift;
     my $time=time();
     #my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
-    #-x splice
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x map-ont ": ""; 
     #$min_score = "-T $configuration->{min_L}" if $ont_flag;
     my $similarity_cutoff = $configuration->{"similarity"} || 80 ;
@@ -3120,14 +3119,17 @@ sub runReadsToGenome
     $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -cpu $numCPU -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
+	$parameters .= " -map_quality 42 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
+	$parameters .= " -map_quality 60 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
         $r2g_aligner_options =~ s/-t\s*\d+//;
+	$parameters .= " -map_quality 60 " if ! $configuration->{r2g_min_mapq};
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
@@ -4453,6 +4455,9 @@ sub writeJBrowseInfo
     
     my $project_name=basename($abs_outDir);
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl ";
+    $cmd .= "--bam-file-depth $configuration->{JBrowse_bam_min_depth} " if ($configuration->{JBrowse_bam_min_depth});
+    $cmd .= "--bam-file-maq 42 " if ($configuration->{r2g_aligner} =~ /bowtie/);
+    $cmd .= "--bam-file-maq 60 " if ($configuration->{r2g_aligner} =~ /bwa|minimap/);
     $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
     $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
     $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
@@ -4460,6 +4465,7 @@ sub writeJBrowseInfo
     $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
     $cmd .= "--in-orf-ar-gff3 '$ARGenesGFF' " if ( -e "$ARGenesGFF");
     $cmd .= "--in-orf-vf-gff3 '$VFGenesGFF' " if ( -e "$VFGenesGFF");
+    $cmd .= "--threads $numCPU ";
     $cmd .= "--proj_outdir '$abs_outDir' 2>\&1 1>$log";
 
     &lprint (" Running \n $cmd\n");
