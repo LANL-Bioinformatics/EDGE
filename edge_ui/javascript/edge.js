@@ -1935,7 +1935,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
 				if (type != "reconfig"){
-					$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
+					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('400');
