@@ -1867,7 +1867,7 @@ sub pull_readmapping_ref {
 				
 				$refinfo->{"RMREFT$idx"}=$temp[$i];
 			}
-			my $refid=$refname->{$temp[0]}->{acc};
+			my $refid=$refname->{$temp[0]}->{acc};#original acc
 			$refinfo->{"RMREFTID"}=($refid=~/^\w{1,4}_?\w+\.?\d*$/)?"<a href='https://www.ncbi.nlm.nih.gov/nuccore/$refid'>$refid</a>":$refid;
 			$refinfo->{"RMREFNAME"}=$refname->{$temp[0]}->{desc};
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
@@ -1882,12 +1882,15 @@ sub pull_readmapping_ref {
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
 				my ($consensus_info,$consensus_info2 )= &consensus_fasta_stat($consensus_file,$consensus_log_file);
 				foreach my $consensus_id (keys %$consensus_info){
-					if ($consensus_id =~ /$refid/i){
+					if ($consensus_id =~ /$temp[0]/i){
 						$refinfo->{"RMCONLEN"} = $consensus_info->{$consensus_id}->{length};
 						$refinfo->{"RMCONGC"} = $consensus_info->{$consensus_id}->{GC};
 						$refinfo->{"RMCONTOTALN"} = $consensus_info->{$consensus_id}->{total_N};
+						$refinfo->{"RMCONTOTALNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{total_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{total_cap_N}";
 						$refinfo->{"RMCONLEADN"} = $consensus_info->{$consensus_id}->{lead_N};
+						$refinfo->{"RMCONLEADNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{lead_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{lead_cap_N}";
 						$refinfo->{"RMCONTAILN"} = $consensus_info->{$consensus_id}->{tail_N};
+						$refinfo->{"RMCONTAILNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{tail_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{tail_cap_N}";
 						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
 							$refinfo->{'RMCONSUBMITOK'} = '1';
 							$vars->{'RMCONSUBMITOK_TH'}='1';
@@ -1895,9 +1898,9 @@ sub pull_readmapping_ref {
 					}
 				}
 				foreach my $consensus_id (keys %$consensus_info2){
-					if ($consensus_id =~ /$refid/i){ 
+					if ($consensus_id =~ /$temp[0]/i){ 
 						$refinfo->{"RMCONINDEL"} = ($consensus_info2->{$consensus_id}->{indel_num})? $consensus_info2->{$consensus_id}->{indel_num}: "0";
-						$refinfo->{"RMCONVARIANT"} = ($consensus_info2->{$consensus_id}->{variants_num})? $consensus_info2->{$consensus_id}->{variants_num} : "0";
+						#$refinfo->{"RMCONVARIANT"} = ($consensus_info2->{$consensus_id}->{variants_num})? $consensus_info2->{$consensus_id}->{variants_num} : "0";
 						$refinfo->{"RMCONSNP"} = ($consensus_info2->{$consensus_id}->{snps_num})? $consensus_info2->{$consensus_id}->{snps_num} : "0";
 					}
 				}
@@ -1988,14 +1991,26 @@ sub consensus_fasta_stat{
                 chomp;
                 if(/^>(.*)/){
                         if ($seq){
-				my ($lead_N) = $seq =~ /^(N*)/;
-				my ($tail_N) = $seq =~ /(N*)$/;
-                                my $total_N = $seq=~ tr/N/N/;
+				my ($lead_N) = $seq =~ /^(N*)/i;
+				my ($tail_N) = $seq =~ /(N*)$/i;
+                                my $total_cap_N = $seq=~ tr/N/N/;
+                                my $total_small_n = $seq=~ tr/n/n/;
+				my $total_N = $total_cap_N + $total_small_n;
                                 my $total_G = $seq=~ tr/G/G/;
                                 my $total_C = $seq=~ tr/C/C/;
+				my $lead_cap_N = $lead_N =~ tr/N/N/;
+				my $lead_small_n = $lead_N =~ tr/n/n/;
+				my $tail_cap_N = $tail_N =~ tr/N/N/;
+				my $tail_small_n = $tail_N =~ tr/n/n/;
 				$info{$id}->{lead_N}=length($lead_N);
-				$info{$id}->{total_N}=$total_N;
+				$info{$id}->{lead_cap_N} = $lead_cap_N;
+				$info{$id}->{lead_small_n} = $lead_small_n;
 				$info{$id}->{tail_N}=length($tail_N);
+				$info{$id}->{tail_cap_N} = $tail_N;
+				$info{$id}->{tail_small_n} = $tail_small_n;
+				$info{$id}->{total_N}=$total_N;
+				$info{$id}->{total_cap_N}=$total_cap_N;
+				$info{$id}->{total_small_n}=$total_small_n;
 				$info{$id}->{length}=length($seq);
 				$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
 
@@ -2003,19 +2018,31 @@ sub consensus_fasta_stat{
                         $id = $1;
                 }
                 else{
-                        $seq .= uc($_);
+                        $seq .= $_;
                 }
 
         }
         if ($seq){
-		my ($lead_N) = $seq =~ /^(N*)/;
-		my ($tail_N) = $seq =~ /(N*)$/;
-		my $total_N = $seq=~ tr/N/N/;
+		my ($lead_N) = $seq =~ /^(N*)/i;
+		my ($tail_N) = $seq =~ /(N*)$/i;
+		my $total_cap_N = $seq=~ tr/N/N/;
+		my $total_small_n = $seq=~ tr/n/n/;
+		my $total_N = $total_cap_N + $total_small_n;
 		my $total_G = $seq=~ tr/G/G/;
 		my $total_C = $seq=~ tr/C/C/;
+		my $lead_cap_N = $lead_N =~ tr/N/N/;
+		my $lead_small_n = $lead_N =~ tr/n/n/;
+		my $tail_cap_N = $tail_N =~ tr/N/N/;
+		my $tail_small_n = $tail_N =~ tr/n/n/;
 		$info{$id}->{lead_N}=length($lead_N);
-		$info{$id}->{total_N}=$total_N;
+		$info{$id}->{lead_cap_N} = $lead_cap_N;
+		$info{$id}->{lead_small_n} = $lead_small_n;
 		$info{$id}->{tail_N}=length($tail_N);
+		$info{$id}->{tail_cap_N} = $tail_cap_N;
+		$info{$id}->{tail_small_n} = $tail_small_n;
+		$info{$id}->{total_N}=$total_N;
+		$info{$id}->{total_cap_N}=$total_cap_N;
+		$info{$id}->{total_small_n}=$total_small_n;
 		$info{$id}->{length}=length($seq);
 		$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
         }
@@ -2027,15 +2054,21 @@ sub consensus_fasta_stat{
 	open (my $fh2, "<", $log) or die "Cannot open $log";
 	while(<$fh2>){
 		chomp;
+		next if /RATIO_OF_REF/;
 		my @field=split("\t",$_);
 		if ($field[2] eq '-' or $field[3] eq '-'){
 			$info2{$field[0]}->{indel_num}++;
-		}elsif($field[3] ne 'N'){
-			if ($field[5] > 0){
+		}elsif($field[3] eq 'n'){
+			$info2{$field[0]}->{gaps_num}++;
+		}elsif($field[3] eq 'N'){
+			$info2{$field[0]}->{ambiguousN_num}++;
+		}else{
+			if ($field[5] > 0 or $field[6] < 1){
 				$info2{$field[0]}->{variants_num}++;
-			}else{
-				$info2{$field[0]}->{snps_num}++;
 			}
+			#}else{
+			$info2{$field[0]}->{snps_num}++;
+					#	}
 		}
 	}
 	close $fh2;

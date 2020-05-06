@@ -685,14 +685,16 @@
 							  <thead>
 								<tr>
 								  <th data-priority='1'>SARS-CoV2 Reference</th>
-								  <th data-priority='6'>Ref Name</th>
+								  <th data-priority='6' class='ui-table-cell-hidden'>Ref Name</th>
 								  <th data-priority='2'>Ref Length</th>
 								  <th data-priority='5'>Ref GC%</th>
 								  <th data-priority='1'>Mapped Reads</th>
 								  <th data-priority='3'>Mapped Reads%</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
+								  <th data-priority='3'>Gaps</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
+								  <th data-priority='6' class='ui-table-cell-hidden'>Gap Bases</th>
 								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
 								  </TMPL_UNLESS>
 								  <th data-priority='4'>Bam File</th>
@@ -702,14 +704,16 @@
 								<TMPL_LOOP NAME=LOOP_RMREF>
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT3 DEFAULT=->%</td>
 									<td><a href="#" class="edge-get-r2g-reads"><TMPL_VAR NAME=RMREFT4 DEFAULT=-></a></td>
 									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
+									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
 									</TMPL_UNLESS>
 									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFBAM>">Download Bam File</a></td>
@@ -743,7 +747,6 @@
 								  <th data-priority='6'>5' Ns</th>
 								  <th data-priority='6'>3' Ns</th>
 								  </TMPL_UNLESS>
-								  <th data-priority='2'>Variants</th>
 								  <th data-priority='2'>SNPs</th>
 								  <th data-priority='2'>INDELs</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
@@ -766,12 +769,11 @@
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
 									</TMPL_UNLESS>
-									<td><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
+									<td title="<TMPL_VAR NAME=RMCONTOTALNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
-									<td><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
+									<td title="<TMPL_VAR NAME=RMCONLEADNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
+									<td title="<TMPL_VAR NAME=RMCONTAILNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
-									<td><TMPL_VAR NAME=RMCONVARIANT DEFAULT=0></td>
 									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
 									<td><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
 									<TMPL_UNLESS NAME="STANDALONE">
@@ -791,6 +793,7 @@
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 							</TMPL_IF>
 						</div></li>
+						<TMPL_IF NAME=RMREFVARCALL>
 						<li><span class="li-report-content-title">Variant Call</span><div class="li-report-content">
 							<TMPL_IF NAME="RMREFTOLREFHASHIT">
 							<TMPL_IF NAME="STANDALONE">
@@ -801,30 +804,25 @@
 							  <thead>
 								<tr>
 								  <th width="20%" data-priority='1'>SARS-CoV2 Reference</th>
-								  <th data-priority='2'>Gaps</th>
-								  <th data-priority='3'>Gap Bases</th>
-							          <TMPL_IF NAME=RMREFVARCALL>
 								  <th data-priority='2'>Variants</th>
 								  <th data-priority='2'>INDELs</th>
-							          </TMPL_IF>
 								</tr>
 							  </thead>
 							  <tbody>
 								<TMPL_LOOP NAME=LOOP_RMREF>
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
-							          	<TMPL_IF NAME=RMREFVARCALL>
 									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>			
-							          	</TMPL_IF>
 								</tr>
 								</TMPL_LOOP>
 							  </tbody>
 							</table>
 							</TMPL_IF>
+						</div></li>
+						</TMPL_IF>
 
+							<TMPL_IF NAME="RMREFTOLREFHASHIT">
 							<TMPL_IF NAME="OUT_IMAGE_READY">
 							<div class="ui-grid-c ui-responsive edge-report-plots">
 								<TMPL_LOOP NAME=LOOP_RMREF_PLOT>
@@ -850,6 +848,7 @@
 								</div>
 								</TMPL_LOOP>
 							</div>
+							</TMPL_IF>
 
 							<!--<p class="iframe_label jbrowse_iframe">Show reads mapping to the reference using JBrowse in  <a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_CDS_BAM DEFAULT=->'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
 							</p>-->
@@ -869,7 +868,6 @@
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
 								</TMPL_IF>
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
-						</div></li>
 						<li><span class="li-report-content-title">Unmapped Reads</span><div class="li-report-content">
 							<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 							  <thead>
