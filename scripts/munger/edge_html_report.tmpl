@@ -642,7 +642,7 @@
 							  <thead>
 								<tr>
 								  <th data-priority='1'>Reference</th>
-								  <th data-priority='6'>Ref Name</th>
+								  <th data-priority='6' class='ui-table-cell-hidden'>Ref Name</th>
 								  <th data-priority='2'>Ref Len</th>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
 								  <th data-priority='3'>Consensus Genome</th>
@@ -652,9 +652,13 @@
 								  <th data-priority='3'>Mapped Reads%</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='3'>Fold std.</th>
+								  </TMPL_UNLESS>
 								  <th data-priority='4'>Gaps</th>
+								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='5'>Gap bases</th>
+								  </TMPL_UNLESS>
 							          <TMPL_IF NAME=RMREFVARCALL>
 								  <th data-priority='4'>SNPs</th>
 								  <th data-priority='4'>INDELs</th>
@@ -665,7 +669,7 @@
 								<TMPL_LOOP NAME=LOOP_RMREF>
 								<tr>
 									<td title="<TMPL_VAR NAME=RMREFNAME>" data-reffile="<TMPL_VAR NAME=RMREFFILE>"><TMPL_VAR NAME=RMREFTID DEFAULT=-></td>
-									<td><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
+									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFNAME DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT2 DEFAULT=-></td>
 							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
 									<td title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>"><a href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download</a></td>
@@ -675,9 +679,13 @@
 									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
+									<TMPL_UNLESS NAME="STANDALONE">
 									<td><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
+									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
+									<TMPL_UNLESS NAME="STANDALONE">
 									<td><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
+									</TMPL_UNLESS>
 							          	<TMPL_IF NAME=RMREFVARCALL>
 									<td><TMPL_VAR NAME=RMREFT10 DEFAULT=-></td>
 									<td><TMPL_VAR NAME=RMREFT11 DEFAULT=-></td>							
