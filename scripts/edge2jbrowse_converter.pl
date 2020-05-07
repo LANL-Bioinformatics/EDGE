@@ -167,9 +167,9 @@ sub main {
 			print "#  - Adding read2ctg BAM track...";
 			my $in_read2ctg_dir = dirname($opt{'in-read2ctg-bam'});
 			my $depth_cov = `grep 'Avg_coverage' $in_read2ctg_dir/readsToContigs.alnstats.txt | awk '{print \$2}'`;
-			my $subsample_ratio = ($depth_cov>300)? "-s 0.".int($opt{'bam-file-depth'}/$depth_cov*100):"";
-
-			executeCommand("samtools view -s $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
+			chomp $depth_cov;
+			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}/$depth_cov*100):"";
+			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
@@ -204,7 +204,7 @@ sub main {
 
 	#generate jb tracks using REF as coordinates
 	if( -e $opt{'in-ref-fa'} ){
-		my $ref_name=&pull_referenceName($opt{'proj_outdir'});
+		my ($ref_name,$ref_file_num)=&pull_referenceName($opt{'proj_outdir'});
 		print "\n# Preparing files for JBrowse with REF-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ref-coord-dir'}/");
 		executeCommand("mkdir -m 777 -p $opt{'out-ref-coord-dir'}/");
@@ -232,7 +232,7 @@ sub main {
 		executeCommand("biodb-to-json.pl --compress --conf $opt{'out-ref-coord-dir'}/edge2jbrowse_converter.ref_conf --out $opt{'out-ref-coord-dir'}") if ( -e $opt{'in-ref-gff3'} );
 		print "Done.\n";
 		
-		if (  -s $opt{'in-ref-fa'} < $repeat_track_size_cutoff ){
+		if (  -s $opt{'in-ref-fa'} < $repeat_track_size_cutoff && $ref_file_num<2){
 			print "#  - Adding repeats tracks...";
 			executeCommand("get_repeat_coords.pl -o $opt{outdir}/ref_repeats.txt $opt{'in-ref-fa'} >  $opt{outdir}/ref_repeats.log  2>&1" );
 			executeCommand("flatfile-to-json.pl --gff  $opt{outdir}/ref_repeats.txt.gff3 --key 'Repeat' --trackLabel 'REPEAT' --metadata '{\"category\": \"Annotation\"}' --compress --out  $opt{'out-ref-coord-dir'} --className feature5 --arrowheadClass null") if ( -s "$opt{outdir}/ref_repeats.txt.gff3");
@@ -260,8 +260,12 @@ sub main {
 			executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'SNP (Assembly)' --trackLabel 'SNP' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type SNPs --compress --out $opt{'out-ref-coord-dir'} --className 'triangle hgred' --arrowheadClass null");
 		}
 		if( -e $opt{"in-ctg2ref-indels"} ){
-			executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Deletion (Assembly)' --trackLabel 'DEL' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Deletion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
-			executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Insertion (Assembly)' --trackLabel 'INSERTION' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Insertion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
+			if (`grep Deletion $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3`){
+				executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Deletion (Assembly)' --trackLabel 'DEL' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Deletion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
+			}
+			if (`grep Insertion $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3`){
+				executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Insertion (Assembly)' --trackLabel 'INSERTION' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Insertion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
+			}
 		}
 
 
@@ -275,10 +279,13 @@ sub main {
 				my $vcf = "$opt{'in-read2ref-dir'}/$file_prefix.vcf";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
-				my $subsample_ratio = ($depth_cov>300)? "-s 0.".int($opt{'bam-file-depth'}/$depth_cov*100):"";
+				chomp $depth_cov;
+				my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}/$depth_cov*100):"";
+				my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}*1.3/$depth_cov*100):"";
 				chomp $mapped_num;
 				if( $mapped_num ){
 					print "#  - Adding read2ref $acc BAM track...";
+					#	print "samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null \n";
 					executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null");
 					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
 					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
@@ -290,14 +297,14 @@ sub main {
 					if ( -e $bam_nodup ){
 						print "#  - Adding read2refc$acc Consensus Coverage track...";
 						## ?? do we need subsample here
-						executeCommand("samtools view --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
+						executeCommand("samtools view $subsample_ratio_for_con --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
 						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
 						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 						print "Done.\n";
 					}
 					
 					print "#  - Adding BigWig $acc track...";
-					print("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
+					#print("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
 					executeCommand("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
 					executeCommand("sed -e 's/%%BWFILENAME%%/$acc.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 					print "Done.\n";
@@ -718,12 +725,14 @@ sub encode {
 sub pull_referenceName {
 	my $out_dir = shift;
 	my $refname;
+	my $num=0;
         if( -e "$out_dir/Reference/ref_list.txt" ){
                 open (my $fh, "$out_dir/Reference/ref_list.txt") or die "Cannot open ref_list.txt";
                 while(my $ref=<$fh>){
                         next if (!$ref);
                         chomp $ref;
 			next if ( ! -e "$out_dir/Reference/$ref.fasta");
+			$num++;
                         my @fasta_header =`grep "^>" $out_dir/Reference/$ref.fasta`;
                         foreach my $header (@fasta_header){
                                 chomp $header;
@@ -734,7 +743,7 @@ sub pull_referenceName {
                         }
                 }
         }
-	return $refname;
+	return ($refname,$num);
 }
 
 sub executeCommand 
