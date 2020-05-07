@@ -54,11 +54,12 @@ my $skip_aln=0;
 my $no_plot=0;
 my $no_snp=0;
 my $no_indels=0;
+my $map_quality=42; #default 42, bwa or minimap2 may need use 60
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
+my $max_depth=300; # maximum read depth
 # varinat filter
 my $min_alt_bases=3;  # minimum number of alternate bases
 my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
-my $max_depth=1000000; # maximum read depth
 my $min_depth=7; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
@@ -83,6 +84,7 @@ GetOptions(
             'minimap2_options=s'  => \$minimap2_options,
             'pacbio' => \$pacbio,
             'consensus=i' => \$gen_consensus,
+	    'maq=i'    =>  \$map_quality,
             'min_indel_candidate_depth=i' => \$min_indel_candidate_depth,
             'min_alt_bases=i' => \$min_alt_bases,
 	    'min_alt_ratio=f' => \$min_alt_ratio,
@@ -199,7 +201,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`snap-aligner single $ref_file.snap $file_long -o $outDir/LongReads$$.sam $snap_options`;
 		}
 		elsif ($aligner =~ /minimap2/i){
-			`minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
+			`minimap2 --MD -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
 		}
 
 
@@ -226,7 +228,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`snap-aligner paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
 		}
 		elsif ($aligner =~ /minimap2/i){
-			`minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
+			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
 		}
 		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/paired$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
 	}
@@ -251,7 +253,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`snap-aligner single $ref_file.snap $singleton -o $outDir/singleton$$.sam $snap_options`;
 		}
 		elsif ($aligner =~ /minimap2/i){
-			`minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
 		}
 		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
 	}
@@ -328,8 +330,8 @@ for my $ref_file_i ( 0..$#ref_files){
 			print "SNPs/Indels call on $ref_file_name\n";
 			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : "";
 			my $indel_o = ($no_indels)? " -I ":""; 
-			`bcftools mpileup $indel_o -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -cO b - > $bcf_output 2>/dev/null`;
-			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth -D$max_depth > $vcf_output`;
+			`bcftools mpileup $indel_o -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -M -cO b - > $bcf_output 2>/dev/null`;
+			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth  > $vcf_output`;
 		}
 
 		## index BAM file 
@@ -410,8 +412,8 @@ for my $ref_file_i ( 0..$#ref_files){
 		my $coverage_plot="$outDir/Coverage_plots/${prefix}_${ref_name}_base_coverage.png";
 		my $histogram="$outDir/Coverage_plots/${prefix}_${ref_name}_coverage_histogram.png";
 
-		
-		my $pileup_cmd = "samtools mpileup -A -BQ0 -d10000000 -r $ref_name -f  $ref_file $bam_output ";
+		## -q $map_quality? to exclude poor mapped reads into count
+		my $pileup_cmd = "samtools mpileup -q $map_quality -A -BQ0 -d10000000 -r $ref_name -f  $ref_file $bam_output ";
 		# build base coverage hash
 		my @base_array= (0) x $ref_len;
 		open (my $pileup_fh,"$pileup_cmd | ") or die "$! no $pileup_cmd";
@@ -1007,6 +1009,7 @@ Usage: perl $0
                                          type "snap paired" to see options
                -minimap2_options         type "minimap2" to see options
                                          default: "-t 4 "
+	       -map_quality              minimium mapping quality filter [default: 42]
                -skip_aln                 <bool> skip the alignment steps, assume bam files were generated 
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off
@@ -1018,10 +1021,10 @@ Usage: perl $0
 	       # Variant calling/Filter parameters
 	       -ploidy                   haploid or diploid
                # Variant Filter parameters
+               -max_depth                maximum read depth [300]
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
                -min_alt_bases            minimum number of alternate bases [3]
                -min_alt_ratio            minimum ratio of alternate bases [0.3]
-               -max_depth                maximum read depth [1000000]
                -min_depth                minimum read depth [7]
                -snp_gap_filter           SNP within INT bp around a gap to be filtered [3]
 		 

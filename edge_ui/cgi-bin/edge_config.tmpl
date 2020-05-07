@@ -107,6 +107,7 @@ DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
 ## support bowtie or bwa or minimap2
 r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bwa">
 r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
+##r2g_min_mapq=<TMPL_VAR NAME=edge-r2g-min-mapQ DEFAULT=42>
 window_size=1000
 step_size=200
 reference=<TMPL_VAR NAME=edge-ref-file>
@@ -114,7 +115,7 @@ MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
 r2g_extract_mapped=<TMPL_VAR NAME=edge-r2g-getmapped-sw DEFAULT=0>
 r2g_extract_unmapped=<TMPL_VAR NAME=edge-r2g-getunmapped-sw DEFAULT=0>
 r2g_get_consensus=<TMPL_VAR NAME=edge-r2g-getconsensus-sw DEFAULT=0>
-r2g_consensus_min_mapQ=<TMPL_VAR NAME=edge-r2g-con-min-mapQ DEFAULT=10>
+r2g_consensus_min_mapQ=<TMPL_VAR NAME=edge-r2g-con-min-mapQ DEFAULT=42>
 r2g_consensus_max_cov=<TMPL_VAR NAME=edge-r2g-con-max-cov DEFAULT=300>
 r2g_consensus_alt_prop=<TMPL_VAR NAME=edge-r2g-con-alt-prop DEFAULT=0.5>
 r2g_consensus_min_cov=<TMPL_VAR NAME=edge-r2g-con-min-cov DEFAULT=5>
@@ -262,6 +263,7 @@ top=<TMPL_VAR NAME=edge-primer-adj-num DEFAULT=5>
 
 [Generate JBrowse Tracks]
 DoJBrowse=<TMPL_VAR NAME=edge-jbroswe-sw DEFAULT=1>
+JBrowse_bam_min_depth=<TMPL_VAR NAME=edge-jbroswe-min-depth DEFAULT=300>
 
 <TMPL_IF NAME=edge-qiime-sw>
 [Qiime analysis]
