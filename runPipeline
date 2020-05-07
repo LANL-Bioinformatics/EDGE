@@ -3775,9 +3775,11 @@ sub rename_filter_fasta
          $seq =~ s/(.{70})/$1\n/g; 
          chomp $seq;
          my $fasta_header;
+	 $id =~ s/\W/_/g;
          if($configuration->{DoAnnotation}){
              # genbank format limit the LOCUS name length
              if ($id_mapping){
+		 
                  $fasta_header = ( length($id) > 20 ) ? "contig_$serial_id $id" : "$id contig_$serial_id";
                  print $idmap_ofh "contig_$serial_id\t$id\n";
              }else{

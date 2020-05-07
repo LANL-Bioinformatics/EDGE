@@ -1850,10 +1850,14 @@ $( document ).ready(function()
 			if($('#edge-assembled-contig1').is(':checked')){
 				$('#edge-assembler-sw').hide();
 				$('#edge-assembled-conti-file-div').show();
+				$('.edge-assembler-parameters').hide();
 			}
 			if($('#edge-assembled-contig2').is(':checked')){
 				$('#edge-assembler-sw').show();
 				$('#edge-assembled-conti-file-div').hide();
+				//$('.edge-assembler-parameters').show();
+				$('#edge-assembler1').click().checkboxradio("refresh");
+				 $(":radio[name='edge-assembler']").change();
 			}
 		});
 
