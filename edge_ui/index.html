@@ -1045,7 +1045,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</fieldset>
 			</div>
 			
-			<div id="edge-unicycler-parameters">
+			<div id="edge-unicycler-parameters" class="edge-assembler-parameters">
 				<p class="edge_tool_note"><a href="https://github.com/rrwick/Unicycler" target="_blank">Unicycler</a> is an assembly pipeline for bacterial genomes. It can assemble Illumina-only read sets where it functions as a SPAdes-optimise. For the best possible assemblies, give it both Illumina reads and long reads, and it will conduct a hybrid assembly.</p>
 				<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1065,7 +1065,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				<div class="ui-field-contain"><label for="edge-unicycler-min-lreads">Minimum Long Reads Cutoff (bp)</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-unicycler-min-lreads" id="edge-unicycler-min-lreads" value="2000" min="1000"></div>
 			</div>
-			<div id="edge-lrasm-parameters">
+			<div id="edge-lrasm-parameters" class="edge-assembler-parameters">
 				<p class="edge_tool_note"><a href="https://gitlab.com/chienchi/long_read_assembly" target="_blank">LRASM</a> is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1097,7 +1097,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain"><label for="edge-lrasm-num-consensus">Num of Iteration of Consensus </label><input type="number" data-mini="true" data-clear-btn="true" name="edge-lrasm-num-consensus" id="edge-lrasm-num-consensus" max="10" value="3"></div>
 			</div>
 				
-			<div id="edge-idba-parameters">
+			<div id="edge-idba-parameters" class="edge-assembler-parameters">
 				<p class="edge_tool_note"><a href="https://github.com/loneknightpy/idba" target="_blank">IDBA_UD</a> performs well on isolates as well as metagenomes but it may not work well on very large genomes.</p>
 				<div class="ui-field-contain"><label for="edge-assembly-mink">Minimum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-mink" id="edge-assembly-mink" value="31"></div>
 				<div class="ui-field-contain"><label for="edge-assembly-maxk">Maximum Kmer Length</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-assembly-maxk" id="edge-assembly-maxk" value="121"></div>
@@ -1126,7 +1126,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 				</div>
 			</div>
-			<div id="edge-megahit-parameters">
+			<div id="edge-megahit-parameters" class="edge-assembler-parameters">
 				<p class="edge_tool_note"><a href="https://github.com/voutcn/megahit" target="_blank">MEGAHIT</a> is an ultra-fast single-node solution for large and complex metagenomics assembly via succinct de Bruijn graph which achieves low memory assembly. </p>
 				<div class="ui-field-contain">
 					<label for="edge-megahit-preset">Preset<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-megahit-preset-l"></a></label>
@@ -1443,7 +1443,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<p class="edge-center edge_tool_note">Consensus Generation Options</p>
 					<div class="ui-field-contain">
 						<label for="edge-r2g-con-min-mapQ">Minimum mapQ<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum mapping quality for a read to be used in the pileup generation." ></a></label>
-						<input type="number" name="edge-r2g-con-min-mapQ" id="edge-r2g-con-min-mapQ" data-mini="true" data-clear-btn="true" value="42" max="255">
+						<input type="number" name="edge-r2g-con-min-mapQ" id="edge-r2g-con-min-mapQ" data-mini="true" data-clear-btn="true" value="60" max="255">
 					</div>
 					<div class="ui-field-contain">
 						<label for="edge-r2g-con-min-cov">Minimum Coverage<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum level of coverage required to avoid an N in the consensus." ></a></label>

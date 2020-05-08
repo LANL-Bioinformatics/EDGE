@@ -3768,6 +3768,7 @@ sub rename_filter_fasta
          $seq =~ s/(.{70})/$1\n/g; 
          chomp $seq;
          my $fasta_header;
+	 $id =~ s/\W/_/g;
          if($configuration->{DoAnnotation}){
              # genbank format limit the LOCUS name length
              if ($id_mapping){

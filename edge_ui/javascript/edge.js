@@ -1833,10 +1833,13 @@ $( document ).ready(function()
 			if($('#edge-assembled-contig1').is(':checked')){
 				$('#edge-assembler-sw').hide();
 				$('#edge-assembled-conti-file-div').show();
+				$('.edge-assembler-parameters').hide();
 			}
 			if($('#edge-assembled-contig2').is(':checked')){
 				$('#edge-assembler-sw').show();
 				$('#edge-assembled-conti-file-div').hide();
+				$('#edge-assembler1').click().checkboxradio("refresh");
+				$(":radio[name='edge-assembler']").change();
 			}
 		});
 
@@ -1945,6 +1948,12 @@ $( document ).ready(function()
 				}
 			}
 		});
+		$("#edge-r2g-aligner2,#edge-r2g-aligner3").on('click',function(){
+			$("#edge-r2g-con-min-mapQ").val('60');
+		})
+		$("#edge-r2g-aligner1").on('click',function(){
+			$("#edge-r2g-con-min-mapQ").val('42');
+		})
 	};
 
 	function getLog(texturl) {
