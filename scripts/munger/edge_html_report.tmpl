@@ -692,9 +692,7 @@
 								  <th data-priority='3'>Mapped Reads%</th>
 								  <th data-priority='2'>Base Coverage</th>
 								  <th data-priority='2'>Avg Fold</th>
-								  <th data-priority='3'>Gaps</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
-								  <th data-priority='6' class='ui-table-cell-hidden'>Gap Bases</th>
 								  <th data-priority='6' class='ui-table-cell-hidden'>Fold std.</th>
 								  </TMPL_UNLESS>
 								  <th data-priority='4'>Bam File</th>
@@ -711,9 +709,7 @@
 									<td><TMPL_VAR NAME=RMREFMAPPEDPCT DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT5 DEFAULT=->%</td>
 									<td><TMPL_VAR NAME=RMREFT6 DEFAULT=->X</td>
-									<td><TMPL_VAR NAME=RMREFT8 DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
-									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT9 DEFAULT=-></td>
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMREFT7 DEFAULT=->X</td>
 									</TMPL_UNLESS>
 									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFBAM>">Download Bam File</a></td>
@@ -742,6 +738,7 @@
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Consensus GC%</th>
 								  </TMPL_UNLESS>
+								  <th data-priority='5'>Gaps</th>
 								  <th data-priority='5'>Ns</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6'>5' Ns</th>
@@ -769,6 +766,7 @@
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
 									</TMPL_UNLESS>
+									<td><TMPL_VAR NAME=RMCONGAP DEFAULT=-></td>
 									<td title="<TMPL_VAR NAME=RMCONTOTALNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td title="<TMPL_VAR NAME=RMCONLEADNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>

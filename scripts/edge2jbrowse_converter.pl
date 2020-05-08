@@ -168,7 +168,7 @@ sub main {
 			my $in_read2ctg_dir = dirname($opt{'in-read2ctg-bam'});
 			my $depth_cov = `grep 'Avg_coverage' $in_read2ctg_dir/readsToContigs.alnstats.txt | awk '{print \$2}'`;
 			chomp $depth_cov;
-			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}/$depth_cov*100):"";
+			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
 			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
@@ -280,8 +280,7 @@ sub main {
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
 				chomp $depth_cov;
-				my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}/$depth_cov*100):"";
-				my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%02d",$opt{'bam-file-depth'}*1.3/$depth_cov*100):"";
+				my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
 				chomp $mapped_num;
 				if( $mapped_num ){
 					print "#  - Adding read2ref $acc BAM track...";
@@ -297,6 +296,8 @@ sub main {
 					if ( -e $bam_nodup ){
 						print "#  - Adding read2refc$acc Consensus Coverage track...";
 						## ?? do we need subsample here
+						$depth_cov=`samtools depth -a -m 0 $bam_nodup | awk 'BEGIN{a=0;b=0;}{a=a+1; b=b+\$3;}END{print b/a}'`;
+						my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}*1.3/$depth_cov*1000):"";
 						executeCommand("samtools view $subsample_ratio_for_con --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
 						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
 						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");

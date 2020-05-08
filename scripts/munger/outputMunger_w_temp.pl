@@ -1891,6 +1891,7 @@ sub pull_readmapping_ref {
 						$refinfo->{"RMCONLEADNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{lead_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{lead_cap_N}";
 						$refinfo->{"RMCONTAILN"} = $consensus_info->{$consensus_id}->{tail_N};
 						$refinfo->{"RMCONTAILNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{tail_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{tail_cap_N}";
+						$refinfo->{"RMCONGAP"} = ($consensus_info->{$consensus_id}->{gap_num})? $consensus_info->{$consensus_id}->{gap_num} : "0";
 						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
 							$refinfo->{'RMCONSUBMITOK'} = '1';
 							$vars->{'RMCONSUBMITOK_TH'}='1';
@@ -1985,47 +1986,21 @@ sub pull_readmapping_ref {
 sub consensus_fasta_stat{
 	my $fasta = shift;
 	my $log = shift;
+	my $filename_prefix = basename($fasta,  ".fasta");
+	my $filename_dir = dirname($fasta);
+	(my $ref_id = $filename_prefix) =~ s/_consensus//;
+	$ref_id =~ s/\W/_/g;
 	open (my $fh, "<", $fasta) or die "Cannot open $fasta";
         my ($id, $seq, %info);
-        while(<$fh>){
-                chomp;
-                if(/^>(.*)/){
-                        if ($seq){
-				my ($lead_N) = $seq =~ /^(N*)/i;
-				my ($tail_N) = $seq =~ /(N*)$/i;
-                                my $total_cap_N = $seq=~ tr/N/N/;
-                                my $total_small_n = $seq=~ tr/n/n/;
-				my $total_N = $total_cap_N + $total_small_n;
-                                my $total_G = $seq=~ tr/G/G/;
-                                my $total_C = $seq=~ tr/C/C/;
-				my $lead_cap_N = $lead_N =~ tr/N/N/;
-				my $lead_small_n = $lead_N =~ tr/n/n/;
-				my $tail_cap_N = $tail_N =~ tr/N/N/;
-				my $tail_small_n = $tail_N =~ tr/n/n/;
-				$info{$id}->{lead_N}=length($lead_N);
-				$info{$id}->{lead_cap_N} = $lead_cap_N;
-				$info{$id}->{lead_small_n} = $lead_small_n;
-				$info{$id}->{tail_N}=length($tail_N);
-				$info{$id}->{tail_cap_N} = $tail_N;
-				$info{$id}->{tail_small_n} = $tail_small_n;
-				$info{$id}->{total_N}=$total_N;
-				$info{$id}->{total_cap_N}=$total_cap_N;
-				$info{$id}->{total_small_n}=$total_small_n;
-				$info{$id}->{length}=length($seq);
-				$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
-
-                        }
-                        $id = $1;
-                }
-                else{
-                        $seq .= $_;
-                }
-
-        }
-        if ($seq){
+	$/ = ">";
+        while(my $line=<$fh>){
+		$line =~ s/\>//g;
+		my ($id, @seq) = split /\n/, $line;
+		next if (!$id);
+		my $seq = join "", @seq;
 		my ($lead_N) = $seq =~ /^(N*)/i;
 		my ($tail_N) = $seq =~ /(N*)$/i;
-		my $total_cap_N = $seq=~ tr/N/N/;
+ 		my $total_cap_N = $seq=~ tr/N/N/;
 		my $total_small_n = $seq=~ tr/n/n/;
 		my $total_N = $total_cap_N + $total_small_n;
 		my $total_G = $seq=~ tr/G/G/;
@@ -2034,18 +2009,33 @@ sub consensus_fasta_stat{
 		my $lead_small_n = $lead_N =~ tr/n/n/;
 		my $tail_cap_N = $tail_N =~ tr/N/N/;
 		my $tail_small_n = $tail_N =~ tr/n/n/;
+		open (my $gap_fh, ">","$filename_dir/$filename_prefix.gaps");
+		my $gap_num=0;
+		my $print_str;
+		while($seq =~ /(n{1,})/g){
+			$gap_num++;
+			$print_str .= $-[0]+1 . "\t" . $+[0] . "\t" . length($1) . "\t" . $ref_id . "\n";
+		}
+		if ($print_str){
+			print $gap_fh join("\t",'Start','End','Length','Ref_ID'),"\n";
+			print $gap_fh $print_str;
+		}
+		close $gap_fh;
 		$info{$id}->{lead_N}=length($lead_N);
 		$info{$id}->{lead_cap_N} = $lead_cap_N;
 		$info{$id}->{lead_small_n} = $lead_small_n;
 		$info{$id}->{tail_N}=length($tail_N);
-		$info{$id}->{tail_cap_N} = $tail_cap_N;
+		$info{$id}->{tail_cap_N} = $tail_N;
 		$info{$id}->{tail_small_n} = $tail_small_n;
 		$info{$id}->{total_N}=$total_N;
 		$info{$id}->{total_cap_N}=$total_cap_N;
 		$info{$id}->{total_small_n}=$total_small_n;
 		$info{$id}->{length}=length($seq);
+		$info{$id}->{gap_num}=$gap_num;
 		$info{$id}->{GC}= sprintf("%.2f", ($total_G + $total_C) / length($seq) * 100 );
-        }
+
+ 	}
+	$/="\n";
         close $fh;
 
 	return \%info if ( ! -e $log ); 

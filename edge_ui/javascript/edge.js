@@ -1968,6 +1968,12 @@ $( document ).ready(function()
 				}
 			}
 		});
+		$("#edge-r2g-aligner2,#edge-r2g-aligner3").on('click',function(){
+			$("#edge-r2g-con-min-mapQ").val('60');
+		})
+		$("#edge-r2g-aligner1").on('click',function(){
+			$("#edge-r2g-con-min-mapQ").val('42');
+		})
 	};
 
 	function getLog(texturl) {

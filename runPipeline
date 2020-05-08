@@ -1608,6 +1608,9 @@ sub variantAnalysis
     my $outputDir="$outDir/AssemblyBasedAnalysis/contigMappingToRef/";
     my $log = "$outputDir/variantAnalysis.log";
     my $r2g_outputDir="$outDir/ReadsBasedAnalysis/readsMappingToRef/";
+    my @r2g_consensus_log_files = glob("$r2g_outputDir/*consensus.changelog");
+    my @r2g_consensus_gap_files = glob("$r2g_outputDir/*consensus.gaps");
+    my $r2g_consensus_changelog="$outDir/ReadsBasedAnalysis/reudsMappingToRef/";
     my $c2g_gapAnalysisOutput="$outputDir/GapVSReference.report.txt";
     my $r2g_gapAnalysisOutput="$r2g_outputDir/GapVSReference.report.txt";
     my $r2g_gapJSONanalysisOutput = "$r2g_outputDir/GapVSReference.report.json";
@@ -1652,6 +1655,20 @@ sub variantAnalysis
     }
     if ($r2g_gap_file and -s $r2g_gap_file){
       $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $r2g_gap_file > $r2g_gapAnalysisOutput 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    foreach my $con_gap_file(@r2g_consensus_gap_files){
+      my $prefix = basename($con_gap_file,".gaps");
+      my $output = "$r2g_outputDir/$prefix.gaps_report.txt";
+      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $con_gap_file >  $output 2>>$log";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    foreach my $con_log_file(@r2g_consensus_log_files){
+      my $prefix = basename($con_log_file,".changelog");
+      my $output = "$r2g_outputDir/$prefix.gaps_report.txt";
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $con_log_file $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
     }
@@ -3159,11 +3176,12 @@ sub runReadsToGenome
 
     if ($configuration->{r2g_get_consensus}){
         my $consensus_log = "$outputDir/consensus.log";
-        my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 10;
+        my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
         my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
+	#$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
 	foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
