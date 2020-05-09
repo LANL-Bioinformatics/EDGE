@@ -3195,12 +3195,42 @@ sub runReadsToGenome
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
 	    &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
 	    &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
+	    &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
     }
     &printRunTime($time);
     return ($outVCF,$outGap);
+}
+
+sub get_consensus_gap{
+	my $fasta = shift;
+	my $filename_prefix = basename($fasta,  ".fasta");
+	my $filename_dir = dirname($fasta);
+	open (my $fh, "<", $fasta) or die "Cannot open $fasta";
+	my ($id, $seq);
+	$/ = ">";
+	while(my $line=<$fh>){
+		$line =~ s/\>//g;
+		my ($id, @seq) = split /\n/, $line;
+		next if (!$id);
+		my $seq = join "", @seq;
+		open (my $gap_fh, ">","$filename_dir/$filename_prefix.gaps");
+		my ($ref_id) = $id =~ /consensus_(\S+)/;
+		my $print_str;
+		while($seq =~ /(n{1,})/g){
+			# matched pos start $-[0] and end $+[0], $1 is matched string
+			$print_str .= $-[0]+1 . "\t" . $+[0] . "\t" . length($1) . "\t" . $ref_id . "\n";
+		}
+		if ($print_str){
+			print $gap_fh join("\t",'Start','End','Length','Ref_ID'),"\n";
+			print $gap_fh $print_str;
+		}
+		close $gap_fh;
+	}
+	$/ = "\n";
+	close $fh
 }
 
 sub runContigToGenome
