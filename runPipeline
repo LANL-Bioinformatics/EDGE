@@ -3150,7 +3150,7 @@ sub runReadsToGenome
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
-    $parameters .= " -no_indels " if $ont_flag;
+    $parameters .= " -no_indels -disableBAQ" if $ont_flag;
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
