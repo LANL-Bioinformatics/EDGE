@@ -3126,7 +3126,7 @@ sub runReadsToGenome
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
-    $parameters .= " -no_indels " if $ont_flag;
+    $parameters .= " -no_indels -disableBAQ" if $ont_flag;
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
@@ -3152,7 +3152,7 @@ sub runReadsToGenome
 
     if ($configuration->{r2g_get_consensus}){
         my $consensus_log = "$outputDir/consensus.log";
-        my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 10;
+        my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
         my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;

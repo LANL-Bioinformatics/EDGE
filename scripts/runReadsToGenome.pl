@@ -63,7 +63,7 @@ my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $min_depth=5; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
-
+my $disableBAQ;
 
 
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
@@ -92,6 +92,7 @@ GetOptions(
             'min_depth=i' => \$min_depth,
             'snp_gap_filter=i' => \$snp_gap_filter,
 	    'ploidy=s' => \$ploidy,
+	    'disableBAQ' => \$disableBAQ,
             'cpu=i' => \$numCPU,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
@@ -329,8 +330,9 @@ for my $ref_file_i ( 0..$#ref_files){
 			#http://samtools.sourceforge.net/mpileup.shtml
 			print "SNPs/Indels call on $ref_file_name\n";
 			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : "";
-			my $indel_o = ($no_indels)? " -I ":"";  
-			`bcftools mpileup $indel_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -M -cO b - > $bcf_output 2>/dev/null`;
+			my $indel_o = ($no_indels)? " -I ":""; 
+			my $baq_o = ($disableBAQ)? " -B ":"";
+			`bcftools mpileup $indel_o $baq_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -M -cO b - > $bcf_output 2>/dev/null`;
 			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth  > $vcf_output`;
 		}
 
@@ -412,7 +414,7 @@ for my $ref_file_i ( 0..$#ref_files){
 		my $coverage_plot="$outDir/Coverage_plots/${prefix}_${ref_name}_base_coverage.png";
 		my $histogram="$outDir/Coverage_plots/${prefix}_${ref_name}_coverage_histogram.png";
 
-		## -q $map_quality? to exclude poor mapped reads into count
+		#my $baq_o = ($disableBAQ)? " -B " :"";
 		my $pileup_cmd = "samtools mpileup -q $map_quality -A -BQ0 -d10000000 -r $ref_name -f  $ref_file $bam_output ";
 		# build base coverage hash
 		my @base_array= (0) x $ref_len;
@@ -1021,6 +1023,7 @@ Usage: perl $0
 	       # Variant calling/Filter parameters
 	       -ploidy                   haploid or diploid
                # Variant Filter parameters
+	       -disableBAQ               disableBAQ calculation
                -max_depth                maximum read depth [300]
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
                -min_alt_bases            minimum number of alternate bases [3]
