@@ -1661,7 +1661,7 @@ sub variantAnalysis
     foreach my $con_gap_file(@r2g_consensus_gap_files){
       my $prefix = basename($con_gap_file,".gaps");
       my $output = "$r2g_outputDir/$prefix.gaps_report.txt";
-      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $con_gap_file >  $output 2>>$log";
+      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $con_gap_file >  $output 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
     }
