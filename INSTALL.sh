@@ -2444,19 +2444,19 @@ else
   install_miccr
 fi
 
-#if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
-#then
-#  pangia_VER=`$rootdir/thirdParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
-#  if ( echo $pangia_VER | awk '{if($1>="2.4.5") exit 0; else exit 1}' )
-#  then
-#    echo "PANGIA $pangia_VER is found"
-#  else
-#    install_pangia
-#  fi
-#else
-#  echo "PANGIA is not found"
-#  install_pangia
-#fi
+if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
+then
+  pangia_VER=`$rootdir/thirdParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if [ $(versionStr $pangia_VER) -ge $(versionStr "1.0.0") ]
+  then
+    echo "PANGIA $pangia_VER is found"
+  else
+    install_pangia
+  fi
+else
+  echo "PANGIA is not found"
+  install_pangia
+fi
 
 if ( checkLocalInstallation metaphlan2.py  )
 then
@@ -2850,7 +2850,7 @@ fi
 sed -i 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
-#sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
 
 TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]
