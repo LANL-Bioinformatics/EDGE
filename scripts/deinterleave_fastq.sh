@@ -23,7 +23,7 @@ if [[ $3 == "compress" ]]; then
 fi
 
 if [[ ${GZIP_OUTPUT} == 0 ]]; then
-  paste - - - - - - - -  | tee >(cut -f 1-4 | tr "\t" "\n" > $1) | cut -f 5-8 | tr "\t" "\n" > $2
+  paste - - - - - - - -  | tee >(cut -f 1-4 | perl -ne 's/(\.\d+)\.[12] /$1 /g; print;' | tr "\t" "\n" | egrep -v '^$' > $1) | cut -f 5-8 |  perl -ne 's/(\.\d+)\.[12] /$1 /g; print;' | tr "\t" "\n" | egrep -v '^$' > $2
 else
-  paste - - - - - - - -  | tee >(cut -f 1-4 | tr "\t" "\n" | gzip --best > $1) | cut -f 5-8 | tr "\t" "\n" | gzip --best > $2
+  paste - - - - - - - -  | tee >(cut -f 1-4 |  perl -ne 's/(\.\d+)\.[12] /$1 /g; print;' |  tr "\t" "\n" | egrep -v '^$' | gzip --best > $1) | cut -f 5-8 |  perl -ne 's/(\.\d+)\.[12] /$1 /g; print;' | tr "\t" "\n" | egrep -v '^$' | gzip --best > $2
 fi
