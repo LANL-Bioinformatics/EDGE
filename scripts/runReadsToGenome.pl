@@ -1011,7 +1011,7 @@ Usage: perl $0
                                          type "snap paired" to see options
                -minimap2_options         type "minimap2" to see options
                                          default: "-t 4 "
-	       -map_quality              minimium mapping quality filter [default: 42]
+	       -maq                      minimium mapping quality filter [default: 42]
                -skip_aln                 <bool> skip the alignment steps, assume bam files were generated 
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off

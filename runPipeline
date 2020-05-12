@@ -2256,7 +2256,7 @@ my $contigTaxonomyPDF="$outDir/AssemblyBasedAnalysis/Taxonomy/$project_name.cont
 my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 my $nanoplot_loglength_Histogram = "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf";
 my $nanoplot_length_Histogram = "$outDir/QcReads/HistogramReadlength.pdf";
-my $nanoplot_length_quality_plot= "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf";
+my $nanoplot_length_quality_plot= ( -e "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf")? "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf":"$outDir/QcReads/Log_LengthvsQualityScatterPlot_kde.pdf";
 my $nanoplot_yield_by_length = "$outDir/QcReads/Yield_By_Length";
 my $mergeFiles="$InputLogPDF,";
 $mergeFiles.="$QCstatsPDF"."," if ( -e $QCstatsPDF);
@@ -3136,17 +3136,17 @@ sub runReadsToGenome
     $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -cpu $numCPU -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
-	$parameters .= " -map_quality 42 " if ! $configuration->{r2g_min_mapq};
+	$parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
-	$parameters .= " -map_quality 60 " if ! $configuration->{r2g_min_mapq};
+	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $parameters =~ s/-u /-long / if $ont_flag;
         $r2g_aligner_options =~ s/-t\s*\d+//;
-	$parameters .= " -map_quality 60 " if ! $configuration->{r2g_min_mapq};
+	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
