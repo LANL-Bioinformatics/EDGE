@@ -255,7 +255,7 @@ if ($referenceGenome)
     }
 
     my ($unusedContigFasta,$c2g_SNP_INDEL_file,$c2g_Gap);
-    if ( -s $contigFile)
+    if ( $contigFile && -s $contigFile)
     {
         ($unusedContigFasta,$c2g_SNP_INDEL_file,$c2g_Gap)=&runContigToGenome($contigFile,$referenceGenome);
         #blast nr on novel contigs/regions
@@ -283,7 +283,7 @@ if ($configuration->{DoContigsTaxonomy} and $contigFile)
     &Contigs_taxonomyAssignment($contigFile);
 }
 
-if ( -s $contigFile )
+if ( $contigFile && -s $contigFile )
 {
     #not sure if it is Virus, use size of references to determine the kingdoma (580K is smallest Prok,Mycoplasma)
     my $contigTotalSize=0;
@@ -328,7 +328,7 @@ if ($primerFile and $configuration->{DoPrimerValidation})
     $pcrCheckFailure=&pcrValidation($primerFile,$contigFile, $referenceGenome);
 }
 
-if ( -s $contigFile)
+if ( $contigFile && -s $contigFile)
 {
     #primer Design for Assay Failure and Novel pathgen
     if ($pcrCheckFailure == 1 || $configuration->{DoPrimerDesign})  
@@ -2183,7 +2183,7 @@ sub pcrValidation
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
     my $command = "perl $RealBin/scripts/pcrValidation/validate_primers.pl -prefix pcrContigValidation -ref $contigFile -primer $primerFile -mismatch $numOfMismatch -threads $numCPU -output $outputDir ";
-    if ( -s $contigFile)
+    if ( $contigFile && -s $contigFile)
     {
         &lprint (" Running \n $command\n");
         open (my $contigPCR_fh, "$command |") or die "$!";
@@ -3514,6 +3514,9 @@ sub runAssembly
         my @intermediate_contigs = sort { -M $a <=> -M $b} glob("$AssemblerOutDir/contig-* $AssemblerOutDir/intermediate_contigs/*contigs.fa $AssemblerOutDir/K*/final_contigs.fasta" );    
         if (! @intermediate_contigs){
             my $msg = "Assembly failed. It may be out of Memory. Please see assembly.log for details. Will skip downstream assembly based analysis.";
+	    if ( -e "$AssemblerOutDir/Assembly/unitig.fasta" && -z "$AssemblerOutDir/Assembly/unitig.fasta" ){
+                    $msg = "miniasm assembly failed. Please see AssemblyBasedAnalysis/lrasm/Assembly/miniasm.log for details. Will skip downstream assembly based analysis.";
+            }
             &lprint("$msg\n"); 
             `echo $msg >> $log`;
             &touchFile("$outputDir/runAssembly.finished");
