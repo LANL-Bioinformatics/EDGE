@@ -2287,7 +2287,10 @@ $( document ).ready(function()
 				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
 				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();
 				(  obj.INFO.MPIRET == "true")?$( "a[href=#edge-piret-pipeline]" ).show():$( "a[href=#edge-piret-pipeline]" ).hide();
-				
+				if( obj.INFO.MAINTENANCE == "true"){
+					showWarning("System is under MAINTENANCE. EDGE will be limited to view project only. Thanks for your patience.");
+					$('.edge-logo').find('h5').html('@MAINTENANCE');
+				}
 				if( String(obj.INFO.UMSYSTEM) != String(localStorage.umStatus) ){
 					check_user_management();
 				}
