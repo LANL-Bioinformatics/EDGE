@@ -1927,6 +1927,8 @@ $( document ).ready(function()
 					$('#edge-qc-q').prop('disabled',false).val('7');
 					$('#splitrim-minq').prop('disabled',false).val('7');
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
+					$('#edge-r2g-con-disableBAQ-sw1').prop('disabled',false).click().checkboxradio("refresh");
 				}
 			}
 			if($('#edge-fastq-source-sw2').is(':checked')){
@@ -1945,6 +1947,8 @@ $( document ).ready(function()
 					$('#edge-qc-minl').prop('disabled',false).val('50');
 					$('#edge-qc-q').prop('disabled',false).val('20');
 					$('#splitrim-minq').prop('disabled',false).val('20');
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.5').slider("refresh");
+					$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).click().checkboxradio("refresh");
 				}
 			}
 		});

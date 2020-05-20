@@ -3155,16 +3155,18 @@ sub runReadsToGenome
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
         my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
+	my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
+	my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
 	foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
 	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
-	    $command .= " --disableBAQ" if ($ont_flag);
-            $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ >> $consensus_log";
+	    $command .= " --disableBAQ" if ($con_min_baseQ);
+            $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop  >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
