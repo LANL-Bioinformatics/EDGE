@@ -3165,7 +3165,7 @@ sub runReadsToGenome
             my $bamFile = "$outputDir/$file_name.sort.bam";
 	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
-	    $command .= " --disableBAQ" if ($con_min_baseQ);
+	    $command .= " --disableBAQ" if ($con_disable_BAQ);
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop  >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
