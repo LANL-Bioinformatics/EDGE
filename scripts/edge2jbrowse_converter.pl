@@ -37,6 +37,7 @@ my $res=GetOptions(\%opt,
     'in-primer2ctg-bam=s',       #AssayCheck/pcrContigValidation.bam
     'in-primer2ref-bam=s',       #AssayCheck/pcrRefValidation.bam
     'in-read2ref-vcf=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
+    'in-primer2ref-bed=s',
     'outdir=s',                  #JBrowse
     'ctg-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ctg_coord_conf
     'ctg-coord-bam-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
@@ -169,7 +170,7 @@ sub main {
 			my $depth_cov = `grep 'Avg_coverage' $in_read2ctg_dir/readsToContigs.alnstats.txt | awk '{print \$2}'`;
 			chomp $depth_cov;
 			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
-			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
+			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} | samtools calmd -u --threads $opt{'threads'} - $opt{'in-ctg-fa'} 2>/dev/null > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
@@ -267,6 +268,11 @@ sub main {
 				executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Insertion (Assembly)' --trackLabel 'INSERTION' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Insertion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
 			}
 		}
+		if ( -e $opt{"in-primer2ref-bed"} ){
+			print "#  - Adding Primer Bed track...\n";
+			my $bedfile_prefix=basename($opt{'in-primer2ref-bed'},".bed");
+			executeCommand("flatfile-to-json.pl --bed $opt{'in-primer2ref-bed'} --trackType CanvasFeatures --key $bedfile_prefix --trackLabel 'PRIMER' --metadata '{\"category\": \"Primers\"}' --compress --out $opt{'out-ref-coord-dir'}  --className match_part --arrowheadClass arrowhead");
+		}
 
 
 		if( -d $opt{'in-read2ref-dir'} ){
@@ -275,7 +281,7 @@ sub main {
 				my $file_prefix = $ref_name->{$acc}->{file};
 				$acc =~ s/\W/\_/g;
 				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
-				my $bam_nodup = "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam";
+				my $bam_nodup = (-e "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam")?"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam":"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted.bam";
 				my $vcf = "$opt{'in-read2ref-dir'}/$file_prefix.vcf";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
@@ -285,7 +291,7 @@ sub main {
 				if( $mapped_num ){
 					print "#  - Adding read2ref $acc BAM track...";
 					#	print "samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null \n";
-					executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null");
+					executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools calmd -u --threads $opt{'threads'} - $opt{'out-ref-coord-dir'}/reference.fasta 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null");
 					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
 					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
 					executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
@@ -296,8 +302,8 @@ sub main {
 					if ( -e $bam_nodup ){
 						print "#  - Adding read2refc$acc Consensus Coverage track...";
 						$depth_cov=`samtools depth -a -m 0 $bam_nodup | awk 'BEGIN{a=0;b=0;}{a=a+1; b=b+\$3;}END{print b/a}'`;
-						my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}*1.3/$depth_cov*1000):"";
-						executeCommand("samtools view $subsample_ratio_for_con --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
+						my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
+						executeCommand("samtools view $subsample_ratio_for_con --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools calmd -u --threads $opt{'threads'} - $opt{'out-ref-coord-dir'}/reference.fasta 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
 						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
 						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
 						print "Done.\n";

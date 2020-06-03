@@ -1083,6 +1083,7 @@ sub runUnmappedReadsToRefSeq
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -bwa_options ". "'" . "$ont_flag ". "'";
     $parameters .= " -d $outputDir -pre $outPrefix -ref $db";
+    $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
 
     my $command = "perl $RealBin/scripts/runReadsToContig.pl $parameters 1>$log 2>\&1 ";
     &lprint (" Running \n $command\n");
@@ -3023,6 +3024,7 @@ sub runReadsToContig
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -d $outputDir -pre $outPrefix -ref $contigFile"; 
+    $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
     if ($configuration->{r2c_aligner} =~ /bowtie/){
 	$r2c_aligner_options =~ s/-p\s*\d+//;
 	$r2c_aligner_options .= ' -k 10 ' if ($r2c_aligner_options !~ /-k/);    
@@ -3129,6 +3131,9 @@ sub runReadsToGenome
     $parameters .= " -no_indels -disableBAQ" if $ont_flag;
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
+    $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov});
+    $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
+    $parameters .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} " if ( -e $configuration->{r2g_align_trim_bed_file});
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
@@ -3159,6 +3164,7 @@ sub runReadsToGenome
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
 	my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
+	my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
 	foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
@@ -3166,11 +3172,16 @@ sub runReadsToGenome
 	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
 	    $command .= " --disableBAQ" if ($con_disable_BAQ);
+	    $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop  >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
+	    move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
+	    move("$outputDir/consensus_tmp/$file_name.sort_sorted.bam", "$outputDir/");
+	    move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
+	    &executeCommand("samtools index  $outputDir/$file_name.sort_sorted.bam") if ( -e "$outputDir/$file_name.sort_sorted.bam");
             &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
             &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
 	}
@@ -4294,6 +4305,25 @@ sub is_file_empty
     return $empty;
 }
 
+sub is_bed6_plus{
+    $SIG{'PIPE'}=sub{};
+    my $file=shift;
+    my ($fh,$pid)= open_file($file);
+    my $count=0;
+    my $check_num=100;
+    my $is_bed=0;
+    for ($count..$check_num){
+        my $line=<$fh>;
+        next if $line =~ /^#/;
+        my @col = split /\t/,$line;
+        if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[5] =~ /^\d+$/){
+	    $is_bed=1;
+        }
+    }
+    kill 9, $pid; # avoid gunzip broken pipe
+    $SIG{'PIPE'} = 'DEFAULT';
+    return $is_bed;
+}
 
 sub is_fasta
 {
@@ -4465,6 +4495,7 @@ sub writeJBrowseInfo
     $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
     $cmd .= "--in-orf-ar-gff3 '$ARGenesGFF' " if ( -e "$ARGenesGFF");
     $cmd .= "--in-orf-vf-gff3 '$VFGenesGFF' " if ( -e "$VFGenesGFF");
+    $cmd .= "--in-primer2ref-bed '$configuration->{r2g_align_trim_bed_file}' " if ($configuration->{r2g_align_trim_bed_file});
     $cmd .= "--threads $numCPU ";
     $cmd .= "--proj_outdir '$abs_outDir' 2>\&1 1>$log";
 

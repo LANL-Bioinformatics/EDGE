@@ -107,6 +107,8 @@ DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
 ## support bowtie or bwa or minimap2
 r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bwa">
 r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
+r2g_max_clip=<TMPL_VAR NAME=edge-r2g-max-clip DEFAULT=50>
+r2g_align_trim_bed_file=<TMPL_VAR NAME=edge-r2g-align-trim-bed-file>
 ##r2g_min_mapq=<TMPL_VAR NAME=edge-r2g-min-mapQ DEFAULT=42>
 window_size=1000
 step_size=200
@@ -122,6 +124,7 @@ r2g_consensus_altIndel_prop=<TMPL_VAR NAME=edge-r2g-con-altIndel-prop DEFAULT=0.
 r2g_consensus_min_cov=<TMPL_VAR NAME=edge-r2g-con-min-cov DEFAULT=5>
 r2g_consensus_min_baseQ=<TMPL_VAR NAME=edge-r2g-con-min-baseQ DEFAULT=20>
 r2g_consensus_disable_BAQ=<TMPL_VAR NAME=edge-r2g-con-disableBAQ DEFAULT=0>
+r2g_consensus_pcr_dedup=<TMPL_VAR NAME=edge-r2g-con-pcrdedup DEFAULT=1>
 r2g_variant_call=<TMPL_VAR NAME=edge-r2g-variantcall-sw DEFAULT=1>
 r2g_variant_call_ploidy=<TMPL_VAR NAME=edge-r2g-variantcall-ploidy DEFAULT="haploid">
 

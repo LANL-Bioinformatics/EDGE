@@ -48,6 +48,10 @@ while(<$fh2>){
 		my @field=split("\t",$_);
 		if ($field[2] eq '-' or $field[3] eq '-'){
 				$info2{$field[0]}->{indel_num}++;
+		}elsif($field[3] eq 'n'){
+                        $info2{$field[0]}->{gaps_num}++;
+		}elsif($field[3] eq 'N'){
+                        $info2{$field[0]}->{ambiguousN_num}++;
 		}else{
 				$info2{$field[0]}->{snps_num}++;
 		}

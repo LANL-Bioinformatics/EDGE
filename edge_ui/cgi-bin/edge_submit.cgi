@@ -1209,6 +1209,12 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
+		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
+		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
+		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
+		if ($opt{"edge-qc-adapter"} && $opt{"edge-r2g-align-trim-bed-file"}){
+			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either FASTA file or BED file. Not Both.");
+		}
 	}
 	if ( $opt{"edge-joinpe-sw"}){
 		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;
@@ -1356,6 +1362,26 @@ sub is_gff
 	($head =~ /gff/i)?
 		return 1:
 		return 0;
+}
+
+sub is_bed6_plus{
+    $SIG{'PIPE'}=sub{};
+    my $file=shift;
+    my ($fh,$pid)= open_file($file);
+    my $count=0;
+    my $check_num=100;
+    my $is_bed=0;
+    for ($count..$check_num){
+            my $line=<$fh>;
+            next if $line =~ /^#/;
+            my @col = split /\t/,$line;
+            if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[5] =~ /^\d+$/){
+                    $is_bed=1;
+            }
+    }
+    kill 9, $pid; # avoid gunzip broken pipe
+    $SIG{'PIPE'} = 'DEFAULT';
+    return $is_bed;
 }
 
 sub is_fastq

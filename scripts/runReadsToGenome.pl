@@ -5,7 +5,9 @@
 #           4. bowtie2
 #           5. bcftools > 1.1 
 #           6. vcfutils.pl  (from samtools package)
-#           7. snap
+#           7. minimap2
+#           8. samclip
+#           9. align_trim.py
 #     input: paired reads files: forward.fasta/q and reverse.fasta/q
 #            reference genome
 #     output: bam file (reads placement from bwa + samtools)
@@ -54,6 +56,8 @@ my $skip_aln=0;
 my $no_plot=0;
 my $no_snp=0;
 my $no_indels=0;
+my $max_clip=50;
+my $align_trim_bed_file='';
 my $map_quality=42; #default 42, bwa or minimap2 may need use 60
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
 my $max_depth=300; # maximum read depth
@@ -90,6 +94,8 @@ GetOptions(
 	    'min_alt_ratio=f' => \$min_alt_ratio,
             'max_depth=i' => \$max_depth,
             'min_depth=i' => \$min_depth,
+	    'max_clip=i' => \$max_clip,
+	    'align_trim_bed_file=s' => \$align_trim_bed_file,
             'snp_gap_filter=i' => \$snp_gap_filter,
 	    'ploidy=s' => \$ploidy,
 	    'disableBAQ' => \$disableBAQ,
@@ -144,6 +150,8 @@ if ($bowtie_options =~ /-p\s+\d+/){$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ ;}e
 if ($snap_options =~ /-t\s+\d+/){$snap_options =~ s/-t\s+\d+/-t $numCPU/;}else{$snap_options .= " -t $numCPU ";}
 my $samtools_threads=$numCPU;
 
+my $align_trim_pipe_cmd=(-e $align_trim_bed_file )? "| align_trim.py  $align_trim_bed_file  2> /dev/null ":"";
+
 my @bam_outputs;
 for my $ref_file_i ( 0..$#ref_files ){
 	my $ref_file=$ref_files[$ref_file_i];	
@@ -189,11 +197,11 @@ for my $ref_file_i ( 0..$#ref_files ){
   		{
      			if ($pacbio){
 				# `bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem -x pacbio $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - `;
+				`bwa mem -x pacbio $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
      			}
 			else{
 				#`bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam`;
+				`bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
 			}
 		#my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
   		#`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
@@ -205,8 +213,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`minimap2 --MD -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
 		}
 
-
-		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/LongReads$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam` if ( -s "$outDir/LongReads$$.sam");
+		`samclip --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam` if ( -s "$outDir/LongReads$$.sam");
 	}
 	if ($paired_files){
 		print "Mapping paired end reads to $ref_file_name\n";
@@ -223,7 +230,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa sampe -a 100000 $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS -| samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam `;
+			`bwa mem $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam `;
 		}
 		elsif ($aligner =~ /snap/i){
 			`snap-aligner paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
@@ -231,7 +238,9 @@ for my $ref_file_i ( 0..$#ref_files ){
 		elsif ($aligner =~ /minimap2/i){
 			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
 		}
-		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/paired$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
+		#`samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam | samtools sort -n -l 0 - | samtools view -@ $samtools_threads -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
+		#print "samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam $align_trim_pipe_cmd | samtools sort -n -T $tmp -l 0 -@ $samtools_threads  | samtools fixmate -m -@ $samtools_threads - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam","\n";
+		`samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam $align_trim_pipe_cmd | samtools sort -n -T $tmp -l 0 -@ $samtools_threads  | samtools fixmate -m -@ $samtools_threads - - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
 	}
 
 	if ($singleton){
@@ -248,7 +257,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $singleton |samtools view -@ $samtools_threads -ubS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam `;
+			`bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam `;
 		}
 		elsif($aligner =~ /snap/i){
 			`snap-aligner single $ref_file.snap $singleton -o $outDir/singleton$$.sam $snap_options`;
@@ -256,7 +265,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 		elsif ($aligner =~ /minimap2/i){
 			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
 		}
-		`samtools view -@ $samtools_threads -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
+		`samclip --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS  - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
 	}
 
 	# merge bam files if there are different file type, paired, single end, long..
@@ -445,9 +454,9 @@ for my $ref_file_i ( 0..$#ref_files){
 			$stats_print_string .= $snp_num ."\t". $indel_num;
 		}
 		if ($num_ref>1){
-			`echo  -e "$stats_print_string" >> $stats_output`;
+			`echo  "$stats_print_string" >> $stats_output`;
 		}else{
-			`echo  -e "\n${stats_print_string_head}\n$stats_print_string" >> $stats_output`;
+			`echo  "\n${stats_print_string_head}\n$stats_print_string" >> $stats_output`;
 		}
 		#$stats_print_string="";  
 		# pdf
@@ -629,6 +638,7 @@ sub get_ref_info
              $hash{$id}->{desc}=$desc;
              $hash{$id}->{len}= $seq_len;
              $hash{$id}->{GC}=$GC_content;
+             $hash{$id}->{reads}=0;
              #$window_size= ($seq_len>1000)? int($seq_len/1000)+10:10;
              $window_size= int($seq_len/500)||2;
              $step_size = int($window_size/5)||1;
@@ -668,6 +678,7 @@ sub get_ref_info
              $hash{$id}->{desc}=$desc;
              $hash{$id}->{len}= $seq_len;
              $hash{$id}->{GC}=$GC_content;
+             $hash{$id}->{reads}=0;
              #$window_size= ($seq_len>1000)? int($seq_len/1000)+10:10;
              $window_size= int($seq_len/500)||2;
              $step_size = int($window_size/5)||1;
@@ -1012,6 +1023,8 @@ Usage: perl $0
                -minimap2_options         type "minimap2" to see options
                                          default: "-t 4 "
 	       -maq                      minimium mapping quality filter [default: 42]
+	       -max_clip                 Maximum clip length to allow. filter [default: 50]
+	       -align_trim_bed_file      provide 6+ column bed file (ex: primer coordinates) for trimming 
                -skip_aln                 <bool> skip the alignment steps, assume bam files were generated 
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off

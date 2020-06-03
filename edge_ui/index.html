@@ -179,6 +179,7 @@
 	
 	<div role="main" id="edge-apps-home" class="ui-content edge-content edge-main-page">
 		<div class="error" id="edge-announcement" style="text-align: center;"></div>
+
 		<div class="ui-grid-b ui-responsive app-showcase">
 			<div class="ui-block-a">
 				<div class="app-artwork">
@@ -326,7 +327,7 @@
 						<div class="app-version">1.0.0</div>
 						<div class="app-name">Upload Data</div>
 					</div>
-					<div class="app-summary">Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format.</div>
+					<div class="app-summary">Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,bed,config,ini) and can be in gzip format.</div>
 				</div>
 			</div>
 		</div>
@@ -895,14 +896,28 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<label for="edge-qc-lc">Low Complexity Filter<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Maximum fraction of mono-/di-nucleotide sequence" ></a></label>
 				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
 			</div>
-			<div class="ui-field-contain input-type-file edge-notnanopore-options">
-				<label for="edge-qc-adapter">Adapter FASTA</label>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Primer Trim Method<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Provide either FASTA or BED file for primer trim. Align Trim Method will trim reads after aligning to reference and based on primer coordinates in BED file."></a></legend>
+					<input type="radio" data-mini="true" name="edge-r2g-align-trim-sw" id="edge-r2g-align-trim-sw1" value="1" checked="checked">
+					<label for="edge-r2g-align-trim-sw1">Align Trim</label>
+					<input type="radio" data-mini="true" name="edge-r2g-align-trim-sw" id="edge-r2g-align-trim-sw2" value="0">
+					<label for="edge-r2g-align-trim-sw2">FaQCs</label>
+				</fieldset>
+			</div>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-r2g-align-trim-bed-file">Primer BED<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="BED file 6+ column format. The BED file can bed uploaded to EDGE. The BED file 6+ column format is required and the first line should start with '#bed.'"></a></label>
+				<input data-mini="true" name="edge-r2g-align-trim-bed-file" id="edge-r2g-align-trim-bed-file" type="text" placeholder="(optional) absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-qc-adapter">Adapter/Primer FASTA</label>
 				<input data-mini="true" name="edge-qc-adapter" id="edge-qc-adapter" type="text" placeholder="(optional) absolute file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 			</div>
 			<div class="ui-field-contain edge-nanopore-options">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Remove Adapter</legend>
+					<legend>Remove Adapter by Porechop</legend>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="1" checked="checked">
 					<label for="edge-porechop-sw1">On</label>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="0">
@@ -1475,12 +1490,25 @@ A complete version of EDGE is available as a variety of packages that can fit in
 							<label for="edge-r2g-con-disableBAQ-sw2">No</label>
 						 </fieldset>
 					</div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+							<legend>Remove PCR Duplicates<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Remove PCR duplicates by samtools markdup" ></a></legend>
+							<input type="radio" data-mini="true" name="edge-r2g-con-pcrdedup" id="edge-r2g-con-pcrdedup-sw1" value="1" checked="checked">
+							<label for="edge-r2g-con-pcrdedup-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-r2g-con-pcrdedup" id="edge-r2g-con-pcrdedup-sw2" value="0">
+							<label for="edge-r2g-con-pcrdedup-sw2">No</label>
 
+						</fieldset>
+					</div>
 				</div>
 				<div class="ui-field-contain edge-fastq-options">
 					<label for="edge-r2g-aligner-options">Aligner Options<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options"></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2g-aligner-options" id="edge-r2g-aligner-options" placeholder="(optional)">
 				</div>
+				<div class="ui-field-contain edge-fastq-options">
+ 					<label for="edge-r2g-max-clip">MaxClip<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Use samclip to filter alignment result. Maximum clip length to allow." ></a></label>
+					<input type="number" name="edge-r2g-max-clip" id="edge-r2g-max-clip" data-mini="true" data-clear-btn="true" value="50">
+ 				</div>
 				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Identify Unmapped Reads</legend>
@@ -2259,7 +2287,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 <form id="edge-uploadfile-form" data-ajax="false" enctype="multipart/form-data">
         <div role="main" id="edge-content-uploadfile" class="ui-content edge-content edge-main-page">
                 <h2>Upload files</h2>
-		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">1gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
+		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">1gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,bed,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
         	<div id="uploader">
                     <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
             	</div>
