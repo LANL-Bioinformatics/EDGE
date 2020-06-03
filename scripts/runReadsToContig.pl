@@ -4,6 +4,7 @@
 #           3. bwa
 #           4. bowtie2
 #           5. ContigCoverageFold_plots_from_samPileup.pl
+#           6. Samclip
 #     input: reads files: forward.fastq and reverse.fastq [or single end files and Long fasta files]
 #            reference genome/contigs
 #     output: bam file (reads placement from bwa/bowtie + samtools)
@@ -37,6 +38,7 @@ my $bowtie_options="-p $numCPU -a ";
 my $cov_cut_off=0;
 my $aligner="bwa";
 my $pacbio_bwa_option="-b5 -q2 -r1 -z10 ";
+my $max_clip=50;
 my $prefix="ReadsMapping";
 my ($file1,$file2);
 my $skip_aln;
@@ -51,6 +53,7 @@ GetOptions(
             'd=s'   => \$outDir,
             'c=f'   => \$cov_cut_off, 
             'cpu=i' => \$numCPU,
+	    'max_clip=i' => \$max_clip,
             'bwa_options=s' => \$bwa_options,
             'bowtie_options=s' => \$bowtie_options,
             'minimap2_options=s' => \$minimap2_options,
@@ -98,6 +101,7 @@ Usage: perl $0
                                          type "minimap2" to see options
                                          default: "-t 4 "
                -skip_aln                 <bool> skip alignment step
+	       -max_clip                 Maximum clip length to allow. filter [default: 50]
                -cpu <NUM>                number of CPUs [4]  will overwrite the aligner threads
                -c  <NUM>                 cutoff value of contig coverage for final fasta file. (default:noFilter) 
 
@@ -166,14 +170,12 @@ if ($file_long)
    {
      $bwa_options .= ' -x pacbio ' if ($pacbio);
      #&executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     &executeCommand("bwa mem $bwa_options $ref_file $file_long | samtools view -@ $samtools_threads -ubS - |  samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - ");
-  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
-  #`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
+     &executeCommand("bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam ");
    }elsif ($aligner =~ /minimap2/i){
      `minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
    }
 
-   &executeCommand("samtools view -t $ref_file.fai -uhS $outDir/LongReads$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - ") if ( -s "$outDir/LongReads$$.sam");
+   &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam | samtools view -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - ") if ( -s "$outDir/LongReads$$.sam");
 }
 if ($paired_files){
    print "Mapping paired end reads\n";
@@ -192,11 +194,11 @@ if ($paired_files){
    }
    elsif($aligner =~ /bwa/i)
    {
-     &executeCommand("bwa mem $bwa_options $ref_file $file1 $file2 | samtools view -@ $samtools_threads -ubS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam - ");
+     &executeCommand("bwa mem $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam ");
    }elsif ($aligner =~ /minimap2/i){
      `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
    }
-   &executeCommand("samtools view -t $ref_file.fai -uhS $outDir/paired$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam - ") if (-s "$outDir/paired$$.sam");
+   &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/paired$$.sam | samtools sort -n -T $tmp -l 0 -@ $samtools_threads |  samtools fixmate -m -@ $samtools_threads  - - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam - ") if (-s "$outDir/paired$$.sam");
 }
 
 if ($singleton)  
@@ -217,11 +219,11 @@ if ($singleton)
     }
     elsif($aligner =~ /bwa/i)
     {
-      &executeCommand("bwa mem $bwa_options $ref_file $singleton | samtools view -@ $samtools_threads -ubS -| samtools sort -T $tmp -@ $samtools_threads -O BAM -o  $outDir/singleton$$.bam -");
+      &executeCommand("bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam ");
     } elsif ($aligner =~ /minimap2/i){
       `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
     }
-    &executeCommand("samtools view -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o  $outDir/singleton$$.bam - ") if  (-s "$outDir/singleton$$.sam");
+    &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam  | samtools view -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o  $outDir/singleton$$.bam - ") if  (-s "$outDir/singleton$$.sam");
 } 
 
 if ($file_long and $paired_files and $singleton){

@@ -1942,7 +1942,8 @@ $( document ).ready(function()
 					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-qc-minl').prop('disabled',false).val('400');
+					$('#edge-qc-minl').prop('disabled',false).val('370');
+					$('#edge-r2g-max-clip').prop('disabled',false).val('150');
 					$('#edge-qc-q').prop('disabled',false).val('7');
 					$('#splitrim-minq').prop('disabled',false).val('7');
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
@@ -1961,6 +1962,7 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
 					$( "#edge-porechop-sw4").prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
 					$('#edge-qc-q').prop('disabled',false).val('20');
@@ -1974,10 +1976,25 @@ $( document ).ready(function()
 		});
 		$("#edge-r2g-aligner2,#edge-r2g-aligner3").on('click',function(){
 			$("#edge-r2g-con-min-mapQ").val('60');
-		})
+		});
 		$("#edge-r2g-aligner1").on('click',function(){
 			$("#edge-r2g-con-min-mapQ").val('42');
-		})
+		});
+		$("label[for=edge-qc-adapter]").parent().hide();
+		$(":radio[name='edge-r2g-align-trim-sw']").on("change", function(){
+			$('#edge-qc-adapter').val('');
+			$('#edge-r2g-align-trim-bed-file').val('');
+                        if($('#edge-r2g-align-trim-sw1').is(':checked')){
+				$("label[for=edge-qc-adapter]").parent().hide();
+				$("label[for=edge-r2g-align-trim-bed-file]").parent().show();
+			}
+                        if($('#edge-r2g-align-trim-sw2').is(':checked')){
+				$("label[for=edge-qc-adapter]").parent().show();
+				$("label[for=edge-r2g-align-trim-bed-file]").parent().hide();
+			}
+
+		});
+
 	};
 
 	function getLog(texturl) {
@@ -3087,7 +3104,12 @@ $( document ).ready(function()
 			sync_input('reconfig');
 			$( "#edge-content-pipeline").find( "input:radio[id^='edge']" ).each( function(){
 				if ($("label[for='" + $(this).attr('id') + "']").hasClass('ui-radio-on')){
-					$(this).trigger('change');
+					if ($(this).attr('id') == "edge-assembled-contig1"){
+						obj = $(this);
+						setTimeout( function() { obj.trigger('change');},300 );	
+					}else{
+						$(this).trigger('change');
+					}
 				}
 			});
 			//loading pipeline

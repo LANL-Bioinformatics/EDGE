@@ -670,7 +670,7 @@ sub addProjToDB{
 
 		my $response = $browser->request($req);
 		my $result_json = $response->decoded_content;
-		#print $result_json,"\n";
+		#print STDERR $result_json,"\n";
 		my $info =  from_json($result_json);
 		my $new_id =  $info->{"id"};
 		my $projCode = &getProjcode($new_id);
@@ -1221,6 +1221,23 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
+		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
+		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
+		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
+		if ($opt{"edge-porechop-sw"} && $opt{"edge-r2g-align-trim-bed-file"}){
+			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either BED file or select one ARTIC Protocol Primers. Not Both.");
+		}
+		if ($opt{"edge-porechop-sw"} && $opt{"edge-qc-adapter"}){
+			&addMessage("PARAMS", "edge-qc-adapter", "Please provide either FASTA file or select one ARTIC Protocol Primers. Not Both.");
+		}
+		if ($opt{"edge-porechop-sw"} && $opt{"edge-r2g-align-trim-sw"}){
+			$opt{"edge-r2g-align-trim-bed-file"}="$EDGE_HOME/edge_ui/data/".$opt{"edge-porechop-sw"}. ".bed";
+		}
+		if ($opt{"edge-porechop-sw"} && !$opt{"edge-r2g-align-trim-sw"}){
+			$opt{"edge-qc-adapter"}="$EDGE_HOME/edge_ui/data/".$opt{"edge-porechop-sw"}. ".fasta";
+		}
+
+
 	}
 	if ( $opt{"edge-joinpe-sw"}){
 		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;
@@ -1368,6 +1385,26 @@ sub is_gff
 	($head =~ /gff/i)?
 		return 1:
 		return 0;
+}
+
+sub is_bed6_plus{
+    $SIG{'PIPE'}=sub{};
+    my $file=shift;
+    my ($fh,$pid)= open_file($file);
+    my $count=0;
+    my $check_num=100;
+    my $is_bed=0;
+    for ($count..$check_num){
+            my $line=<$fh>;
+            next if $line =~ /^#/;
+            my @col = split /\t/,$line;
+            if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[5] =~ /^\d+$/ ){
+                    $is_bed=1;
+            }
+    }
+    kill 9, $pid; # avoid gunzip broken pipe
+    $SIG{'PIPE'} = 'DEFAULT';
+    return $is_bed;
 }
 
 sub is_fastq
@@ -1635,7 +1672,6 @@ sub getSRAmetaData{
 				my @its = split /\//, $collectionDate;
 				$collectionDate = $its[1]; 
 			}
-			#print STDERR $collectionDate,"\n";;
 			$location = $parts[2];
   			$sampleName = $parts[3];
  			$sampleName = $parts[8] unless $sampleName;

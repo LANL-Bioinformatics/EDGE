@@ -29,7 +29,7 @@
 	<script src="javascript/jquery-ui-datepicker.js"></script>
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/jquery.dataTables.min.js"></script>
-	<script src="javascript/edge.js"></script>
+	<script src="javascript/edge.js?v=20200603"></script>
 	<script src="javascript/spectrum.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -283,7 +283,7 @@
 		The default workflow in <em>EDGE COVID-19</em> includes:
 		<ol>
 			<li> data quality control (QC) and filtering,</li>
-			<li> alignment of reads to the original (first available) reference genome (<a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>),</li>
+			<li> alignment of reads to the original (first available) reference genome (<a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NC_045512.2</a>, we removed the PolyA tail  from the 3' end (33 nt)),</li>
 			<li> creation of a consensus genome sequence based on the read alignments, and </li>
 			<li> a Single Nucleotide Polymorphism and Variant analyses, with some detail such as location and resulting coding differences if any. </li>
 		</ol>
@@ -666,8 +666,23 @@
 					<label for="edge-porechop-sw4">Off</label>
 				</fieldset>
 			</div>
+			<div class="ui-field-contain">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Primer Trim Method<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Align Trim will trim reads after aligning to reference and based on primer coordinates in BED file."></a></legend>
+					<input type="radio" data-mini="true" name="edge-r2g-align-trim-sw" id="edge-r2g-align-trim-sw1" value="1" checked="checked">
+					<label for="edge-r2g-align-trim-sw1">Align Trim</label>
+					<input type="radio" data-mini="true" name="edge-r2g-align-trim-sw" id="edge-r2g-align-trim-sw2" value="0">
+					<label for="edge-r2g-align-trim-sw2">FaQCs</label>
+				</fieldset>
+			</div>
+			
 			<div class="ui-field-contain input-type-file">
-				<label for="edge-qc-adapter">Adapter FASTA</label>
+				<label for="edge-r2g-align-trim-bed-file">Primer BED<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="BED file 6+ column format. The BED file can bed uploaded to EDGE. The BED file 6+ column format is required and the first line should start with '#bed.'"></a></label>
+				<input data-mini="true" name="edge-r2g-align-trim-bed-file" id="edge-r2g-align-trim-bed-file" type="text" placeholder="(optional) absolute file path/select file">
+				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+			</div>
+			<div class="ui-field-contain input-type-file">
+				<label for="edge-qc-adapter">Primer FASTA</label>
 				<input data-mini="true" name="edge-qc-adapter" id="edge-qc-adapter" type="text" placeholder="(optional) absolute file path/select file">
 				<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 			</div>
@@ -1159,7 +1174,7 @@
 			
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Preselected <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NCBI RefSeq</a> Reference Genome<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome'></a></legend>
+					<legend>Preselected <a href="https://www.ncbi.nlm.nih.gov/nuccore/NC_045512.2/" target="_new">NCBI RefSeq</a> Reference Genome<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome. We removed the PolyA tail from the 3' end end (33 nt)"></a></legend>
 					<input type="radio" data-mini="true" name="edge-selected-ref-input-sw" id="edge-selected-ref-input-sw1" value="NC_045512.2" checked='checked'>
 					<label for="edge-selected-ref-input-sw1">Yes</label>
 					<input type="radio" data-mini="true" name="edge-selected-ref-input-sw" id="edge-selected-ref-input-sw2" value="0">
@@ -1213,7 +1228,7 @@
 			</div>
 			<div class="edge-r2g-con-options edge-fastq-options" style="padding-left:0.8em">
 					<div class="ui-field-contain">
-						<label for="edge-r2g-con-min-cov">  Minimum Coverage<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum level of coverage required to avoid an N in the consensus." ></a></label>
+				 		<label for="edge-r2g-con-min-cov">  Minimum Coverage<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum level of coverage required to avoid an N in the consensus." ></a></label>
 						<input type="number" name="edge-r2g-con-min-cov" id="edge-r2g-con-min-cov" data-mini="true" data-clear-btn="true" value="5">
 					</div>
 					<div class="ui-field-contain">
@@ -1252,11 +1267,25 @@
 							<label for="edge-r2g-con-disableBAQ-sw2">No</label>
 						</fieldset>
 					</div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+							<legend>Remove PCR Duplicates<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Remove PCR duplicates by samtools markdup" ></a></legend>
+							<input type="radio" data-mini="true" name="edge-r2g-con-pcrdedup" id="edge-r2g-con-pcrdedup-sw1" value="1" checked="checked">
+							<label for="edge-r2g-con-pcrdedup-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-r2g-con-pcrdedup" id="edge-r2g-con-pcrdedup-sw2" value="0">
+							<label for="edge-r2g-con-pcrdedup-sw2">No</label>
+						</fieldset>
+					</div>
 				</div>
 				<div class="ui-field-contain edge-fastq-options">
 					<label for="edge-r2g-aligner-options">Aligner Options<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options"></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2g-aligner-options" id="edge-r2g-aligner-options" placeholder="(optional)">
 				</div>
+				<div class="ui-field-contain edge-fastq-options">
+				 	<label for="edge-r2g-max-clip">MaxClip<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Use samclip to filter alignment result. Maximum clip length to allow." ></a></label>
+					<input type="number" name="edge-r2g-max-clip" id="edge-r2g-max-clip" data-mini="true" data-clear-btn="true" value="50">
+				</div>
+
 				<!--<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Identify Unmapped Reads</legend>
@@ -1275,8 +1304,8 @@
 						<input type="radio" data-mini="true" name="edge-ref-unmapped-contig-class" id="edge-ref-unmapped-contig2" value="0" checked="checked">
 						<label for="edge-ref-unmapped-contig2">No</label>
 					</fieldset>
-				</div>-->
-				<p class="edge_tool_note">EDGE will try to classify reads and contigs that are unmapped to references by mapping them to NCBI RefSeq database.</p>
+				</div>
+				<p class="edge_tool_note">EDGE will try to classify reads and contigs that are unmapped to references by mapping them to NCBI RefSeq database.</p>-->
 				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Extract Mapped Reads</legend>
@@ -2029,7 +2058,7 @@
 <form id="edge-uploadfile-form" data-ajax="false" enctype="multipart/form-data">
         <div role="main" id="edge-content-uploadfile" class="ui-content edge-content edge-main-page">
                 <h2>Upload files</h2>
-		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">1gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
+		<p class="edge_tool_note">Max file size is <span id="edge-upload-maxFileSize">1gb</span>. Allowed File types are fastq, fasta, genbank, gff, xlsx and text (txt,bed,config,ini) and can be in gzip format. Files will be kept for <span id="edge-upload-expiration-days">7</span> days.</p>
         	<div id="uploader">
                     <p>You are not logged in or your browser doesn't have Flash, Silverlight or HTML5 support.</p>
             	</div>
@@ -2148,7 +2177,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200520</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20200603</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
