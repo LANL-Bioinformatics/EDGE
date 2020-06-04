@@ -23,19 +23,29 @@ function read_config($configFile){
 }
 
 function check_uploadFile($input){
-		$file_type = mime_content_type($input);
-		$line_of_text="";
+	$file_type = mime_content_type($input);
+	$line_of_text="";
         if (preg_match("/-gzip/",$file_type)){
                 $file_handle = gzopen($input, "rb");
         }else{
                 $file_handle = fopen($input, "rb");
         }
 
-        $line_of_text = fgets($file_handle);
-        $line_of_text .= fgets($file_handle);
+	$line_of_text = fgets($file_handle);
+	$second_line = fgets($file_handle);
+	$fields = explode("\t",$second_line);
+        $line_of_text .= $second_line;
         if (preg_match("/^>|^@|project|ID|^LOCUS|xml|gff|bed/i",$line_of_text)){
                 return true;
         }else{
+		if (count($fields) >= 6 and is_numeric($fields[1]) and is_numeric($fields[2]) ){
+			## possible bed format
+			return true;
+		}
+		if (count($fields) == 2 and is_numeric($fields[1])){
+			## abundance file
+			return true;
+		}
                 return false;
         }
 }
