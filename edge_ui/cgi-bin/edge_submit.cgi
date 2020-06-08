@@ -1398,7 +1398,7 @@ sub is_bed6_plus{
             my $line=<$fh>;
             next if $line =~ /^#/;
             my @col = split /\t/,$line;
-            if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[5] =~ /^\d+$/ ){
+            if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[4] =~ /^\d+$/ ){
                     $is_bed=1;
             }
     }

@@ -879,6 +879,9 @@ $( document ).ready(function()
 					if ( /edge-hostrm-file/.test(inputFileID)  ){
 						$('#edge-hostrm-sw1').click().checkboxradio('refresh');
 					}
+					if ( /edge-r2g-align-trim-bed-file/.test(inputFileID)  ){ 
+						$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
+					}
 				}
 			}
 		});
@@ -1942,7 +1945,7 @@ $( document ).ready(function()
 					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-qc-minl').prop('disabled',false).val('370');
+					$('#edge-qc-minl').prop('disabled',false).val('350');
 					$('#edge-r2g-max-clip').prop('disabled',false).val('150');
 					$('#edge-qc-q').prop('disabled',false).val('7');
 					$('#splitrim-minq').prop('disabled',false).val('7');
@@ -1961,7 +1964,7 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
-					$( "#edge-porechop-sw4").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-porechop-sw5").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
@@ -1972,6 +1975,13 @@ $( document ).ready(function()
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.5').slider("refresh");
 					$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).click().checkboxradio("refresh");
 				}
+			}
+		});
+		$(":radio[name='edge-porechop-sw']").on("change", function(){
+			if($('#edge-porechop-sw5').is(':checked')){
+				$("#edge-r2g-con-pcrdedup-sw1").prop('disabled',false).click().checkboxradio("refresh");
+			}else{
+				$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
 			}
 		});
 		$("#edge-r2g-aligner2,#edge-r2g-aligner3").on('click',function(){
