@@ -864,6 +864,9 @@ $( document ).ready(function()
 					if ( /edge-hostrm-file/.test(inputFileID)  ){
 						$('#edge-hostrm-sw1').click().checkboxradio('refresh');
 					}
+					if ( /edge-r2g-align-trim-bed-file/.test(inputFileID)  ){
+						$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
+					}
 				}
 			}
 		});

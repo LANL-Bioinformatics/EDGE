@@ -3141,6 +3141,18 @@ sub runReadsToGenome
       &executeCommand("cat $outputDir/*.gap.coords > $outGap");
       &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
     }
+    if ($configuration->{r2g_align_trim_bed_file}){
+        # ampilcon coverage plot
+	my ($bed_prefix,$bed_dir,$bed_suffix) = fileparse($configuration->{r2g_align_trim_bed_file},".bed");
+        my $bed_file_flag = (-e "$bed_dir/$bed_prefix.bedpe")? "--bedpe $bed_dir/$bed_prefix.bedpe":"--bed $configuration->{r2g_align_trim_bed_file}";
+        my @cov_files = glob("$outputDir/*coverage");
+        foreach my $cov_f (@cov_files){
+               $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $bed_file_flag";
+               &executeCommand($command);
+        }
+
+    }
+
     if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
         `echo "Extract mapped reads" >> $log`;
@@ -3158,7 +3170,7 @@ sub runReadsToGenome
     if ($configuration->{r2g_get_consensus}){
         my $consensus_log = "$outputDir/consensus.log";
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
-        my $con_max_cov = $configuration->{r2g_consensus_max_cov} || 300;
+        my $con_max_cov = (defined $configuration->{r2g_consensus_max_cov})?$configuration->{r2g_consensus_max_cov} : 8000;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
 	my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
@@ -4316,7 +4328,7 @@ sub is_bed6_plus{
         my $line=<$fh>;
         next if $line =~ /^#/;
         my @col = split /\t/,$line;
-        if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[5] =~ /^\d+$/){
+        if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[4] =~ /^\d+$/){
 	    $is_bed=1;
         }
     }

@@ -1480,7 +1480,7 @@ $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda create -y -n py36
-$anaconda3bin/pip install CairoSVG pandas
+$anaconda3bin/pip install CairoSVG pandas pysam
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
