@@ -766,14 +766,14 @@
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><TMPL_VAR NAME=RMCONGC DEFAULT=->%</td>
 									</TMPL_UNLESS>
-									<td><TMPL_VAR NAME=RMCONGAP DEFAULT=-></td>
+									<td title="Bases: <TMPL_VAR NAME=RMCONGAPINFO DEFAULT=->"><TMPL_VAR NAME=RMCONGAP DEFAULT=-></td>
 									<td title="<TMPL_VAR NAME=RMCONTOTALNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTOTALN DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td title="<TMPL_VAR NAME=RMCONLEADNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLEADN DEFAULT=-></td>
 									<td title="<TMPL_VAR NAME=RMCONTAILNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
-									<td><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
+									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
 									</TMPL_UNLESS>

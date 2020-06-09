@@ -1892,6 +1892,7 @@ sub pull_readmapping_ref {
 						$refinfo->{"RMCONTAILN"} = $consensus_info->{$consensus_id}->{tail_N};
 						$refinfo->{"RMCONTAILNINFO"} = "Gap_n: $consensus_info->{$consensus_id}->{tail_small_n}; Ambiguous_N: $consensus_info->{$consensus_id}->{tail_cap_N}";
 						$refinfo->{"RMCONGAP"} = ($consensus_info->{$consensus_id}->{gap_num})? $consensus_info->{$consensus_id}->{gap_num} : "0";
+						$refinfo->{"RMCONGAPINFO"} = ($consensus_info->{$consensus_id}->{gaps_num})? $consensus_info->{$consensus_id}->{gaps_num} : "0";
 						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
 							$refinfo->{'RMCONSUBMITOK'} = '1';
 							$vars->{'RMCONSUBMITOK_TH'}='1';
@@ -1901,6 +1902,7 @@ sub pull_readmapping_ref {
 				foreach my $consensus_id (keys %$consensus_info2){
 					if ($consensus_id =~ /$temp[0]/i){ 
 						$refinfo->{"RMCONINDEL"} = ($consensus_info2->{$consensus_id}->{indel_num})? $consensus_info2->{$consensus_id}->{indel_num}: "0";
+						$refinfo->{"RMCONINDELINFO"} = ($consensus_info2->{$consensus_id}->{indel_num_len})? $consensus_info2->{$consensus_id}->{indel_num_len}: "0";
 						#$refinfo->{"RMCONVARIANT"} = ($consensus_info2->{$consensus_id}->{variants_num})? $consensus_info2->{$consensus_id}->{variants_num} : "0";
 						$refinfo->{"RMCONSNP"} = ($consensus_info2->{$consensus_id}->{snps_num})? $consensus_info2->{$consensus_id}->{snps_num} : "0";
 					}
@@ -2031,8 +2033,12 @@ sub consensus_fasta_stat{
 		chomp;
 		next if /RATIO_OF_REF/;
 		my @field=split("\t",$_);
-		if ($field[2] eq '-' or $field[3] eq '-'){
+		if ($field[2] eq '-'){
 			$info2{$field[0]}->{indel_num}++;
+			$info2{$field[0]}->{indel_num_len} = length($field[3]);
+		}elsif($field[3] eq '-'){
+			$info2{$field[0]}->{indel_num}++;
+			$info2{$field[0]}->{indel_num_len} = length($field[2]);
 		}elsif($field[3] eq 'n'){
 			$info2{$field[0]}->{gaps_num}++;
 		}elsif($field[3] eq 'N'){

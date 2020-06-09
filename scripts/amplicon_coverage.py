@@ -48,16 +48,28 @@ def mkdir_p(directory_name):
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
 
-def covert_bed_to_amplicon_dict(input):
+def covert_bed_to_amplicon_dict(input,unique=False):
     ## convert bed file to amplicon region dictionary
     input_bed = input
     amplicon=defaultdict(dict)
-    cmd = 'grep -v alt %s | paste - - | awk \'{print $4"\t"$3"\t"$8}\' | sed -e "s/_LEFT//g" -e "s/_RIGHT//g" ' % (input_bed)
+    if unique:
+       cmd = 'grep -v alt %s | paste - - | awk \'{print $4"\t"$2"\t"$9}\' | sed -e "s/_LEFT//g" -e "s/_RIGHT//g" ' % (input_bed)
+    else:
+       cmd = 'grep -v alt %s | paste - - | awk \'{print $4"\t"$3"\t"$8}\' | sed -e "s/_LEFT//g" -e "s/_RIGHT//g" ' % (input_bed)
+ 
     proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE) 
+    previous_id=''
     for line in proc.stdout:
          id, start, end = line.decode().rstrip().split("\t")
-         amplicon[id]['start']=start
-         amplicon[id]['end']=end
+         amplicon[id]=range(int(start),int(end)+1)
+         if (previous_id and unique):
+            set_new=set(amplicon[id])
+            set_previous=set(amplicon[previous_id])
+            set_new_update=sorted(set_new - set_previous)
+            set_previous_update=sorted(set_previous - set_new)
+            amplicon[id] = range(set_new_update[0],set_new_update[-1]+1)
+            amplicon[previous_id] = range(set_previous_update[0],set_previous_update[-1]+1)
+         previous_id = id
 
     outs, errs = proc.communicate()
     if proc.returncode != 0:
@@ -65,16 +77,28 @@ def covert_bed_to_amplicon_dict(input):
 
     return amplicon
 
-def covert_bedpe_to_amplicon_dict(input):
+def covert_bedpe_to_amplicon_dict(input,unique=False):
     ## convert bed file to amplicon region dictionary 
     input_bedpe = input
     amplicon=defaultdict(dict)
-    cmd = 'awk \'{print $7"\t"$3"\t"$5}\' %s ' % (input_bedpe)
+    if unique:
+        cmd = 'awk \'{print $7"\t"$2"\t"$6}\' %s ' % (input_bedpe)
+    else:
+        cmd = 'awk \'{print $7"\t"$3"\t"$5}\' %s ' % (input_bedpe)
     proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE) 
+    previous_id=''
     for line in proc.stdout:
          id, start, end = line.decode().rstrip().split("\t")
-         amplicon[id]['start']=start
-         amplicon[id]['end']=end
+         amplicon[id]=range(int(start),int(end)+1)
+         if (previous_id and unique):
+            set_new=set(amplicon[id])
+            set_previous=set(amplicon[previous_id])
+            set_new_update=sorted(set_new - set_previous)
+            set_previous_update=sorted(set_previous - set_new)
+            amplicon[id] = range(set_new_update[0],set_new_update[-1]+1)
+            amplicon[previous_id] = range(set_previous_update[0],set_previous_update[-1]+1)
+         previous_id = id
+
     outs, errs = proc.communicate()
     if proc.returncode != 0:
         print("Failed %d %s %s" % (proc.returncode, outs, errs))
@@ -104,17 +128,58 @@ def parse_bam_file(bam):
 def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d):
     mean_dict=dict()
     for key in amplicon_d:
-        start = amplicon_d[key]['start']
-        end = amplicon_d[key]['end']
-        mean_dict[key] = cov_np_array[int(start):int(end)].mean()
+        start = amplicon_d[key][0]
+        end = amplicon_d[key][-1]
+        mean_dict[key] = cov_np_array[start:end].mean()
     return mean_dict
 
-def barplot(mean_dict,input_bed,overall_mean,outdir,prefix):
+def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
     #plot bar chart
     x_name=Path(input_bed).stem
     x=list(mean_dict.keys())
     y=list(mean_dict.values())
+    uniq_x=list(uniq_mean_d.keys())
+    uniq_y=list(uniq_mean_d.values())
     fig = go.Figure(data=[go.Bar(x=x, y=y)])
+    fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color='lightsalmon',visible=False))
+    
+    depthMean = [dict(type='line',
+    		        xref='paper',x0=0,x1=1,
+    		        yref='y',y0=overall_mean,y1=overall_mean,
+    		        line=dict(
+    			        color="red",
+    			        width=1,
+    			        dash='dot',
+    		        )
+                )]
+
+    depth5x = [dict(type='line',
+    		        xref='paper',x0=0,x1=1,
+    		        yref='y',y0=5,y1=5,
+    		        line=dict(
+    			        color="black",
+    			        width=1,
+    			        dash='dot',
+    		        )
+                )]
+    depth10x = [dict(type='line',
+    		        xref='paper',x0=0,x1=1,
+    		        yref='10',y0=10,y1=10,
+    		        line=dict(
+    			        color="black",
+    			        width=1,
+    			        dash='dot',
+    		        )
+                )]
+    depth20x = [dict(type='line',
+    		        xref='paper',x0=0,x1=1,
+    		        yref='y',y0=20,y1=20,
+    		        line=dict(
+    			        color="black",
+    			        width=1,
+    			        dash='dot',
+    		        )
+                )]
 
     updatemenus = list([
         dict(
@@ -129,12 +194,52 @@ def barplot(mean_dict,input_bed,overall_mean,outdir,prefix):
                             'yaxis.type': 'log'}])
                 ]),
              direction="down",
-             x=0.1,
+             x=0,
              xanchor="left",
-             y=1.1,
+             y=1.03,
              yanchor="top"
-            )
-        ])
+        ),
+        dict(
+            buttons=list([
+                dict(label='Whole Amplicon',
+                     method='update',
+                     args=[{"visible": [True, False]}]),
+                dict(label='Unique',
+                     method='update',
+                     args=[{"visible": [False, True]}])
+                
+                ]),
+             direction="down",
+             x=0.15,
+             xanchor="left",
+             y=1.03,
+             yanchor="top"
+        ),
+        dict(
+            buttons=list([
+                dict(label="Mean(" + str(int(overall_mean)) + 'X)',
+                 method="relayout",
+                 args=["shapes", depthMean]),
+                dict(label="5X",
+                 method="relayout",
+                 args=["shapes", depth5x]),
+                dict(label="10X",
+                 method="relayout",
+                 args=["shapes", depth10x]),
+                dict(label="20X",
+                 method="relayout",
+                 args=["shapes", depth20x]),
+                dict(label="All",
+                 method="relayout",
+                 args=["shapes", depthMean + depth5x + depth10x + depth20x])
+                ]),
+             direction="down",
+             x=0.30,
+             xanchor="left",
+             y=1.03,
+             yanchor="top"
+        )
+    ])
 
     fig.update_layout(
         updatemenus=updatemenus,
@@ -145,8 +250,15 @@ def barplot(mean_dict,input_bed,overall_mean,outdir,prefix):
             size=10,
         ),
         annotations=[
-            dict(text="Y-axis:", showarrow=False,
-            x=0, y=1.085, yref="paper", align="left")
+            dict(text="Y-axis:",x=0, xref="paper",
+                                y=1.06, yref="paper", 
+                                showarrow=False),
+            dict(text="Region:",x=0.15, xref="paper",
+                                y=1.06, yref="paper", 
+                                showarrow=False),
+            dict(text="DepthLine:", x=0.30, xref="paper",
+                                y=1.06, yref="paper", 
+                                showarrow=False),
         ],
         shapes=[
     	    dict(type='line',
@@ -167,9 +279,11 @@ def barplot(mean_dict,input_bed,overall_mean,outdir,prefix):
 def run(argvs):
     if (argvs.bed):
         amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed)
+        uniq_amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,True)
         bedfile = argvs.bed
     if (argvs.bedpe):
         amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe)
+        uniq_amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe)
         bedfile = argvs.bedpe
     if (argvs.cov):
         cov_array = parse_cov_file(argvs.cov)
@@ -180,8 +294,9 @@ def run(argvs):
     if not argvs.prefix:
         argvs.prefix = prefix
         
-    mean_d = calculate_mean_cov_per_amplicon(cov_array,amplicon_dict)
-    barplot(mean_d,bedfile,cov_array.mean(),argvs.outdir,argvs.prefix)
+    amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,amplicon_dict)
+    uniq_amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,uniq_amplicon_dict)
+    barplot(amplicon_mean_d,uniq_amplicon_mean_d,bedfile,cov_array.mean(),argvs.outdir,argvs.prefix)
 
 if __name__ == '__main__':
     argvs = setup_argparse()
