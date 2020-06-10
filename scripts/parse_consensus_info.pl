@@ -23,6 +23,7 @@ while(my $line=<$fh>){
 		my $tail_cap_N = $tail_N =~ tr/N/N/;
 		my $tail_small_n = $tail_N =~ tr/n/n/;
 		my $gap_num = $seq =~ s/(n{1,})/$1/g;
+		my $ambigous_num = $seq =~ s/(N{1,})/$1/g;
 		print "Genome Length:", length($seq),"\n";
 		print "Total n/N count:", $total_N , "\n"; 
 		print "Total N count:", $total_cap_N,"\n";
@@ -34,6 +35,7 @@ while(my $line=<$fh>){
 		print "3\' N count:", $tail_cap_N,"\n";
 		print "3\' n count:", $tail_small_n,"\n";
 		$gap_num = 0 if (!$gap_num);
+		print "Ambiguous:",$ambigous_num,"\n";
 		print "Gaps:", $gap_num,"\n";
 		print "GC content:", sprintf("%.2f\n", ($total_G + $total_C) / length($seq) * 100 );
 }
