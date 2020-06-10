@@ -185,7 +185,7 @@ def fix_mappingFile(mappingFile,out_dir):
     num_sample = 0
     for line in f:
         if not line.strip():continue
-        temp = [ x.strip(' "') for x in line.split('\t')]
+        temp = [ x.rstrip().strip(' "') for x in line.split('\t')]
         temp[0] = temp[0].replace('.', '-').replace('_', '-')
         if line.lower().startswith('#'):
             header = line.lower().split('\t')
