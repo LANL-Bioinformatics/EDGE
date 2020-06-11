@@ -16,6 +16,7 @@ my $projid = $out_dir_parts[-1];
 
 ## Instantiate the variables
 my $vars;
+my $configuration = &pull_EDGEConfig();
 
 eval {
 	&pull_sampleMetadata();
@@ -65,8 +66,14 @@ sub pull_consensusInfo{
 		if (/CMD:\s(\S+)/){$align_tool=$1;}
 	}
 	close $log_fh;
-	$vars->{ASM_METHOD}="$align_tool $tool_version";
+	$vars->{ASM_METHOD}="$align_tool $tool_version.";
 
+	my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ};
+	my $con_min_cov = $configuration->{r2g_consensus_min_cov};
+	my $con_alt_prop = $configuration->{r2g_consensus_alt_prop}*100 . "%";
+	my $con_alt_indel = $configuration->{r2g_consensus_altIndel_prop}* 100 . "%";
+	
+	$vars->{ASM_METHOD} .= " Consensus min coverage: ${con_min_cov}X. min map quality: $con_min_mapQ. Alternate Base > $con_alt_prop. Indel > $con_alt_indel.";
 	open (my $config_fh, "<" , "$out_dir/config.txt");
 	while(<$config_fh>){
 		if (/fastq_source=(\S+)/i){ my $platform=$1; $vars->{FASTQ_SOURCE}=($platform eq "nanopore")?"Nanopore":"Illumina";}
@@ -114,4 +121,49 @@ sub pull_submissionData {
       		  }
         	close CONF;
 	} 
+}
+sub pull_EDGEConfig
+{
+    my $file="$out_dir/config.txt";
+    my %hash;
+    open (my $fh , $file) or die "No config file $!\n";
+    my $head=<$fh>;
+    if ($head !~ /project/i){ die "Incorrect config file\n"};
+    while (<$fh>)
+    {
+        chomp;
+        next if (/^#/);
+        if (/=/)
+        {
+            my ($key,$value)=split /=/,$_;
+            if ( defined $value)
+            {
+               $value =~ s/\"//g;
+               if ($key eq "Host")
+               {
+                 foreach my $each_host(split(/,/,$value))
+                 {
+                   push @{$hash{$key}} , $each_host;
+                 }
+               }
+               elsif($key eq "reference")
+               {
+                 foreach my $each_ref(split(/,/,$value))
+                 {
+                   push @{$hash{$key}} , $each_ref;
+                 }
+               }
+               else
+               {
+                   $hash{$key}=$value;
+               }
+            }
+            else
+            {
+               $hash{$key}="";
+            }
+        }
+    }
+    close $fh;
+    return \%hash;
 }

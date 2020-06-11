@@ -658,7 +658,7 @@
 			<TMPL_IF NAME="OUT_R2G_SW">
 				<li id="r2gTag"><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					<ol>
-						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
+						<li><span class="li-report-content-title">Mapped Reads By <TMPL_VAR NAME=RMREFALIGNER></span><div class="li-report-content">
 							<!--<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 							  <thead>
 								<tr>
@@ -750,7 +750,7 @@
 								  <th data-priority='6' class='ui-table-cell-hidden'>Change Log</th>
 								  </TMPL_UNLESS>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
-								  <th data-priority='3'>Consensus Genome</th>
+                                                                  <th data-priority='3' title="<TMPL_VAR NAME=RMCONPARAMETERS>">Consensus Genome</th>
 								  <TMPL_IF NAME="RMCONSUBMITOK_TH">
 								  <th data-priority='3' title="<TMPL_VAR NAME=RMCONSUMITVAL>">Ready to Submit </th>
 								  </TMPL_IF>

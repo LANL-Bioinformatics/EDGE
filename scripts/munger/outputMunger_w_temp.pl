@@ -1841,6 +1841,12 @@ sub pull_readmapping_ref {
 	my $consensus_length_recommand=25000;
 	my $consensus_dpcov_recommand=10;
 	my $consensus_Nper_recommand=0.05;
+	my $con_min_mapQ = $vars->{r2g_consensus_min_mapQ};
+        my $con_min_cov = $vars->{r2g_consensus_min_cov};
+        my $con_alt_prop = $vars->{r2g_consensus_alt_prop}*100 . "%";
+        my $con_alt_indel = $vars->{r2g_consensus_altIndel_prop}* 100 . "%";
+
+        $vars->{RMCONPARAMETERS} = "Consensus min coverage: ${con_min_cov}X; min map quality: $con_min_mapQ; Alternate Base > $con_alt_prop; Indel > $con_alt_indel;";
 	$vars->{RMCONSUMITVAL} = sprintf("Length > %d bp, Depth Coverage > %d X, N < %.1f %%",$consensus_length_recommand,$consensus_dpcov_recommand,$consensus_Nper_recommand*100 );
 	open(my $reffh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt") or die $!;
 	while(<$reffh>) {
@@ -2120,6 +2126,21 @@ sub pull_summary {
 		if (/fastq_source=(.*)/){
 			my $fastq_source = $1;
 			$vars->{FROMNANOPORE}= ($fastq_source =~ /nanopore/i)?"Yes":"No";
+		}
+		if (/r2g_consensus_min_mapQ=(.*)/){
+			$vars->{r2g_consensus_min_mapQ}=$1;
+		}
+		if (/r2g_consensus_alt_prop=(.*)/){
+			$vars->{r2g_consensus_alt_prop}=$1;
+		}
+		if (/r2g_consensus_altIndel_prop=(.*)/){
+			$vars->{r2g_consensus_altIndel_prop}=$1;
+		}
+		if (/r2g_consensus_min_cov=(.*)/){
+			$vars->{r2g_consensus_min_cov}=$1;
+		}
+		if (/r2g_aligner=(.*)/){
+			$vars->{RMREFALIGNER}=$1;
 		}
 		if (/porechop=(.*)/){
 			$vars->{PORECHOP} = $1;
