@@ -55,7 +55,8 @@ sub pull_consensusInfo{
 			my $linear_cov=sprintf("%.2f%%",$array[4]);
 			my $depth_cov=sprintf("%dX",$array[5]);
 			my $value="$id"."::"."$linear_cov"."::"."$depth_cov";
-			$vars->{CON_LIST} .= "<option value=$value>$id ($linear_cov, $depth_cov)</option>";
+			my $selected = ( $vars->{SM_COV} && $vars->{SM_COV} =~ /$id/ )? 'selected':'';
+			$vars->{CON_LIST} .= "<option value='$value' $selected>$id ($linear_cov, $depth_cov)</option>";
 		}
 	}       
 	close $cov_fh;
@@ -93,11 +94,19 @@ sub pull_sampleMetadata {
              			$vars->{SM_CDATE} =$2 if ($1 eq "collection_date");
              			$vars->{SM_LOC} =$2 if ($1 eq "location");
              			$vars->{SM_HOST} =$2 if ($1 eq "host");
-             			$vars->{SM_GENDER} =$2 if ($1 eq "gender");
+             			$vars->{SM_GENDER} = $2 if ($1 eq "gender");
              			$vars->{SM_AGE} =$2 if ($1 eq "age");
              			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
+				$vars->{SM_COV} = $2 if ($1 eq "coverage");
               		}
-      		  }
+      		}
+		if ($vars->{SM_GENDER} =~ /Female/i){
+			$vars->{SM_GENDER_FEMALE} = "selected";
+		}elsif($vars->{SM_GENDER} =~ /Male/i){
+			$vars->{SM_GENDER_MALE} = "selected";
+		}elsif($vars->{SM_GENDER} =~ /Other/i){
+			$vars->{SM_GENDER_OTHER} = "selected";
+		}
         	close CONF;
 	}
 }

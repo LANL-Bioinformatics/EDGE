@@ -103,9 +103,12 @@
 
 							<div class="ui-field-contain">
 								<label for="metadata-sample-gender">Gender</label>
-								<input name="metadata-sample-gender" id="metadata-sample-gender" type="text"
-									value="<TMPL_VAR NAME=SM_GENDER DEFAULT=>"
-									placeholder="Example: Male, Female, or unknown" class="metadata-input">
+								<select name="metadata-sample-gender" id="metadata-sample-gender" data-mini="true" data-native-menu="false" class="metadata-input">
+									<option value="">Select Gender</option>
+									<option value="Male" <TMPL_VAR NAME=SM_GENDER_MALE>>Male</option>
+									<option value="Female" <TMPL_VAR NAME=SM_GENDER_FEMALE>>Female</option>
+									<option value="Other" <TMPL_VAR NAME=SM_GENDER_OTHER>>Other</option>
+								</select>
 							</div>
 
 							<div class="ui-field-contain">
@@ -129,7 +132,7 @@
 							
 							<div class="ui-field-contain">
 								<label for="metadata-sample-consensus">Consensus Fasta</label>
-								<select id="metadata-sample-consensus" data-mini="true" name="metadata-sample-consensus" data-native-menu="false">
+								<select id="metadata-sample-consensus" data-mini="true" name="metadata-sample-consensus" data-native-menu="false" class="metadata-input">
 									<option value="">Select consensus genome</option>
 									<TMPL_VAR NAME=CON_LIST DEFAULT=>
 								</select>

@@ -101,6 +101,11 @@ if( $proj_list->{$pname} ){
 		if(-e $projDir) {
 			#sample metadata
 			my $metadata_out = "$projDir/metadata_gisaid.txt";
+			my $selected_consensus = $opt{'metadata-sample-consensus'};
+			$selected_consensus =~ s/::/ /g;
+			my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
+			$consensus_ref =~ s/_?\d?$//g;
+			$selected_consensus = "Consensus to ". $selected_consensus;
 			open OUT,  ">$metadata_out";
 			print OUT "virus_name=".$opt{'metadata-virus-name'}."\n"; 
 			print OUT "virus_passage=".$opt{'metadata-virus-passage'}."\n"; 
@@ -110,6 +115,7 @@ if( $proj_list->{$pname} ){
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
 			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
+			print OUT "coverage=$selected_consensus\n";
 			close OUT;
 			#gisaid profile
 			$metadata_out = $sys->{edgeui_input}."/$userDir/gisaid_submission_profile.txt";
@@ -143,11 +149,6 @@ if( $proj_list->{$pname} ){
 			print OUT "submitter=".$opt{'metadata-submitter'}."\n";
 			print OUT "gisaid_id=".$opt{'metadata-gisaid-id'}."\n";
 			#print OUT "gisaid_pw=".$opt{'metadata-gisaid-pw'}."\n";
-			my $selected_consensus = $opt{'metadata-sample-consensus'};
-			$selected_consensus =~ s/::/ /g;
-			my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
-			$consensus_ref =~ s/_?\d?$//g;
-			$selected_consensus = "Consensus to ". $selected_consensus;
 			print OUT "coverage=$selected_consensus\n";
 			close OUT;
 			my $cmd;
