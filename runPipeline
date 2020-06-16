@@ -20,6 +20,8 @@ $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
 $ENV{HOME} ||= $RealBin;
+$ENV{LANG} ||= "C.UTF-8";
+$ENV{LC_ALL} ||= "C.UTF-8";
 
 # unbuffer
 $|=1;
