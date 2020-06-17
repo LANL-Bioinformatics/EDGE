@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, errno
+import os, errno, sys
 import argparse as ap
 import numpy as np
 import csv
@@ -17,7 +17,7 @@ class SmartFormatter(ap.HelpFormatter):
             return ap.HelpFormatter._split_lines(self, text, width)
 
 def setup_argparse():
-    parser = ap.ArgumentParser(prog='amplicon_coverage.py',
+    parser = ap.ArgumentParser(prog='amplicov',
         description = '''Script to parse amplicon region coverage and generate barplot in html''',
         formatter_class = SmartFormatter)
 
@@ -35,6 +35,10 @@ def setup_argparse():
     outGrp.add_argument('-o', '--outdir', metavar='[PATH]',type=str, default='.', help='output directory')
     outGrp.add_argument('-p', '--prefix', metavar='[STR]',type=str , help='output prefix')
 
+    #optGrp = parser.add_argument_group('Options')
+    parser.add_argument('--pp', action='store_true', help='process proper paired only reads from bam file (illumina)')
+    
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1.2')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -117,9 +121,32 @@ def parse_cov_file(input):
     cov_array=np.array(cov_list)
     return cov_array
 
-def parse_bam_file(bam):
+def parse_bam_file(bam,pp,outdir):
+
+    bam_input = bam
+    if pp:
+        bam_prefix = Path(bam).stem
+        bam_input = outdir + os.sep + bam_prefix + ".pp.bam"
+        samfile = pysam.AlignmentFile(bam, "rb")
+        ppcount=0;
+        allcount=0;
+        proper_pairedreads = pysam.AlignmentFile(bam_input, "wb", template=samfile)
+        for read in samfile.fetch(until_eof=True):
+            allcount+=1
+            if read.is_proper_pair:
+                ppcount+=1;
+                proper_pairedreads.write(read)
+
+        proper_pairedreads.close()
+        samfile.close()
+        print("Total Reads: %d" % (allcount))
+        print("Proper Paired Reads: %d" % (ppcount))
+        if ppcount==0:
+            print("Failed: There is no proper paired reads in your input file %s." % (bam))
+            sys.exit()
+        
     cov_list = []
-    for line in pysam.samtools.depth("-aa","-d0", "NC_045512.2.sort_sorted.bam",split_lines=True):
+    for line in pysam.samtools.depth("-aa","-d0", bam_input ,split_lines=True):
         id, pos, cov = line.rstrip().split("\t")
         cov_list.append(int(cov))
     cov_array=np.array(cov_list)
@@ -132,6 +159,18 @@ def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d):
         end = amplicon_d[key][-1]
         mean_dict[key] = cov_np_array[start:end].mean()
     return mean_dict
+    
+def write_dict_to_file(mean_d,uniq_mean_d,outdir,prefix):
+    output_amplicon_cov_txt = outdir + os.sep + prefix + '_amplicon_coverage.txt'
+    try:
+        os.remove(output_amplicon_cov_txt)
+    except OSError:
+        pass
+    with open(output_amplicon_cov_txt,"w") as f:
+        f.write("ID\tWhole_Amplicon\tUnique\n")
+        for key in mean_d:
+            f.write("%s\t%.2f\t%.2f\n" % (key,mean_d[key],uniq_mean_d[key]))
+      
 
 def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
     #plot bar chart
@@ -144,41 +183,41 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
     fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color='lightsalmon',visible=False))
     
     depthMean = [dict(type='line',
-    		        xref='paper',x0=0,x1=1,
-    		        yref='y',y0=overall_mean,y1=overall_mean,
-    		        line=dict(
-    			        color="red",
-    			        width=1,
-    			        dash='dot',
-    		        )
+                    xref='paper',x0=0,x1=1,
+                    yref='y',y0=overall_mean,y1=overall_mean,
+                    line=dict(
+                        color="red",
+                        width=1,
+                        dash='dot',
+                    )
                 )]
 
     depth5x = [dict(type='line',
-    		        xref='paper',x0=0,x1=1,
-    		        yref='y',y0=5,y1=5,
-    		        line=dict(
-    			        color="black",
-    			        width=1,
-    			        dash='dot',
-    		        )
+                    xref='paper',x0=0,x1=1,
+                    yref='y',y0=5,y1=5,
+                    line=dict(
+                        color="black",
+                        width=1,
+                        dash='dot',
+                    )
                 )]
     depth10x = [dict(type='line',
-    		        xref='paper',x0=0,x1=1,
-    		        yref='10',y0=10,y1=10,
-    		        line=dict(
-    			        color="black",
-    			        width=1,
-    			        dash='dot',
-    		        )
+                    xref='paper',x0=0,x1=1,
+                    yref='10',y0=10,y1=10,
+                    line=dict(
+                        color="black",
+                        width=1,
+                        dash='dot',
+                    )
                 )]
     depth20x = [dict(type='line',
-    		        xref='paper',x0=0,x1=1,
-    		        yref='y',y0=20,y1=20,
-    		        line=dict(
-    			        color="black",
-    			        width=1,
-    			        dash='dot',
-    		        )
+                    xref='paper',x0=0,x1=1,
+                    yref='y',y0=20,y1=20,
+                    line=dict(
+                        color="black",
+                        width=1,
+                        dash='dot',
+                    )
                 )]
 
     updatemenus = list([
@@ -241,6 +280,19 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
         )
     ])
 
+    fig.update_xaxes(
+        tickfont=dict(family='Courier New, monospace', size=8),
+        ticks="outside",
+        tickwidth=0.5,
+        ticklen=3
+    )
+    fig.update_yaxes(
+        tickfont=dict(family='Courier New, monospace', size=8),
+        ticks="outside",
+        tickwidth=0.5,
+        ticklen=3
+    )
+
     fig.update_layout(
         updatemenus=updatemenus,
         xaxis_title=x_name,
@@ -261,15 +313,15 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
                                 showarrow=False),
         ],
         shapes=[
-    	    dict(type='line',
-    		xref='paper',x0=0,x1=1,
-    		yref='y',y0=overall_mean,y1=overall_mean,
-    		line=dict(
-    			color="red",
-    			width=1,
-    			dash='dashdot',
-    		),
-    	    ),
+            dict(type='line',
+            xref='paper',x0=0,x1=1,
+            yref='y',y0=overall_mean,y1=overall_mean,
+            line=dict(
+                color="red",
+                width=1,
+                dash='dashdot',
+            ),
+            ),
         ]
     )
 
@@ -289,13 +341,14 @@ def run(argvs):
         cov_array = parse_cov_file(argvs.cov)
         prefix = Path(argvs.cov).stem 
     if (argvs.bam):
-        cov_array = parse_bam_file(argvs.bam)
+        cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.outdir)
         prefix = Path(argvs.bam).stem
     if not argvs.prefix:
         argvs.prefix = prefix
         
     amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,amplicon_dict)
     uniq_amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,uniq_amplicon_dict)
+    write_dict_to_file(amplicon_mean_d,uniq_amplicon_mean_d,argvs.outdir,argvs.prefix)
     barplot(amplicon_mean_d,uniq_amplicon_mean_d,bedfile,cov_array.mean(),argvs.outdir,argvs.prefix)
 
 if __name__ == '__main__':
