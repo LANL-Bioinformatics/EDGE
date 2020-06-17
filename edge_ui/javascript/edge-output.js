@@ -125,6 +125,9 @@ $( document ).ready(function()
 					//	$('#edge-output-datatable-spinner').removeClass("edge-sp edge-sp-circle");;
 					}
 				});
+				if ($(dom).attr('id').indexOf('featurecount')>=0){
+					datatable.columns(-1).order('desc').draw();;
+				}
 			},
 			error:function(x,t,m){
 				//$('#edge-output-datatables-dialog').popup('close');

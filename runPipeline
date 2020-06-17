@@ -418,15 +418,11 @@ if ($configuration->{projrunhost} =~ /edge-bsve/ || defined $data_cleanup ){
 ### END MAIN ###
 ### Below are subroutins ###
 sub runPiReT {
-    my $kingdom = $configuration->{piret_kingdom};
-    my $significant_pvalue = $configuration->{piret_p_value} || 0.001;
     my $exp_file = $configuration->{piret_exp_design_file};
-    my $test_method = $configuration->{piret_method}||'ballEdge';
-    my $index_ref = $configuration->{piret_index};
     my $piret_indir = $configuration->{piret_input_dir};
     my $outputDir = "$outDir/ReferenceBasedAnalysis/Piret";
     my $exp_design = "$outputDir/exp_design.txt";
-    my $log = "$outputDir/log.txt";
+    my $log = "$outputDir/piret_log.txt";
     my $luigi_config = "$outputDir/luigi.cfg";
     my $run_script = "$outputDir/runPiret.sh";
 
@@ -449,10 +445,6 @@ sub runPiReT {
       &lprint("ERROR: No experimental design file");
       exit;
     }  
-    my $prokaryote_fasta = $configuration->{piret_prokaryote_fasta};
-    my $prokaryote_gff = $configuration->{piret_prokaryote_gff};
-    my $eukarya_fasta = $configuration->{piret_eukarya_fasta};
-    my $eukarya_gff = $configuration->{piret_eukarya_gff};
     make_path($outputDir,{chmod => 0755,});
     my $piret_indir_basename=basename($piret_indir);
     my $piret_abs_indir=Cwd::abs_path($piret_indir);
@@ -460,54 +452,14 @@ sub runPiReT {
     &prepareExpDesignAndConfig($exp_file,$piret_indir_basename,$outputDir);
 
     chdir "$outputDir";
-    my $cmd="$RealBin/thirdParty/piret/bin/piret -k $kingdom -e $exp_design -d $outputDir -m $test_method -p $significant_pvalue -c $numCPU --config $luigi_config ";
-    $cmd .= "-i $index_ref " if ($index_ref);
-    if ($kingdom eq 'prokarya')
-    {
-        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
-            &lprint("ERROR: Please provide prokaryote fasta and gff files");
-            exit;
-        }
-	if (! is_gff($prokaryote_gff)){
-             &lprint("ERROR:prokaryote_gff is not in GFF3 format");
-             exit;
-	}
-        $cmd .= "-fp $prokaryote_fasta -gp $prokaryote_gff ";
-    }
-    elsif ($kingdom eq 'eukarya')
-    {
-        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
-            &lprint("ERROR: Please provide eukaryote fasta and gff files");
-            exit;
-        }
-	if (! is_gff($eukarya_gff)){
-             &lprint("ERROR:eukarya_gff is not in GFF3 format");
-             exit;
-	}
-        $cmd .= "-fe $eukarya_fasta -ge $eukarya_gff ";
-    }   
-    elsif ($kingdom eq 'both')
-    {
-        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
-            &lprint("ERROR: Please provide prokaryote fasta and gff files");
-            exit;
-        }
-        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
-            &lprint("ERROR: Please provide eukaryote fasta and gff files");
-            exit;
-        }
-	if (! is_gff($prokaryote_gff) || ! is_gff($eukarya_gff)){
-             &lprint("ERROR:prokaryote_gff or eukarya_gff is not in GFF3 format");
-             exit;
-	}
-        $cmd .= "-fe $eukarya_fasta -ge $eukarya_gff -fp $prokaryote_fasta -gp $prokaryote_gff ";
-    }
+    my $cmd="$RealBin/thirdParty/piret/bin/piret -e $exp_design -d $outputDir --config $luigi_config 2>$log";
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
     my $piret_env_path1 = "$RealBin/thirdParty/piret/thirdParty/miniconda/envs/piret";
     my $piret_env_path2 = "$RealBin/thirdParty/Anaconda3/envs/piret";
     my $piret_env = (-e $piret_env_path1)? $piret_env_path1 : ( -e $piret_env_path2)? $piret_env_path2 : "piret";
     print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $piret_env 1>/dev/null\n";
+    print $fh  "LUIGI_CONFIG_PATH=$luigi_config  ";
     print $fh $cmd,"\n";
     #print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
     close $fh;
@@ -526,8 +478,66 @@ sub prepareExpDesignAndConfig{
     my $exp_design = "$outdir/exp_design.txt";
     my $luigi_config = "$outdir/luigi.cfg";
     my $stranded = ($configuration->{piret_stranded})?$configuration->{piret_stranded}:0;
+    my $kingdom = $configuration->{piret_kingdom};
+    my $test_method = $configuration->{piret_method}||'DEedge';
+    my $significant_pvalue = $configuration->{piret_p_value} || 0.001;
+    my $prokaryote_fasta = ($configuration->{piret_prokaryote_fasta})?$configuration->{piret_prokaryote_fasta}:"NA";
+    my $prokaryote_gff = ($configuration->{piret_prokaryote_gff})?$configuration->{piret_prokaryote_gff}:"NA";
+    my $eukarya_fasta = ($configuration->{piret_eukarya_fasta})?$configuration->{piret_eukarya_fasta}:"NA";
+    my $eukarya_gff = ($configuration->{piret_eukarya_gff})?$configuration->{piret_eukarya_gff}:"NA";
+    my $index_ref = $configuration->{piret_index} || "hisat_index";
     my $fh;
-
+    my $method_config="edgeR, DESeq2";
+    if ($test_method eq "edgeR"){
+        $method_config = "edgeR";
+    }elsif($test_method eq "DESeq2"){
+        $method_config = "DESeq2";
+    }elsif($test_method eq "DEedge"){
+        $method_config = "edgeR, DESeq2";
+    }elsif($test_method eq "ballgown"){
+        $method_config = "ballgown";
+    }elsif($test_method eq "balledgeR"){
+        $method_config = "ballgown, edgeR";
+    }elsif($test_method eq "DEgown"){
+        $method_config = "DESeq2, ballgown";
+    }
+    if ($kingdom eq 'prokarya')
+    {
+        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
+            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($prokaryote_gff)){
+             &lprint("ERROR:prokaryote_gff is not in GFF3 format");
+             exit;
+	}
+    }
+    elsif ($kingdom eq 'eukarya')
+    {
+        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
+            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($eukarya_gff)){
+             &lprint("ERROR:eukarya_gff is not in GFF3 format");
+             exit;
+	}
+    }   
+    elsif ($kingdom eq 'both')
+    {
+        if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
+            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            exit;
+        }
+        if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
+            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            exit;
+        }
+	if (! is_gff($prokaryote_gff) || ! is_gff($eukarya_gff)){
+             &lprint("ERROR:prokaryote_gff or eukarya_gff is not in GFF3 format");
+             exit;
+	}
+    }
     if ($exp_file =~ /xlsx$/){ 
         open ($fh, "-|")
             or exec("xlsx2csv", "-d", "tab", "$exp_file");
@@ -561,28 +571,69 @@ sub prepareExpDesignAndConfig{
     open (my $ofh2, ">",$luigi_config);
     print $ofh2 <<"END";
 [DEFAULT]
-faqc_min_L=40
-n_cutoff=10
+QC=True
+#are the libraries stranded
 stranded=$stranded
+#Which alignment to use, star or hisat2
+aligner=hisat2
+#is it prokaryotic or eukaryotic organism, or has both, affects isoforms
+kingdom=$kingdom
+threads=$numCPU
+#use one or all the method to find DEG, edgeR, DESeq2, ballgown
+method=[$method_config]
+#select a qvalue to declare a gene DEG, corresponds to p-value after multiple test corrections
+q_value=$significant_pvalue
+#Do you want to find novel non-coding regions?
+novel=True
+fasta_prok=$prokaryote_fasta
+fasta_euk=$eukarya_fasta
+gff_prok=$prokaryote_gff
+gff_euk=$eukarya_gff
+#do you want it to find pathways assocaited with your DEGs
+pathway=True
+#gene enrichment analysis using GO#s
+gage=True
+hisat_index=$index_ref
+star_index=star_index
+# full path to emap database
+emap_db=$RealBin/database/EGGNOG
 
 [core]
 log_level:$log_level
 
 [RunAllQC]
-faqc_min_L:50
-n_cutoff=10
 
 [SummarizeQC]
+faqc_min_L=50
+n_cutoff=4
+avg_q=5
+#-----------------------------------Mapping step -----------------------------#
+## HISAT options
+## hisat2 index generation options
+[HisatIndex]
 
 [Hisat]
+# minimum intron length (20)
+min_introlen=20
+# # maximum intro length
+max_introlen=500000
+# # strandness information, if its F, R, FR, or FR
+rna_strandness=FR
 
 [HisatMapW]
+
+[STARindex]
+
+# STAR options
+[map_star]
+align_intron_min=21
+align_intron_max=0
+
+[map_starW]
 
 [ExtractPP]
 
 [ExtractPPW]
-
-[SummarizeMap]
 
 [FindNovelRegions]
 
@@ -620,6 +671,11 @@ stranded=$stranded
 
 [ReStringTieScores]
 
+[RunEmapper]
+query_coverage=0.0
+subject_coverage=0.0
+ave_map=100
+
 [edgeR]
 fid=ID
 
@@ -631,6 +687,7 @@ close $ofh2;
 return 0;
 
 }
+
 sub runSpecialtyGenesProfiling {
     my $pair_read = shift;
     my $single_end_read= shift;
@@ -730,9 +787,8 @@ sub runSpecialtyGenesProfiling {
 		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py36";
 		my $rgi_env_activate_cmd="source $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
 		my $deactivate_cmd="source deactivate 2>/dev/null || true";
-		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ";
+		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ; $deactivate_cmd";
         &executeCommand($cmd);
-		&executeCommand($deactivate_cmd);
 	    $cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi main -i $annotationFAA -t protein -o ${project_name}_AR_genes_rgi -n $numCPU --local 1>>$log 2>&1 ; $deactivate_cmd";
         &lprint ("	Running \n $cmd \n");
 	    &executeCommand($cmd);
@@ -2704,10 +2760,9 @@ sub runQC
             my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py36";
             my $porechop_env_activate = "source $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env 1>/dev/null"; 
             my $deactivate_cmd = "source deactivate 2>/dev/null || true";
-            $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log ";
+            $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log; $deactivate_cmd ";
             &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
-	    &executeCommand($deactivate_cmd);
         }
         $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
 	&lprint ("  Running \n  $cmd \n");
@@ -3095,12 +3150,6 @@ sub runReadsToGenome
         &lprint ("Reads Mapping to Reference Finished\n");
         return ($outVCF,$outGap);
     }
-    #if ( $configuration->{r2g_get_consensus}){
-    #    if ( -e "$outputDir/getConsensus.finished"){
-    #        &lprint ("Reads Mapping to Reference Finished\n");
-    #        return ($outVCF,$outGap);
-    #    }
-    #}
     
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
@@ -3135,7 +3184,7 @@ sub runReadsToGenome
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov});
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
-    $parameters .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} " if ( -e $configuration->{r2g_align_trim_bed_file});
+    $parameters .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} " if ( $configuration->{r2g_align_trim_bed_file} && -e $configuration->{r2g_align_trim_bed_file});
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
@@ -3174,28 +3223,27 @@ sub runReadsToGenome
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
         my $con_max_cov = (defined $configuration->{r2g_consensus_max_cov})?$configuration->{r2g_consensus_max_cov} : 8000;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
-	my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
+        my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
-	my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
-	my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
-	foreach my $file (@$referenceFile_r){
+        my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
+        my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
+	    foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
-	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
+            &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
-	    $command .= " --disableBAQ" if ($con_disable_BAQ);
-	    $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
+            $command .= " --disableBAQ" if ($con_disable_BAQ);
+            $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop  >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
-	    move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
-	    move("$outputDir/consensus_tmp/$file_name.sort_sorted.bam", "$outputDir/");
-	    move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
+            move("$outputDir/consensus_tmp/$file_name.sort_sorted.bam", "$outputDir/");
+            move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
-	    &executeCommand("samtools index  $outputDir/$file_name.sort_sorted.bam") if ( -e "$outputDir/$file_name.sort_sorted.bam");
+            &executeCommand("samtools index  $outputDir/$file_name.sort_sorted.bam") if ( -e "$outputDir/$file_name.sort_sorted.bam");
             &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
             &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
 	}
@@ -3512,8 +3560,8 @@ sub runAssembly
 		$AssemblerOutDir = "$outputDir/lrasm";
 		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
 		$AssemblerLog = "$AssemblerOutDir/contigs.log";
-		my $minlength = "500";
-                my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
+		my $minlength = "400";
+        my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
 		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
 		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
 		$cmd .= " -e" if $configuration->{lrasm_ec};
