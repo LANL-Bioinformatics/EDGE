@@ -215,7 +215,7 @@ sub getSraFastqToolkits {
 	}
 
 	#dump fastq from SRA file
-	my $options = "-gzip ";
+	my $options = "-gzip -M 0 ";
 	$options .= "--split-files " if $platform =~ /illu/i;
 	$options .= "--split-files -B " if $platform =~ /solid/;
 	print STDERR "Running fastq-dump with options $options...\n";
