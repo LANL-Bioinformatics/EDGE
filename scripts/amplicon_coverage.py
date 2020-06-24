@@ -179,8 +179,10 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
     y=list(mean_dict.values())
     uniq_x=list(uniq_mean_d.keys())
     uniq_y=list(uniq_mean_d.values())
-    fig = go.Figure(data=[go.Bar(x=x, y=y)])
-    fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color='lightsalmon',visible=False))
+    barcolor1 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in y]
+    barcolor2 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in uniq_y]
+    fig = go.Figure(data=[go.Bar(x=x, y=y, marker_color=barcolor1)])
+    fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=False))
     
     depthMean = [dict(type='line',
                     xref='paper',x0=0,x1=1,
