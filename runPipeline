@@ -2860,7 +2860,7 @@ sub runHostRemoval
     my $host=shift;
     my $time=time();
     #my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
-    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x map-ont ": ""; 
+    my $minimap2_options = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x map-ont ": "-x sr "; 
     #$min_score = "-T $configuration->{min_L}" if $ont_flag;
     my $similarity_cutoff = $configuration->{"similarity"} || 80 ;
    # my $stats = "$QCoutDir/hostclean.stats.txt";
@@ -2914,7 +2914,7 @@ sub runHostRemoval
     $parameters .= " -p $pairFile" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters .= " -ref ". $host;
-    $parameters .= " -minimap2Options \"$ont_flag\"";
+    $parameters .= " -minimap2Options \"$minimap2_options\"";
     $parameters .= " -s $similarity_cutoff";
     $parameters .= " -o $outputDir -cpu $numCPU -host";
     $parameters .= " -prefix $prefix ";
