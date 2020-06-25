@@ -1060,7 +1060,7 @@ sub runQiimeAnalysis{
         $cmd .= " --truncLenReverse $truncLenReverse " if ($truncLenReverse);
         $cmd .= " --trimLen $trimLen ";
     }
-    if ($qc_method =~ /deblur/i){
+    if ($qc_method =~ /deblur|otus/i){
         $cmd .= " --minQuality $quality_cutoff ";
         $cmd .= " --minLengthFraction $min_reads_q_fraction ";
         $cmd .= " --maxAmbiguous $seq_max_n ";
