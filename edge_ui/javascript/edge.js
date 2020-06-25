@@ -739,7 +739,6 @@ $( document ).ready(function()
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( ".edge-fastq-options").show();
 			$( "a[data-id=edge-assembly-parameters]" ).click();
-			$( "#edge-fastq-source-sw2").click().checkboxradio("refresh");
 			$( '#edge-fastq-source-block').show();
 		}
 		if ( $(obj).val() == "fastq"){
@@ -1928,7 +1927,7 @@ $( document ).ready(function()
 				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 		});
-		$('.edge-nanopore-options').hide();
+		//$('.edge-nanopore-options').hide();
 		$(":radio[name='edge-fastq-source']").on("change", function(){
 			$( "#edge-r2g-aligner-sw, #edge-r2c-aligner-sw").find('input').prop('disabled',false);
 			
@@ -2356,7 +2355,7 @@ $( document ).ready(function()
 							foldRightPanel();
 							pipeline="EDGE";
 							setRunPipeline(pipeline,true);
-							$(":radio[name='edge-fastq-source']").trigger('change');
+							//$(":radio[name='edge-fastq-source']").trigger('change');
 						})
 					}
 					if (data == 'runQiime'){
@@ -2400,7 +2399,7 @@ $( document ).ready(function()
 							pipeline="EDGE";
 							setRunPipeline(pipeline,true);
 							$('#edge-inputS-sw2').click().checkboxradio("refresh");
-							$(":radio[name='edge-fastq-source']").trigger('change');
+							//$(":radio[name='edge-fastq-source']").trigger('change');
 						})
 					}
 					if (data == 'sraEDGE'){
@@ -2409,7 +2408,7 @@ $( document ).ready(function()
 							pipeline="EDGE";
 							setRunPipeline(pipeline,true);
 							$('#edge-inputS-sw3').click().checkboxradio("refresh");
-							$(":radio[name='edge-fastq-source']").trigger('change');
+							//$(":radio[name='edge-fastq-source']").trigger('change');
 						})
 					}
 					if (data == 'projectspage'){
@@ -2429,7 +2428,7 @@ $( document ).ready(function()
 							foldRightPanel();
 							pipeline="EDGE";
 							setRunPipeline("phame",true);
-							$(":radio[name='edge-fastq-source']").trigger('change');
+							//$(":radio[name='edge-fastq-source']").trigger('change');
 						})
 					}
 					
@@ -2920,6 +2919,7 @@ $( document ).ready(function()
 			$("#edge-runEDGE-modules").find(".ui-collapsible-heading").show();
 			$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').collapsible( "option", "collapsed", true );
 			$('#edge-runEDGE-rba').collapsible( "option", "collapsed", false );
+			$(":radio[name='edge-fastq-source']").trigger('change');
 			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 			//reset metadata form
 			resetMetadata();

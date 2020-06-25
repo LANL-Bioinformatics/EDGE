@@ -178,6 +178,10 @@ def auto_determine_truncate_len_deblur(file):
     return len
 
 def fix_mappingFile(mappingFile,out_dir):
+#name reserved for the ID column header. 
+#Reserved ID column headers:\n\n  
+#Case-insensitive: 'feature id', 'feature-id', 'featureid', 'id', 'sample id', 'sample-id', 'sampleid'\n\n  
+#Case-sensitive: '#OTU ID', '#OTUID', '#Sample ID', '#SampleID', 'sample_name'\n\n
     fix_f = out_dir + '/sample_metadata.txt'
     f =  open (mappingFile, "r")
     ff = open (fix_f, 'w')
@@ -185,9 +189,11 @@ def fix_mappingFile(mappingFile,out_dir):
     num_sample = 0
     for line in f:
         if not line.strip():continue
-        temp = [ x.strip(' "') for x in line.split('\t')]
+        temp = [ x.rstrip().strip(' "') for x in line.split('\t')]
         temp[0] = temp[0].replace('.', '-').replace('_', '-')
         if line.lower().startswith('#'):
+            line = line.replace('sample_name', 'Sample_Name')
+            temp = [ x.rstrip().strip(' "') for x in line.split('\t')]
             header = line.lower().split('\t')
         else:
             if len(temp) > len(header):

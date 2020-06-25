@@ -730,7 +730,7 @@ sub runSpecialtyGenesProfiling {
 	# AR
 		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py36";
 		my $rgi_env_activate_cmd=". $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
-		my $deactivate_cmd=". deactivate || true";
+		my $deactivate_cmd=". $RealBin/thirdParty/Anaconda3/bin/deactivate || true";
 		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ";
         &executeCommand($cmd);
 		&executeCommand($deactivate_cmd);
@@ -1005,7 +1005,7 @@ sub runQiimeAnalysis{
         $cmd .= " --truncLenReverse $truncLenReverse " if ($truncLenReverse);
         $cmd .= " --trimLen $trimLen ";
     }
-    if ($qc_method =~ /deblur/i){
+    if ($qc_method =~ /deblur|otus/i){
         $cmd .= " --minQuality $quality_cutoff ";
         $cmd .= " --minLengthFraction $min_reads_q_fraction ";
         $cmd .= " --maxAmbiguous $seq_max_n ";
@@ -2718,7 +2718,7 @@ sub runQC
         if ($configuration->{"porechop"}){
             my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py36";
             my $porechop_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env";
-            my $deactivate_cmd = ". deactivate 2>/dev/null || true ";
+            my $deactivate_cmd = ". $RealBin/thirdParty/Anaconda3/bin/deactivate 2>/dev/null || true ";
             $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log ";
             &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
