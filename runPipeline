@@ -2054,7 +2054,7 @@ sub runCheckM{
     my $cmd = "cd $outputDir/.. ; $checkm_PATH/checkm lineage_wf --tmpdir . -q --tab_table -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
 
     &lprint (" Running \n $cmd\n");
-    &executeCommand2("$cmd");
+    &executeCommand("$cmd");
 
     &printRunTime($time);
     &touchFile("$outputDir/BinningCheckM.finished");
