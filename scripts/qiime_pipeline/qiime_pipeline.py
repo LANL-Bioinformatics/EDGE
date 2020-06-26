@@ -685,7 +685,7 @@ if __name__ == '__main__':
                 if (argvs.target.lower() == 'silva'):
                     reference_seqs = target_path + '/silva-132-99.qza'
                 elif (argvs.target.lower() == 'silva-v3-v4'):
-                    reference_seqs = target_path + '/silva_132_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_7LevelTaxonomy_naiveBayesClassifier.qza'
+                    reference_seqs = target_path + '/silva_132_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_forTaxClassTraining.qza'
                 elif (argvs.target.lower() == 'its'):
                     reference_seqs = target_path + '/ITS.qza'
 
