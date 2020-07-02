@@ -1217,6 +1217,26 @@ div.edge-collapsible-options .ui-btn {
     font-size:0.9em;
 }
 
+.edge-popup-container {
+    display:flex;
+}
+
+.edge-popup-container > div,
+.edge-popup-container > input,
+.edge-popup-container > label {
+        display: inline-block;
+}
+.edge-popup-container > label,
+.edge-popup-container >.ui-rangeslider>label{
+    width: 50%;
+    position: relative;
+    top: 12px;
+}
+.edge-popup-container > label~[class*=ui-]:not(.ui-slider-switch) {
+    width:100%;
+}
+
+
 /*
 .edge-home .ui-widget.ui-widget-content {
 	border: 0px solid #c5c5c5;

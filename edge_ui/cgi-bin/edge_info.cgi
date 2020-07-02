@@ -21,7 +21,8 @@ use Storable 'dclone';
 require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
 $ENV{PATH} = "/bin:/usr/bin";
-
+my $EDGE_HOME = $ENV{EDGE_HOME};
+$EDGE_HOME ||= "$RealBin/../..";
 ######################################################################################
 # DATA STRUCTURE:
 #
@@ -247,6 +248,7 @@ if( scalar @projlist ){
 	$info->{INFO}->{PROJLOG} = $list->{$idx}->{PROJLOG};
 	$info->{INFO}->{STATUS} = $list->{$idx}->{STATUS};
 	$info->{INFO}->{TIME}   = strftime "%F %X", localtime;
+	$info->{INFO}->{OWNER} = $list->{$idx}->{OWNER} if($list->{$idx}->{OWNER});
 	$info->{INFO}->{PROJTYPE} = $list->{$idx}->{PROJTYPE} if ($list->{$idx}->{PROJTYPE});
 	$info->{INFO}->{PROJCONFIG} = $list->{$idx}->{PROJCONFIG} if ($list->{$idx}->{PROJCONFIG});
 
@@ -664,16 +666,16 @@ sub getUserProjFromDB{
 		#$service = "WS/user/publishedProjects";
 	}
 
-    # Encode the data structure to JSON
+	# Encode the data structure to JSON
 	my $data = to_json(\%data);
-    my $url = $um_url .$service;
-    #w Set the request parameters
+	my $url = $um_url .$service;
+	#w Set the request parameters
 	my $browser = LWP::UserAgent->new;
 	my $req = PUT $url;
-    $req->header('Content-Type' => 'application/json');
-    $req->header('Accept' => 'application/json');
-    #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
-    $req->header( "Content-Length" => length($data) );
+	$req->header('Content-Type' => 'application/json');
+	$req->header('Accept' => 'application/json');
+	#must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+	$req->header( "Content-Length" => length($data) );
 	$req->content($data);
 
 	my $response = $browser->request($req);
@@ -703,6 +705,7 @@ sub getUserProjFromDB{
 		$list->{$id}->{STATUS} = $status;
 		$list->{$id}->{TIME} = $created;
 		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
+		$list->{$id}->{OWNER} = $hash_ref->{owner};
 		$list->{$id}->{OWNER_FisrtN} = $hash_ref->{owner_firstname};
 		$list->{$id}->{OWNER_LastN} = $hash_ref->{owner_lastname};
 		$list->{$id}->{PROJTYPE} = $hash_ref->{type} if ($username && $password);
@@ -833,6 +836,9 @@ sub loadInitSetup{
 	$info->{INFO}->{MTARGETEDNGS}  = ( $sys->{m_targetedngs} )?"true":"false";
 	$info->{INFO}->{MPIRET}  = ( $sys->{m_piret} )?"true":"false";
 	#parameters
+	$info->{INFO}->{EDGESYSTEMCPU} = ($cluster)? $cluster_job_max_cpu:$sys->{edgeui_tol_cpu};
+	$info->{INFO}->{SYSTEMCPU} = ($cluster)?$cluster_job_max_cpu:`grep -c ^processor /proc/cpuinfo`;
+	$info->{INFO}->{MAXNUMJOB} = $sys->{max_num_jobs};
 	$info->{INFO}->{MAINTENANCE}  = ( $sys->{maintenance} )?"true":"false";
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,text,config,ini,xls,xlsx";

@@ -239,6 +239,38 @@ elsif ($action eq "report-share" || $action eq "report-unshare"){
 	}else{
 		$info->{error} = "Invalid session.\n";
 	}
+}elsif($action eq 'getmyuploadfiles'){
+	my $valid = verifySession($sid);
+	if ($valid){
+		my $user_dir=md5_hex(lc($username));
+		my $user_upload_dir = "$edge_input/$user_dir/MyUploads/";
+		opendir(my $dh, $user_upload_dir) || die "Can't opendir $user_upload_dir: $!";
+		my @files = map { (-d "$user_upload_dir/$_")? $_."/":$_ } grep { $_ ne '.' and $_ ne '..' } readdir($dh);
+		closedir $dh;
+		$info->{list} = \@files;
+		$info->{path} = "EDGE_input/$user_dir/MyUploads/";
+	}else{
+		$info->{error} = "Invalid session.\n";
+	}
+}elsif($action eq 'deleteuploadfiles'){
+	my $valid = verifySession($sid);
+
+	if ($valid){
+		my $user_dir=md5_hex(lc($username));
+		my $user_upload_dir = "$edge_input/$user_dir/MyUploads/";
+		my @file_list =  split /,/, $opt{selectmyfiles};
+		foreach my $file(@file_list){
+			my $path="$user_upload_dir/$file";
+			if ( -d $path){
+				remove_tree($path);
+			}elsif( -f $path){
+				unlink $path or warn "Could not unlink $file: $!";;
+			}
+		}
+
+	}else{
+		 $info->{error} = "Invalid session.\n";
+	}
 }
 
 #$info->{SUCCESS} = "login is successful";

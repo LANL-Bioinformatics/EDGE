@@ -485,10 +485,171 @@ $( document ).ready(function()
 		$('#signUpForm').popup('close');
 		setTimeout( function() { $('#dlg-sign-up-sent').popup('open').css('width','480px'); }, 300 );
 	});
+	$('#UploadFileCleanupBtn').on('click', function(){
+		$('#popupUser').popup('close');
+		$('#myuplodsfileList-content').html('');
+		var filelist='<fieldset data-role="controlgroup" id="edge-myuplodsfileList" data-filter="true" data-filter-placeholder="Search files ...">';
+		$.ajax({
+			type: "POST",
+			url: "./cgi-bin/edge_user_management.cgi",
+			dataType: "json",
+			cache: false,
+			data: {"action": 'getmyuploadfiles','protocol': location.protocol, 'sid':localStorage.sid },
+			// script call was *not* successful
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				showWarning("Failed to get myupload file list. Please check server error log for detail.");
+			}, // error 
+			success: function(obj){
+				if (obj.list.length>0){
+					$('#myuplodsfileList-submit-btn').show();
+					filelist += "<p style='text-align:right;' class='edge_tool_note'>alt-click to download the file.</p>";
+					for (var i = 0 ; i < obj.list.length ; i++){
+						filelist += "<input type='checkbox' data-mini='false' name='edge-myuplodsfileList' id='edge-myuplodsfileList_" + i  +"' value='" + obj.list[i] +  "'><label for='edge-myuplodsfileList_" + i  + "'>" + obj.list[i]  + "</label>";
+					}
+					filelist += '</fieldset>';
+					$('#myuplodsfileList-content').append(filelist);
+					$('#edge-myuplodsfileList').filterable({
+						children: ".ui-checkbox, label, input",
+						filterCallback: OrSearch,
+						filter: function( event, ui ) {
+							$('#edge-myuplodsfileList .ui-checkbox').children('label').each(function(){
+								if($(this).hasClass('ui-checkbox-on')){
+									$(this).removeClass('ui-screen-hidden');
+									$(this).parent().removeClass('ui-screen-hidden');
+									$('#edge-myuplodsfileList').controlgroup("refresh");
+								}
+							});
+						}
+					});
+				}else{
+					$('#myuplodsfileList-submit-btn').hide();
+					if(obj.error){
+						$('#myuplodsfileList-content').html(obj.error);
+					}else{
+						$('#myuplodsfileList-content').html("No upload files");
+					}
+				}
+				setTimeout( function() {
+					$('#myuplodsfileList').enhanceWithin().popup('open').css('width','360px'); 
+					$('#myuplodsfileList-content .ui-checkbox').children('label').each(function(){
+
+						var filename = $(this).next().val();
+						var checkboxobj = $(this).next();
+						$(this).off('click').on('click',function(e) {
+							e.preventDefault();
+							if (e.altKey){
+								//avoid check or uncheck for checkobx.
+								checkboxobj.prop('checked', !$(this).prop('checked'));
+								if (filename.indexOf('/')>= 0){
+									alert("Not support directory download yet.");
+								}else{
+									window.open(obj.path + filename);
+								}
+							}
+						});
+					});
+				}, 200 );
+			}
+		});//ajax
+
+	});
+	$('#myuplodsfileList-cancel-btn').on('click',function(){
+		$('#myuplodsfileList').popup('close');
+	});
+	$('#myuplodsfileList-submit-btn').on('click', function(){
+		$('#myuplodsfileList').popup('close');
+		var fileChkArray=[];
+		$('#myuplodsfileList-content .ui-checkbox').children('label').each(function(){
+			if($(this).hasClass('ui-checkbox-on')){
+				fileChkArray.push($(this).next().val());
+			}
+		});
+		if (fileChkArray.length > 0){
+			var input = {
+				action: 'deleteuploadfiles',
+				protocol: location.protocol,
+				sid:localStorage.sid,
+				selectmyfiles: fileChkArray.join(',')
+			}
+		
+			$.ajax({
+				type: "POST",
+ 				url: "./cgi-bin/edge_user_management.cgi",
+				dataType: "json",
+				cache: false,
+				data: input,
+				complete: function(){
+				},
+				// script call was *not* successful
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					showWarning("Failed to delete My upload files. Please check server error log for detail.");
+				}, // error
+				success: function(obj){
+					if (obj.error){
+						showWarning(obj.error);
+					}else{
+						$( "#edge_integrity_dialog_header" ).text("Message");
+						$( "#edge_integrity_dialog_content" ).text("The selected files have been deleted.");
+						setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+					}
+				} // success
+			}); // ajax
+		}else{
+			$( "#edge_integrity_dialog_header" ).text("Message");
+			$( "#edge_integrity_dialog_content" ).text("No File Selected.");
+			setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 10 );
+
+		}
+	});
+	$('#UpdateSysPropertyBtn').on('click', function(){
+		$('#popupUser').popup('close');
+		setTimeout( function() { 
+			$('#UpdateSysPropertyForm').popup('open').css('width','360px'); 
+		}, 300 );
+	});
+	$('#UpdateSysProperty-cancel-btn').on('click',function(){
+		$('#UpdateSysPropertyForm').popup('close');
+	});
+	$('#UpdateSysProperty-submit-btn').on('click', function(){
+		var input = {
+			action: 'updatesysprop',
+			protocol: location.protocol,
+			sid:localStorage.sid,
+			setsyscpu: $('#SysProp-cpus').val(),
+			setsysnumjobs: $('#SysProp-max-num-jobs').val(),
+			setmaintenance: $('#SysProp-maintenance-sw').val()
+		}
+		$.ajax({
+			type: "POST",
+ 			url: "./cgi-bin/edge_action.cgi",
+			dataType: "json",
+			cache: false,
+			data: input,
+			complete: function(){
+				edge_ui_init();
+			},
+			// script call was *not* successful
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				showWarning("Failed to udpate system properties. Please check server error log for detail.");
+			}, // error
+			success: function(obj){
+				$('#UpdateSysPropertyForm').popup('close');
+				if (obj.INFO){
+					showWarning(obj.INFO);
+				}else{
+					$( "#edge_integrity_dialog_header" ).text("Message");
+					$( "#edge_integrity_dialog_content" ).text("Your system properties have been updated.");
+					setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+				}
+			} // success
+		}); // ajax
+	});
 	$('#UpdateProfileBtn').on('click', function(){
 		$('#popupUser').popup('close');
 		setTimeout( function() { 
 			$('#UpdateProfileForm').popup('open').css('width','240px'); 
+			$(".error").remove();
+			$('#UpdateProfile-password,#UpdateProfile-password-confirm').removeClass("highlight");
 			$('#UpdateProfile-fn').val(localStorage.fnname);
 			$('#UpdateProfile-ln').val(localStorage.lnname);
 		}, 300 );
@@ -505,14 +666,21 @@ $( document ).ready(function()
 			protocol: location.protocol,
 			sid: localStorage.sid
 		};
-		if($('#UpdateProfile-password').val() != $('#UpdateProfile-password-confirm').val()){
+		if($('#UpdateProfile-password').val().replace(/\s/g, "").length > 0 || $('#UpdateProfile-password-confirm').val().length > 0){
+			if($('#UpdateProfile-password').val() != $('#UpdateProfile-password-confirm').val()){
+				$(".error").remove();
+        			$('#UpdateProfile-password').addClass("highlight"); 
+        			$('#UpdateProfile-password-confirm').addClass("highlight"); 
+				$('#updateProfile-submit-btn').before("<p class='error'>Password not confirmed</p>")
+			}else{
+				$(".error").remove();
+				updateProfile(newData);
+			}
+		}else{
 			$(".error").remove();
         		$('#UpdateProfile-password').addClass("highlight"); 
         		$('#UpdateProfile-password-confirm').addClass("highlight"); 
-			$('#updateProfile-submit-btn').before("<p class='error'>Password not confirmed</p>")
-		}else{
-			$(".error").remove();
-			updateProfile(newData);
+			$('#updateProfile-submit-btn').before("<p class='error'>Please enter new password and confirmed</p>")
 		}
 	});
 	function updateProfile(input){
@@ -602,6 +770,9 @@ $( document ).ready(function()
         	e.preventDefault();
         	location.href = location.href.split('#')[0];
 	});
+	if (! /localhost|127.0.0./.test(location.hostname.toString().toLowerCase())){
+		$( "#docker-file-transfer" ).hide();
+	}
 	
 	// initalize tooltipster
 	$('.tooltip').tooltipster({
@@ -714,7 +885,7 @@ $( document ).ready(function()
 
 	function inputSourceCheck(obj){
 		if ( $(obj).val() == "sra" ){
-			console.log("sra");
+			//console.log("sra");
 			$( "#edge-fasta-input-block").hide();
 			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
@@ -2224,9 +2395,9 @@ $( document ).ready(function()
 					var uploader = $("#uploader").pluploadQueue({
 					buttons : {browse:false,start:false,stop:false}
 					});
-					$("#edge-content-upload-li").hide();
+					$("#edge-content-upload-li,#UploadFileCleanupBtn").hide();
 				}else{
-					$("#edge-content-upload-li").show();
+					$("#edge-content-upload-li,#UploadFileCleanupBtn").show();
 					$("#edge-upload-expiration-days").html(obj.INFO.UPLOADEXPIRE);
 					upFileType = obj.INFO.UPLOADFILEEXT;
 				}
@@ -2278,9 +2449,13 @@ $( document ).ready(function()
 				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();
 				(  obj.INFO.MPIRET == "true")?$( "a[href=#edge-piret-pipeline]" ).show():$( "a[href=#edge-piret-pipeline]" ).hide();
 				if( obj.INFO.MAINTENANCE == "true"){
-                                        showWarning("System is under MAINTENANCE. EDGE will be limited to view project only. Thanks for your patience.");
+					$('#SysProp-maintenance-sw').val(1).slider("refresh");
+					showWarning("System is under MAINTENANCE. EDGE will be limited to view project only. Thanks for your patience.");
 					$('.edge-logo').find('h5').html('@MAINTENANCE');
-                                }
+                }else{
+                	$('#SysProp-maintenance-sw').val(0).slider("refresh");
+                	$('.edge-logo').find('h5').html('@'+location.hostname);
+                }
 				if( String(obj.INFO.UMSYSTEM) != String(localStorage.umStatus) ){
 					check_user_management();
 				}
@@ -2291,6 +2466,10 @@ $( document ).ready(function()
 					$(".edge-header").css("background",localStorage.background);
 					$("div#popupUser  a").css("background",localStorage.background);
 				}
+				$('#SysProp-cpus').attr("max", obj.INFO.SYSTEMCPU).slider("refresh");
+				$('#SysProp-cpus').val(obj.INFO.EDGESYSTEMCPU).slider("refresh");
+				$('#SysProp-max-num-jobs').attr("max", obj.INFO.EDGESYSTEMCPU - 1 ).slider("refresh");
+				$('#SysProp-max-num-jobs').val(obj.INFO.MAXNUMJOB).slider("refresh");
 			
 			},
 			error: function(data){
@@ -2485,7 +2664,7 @@ $( document ).ready(function()
 				} else {
 					$("#project-actions").hide();
 				}
-
+				(userType == 'admin')? $('#UpdateSysPropertyBtn').show():$('#UpdateSysPropertyBtn').hide();
 				if(focusProjShowMeta && (focusProjIsOwner || userType == 'admin')) {
 					$("#metadata-actions").show();
 					if(focusProjHasMeta) {
@@ -3989,13 +4168,13 @@ $( document ).ready(function()
 							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else if(obj.PLATFORM && /pacbio/.test(obj.PLATFORM.toString().toLowerCase())){
-                                                        $('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-                                                        $("#edge-pp-sw").val(0).slider("refresh");
-                                                        $("#edge-qc-sw2").click().checkboxradio("refresh");
-                                                        $('#edge-r2c-aligner-options').val("-x map-pb")
-                                                        $('#edge-r2g-aligner-options').val("-x map-pb")
-                                                        var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Preprocessing Off.";
-                                                        showWarning(msg);
+							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+							$("#edge-pp-sw").val(0).slider("refresh");
+							$("#edge-qc-sw2").click().checkboxradio("refresh");
+							$('#edge-r2c-aligner-options').val("-x map-pb")
+							$('#edge-r2g-aligner-options').val("-x map-pb")
+							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Quality Trim and Filter Off.";
+							showWarning(msg);
 						}else{
 							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");
 						}

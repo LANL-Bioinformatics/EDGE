@@ -90,6 +90,7 @@ my $cluster 	= $sys->{cluster};
 my $scheduler   = $sys->{scheduler}||'sge';
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
 my $cluster_qsub_options= $sys->{cluster_qsub_options};
+my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 &LoadSGEenv($sys) if ($cluster);
 
 #check projects vital
@@ -113,7 +114,7 @@ if ( ($memUsage > 99 or $cpuUsage > 99) and $action ne 'interrupt' and !$cluster
         $info->{INFO}   =  "No enough CPU/MEM resource to perform action. Please wait or contact system administrator.";
         &returnStatus();
 }
-if ($maintenance){
+if ($maintenance && $opt{setmaintenance} == 1){
 	$info->{INFO}   = "System is under maintenance. Please submit later or contact system administrator.";
 	&returnStatus();
 }
@@ -166,6 +167,9 @@ if ( $umSystemStatus )
 		$permission->{takenotes} = 1;
 		$permission->{metadata} = 1;
 	}
+	if ($userType =~ /admin/){
+		$permission->{updatesysprop} = 1;
+	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
 	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export');
@@ -183,14 +187,14 @@ if ($action eq 'rename' ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
-	 if ($new_proj_name =~ /[^a-zA-Z0-9\-_\.]/){
-                $info->{INFO} = "ERROR: Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.";
-                &returnStatus();
-        }
-        if ( length($new_proj_name)  < 3  || length($new_proj_name) > 30 ){
-                $info->{INFO} = "ERROR: Invalid project name. Please input at least 3 characters but less than 30.";
-                &returnStatus();
-        }
+	if ($new_proj_name =~ /[^a-zA-Z0-9\-_\.]/){
+		$info->{INFO} = "ERROR: Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.";
+		&returnStatus();
+	}
+	if ( length($new_proj_name)  < 3  || length($new_proj_name) > 30 ){
+		$info->{INFO} = "ERROR: Invalid project name. Please input at least 3 characters but less than 30.";
+		&returnStatus();
+	}
 	renameProject($new_proj_name,$new_proj_desc);
 	#edgeDB: update run name
 	my $runFile = "$proj_dir/metadata_run.txt";
@@ -1075,8 +1079,50 @@ elsif($action eq 'define-gap-depth'){
 			&returnStatus();
 		}
 	}
-}
+}elsif($action eq 'updatesysprop'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	my $new_cpu = $opt{'setsyscpu'};
+	my $new_job_num = $opt{'setsysnumjobs'};
+	my $setmaintenance = $opt{'setmaintenance'};
+	my $timestamp  = strftime "%Y%m%d%H", localtime;
+	my $sys_max_cpus= ($cluster)?$cluster_job_max_cpu:`grep -c ^processor /proc/cpuinfo`;
+	my $backupsysfile = $sysconfig.$timestamp;
+	if ($new_job_num > ($new_cpu - 1) ){
+		$info->{INFO} = "ERROR: Max Num Jobs ($new_job_num) Cannot be > System CPUs ($new_cpu) minus 1.";
+	}
+	if ($new_job_num == $sys->{max_num_jobs} && $new_cpu == $sys->{edgeui_tol_cpu} && $setmaintenance == $sys->{maintenance}){
+		$info->{INFO} = "Nothing Changed.";
+	}
+	if ($new_cpu > $sys_max_cpus){
+		$info->{INFO} = "ERROR: The system doesn't have $new_cpu CPUs (max: $sys_max_cpus).";
+	}
+	if ($new_job_num !~ /\d+/ || $new_job_num <= 0 || $new_cpu !~ /\d+/ ||  $new_cpu <= 0){
+		$info->{INFO} = "ERROR: The update job number or cpu need to be integer number";
+	}
+	&returnStatus() if $info->{INFO};
+	copy($sysconfig,$backupsysfile);
+	open (my $in, "<", $sysconfig) or die "Cannot read $sysconfig";
+    	open (my $out, ">", "$sysconfig.tmp") or die "Cannot write $sysconfig";
+	while(<$in>){
+		if (/^edgeui_tol_cpu/){
+			print $out "edgeui_tol_cpu=$new_cpu\n"; 
+		}elsif(/^max_num_jobs/){
+			print $out "max_num_jobs=$new_job_num\n";
+		}elsif(/^maintenance/){
+			print $out "maintenance=$setmaintenance\n";
+		}else{
+			print $out $_;
+		}
+	}
+	close $in;
+	close $out;
+	rename("$sysconfig.tmp",$sysconfig);
+	chmod 0400, $sysconfig;
 
+}
 &returnStatus();
 
 ######################################################

@@ -2199,9 +2199,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 	<!-- User Management -->
 	<div data-role="popup" data-history="false" id="popupUser">
 		<ul data-role="listview" data-inset="true" data-icon="false">
-			<li><a href="#" id="signOutBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Log Out</a></li>
-			<li><a href="#UpdateProfileForm" id="UpdateProfileBtn" data-rel="popup" data-position-to="window" class="no-show-logout">Update Profile</a></li>
-			<li><input type='text' data-role="none" data-mini="true" name='color' class="colorpicker no-show-logout" style="display: nono;"></li>
+			<li><a href="#" id="signOutBtn" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-icon-left ui-icon-power no-show-logout">Log Out</a></li>
+			<li><a href="#UpdateProfileForm" id="UpdateProfileBtn" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-icon-left ui-icon-user no-show-logout">Update Profile</a></li>
+			<li><a href="#UpdateSysPropertyForm" id="UpdateSysPropertyBtn" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-icon-left ui-icon-gear no-show-logout">System</a></li>
+			<li><a href="#UploadFileCleanup" id="UploadFileCleanupBtn" data-rel="popup" data-position-to="window" class="ui-btn ui-btn-icon-left ui-icon-delete no-show-logout">Clean-up MyUploads</a></li>
 		</ul>
 	</div>
 
@@ -2266,21 +2267,65 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		
 	</div> <!-- signUpForm dialog -->
 
-	<div data-role="popup" data-history="false" id="UpdateProfileForm" class="ui-content" data-overlay-theme="b">
+	<div data-role="popup" data-history="false" id="myuplodsfileList"  data-overlay-theme="b">
+		<div data-role="header" data-theme="a">
+			<h3>MyUploads Files</h3>
+		</div>
+		<div role="main" class="ui-content">
+			<div id="myuplodsfileList-content"></div>
+        		<div class="edge-center">
+				<a href="#" id="myuplodsfileList-submit-btn" class="ui-btn ui-mini ui-shadow ui-btn-a ui-btn-inline ui-corner-all ui-btn-active">Delete</a>
+        			<a href="#" id="myuplodsfileList-cancel-btn" class="ui-btn ui-mini ui-shadow ui-btn-a ui-btn-inline ui-corner-all ">Cancel</a>
+			</div>
+		</div>
+	</div>
+	<div data-role="popup" data-history="false" id="UpdateSysPropertyForm"  data-overlay-theme="b">
+		<!--<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right edge-popup-close">Close</a>-->
+		<div data-role="header" data-theme="a">
+			<h3>System Properties</h3>
+		</div>
+		<div role="main" class="ui-content">
+			<div class="edge-popup-container">
+				<label for="SysProp-cpus">System CPUs<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Each job will use int((System_CPUs - 1)/Max_Num_Jobs) CPUs"></a></label>
+				<input type="range" name="SysProp-cpus" id="SysProp-cpus" data-highlight="true" min="1" max="64" value="4">
+			</div>
+			<div class="edge-popup-container">
+				<label for="SysProp-max-num-jobs">Max Num Jobs</label>
+				<input type="range" name="SysProp-max-num-jobs" id="SysProp-max-num-jobs" data-highlight="true" min="1" max="20" value="2">
+			</div>
+			<div class="edge-popup-container">
+				<label for="SysProp-maintenance-sw">Maintenance Mode<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Only allow view project result, No action and job submission."></a></label>
+				<select id="SysProp-maintenance-sw" name="SysProp-maintenance-sw" data-role="slider" data-mini="true">
+					<option value="0">Off</option><option value="1" selected="TRUE">On</option>
+				</select>
+			</div>
+        		<center><a href="#" id="UpdateSysProperty-submit-btn" class="ui-btn ui-mini ui-btn-inline ui-corner-all ui-btn-active">Update</a>
+        		<a href="#" id="UpdateSysProperty-cancel-btn" class="ui-btn ui-mini ui-btn-inline ui-corner-all ">Cancel</a></center>
+		</div>
+	</div> <!--  UpdateSysProperty dialog -->
+	<div data-role="popup" data-history="false" id="UpdateProfileForm" data-overlay-theme="b">
 		<!--<a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right edge-popup-close">Close</a>-->
 		<!--<iframe id="iframe-UpdateProfileForm" src="" width="480" height="400" seamless=""></iframe>-->
-		<h3>User Profile</h3>
-		<label for="UpdateProfile-fn">First Name</label>
-		<input type="text" name="UpdateProfile-fn" id="UpdateProfile-fn" value="">
-		<label for="UpdateProfile-ln">Last Name</label>
-		<input type="text" name="UpdateProfile-ln" id="UpdateProfile-ln" value="">
-		<!--<label for="UpdateProfile-email">Email</label>
-		<input type="text" name="UpdateProfile-email" id="UpdateProfile-email" value="" disabled >-->
-        	<label for="UpdateProfile-password" class="ui-hidden-accessible">New Password</label>
-        	<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="new-password">
-        	<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="new-password">
-        	<center><a href="#" id="updateProfile-submit-btn" class="ui-btn ui-btn-inline ui-corner-all ui-btn-active">Update</a>
-        	<a href="#" id="updateProfile-cancel-btn" class="ui-btn ui-btn-inline ui-corner-all ">Cancel</a></center>
+		<div data-role="header" data-theme="a">
+			<h3>User Profile</h3>
+		</div>
+		<div role="main" class="ui-content">
+			<label for="UpdateProfile-fn">First Name</label>
+			<input type="text" name="UpdateProfile-fn" id="UpdateProfile-fn" value="">
+			<label for="UpdateProfile-ln">Last Name</label>
+			<input type="text" name="UpdateProfile-ln" id="UpdateProfile-ln" value="">
+			<!--<label for="UpdateProfile-email">Email</label>
+			<input type="text" name="UpdateProfile-email" id="UpdateProfile-email" value="" disabled >-->
+        		<label for="UpdateProfile-password" class="ui-hidden-accessible">New Password</label>
+        		<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="new-password">
+        		<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="new-password">
+			<div class="edge-popup-container" style="display: none;">
+				<label for="SysProp-bg-color">Background Color</label>
+				<input type='text' data-role="none" data-mini="true" id='SysProp-bg-color' name='color' class="colorpicker no-show-logout">
+			</div>
+        		<center><a href="#" id="updateProfile-submit-btn" class="ui-btn ui-mini ui-btn-inline ui-corner-all ui-btn-active">Update</a>
+        		<a href="#" id="updateProfile-cancel-btn" class="ui-btn ui-mini ui-btn-inline ui-corner-all ">Cancel</a></center>
+		</div>
 	</div> <!--  updateProfile dialog -->
 </form>
 
