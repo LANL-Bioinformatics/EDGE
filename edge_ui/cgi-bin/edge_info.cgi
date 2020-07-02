@@ -868,6 +868,9 @@ sub loadInitSetup{
 	$info->{INFO}->{MHOST} = ( -e "$EDGE_HOME/database/human_ref_GRCh38_all.fa.gz" )?"true":"false";
 	#parameters
 	$info->{INFO}->{MAINTENANCE}  = ( $sys->{maintenance} )?"true":"false";
+	$info->{INFO}->{EDGESYSTEMCPU} = ($cluster)? $cluster_job_max_cpu:$sys->{edgeui_tol_cpu};
+	$info->{INFO}->{SYSTEMCPU} =  ($cluster)?$cluster_job_max_cpu:`grep -c ^processor /proc/cpuinfo`;
+	$info->{INFO}->{MAXNUMJOB} = $sys->{max_num_jobs};
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
 	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,text,config,ini,xls,xlsx";
 
