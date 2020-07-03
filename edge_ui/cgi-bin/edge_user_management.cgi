@@ -260,6 +260,7 @@ elsif ($action eq "report-share" || $action eq "report-unshare"){
 		my $user_upload_dir = "$edge_input/$user_dir/MyUploads/";
 		my @file_list =  split /,/, $opt{selectmyfiles};
 		foreach my $file(@file_list){
+			next if ( $file =~ /\.\.\//);
 			my $path="$user_upload_dir/$file";
 			if ( -d $path){
 				remove_tree($path);
