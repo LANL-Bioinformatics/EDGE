@@ -52,11 +52,12 @@ $sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $edgeui_output  = $sys->{edgeui_output};
 my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
-my ($proj_list,$proj_real_name)=&scanProjToList($edgeui_output);
+my ($proj_list)=&scanProjToList($edgeui_output);
 
 if( $proj_list->{$pname} ){
+	$prealname=$proj_list->{$pname}->{projname};
 	if($action eq "create-form") {
-		my $projDir = $relpath . "/". $proj_list->{$pname};
+		my $projDir = $relpath . "/". $proj_list->{$pname}->{dir};
 		chdir $edgeui_wwwroot;
 		my $outHtml = "$projDir/GISAID/upload.html";
 		my $profileDir = $sys->{edgeui_input}."/$userDir";
@@ -96,8 +97,8 @@ if( $proj_list->{$pname} ){
 			returnParamsStatus();
 		}
 
-		my $projDir = $edgeui_output . "/". $proj_list->{$pname};
-		my $projDir_rel = $relpath . "/". $proj_list->{$pname};
+		my $projDir = $edgeui_output . "/". $proj_list->{$pname}->{dir};
+		my $projDir_rel = $relpath . "/". $proj_list->{$pname}->{dir};
 		if(-e $projDir) {
 			#sample metadata
 			my $metadata_out = "$projDir/metadata_gisaid.txt";
@@ -114,6 +115,7 @@ if( $proj_list->{$pname} ){
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "status=".$opt{'metadata-sample-status'}."\n";
 			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			print OUT "coverage=$selected_consensus\n";
 			close OUT;
@@ -139,6 +141,7 @@ if( $proj_list->{$pname} ){
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "status=".$opt{'metadata-sample-status'}."\n";
 			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			print OUT "assembly_method=$opt{'metadata-sample-assembly-method'}\n";
 			print OUT "originating_lab=".$opt{'metadata-orig-lab'}."\n"; 
@@ -154,8 +157,8 @@ if( $proj_list->{$pname} ){
 			my $cmd;
 			if ($action eq "download"){
 				# download
-				my $zip_file = "$projDir/GISAID/${proj_real_name}_gisaid_data.zip";
-				my $zip_file_rel = "$projDir_rel/GISAID/${proj_real_name}_gisaid_data.zip";
+				my $zip_file = "$projDir/GISAID/${prealname}_gisaid_data.zip";
+				my $zip_file_rel = "$projDir_rel/GISAID/${prealname}_gisaid_data.zip";
 				$cmd = "zip -j $zip_file $metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
 				`$cmd`;
 				$msg->{PATH} = $zip_file_rel;
@@ -265,13 +268,16 @@ sub scanProjToList {
 			}
 			close CONFIG;
                         $projid ||= $file;
-			$list->{$projid} = $file;
-			$list->{$file} = $file;
-			$list->{$projCode} = $file;
+			$list->{$projid}->{dir} = $file;
+			$list->{$file}->{dir}  = $file;
+			$list->{$projCode}->{dir} = $file;
+			$list->{$projCode}->{projname} = $projname;
+			$list->{$projid}->{projname} = $projname;
+			$list->{$file}->{projname}  = $projname;
                 }
         }
         closedir(BIN);
-        return ($list,$projname);
+        return ($list);
 }
 
 sub getSysParamFromConfig {

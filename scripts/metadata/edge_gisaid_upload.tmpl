@@ -108,6 +108,7 @@
 									<option value="Male" <TMPL_VAR NAME=SM_GENDER_MALE>>Male</option>
 									<option value="Female" <TMPL_VAR NAME=SM_GENDER_FEMALE>>Female</option>
 									<option value="Other" <TMPL_VAR NAME=SM_GENDER_OTHER>>Other</option>
+									<option value="Unknown" <TMPL_VAR NAME=SM_GENDER_UNKNOWN>>Unknown</option>
 								</select>
 							</div>
 
@@ -116,6 +117,17 @@
 								<input name="metadata-sample-age" id="metadata-sample-age" type="text"
 									value="<TMPL_VAR NAME=SM_AGE DEFAULT=>"
 									placeholder="Example: 65, 7 monthis, or unknown" class="metadata-input">
+							</div>
+							<div class="ui-field-contain">
+								<label for="metadata-sample-status">Patient status</label>
+								<select name="metadata-sample-status" id="metadata-sample-status" data-mini="true" data-native-menu="false" class="metadata-input">
+									<option value="">Select Status</option>
+									<option value="Hospitalized" <TMPL_VAR NAME=SM_STATUS_Hospitalized>>Hospitalized</option>
+									<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released>>Released</option>
+									<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live>>Live</option>
+									<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased>>Deceased</option>
+									<option value="Unknown" <TMPL_VAR NAME=SM_STATUS_OTHER>>Unknown</option>
+								</select>
 							</div>
 							<div class="ui-field-contain">
 								<label for="metadata-sample-sequencing-tech">Sequencing technology</label>

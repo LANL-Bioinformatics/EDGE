@@ -1490,6 +1490,7 @@ sub createSampleMetadataFile {
 			print OUT "host=".$opt{'metadata-sample-host'}."\n";
 			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
 			print OUT "age=".$opt{'metadata-sample-age'}."\n";
+			print OUT "status=".$opt{'metadata-sample-status'}."\n";
 			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
 			close OUT;
 		} 

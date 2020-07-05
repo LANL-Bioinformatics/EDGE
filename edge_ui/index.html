@@ -566,14 +566,33 @@
 
 									<div class="ui-field-contain">
 										<label>Gender</label>
-										<input name="metadata-sample-gender" id="metadata-sample-gender" type="text"
-											placeholder="Example: Male, Female, or unknown" class="metadata-input">
+										<select name="metadata-sample-gender" id="metadata-sample-gender" data-mini="true" data-native-menu="false" class="metadata-input">
+											<option value="">Select Gender</option>
+											<option value="Male">Male</option>
+											<option value="Female">Female</option>
+
+											<option value="Other">Other</option>
+											<option value="Unknown">Unknown</option>
+										</select>
+
 									</div>
 
 									<div class="ui-field-contain">
 										<label>Patient age</label>
 										<input name="metadata-sample-age" id="metadata-sample-age" type="text"
 											placeholder="Example: 65, 7 monthis, or unknown" class="metadata-input">
+									</div>
+
+									<div class="ui-field-contain">
+										<label>Patient status</label>
+										<select name="metadata-sample-status" id="metadata-sample-status" data-mini="true" data-native-menu="false" class="metadata-input">
+											<option value="">Select Status</option>
+											<option value="Hospitalized">Hospitalized</option>
+											<option value="Released">Released</option>
+											<option value="Live">Live</option>
+											<option value="Deceased">Deceased</option>
+											<option value="Unknown">Unknown</option>
+										</select>
 									</div>
 									<div class="ui-field-contain">
 										<label>Sequencing Technology</label>

@@ -96,6 +96,7 @@ sub pull_sampleMetadata {
              			$vars->{SM_HOST} =$2 if ($1 eq "host");
              			$vars->{SM_GENDER} = $2 if ($1 eq "gender");
              			$vars->{SM_AGE} =$2 if ($1 eq "age");
+             			$vars->{SM_STATUS} =$2 if ($1 eq "status");
              			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
 				$vars->{SM_COV} = $2 if ($1 eq "coverage");
               		}
@@ -104,8 +105,21 @@ sub pull_sampleMetadata {
 			$vars->{SM_GENDER_FEMALE} = "selected";
 		}elsif($vars->{SM_GENDER} =~ /Male/i){
 			$vars->{SM_GENDER_MALE} = "selected";
+		}elsif($vars->{SM_GENDER} =~ /Unknown/i){
+			$vars->{SM_GENDER_UNKNOWN} = "selected";
 		}elsif($vars->{SM_GENDER} =~ /Other/i){
 			$vars->{SM_GENDER_OTHER} = "selected";
+		}
+		if ($vars->{SM_STATUS} =~ /Hospitalized/i){
+			$vars->{SM_STATUS_Hospitalized} = "selected";
+		}elsif($vars->{SM_STATUS_Released} =~ /Released/i){
+			$vars->{SM_STATUS_Released} = "selected";
+		}elsif($vars->{SM_STATUS_Live} =~ /Live/i){
+			$vars->{SM_STATUS_Live} = "selected";
+		}elsif($vars->{SM_STATUS_Deceased} =~ /Deceased/i){
+			$vars->{SM_STATUS_Deceased} = "selected";
+		}elsif($vars->{SM_STATUS_Unknown} =~ /Unknown/i){
+			$vars->{SM_STATUS_Unknown} = "selected";
 		}
         	close CONF;
 	}
