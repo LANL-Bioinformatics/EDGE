@@ -157,7 +157,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
         6  : "", #Additional host information: Example: Cruise Ship, Convention, Live animal market
         7  : "gender", #Gender*
         8  : "age", #Patient age*
-        9  : "", #Patient status: Example: Hospitalized, Released, Live, Deceased, unknown
+        9  : "status", #Patient status: Example: Hospitalized, Released, Live, Deceased, unknown
         10 : "isolation_source", #Specimen source: Example: Nasal
         11 : "", #Outbreak Detail: Example: Date, Place, Family cluster
         12 : "", #Last vaccinated
@@ -210,7 +210,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
         warnings = driver.find_elements_by_xpath( "//div[@class='sys-form-fi-message']")
         for msg in warnings:
             if msg.is_displayed():
-                print(warnings.text)
+                print(msg.text)
 
     # close driver
     driver.quit()
