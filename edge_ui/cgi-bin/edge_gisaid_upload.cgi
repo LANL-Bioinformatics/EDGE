@@ -357,6 +357,7 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sample-host", "Host is required.") unless ( $opt{'metadata-sample-host'});
 	&addMessage("PARAMS", "metadata-sample-gender", "Gender is required.") unless ( $opt{'metadata-sample-gender'});
 	&addMessage("PARAMS", "metadata-sample-age", "Age is required.") unless ( $opt{'metadata-sample-age'});
+	&addMessage("PARAMS", "metadata-sample-status", "Status is required.") unless ( $opt{'metadata-sample-status'});
 	&addMessage("PARAMS", "metadata-sample-sequencing-tech", "Sequencing Technology is required.") unless ( $opt{'metadata-sample-sequencing-tech'});
 	&addMessage("PARAMS", "metadata-sample-consensus", "Consensus FASTA is required.") unless ( $opt{'metadata-sample-consensus'} );
 
