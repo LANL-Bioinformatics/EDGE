@@ -55,15 +55,15 @@
 						</div>
 						<div class="ui-body ui-body-a ui-corner-all">
 							<div class="ui-field-contain">
-								<label for="metadata-virus-name">Virus name</label>
-								<input type="text" id="metadata-virus-name" name="metadata-virus-name"
+								<label for="metadata-virus-name2">Virus name</label>
+								<input type="text" id="metadata-virus-name2" name="metadata-virus-name"
 									placeholder="hCoV-19/Country/Identifier/2020"
 									value="<TMPL_VAR NAME=VIR_NAME DEFAULT=>" class="metadata-input">
 
 							</div>
 							<div class="ui-field-contain">
-								<label for="metadata-virus-passage">Passage details/history</label>
-								<input type="text" id="metadata-virus-passage" name="metadata-virus-passage"
+								<label for="metadata-virus-passage2">Passage details/history</label>
+								<input type="text" id="metadata-virus-passage2" name="metadata-virus-passage"
 									value="<TMPL_VAR NAME=VIR_PASSAGE DEFAULT=>" placeholder="Example: Original, Vero"
 									class="metadata-input">
 							</div>
@@ -78,32 +78,32 @@
 						<div class="ui-body ui-body-a ui-corner-all">
 
 							<div class="ui-field-contain">
-								<label for="metadata-sample-collection-date">Collection date</label>
+								<label for="metadata-sample-collection-date2">Collection date</label>
 								<input type="text" data-role="date" data-mini="true" data-clear-btn="false"
 									value="<TMPL_VAR NAME=SM_CDATE DEFAULT=>" name="metadata-sample-collection-date"
-									id="metadata-sample-collection-date"
+									id="metadata-sample-collection-date2"
 									placeholder="Example: 2020-03-27, 2020-03 (collection in March, day unknown), 2020 (month and day unknown)"
 									maxlength="30" class="metadata-input metadata-input-date">
 							</div>
 
 							<div class="ui-field-contain">
-								<label for="metadata-sample-location">Location</label>
-								<input name="metadata-sample-location" id="metadata-sample-location" type="text"
+								<label for="metadata-sample-location2">Location</label>
+								<input name="metadata-sample-location" id="metadata-sample-location2" type="text"
 									value="<TMPL_VAR NAME=SM_LOC DEFAULT=>" placeholder="Continent/Country/Region"
 									class="metadata-input">
 							</div>
 
 							<div class="ui-field-contain">
-								<label for="metadata-sample-host">Host</label>
-								<input name="metadata-sample-host" id="metadata-sample-host" type="text"
+								<label for="metadata-sample-host2">Host</label>
+								<input name="metadata-sample-host" id="metadata-sample-host2" type="text"
 									value="<TMPL_VAR NAME=SM_HOST DEFAULT=>"
 									placeholder="Example: Human, Environment, Canine, Manis javanica, Rhinolophus affinis, unknown"
 									class="metadata-input">
 							</div>
 
 							<div class="ui-field-contain">
-								<label for="metadata-sample-gender">Gender</label>
-								<select name="metadata-sample-gender" id="metadata-sample-gender" data-mini="true" data-native-menu="false" class="metadata-input">
+								<label for="metadata-sample-gender2">Gender</label>
+								<select name="metadata-sample-gender" id="metadata-sample-gender2" data-mini="true" data-native-menu="false" class="metadata-input">
 									<option value="">Select Gender</option>
 									<option value="Male" <TMPL_VAR NAME=SM_GENDER_MALE>>Male</option>
 									<option value="Female" <TMPL_VAR NAME=SM_GENDER_FEMALE>>Female</option>
@@ -113,14 +113,14 @@
 							</div>
 
 							<div class="ui-field-contain">
-								<label for="metadata-sample-age">Patient age</label>
-								<input name="metadata-sample-age" id="metadata-sample-age" type="text"
+								<label for="metadata-sample-age2">Patient age</label>
+								<input name="metadata-sample-age" id="metadata-sample-age2" type="text"
 									value="<TMPL_VAR NAME=SM_AGE DEFAULT=>"
 									placeholder="Example: 65, 7 monthis, or unknown" class="metadata-input">
 							</div>
 							<div class="ui-field-contain">
-								<label for="metadata-sample-status">Patient status</label>
-								<select name="metadata-sample-status" id="metadata-sample-status" data-mini="true" data-native-menu="false" class="metadata-input">
+								<label for="metadata-sample-status2">Patient status</label>
+								<select name="metadata-sample-status" id="metadata-sample-status2" data-mini="true" data-native-menu="false" class="metadata-input">
 									<option value="">Select Status</option>
 									<option value="Hospitalized" <TMPL_VAR NAME=SM_STATUS_Hospitalized>>Hospitalized</option>
 									<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released>>Released</option>
@@ -130,8 +130,8 @@
 								</select>
 							</div>
 							<div class="ui-field-contain">
-								<label for="metadata-sample-sequencing-tech">Sequencing technology</label>
-								<input name="metadata-sample-sequencing-tech" id="metadata-sample-sequencing-tech" type="text"
+								<label for="metadata-sample-sequencing-tech2">Sequencing technology</label>
+								<input name="metadata-sample-sequencing-tech" id="metadata-sample-sequencing-tech2" type="text"
 									value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"
 									placeholder="Example: Illumina Miseq, Sanger, Nanopore MinION, Ion Torrent, etc." class="metadata-input">
 							</div>

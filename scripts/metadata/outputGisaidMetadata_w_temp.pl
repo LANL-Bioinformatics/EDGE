@@ -112,13 +112,13 @@ sub pull_sampleMetadata {
 		}
 		if ($vars->{SM_STATUS} =~ /Hospitalized/i){
 			$vars->{SM_STATUS_Hospitalized} = "selected";
-		}elsif($vars->{SM_STATUS_Released} =~ /Released/i){
+		}elsif($vars->{SM_STATUS} =~ /Released/i){
 			$vars->{SM_STATUS_Released} = "selected";
-		}elsif($vars->{SM_STATUS_Live} =~ /Live/i){
+		}elsif($vars->{SM_STATUS} =~ /Live/i){
 			$vars->{SM_STATUS_Live} = "selected";
-		}elsif($vars->{SM_STATUS_Deceased} =~ /Deceased/i){
+		}elsif($vars->{SM_STATUS} =~ /Deceased/i){
 			$vars->{SM_STATUS_Deceased} = "selected";
-		}elsif($vars->{SM_STATUS_Unknown} =~ /Unknown/i){
+		}elsif($vars->{SM_STATUS} =~ /Unknown/i){
 			$vars->{SM_STATUS_Unknown} = "selected";
 		}
         	close CONF;
