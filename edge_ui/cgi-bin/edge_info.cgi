@@ -841,7 +841,7 @@ sub loadInitSetup{
 	$info->{INFO}->{MAXNUMJOB} = $sys->{max_num_jobs};
 	$info->{INFO}->{MAINTENANCE}  = ( $sys->{maintenance} )?"true":"false";
 	$info->{INFO}->{UPLOADEXPIRE}  = ( $sys->{edgeui_proj_store_days} )?$sys->{edgeui_proj_store_days}:"1095";
-	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,text,config,ini,xls,xlsx";
+	$info->{INFO}->{UPLOADFILEEXT}  = ( $sys->{user_upload_fileext} )?$sys->{user_upload_fileext}:"fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,text,config,ini,xls,xlsx,hmm";
 
 }
 

@@ -35,7 +35,7 @@ function check_uploadFile($input){
 	$second_line = fgets($file_handle);
 	$fields = explode("\t",$second_line);
         $line_of_text .= $second_line;
-        if (preg_match("/^>|^@|project|ID|^LOCUS|xml|gff|bed/i",$line_of_text)){
+        if (preg_match("/^>|^@|project|ID|^LOCUS|xml|gff|bed|HMMER/i",$line_of_text)){
                 return true;
         }else{
 		if (count($fields) >= 6 and is_numeric($fields[1]) and is_numeric($fields[2]) ){

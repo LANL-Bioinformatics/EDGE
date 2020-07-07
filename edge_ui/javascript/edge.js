@@ -23,7 +23,7 @@ $( document ).ready(function()
 	var inputLogObj = {};
 	var inputFileID;
 	var inputFileDir  = "/public/";
-	var upFileType= "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,config,xls,xlsx";
+	var upFileType= "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,config,xls,xlsx,hmm";
 	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
         var newWindowFooter = "<div class='edge-sp edge-sp-circle'></div></body></html>";
 	//var username;

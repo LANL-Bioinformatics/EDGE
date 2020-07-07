@@ -1954,7 +1954,15 @@ sub runAnnotation
     if ($annotateProgram =~ /prokka/i)
     {
         $tax_kingdom = "Bacteria --metagenome " if ($tax_kingdom =~ /Metagenome/i);
-	my $hmm_file = ($customHMM)? "--hmms $customHMM ":"";
+	my $hmm_file="";
+	if ($customHMM){
+		$hmm_file = "--hmms $customHMM ";
+		if (! -e "$customHMM.h3i"){
+			$cmd="$RealBin/bin/hmmpress $customHMM";
+			&lprint (" Running \n $cmd\n");
+			&executeCommand($cmd);
+		}
+	}
         $cmd = "$RealBin/bin/prokka --quiet --force $hmm_file --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
     }
     &lprint (" Running \n $cmd\n");
