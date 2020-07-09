@@ -90,6 +90,7 @@ if (file_exists("$targetDir")) {
 }
 
 $maxDay = ($edge_config["edgeui_proj_store_days"]>0)? $edge_config["edgeui_proj_store_days"] : 1095;
+$maxDirSize = ($edge_config["user_upload_dir_maxsize"]>0)? $edge_config["user_upload_dir_maxsize"] : 100;
 $fileExt = ($edge_config["user_upload_fileext"])? $edge_config["user_upload_fileext"] : "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb";
 $maxFileAge = $maxDay * 24 * 60 * 60; // Temp file age in maxday days 
 
@@ -97,6 +98,7 @@ $ph = new PluploadHandler(array(
 	'target_dir' => $targetDir,
 	'allow_extensions' => $fileExt,
 	'max_file_age' => $maxFileAge,
+	'target_dir_size_limit' => $maxDirSize,
 	'cb_check_file' => 'check_uploadFile'
 ));
 $ph->sendNoCacheHeaders();

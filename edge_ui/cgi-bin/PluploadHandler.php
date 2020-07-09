@@ -8,6 +8,7 @@ define('PLUPLOAD_TMPDIR_ERR', 100);
 define('PLUPLOAD_TYPE_ERR', 104);
 define('PLUPLOAD_UNKNOWN_ERR', 111);
 define('PLUPLOAD_SECURITY_ERR', 105);
+define('PLUPLOAD_TARGETSIZE_ERR', 106);
 
 define('DS', DIRECTORY_SEPARATOR);
 
@@ -16,6 +17,7 @@ define('DS', DIRECTORY_SEPARATOR);
  * @method void handleUpload(array $conf)
  * @method string combineChunksFor(string $file_name)
  * @method int getFileSizeFor(string $file_name)
+ * @method int getFolderSizeFor(string $dir)
  * @method string getTargetPathFor(string $file_name)
  * @method void sendNoCacheHeaders()
  * @method void sendCorsHeaders()
@@ -49,7 +51,8 @@ class PluploadHandler
             array(
                 'file_data_name' => 'file',
                 'tmp_dir' => ini_get("upload_tmp_dir") . DS . "plupload",
-                'target_dir' => false,
+		'target_dir' => false,
+		'target_dir_size_limit' => 100, // in Gb
                 'cleanup' => true,
                 'max_file_age' => 5 * 3600, // in hours
                 'max_execution_time' => 5 * 60, // in seconds (5 minutes by default)
@@ -63,6 +66,7 @@ class PluploadHandler
                 'cb_sanitize_file_name' => array($this, 'sanitizeFileName'),
                 'cb_check_file' => false,
                 'cb_filesize' => array($this, 'filesize'),
+                'cb_foldersize' => array($this, 'foldersize'),
                 'error_strings' => array(
                     PLUPLOAD_MOVE_ERR => "Failed to move uploaded file.",
                     PLUPLOAD_INPUT_ERR => "Failed to open input stream.",
@@ -70,7 +74,8 @@ class PluploadHandler
                     PLUPLOAD_TMPDIR_ERR => "Failed to open temp directory.",
                     PLUPLOAD_TYPE_ERR => "File type not allowed.",
                     PLUPLOAD_UNKNOWN_ERR => "Failed due to unknown error.",
-                    PLUPLOAD_SECURITY_ERR => "File didn't pass security check."
+		    PLUPLOAD_SECURITY_ERR => "File didn't pass security check.",
+		    PLUPLOAD_TARGETSIZE_ERR => "Upload directory doesn't have enough space."
                 ),
                 'debug' => false,
                 'log_path' => "error.log"
@@ -120,7 +125,12 @@ class PluploadHandler
             } else {
                 $file_name = $conf['file_name'];
             }
-
+	    // Check if target_dir have enough space based on the limit
+	    //
+	    $targe_dir_size = $this->getFolderSizeFor($conf['target_dir']);
+            if ($targe_dir_size > ($conf['target_dir_size_limit'] * 1073741824)){
+                throw new Exception('', PLUPLOAD_TARGETSIZE_ERR); 
+            }
 
             // Check if file type is allowed
             if ($conf['allow_extensions']) {
@@ -187,7 +197,12 @@ class PluploadHandler
     function getErrorMessage()
     {
         if ($code = $this->getErrorCode()) {
-            return $this->conf['error_strings'][$code];
+            $msg = $this->conf['error_strings'][$code];
+            if ($code === 106 ){
+		$targe_dir_size = $this->human_filesize($this->getFolderSizeFor($this->conf['target_dir']));
+                $msg .=  ' ( max:'.$this->conf['target_dir_size_limit'].'G, used: '. $targe_dir_size .' )';
+            }
+            return $msg;
         } else {
             return '';
         }
@@ -430,8 +445,17 @@ class PluploadHandler
     {
         return call_user_func($this->conf['cb_filesize'], getTargetPathFor($file_name));
     }
+    	
+    function getFolderSizeFor($dir)
+    {
+        return call_user_func($this->conf['cb_foldersize'], $dir);
+    }
 
-
+    function human_filesize($bytes, $decimals = 2) {
+        $factor = floor((strlen($bytes) - 1) / 3);
+        if ($factor > 0) $sz = 'KMGT';
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor - 1];
+    }
     /**
      * Resolves given filename against target_dir value defined in the config.
      *
@@ -607,6 +631,18 @@ class PluploadHandler
         return @filesize($file);
     }
 
+    protected function foldersize ($dir)
+    {
+	if (!file_exists($dir)) {
+            $this->log("cannot measure $dir, 'cause it doesn't exist.");
+            return false;
+        }
+        $size = 0;
+        foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+            $size += is_file($each) ? $this->filesize($each) : foldersize($each);
+        }
+        return $size;
+    }
 
     /**
      * Obtain the blocking lock on the specified file. All processes looking to work with
