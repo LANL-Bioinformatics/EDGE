@@ -67,7 +67,7 @@ sub pull_consensusInfo{
 		if (/CMD:\s(\S+)/){$align_tool=$1;}
 	}
 	close $log_fh;
-	$vars->{ASM_METHOD}="$align_tool $tool_version.";
+	$vars->{ASM_METHOD}="EDGE-covid19: $align_tool $tool_version.";
 
 	my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ};
 	my $con_min_cov = $configuration->{r2g_consensus_min_cov};
