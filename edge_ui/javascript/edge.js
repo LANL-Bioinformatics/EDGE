@@ -3074,7 +3074,7 @@ $( document ).ready(function()
                 $("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
         });
         
-	function setRunPipeline(pipeline,resetflag) {
+	function setRunPipeline(pipeline,resetflag,reconfig) {
 		allMainPage.hide();
 		toggle_input_fields("enable");
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
@@ -3099,7 +3099,9 @@ $( document ).ready(function()
 			$(":radio[name='edge-fastq-source']").trigger('change');
 			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 			//reset metadata form
-			resetMetadata();
+			if (!reconfig){
+				resetMetadata();
+			}
 			sync_input();
 			edge_ui_init();
 			collapsible_select_sync();
@@ -3301,7 +3303,7 @@ $( document ).ready(function()
 			});
 			//loading pipeline
 			pipeline = data['pipeline'];
-			setRunPipeline(pipeline);
+			setRunPipeline(pipeline,false,true);
 			$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
 			$('#edge-form-submit').closest('.ui-btn').hide();
 			$('#edge-form-reset').closest('.ui-btn').hide();

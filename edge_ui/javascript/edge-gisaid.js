@@ -113,7 +113,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$( "#edge-submit-info" ).fadeIn("fast");
-				var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to run submission CGI. Please check server error log for detail.</a></li>";
+				var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to run gisaid submission CGI. Please check server error log for detail.</a></li>";
 				$( "#edge-submit-info" ).append(dom).fadeIn("fast");
 			}
 		});
