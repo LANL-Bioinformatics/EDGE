@@ -20,13 +20,13 @@ if ($printonly){
 	find( \&unwanted, @dirs);
 }
 sub unwanted {
-	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
+	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache|zip)$/i && 
 	$File::Find::name !~ /JBrowse|public/i &&  
 	unlink $File::Find::name;
 }
 
 sub printOldFiles {
-	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
+	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache|zip)$/i && 
 	$File::Find::name !~ /JBrowse|public/i &&  
 	print $File::Find::name;
 }
