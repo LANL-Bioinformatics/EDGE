@@ -28,7 +28,7 @@ my $loadNum    = $opt{'loadNum'} || 9999999;
 my $forceupdate = $opt{'forceupdate'} || $ARGV[6];
 my $domain      = $ENV{'HTTP_HOST'} || 'edge-bsve.lanl.gov';
 my ($webhostname) = $domain =~ /^(\S+?)\./;
-
+my $tz = strftime("%Z", localtime());
 &stringSanitization(\%opt);
 
 # read system params from sys.properties
@@ -110,21 +110,21 @@ print $relt_json;
 ## END MAIN## 
 sub getUserProjList {
 	$html .= "<thead><tr>";
-	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time ($tz)</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
 	$html .= " </tr></thead>";
 	&getProjFromUM("user");
 }
 
 sub getAdminProjList {
 	$html .= "<thead><tr>";
-	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Owner</th>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time ($tz)</th><th>Total Running Time</th><th>Owner</th>";
 	$html .= " </tr></thead>";
 	&getProjFromUM("admin");
 }
 
 sub getPublicProjList {
 	$html .= "<thead><tr>";
-	$html .= "<th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Owner</th>";
+	$html .= "<th>Project Name</th><th>Status</th><th>Submission Time ($tz)</th><th>Total Running Time</th><th>Owner</th>";
 	$html .= " </tr></thead>";
 	&getProjFromUM("public");
 }
@@ -132,7 +132,7 @@ sub getPublicProjList {
 sub getProjList {	
 	# all projects in the EDGE_output
 	$html .= "<thead><tr>";
-	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th>";
+	$html .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time ($tz)</th><th>Total Running Time</th>";
 	$html .= " </tr></thead>";
 	
 	my $list= &scanProjToList();
