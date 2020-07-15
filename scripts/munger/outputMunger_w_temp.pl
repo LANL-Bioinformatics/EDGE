@@ -22,7 +22,7 @@ my $sys          = &getSysParamFromConfig($sysconfig);
 my $www_root    = $sys->{edgeui_wwwroot};
 $ENV{EDGE_HOME} ||= "../../";
 my $abs_outDir=Cwd::abs_path("$out_dir");
-
+my $tz = strftime("%Z", localtime());
 ## Instantiate the variables
 my $getting_paired=0;
 my $vars;
@@ -2233,7 +2233,7 @@ sub pull_summary {
 			}
 		}
 		elsif( /Project Start: (.*)/ ){
-			$vars->{PROJSUBTIME} = $1;
+			$vars->{PROJSUBTIME} = "$1 ($tz)";
 			$vars->{PROJSTATUS} = "Finished";
 		}
 		elsif( /^Do.*=(.*)$/ ){
