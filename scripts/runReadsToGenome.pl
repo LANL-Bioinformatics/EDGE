@@ -149,6 +149,7 @@ if ($minimap2_options =~ /-t\s+\d+/){$minimap2_options =~ s/-t\s+\d+/-t $numCPU/
 if ($bowtie_options =~ /-p\s+\d+/){$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ ;}else{$bowtie_options .= " -p $numCPU ";}
 if ($snap_options =~ /-t\s+\d+/){$snap_options =~ s/-t\s+\d+/-t $numCPU/;}else{$snap_options .= " -t $numCPU ";}
 my $samtools_threads=$numCPU;
+my $samtools_sort_ram = "-m ".sprintf("%dM", (4000/$numCPU > 768)? 768:4000/$numCPU); # RAM per thread
 
 my $align_trim_pipe_cmd=(-e $align_trim_bed_file )? "| align_trim.py  $align_trim_bed_file  2> /dev/null ":"";
 
