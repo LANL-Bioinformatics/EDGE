@@ -149,6 +149,7 @@ if ($minimap2_options =~ /-t\s+\d+/){$minimap2_options =~ s/-t\s+\d+/-t $numCPU/
 if ($bowtie_options =~ /-p\s+\d+/){$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ ;}else{$bowtie_options .= " -p $numCPU ";}
 if ($snap_options =~ /-t\s+\d+/){$snap_options =~ s/-t\s+\d+/-t $numCPU/;}else{$snap_options .= " -t $numCPU ";}
 my $samtools_threads=$numCPU;
+my $samtools_sort_ram = "-m ".sprintf("%dM", (4000/$numCPU > 768)? 768:4000/$numCPU); # RAM per thread
 
 my $align_trim_pipe_cmd=(-e $align_trim_bed_file )? "| align_trim.py  $align_trim_bed_file  2> /dev/null ":"";
 
@@ -213,7 +214,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`minimap2 --MD -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
 		}
 
-		`samclip --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam` if ( -s "$outDir/LongReads$$.sam");
+		`samclip --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS - | samtools sort $samtools_sort_ram -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam` if ( -s "$outDir/LongReads$$.sam");
 	}
 	if ($paired_files){
 		print "Mapping paired end reads to $ref_file_name\n";
@@ -240,7 +241,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 		}
 		#`samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam | samtools sort -n -l 0 - | samtools view -@ $samtools_threads -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
 		#print "samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam $align_trim_pipe_cmd | samtools sort -n -T $tmp -l 0 -@ $samtools_threads  | samtools fixmate -m -@ $samtools_threads - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam","\n";
-		`samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam $align_trim_pipe_cmd | samtools sort -n -T $tmp -l 0 -@ $samtools_threads  | samtools fixmate -m -@ $samtools_threads - - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
+		`samclip --ref $ref_file --max $max_clip  < $outDir/paired$$.sam $align_trim_pipe_cmd | samtools sort $samtools_sort_ram -n -T $tmp -l 0 -@ $samtools_threads  | samtools fixmate -m -@ $samtools_threads - - | samtools sort $samtools_sort_ram -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam` if (-s "$outDir/paired$$.sam");
 	}
 
 	if ($singleton){
@@ -265,7 +266,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 		elsif ($aligner =~ /minimap2/i){
 			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
 		}
-		`samclip --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS  - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
+		`samclip --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS  - | samtools sort $samtools_sort_ram -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
 	}
 
 	# merge bam files if there are different file type, paired, single end, long..
