@@ -1474,6 +1474,7 @@ $( document ).ready(function()
 				//}
 			},
 			error: function(data){
+				console.log(data);
 				$.mobile.loading( "hide" );
 				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
 
@@ -2720,7 +2721,7 @@ $( document ).ready(function()
 				}
 				//END sample metadata
 				// GISAID
-                if(obj.INFO.SHOWGISAID && focusProjIsOwner) {
+                		if(obj.INFO.SHOWGISAID && focusProjIsOwner) {
 					$("#metadata-gisaid-actions").show();
 				} else {
 					$("#metadata-gisaid-actions").hide();
@@ -4195,13 +4196,13 @@ $( document ).ready(function()
 	};
 	//GISAID
 	//upload to GISAID
-	$("#metadata-gisaid-upload").on("click", function(){
+	$("#metadata-gisaid-upload, #metadata-gisaid-edit").on("click", function(){
 		//console.log("gisaid upload");
 		page.find( ".edge-action-panel" ).panel( "close" );
-		upload2Gisaid();
+		upload2Gisaid($(this).attr("id"));
 	});
 
-	function upload2Gisaid() {
+	function upload2Gisaid(action_id) {
 		if (!focusProjName){
 			showWarning("No focus project for the action");
 			return false;
@@ -4234,7 +4235,13 @@ $( document ).ready(function()
 				$( "#edge-content-report" ).find("img").lazyLoadXT();
 				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
 				$( "#edge-content-report" ).enhanceWithin();
-								
+				if (action_id == "metadata-gisaid-edit"){
+					$("#edge-gisaid-form-submit").parent().hide();
+					$("#metadata-submitter-info").hide();
+				}
+				if (action_id == "metadata-gisaid-upload"){
+					$("#edge-gisaid-form-update").parent().hide();
+				}
 				$.getScript( "./javascript/edge-gisaid.js" )
 					.done(function( script, textStatus ) {
 					//	console.log( "edge-output.js loaded: " + textStatus );

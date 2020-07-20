@@ -692,6 +692,8 @@ sub pull_sampleMetadata {
 				$vars->{SMD_HOST} = $2 if ($1 eq 'host');
 				$vars->{SMD_GENDER} = $2 if ($1 eq 'gender');
 				$vars->{SMD_AGE} = $2 if($1 eq 'age');
+				$vars->{SMD_STATUS} = $2 if($1 eq 'status');
+				$vars->{SMD_SEQUENCING_TECH} = $2 if($1 eq 'sequencing_technology');
 			}
 		}
 	}

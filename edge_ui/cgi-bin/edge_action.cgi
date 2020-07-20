@@ -127,6 +127,7 @@ my $projStatus;
 my $projOwnerEmail;
 my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export');
 my $user_proj_dir = "$input_dir/tmp";
+my $userdir;
 if ( $umSystemStatus )
 {
 	my $valid = verifySession($sid);
@@ -144,6 +145,7 @@ if ( $umSystemStatus )
 	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
+	$userdir = "$input_dir/". md5_hex(lc($username));
 	#separate permission for future uses. A permission module can be added potentially..
 	if( defined $list->{$pname} || $userType =~ /admin/){
 		$permission->{empty} = 1;
@@ -944,16 +946,15 @@ elsif( $action eq 'metadata-export'){
 	my $metadata_out_dir = "$out_dir/sample_metadata_export/". md5_hex(join ('',@projCodes));
 	my $relative_outdir = "$out_rel_dir/sample_metadata_export/". md5_hex(join ('',@projCodes));
 	unlink $metadata_out_dir;
-	my $metadata_out = "$metadata_out_dir/edge_sample_metadata.xlsx";
-
+	my $date_str = strftime "%Y%m%d", localtime;
+	my $metadata_out = "$metadata_out_dir/${date_str}_edge_covid19_metadata.xls";
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
 	$info->{PATH} = $metadata_out;
-	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
-
-	system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-um", "$umSystemStatus", "-out", "$metadata_out", "-projects", "$projects");
+	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/${date_str}_edge_covid19_metadata.xls\'>here</a> to download it.<br><br>";
+	system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$userdir);
 
 	if( !-e "$metadata_out" ){
-		$info->{INFO} = "Error: failed to export sample metadata to .xlsx file";
+		$info->{INFO} = "Error: failed to export sample metadata to .xls file";
 	}else{
 		$info->{STATUS} = "SUCCESS";
 	}

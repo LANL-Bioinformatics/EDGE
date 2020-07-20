@@ -88,7 +88,7 @@ if( $proj_list->{$pname} ){
 			  #open LOG, ">/tmp/edge_report$$.log";
 			  #print LOG $html;
 			  #close LOG;
-	} elsif($action eq "upload2gisaid" or $action eq "download") {
+	} elsif($action eq "upload2gisaid" or $action eq "download" or $action eq "update") {
 		$msg->{SUBMISSION_STATUS}="success";
 
 		# validating parameters
@@ -154,6 +154,12 @@ if( $proj_list->{$pname} ){
 			#print OUT "gisaid_pw=".$opt{'metadata-gisaid-pw'}."\n";
 			print OUT "coverage=$selected_consensus\n";
 			close OUT;
+
+			unlink "$projDir/HTML_Report/.complete_report_web";
+			if ($action eq "update"){
+				&returnParamsStatus();
+			}
+
 			my $cmd;
 			if ($action eq "download"){
 				# download

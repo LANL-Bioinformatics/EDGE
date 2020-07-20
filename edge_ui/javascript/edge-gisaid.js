@@ -24,8 +24,8 @@ $( document ).ready(function()
 	//$("#edge-gisaid-form-download").parent().hide();
 	//form submit
 	//$( "#edge-gisaid-form-submit" ).on( "click", function() {
-	$( "#edge-gisaid-form-submit,#edge-gisaid-form-download" ).on( "click", function() {
-		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "download":"upload2gisaid";
+	$( "#edge-gisaid-form-submit,#edge-gisaid-form-download, #edge-gisaid-form-update" ).on( "click", function() {
+		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "download": (this.id.toLowerCase().indexOf("update") >= 0)? "update": "upload2gisaid";
 		var proj=$('#edge-output-projid').attr("data-pid");
 		$.ajax({
 			url: "./cgi-bin/edge_gisaid_upload.cgi",
@@ -78,6 +78,12 @@ $( document ).ready(function()
 						$( "#edge_integrity_dialog_content" ).text("Your project was successfully submitted to the GISAID.");
 						setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 
+						updateReport($('#edge-output-projid').attr("data-pid"));
+					}
+					if (action == "update"){
+						$( "#edge_integrity_dialog_header" ).text("Message");
+						$( "#edge_integrity_dialog_content" ).text("Your project metadata was successfully updated.");
+						setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 						updateReport($('#edge-output-projid').attr("data-pid"));
 					}
 				}
