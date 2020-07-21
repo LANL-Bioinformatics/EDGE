@@ -373,9 +373,9 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-org-lab", "Submitting lab is required.") unless ( $opt{'metadata-sub-lab'});
 	&addMessage("PARAMS", "metadata-sub-address", "Submitting address is required.") unless ( $opt{'metadata-sub-address'});
 	&addMessage("PARAMS", "metadata-authors", "Authors is required.") unless ( $opt{'metadata-authors'});
-	&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});
-	&addMessage("PARAMS", "metadata-gisaid-id", "GISAID id is required.") unless ( $opt{'metadata-gisaid-id'});
 	if ($action eq 'upload2gisaid'){
+		&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});
+		&addMessage("PARAMS", "metadata-gisaid-id", "GISAID id is required.") unless ( $opt{'metadata-gisaid-id'});
 		&addMessage("PARAMS", "metadata-gisaid-pw", "GISAID password is required.") unless ( $opt{'metadata-gisaid-pw'});
 	}
 }

@@ -46,6 +46,9 @@
 			<h2 id="edge-output-projid" data-pid="<TMPL_VAR NAME=PROJID>">Submit <TMPL_VAR NAME=PROJNAME DEFAULT=-> to
 					GISAID
 			</h2>
+			<TMPL_IF NAME="GISAID_SUBMIT_TIME">
+                        <mark>This project was uploaded to GISAID on <TMPL_VAR NAME=GISAID_SUBMIT_TIME DEFAULT=-></mark><br/>
+                        </TMPL_IF>
 
 			<form id="edge-gisaid-upload-form">
 				<div class="ui-corner-all custom-corners">
@@ -220,8 +223,10 @@
 				<br /><br />
 
 				<div class="edge-center">
+					<TMPL_UNLESS NAME="GISAID_SUBMIT_TIME">
 					<input data-mini="true" type="button" id="edge-gisaid-form-submit" data-inline="true"
 						class="edge-center" value="Submit to GISAID">
+					</TMPL_UNLESS>
 					<input data-mini="true" type="button" id="edge-gisaid-form-update" data-inline="true"
 						class="edge-center" value="Update">
 					<input data-mini="true" type="button" id="edge-gisaid-form-download" data-inline="true"

@@ -22,6 +22,7 @@ eval {
 	&pull_sampleMetadata();
 	&pull_submissionData();
 	&pull_consensusInfo();
+	&check_submission_status();
 };
 
 output_html();
@@ -42,6 +43,14 @@ sub output_html {
 	print $htmlfh $template->output();
 	close ($htmlfh);
 }
+sub check_submission_status{
+	my $gisaid_done = "$out_dir/gisaid_submission.done";
+	if ( -e $gisaid_done){
+		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]);
+                $vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
+	}
+}
+
 sub pull_consensusInfo{
 	# coverage info is at ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
 	open (my $cov_fh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt");
