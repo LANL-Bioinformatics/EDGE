@@ -2286,11 +2286,16 @@ $( document ).ready(function()
 						});
 						actionContent += '<ul>' + projnames.join('\n') + '</ul>';
 						var focusProjCodes = projids.join();
+						if ( action === "metadata-export" ){
+							load_metedata_project_page(focusProjCodes);
+							return;
+						}
 						$("#edge_confirm_dialog_content").html(actionContent);
 						$( "#edge_confirm_dialog" ).enhanceWithin().popup('open');
 						if ( action === "share" ){
 							setUserList(action,focusProjCodes);
 						}
+
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 							var actionRequest=[];
 							if ( action === "compare" || action === 'metadata-export'){
@@ -2406,8 +2411,64 @@ $( document ).ready(function()
 			}
 		});
 	};
+	// GISAID batch metadata
+	function load_metedata_project_page(focusProjName){
+		$.ajax({
+			url: "./cgi-bin/edge_gisaid_upload.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: { "proj" : focusProjName, "sid":localStorage.sid, "action":"create-batch-form", "userDir":localStorage.udir },
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				allMainPage.hide();
+				$( "#edge-gisaid-metadata-project-page" ).html(data);
+				$( "#edge-gisaid-metadata-project-page" ).show();
+				$( "#edge-gisaid-metadata-project-page" ).enhanceWithin();
+				// Hide the submit function button for now
+				$( "#edge-gisaid-form-batch-submit" ).parent().hide();
+				$( "#edge-gisaid-metadata-submitter-info" ).hide();
+				$.getScript( "./javascript/edge-gisaid.js" )
+					.done(function( script, textStatus ) {
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( jqxhr, settings, exception );
+				});
+
+				/*ProjDataTable.on("click", "th.select-checkbox", function() {
+					if ($("th.select-checkbox").hasClass("selected")) {
+						ProjDataTable.rows().deselect();
+						$("th.select-checkbox").removeClass("selected");
+					} else {
+						ProjDataTable.rows().select();
+						$("th.select-checkbox").addClass("selected");
+					}
+				}).on("select deselect", function() {
+					if (ProjDataTable.rows({ selected: true}).count() !== ProjDataTable.rows().count()) {
+						$("th.select-checkbox").removeClass("selected");
+					} else {
+						$("th.select-checkbox").addClass("selected");
+					}
+				});*/
 
 
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("Failed to retrieve the gisaid metadata page. Please REFRESH the page and try again.");
+			}
+		});
+	}
+	
 	function edge_ui_init () {
 		$.ajax({
 			url: './cgi-bin/edge_info.cgi',
@@ -4236,6 +4297,7 @@ $( document ).ready(function()
 				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
 				$( "#edge-content-report" ).enhanceWithin();
 				if (action_id == "metadata-gisaid-edit"){
+					$( "#edge-content-report" ).find("h2").html(focusProjRealName + " Metadata" );
 					$("#edge-gisaid-form-submit").parent().hide();
 					$("#metadata-submitter-info").hide();
 				}

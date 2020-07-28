@@ -6,44 +6,62 @@ use File::Basename;
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use POSIX qw{strftime};
+use Getopt::Long;
+use File::Path;
 
-my $out_dir       = $ARGV[0];
-my $html_outfile  = $ARGV[1];
-my $projname = $ARGV[2];
-my $userDir = $ARGV[3];
-my @out_dir_parts = split('/', $out_dir);
-my $projid = $out_dir_parts[-1];
-
-## Instantiate the variables
-my $vars;
-my $configuration = &pull_EDGEConfig();
-
-eval {
-	&pull_sampleMetadata();
-	&pull_submissionData();
-	&pull_consensusInfo();
-	&check_submission_status();
+my $html_outfile;
+my $project_dir_names;
+my $userDir;
+my $usage = qq{
+Usage: $0
+        Required
+                -out             html output file
+                -projects        project_dir_names, separated by comma
+                -udir            user dir
 };
 
-output_html();
+GetOptions(
+                "out=s"        =>  \$html_outfile,
+                "projects=s"       =>  \$project_dir_names,
+                "udir=s"       => \$userDir,
+                "help|?"           => sub{print "$usage\n";exit;} 
+        );
+
+if (!$project_dir_names && !$html_outfile){ print "$usage\n";exit;}
+
+mkpath(dirname($html_outfile));
+
+my $info;
+foreach my $proj_dir (split /,/,$project_dir_names){
+	## Instantiate the variables
+	my $vars={};
+	eval {
+		&pull_sampleMetadata($proj_dir,$vars);
+		&pull_consensusInfo($proj_dir,$vars);
+		&check_submission_status($proj_dir,$vars);
+	};
+	push @{$info->{LOOP_METADATA}}, $vars;
+}
+
+eval{
+	&pull_submissionData($info);
+};
+
+output_html($info);
 
 sub output_html {
-	$vars->{OUTPUTDIR}  = $out_dir;
-	$vars->{PROJNAME} ||= $projname;
-	$vars->{PROJID} ||= $projid;
-	
-	my $template = HTML::Template->new(filename => "$RealBin/edge_gisaid_upload.tmpl",
+	my $template = HTML::Template->new(filename => "$RealBin/edge_gisaid_projectTable.tmpl",
 		                               strict => 0,
 								       die_on_bad_params => 0);
-	$template->param(%$vars);
-
-	system("mkdir -p $out_dir/"."GISAID");
+	$template->param(%$info);
 
 	open(my $htmlfh, ">$html_outfile") or die $!;
 	print $htmlfh $template->output();
 	close ($htmlfh);
 }
 sub check_submission_status{
+	my $out_dir=shift;
+	my $vars = shift;
 	my $gisaid_done = "$out_dir/gisaid_submission.done";
 	if ( -e $gisaid_done){
 		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]);
@@ -52,10 +70,12 @@ sub check_submission_status{
 }
 
 sub pull_consensusInfo{
-	# coverage info is at ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
+	my $out_dir=shift;
+	my $vars = shift;
 	my $consensus_length_recommand=25000;
 	my $consensus_dpcov_recommand=10;
 	my $consensus_Nper_recommand=0.05;
+	# coverage info is at ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
 	my $con_comp = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta.comp";
 	open (my $cov_fh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt");
 	my $cov_string;
@@ -79,6 +99,7 @@ sub pull_consensusInfo{
 		}
 	}       
 	close $cov_fh;
+
 	open (my $log_fh,"<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/mapping.log");
 	my ($tool_version, $align_tool);
 	while(<$log_fh>){
@@ -88,19 +109,22 @@ sub pull_consensusInfo{
 	close $log_fh;
 	$vars->{ASM_METHOD}="EDGE-covid19: $align_tool $tool_version.";
 
+	my $confFile = "$out_dir/config.txt";
+	my $configuration = &pull_EDGEConfig($confFile);
+
 	my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ};
 	my $con_min_cov = $configuration->{r2g_consensus_min_cov};
 	my $con_alt_prop = $configuration->{r2g_consensus_alt_prop}*100 . "%";
 	my $con_alt_indel = $configuration->{r2g_consensus_altIndel_prop}* 100 . "%";
-	$vars->{PROJID} = $configuration->{projid};
+	$vars->{PROJNAME} = $configuration->{projname};
+	$vars->{PROJCODE} = $configuration->{projcode};
 	$vars->{ASM_METHOD} .= " Consensus min coverage: ${con_min_cov}X. min map quality: $con_min_mapQ. Alternate Base > $con_alt_prop. Indel > $con_alt_indel.";
-	open (my $config_fh, "<" , "$out_dir/config.txt");
-	while(<$config_fh>){
-		if (/fastq_source=(\S+)/i){ my $platform=$1; $vars->{FASTQ_SOURCE}=($platform eq "nanopore")?"Nanopore":"Illumina";}
-	}
-	close $config_fh
+	$vars->{PROCHECKBOX} = "<input type='checkbox' class='edge-metadata-projpage-ckb' name='edge-metadata-projpage-ckb' value='$configuration->{projcode}'>";
+	#$vars->{SUMITCRITERIA} = sprintf("Length > %d bp, Depth Coverage > %d X, N < %.1f %%",$consensus_length_recommand,$consensus_dpcov_recommand,$consensus_Nper_recommand*100 );
 }
 sub pull_sampleMetadata {
+	my $out_dir=shift;
+	my $vars = shift;
 	my $metadata = "$out_dir/metadata_gisaid.txt";
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
@@ -145,6 +169,7 @@ sub pull_sampleMetadata {
 }
 
 sub pull_submissionData {
+	my $vars = shift;
 	my $metadata = "$userDir/gisaid_submission_profile.txt";
 	if(-e $metadata) {
 		open CONF, $metadata or die "Can't open $metadata $!";
@@ -166,7 +191,7 @@ sub pull_submissionData {
 }
 sub pull_EDGEConfig
 {
-    my $file="$out_dir/config.txt";
+    my $file=shift;
     my %hash;
     open (my $fh , $file) or die "No config file $!\n";
     my $head=<$fh>;

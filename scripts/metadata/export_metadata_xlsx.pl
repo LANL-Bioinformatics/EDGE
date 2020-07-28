@@ -30,7 +30,10 @@ GetOptions(
 
 if (!$project_dir_names && !$out){ print "$usage\n";exit;}
 
-mkpath(dirname($out));
+my $outputDir = dirname($out);
+mkpath($outputDir);
+my $seqout = "$outputDir/all_sequences.fasta";
+unlink $seqout;
 
 ## read template
 my $parser   = Spreadsheet::ParseExcel::SaveParser->new();
@@ -50,12 +53,8 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
 
 	my $confFile = "$proj_dir/config.txt";
-	my $metadataFile = "$proj_dir/metadata_sample.txt";
 	my $conf = &getParams($confFile);
-	my $metadata = &getParams($metadataFile);
-	my $travelsFile = "$proj_dir/metadata_travels.txt";
-	my $symptomsFile = "$proj_dir/metadata_symptoms.txt";
-	my $otherFile = "$proj_dir/metadata_other.txt";
+	#my $otherFile = "$proj_dir/metadata_other.txt";
 
 	my $proj_name = $conf->{'projname'};
 	my $owner = $conf->{'projowner'};
@@ -63,6 +62,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 		&pull_sampleMetadata($proj_dir,$vars);
 		&pull_submissionData($proj_dir,$vars);
 		&pull_consensusInfo($proj_dir,$vars,$conf);
+		&write_all_sequences($seqout,$vars);
 	};
 	$in_worksheet1->AddCell( $row, $col, $vars->{ID});  ## Submitter (login account id) *
 	$in_worksheet1->AddCell( $row, $col+1, "all_sequences.fasta");  ## FASTA filename *
@@ -98,28 +98,53 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 
 $template->SaveAs($out);
 
+sub write_all_sequences {
+	my $outfile = shift;
+	my $vars=shift;
+	my $con_fasta = $vars->{SM_COV_FILE};
+	open (my $ofh, ">>", $outfile ) or die "Cannot write to $outfile\n";
+	open (my $ifh, "<", $con_fasta ) or die "Cannot read $con_fasta\n";
+	while (<$ifh>){
+		if(/^>/){
+			print $ofh ">". $vars->{VIR_NAME}."\n";
+		}else{
+			print $ofh $_;
+		}
+	}	
+	close $ofh;
+	close $ifh;
+}
+
+sub pull_consensusFiles {
+	my $file_dir = shift;
+	my $refname;
+	my @consensusFastaFiles = glob("$file_dir/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta");
+	foreach my $file (@consensusFastaFiles){
+		open (my $fh, "<", $file) or die "Cannot open $file\n";
+		while(my $line=<$fh>){
+			chomp $line;
+			if ($line =~ /^>(\S+)_consensus_(\S+)/){
+				$refname->{$2}=$file;
+				last;
+			}
+		}
+		close $fh;
+	}
+	return ($refname);
+}
+
 sub pull_consensusInfo{
-	my $out_dir=shift;
+	my $file_dir=shift;
 	my $vars=shift;
 	my $conf=shift;
+	my $conFastaFile=&pull_consensusFiles($file_dir);
         # coverage info is at ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
-        open (my $cov_fh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt");
-        my $cov_string;
-        while(<$cov_fh>){
-                chomp;
-                next if (/^Ref/);
-                my @array = split(/\t/,$_);
-                if( scalar @array > 8){
-                        my $id=$array[0];
-                        my $linear_cov=sprintf("%.2f%%",$array[4]);
-                        my $depth_cov=sprintf("%dX",$array[5]);
-                        my $value="$id"."::"."$linear_cov"."::"."$depth_cov";
-                        my $selected = ( $vars->{SM_COV} && $vars->{SM_COV} =~ /$id/ )? 'selected':'';
-                        $vars->{CON_LIST} .= "<option value='$value' $selected>$id ($linear_cov, $depth_cov)</option>";
-                }
-        }
-        close $cov_fh;
-        open (my $log_fh,"<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/mapping.log");
+	foreach my $key (keys %$conFastaFile){
+		if ($vars->{SM_COV} =~ /$key/ ){
+			$vars->{SM_COV_FILE} = $conFastaFile->{$key};
+		}
+	}
+        open (my $log_fh,"<", "$file_dir/ReadsBasedAnalysis/readsMappingToRef/mapping.log");
         my ($tool_version, $align_tool);
         while(<$log_fh>){
                 if (/Version:\s+(\S+)/){$tool_version=$1;}
@@ -139,9 +164,9 @@ sub pull_consensusInfo{
 }
 
 sub pull_sampleMetadata {
-	my $out_dir=shift;
+	my $file_dir=shift;
 	my $vars=shift;
-        my $metadata = "$out_dir/metadata_gisaid.txt";
+        my $metadata = "$file_dir/metadata_gisaid.txt";
         if(-e $metadata) {
                 open CONF, $metadata or die "Can't open $metadata $!";
                 while(<CONF>){
@@ -164,7 +189,7 @@ sub pull_sampleMetadata {
         }
 }
 sub pull_submissionData {
-	my $out_dir=shift;
+	my $file_dir=shift;
 	my $vars=shift;
         my $metadata = "$userDir/gisaid_submission_profile.txt";
         if(-e $metadata) {

@@ -1,0 +1,157 @@
+<h2>Selected Project Metadata</h2>
+<form id="edge-gisaid-batch-upload-form">
+<table id='edge-gisaid-metadata-project-page-table' class="display nowrap" style="width:100%">
+	<thead>
+		<tr>
+			<th></th>
+			<th>Project Name</th>
+			<th style="padding-right:6.5em;" title="ex: hCoV-19/Country/Identifier/2020">Virus Name</th>
+			<th title="ex: Original, Vero">Passage Details</th>
+			<th>Collection Date</th>
+			<th style="padding-right:5em;" title="ex: Continent/Country/Region">Location</th>
+			<th style="padding-right:2em;" title="ex: Human, Environment, Canine, Manis javanica, Rhinolophus affinis, unknown">Host</th>
+			<th>Gender</th>
+			<th title="ex: 65, 7 monthis, or unknown">Patient Age</th>
+			<th>Patient Status</th>
+			<th title="ex: Illumina Miseq, Sanger, Nanopore MinION, Ion Torrent, etc.">Sequencing Technology</th>
+			<th>Consensus Fasta</th>
+			<th>Submitted to GISAID</th>
+		</tr>
+	</thead>
+	<tbody>
+		<TMPL_LOOP NAME=LOOP_METADATA>
+		<tr>
+			<td><TMPL_VAR NAME=PROJCODE></td>
+			<td><input type="hidden" data-mini="true" name="metadata-projnames" value="<TMPL_VAR NAME=PROJNAME DEFAULT=>"><input type="hidden" data-mini="true" name="metadata-projcodes" value="<TMPL_VAR NAME=PROJCODE DEFAULT=>"><a href='#' data-mini="true" class='edge-project-page-link ' data-pid='<TMPL_VAR NAME=PROJCODE>'><TMPL_VAR NAME=PROJNAME></a></td>
+			<td><input type="text" data-mini="true" name="metadata-virus-names" placeholder="" value="<TMPL_VAR NAME=VIR_NAME DEFAULT=>"></td>
+			<td><input type="text" data-mini="true" name="metadata-virus-passages" placeholder="" value="<TMPL_VAR NAME=VIR_PASSAGE DEFAULT=>"></td>
+			<td><input type="text" data-role="date" data-mini="true" data-clear-btn="false" class='metadata-input-date' name="metadata-sample-collection-dates" maxlength="30" value="<TMPL_VAR NAME=SM_CDATE DEFAULT=>"></td>
+			<td><input type="text" data-mini="true" name="metadata-sample-locations" placeholder="" value="<TMPL_VAR NAME=SM_LOC DEFAULT=>"></td>
+			<td><input type="text" data-mini="true" name="metadata-sample-hosts" placeholder="" value="<TMPL_VAR NAME=SM_HOST DEFAULT=>"> </td>
+			<td>
+				<select name="metadata-sample-genders" data-mini="true" data-native-menu="true">
+					<option value="">Select Gender</option>
+					<option value="Male" <TMPL_VAR NAME=SM_GENDER_MALE>>Male</option>
+					<option value="Female" <TMPL_VAR NAME=SM_GENDER_FEMALE>>Female</option>
+					<option value="Other" <TMPL_VAR NAME=SM_GENDER_OTHER>>Other</option>
+					<option value="unknown" <TMPL_VAR NAME=SM_GENDER_UNKNOWN>>Unknown</option>
+				</select>
+			</td>
+			<td><input type="text" data-mini="true" name="metadata-sample-ages" value="<TMPL_VAR NAME=SM_AGE DEFAULT=>" placeholder=""></td>
+			<td>
+				<select name="metadata-sample-status" data-mini="true" data-native-menu="true">
+					<option value="">Select Status</option>
+					<option value="Hospitalized" <TMPL_VAR NAME=SM_STATUS_Hospitalized>>Hospitalized</option>
+					<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released>>Released</option>
+					<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live>>Live</option>
+					<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased>>Deceased</option>
+					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_OTHER>>Unknown</option>
+				</select>
+			</td>
+			<td><input type="text" data-mini="true" name="metadata-sample-sequencing-techs" placeholder=""  value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"></td>
+			<td>
+				<select data-mini="true" name="metadata-sample-consensus" data-native-menu="true">
+					<option value="">Select consensus genome</option>
+					<TMPL_VAR NAME=CON_LIST DEFAULT=>
+				</select>
+			</td>
+			<td>
+				<TMPL_IF NAME="GISAID_SUBMIT_TIME">
+				<a data-mini="true" class="edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-left" style="cursor: default;pointer-events: none;"><TMPL_VAR NAME="GISAID_SUBMIT_TIME"></a>
+				</TMPL_IF>
+			</td>
+		</tr>
+		</TMPL_LOOP>
+	</tbody>
+<!--	<tfoot>
+		<tr>
+			<th></th>
+			<th>Project Name</th>
+			<th>Virus Name</th>
+			<th>Passage Details</th>
+			<th>Collection Date</th>
+			<th>Location</th>
+			<th>Host</th>
+			<th>Gender</th>
+			<th>Patient Age</th>
+			<th>Patient Status</th>
+			<th>Sequencing Technology</th>
+			<th>Consensus Fasta</th>
+			<th>Submitted to GISAID</th>
+		</tr>
+	</tfoot>-->
+</table>
+	<p class='edge_tool_note' id="mac-scroll-bar-note">Don't see X scroll bar!! On Mac, please try <a href="https://heresthethingblog.com/2015/03/10/mac-tip-macs-scroll-bars/" target="_new">this</a>.</p>
+	<br /><br />
+	<div class="ui-corner-all custom-corners">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Institute information</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div class="ui-field-contain">
+				<label for="metadata-org-lab">Originating lab</label>
+				<input type="text" id="metadata-orig-lab" name="metadata-orig-lab"
+					value="<TMPL_VAR NAME=ORIG_LAB DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-orig-address">Address</label>
+				<input type="text" id="metadata-orig-address" name="metadata-orig-address"
+					value="<TMPL_VAR NAME=ORIG_ADDRESS DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-org-lab">Submitting lab</label>
+				<input type="text" id="metadata-sub-lab" name="metadata-sub-lab"
+					value="<TMPL_VAR NAME=SUB_LAB DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-sub-address">Address</label>
+				<input type="text" id="metadata-sub-address" name="metadata-sub-address"
+					value="<TMPL_VAR NAME=SUB_ADDRESS DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-authors">Authors</label>
+				<input type="text" id="metadata-authors" name="metadata-authors"
+					value="<TMPL_VAR NAME=AUTHORS DEFAULT=>" class="metadata-input">
+			</div>
+		</div>
+	</div>
+	<br /><br />
+	<div class="ui-corner-all custom-corners" id="edge-gisaid-metadata-submitter-info">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Submitter information</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div class="ui-field-contain">
+				<label for="metadata-submitter">Submitter</label>
+				<input name="metadata-submitter" id="metadata-submitter" type="text"
+					value="<TMPL_VAR NAME=SUBMITTER DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-gisaid-id">GISAID ID</label>
+				<input name="metadata-gisaid-id" id="metadata-gisaid-id" type="text"
+ 					value="<TMPL_VAR NAME=ID DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-gisaid-pw">GISAID Password</label>
+				<input name="metadata-gisaid-pw" id="metadata-gisaid-pw" type="password"
+					class="metadata-input">
+			</div>
+		</div>
+	</div>
+	<br /><br />
+
+
+<div class="edge-center">
+	<input data-mini="true" type="button" id="edge-gisaid-form-batch-submit" data-inline="true"
+			class="edge-center" value="Submit to GISAID">
+	<input data-mini="true" type="button" id="edge-gisaid-form-batch-update" data-inline="true"
+			class="edge-center" value="Update">
+	<input data-mini="true" type="button" id="edge-gisaid-form-batch-download" data-inline="true"
+			class="edge-center" value="Download">
+	<input data-mini="true" type="button" id="edge-gisaid-form-batch-cancel" data-inline="true"
+			class="edge-center" value="Cancel">
+</div>
+<ul data-role="listview" data-inset="true" id="edge-submit-info">
+<!-- <li data-role="list-divider">Information</li> -->
+</ul>
+</form>
