@@ -639,7 +639,7 @@ class PluploadHandler
         }
         $size = 0;
         foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
-            $size += is_file($each) ? $this->filesize($each) : foldersize($each);
+            $size += is_file($each) ? $this->filesize($each) : $this->foldersize($each);
         }
         return $size;
     }
