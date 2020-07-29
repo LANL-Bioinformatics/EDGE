@@ -29,7 +29,7 @@
 			<td><input type="text" data-mini="true" name="metadata-sample-locations" placeholder="" value="<TMPL_VAR NAME=SM_LOC DEFAULT=>"></td>
 			<td><input type="text" data-mini="true" name="metadata-sample-hosts" placeholder="" value="<TMPL_VAR NAME=SM_HOST DEFAULT=>"> </td>
 			<td>
-				<select name="metadata-sample-genders" data-mini="true" data-native-menu="true">
+				<select name="metadata-sample-genders" data-role="none" data-mini="true" data-native-menu="true">
 					<option value="">Select Gender</option>
 					<option value="Male" <TMPL_VAR NAME=SM_GENDER_MALE>>Male</option>
 					<option value="Female" <TMPL_VAR NAME=SM_GENDER_FEMALE>>Female</option>
@@ -39,18 +39,18 @@
 			</td>
 			<td><input type="text" data-mini="true" name="metadata-sample-ages" value="<TMPL_VAR NAME=SM_AGE DEFAULT=>" placeholder=""></td>
 			<td>
-				<select name="metadata-sample-status" data-mini="true" data-native-menu="true">
+				<select name="metadata-sample-status" data-role="none" data-mini="true" data-native-menu="true">
 					<option value="">Select Status</option>
-					<option value="Hospitalized" <TMPL_VAR NAME=SM_STATUS_Hospitalized>>Hospitalized</option>
-					<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released>>Released</option>
-					<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live>>Live</option>
-					<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased>>Deceased</option>
-					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_OTHER>>Unknown</option>
+					<option value="Hospitalized" <TMPL_VAR NAME=SM_STATUS_Hospitalized DEFAULT=>>Hospitalized</option>
+					<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released DEFAULT=>>Released</option>
+					<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live DEFAULT=>>Live</option>
+					<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased DEFAULT=>>Deceased</option>
+					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_OTHER DEFAULT=>>Unknown</option>
 				</select>
 			</td>
 			<td><input type="text" data-mini="true" name="metadata-sample-sequencing-techs" placeholder=""  value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"></td>
 			<td>
-				<select data-mini="true" name="metadata-sample-consensus" data-native-menu="true">
+				<select data-mini="true" name="metadata-sample-consensus" data-role="none" data-native-menu="true">
 					<option value="">Select consensus genome</option>
 					<TMPL_VAR NAME=CON_LIST DEFAULT=>
 				</select>
@@ -118,7 +118,7 @@
 	<br /><br />
 	<div class="ui-corner-all custom-corners" id="edge-gisaid-metadata-submitter-info">
 		<div class="ui-bar ui-bar-d">
-			<b><em>Submitter information</em></b>
+			<b><em>Submitter information</em> <a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" title="Only required for GISAID submission"></a> </b>
 		</div>
 		<div class="ui-body ui-body-a ui-corner-all">
 			<div class="ui-field-contain">
