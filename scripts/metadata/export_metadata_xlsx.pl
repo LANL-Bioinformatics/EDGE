@@ -102,7 +102,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 }
 
 $template->SaveAs($out);
-&write_tsv($tsvout, join("\t",@tsv_header), join("\t",@tsv_content));
+&write_tsv($tsvout, join("\t",@tsv_header), join("\n",@tsv_content));
 
 sub write_tsv{
 	my $outfile = shift;
