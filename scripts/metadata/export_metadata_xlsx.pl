@@ -30,9 +30,10 @@ GetOptions(
 
 if (!$project_dir_names && !$out){ print "$usage\n";exit;}
 
-my $outputDir = dirname($out);
+my ($file_prefix, $outputDir, $file_suffix)=fileparse("$out", qr/\.[^.]*/);
 mkpath($outputDir);
 my $seqout = "$outputDir/all_sequences.fasta";
+my $tsvout = "$outputDir/$file_prefix.tsv";
 unlink $seqout;
 
 ## read template
@@ -47,7 +48,8 @@ my $in_worksheet0 = $template->worksheet('Instructions');
 my $row=2;
 my $col=0;
 
-
+my @tsv_header = ("Sequence_ID","Organism","collection-date","country","host","isolate","Collected-By");
+my @tsv_content;
 #write metadata to sheets
 foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
@@ -66,7 +68,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	};
 	$in_worksheet1->AddCell( $row, $col, $vars->{ID});  ## Submitter (login account id) *
 	$in_worksheet1->AddCell( $row, $col+1, "all_sequences.fasta");  ## FASTA filename *
-	$in_worksheet1->AddCell( $row, $col+2, $vars->{VIR_NAME});  ## Virus Name *
+	$in_worksheet1->AddCell( $row, $col+2, $vars->{VIR_NAME});  ## Virus Name * hCoV-19/Country/Identifier/2020, ex:hCoV-19/USA/NM-UNM-00001/2020"  
 	$in_worksheet1->AddCell( $row, $col+3, "betacoronavirus");  ## Type *
 	$in_worksheet1->AddCell( $row, $col+4, $vars->{VIR_PASSAGE}); ## Passage details/history *
 	$in_worksheet1->AddCell( $row, $col+5, $vars->{SM_CDATE}); ## Collection date *
@@ -77,7 +79,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+10, $vars->{SM_GENDER});  ## Gender *
 	$in_worksheet1->AddCell( $row, $col+11, $vars->{SM_AGE});  ## Patient Age *
 	$in_worksheet1->AddCell( $row, $col+12, $vars->{SM_STATUS});  ## Patient status *
-	$in_worksheet1->AddCell( $row, $col+13, "");  ## Specimen source
+	$in_worksheet1->AddCell( $row, $col+13, "");  ## Specimen source, Sputum, Alveolar lavage fluid, Oro-pharyngeal swab, Blood, Tracheal swab, Urine, Stool, Cloakal swab, Organ, Feces, Other
 	$in_worksheet1->AddCell( $row, $col+14, "");  ## Outbreak
 	$in_worksheet1->AddCell( $row, $col+15, "");  ## Last vaccinated
 	$in_worksheet1->AddCell( $row, $col+16, "");  ## Treatment
@@ -90,13 +92,26 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+23, $vars->{SUB_LAB});  ## Submitting lab *
 	$in_worksheet1->AddCell( $row, $col+24, $vars->{SUB_ADDRESS});  ## Address *
 	$in_worksheet1->AddCell( $row, $col+25, "");  ## Sample ID given by the submitting laboratory
-	$in_worksheet1->AddCell( $row, $col+26, "");  ## Authors
+	$in_worksheet1->AddCell( $row, $col+26, $vars->{AUTHORS} );  ## Authors, a comma separated list of Authors with complete First followed by Last Name
 	$in_worksheet1->AddCell( $row, $col+27, "");  ## Comment
 	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment Icon
+	my ($virus,$country,$identifier,$year) = split /\//, $vars->{VIR_NAME};
+	my $tsv_string = join("\t",$vars->{VIR_NAME},"Severe acute respiratory syndrome coronavirus 2",$vars->{SM_CDATE},$country,$vars->{SM_HOST},$identifier,$vars->{ORIG_LAB});
+	push @tsv_content, $tsv_string;
 	$row++;
 }
 
 $template->SaveAs($out);
+&write_tsv($tsvout, join("\t",@tsv_header), join("\t",@tsv_content));
+
+sub write_tsv{
+	my $outfile = shift;
+	my $header = shift;
+	my $content = shift;
+	open (my $ofh, ">", $outfile) or die "Cannot write to $outfile\n";
+	print $ofh join("\n",$header,$content);
+	close $ofh;
+}
 
 sub write_all_sequences {
 	my $outfile = shift;
