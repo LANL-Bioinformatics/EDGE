@@ -7,7 +7,7 @@ $( document ).ready(function()
 			"pageLength": 25,
 			"columnDefs": [ 
 				{'targets': 0, 'checkboxes': {'selectRow': true} },
-				{'targets':[2,3,4,5,6,7,8,9,10], 'type': 'string', 'width': "20%",
+				{'targets':[2,3,4,5,6,7,8,9,10,11], 'type': 'string', 'width': "20%",
 					'render': function (data, type, row, meta) {
 						if (type === 'filter' || type === 'sort') {
 							var api = new $.fn.dataTable.Api(meta.settings);
@@ -41,8 +41,15 @@ $( document ).ready(function()
 	// For search/filter input and select datatable
 	//https://www.gyrocode.com/articles/jquery-datatables-how-to-search-and-order-by-input-or-select-elements/
 	$( '#edge-gisaid-metadata-project-page-table' ).on( 'change', 'tbody select, tbody input[type="text"]', function () {
+		var $td = $(this).closest('td');
+		// update JQM select span selected name
+		if ($(this).is("select")){
+			var value = $(this).val() || $td.find('option').eq(0).html();
+			$td.find('span').html(value);
+		}
  		//invalidate the DT cache
-		ProjDataTable.cell($(this).closest('td')).invalidate();            
+		ProjDataTable.cell($td).invalidate();
+
 	} );
 	// update/download batch form
 	$("#edge-gisaid-form-batch-update,#edge-gisaid-form-batch-download").on( "click", function() {
