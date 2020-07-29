@@ -38,7 +38,7 @@ unlink $seqout;
 
 ## read template
 my $parser   = Spreadsheet::ParseExcel::SaveParser->new();
-my $template = $parser->Parse("$FindBin::Bin/20200501_EpiCoV_BulkUpload_Template.xls");
+my $template = $parser->Parse("$FindBin::Bin/20200717_EpiCoV_BulkUpload_Template.xls");
 
 if ( !defined $template ) {
     die $parser->error(), ".\n";
