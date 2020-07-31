@@ -1011,14 +1011,14 @@ sub checkParams {
 		
 	} else {##sample metadata
 		if ( $sys->{edge_gisaid_metadata} ){
-			&addMessage("PARAMS", "metadata-virus-name", "Metadata virus name is required.") unless ( $opt{'metadata-virus-name'}); 
-			&addMessage("PARAMS", "metadata-virus-passage", "Metadata passage details/history is required.") unless ( $opt{'metadata-virus-passage'}); 
-			&addMessage("PARAMS", "metadata-sample-collection-date", "Metadata sample collection date is required.") unless ( $opt{'metadata-sample-collection-date'}); 
-			&addMessage("PARAMS", "metadata-sample-location", "Metadata sample location is required.") unless ( $opt{'metadata-sample-location'}); 
-			&addMessage("PARAMS", "metadata-sample-host", "Metadata sample host is required.") unless ( $opt{'metadata-sample-host'});
-			&addMessage("PARAMS", "metadata-sample-gender", "Metadata sample gender is required.") unless ( $opt{'metadata-sample-gender'});
-			&addMessage("PARAMS", "metadata-sample-age", "Metadata sample age is required.") unless ( $opt{'metadata-sample-age'});
-			&addMessage("PARAMS", "metadata-sample-sequencing-tech", "Metadata sample sequencing technology is required.") unless ( $opt{'metadata-sample-sequencing-tech'});
+			#	&addMessage("PARAMS", "metadata-virus-name", "Metadata virus name is required.") unless ( $opt{'metadata-virus-name'}); 
+			#&addMessage("PARAMS", "metadata-virus-passage", "Metadata passage details/history is required.") unless ( $opt{'metadata-virus-passage'}); 
+			#&addMessage("PARAMS", "metadata-sample-collection-date", "Metadata sample collection date is required.") unless ( $opt{'metadata-sample-collection-date'}); 
+			#&addMessage("PARAMS", "metadata-sample-location", "Metadata sample location is required.") unless ( $opt{'metadata-sample-location'}); 
+			#&addMessage("PARAMS", "metadata-sample-host", "Metadata sample host is required.") unless ( $opt{'metadata-sample-host'});
+			#&addMessage("PARAMS", "metadata-sample-gender", "Metadata sample gender is required.") unless ( $opt{'metadata-sample-gender'});
+			#&addMessage("PARAMS", "metadata-sample-age", "Metadata sample age is required.") unless ( $opt{'metadata-sample-age'});
+			#&addMessage("PARAMS", "metadata-sample-sequencing-tech", "Metadata sample sequencing technology is required.") unless ( $opt{'metadata-sample-sequencing-tech'});
 		} 
 	}
 	if ($pipeline eq "targetedngs"){
