@@ -52,7 +52,7 @@ $sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
 my $edgeui_output  = $sys->{edgeui_output};
 my ($relpath)    = $edgeui_output =~ /^$edgeui_wwwroot\/(.*)$/;
-
+my $ownProjlist;
 my ($projCode,$projStatus,$projOwnerEmail);
 # session check
 if( $sys->{user_management} ){
@@ -65,6 +65,7 @@ if( $sys->{user_management} ){
 	}else{
 		($username,$password) = getCredentialsFromSession($sid);
 	}
+	$ownProjlist = &getUserProjFromDB("owner");
 	($prealname,$projCode,$projStatus,$projOwnerEmail) = &getProjNameFromDB($pname) if ($action !~ /batch-/);
 }else{
 	($prealname,$projCode,$projStatus)= &scanProjToList($edgeui_output,$pname) if ($action !~ /batch-/);
@@ -112,7 +113,9 @@ if($action eq "create-form") {
 		  #close LOG;
 }elsif( $action eq 'create-batch-form'){
 	my @projCodes = split /,/,$opt{proj};
-	my $metadata_out_dir = "$edgeui_output/sample_metadata_export/". md5_hex(join ('',@projCodes));
+	my $short_username = $1 if $username =~ /(.*)\@/;
+        $short_username =~ s/\W/_/;
+	my $metadata_out_dir = "$edgeui_output/sample_metadata_export/$short_username/". md5_hex(join ('',@projCodes));
 	chdir $edgeui_wwwroot;
 	my $outHtml = "$metadata_out_dir/batch_metadata.html";
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
@@ -189,7 +192,7 @@ if($action eq "create-form") {
 		#create .done file after successful submission
 		while(<$script_fh>){
 			if ($_ =~ /Complete/i){
-				`touch $gisaid_done`;
+				&touchFile($gisaid_done);
 			}
 		}
 		if ( ! -e "$gisaid_done"){
@@ -204,13 +207,15 @@ if($action eq "create-form") {
 	#delete HTML_Report/.complete_report_web
 	unlink "$projDir/HTML_Report/.complete_report_web";
 
-}elsif( $action eq "batch-download" or $action eq "batch-update"){
+}elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2gisaid"){
 	# init status
 	$msg->{SUBMISSION_STATUS}="success";
 	my @selectedProjCodes = split /,/,$opt{proj};
 	my %selectedProjCode = map { $_ => 1 } @selectedProjCodes;
-	my $metadata_out_dir = "$edgeui_output/sample_metadata_export/". md5_hex(join ('',@selectedProjCodes));
-	my $relative_outdir = "$relpath/sample_metadata_export/". md5_hex(join ('',@selectedProjCodes));
+	my $short_username = $1 if $username =~ /(.*)\@/; 
+	$short_username =~ s/\W/_/;
+	my $metadata_out_dir = "$edgeui_output/sample_metadata_export/$short_username/". md5_hex(join ('',@selectedProjCodes));
+	my $relative_outdir = "$relpath/sample_metadata_export/$short_username/". md5_hex(join ('',@selectedProjCodes));
 	unlink $metadata_out_dir;
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $projects = join(",",map { "$edgeui_output/$_" } @selectedProjCodes);
@@ -226,6 +231,7 @@ if($action eq "create-form") {
 	my @sampleStatus = split /[\x0]/,$opt{'metadata-sample-status'};
 	my @sampleSequencingTech = split /[\x0]/,$opt{'metadata-sample-sequencing-techs'};
 	my @sampleConsensus = split /[\x0]/,$opt{'metadata-sample-consensus'};
+	my @gisaidDoneFiles;
 	foreach my $i (0..$#projCodes){
 		next if ! $selectedProjCode{$projCodes[$i]};
 		$opt{'metadata-virus-name'} = $virusNames[$i];
@@ -244,7 +250,11 @@ if($action eq "create-form") {
 		$selected_consensus = "Consensus to ". $selected_consensus;
 		#	print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
-		my $gisaid_done = "$projDir/gisaid_submission.done";
+		my $gisaidDone = "$projDir/gisaid_submission.done"; 
+		push @gisaidDoneFiles, $gisaidDone;
+		my $ownProjectFlag = 1 if ($ownProjlist->{$projCodes[$i]});
+		addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( $action eq "batch-upload2gisaid" && !$ownProjectFlag);
+		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2gisaid" && $gisaidDone);
 		checkParams($projNames[$i],$i);
 		writeMetaData($projDir,$selected_consensus);
 		#gisaid profile
@@ -256,13 +266,15 @@ if($action eq "create-form") {
 	if ($action eq "batch-update"){
 		&returnParamsStatus();
 	}
+	my $date_str = strftime "%Y%m%d", localtime;
+	my $metadata_out = "$metadata_out_dir/${date_str}_edge_covid19_metadata.xls";
+	my $all_sequences = "$metadata_out_dir/all_sequences.fasta";
+	my $metadata_out_tsv = "$metadata_out_dir/${date_str}_edge_covid19_metadata.tsv";
+	system("$EDGE_HOME/scripts/metadata/export_metadata_xls.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$profileDir);
 	if ($action eq "batch-download"){
-		my $date_str = strftime "%Y%m%d", localtime;
-		my $metadata_out = "$metadata_out_dir/${date_str}_edge_covid19_metadata.xls";
 		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
 		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
-		system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$profileDir);
-		my $cmd = "zip -j $zip_file $metadata_out $metadata_out_dir/all_sequences.fasta 2>/dev/null";
+		my $cmd = "zip -j $zip_file $metadata_out $all_sequences $metadata_out_tsv 2>/dev/null";
 		`$cmd`;
 		$msg->{PATH} = $zip_file_rel;
 
@@ -271,8 +283,31 @@ if($action eq "create-form") {
 		addMessage("BATCH-DOWNLOAD","failure","failed to zip exported file") unless (-e $zip_file );
 		&returnParamsStatus();
 	}
-}elsif( $action eq "batch-upload2gisaid"){
+	if ($msg->{SUBMISSION_STATUS}="success" && $action eq "batch-upload2gisaid"){
+		my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
+		$cmd .= " --headless | tee $metadata_out_dir/GISAID/submit.log";
+		open (my $fh,">","$metadata_out_dir/GISAID/submit.sh");
+		print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
+		print $fh $cmd,"\n";
+		close $fh;
+		#my $return=`/bin/bash $projDir/GISAID/submit.sh`;
+		my $script_fh;
+		my $pid = open ($script_fh, "-|")
+			or exec ('/bin/bash', "$metadata_out_dir/GISAID/submit.sh");
+		#create .done file after successful submission
+		my $upload_success_flag=0;
+		while(<$script_fh>){
+			if ($_ =~ /Complete/i){
+				map {&touchFile($_)} @gisaidDoneFiles;
+				$upload_success_flag=1;
+			}
+		}
+		if ( ! $upload_success_flag ){
+			$msg->{SUBMISSION_STATUS}="failure";
+		}
+		unlink "$metadata_out_dir/GISAID/submit.sh";
 
+	}
 }else {
 	addMessage("$action","failure","$action not recognized.");
 }
@@ -282,6 +317,11 @@ if ($action !~ /create.*form/){
 }
 
 ######################################################
+sub touchFile{
+    my $file=shift;
+    open (my $fh,">",$file) or die "$!";
+    close $fh;
+}
 sub writeSubmissionFile{
 	my $outdir = shift;
 	my $selected_consensus = shift;
@@ -362,6 +402,66 @@ OUTMSG
 	close $ofh;
 }
 
+sub getUserProjFromDB{
+	my $project_type = shift;
+	my $viewType = "user";
+	my $list;
+    my %data = (
+        email => $username,
+        password => $password
+    );
+    # Encode the data structure to JSON
+    #w Set the request parameters
+	my $service;
+	if ($username && $password){ 
+		$service= ($viewType =~ /admin/i)? "WS/user/admin/getProjects" :"WS/user/getProjects";
+		$data{project_type} = $project_type if ($viewType =~ /user/i);
+	}else{
+		$service="WS/user/publishedProjects";
+	}
+    my $data = to_json(\%data);
+    my $url = $um_url .$service;
+    my $browser = LWP::UserAgent->new;
+    my $req = PUT $url;
+    $req->header('Content-Type' => 'application/json');
+    $req->header('Accept' => 'application/json');
+    #must set this, otherwise, will get 'Content-Length header value was wrong, fixed at...' warning
+    $req->header( "Content-Length" => length($data) );
+    $req->content($data);
+
+    my $response = $browser->request($req);
+    my $result_json = $response->decoded_content;
+	
+	if ($result_json =~ /\"error_msg\":"(.*)"/)
+    {
+            addMessage("getUserProjFromDB","failure",$1);
+            return;
+    }
+    my $array_ref =  from_json($result_json);
+	#print Dumper($array_ref) if @ARGV;
+	foreach my $hash_ref (@$array_ref)
+	{
+		my $id = $hash_ref->{id};
+		my $project_name = $hash_ref->{name};
+		my $projCode = $hash_ref->{code};
+		my $status = $hash_ref->{status};
+		next if ($status =~ /delete/i);
+		next if (! -r "$edgeui_output/$id/process.log" && ! -r "$edgeui_output/$projCode/process.log");
+		$list->{$id}->{PROJNAME} = $id;
+		$list->{$id}->{REAL_PROJNAME} = $project_name;
+		$list->{$id}->{PROJCODE} = $projCode;
+		$list->{$id}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}"; 
+		$list->{$id}->{OWNER_EMAIL} = $hash_ref->{owner_email};
+		$list->{$id}->{PROJ_TYPE} = $hash_ref->{type};
+		$list->{$projCode}->{PROJNAME} = $id;
+		$list->{$projCode}->{REAL_PROJNAME} = $project_name;
+		$list->{$projCode}->{PROJID} = $id;
+		$list->{$projCode}->{OWNER} = "$hash_ref->{owner_firstname} $hash_ref->{owner_lastname}"; 
+		$list->{$projCode}->{OWNER_EMAIL} = $hash_ref->{owner_email};
+		$list->{$projCode}->{PROJ_TYPE} = $hash_ref->{type};
+	}
+	return $list;
+}
 sub getProjNameFromDB{
         my $project=shift;
         my %data = (
@@ -389,7 +489,7 @@ sub getProjNameFromDB{
         $result = shift @$result if (ref($result) eq "ARRAY");
         if ($result->{error_msg})
         {
-		addMessage("getProjNameFromDB","failure",$result->{error_msg});
+			addMessage("getProjNameFromDB","failure",$result->{error_msg});
         }
         else{
 		return ($result->{name} , $result->{code}, $result->{status} , $result->{owner_email});

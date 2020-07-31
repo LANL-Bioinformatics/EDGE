@@ -902,7 +902,7 @@ $( document ).ready(function()
 			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
 			$( ".btnAdd-edge-input" ).hide();
-			$( "#edge-sample-metadata" ).hide();
+			//$( "#edge-sample-metadata" ).hide();
 			$( '#edge-input-contig-file').val('');
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( ".edge-fastq-options").show();
@@ -1023,6 +1023,8 @@ $( document ).ready(function()
 					$( "#"+inputFileID ).val(file_relative);
 					$( "#edge_file_dialog" ).popup('close');
 				}
+			},function(altc){
+				window.open(edge_path + 'EDGE_input/' +  altc);
 			}
 		);
  
@@ -2434,9 +2436,6 @@ $( document ).ready(function()
 				$( "#edge-gisaid-metadata-project-page" ).html(data);
 				$( "#edge-gisaid-metadata-project-page" ).show();
 				$( "#edge-gisaid-metadata-project-page" ).enhanceWithin();
-				// Hide the submit function button for now
-				$( "#edge-gisaid-form-batch-submit" ).parent().hide();
-				$( "#edge-gisaid-metadata-submitter-info" ).hide();
 				$.getScript( "./javascript/edge-gisaid.js" )
 					.done(function( script, textStatus ) {
 				})

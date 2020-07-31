@@ -1,6 +1,7 @@
 $( document ).ready(function()
 {
 	var page = $( this );
+	$("table td, table th, .tooltip").tooltipster({multiple:true});
 	//with checkbox
 	//https://www.gyrocode.com/projects/jquery-datatables-checkboxes/
 	var ProjDataTable = $('#edge-gisaid-metadata-project-page-table').DataTable({
@@ -27,6 +28,7 @@ $( document ).ready(function()
 				if ( $('.dt-checkboxes').length === 1 ){
 					this.api().column(0).checkboxes.select();
 				}
+				$( '#edge-gisaid-metadata-project-page-table' ).find('select').selectmenu();
 			},
 			"drawCallback" : function(settings){
 				$( ".edge-project-page-link").unbind('click').on('click', function(e){
@@ -38,21 +40,24 @@ $( document ).ready(function()
 			"rowCallback": function( nRow, aData, iDisplayIndex ) {
 			}
 	});
+	// adjust the columns misalignment sometimes.
+	ProjDataTable.columns.adjust();
 	// For search/filter input and select datatable
 	//https://www.gyrocode.com/articles/jquery-datatables-how-to-search-and-order-by-input-or-select-elements/
 	$( '#edge-gisaid-metadata-project-page-table' ).on( 'change', 'tbody select, tbody input[type="text"]', function () {
 		var $td = $(this).closest('td');
 		// update JQM select span selected name
 		if ($(this).is("select")){
-			var value = $(this).val() || $td.find('option').eq(0).html();
-			$td.find('span').html(value);
+			$(this).selectmenu('refresh');
+			//var value = $(this).val() || $td.find('option').eq(0).html();
+			//$td.find('span').html(value);
 		}
  		//invalidate the DT cache
 		ProjDataTable.cell($td).invalidate();
 
 	} );
 	// update/download batch form
-	$("#edge-gisaid-form-batch-update,#edge-gisaid-form-batch-download").on( "click", function() {
+	$("#edge-gisaid-form-batch-update,#edge-gisaid-form-batch-download,#edge-gisaid-form-batch-submit").on( "click", function() {
 		var rows_selected_projCodes = ProjDataTable.column(0).checkboxes.selected();
 		var projs = rows_selected_projCodes.join();
 		if (rows_selected_projCodes.length === 0 ){
@@ -195,8 +200,11 @@ $( document ).ready(function()
 						}else{
 							$( "#edge-submit-info" ).fadeIn("fast");
 							var dom;
-							if ( action.toLowerCase().indexOf("upload2gisaid") >= 0){
+							if ( action === "upload2gisaid"){
 								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID. Please check GISAID/submit.log in the project directory for detail.</a></li>";
+							}
+							if ( action === "batch-upload2gisaid"){
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID.</a></li>";
 							}
 							$( "#edge-submit-info" ).append(dom).fadeIn("fast");
 						}

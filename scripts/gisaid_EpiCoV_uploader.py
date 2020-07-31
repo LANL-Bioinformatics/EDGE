@@ -3,6 +3,7 @@
 import os
 import time
 import sys
+import atexit
 import argparse as ap
 import json
 from selenium import webdriver
@@ -53,6 +54,8 @@ def parse_params():
     args_parsed = p.parse_args()
     return args_parsed
 
+def quit_driver(driver):
+    driver.quit()
 
 def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
     """Download sequences and metadata from EpiCoV GISAID"""
@@ -80,6 +83,9 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
         options.add_argument("--headless")
     driver = webdriver.Firefox(firefox_profile=profile, options=options)
 
+    ## quit the browser if there is any raised exception
+    atexit.register(quit_driver,driver)
+	
     # driverwait
     driver.implicitly_wait(20)
     wait = WebDriverWait(driver, to)

@@ -60,7 +60,7 @@
 							<div class="ui-field-contain">
 								<label for="metadata-virus-name2">Virus name</label>
 								<input type="text" id="metadata-virus-name2" name="metadata-virus-name"
-									placeholder="hCoV-19/Country/Identifier/2020"
+									placeholder="hCoV-19/Country/Identifier/2020, ex:hCoV-19/USA/NM-UNM-00001/2020" 
 									value="<TMPL_VAR NAME=VIR_NAME DEFAULT=>" class="metadata-input">
 
 							</div>
@@ -164,7 +164,7 @@
 						</div>
 						<div class="ui-body ui-body-a ui-corner-all">
 							<div class="ui-field-contain">
-								<label for="metadata-org-lab">Originating lab</label>
+								<label for="metadata-org-lab">Originating lab<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" title="Where the clinical specimen or virus isolate was first obtained"></a></label>
 								<input type="text" id="metadata-orig-lab" name="metadata-orig-lab"
 									value="<TMPL_VAR NAME=ORIG_LAB DEFAULT=>" class="metadata-input">
 
@@ -175,7 +175,7 @@
 									value="<TMPL_VAR NAME=ORIG_ADDRESS DEFAULT=>" class="metadata-input">
 							</div>
 							<div class="ui-field-contain">
-								<label for="metadata-org-lab">Submitting lab</label>
+								<label for="metadata-org-lab">Submitting lab<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" title="Where sequence data have been generated and submitted"></a></label>
 								<input type="text" id="metadata-sub-lab" name="metadata-sub-lab"
 									value="<TMPL_VAR NAME=SUB_LAB DEFAULT=>" class="metadata-input">
 
@@ -186,7 +186,7 @@
 									value="<TMPL_VAR NAME=SUB_ADDRESS DEFAULT=>" class="metadata-input">
 							</div>
 							<div class="ui-field-contain">
-								<label for="metadata-authors">Authors</label>
+								<label for="metadata-authors">Authors<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" title="a comma separated list of Authors with complete First followed by Last Name"></a></label>
 								<input type="text" id="metadata-authors" name="metadata-authors"
 									value="<TMPL_VAR NAME=AUTHORS DEFAULT=>" class="metadata-input">
 							</div>
