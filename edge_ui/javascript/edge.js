@@ -798,7 +798,7 @@ $( document ).ready(function()
 		$(this).find(".tooltip").hide();
 	});
 	$( '#edge-ref-file-fromlist-tooltip' ).tooltipster(
-		'content', $('<span>These genomes are preloaded as GenBank files from NCBI; they are generally, but not exclusively, named as [accession number]_[strain name]_[year]. The full list is <a href="https://github.com/LANL-Bioinformatics/EDGE/tree/SARS-CoV2/database/NCBI_genomes" target="_new">here.</a></span>')
+		'content', $('<span>These genomes are preloaded as GenBank files from NCBI; they are generally, but not exclusively, named as [accession number]_[strain name]_[year]. The full list is <a href="data/Ref_list.json" target="_new">here.</a></span>')
 	);
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
