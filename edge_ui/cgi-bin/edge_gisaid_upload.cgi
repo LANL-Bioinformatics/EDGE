@@ -285,27 +285,32 @@ if($action eq "create-form") {
 	}
 	if ($msg->{SUBMISSION_STATUS}="success" && $action eq "batch-upload2gisaid"){
 		my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
-		$cmd .= " --headless | tee $metadata_out_dir/GISAID/submit.log";
-		open (my $fh,">","$metadata_out_dir/GISAID/submit.sh");
+		$cmd .= " --headless | tee $metadata_out_dir/GISAID_submit.log";
+		open (my $fh,">","$metadata_out_dir/GISAID_submit.sh");
 		print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
 		print $fh $cmd,"\n";
 		close $fh;
 		#my $return=`/bin/bash $projDir/GISAID/submit.sh`;
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ('/bin/bash', "$metadata_out_dir/GISAID/submit.sh");
+			or exec ('/bin/bash', "$metadata_out_dir/GISAID_submit.sh");
 		#create .done file after successful submission
 		my $upload_success_flag=0;
+		my $error_msg;
 		while(<$script_fh>){
+			if ($_ =~ /ERROR.*:(.*)/i){
+				$error_msg = $1;
+				addMessage("BATCH-SUBMISSION","failure","$error_msg"); 
+			}
 			if ($_ =~ /Complete/i){
 				map {&touchFile($_)} @gisaidDoneFiles;
-				$upload_success_flag=1;
+				$upload_success_flag=1 if (!$error_msg);
 			}
 		}
 		if ( ! $upload_success_flag ){
-			$msg->{SUBMISSION_STATUS}="failure";
+			addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/GISAID_submit.log");
 		}
-		unlink "$metadata_out_dir/GISAID/submit.sh";
+		unlink "$metadata_out_dir/GISAID_submit.sh";
 
 	}
 }else {
