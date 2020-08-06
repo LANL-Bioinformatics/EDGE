@@ -267,19 +267,19 @@ if($action eq "create-form") {
 		&returnParamsStatus();
 	}
 	my $date_str = strftime "%Y%m%d", localtime;
-	my $metadata_out = "$metadata_out_dir/${date_str}_edge_covid19_metadata.xls";
-	my $all_sequences = "$metadata_out_dir/all_sequences.fasta";
-	my $metadata_out_tsv = "$metadata_out_dir/${date_str}_edge_covid19_metadata.tsv";
+	my $metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
+	my $all_sequences = "$metadata_out_dir/GISAID/all_sequences.fasta";
+	my $metadata_NCBI_outdir = "$metadata_out_dir/NCBI";
 	system("$EDGE_HOME/scripts/metadata/export_metadata_xls.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$profileDir);
 	if ($action eq "batch-download"){
 		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
 		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
-		my $cmd = "zip -j $zip_file $metadata_out $all_sequences $metadata_out_tsv 2>/dev/null";
+		my $cmd = "cd $metadata_out_dir; zip -r $zip_file GISAID NCBI 2>/dev/null";
 		`$cmd`;
 		$msg->{PATH} = $zip_file_rel;
 
 		addMessage("BATCH-DOWNLOAD","failure","failed to export sample metadata to .xls file") unless (-e "$metadata_out" );
-		addMessage("BATCH-DOWNLOAD","failure","failed to export sample consensus fasta files") unless (-e "$metadata_out_dir/all_sequences.fasta" );
+		addMessage("BATCH-DOWNLOAD","failure","failed to export sample consensus fasta files") unless (-e "$all_sequences" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to zip exported file") unless (-e $zip_file );
 		&returnParamsStatus();
 	}

@@ -31,9 +31,15 @@ GetOptions(
 if (!$project_dir_names && !$out){ print "$usage\n";exit;}
 
 my ($file_prefix, $outputDir, $file_suffix)=fileparse("$out", qr/\.[^.]*/);
-mkpath($outputDir);
+mkpath("$outputDir/../NCBI");
 my $seqout = "$outputDir/all_sequences.fasta";
-my $tsvout = "$outputDir/$file_prefix.tsv";
+my $seqoutNCBI = "$outputDir/../NCBI/all_sequences_ncbi.fasta";
+my $source_tsvout = "$outputDir/../NCBI/source.src";
+my $comment_tsvout = "$outputDir/../NCBI/comment.cmt";
+## https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
+my $submission_template = "$outputDir/../NCBI/template.sbt";
+## not ready
+my $submission_xml = "$outputDir/../NCBI/submission.xml";
 unlink $seqout;
 
 ## read template
@@ -47,13 +53,17 @@ my $in_worksheet1 = $template->worksheet('Submissions');
 my $in_worksheet0 = $template->worksheet('Instructions');
 my $row=2;
 my $col=0;
+my $seqID="seq0";
 
-my @tsv_header = ("Sequence_ID","Organism","collection-date","country","host","isolate","Collected-By");
-my @tsv_content;
+my @src_tsv_header = ("Sequence_ID","Organism","isolate","collection-date","country","host","Collected-By");
+my @src_tsv_content;
+my @cmt_tsv_header = ("SeqID","StructuredCommentPrefix","Assembly Method","Coverage","Sequencing Technology","StructuredCommentSuffix");
+my @cmt_tsv_content;
+
 #write metadata to sheets
 foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
-
+	$seqID++;
 	my $confFile = "$proj_dir/config.txt";
 	my $conf = &getParams($confFile);
 	#my $otherFile = "$proj_dir/metadata_other.txt";
@@ -65,6 +75,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 		&pull_submissionData($proj_dir,$vars);
 		&pull_consensusInfo($proj_dir,$vars,$conf);
 		&write_all_sequences($seqout,$vars);
+		&write_all_sequences($seqoutNCBI,$vars,$seqID);
 	};
 	$in_worksheet1->AddCell( $row, $col, $vars->{ID});  ## Submitter (login account id) *
 	$in_worksheet1->AddCell( $row, $col+1, "all_sequences.fasta");  ## FASTA filename *
@@ -96,13 +107,17 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+27, "");  ## Comment
 	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment Icon
 	my ($virus,$country,$identifier,$year) = split /\//, $vars->{VIR_NAME};
-	my $tsv_string = join("\t",$vars->{VIR_NAME},"Severe acute respiratory syndrome coronavirus 2",$vars->{SM_CDATE},$country,$vars->{SM_HOST},$identifier,$vars->{ORIG_LAB});
-	push @tsv_content, $tsv_string;
+	my $ncbi_virus_name = "SARS-CoV-2/human/$country/$identifier/$year";
+	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB});
+	push @src_tsv_content, $src_tsv_string;
+	my $cmt_tsv_string = join("\t",$seqID,"Assembly-Data",$vars->{ASM_METHOD},$vars->{SM_COV},$vars->{SM_SEQUENCING_TECH},"Assembly-Data");
+	push @cmt_tsv_content, $cmt_tsv_string;
 	$row++;
 }
 
 $template->SaveAs($out);
-&write_tsv($tsvout, join("\t",@tsv_header), join("\n",@tsv_content));
+&write_tsv($source_tsvout, join("\t",@src_tsv_header), join("\n",@src_tsv_content));
+&write_tsv($comment_tsvout,join("\t",@cmt_tsv_header), join("\n",@cmt_tsv_content));
 
 sub write_tsv{
 	my $outfile = shift;
@@ -115,13 +130,18 @@ sub write_tsv{
 
 sub write_all_sequences {
 	my $outfile = shift;
-	my $vars=shift;
+	my $vars= shift;
+	my $seqID = shift;
 	my $con_fasta = $vars->{SM_COV_FILE};
 	open (my $ofh, ">>", $outfile ) or die "Cannot write to $outfile\n";
 	open (my $ifh, "<", $con_fasta ) or die "Cannot read $con_fasta\n";
 	while (<$ifh>){
 		if(/^>/){
-			print $ofh ">". $vars->{VIR_NAME}."\n";
+			if ($seqID){
+				print $ofh ">".$seqID."\n";
+			}else{
+				print $ofh ">". $vars->{VIR_NAME}."\n";
+			}
 		}else{
 			print $ofh $_;
 		}
