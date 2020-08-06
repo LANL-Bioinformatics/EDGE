@@ -171,7 +171,7 @@ sub main {
 			chomp $depth_cov;
 			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
 			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} | samtools calmd -u --threads $opt{'threads'} - $opt{'in-ctg-fa'} 2>/dev/null > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
-			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
+			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam  2>/dev/null");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
 			unlink "$opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam";
@@ -182,7 +182,7 @@ sub main {
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ctg-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort -O BAM -o $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam -T $opt{outdir} $opt{'in-primer2ctg-bam'}");
+			executeCommand("samtools sort -O BAM -o $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam -T $opt{outdir} $opt{'in-primer2ctg-bam'} 2>/dev/null");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-primer-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
 			print "Done.\n";
@@ -213,8 +213,8 @@ sub main {
 		
 		if( -e $opt{'in-ref-gff3'} ){
 			print "#  - Amending annotation gff3...";
-			&fixRefGff3( $opt{'in-ref-gff3'}, $opt{'in-ref-fa'}, "$opt{outdir}/ref_annotation.gff3");
-			executeCommand("cat $opt{outdir}/ref_annotation.gff3 >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
+			&fixRefGff3( $opt{'in-ref-gff3'}, $opt{'in-ref-fa'}, "$opt{'out-ref-coord-dir'}/ref_annotation.gff3");
+			#executeCommand("cat $opt{outdir}/ref_annotation.gff3 >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}
 		
@@ -242,7 +242,7 @@ sub main {
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ref-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam $opt{'in-primer2ref-bam'}");
+			executeCommand("samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam $opt{'in-primer2ref-bam'} 2>/dev/null");
 			executeCommand("samtools index $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam");
 			my $mapped_num = `samtools idxstats $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 			chomp $mapped_num;
