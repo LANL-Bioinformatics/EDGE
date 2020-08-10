@@ -401,30 +401,31 @@ sub getReadInfo {
 	
 	print STDERR "Retrieving run(s) information from EBI-ENA...\n";
 	
-	$url = "https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$acc&result=read_run";
+	$url = "https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$acc&result=read_run&fields=run_accession,submission_accession,study_accession,experiment_accession,instrument_platform,library_layout,fastq_ftp,fastq_md5,fastq_bytes";
 	print STDERR "Retrieving run acc# from EBI-ENA $url...\n";
-	$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\" 2>/dev/null": "$curl $http_proxy \"$url\" 2>/dev/null";
+	#$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\" 2>/dev/null": "$curl $http_proxy \"$url\" 2>/dev/null";
+	$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\"": "$curl $http_proxy \"$url\"";
 	$web_result = `$cmd`;
-	die "ERROR: Failed to retrieve sequence information for $acc.\n" if $web_result !~ /^study_accession/;
-
+	die "ERROR: Failed to retrieve sequence information for $acc.\n" if $web_result !~ /^study_accession|^run_accession/;
+	#run_accession	fastq_ftp	fastq_bytes	fastq_md5	submitted_ftp	submitted_bytes	submitted_md5	sra_ftp	sra_bytes	sra_md5
 	my @lines = split '\n', $web_result;
 	print STDERR "$#lines run(s) found from EBI-ENA.\n";
 
 	foreach my $line (@lines){
-		next if $line =~ /^study_accession/;
+		next if $line =~ /^study_accession|^run_accession/;
 		chomp;
 
 		my @f = split '\t', $line;
 
-		my $sub_acc  = $f[6]; #submission_accession
-		my $exp_acc  = $f[4]; #experiment_accession
-		my $run_acc  = $f[5]; #run_accession
-		my $platform = $f[9]; #instrument_platform
-		my $library  = $f[13]; #library_layout
+		my $sub_acc  = $f[1]; #submission_accession
+		my $exp_acc  = $f[3]; #experiment_accession
+		my $run_acc  = $f[0]; #run_accession
+		my $platform = $f[4]; #instrument_platform
+		my $library  = $f[5]; #library_layout
 
-		my @url  = split ';', $f[29]; #fastq_ftp
-		my @md5  = split ';', $f[28]; #fastq_md5
-		my @size = split ';', $f[27]; #fastq_bytes
+		my @url  = split ';', $f[6]; #fastq_ftp
+		my @md5  = split ';', $f[7]; #fastq_md5
+		my @size = split ';', $f[8]; #fastq_bytes
 		next if ($sra_type eq "ByRun" && $run_acc !~ /$acc/i);
 
 		$readInfo->{$acc}->{$run_acc}->{platform} = $platform;
