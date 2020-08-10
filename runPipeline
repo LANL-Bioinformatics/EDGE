@@ -1291,10 +1291,12 @@ sub read_SRAD_Download_dir
     my @files = sort grep {/fastq/} readdir($sra_dir_fh);
     closedir $sra_dir_fh;
     if (`grep -i -a "ERROR" $dir/log.txt`){
+        unlink "$dir/DownloadSRA.finished";
         &lprint("SRA download failed.\n");
         exit(1);
     }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile){
         if( $download_sra_retry <= $download_sra_retry_limit){
+        unlink "$dir/DownloadSRA.finished";
             &lprint("No fastq file from the SRA download. try again\n");
             &Download_SRA();
             return 1;
