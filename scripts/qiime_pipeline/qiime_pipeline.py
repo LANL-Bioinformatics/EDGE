@@ -19,6 +19,7 @@ import glob
 import re
 import numpy as np
 import pandas as pd
+from collections import defaultdict
 
 
 script_path = os.path.dirname(os.path.abspath(__file__))
@@ -186,7 +187,9 @@ def fix_mappingFile(mappingFile,out_dir):
     f =  open (mappingFile, "r")
     ff = open (fix_f, 'w')
     category_list=list()
+    non_category_list=['SampleID','Barcode','Linker','Day','Description']
     num_sample = 0
+    cat_dict=defaultdict(dict)
     for line in f:
         if not line.strip():continue
         temp = [ x.rstrip().strip(' "') for x in line.strip().split('\t')]
@@ -194,21 +197,29 @@ def fix_mappingFile(mappingFile,out_dir):
         if line.lower().startswith('#'):
             line = line.strip().replace('sample_name', 'Sample_Name')
             temp = [ x.rstrip().strip(' "') for x in line.split('\t')]
-            header = line.lower().split('\t')
+            header = line.split('\t')
         else:
             if len(temp) > len(header):
                 sys.exit("[Error] Metadata row contains more cells than are declared by the header. Row detail: %s" % line)
             if len(temp) < len(header):
                 # fill short temp list with NaN
                 temp.extend( ['NaN'] * (len(header) - len(temp)) )
-            
+            for i, e in enumerate(temp):
+                if header[i] not in non_category_list:
+                    cat_dict[header[i]][temp[i]]=1
+
         new_line = "\t".join(temp)
         ff.write(new_line + "\n")
         if not line.lower().startswith('#'):
             num_sample += 1
+    for x in header:
+        if x not in non_category_list:
+            if len(cat_dict[x]) > 1 and len(cat_dict[x]) < num_sample:
+                category_list.append(x)        
     f.close    
     ff.close
     os.remove(mappingFile)
+    
     return fix_f , num_sample, category_list
 
 def get_fastq_manifest(mappingFile,in_dir,out_dir):
@@ -249,31 +260,54 @@ def get_fastq_manifest(mappingFile,in_dir,out_dir):
     return type , mf_file       
             
 
-def add_html_table(analysis_type):
+def add_html_table(analysis_type,category=list()):
     tab_list=list()
     src_list=list()
+    beta_emperor_result = ['bray_curtis','jaccard','unweighted_unifrac','weighted_unifrac']
+    beta_emperor_title = ['Bray-Curtis','Jaccard','Unweighted Unifrac','Weighted Unifrac']
+    alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
+    alpha_analysis_title = ['Evenness','Faith_pd','Observed OTUs','Shannon']
+    activate_class_count = 0 
     if ( analysis_type == 'beta' ):
-        beta_emperor_result = ['bray_curtis','jaccard','unweighted_unifrac','weighted_unifrac']
-        beta_emperor_title = ['Bray-Curtis','Jaccard','Unweighted Unifrac','Weighted Unifrac']
-        activate_class_count = 0 
+        frame_height = 600
+        out_html = 'DiversityAnalysis/table.html'
         for i, val in enumerate(beta_emperor_result):
             if os.path.isfile("DiversityAnalysis/%s_emperor/emperor.html" % val ):
                 activate_class_count += 1
                 activate_class = "active" if activate_class_count < 2 else ""
                 tab_list.append('<li id="%s_pcoa" class="%s"><a href="#">%s</a></li>' % (val, activate_class, beta_emperor_title[i]))
                 src_list.append("'%s_pcoa':'./%s_emperor/emperor.html'" % (val ,val))
+    elif ( analysis_type == 'beta-significance'):
+        frame_height = 1400
+        out_html = 'DiversityAnalysis/beta-table.html'
+        if ( len(category)>0):
+            for g in category:
+                for i, val in enumerate(beta_emperor_result):
+                    if os.path.isfile("DiversityAnalysis/%s_%s_boxplot/index.html" % (val,g)):
+                        activate_class_count += 1 
+                        activate_class = "active" if activate_class_count < 2 else ""
+                        tab_list.append('<li id="%s_%s_boxplot" class="%s"><a href="#">%s-%s</a></li>' % (val,g,activate_class, g, beta_emperor_title[i]))
+                        src_list.append("'%s_%s_boxplot':'./%s_%s_boxplot/index.html'" % (val ,g ,val, g))         
     elif ( analysis_type == 'alpha' ):
-        alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
-        alpha_analysis_title = ['Evenness','Faith_pd','Observed OTUs','Shannon']
-        activate_class_count = 0 
+        frame_height = 1400
+        out_html = 'DiversityAnalysis/alpha-table.html'
         for i, val in enumerate(alpha_analysis_result):
             if os.path.isfile("DiversityAnalysis/%s_boxplot/index.html" % val ):
                 activate_class_count += 1
                 activate_class = "active" if activate_class_count < 2 else ""
                 tab_list.append('<li id="%s_boxplot" class="%s"><a href="#">%s</a></li>' % (val, activate_class, alpha_analysis_title[i]))
                 src_list.append("'%s_boxplot':'./%s_boxplot/index.html'" % (val ,val))
-
-    frame_height = 600 if analysis_type == 'beta' else 1400
+    elif ( analysis_type == 'taxonomy-ancom' ):
+        frame_height = 2000
+        out_html = 'TaxonomyAnalysis/ancom.html'
+        if ( len(category)>0):
+            for g in category:
+                if os.path.isfile("TaxonomyAnalysis/l6-ancom-%s/index.html" % (g)):
+                    activate_class_count += 1
+                    activate_class = "active" if activate_class_count < 2 else ""
+                    tab_list.append('<li id="l6-ancom-%s" class="%s"><a href="#">%s</a></li>' % (g,activate_class, g))
+                    src_list.append("'l6-ancom-%s':'./l6-ancom-%s/index.html'" % (g,g))
+  
     first_src_file = src_list[0].split(':')[1] if len(src_list) > 0 else ""
     html="""<!DOCTYPE html>
 <html>
@@ -344,7 +378,6 @@ def add_html_table(analysis_type):
   </body>
 </html>""" % ("\n".join(tab_list), first_src_file , frame_height, ",\n".join(src_list), frame_height)
 
-    out_html = 'DiversityAnalysis/table.html' if ( analysis_type == 'beta' ) else 'DiversityAnalysis/alpha-table.html'   
     if len(tab_list) > 0 :
         with open( out_html, "w") as f:
             f.write(html)
@@ -398,12 +431,19 @@ def html_report(template):
     if os.path.isfile('DiversityAnalysis/table.html'):
         tab_list.append('<li id="PCoA-plots"><a href="#">PCoA plots</a></li>')
         src_list.append("'PCoA-plots': './DiversityAnalysis/table.html'")
+    if os.path.isfile('DiversityAnalysis/beta-table.html'):
+        tab_list.append('<li id="beta-boxplot"><a href="#">Beta-Diversity Analysis</a></li>')
+        src_list.append("'beta-boxplot': './DiversityAnalysis/beta-table.html'")
     if os.path.isfile('TaxonomyAnalysis/Table/index.html'):
         tab_list.append('<li id="rep-seq-taxonomy"><a href="#">OTU Table summary</a></li>')
         src_list.append("'rep-seq-taxonomy': './TaxonomyAnalysis/Table/index.html'")
     if os.path.isfile('TaxonomyAnalysis/barplots/index.html'):
         tab_list.append('<li id="taxonomy-barplot"><a href="#">Taxonomy BarPlot</a></li>')
         src_list.append("'taxonomy-barplot': './TaxonomyAnalysis/barplots/index.html'")
+    if os.path.isfile('TaxonomyAnalysis/ancom.html'):
+        tab_list.append('<li id="taxonomy-ancom"><a href="#">Taxonomy Analysis</a></li>')
+        src_list.append("'taxonomy-ancom': './TaxonomyAnalysis/ancom.html'")
+
       
     html="""<!DOCTYPE html>
 <html>
@@ -509,7 +549,6 @@ if __name__ == '__main__':
     # Parse Mapping file
     mappingFile, num_sample, category_list = fix_mappingFile(abs_output+'/tmp_sample_metadata.txt',abs_output)
     print("    Number of Samples      : %d" % num_sample)
-    
     import_type = 'EMPSingleEndSequences'
     input_path = abs_output + '/input'
     demux_type = 'emp-single'
@@ -780,6 +819,14 @@ if __name__ == '__main__':
                 qiime_export_html("DiversityAnalysis/%s_emperor.qzv" % x ,"DiversityAnalysis/%s_emperor" % x)
             if os.path.isfile("DiversityAnalysis/%s_distance_matrix.qza" % x ):
                 qiime_export_html("DiversityAnalysis/%s_distance_matrix.qza" % x ,"DiversityAnalysis/%s_distance_matrix" % x)
+                if len(category_list) > 0:
+            	    for g in category_list:
+                        cmd = ("qiime diversity beta-group-significance --i-distance-matrix DiversityAnalysis/%s_distance_matrix.qza "
+                                "--m-metadata-file %s --m-metadata-column %s --o-visualization DiversityAnalysis/%s-%s-significance.qzv --p-pairwise") % (x, mappingFile, g, x, g)
+                        process_cmd(cmd, '%s: Beta diversity PERMANOVA test' % (g) )
+                        if os.path.isfile("DiversityAnalysis/%s-%s-significance.qzv" % (x, g)):
+                            qiime_export_html("DiversityAnalysis/%s-%s-significance.qzv" % (x,g),"DiversityAnalysis/%s_%s_boxplot" % (x,g))
+
         add_html_table('beta')
    
         alpha_analysis_result = ['evenness_vector','faith_pd_vector','observed_otus_vector','shannon_vector']
@@ -793,6 +840,8 @@ if __name__ == '__main__':
                     qiime_export_html("DiversityAnalysis/%s-group-significance.qzv" % x,"DiversityAnalysis/%s_boxplot" % x)
 
         add_html_table('alpha')
+
+    add_html_table('beta-significance',category_list)
 
     
    
@@ -818,6 +867,7 @@ if __name__ == '__main__':
 
     #  QCandFT/table.qza is the full data 
     #  use rarefied_table for sub-sampling taxanomy plots  
+    raw_table = 'QCandFT/table.qza'
     data_table = 'DiversityAnalysis/rarefied_table.qza' if os.path.isfile('DiversityAnalysis/rarefied_table.qza') else 'QCandFT/table.qza'
     if not os.path.isfile('TaxonomyAnalysis/taxa-bar-plots.qzv'):
         mkdir_p('TaxonomyAnalysis')    
@@ -835,6 +885,20 @@ if __name__ == '__main__':
         process_cmd(taxa_barplot_cmd, 'Taxonomic barplots')
         qiime_export_html('TaxonomyAnalysis/taxa-bar-plots.qzv','TaxonomyAnalysis/barplots')
 
+    ## Taxonomic ANCOM analysis with category metadata field
+    if (len(category_list)>0 and not os.path.isfile('TaxonomyAnalysis/ancom.html')):
+        cmd = ("qiime taxa collapse --i-table %s --i-taxonomy TaxonomyAnalysis/taxonomy.qza "
+              " --p-level 6 --o-collapsed-table TaxonomyAnalysis/table-l6.qza") % (raw_table)
+        process_cmd(cmd)
+        cmd = ("qiime composition add-pseudocount --i-table TaxonomyAnalysis/table-l6.qza --o-composition-table TaxonomyAnalysis/comp-table-l6.qza");
+        process_cmd(cmd)
+        for g in category_list:
+            cmd = ("qiime composition ancom --i-table TaxonomyAnalysis/comp-table-l6.qza --m-metadata-file %s "
+                   "--m-metadata-column %s --o-visualization TaxonomyAnalysis/l6-ancom-%s.qzv ") % (mappingFile, g, g)
+            process_cmd(cmd,'%s: Taxonomic abundance testing with ANCOM' % (g))
+            qiime_export_html('TaxonomyAnalysis//l6-ancom-%s.qzv' % (g),'TaxonomyAnalysis/l6-ancom-%s' % (g) )
+
+        add_html_table('taxonomy-ancom',category_list)
     
     ## Creating a OTU table with taxonomy annotations use rarefied_table
     if not os.path.isfile('DiversityAnalysis/rarefied-table-summary/feature-table.tsv'):
