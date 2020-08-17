@@ -51,8 +51,8 @@ my $command="show-coords -r -I $identity -L $len_cutoff -T seq_seq$$.delta | awk
 if (system ("$command")) {die "$command"};
 &get_coords_file("seq_seq$$.coords");
 #&get_coords_file("seq_seq_id65.coords");
-#unlink "seq_seq$$.delta";
-#unlink "seq_seq$$.coords";
+unlink "seq_seq$$.delta";
+unlink "seq_seq$$.coords";
 sub get_coords_file 
 {
     my $coord_file=shift;
