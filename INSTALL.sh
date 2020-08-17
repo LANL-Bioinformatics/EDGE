@@ -1864,14 +1864,6 @@ then
   done
 fi
 
-if ( checkSystemInstallation cmake )
-then
-  echo "cmake is found"
-else
-  echo "cmake is not found"
-  install_cmake
-fi
-
 if ( checkSystemInstallation inkscape )
 then
   echo "inkscape is found"
@@ -1903,6 +1895,15 @@ then
 else
   install_Anaconda3
 fi
+
+if ( checkSystemInstallation cmake )
+then
+  echo "cmake is found"
+else
+  echo "cmake is not found"
+  install_cmake
+fi
+
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
