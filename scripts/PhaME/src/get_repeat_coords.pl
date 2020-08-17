@@ -8,6 +8,9 @@ my $identity=95;
 my $len_cutoff=0;
 my $output="repeats_coords.txt";
 my $stats= "repeats_stats.txt";
+my $self=0;
+my $mincluster=65;
+my $buffer=5;
 
 # set up environments
 $ENV{PATH}="$RealBin:$RealBin/../ext/bin:$ENV{PATH}";
@@ -16,6 +19,9 @@ GetOptions(
    'i=i'      => \$identity,
    'l=i'      => \$len_cutoff,
    'o=s'      => \$output,
+   'c=i'      => \$mincluster,
+   'self'     => \$self,
+   'b=i'      => \$buffer,
    's=s'      => \$stats,
    'help|?'   => sub{Usage()},
 );
@@ -26,6 +32,9 @@ sub Usage
    perl $0 [options] <fasta>
         -i INT      the identity cutoff 0 to 100 (default: 95)
         -l INT      the repeat length cutoff (default:0)
+	--self  BOOL     only check the repeat in the same seq
+	-b      INT      the buffer base length to skip self-hits (default:5)
+	-c      INT      mincluster   Sets the minimum length of a cluster of matches (default 65)
         -o STRING   output filename (default: repeats_coords.txt)
         -s STRING   output stats filename (default: repeats_stats.txt)
 
@@ -36,7 +45,7 @@ exit;
 my $file=$ARGV[0];
 &Usage unless (-e $file);
 
-my $command="nucmer --maxmatch --nosimplify --prefix=seq_seq$$ $file $file 2>/dev/null";
+my $command="nucmer -c $mincluster --maxmatch --nosimplify --prefix=seq_seq$$ $file $file 2>/dev/null";
 print "Running self-nucmer on $file.\n";
 if (system ("$command")) {die "$command"}; 
 # apply identity cutoff and lenght cutoff and use awk to skip self-hits
@@ -75,6 +84,10 @@ while(<IN>){
    my $seq_id=$fields[7];
    my $start=$fields[0];
    my $end=$fields[1];
+   next if ($self and ($fields[7] ne $fields[8]));
+   if ($start < ($fields[2]+$buffer) && $start > ($fields[2]-$buffer) && $end < ($fields[3]+$buffer)  && $end > ($fields[3]-$buffer)){
+	   next;
+   }
    for my $pos ($start..$end){
       $hash{$seq_id}->{$pos}=1;
    }
