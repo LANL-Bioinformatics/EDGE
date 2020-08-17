@@ -1877,14 +1877,6 @@ then
 fi
 
 
-if ( checkSystemInstallation cmake )
-then
-  echo "cmake is found"
-else
-  echo "cmake is not found"
-  install_cmake
-fi
-
 if ( checkSystemInstallation inkscape )
 then
   echo "inkscape is found"
@@ -1915,6 +1907,14 @@ then
   $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
 else
   install_Anaconda3
+fi
+
+if ( checkSystemInstallation cmake )
+then
+  echo "cmake is found"
+else
+  echo "cmake is not found"
+  install_cmake
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]
