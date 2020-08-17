@@ -1444,7 +1444,7 @@ ln -fs $anaconda2bin/python $rootdir/bin
 $anaconda2bin/conda config --add channels defaults
 $anaconda2bin/conda config --add channels bioconda
 $anaconda2bin/conda config --add channels conda-forge
-$anaconda2bin/pip install biopython xlsx2csv
+$anaconda2bin/pip install biopython==1.76 xlsx2csv
 $anaconda2bin/conda install -y mysql-connector-python
 #$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 #$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
