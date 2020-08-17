@@ -8,22 +8,31 @@ $ENV{PATH}="$Bin/../bin:$Bin:$ENV{PATH}";
 my $identity=90;
 my $len_cutoff=0;
 my $thread=1;
+my $self=0;
 my $output="repeats_coords.txt";
+my $mincluster=65;
+my $buffer=5;
 
 GetOptions(
             'id=i' => \$identity,
             'len=i'=> \$len_cutoff,
             'o=s'  => \$output,
             't=i'  => \$thread,
+            'c=i'  => \$mincluster,
+            'self' => \$self,
+	    'b=i'  => \$buffer,
             'help|?' => sub{Usage()},
           );
 sub Usage
 {
    print <<USAGE;
    perl $0 [options] <fasta>
-        --id INT       the identity cutoff 0 to 100 (default: 90)
-        --len INT      the repeat length cutoff (default:0)
-        --o   STRING   output file name (default: repeats_coords.txt)
+        --id    INT      the identity cutoff 0 to 100 (default: 90)
+        --len   INT      the repeat length cutoff (default:0)
+        --self  BOOL     only check the repeat in the same seq
+        -b      INT      the buffer base length to skip self-hits (default:5)
+        -c      INT      mincluster   Sets the minimum length of a cluster of matches (default 65)
+        --o     STRING   output file name (default: repeats_coords.txt)
 
 USAGE
 exit;
@@ -33,7 +42,7 @@ my $file=$ARGV[0];
 &Usage unless ( -e $file );
 
 #my $command="nucmer_multithreads.pl -thread $thread -breaklen 200 -nosimplify -overlap 65 -prefix seq_seq$$ -ref $file -query $file";
-my $command="nucmer --maxmatch --nosimplify --prefix seq_seq$$ $file $file";
+my $command="nucmer -c $mincluster --maxmatch --nosimplify --prefix seq_seq$$ $file $file";
 print "Running nucmer...\n";
 if (system ("$command")) {die "$command"}; 
 # apply identity cutoff and lenght cutoff and use awk to skip self-hits
@@ -66,6 +75,7 @@ sub get_coords_file
 # this is nucmer coordinate output
 #[S1]	[E1]	[S2]	[E2]	[LEN 1]	[LEN 2]	[% IDY]	[TAGS]
 #15376	16742	607219	608585	1367	1367	99.56	gi|49175990|ref|NC_000913.2|	gi|49175990|ref|NC_000913.2|
+#19871    29943    19871    29944    10073    10074    99.99    EPI_ISL_417419    EPI_ISL_417419
 # read through each repeat region and record its position of the seq in hash 
    while(<IN>)
     {
@@ -74,6 +84,10 @@ sub get_coords_file
         my $seq_id=$fields[7];
         my $start=$fields[0];
         my $end=$fields[1];
+	next if ($self and ($fields[7] ne $fields[8]));
+        if ($start < ($fields[2]+$buffer) && $start > ($fields[2]-$buffer) && $end < ($fields[3]+$buffer)  && $end > ($fields[3]-$buffer)){
+		next;
+	}
         for my $pos ($start..$end)
         {
             $hash{$seq_id}->{$pos}=1;
