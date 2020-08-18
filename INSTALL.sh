@@ -170,7 +170,7 @@ if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
 then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
 fi 
-./INSTALL.sh
+./installer.sh piret
 ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
 export PATH=$Org_PATH
 cd $rootdir/thirdParty
@@ -1583,7 +1583,7 @@ if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
 then
   rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
 fi
-$anaconda3bin/conda create -y -n antismash antismash=4.2.0
+$anaconda2bin/conda create -y -n antismash antismash=4.2.0
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
@@ -2014,7 +2014,7 @@ fi
 
 if ( checkSystemInstallation blastn )
 then
-   BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+   BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
    if [ $(versionStr $BLAST_VER) -ge $(versionStr "2.8.0") ]
    then
      echo "BLAST+ $BLAST_VER found"
@@ -2559,7 +2559,7 @@ fi
 if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
 then
   antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $antismash_VER | awk '{if($1 >="4.1.0") exit 0; else exit 1}' )
+  if [ $(versionStr $antismash_VER) -ge $(versionStr "4.2.0") ]
   then
     echo "antiSMASH $antismash_VER is found"
   else
