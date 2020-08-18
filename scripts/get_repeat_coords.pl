@@ -12,6 +12,7 @@ my $self=0;
 my $output="repeats_coords.txt";
 my $mincluster=65;
 my $buffer=5;
+my $minmatch=20;
 
 GetOptions(
             'id=i' => \$identity,
@@ -20,6 +21,7 @@ GetOptions(
             't=i'  => \$thread,
             'c=i'  => \$mincluster,
             'self' => \$self,
+            'minmatch=i' => \$minmatch,
 	    'b=i'  => \$buffer,
             'help|?' => sub{Usage()},
           );
@@ -27,12 +29,13 @@ sub Usage
 {
    print <<USAGE;
    perl $0 [options] <fasta>
-        --id    INT      the identity cutoff 0 to 100 (default: 90)
-        --len   INT      the repeat length cutoff (default:0)
-        --self  BOOL     only check the repeat in the same seq
-        -b      INT      the buffer base length to skip self-hits (default:5)
-        -c      INT      mincluster   Sets the minimum length of a cluster of matches (default 65)
-        --o     STRING   output file name (default: repeats_coords.txt)
+        --id      INT      the identity cutoff 0 to 100 (default: 90)
+        --len     INT      the repeat length cutoff (default:0)
+        --self    BOOL     only check the repeat in the same seq
+        -b        INT      the buffer base length to skip self-hits (default:5)
+        -c        INT      set the minimum length of a cluster of matches (default 65)
+        -minmatch INT      set the minimum length of a single match (default 20)
+        --o       STRING   output file name (default: repeats_coords.txt)
 
 USAGE
 exit;
@@ -42,7 +45,7 @@ my $file=$ARGV[0];
 &Usage unless ( -e $file );
 
 #my $command="nucmer_multithreads.pl -thread $thread -breaklen 200 -nosimplify -overlap 65 -prefix seq_seq$$ -ref $file -query $file";
-my $command="nucmer -c $mincluster --maxmatch --nosimplify --prefix seq_seq$$ $file $file";
+my $command="nucmer -l $minmatch -c $mincluster --maxmatch --nosimplify --prefix seq_seq$$ $file $file";
 print "Running nucmer...\n";
 if (system ("$command")) {die "$command"}; 
 # apply identity cutoff and lenght cutoff and use awk to skip self-hits
