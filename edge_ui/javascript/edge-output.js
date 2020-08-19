@@ -91,6 +91,9 @@ $( document ).ready(function()
 	$('.edge-output-direct-datatable').each(function(){
 		var dom=this;
 		var json_table_file = $(this).attr('data-src');
+		if (!json_table_file){
+			return;
+		}
 		var dataTableDom = 'lfrtip';
 		$.ajax( {
 			cache:false,
@@ -140,6 +143,9 @@ $( document ).ready(function()
 	var gap_depth_cut_off=0;
 	$('.edge-output-datatables').on('click',function(){
 		var json_table_file = $(this).attr('data-src');
+		if (!json_table_file){
+			return;
+		}
 		var tablelinkdom = $(this);
 		var dataTableDom = (/Gap/.test(json_table_file))? '<"#edge-gap-depth-cutoff-div">frtip':'lfrtip';
 		$.ajax( {
