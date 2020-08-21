@@ -2029,8 +2029,10 @@ $( document ).ready(function()
 				$('#edge-assembler-sw').show();
 				$('#edge-assembled-conti-file-div').hide();
 				//$('.edge-assembler-parameters').show();
-				$('#edge-assembler1').click().checkboxradio("refresh");
-				 $(":radio[name='edge-assembler']").change();
+				if (type != "reconfig"){
+					$('#edge-assembler1').click().checkboxradio("refresh");
+				}
+				$(":radio[name='edge-assembler']").change();
 			}
 		});
 
@@ -3358,7 +3360,8 @@ $( document ).ready(function()
 						obj = $(this);
 						setTimeout( function() { obj.trigger('change');},300 );	
 					}else{
-						$(this).trigger('change');
+						//$(this).trigger('change');
+						$(this).trigger('click');
 					}
 				}
 			});
