@@ -42,6 +42,7 @@ $ec_num->{3}="EC3: Lipase, amylase, peptidase";
 $ec_num->{4}="EC4: Decarboxylase";
 $ec_num->{5}="EC5: Isomerase, mutase";
 $ec_num->{6}="EC6: Synthetase";
+$ec_num->{7}="EC7: Translocase";
 
 open GFF3, "$opt{input}" or die "Can't open $opt{input}: $!\n";
 my $ctg;
