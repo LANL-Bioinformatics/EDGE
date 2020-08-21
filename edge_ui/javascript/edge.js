@@ -1011,6 +1011,8 @@ $( document ).ready(function()
 					$( "#"+inputFileID ).val(file_relative);
 					$( "#edge_file_dialog" ).popup('close');
 				}
+			},function(altc){
+				window.open(edge_path + 'EDGE_input/' +  altc);
 			}
 		);
  
@@ -2011,7 +2013,9 @@ $( document ).ready(function()
 			if($('#edge-assembled-contig2').is(':checked')){
 				$('#edge-assembler-sw').show();
 				$('#edge-assembled-conti-file-div').hide();
-				$('#edge-assembler1').click().checkboxradio("refresh");
+				if (type != "reconfig"){
+					$('#edge-assembler1').click().checkboxradio("refresh");
+				}
 				$(":radio[name='edge-assembler']").change();
 			}
 		});
@@ -3256,7 +3260,8 @@ $( document ).ready(function()
 						obj = $(this);
 						setTimeout( function() { obj.trigger('change');},300 );
 					}else{
-						$(this).trigger('change');
+						//$(this).trigger('change');
+						$(this).trigger('click');
 					}
 				}
 			});
