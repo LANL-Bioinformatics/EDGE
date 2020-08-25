@@ -88,6 +88,7 @@ DoReadsMappingReference=1
 ## support bowtie or bwa or minimap2
 r2g_aligner=minimap2
 r2g_aligner_options=
+r2g_max_clip=150
 window_size=1000
 step_size=200
 reference=NC_001416.1.fasta
@@ -102,6 +103,20 @@ DoReadsTaxonomy=1
 AllReads=0
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v
 splitrim-minq=7
+custom-gottcha-genDB-b=
+custom-gottcha-speDB-b=
+custom-gottcha-strDB-b=
+custom-gottcha-genDB-v=
+custom-gottcha-speDB-v=
+custom-gottcha-strDB-v=
+custom-gottcha2-speDB-b=
+custom-gottcha2-genDB-v=
+custom-gottcha2-speDB-v=
+custom-bwa-db=
+custom-metaphlan-db=
+custom-kraken-db=
+custom-pangia-db=
+custom-diamond-db=
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference

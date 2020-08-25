@@ -79,10 +79,11 @@ r2c_extract_unmapped=0
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
-DoReadsMappingReference=0
+DoReadsMappingReference=1
 ## support bowtie or bwa
 r2g_aligner=bowtie
 r2g_aligner_options=
+r2g_max_clip=50
 window_size=1000
 step_size=200
 reference=../Reference/NC_000913.gbk
@@ -96,6 +97,22 @@ DoReadsTaxonomy=0
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=0
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,bwa,metaphlan2,kraken
+splitrim-minq=7
+custom-gottcha-genDB-b=
+custom-gottcha-speDB-b=
+custom-gottcha-strDB-b=
+custom-gottcha-genDB-v=
+custom-gottcha-speDB-v=
+custom-gottcha-strDB-v=
+custom-gottcha2-speDB-b=
+custom-gottcha2-genDB-v=
+custom-gottcha2-speDB-v=
+custom-bwa-db=
+custom-metaphlan-db=
+custom-kraken-db=
+custom-pangia-db=
+custom-diamond-db=
+
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference
