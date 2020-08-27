@@ -2883,7 +2883,7 @@ $anaconda3bin/conda clean -y -a
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
 (crontab -l ; echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1") | crontab -
 (crontab -l ; echo "00 05 * * * perl $rootdir/edge_ui/cgi-bin/edge_um_project_monitor.pl > /dev/null 2>&1") | crontab -
-#(crontab -l ; echo "*/1 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
+(crontab -l ; echo "*/1 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
 
 echo "
 
