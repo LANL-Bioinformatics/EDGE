@@ -2683,6 +2683,9 @@ $( document ).ready(function()
 			dataType: "json",
 			cache: false,
 			data: { "proj" : focusProjName, 'forceupdate': force, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
+			beforeSend: function(){
+                                $(".list-info-delete").fadeOut().remove(); //clear div
+			},
 			complete: function(data){
 				/*
 				console.log("finished_proj="+finished_proj);
