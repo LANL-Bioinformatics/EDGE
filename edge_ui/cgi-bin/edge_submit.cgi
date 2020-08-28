@@ -11,7 +11,7 @@ use Cwd 'abs_path';
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use JSON;
-use LWP::Simple;
+use LWP::Simple qw(!head);
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use CGI::Session ( '-ip_match' );
