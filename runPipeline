@@ -402,6 +402,7 @@ if ($configuration->{projrunhost} =~ /edge-bsve/ || defined $data_cleanup ){
 	my $cmd = "$RealBin/scripts/data_cleanup.pl $abs_outDir";
 	system($cmd);
 }
+unlink glob("$ENV{HOME}/core.*");
 ### 
 
 #my $url = "http://localhost";
@@ -1295,8 +1296,8 @@ sub read_SRAD_Download_dir
         &lprint("SRA download failed.\n");
         exit(1);
     }elsif (!@files && !@pairedReadsFile && !@unpairedReadsFile){
-        if( $download_sra_retry <= $download_sra_retry_limit){
         unlink "$dir/DownloadSRA.finished";
+        if( $download_sra_retry <= $download_sra_retry_limit){
             &lprint("No fastq file from the SRA download. try again\n");
             &Download_SRA();
             return 1;
