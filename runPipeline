@@ -16,12 +16,12 @@ use lib "$RealBin/lib";
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
-$ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$ENV{PERL5LIB}":"$RealBin/lib";
+$ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
 $ENV{HOME} ||= $RealBin;
 $ENV{LANG} ||= "C.UTF-8";
-$ENV{LC_ALL} ||= "C.UTF-8";
+#$ENV{LC_ALL} ||= "C.UTF-8";
 
 # unbuffer
 $|=1;
@@ -3625,6 +3625,7 @@ sub runAssembly
         ## filter long reads 
         if ( -s $long_reads_file){
             &lprint("Filter long reads with $unicycler_min_lreads (bp) cutoff \n");
+	    &make_dir($AssemblerOutDir);
             &executeCommand("seqtk seq -A -L $unicycler_min_lreads  $long_reads_file > $filtered_long_reads");
         }
 	
