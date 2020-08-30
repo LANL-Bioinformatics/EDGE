@@ -2592,7 +2592,7 @@ $( document ).ready(function()
 			cache: false,
 			data: { "proj" : focusProjName, 'forceupdate': force, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			beforeSend: function(){
-                                $(".list-info-delete").fadeOut().remove(); //clear div
+                                $(".edge-info-error").fadeOut().remove(); //clear div
 			},
 			complete: function(data){
 				/*
@@ -2882,8 +2882,9 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$( "#edge-submit-info" ).fadeIn("fast");
-				var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to retrieve project info. Please check server error log for detail.</a></li>";
+				var dom = "<li data-icon='delete' data-theme='c' class='edge-info-error'><a href='#'>FAILED to retrieve project info. Please check server error log for detail.</a></li>";
 				$( "#edge-submit-info" ).append(dom);
+				$( "#edge-submit-info" ).listview("refresh");
 			}
 		});
 	};
