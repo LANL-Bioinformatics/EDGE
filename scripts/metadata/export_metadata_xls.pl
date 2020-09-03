@@ -7,6 +7,7 @@ use Spreadsheet::ParseExcel::SaveParser;
 use Getopt::Long;
 use File::Basename;
 use File::Path;
+use File::Copy;
 
 my $um; #user management
 my $out;
@@ -39,6 +40,8 @@ my $comment_tsvout = "$outputDir/../NCBI/comment.cmt";
 ## https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
 my $submission_template = "$outputDir/../NCBI/template.sbt";
 ## not ready
+my $submitter_profile =  "$outputDir/../NCBI/submitter_profile.txt";
+copy("$userDir/gisaid_submission_profile.txt",$submitter_profile);
 my $submission_xml = "$outputDir/../NCBI/submission.xml";
 unlink $seqout;
 
@@ -107,7 +110,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+27, "");  ## Comment
 	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment Icon
 	my ($virus,$country,$identifier,$year) = split /\//, $vars->{VIR_NAME};
-	my $ncbi_virus_name = "SARS-CoV-2/human/$country/$identifier/$year";
+	my $ncbi_virus_name = "SARS-CoV-2/Homo sapiens/$country/$identifier/$year";
 	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB});
 	push @src_tsv_content, $src_tsv_string;
 	my $cmt_tsv_string = join("\t",$seqID,"Assembly-Data",$vars->{ASM_METHOD},$vars->{SM_COV},$vars->{SM_SEQUENCING_TECH},"Assembly-Data");
