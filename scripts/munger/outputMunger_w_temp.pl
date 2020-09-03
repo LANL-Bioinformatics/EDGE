@@ -1822,9 +1822,9 @@ sub pull_readmapping_contig {
 	$vars->{RMSUPPLEMENT} ||= 0;
 	$vars->{RMMAPPED} = $vars->{RMMAPPED} - $vars->{RMSECOND} - $vars->{RMSUPPLEMENT};
 	$vars->{RMUSED} = $vars->{RMUSED} - $vars->{RMSECOND} - $vars->{RMSUPPLEMENT};
-	$vars->{RMMAPPEDPCT}   = sprintf "%.2f", $vars->{RMMAPPED}/$vars->{RMUSED}*100;
+	$vars->{RMMAPPEDPCT}   = ($vars->{RMUSED})? sprintf "%.2f", $vars->{RMMAPPED}/$vars->{RMUSED}*100 : "0";
 	$vars->{RMUNMAPPED}    = $vars->{RMUSED} - $vars->{RMMAPPED};
-	$vars->{RMUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMUNMAPPED}/$vars->{RMUSED}*100;
+	$vars->{RMUNMAPPEDPCT} = ($vars->{RMUSED})? sprintf "%.2f", $vars->{RMUNMAPPED}/$vars->{RMUSED}*100 : "0";
 	if ( ! -e "$out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json"){
 		my $row_limit = $sys->{edgeui_result_table_rows} || 3000;
 		system("perl $RealBin/../tab2Json_for_dataTable.pl -project_dir $out_dir -mode contig -limit $row_limit $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table > $out_dir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table.json");
@@ -1869,7 +1869,7 @@ sub pull_readmapping_ref {
 			#$tol_indels += $temp[10];
 			next if $temp[3] == 0;
 			$refinfo->{'STANDALONE'} = 1 if ($mode ne "web");
-			$refinfo->{"RMREFMAPPEDPCT"} = sprintf "%.2f", $temp[3]/$NUM_READS_FOR_DOWNSTREAM*100;
+			$refinfo->{"RMREFMAPPEDPCT"} = ($NUM_READS_FOR_DOWNSTREAM) ? sprintf "%.2f", $temp[3]/$NUM_READS_FOR_DOWNSTREAM*100 : '0';
 			for my $i (0 .. $#temp) {
 				my $idx = $i+1;
 				
@@ -1951,7 +1951,7 @@ sub pull_readmapping_ref {
 	$vars->{RMREFUNMAPPED} = ($total_unmapped_reads)?$total_unmapped_reads:"0";
 	#$vars->{RMREFMAPPEDPCT}   = sprintf "%.2f", $vars->{RMREFMAPPED}/$vars->{RMREFUSED}*100;
 	#$vars->{RMREFUNMAPPED}    = $vars->{RMREFUSED} - $vars->{RMREFMAPPED};
-	$vars->{RMREFUNMAPPEDPCT} = sprintf "%.2f", $vars->{RMREFUNMAPPED}/$NUM_READS_FOR_DOWNSTREAM*100;
+	$vars->{RMREFUNMAPPEDPCT} = ($NUM_READS_FOR_DOWNSTREAM)?sprintf "%.2f", $vars->{RMREFUNMAPPED}/$NUM_READS_FOR_DOWNSTREAM*100 : '0';
 	$vars->{RMREFTOLREF}      = $tol_ref_number;
 	$vars->{RMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{RMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
