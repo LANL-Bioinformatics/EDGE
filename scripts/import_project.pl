@@ -70,6 +70,7 @@ if ($new_projid && $new_projcode){
 	# update owner projid projcode;
 	my $new_config = "$edge_output/$new_projcode/config.txt";
 	my $new_processLog =  "$edge_output/$new_projcode/process.log";
+	my $new_process_currentLog = "$edge_output/$new_projcode/process_current.log";
 	unlink "$edge_output/$new_projcode/HTML_Report/.complete_report_web";
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/; s/projid=[[:graph:]]*/projid=$new_projid/; s/projcode=[[:graph:]]*/projcode=$new_projcode/' $new_config");
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g; s/EDGE_output\\\/$projid/EDGE_output\\\/$new_projid/g' $new_processLog");
@@ -80,6 +81,7 @@ if ($new_projid && $new_projcode){
 		system("mv $pangia_vis_dir/$projcode.pangia.log $pangia_vis_dir/$new_projcode.pangia.log");
 		system("mv $pangia_vis_dir/$projcode.tsv $pangia_vis_dir/$new_projcode.tsv");
 	}
+	system("cp $new_processLog $new_process_currentLog") if (! -e $new_process_currentLog);
 	print "Done importing \"$projname\". Please check EDGE to confirm it worked.\n";
 }
 
