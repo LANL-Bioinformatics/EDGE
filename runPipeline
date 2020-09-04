@@ -3675,8 +3675,8 @@ sub runAssembly
         my @intermediate_contigs = sort { -M $a <=> -M $b} glob("$AssemblerOutDir/contig-* $AssemblerOutDir/intermediate_contigs/*contigs.fa $AssemblerOutDir/K*/final_contigs.fasta" );    
         if (! @intermediate_contigs){
             my $msg = "Assembly failed. It may be out of Memory. Please see assembly.log for details. Will skip downstream assembly based analysis.";
-	    if ( -e "$AssemblerOutDir/Assembly/unitig.fasta" && -z "$AssemblerOutDir/Assembly/unitig.fasta" ){
-                    $msg = "miniasm assembly failed. Please see AssemblyBasedAnalysis/lrasm/Assembly/miniasm.log for details. Will skip downstream assembly based analysis.";
+	    if ( $assembler =~ /lrasm/ ){
+                    $msg = "$configuration->{lrasm_algorithm} assembly failed. Please see AssemblyBasedAnalysis/lrasm/contigs.log for details. Will skip downstream assembly based analysis.";
             }
             &lprint("$msg\n"); 
             `echo $msg >> $log`;
