@@ -3514,6 +3514,7 @@ sub runAssembly
     my $AssemblerLog;
     my $final_contig_file= "$outputDir/${project_name}_contigs.fa";
     my $final_contig_fastG_file= "$outputDir/${project_name}_contigs.fastg";
+    my $final_contig_fastG_file2= "$outputDir/${project_name}_contigs.gv";
     my $log = "$outputDir/assembly.log";
     my $contig_min_length = $configuration->{minContigSize}||200;
     my $contig_for_annotation = "$outputDir/${project_name}_contigs_${contig_size_for_annotation}up.fa";
@@ -3644,12 +3645,14 @@ sub runAssembly
 		$AssemblerContigs = "$AssemblerOutDir/contigs.fa";
 		$AssemblerLog = "$AssemblerOutDir/contigs.log";
 		my $minlength = "400";
-        my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":" --wo \'-L $minlength\' ";
+		my $minlength_opt = ($configuration->{lrasm_algorithm} eq "miniasm")? " --ao \'-s $minlength\' ":($configuration->{lrasm_algorithm} eq "wtdbg2")? " --wo \'-L $minlength\' ": "";
 		my $lrasm_preset = " -x $configuration->{lrasm_preset} ";
+		my $flye_opt = ($configuration->{lrasm_algorithm} eq "metaflye")? "--fo '--meta'":"";
 		$cmd = "lrasm -o $AssemblerOutDir -t $numCPU $lrasm_preset -n $configuration->{lrasm_num_consensus} ";
 		$cmd .= " -e" if $configuration->{lrasm_ec};
 		$cmd .= " -a $configuration->{lrasm_algorithm} " if ($configuration->{lrasm_algorithm});
 		$cmd .= " $minlength_opt " ;
+		$cmd .= " $flye_opt " ;
 		$cmd .= " $unpairFile " if (-s $unpairFile);
 		$cmd .= " 2>/dev/null";
     }
@@ -3694,6 +3697,10 @@ sub runAssembly
         rename("$file_path/assembly_graph_with_scaffolds.gfa", "$outputDir/assembly_graph_with_scaffolds.gfa") if ( -e "$file_path/assembly_graph_with_scaffolds.gfa");
     }elsif($assembler =~ /lrasm/){
         &executeCommand("mv -f $AssemblerOutDir/Assembly/unitig.gfa $final_contig_fastG_file") if ( -e "$AssemblerOutDir/Assembly/unitig.gfa");
+	&executeCommand("mv -f $AssemblerOutDir/Assembly/assembly_graph.gfa $final_contig_fastG_file") if ( -e "$AssemblerOutDir/Assembly/assembly_graph.gfa");
+        &executeCommand("mv -f $AssemblerOutDir/Assembly/assembly_graph.gv $final_contig_fastG_file2") if ( -e "$AssemblerOutDir/Assembly/assembly_graph.gv");
+	&executeCommand("mv -f $AssemblerOutDir/Assembly/assembly_info.txt $$outputDir/assembly_info.txt") if ( -e "$AssemblerOutDir/Assembly/assembly_graph.gv");
+
     }elsif($assembler =~ /unicycler/){
         copy("$AssemblerOutDir/assembly.gfa",$final_contig_fastG_file) if ( -e "$AssemblerOutDir/assembly.gfa");
     }

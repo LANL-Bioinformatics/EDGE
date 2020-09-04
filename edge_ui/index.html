@@ -1082,7 +1082,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain"><label for="edge-unicycler-min-lreads">Minimum Long Reads Cutoff (bp)</label><input type="number" data-mini="true" data-clear-btn="true" name="edge-unicycler-min-lreads" id="edge-unicycler-min-lreads" value="2000" min="1000"></div>
 			</div>
 			<div id="edge-lrasm-parameters" class="edge-assembler-parameters">
-				<p class="edge_tool_note"><a href="https://gitlab.com/chienchi/long_read_assembly" target="_blank">LRASM</a> is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using minimap2/miniasm and use racon to perform consensus.</p>
+				<p class="edge_tool_note"><a href="https://gitlab.com/chienchi/long_read_assembly" target="_blank">LRASM</a> is designed for long noise reads such as reads from Nanopore and it assemble fastq/fasta formatted reads using miniasm/wtdbg2/flye and use racon to perform consensus.</p>
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Algorithm<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-lrasm-algorithm-tooltip"></a></legend>
@@ -1090,6 +1090,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					<label for="edge-lrasm-algorithm1">miniasm</label>
 					<input type="radio" name="edge-lrasm-algorithm" id="edge-lrasm-algorithm2" value="wtdbg2">
 					<label for="edge-lrasm-algorithm2">wtdbg2</label>
+					<input type="radio" name="edge-lrasm-algorithm" id="edge-lrasm-algorithm3" value="flye">
+					<label for="edge-lrasm-algorithm3">flye</label>
+					<input type="radio" name="edge-lrasm-algorithm" id="edge-lrasm-algorithm4" value="metaflye">
+					<label for="edge-lrasm-algorithm4">metaFlye</label>
 				</fieldset>
 				</div>
 				<div class="ui-field-contain">
@@ -2319,7 +2323,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
         		<label for="UpdateProfile-password" class="ui-hidden-accessible">New Password</label>
         		<input type="password" name="UpdateProfile-password" id="UpdateProfile-password" value="" placeholder="New password" autocomplete="new-password">
         		<input type="password" name="UpdateProfile-password-confirm" id="UpdateProfile-password-confirm" value="" placeholder="Confirm password" autocomplete="new-password">
-			<div class="edge-popup-container" style="display: none;">
+			<div class="edge-popup-container" style="">
 				<label for="SysProp-bg-color">Background Color</label>
 				<input type='text' data-role="none" data-mini="true" id='SysProp-bg-color' name='color' class="colorpicker no-show-logout">
 			</div>

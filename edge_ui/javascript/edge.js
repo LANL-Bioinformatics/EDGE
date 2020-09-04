@@ -773,7 +773,6 @@ $( document ).ready(function()
 	if (! /localhost|127.0.0./.test(location.hostname.toString().toLowerCase())){
 		$( "#docker-file-transfer" ).hide();
 	}
-	
 	// initalize tooltipster
 	$('.tooltip').tooltipster({
 		theme:'tooltipster-light',
@@ -825,7 +824,7 @@ $( document ).ready(function()
 		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
- 		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy.</span>')
+ 		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy. <a href="https://github.com/fenderglass/Flye" target="_blank">Flye</a> is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. metaFlye is a special mode of Flye for metagenome assembly. </span>')
  	);
 
 	// filter serach callBack function
@@ -885,7 +884,6 @@ $( document ).ready(function()
 
 	function inputSourceCheck(obj){
 		if ( $(obj).val() == "sra" ){
-			//console.log("sra");
 			$( "#edge-fasta-input-block").hide();
 			$( '#edge-fastq-input-block').hide();
 			$( "#edge-sra-input-block" ).fadeIn('fast');
@@ -1369,7 +1367,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				console.log(data);
-				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+				showWarning("ACTION FAILED(setUserList): Please try again or contact your system administrator.");
 			}
 		});
 	}
@@ -1465,7 +1463,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
-				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+				showWarning("ACTION FAILED(actionConfirm): Please try again or contact your system administrator.");
 
 			}
 		});
@@ -1499,7 +1497,7 @@ $( document ).ready(function()
 				}
 			},
 			error: function(obj){
-				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+				showWarning("ACTION FAILED(checkprocess): Please try again or contact your system administrator.");
 			}
 		});
 		
@@ -2592,7 +2590,7 @@ $( document ).ready(function()
 			cache: false,
 			data: { "proj" : focusProjName, 'forceupdate': force, 'umSystem':umSystemStatus, 'protocol':location.protocol, 'sid':localStorage.sid },
 			beforeSend: function(){
-                                $(".edge-info-error").fadeOut().remove(); //clear div
+				$(".edge-info-error").fadeOut().remove(); //clear div
 			},
 			complete: function(data){
 				/*
@@ -3044,7 +3042,7 @@ $( document ).ready(function()
                 $("#edge-hostrm-file-fromlist").selectmenu( "refresh" );
         });
         
-	function setRunPipeline(pipeline,resetflag) {
+	function setRunPipeline(pipeline,resetflag,reconfigflag) {
 		allMainPage.hide();
 		toggle_input_fields("enable");
 		$('#edge-form-reconfig-rerun').closest('.ui-btn').hide();
@@ -3069,7 +3067,9 @@ $( document ).ready(function()
 			inputSourceCheck($( ":radio[name='edge-inputS-sw']:checked"));
 			//reset metadata form
 			resetMetadata();
-			sync_input();
+			if (!reconfigflag){
+				sync_input();
+			}
 			edge_ui_init();
 			collapsible_select_sync();
 		}
@@ -3253,10 +3253,10 @@ $( document ).ready(function()
 					$('#'+key).val(value);
 				}
 			});	
-
+			
+			
 			//clean batch input, reconfig only work on single project
  			$( "#edge-batch-input-excel-1").val('');
-
 			sync_input('reconfig');
 			$( "#edge-content-pipeline").find( "input:radio[id^='edge']" ).each( function(){
 				if ($("label[for='" + $(this).attr('id') + "']").hasClass('ui-radio-on')){
@@ -3264,14 +3264,15 @@ $( document ).ready(function()
 						obj = $(this);
 						setTimeout( function() { obj.trigger('change');},300 );
 					}else{
-						//$(this).trigger('change');
 						$(this).trigger('click');
+						$(this).trigger('change');
+				//		console.log($(this).attr('id'),$('#edge-lrasm-parameters').is(':visible'))
 					}
 				}
 			});
 			//loading pipeline
 			pipeline = data['pipeline'];
-			setRunPipeline(pipeline);
+			setRunPipeline(pipeline,false,true);
 			$('#edge-form-reconfig-rerun').closest('.ui-btn').show();
 			$('#edge-form-submit').closest('.ui-btn').hide();
 			$('#edge-form-reset').closest('.ui-btn').hide();
@@ -4125,7 +4126,7 @@ $( document ).ready(function()
 			},
 			error: function(data){
 				$.mobile.loading( "hide" );
-				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+				showWarning("ACTION FAILED(report_actionConfirm): Please try again or contact your system administrator.");
 
 			}
 		});
@@ -4177,14 +4178,15 @@ $( document ).ready(function()
 							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else if(obj.PLATFORM && /pacbio/.test(obj.PLATFORM.toString().toLowerCase())){
-							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-							$("#edge-pp-sw").val(0).slider("refresh");
-							$("#edge-qc-sw2").click().checkboxradio("refresh");
-							$('#edge-r2c-aligner-options').val("-x map-pb")
-							$('#edge-r2g-aligner-options').val("-x map-pb")
-							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Quality Trim and Filter Off.";
-							showWarning(msg);
-						}else{
+                                                        $('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+                                                        $("#edge-pp-sw").val(0).slider("refresh");
+                                                        $("#edge-qc-sw2").click().checkboxradio("refresh");
+                                                        $('#edge-r2c-aligner-options').val("-x map-pb")
+                                                        $('#edge-r2g-aligner-options').val("-x map-pb")
+                                                        var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Quality Trim and Filter Off.";
+                                                        showWarning(msg);
+                                                }
+						else{
 							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");
 						}
 					}else{
