@@ -2423,6 +2423,9 @@ $( document ).ready(function()
 			cache: false,
 			data: { "proj" : focusProjName, "sid":localStorage.sid, "action":"create-batch-form", "userDir":localStorage.udir },
 			beforeSend: function(){
+				if ($('#edge-gisaid-upload-form').length){
+					$('#edge-gisaid-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
@@ -4280,6 +4283,9 @@ $( document ).ready(function()
 			cache: false,
 			data: { "proj" : focusProjName, "projname":focusProjRealName, "sid":localStorage.sid, "action":"create-form", "userDir":localStorage.udir },
 			beforeSend: function(){
+				if ($('#edge-gisaid-batch-upload-form').length){
+					$('#edge-gisaid-batch-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
