@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import os
 import time
@@ -18,7 +18,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def parse_params():
     p = ap.ArgumentParser(prog='gisaid_EpiCoV_uploader.py',
-                          description="""Download all EpiCoV sequcnes from GISAID""")
+                          description="""SARS-CoV2 sequcnes submit to GISAID""")
 
     p.add_argument('-u', '--username',
                    metavar='[STR]', nargs=1, type=str, required=True,
@@ -51,13 +51,19 @@ def parse_params():
     p.add_argument('--headless',
                    action='store_true', help='turn on headless mode')
 
+    p.add_argument('--debug',
+                   action='store_true', help='turn on debug mode')
+
+    p.add_argument('--version', action='version', version='%(prog)s 1.0.0')
+
     args_parsed = p.parse_args()
     return args_parsed
 
-def quit_driver(driver):
+def quit_driver(driver, outdir):
+    screenshot= driver.get_screenshot_as_file(outdir+"/exit_gisaid_screenshot.png")
     driver.quit()
 
-def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
+def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless, debug):
     """Download sequences and metadata from EpiCoV GISAID"""
 
     # add sequence to metadata
@@ -84,8 +90,8 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
     driver = webdriver.Firefox(firefox_profile=profile, options=options)
 
     ## quit the browser if there is any raised exception
-    atexit.register(quit_driver,driver)
-	
+    atexit.register(quit_driver,driver,outdir)
+
     # driverwait
     driver.implicitly_wait(20)
     wait = WebDriverWait(driver, to)
@@ -115,41 +121,32 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
     waiting_sys_timer(wait)
 
     # access uploading page
-    print("Access uploading page...")
+    print("Accessing uploading page...")
     upload_tab = wait.until(EC.element_to_be_clickable(
         (By.CSS_SELECTOR, 'div.sys-actionbar-action:nth-child(4)')))
     upload_tab.click()
     waiting_sys_timer(wait)
 
-    iframe = None
-    retry = 1
-    while retry <= rt:
-        try:
-            iframe = driver.find_element_by_xpath("//iframe")
-            if iframe:
-                break
-            else:
-                raise
-        except:
-            print(f"retrying...#{retry} in {iv} sec(s)")
-            if retry == rt:
-                print("Failed")
-                sys.exit(1)
-            else:
-                time.sleep(iv)
-                retry += 1
-    
-    driver.switch_to.frame(iframe)
+    # WARNING: different users might have different uploading options
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, "//iframe")))
+        iframe = driver.find_element_by_xpath("//iframe")
+        if iframe.is_displayed() and iframe.get_attribute('id').startswith('sysoverlay'):
+            print("Popup window detected...")
+            driver.switch_to.frame(iframe)
+            button = wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//td[1]"))
+            )
+            
+            print("Choosing single upload option...")
+            #button = driver.find_element_by_xpath('//td[1]')
+            button.click()
 
-    button = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//td[1]"))
-    )
-    #button = driver.find_element_by_xpath('//td[1]')
-    button.click()
-
-    driver.switch_to.default_content()
-    waiting_sys_timer(wait)
+            driver.switch_to.default_content()
+            waiting_sys_timer(wait)
+    except:
+        pass
 
     # keyword mapping
     entry_keys_mapping = {
@@ -196,6 +193,10 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
             num += 1
     
     waiting_sys_timer(wait)
+    
+    if debug:
+        screenshot= driver.get_screenshot_as_file(outdir+"/submit_gisaid_screenshot.png")
+        return
 
     if not headless:
         # wait until the user to close browser
@@ -208,8 +209,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
                 break
             time.sleep(1)
     else:
-        #print("Get Button")
-        button = driver.find_element_by_xpath("//button[contains(text(), 'Submit for Review')]")
+        button = driver.find_element_by_xpath('//button[contains(text(), "Submit for Review")]')
         button.click()
         waiting_sys_timer(wait)
         
@@ -218,6 +218,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadata, to, rt, iv, headless):
             if msg.is_displayed():
                 print(msg.text)
 
+        screenshot= driver.get_screenshot_as_file(outdir+"/submit_gisaid_screenshot.png")
     # close driver
     driver.quit()
 
@@ -279,18 +280,21 @@ def main():
 
     seq = parseFasta(argvs.fasta)
     metadata = parseMetadata(argvs.metadata)
+    outdir= os.path.dirname(argvs.metadata.name)
 
     fill_EpiCoV_upload(
         argvs.username,
         argvs.password,
+        outdir,
         seq,
         metadata,
         argvs.timeout,
         argvs.retry,
         argvs.interval,
         argvs.headless,
+        argvs.debug,
     )
-    print("Completed.")
+    print("GISAID submit Completed.")
 
 
 if __name__ == "__main__":

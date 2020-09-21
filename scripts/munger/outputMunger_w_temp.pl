@@ -676,10 +676,10 @@ sub pull_sampleMetadata {
 		$vars->{OUT_SAMPLE_METADATA}   = 1;
 		$vars->{SAMPLEMETADATA} = "metadata_sample.txt";
 	}
-	my $metadata_gisaid = "$out_dir/metadata_gisaid.txt";
+	my $metadata_gisaid = "$out_dir/metadata_gisaid_ncbi.txt";
 	if ( -e $metadata_gisaid){
 		$vars->{GISAID_SAMPLE_METADATA}   = 1;
-		$vars->{SAMPLEMETADATA} = "metadata_gisaid.txt";
+		$vars->{SAMPLEMETADATA} = "metadata_gisaid_ncbi.txt";
 		open my $META_fh,  "<", $metadata_gisaid or die "Cannot open $metadata_gisaid $!";
 		while(<$META_fh>){
 			chomp;
@@ -698,11 +698,11 @@ sub pull_sampleMetadata {
 		}
 	}
 
-	my $gisiad_file = "$out_dir/gisaid_submission.txt";
+	my $gisiad_file = "$out_dir/UPLOAD/gisaid_ncbi_submission.txt";
 	if (-e $gisiad_file){
-		$vars->{SAMPLEMETADATA} = "gisaid_submission.txt";
+		$vars->{SAMPLEMETADATA} = "gisaid_ncbi_submission.txt";
 	}
-	my $gisaid_done = "$out_dir/gisaid_submission.done";
+	my $gisaid_done = "$out_dir/UPLOAD/gisaid_ncbi_submission.done";
 	if(-e $gisaid_done){
 		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]); 
 		$vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;

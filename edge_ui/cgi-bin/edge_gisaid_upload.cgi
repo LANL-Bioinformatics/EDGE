@@ -22,6 +22,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
+my $debug= "--debug";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -31,7 +32,8 @@ my $msg;
 # 	                ->{1}...
 
 #	$msg->{SUBMISSION_STATUS}
-#	$msg->{PATH}   # file for action download 
+#	$msg->{PATH}   # file for action download or log to display
+#	$msg->{PID}   # process id of child program exectue in the background
      
 #######################################################################################
 
@@ -82,7 +84,7 @@ if($action eq "create-form") {
 	}
 	my $projDir = $relpath . "/". $projCode;
 	chdir $edgeui_wwwroot;
-	my $outHtml = "$projDir/GISAID/upload.html";
+	my $outHtml = "$projDir/UPLOAD/upload.html";
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/metadata/outputGisaidMetadata_w_temp.pl $projDir $outHtml $prealname $profileDir";
 	`$cmd`;
@@ -136,18 +138,21 @@ if($action eq "create-form") {
 	$msg->{SUBMISSION_STATUS}="success";
 
 	# validating parameters
-	&checkParams();
+	&checkParams() if ($action eq 'upload2gisaid');
 	if($msg->{SUBMISSION_STATUS} eq "failure") {
 		returnParamsStatus();
 	}
 
 	my $projDir = $edgeui_output . "/". $projCode;
+	my $upload_content_dir = "$projDir/UPLOAD";
 	my $projDir_rel = $relpath . "/". $projCode;
+	my $upload_content_reldir = "$projDir_rel/UPLOAD";
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
+	my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
 	if(-e $projDir) {
 		#sample metadata
-		my $gisaid_done = "$projDir/gisaid_submission.done";
-		my $metadata_out= "$projDir/gisaid_submission.txt";
+		my $gisaid_done = "$upload_content_dir/gisaid_ncbi_submission.done";
+		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
 		my $selected_consensus = $opt{'metadata-sample-consensus'};
 		$selected_consensus =~ s/::/ /g;
 		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
@@ -157,19 +162,17 @@ if($action eq "create-form") {
 		#gisaid profile
 		writeProfile($profileDir);
 		#create an input file for submission pipeline
-		writeSubmissionFile($projDir,$selected_consensus);
+		writeSubmissionFile($projDir,$selected_consensus,$submit_metadata_out);
 
-		unlink "$projDir/HTML_Report/.complete_report_web";
+		unlink "$projCompleteReport_cache";
 		if ($action eq "update"){
 			&returnParamsStatus();
 		}
-
-		my $cmd;
 		if ($action eq "download"){
 			# download
-			my $zip_file = "$projDir/GISAID/${prealname}_gisaid_data.zip";
-			my $zip_file_rel = "$projDir_rel/GISAID/${prealname}_gisaid_data.zip";
-			$cmd = "zip -j $zip_file $metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
+			my $zip_file = "$upload_content_dir/${prealname}_metadata.zip";
+			my $zip_file_rel = "$upload_content_reldir/${prealname}_metadata.zip";
+			my $cmd = "zip -j $zip_file $submit_metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
 			`$cmd`;
 			$msg->{PATH} = $zip_file_rel;
 			addMessage("DOWNLOAD","failure","failed to zip metadata for downloading") unless (-e $zip_file);
@@ -179,33 +182,42 @@ if($action eq "create-form") {
 		#call gisaid upload 
 		my $fasta = `ls $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta`;
 		chomp $fasta;
-		$cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
-		$cmd .= " -f $fasta --headless | tee $projDir/GISAID/submit.log";
-		open (my $fh,">","$projDir/GISAID/submit.sh");
-		print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
-		print $fh $cmd,"\n";
-		close $fh;
-		#my $return=`/bin/bash $projDir/GISAID/submit.sh`;
+		my $submit_log = "$upload_content_dir/submit.log";
+		my $submit_current_log = "$upload_content_dir/submit_current.log";
+		my $submit_script = "$upload_content_dir/submit.sh";
+		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} ." -f $fasta --headless $debug 2>\&1 | tee -a $submit_log";
+		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " -f $fasta --headless $debug 2>\&1 | tee -a $submit_log";
+
+		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $gisaid_done, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ('/bin/bash', "$projDir/GISAID/submit.sh");
+			or exec ("/bin/bash $submit_script > $submit_current_log &");
+		if (not defined $pid ){
+			$msg->{SUBMISSION_STATUS}="failure";
+		}else{
+			$msg->{PID} = ++$pid;
+			$msg->{PATH} = "$upload_content_reldir/submit_current.log";
+			addMessage("SUBMIT",'success',"See the log window for status.");
+		}
+		#or exec ('/bin/bash', "$upload_content_dir/submit.sh");
 		#create .done file after successful submission
-		while(<$script_fh>){
-			if ($_ =~ /Complete/i){
-				&touchFile($gisaid_done);
-			}
-		}
-		if ( ! -e "$gisaid_done"){
-				$msg->{SUBMISSION_STATUS}="failure";
-		}
-		unlink "$projDir/GISAID/submit.sh";
+		#while(<$script_fh>){
+		#	if ($_ =~ /Complete/i){
+		#		&touchFile($gisaid_done);
+		#	}
+		#}
+		#if ( ! -e "$gisaid_done"){
+		#		$msg->{SUBMISSION_STATUS}="failure";
+		#}
+		#unlink "$upload_content_dir/submit.sh";
+		#unlink $projCompleteReport_cache;
 		
 	} else {
 		addMessage("$action","failure","Cannot find Project $prealname direcotry!");
 	}
 
 	#delete HTML_Report/.complete_report_web
-	unlink "$projDir/HTML_Report/.complete_report_web";
+	unlink $projCompleteReport_cache;
 
 }elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2gisaid"){
 	# init status
@@ -232,6 +244,7 @@ if($action eq "create-form") {
 	my @sampleSequencingTech = split /[\x0]/,$opt{'metadata-sample-sequencing-techs'};
 	my @sampleConsensus = split /[\x0]/,$opt{'metadata-sample-consensus'};
 	my @gisaidDoneFiles;
+	my @projCompleteReport_cacheFiles;
 	foreach my $i (0..$#projCodes){
 		next if ! $selectedProjCode{$projCodes[$i]};
 		$opt{'metadata-virus-name'} = $virusNames[$i];
@@ -248,29 +261,37 @@ if($action eq "create-form") {
 		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
 		$consensus_ref =~ s/_?\d?$//g;
 		$selected_consensus = "Consensus to ". $selected_consensus;
-		#	print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
+		#print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
-		my $gisaidDone = "$projDir/gisaid_submission.done"; 
+		my $upload_content_dir = "$projDir/UPLOAD";
+		my $gisaidDone = "$upload_content_dir/gisaid_ncbi_submission.done"; 
+		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
+		my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
 		push @gisaidDoneFiles, $gisaidDone;
+		push @projCompleteReport_cacheFiles, $projCompleteReport_cache;
 		my $ownProjectFlag = 1 if ($ownProjlist->{$projCodes[$i]});
 		addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( $action eq "batch-upload2gisaid" && !$ownProjectFlag);
-		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2gisaid" && $gisaidDone);
-		checkParams($projNames[$i],$i);
+		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2gisaid" && -e $gisaidDone);
+		checkParams($projNames[$i],$i) if $action eq "batch-upload2gisaid";
 		writeMetaData($projDir,$selected_consensus);
 		#gisaid profile
 		writeProfile($profileDir);
 		#create an input file for submission pipeline
 		writeSubmissionFile($projDir,$selected_consensus);
-		unlink "$projDir/HTML_Report/.complete_report_web";
+		unlink $projCompleteReport_cache;
 	}
 	if ($action eq "batch-update"){
 		&returnParamsStatus();
 	}
 	my $date_str = strftime "%Y%m%d", localtime;
-	my $metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
+	my $batch_metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
 	my $all_sequences = "$metadata_out_dir/GISAID/all_sequences.fasta";
+	my $ncbi_all_sequences = "$metadata_out_dir/NCBI/all_sequences_ncbi.fasta";
 	my $metadata_NCBI_outdir = "$metadata_out_dir/NCBI";
-	system("$EDGE_HOME/scripts/metadata/export_metadata_xls.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$profileDir);
+	my $ncbi_source_tsvout = "$metadata_NCBI_outdir/source.src";
+	my $ncbi_comment_tsvout = "$metadata_NCBI_outdir/comment.cmt";
+	my $ncbi_submitter_profile =  "$metadata_NCBI_outdir/submitter_profile.txt";
+	system("$EDGE_HOME/scripts/metadata/export_metadata_xls.pl", "-out", "$batch_metadata_out", "-projects", "$projects", "-udir",$profileDir);
 	if ($action eq "batch-download"){
 		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
 		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
@@ -278,39 +299,33 @@ if($action eq "create-form") {
 		`$cmd`;
 		$msg->{PATH} = $zip_file_rel;
 
-		addMessage("BATCH-DOWNLOAD","failure","failed to export sample metadata to .xls file") unless (-e "$metadata_out" );
+		addMessage("BATCH-DOWNLOAD","failure","failed to export sample metadata to .xls file") unless (-e "$batch_metadata_out" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to export sample consensus fasta files") unless (-e "$all_sequences" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to zip exported file") unless (-e $zip_file );
 		&returnParamsStatus();
 	}
-	if ($msg->{SUBMISSION_STATUS}="success" && $action eq "batch-upload2gisaid"){
-		my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'};
-		$cmd .= " --headless | tee $metadata_out_dir/GISAID_submit.log";
-		open (my $fh,">","$metadata_out_dir/GISAID_submit.sh");
-		print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
-		print $fh $cmd,"\n";
-		close $fh;
-		#my $return=`/bin/bash $projDir/GISAID/submit.sh`;
+	if ($msg->{SUBMISSION_STATUS} eq "success" && $action eq "batch-upload2gisaid"){
+		my $submit_log = "$metadata_out_dir/submit.log";
+		my $submit_current_log = "$metadata_out_dir/submit_current.log";
+		my $submit_script = "$metadata_out_dir/submit.sh";
+		my $gisaid_cmd = "$EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $batch_metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
+		my $ncbi_cmd  = "$EDGE_HOME/scripts/NCBI_SARS-CoV2_batch_submitter.py -f $ncbi_all_sequences -s $ncbi_source_tsvout -c $ncbi_comment_tsvout -a $ncbi_submitter_profile -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
+
+		SetSubmitScript($submit_script, $submit_log, \@projCompleteReport_cacheFiles,\@gisaidDoneFiles, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ('/bin/bash', "$metadata_out_dir/GISAID_submit.sh");
-		#create .done file after successful submission
-		my $upload_success_flag=0;
-		my $error_msg;
-		while(<$script_fh>){
-			if ($_ =~ /ERROR.*:(.*)/i){
-				$error_msg = $1;
-				addMessage("BATCH-SUBMISSION","failure","$error_msg"); 
-			}
-			if ($_ =~ /Complete/i){
-				map {&touchFile($_)} @gisaidDoneFiles;
-				$upload_success_flag=1 if (!$error_msg);
-			}
+			or exec ("/bin/bash $submit_script > $submit_current_log &");
+		if (not defined $pid ){
+			$msg->{SUBMISSION_STATUS}="failure";
+		}else{
+			$msg->{PID} = ++$pid;
+			$msg->{PATH} = "$relative_outdir/submit_current.log";
+			addMessage("BATCH-SUBMIT",'success',"See the log window for status.");
 		}
-		if ( ! $upload_success_flag ){
-			addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/GISAID_submit.log");
-		}
-		unlink "$metadata_out_dir/GISAID_submit.sh";
+		#if ( ! $upload_success_flag ){
+		#		addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/gisaid_submit.log ncbi_submit.log");
+		#}
+		#unlink "$metadata_out_dir/submit.sh";
 
 	}
 }else {
@@ -330,7 +345,7 @@ sub touchFile{
 sub writeSubmissionFile{
 	my $outdir = shift;
 	my $selected_consensus = shift;
-	my $metadata_out = "$outdir/gisaid_submission.txt";
+	my $metadata_out = shift;
 	open my $ofh,  ">$metadata_out";
 	print $ofh <<"OUTMSG";
 virus_name=$opt{'metadata-virus-name'}
@@ -350,6 +365,7 @@ submitting_address=$opt{'metadata-sub-address'}
 authors=$opt{'metadata-authors'}
 submitter=$opt{'metadata-submitter'}
 gisaid_id=$opt{'metadata-gisaid-id'}
+ncbi_id=$opt{'metadata-ncbi-id'}
 coverage=$selected_consensus
 OUTMSG
 
@@ -360,7 +376,7 @@ OUTMSG
 sub writeMetaData{
 	my $outdir = shift;
 	my $selected_consensus = shift;
-	my $metadata_out = "$outdir/metadata_gisaid.txt";
+	my $metadata_out = "$outdir/metadata_gisaid_ncbi.txt";
 	my @virusName = split /[\x0]/, $opt{'metadata-virus-names'};
 	open my $ofh,  ">$metadata_out";
 	print $ofh <<"OUTMSG";
@@ -380,7 +396,7 @@ OUTMSG
 
 sub writeProfile{
 	my $dir = shift;
-	my $profile_out =  "$dir/gisaid_submission_profile.txt";
+	my $profile_out =  "$dir/gisaid_ncbi_submission_profile.txt";
 	if(-e $profile_out) {
 		open my $fh, $profile_out or die "Can't open $profile_out $!";
 		while(<$fh>){
@@ -389,6 +405,7 @@ sub writeProfile{
 			if ( /(.*)=(.*)/ ){
 				$opt{'metadata-submitter'} =$2 if ($1 eq "submitter" && !$opt{'metadata-submitter'});
 				$opt{'metadata-gisaid-id'} =$2 if ($1 eq "gisaid_id" && !$opt{'metadata-gisaid-id'});
+				$opt{'metadata-ncbi-id'} =$2 if ($1 eq "ncbi_id" && !$opt{'metadata-ncbi-id'});
 			}
 		}
 		close $fh;
@@ -403,8 +420,45 @@ submitting_address=$opt{'metadata-sub-address'}
 authors=$opt{'metadata-authors'}
 submitter=$opt{'metadata-submitter'}
 gisaid_id=$opt{'metadata-gisaid-id'}
+ncbi_id=$opt{'metadata-ncbi-id'}
 OUTMSG
 	close $ofh;
+}
+
+sub SetSubmitScript {
+	my $submit_script = shift;
+	my $submit_log = shift;
+	my $projCompleteReport_cache = shift;
+	my $gisaid_done = shift;
+	my $gisaid_cmd = shift;
+	my $ncbi_cmd = shift;
+	open (my $fh,">","$submit_script");
+	my $cmd = "cd $edgeui_wwwroot\nexport PYTHONUNBUFFERED=on\n";
+	$cmd .= "if [ -f $submit_log ] && (! grep -q 'GISAID submit Completed' $submit_log ) then\n";
+	$cmd .= "  $gisaid_cmd\n";
+	$cmd .= "else\n";
+	$cmd .= "  echo '# GISAID submit Complete already.'\n\n";
+	$cmd .= "fi\n";
+	$cmd .= "if ( ! grep -q 'NCBI submit Completed' $submit_log ) then\n";
+	$cmd .= "  $ncbi_cmd\n";
+	$cmd .= "else\n";
+	$cmd .= "  echo '# NCBI submit Completed already,'\n\n";
+	$cmd .= "fi\n";
+	$cmd .= "if ( grep -q 'GISAID submit Completed' $submit_log ) && ( grep -q 'NCBI submit Completed' $submit_log ) then\n";
+	if ( ref($gisaid_done) eq 'ARRAY'){
+		$cmd .= "  touch ". join(" ",@$gisaid_done) . "\n";
+	}else{
+		$cmd .= "  touch $gisaid_done\n";
+	}
+	$cmd .= "fi\n";
+	if ( ref($projCompleteReport_cache) eq 'ARRAY'){
+		$cmd .= "rm -f ". join(" ",@$projCompleteReport_cache) . "\n";
+	}else{
+		$cmd .= "unlink $projCompleteReport_cache\n";
+	}
+	print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
+	print $fh $cmd,"\n";
+	close $fh;
 }
 
 sub getUserProjFromDB{
@@ -659,5 +713,7 @@ sub checkParams {
 		&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});
 		&addMessage("PARAMS", "metadata-gisaid-id", "GISAID id is required.") unless ( $opt{'metadata-gisaid-id'});
 		&addMessage("PARAMS", "metadata-gisaid-pw", "GISAID password is required.") unless ( $opt{'metadata-gisaid-pw'});
+		&addMessage("PARAMS", "metadata-ncbi-id", "NCBI id is required.") unless ( $opt{'metadata-ncbi-id'});
+		&addMessage("PARAMS", "metadata-ncbi-pw", "NCBI password is required.") unless ( $opt{'metadata-ncbi-pw'});
 	}
 }

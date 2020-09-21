@@ -32,9 +32,12 @@ if (!$project_dir_names && !$html_outfile){ print "$usage\n";exit;}
 mkpath(dirname($html_outfile));
 
 my $info;
+my $index=0;
 foreach my $proj_dir (split /,/,$project_dir_names){
 	## Instantiate the variables
 	my $vars={};
+	$vars->{ROWINDEX} = $index;
+	$index++;
 	eval {
 		&pull_sampleMetadata($proj_dir,$vars);
 		&pull_consensusInfo($proj_dir,$vars);
@@ -62,7 +65,7 @@ sub output_html {
 sub check_submission_status{
 	my $out_dir=shift;
 	my $vars = shift;
-	my $gisaid_done = "$out_dir/gisaid_submission.done";
+	my $gisaid_done = "$out_dir/UPLOAD/gisaid_ncbi_submission.done";
 	if ( -e $gisaid_done){
 		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]);
                 $vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
@@ -125,7 +128,7 @@ sub pull_consensusInfo{
 sub pull_sampleMetadata {
 	my $out_dir=shift;
 	my $vars = shift;
-	my $metadata = "$out_dir/metadata_gisaid.txt";
+	my $metadata = "$out_dir/metadata_gisaid_ncbi.txt";
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
@@ -170,7 +173,7 @@ sub pull_sampleMetadata {
 
 sub pull_submissionData {
 	my $vars = shift;
-	my $metadata = "$userDir/gisaid_submission_profile.txt";
+	my $metadata = "$userDir/gisaid_ncbi_submission_profile.txt";
 	if(-e $metadata) {
 		open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
@@ -184,6 +187,7 @@ sub pull_submissionData {
              			$vars->{AUTHORS} =$2 if ($1 eq "authors");
              			$vars->{SUBMITTER} =$2 if ($1 eq "submitter");
              			$vars->{ID} =$2 if ($1 eq "gisaid_id");
+             			$vars->{NCBIID} =$2 if ($1 eq "ncbi_id");
               		}
       		  }
         	close CONF;

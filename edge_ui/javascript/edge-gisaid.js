@@ -1,5 +1,9 @@
 $( document ).ready(function()
 {
+	var checkpidInterval;
+	var newWindowHeader = "<html><head><title>EDGE COVID-19</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#02497e;'><h2 style='color:#fff;position:inherit; padding-left:20px;'>EDGE COVID-19</h2></div>";
+	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div><pre style='background-color: rgba(0,0,0,.8);overflow-y: auto;padding: 1em;'><code id='newWindownMsg' style='white-space: pre-wrap;color: white; font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;'></code></pre></body></html>";
+        var newTitle = "EDGE COVID-19";
 	var page = $( this );
 	$("table td, table th, .tooltip").tooltipster({multiple:true});
 	//with checkbox
@@ -58,16 +62,43 @@ $( document ).ready(function()
 	} );
 	// update/download batch form
 	$("#edge-gisaid-form-batch-update,#edge-gisaid-form-batch-download,#edge-gisaid-form-batch-submit").on( "click", function() {
-		var rows_selected_projCodes = ProjDataTable.column(0).checkboxes.selected();
-		var projs = rows_selected_projCodes.join();
-		if (rows_selected_projCodes.length === 0 ){
+		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "batch-download": (this.id.toLowerCase().indexOf("update") >= 0)? "batch-update": "batch-upload2gisaid";
+		var formDom = $("#edge-gisaid-batch-upload-form");
+		var rows_selected = ProjDataTable.column(0).checkboxes.selected();
+		//console.log(rows_selected);
+		var projCodes=[];
+		var projNames=[];
+		var NotReadyCon=[];
+		if (rows_selected.length === 0 ){
 			showWarning("There are no projects selected.");
 			return;
 		}
-		//console.log(rows_selected_projCodes);
-		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "batch-download": (this.id.toLowerCase().indexOf("update") >= 0)? "batch-update": "batch-upload2gisaid";
-		var formDom = $("#edge-gisaid-batch-upload-form");
-		gisaid_actions(projs,formDom,action);
+		rows_selected.each(function (item, index) {
+			var rowIdx = item;
+			var pname = $(ProjDataTable.cell(rowIdx,1).data()).eq(0).val();
+			var pcode = $(ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
+			console.log(rowIdx);
+			console.log($(ProjDataTable.cell(rowIdx,1).data()).eq(0).val());
+			projCodes.push(pcode);
+			projNames.push(pname);
+			var selectedCon = $(ProjDataTable.cell(rowIdx,11).data()).eq(0).children("option:selected").html();
+			console.log(selectedCon);
+			if (action == 'batch-upload2gisaid' && ! /Ready to Submit/.test(selectedCon)){
+				NotReadyCon.push(pname);
+			}
+
+		});
+		var projs = projCodes.join();
+		if (NotReadyCon.length){
+			var actionContent = "The consensus genoems of projects:<br/>" + NotReadyCon.join("<br/>") + ' <br/>&nbsp;&nbsp;are NOT Ready to Submit. Do you want to proceed? <p>This action can not be undone.</p>';
+			$("#edge_confirm_dialog_content").html(actionContent);
+			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				gisaid_actions(projs,formDom,action,projNames.join());
+                	});
+		}else{
+			gisaid_actions(projs,formDom,action,projNames.join());
+		}
 	});
 	( navigator.appVersion.indexOf("Mac")>=0)? $("#mac-scroll-bar-note").show():$("#mac-scroll-bar-note").hide();
 	
@@ -103,12 +134,25 @@ $( document ).ready(function()
 	$( "#edge-gisaid-form-submit,#edge-gisaid-form-download, #edge-gisaid-form-update" ).on( "click", function() {
 		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "download": (this.id.toLowerCase().indexOf("update") >= 0)? "update": "upload2gisaid";
 		var proj=$('#edge-output-projid').attr("data-pid");
+		var projname=$('#edge-project-title').text().replace(' /','');
 		var formDom = $("#edge-gisaid-upload-form");
-		gisaid_actions(proj,formDom,action);
+		var selectedCon = $('#metadata-sample-consensus').val();
+		if ( action == 'upload2gisaid' && ! /Ready to Submit/.test(selectedCon) ){
+			var actionContent = selectedCon + ' is NOT Ready to Submit. Do you want to proceed? <p>This action can not be undone.</p>';
+			$("#edge_confirm_dialog_content").html(actionContent);
+			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				gisaid_actions(proj,formDom,action,projname);
+                	});
+		}else{
+			gisaid_actions(proj,formDom,action,projname);
+		}
 		
 	});
 
-	function gisaid_actions(proj, form, action){
+	function gisaid_actions(proj, form, action, projname){
+		var w;
+		var info_dom_id = ( action.indexOf("batch") >=0 )? "edge-repo-batch-submit-info" : "edge-repo-submit-info";
 		$.ajax({
 				url: "./cgi-bin/edge_gisaid_upload.cgi",
 				type: "POST",
@@ -125,26 +169,28 @@ $( document ).ready(function()
 						textVisible: 1,
 						html: ""
 					});
+					if (action.toLowerCase().indexOf("upload2gisaid") >= 0){
+						w = window.open("","new","width=480,height=480");
+						w.document.body.innerHTML = '';
+						w.document.write( newWindowHeader + "Submit project(s) " + projname + " to GISAID and NCBI. Please wait..." + newWindowFooter);
+					}
 				},
 				complete: function(data) {
-					$.mobile.loading( "hide" );
-					$("#edge-submit-info").listview("refresh");
+					setTimeout(function(){ $.mobile.loading( "hide" );},300);
+					$("#" + info_dom_id).listview("refresh");
 				},
 				success: function(obj){
 					// display general submission error
 					$.each(obj, function(i,v){
-						if( i!="PARAMS" && i!="SUBMISSION_STATUS" && i!="PATH"){
+						if( i!="PARAMS" && i!="SUBMISSION_STATUS" && i!="PATH" && i!="PID"){
 							var dom;
 							if( this.STATUS == "failure" ){
 								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>"+i+": "+this.NOTE+"</a></li>";
 							}
 							else{
 								dom = "<li data-icon='info' class='list-info'><a href='#'>"+i+": "+this.NOTE+"</a></li>";
-								if ( i == "PROJECT_NAME"){
-									projID=this.NOTE.split(" ").pop();
-								}
 							}
-							$( "#edge-submit-info" ).append(dom).fadeIn("fast");
+							$( "#" + info_dom_id ).append(dom).fadeIn("fast").listview("refresh");
 						}
 					});
 
@@ -152,25 +198,23 @@ $( document ).ready(function()
 						$( ".highlight").removeClass("highlight");
 						if ( action.toLowerCase().indexOf("download") >= 0){
 							window.open(edge_path + obj.PATH);
-						}
-						if ( action.toLowerCase().indexOf("upload2gisaid") >= 0){
-							$( "#edge-submit-info" ).fadeIn("fast");
-							//show message
-							$( "#edge_integrity_dialog_header" ).text("Message");
-							$( "#edge_integrity_dialog_content" ).text("Your project was successfully submitted to the GISAID.");
-							setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
-							if (action == "batch-upload2gisaid"){
-								$( "#edge-gisaid-metadata-project-page" ).hide();
-								$( "#edge-project-page" ).show();
-							}else{
-								updateReport($('#edge-output-projid').attr("data-pid"));
+						}else{
+							if ( action.toLowerCase().indexOf("upload2gisaid") >= 0){
+								obj.w = w;
+								obj.spinner_id = 'newWindowSpinner';
+								obj.type = "submit";
+								obj.projname = projname;
+								if (obj.PID) {
+									checkpidInterval = setInterval(function(){check_process(obj)},3000);
+								}
+
 							}
-						}
-						if (action.toLowerCase().indexOf("update") >= 0){
-							$( "#edge_integrity_dialog_header" ).text("Message");
-							$( "#edge_integrity_dialog_content" ).text("Your project(s) metadata was successfully updated.");
-							setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
-							if (action == "batch-update"){
+							if (action.toLowerCase().indexOf("update") >= 0){
+								$( "#edge_integrity_dialog_header" ).text("Message");
+								$( "#edge_integrity_dialog_content" ).text("Your project(s) metadata was successfully updated.");
+								setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+							}
+							if (action.toLowerCase().indexOf("batch") >= 0 ){
 								$( "#edge-gisaid-metadata-project-page" ).hide();
 								$( "#edge-project-page" ).show();
 							}else{
@@ -187,10 +231,9 @@ $( document ).ready(function()
 									$("[name^='"+i+"']").eq(h).addClass("highlight");
 									$("#"+i).addClass("highlight");
 									$("#"+i).parents('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
-									$( "#edge-submit-info" ).fadeIn("fast");
 									var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>"+v+"</a></li>";
-							
-									$(dom).appendTo("#edge-submit-info").on("click", function(){
+									$( "#" + info_dom_id ).fadeIn("fast");
+									$(dom).appendTo("#" + info_dom_id).on("click", function(){
 										$('html, body').animate({
 											scrollTop: $("#"+i).offset().top-100
 										}, 200);
@@ -198,29 +241,32 @@ $( document ).ready(function()
 								});
 							});
 						}else{
-							$( "#edge-submit-info" ).fadeIn("fast");
 							var dom;
 							if ( action === "upload2gisaid"){
-								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID. Please check GISAID/submit.log in the project directory for detail.</a></li>";
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID & NCBI. Please check UPLOAD/submit.log in the project directory for detail.</a></li>";
 							}
 							if ( action === "batch-upload2gisaid"){
-								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID.</a></li>";
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to GISAID & NCBI.</a></li>";
 							}
-							$( "#edge-submit-info" ).append(dom).fadeIn("fast");
+							$( "#" + info_dom_id ).append(dom).fadeIn("fast");
+						}
+						if (w){
+							setTimeout(function(){ w.close(); },300);
 						}
 					}
 				
 					if( $(".list-info, .list-info-delete").size() ){
-						var h = $( "#edge-submit-info" ).outerHeight();
+						var h = $( "#" + info_dom_id ).outerHeight();
 						var h1 = parseInt(h)+100;
 						$('html, body').animate({ scrollTop: "+="+h1+"px" }, 500);
 					}
 
 				},
 				error: function(data){
-					$( "#edge-submit-info" ).fadeIn("fast");
 					var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to run gisaid submission CGI. Please check server error log for detail.</a></li>";
-					$( "#edge-submit-info" ).append(dom).fadeIn("fast");
+					$( "#" +info_dom_id ).append(dom).fadeIn("fast");
+					//listview("refresh");
+					if (w){ w.close();}
 				}
 			});
 	}
@@ -275,7 +321,87 @@ $( document ).ready(function()
 			}
 		});
 	}
+	function check_process(data){
+		var spinner_id = data.spinner_id;
+		var w = data.w;
+		$.ajax({
+			url: "./cgi-bin/edge_action.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: { "action": 'checkpid', "pid": data.PID,'protocol': location.protocol, 'sid':localStorage.sid},
+			success: function(obj){
+				if (data.type === "submit"){
+					var msgObj = $(w.document.body).find('#newWindownMsg');
+					getLog('./' + data.PATH, msgObj);
+				}
+				if( obj.STATUS == "DONE" ){
+					clearInterval(checkpidInterval);
+					if (spinner_id){
+						$('#' + spinner_id).removeClass("edge-sp edge-sp-circle");
+					}else{
+						$.mobile.loading( "hide");
+					}
+					if (data.type === "submit"){
+						var spinnerObj = $(w.document.body).find('#newWindowSpinner');
+						spinnerObj.removeClass("edge-sp edge-sp-circle");
+						var msgObj = $(w.document.body).find('#newWindownMsg');
+						getLog('./' + data.PATH, msgObj, data.projname, true);
+						//updateReport($('#edge-output-projid').attr("data-pid"));
+ 						//$('#get_download_link').after(data.LINK);
+ 						//$('#ddownload_link').addClass("ui-btn ui-mini ui-btn-inline ui-btn-active");
+ 					//	$('#ddownload_link').text('Download Project');
+					//	$('#get_download_link').hide();
+ 					//	showWarning(data.INFO + data.LINK + '.');
+					//	w.location = edge_path + data.PATH;
+					//	setTimeout(function(){
+					//		w.document.title = newTitle;
+					//		var newHeader= "<div style='background:#02497e;'><h2 style='position:inherit; padding-left:20px;' class='edge-header'>"+newTitle+"</h2></div>";
+					//		$(w.document.body).prepend(newHeader);
+					//	},300);
+					}else{
+					//	w.opener.location = edge_path + data.PATH;
+						setTimeout(function(){ w.close(); },300);
+					}
+					
+				}else{
+					//w.document.write(".");
+					//console.log(obj.INFO);
+				}
+			},
+			error: function(obj){
+				showWarning("ACTION FAILED: Please try again or contact your system administrator.");
+			}
+		});
+		
+	}
 
+	function getLog(texturl,dom,projname,end) {
+                $.ajax({
+                        url: texturl,
+                        dataType: 'text',
+                        cache: false,
+                        success: function(text) {
+                                dom.html(text);
+				if (end){
+					var msg;
+					if ( /GISAID submit Completed/.test(text) && /NCBI submit Completed/.test(text)){
+						msg = "Projects " + projname + " submmited to GISAID and NCBI sucessfully.";
+					}else if ( /GISAID submit Completed/.test(text) ){
+						msg = "Projects " + projname + " submmited to GISAID sucessfully. Please check log window for NCBI submission.";
+					}else if ( /NCBI submit Completed/.test(text) ){
+						msg = "Projects " + projname + " submmited to NCBI sucessfully. Please check log window for GISAID submission.";
+					}else{
+						msg = "Projects " + projname + " submission to GISAID and NCBI failed. Please check log window.";
+					}
+					showWarning(msg);
+				}
+                        },
+                        error: function(text) {
+                                dom.text("No log retrieved from " + texturl);
+                        }
+                })
+        };
 
 	function showWarning( dialog_content ) {
 		$( "#edge_integrity_dialog_content" ).html(dialog_content);

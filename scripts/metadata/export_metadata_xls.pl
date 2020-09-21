@@ -35,13 +35,15 @@ my ($file_prefix, $outputDir, $file_suffix)=fileparse("$out", qr/\.[^.]*/);
 mkpath("$outputDir/../NCBI");
 my $seqout = "$outputDir/all_sequences.fasta";
 my $seqoutNCBI = "$outputDir/../NCBI/all_sequences_ncbi.fasta";
+# clean up before start
+unlink $seqoutNCBI;
 my $source_tsvout = "$outputDir/../NCBI/source.src";
 my $comment_tsvout = "$outputDir/../NCBI/comment.cmt";
 ## https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
 my $submission_template = "$outputDir/../NCBI/template.sbt";
 ## not ready
 my $submitter_profile =  "$outputDir/../NCBI/submitter_profile.txt";
-copy("$userDir/gisaid_submission_profile.txt",$submitter_profile);
+copy("$userDir/gisaid_ncbi_submission_profile.txt",$submitter_profile);
 my $submission_xml = "$outputDir/../NCBI/submission.xml";
 unlink $seqout;
 
@@ -204,7 +206,7 @@ sub pull_consensusInfo{
 sub pull_sampleMetadata {
 	my $file_dir=shift;
 	my $vars=shift;
-        my $metadata = "$file_dir/metadata_gisaid.txt";
+        my $metadata = "$file_dir/metadata_gisaid_ncbi.txt";
         if(-e $metadata) {
                 open CONF, $metadata or die "Can't open $metadata $!";
                 while(<CONF>){
@@ -229,7 +231,7 @@ sub pull_sampleMetadata {
 sub pull_submissionData {
 	my $file_dir=shift;
 	my $vars=shift;
-        my $metadata = "$userDir/gisaid_submission_profile.txt";
+        my $metadata = "$userDir/gisaid_ncbi_submission_profile.txt";
         if(-e $metadata) {
                 open CONF, $metadata or die "Can't open $metadata $!";
                 while(<CONF>){

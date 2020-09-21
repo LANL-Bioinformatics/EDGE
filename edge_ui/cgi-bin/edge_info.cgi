@@ -189,7 +189,7 @@ if( scalar @projlist ){
 		}	
 	
 		## GISAID
-		my $gisaid_done = "$proj_dir/gisaid_submission.done";
+		my $gisaid_done = "$proj_dir/UPLOAD/gisaid_ncbi_submission.done";
 		if(!-e $gisaid_done){
 			$list->{$i}->{SHOWGISAID} = 1;
 		}else{
@@ -566,7 +566,7 @@ sub scanNewProjToList {
 			## END sample metadata
 
 			## GISAID
-			my $gisaid_done = "$out_dir/$file/gisaid_submission.done";
+			my $gisaid_done = "$out_dir/$file/UPLOAD/gisaid_ncbi_submission.done";
 			if(!-e $gisaid_done){
 				$list->{$cnt}->{SHOWGISAID} = 1;
 			}else{
@@ -765,7 +765,7 @@ sub getUserProjFromDB{
 		## END sample metadata
 		
 		## GISAID
-		my $gisaid_done = "$proj_dir/gisaid_submission.done";
+		my $gisaid_done = "$proj_dir/UPLOAD/gisaid_ncbi_submission.done";
 		if(!-e $gisaid_done){
 			$list->{$id}->{SHOWGISAID} = 1;
 		}

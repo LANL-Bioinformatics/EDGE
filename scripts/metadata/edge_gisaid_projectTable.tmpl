@@ -21,7 +21,7 @@
 	<tbody>
 		<TMPL_LOOP NAME=LOOP_METADATA>
 		<tr>
-			<td><TMPL_VAR NAME=PROJCODE></td>
+			<td><TMPL_VAR NAME=ROWINDEX></td>
 			<td><input type="hidden" data-mini="true" name="metadata-projnames" value="<TMPL_VAR NAME=PROJNAME DEFAULT=>"><input type="hidden" data-mini="true" name="metadata-projcodes" value="<TMPL_VAR NAME=PROJCODE DEFAULT=>"><a href='#' data-mini="true" class='edge-project-page-link ' data-pid='<TMPL_VAR NAME=PROJCODE>'><TMPL_VAR NAME=PROJNAME></a></td>
 			<td><input type="text" data-mini="true" name="metadata-virus-names" placeholder="" value="<TMPL_VAR NAME=VIR_NAME DEFAULT=>"></td>
 			<td><input type="text" data-mini="true" name="metadata-virus-passages" placeholder="" value="<TMPL_VAR NAME=VIR_PASSAGE DEFAULT=>"></td>
@@ -45,7 +45,7 @@
 					<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released DEFAULT=>>Released</option>
 					<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live DEFAULT=>>Live</option>
 					<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased DEFAULT=>>Deceased</option>
-					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_OTHER DEFAULT=>>Unknown</option>
+					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_Unknown DEFAULT=>>Unknown</option>
 				</select>
 			</td>
 			<td><input type="text" data-mini="true" name="metadata-sample-sequencing-techs" placeholder=""  value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"></td>
@@ -136,6 +136,16 @@
 				<input name="metadata-gisaid-pw" id="metadata-gisaid-pw" type="password"
 					class="metadata-input">
 			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-ncbi-id">NCBI ID</label>
+				<input name="metadata-ncbi-id" id="metadata-ncbi-id" type="text"
+ 					value="<TMPL_VAR NAME=NCBIID DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-ncbi-pw">NCBI Password</label>
+				<input name="metadata-ncbi-pw" id="metadata-ncbi-pw" type="password"
+					class="metadata-input">
+			</div>
 		</div>
 	</div>
 	<br /><br />
@@ -143,7 +153,7 @@
 
 <div class="edge-center">
 	<input data-mini="true" type="button" id="edge-gisaid-form-batch-submit" data-inline="true"
-			class="edge-center" value="Submit to GISAID">
+			class="edge-center" value="Submit to GISAID & NCBI">
 	<input data-mini="true" type="button" id="edge-gisaid-form-batch-update" data-inline="true"
 			class="edge-center" value="Update">
 	<input data-mini="true" type="button" id="edge-gisaid-form-batch-download" data-inline="true"
@@ -151,7 +161,7 @@
 	<input data-mini="true" type="button" id="edge-gisaid-form-batch-cancel" data-inline="true"
 			class="edge-center" value="Cancel">
 </div>
-<ul data-role="listview" data-inset="true" id="edge-submit-info">
+<ul data-role="listview" data-inset="true" id="edge-repo-batch-submit-info">
 <!-- <li data-role="list-divider">Information</li> -->
 </ul>
 </form>

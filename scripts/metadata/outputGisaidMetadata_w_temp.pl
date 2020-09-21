@@ -37,14 +37,14 @@ sub output_html {
 								       die_on_bad_params => 0);
 	$template->param(%$vars);
 
-	system("mkdir -p $out_dir/"."GISAID");
+	system("mkdir -p $out_dir/"."UPLOAD");
 
 	open(my $htmlfh, ">$html_outfile") or die $!;
 	print $htmlfh $template->output();
 	close ($htmlfh);
 }
 sub check_submission_status{
-	my $gisaid_done = "$out_dir/gisaid_submission.done";
+	my $gisaid_done = "$out_dir/UPLOAD/gisaid_ncbi_submission.done";
 	if ( -e $gisaid_done){
 		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]);
                 $vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
@@ -101,7 +101,7 @@ sub pull_consensusInfo{
 	close $config_fh
 }
 sub pull_sampleMetadata {
-	my $metadata = "$out_dir/metadata_gisaid.txt";
+	my $metadata = "$out_dir/metadata_gisaid_ncbi.txt";
 	if(-e $metadata) {
         	open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
@@ -145,7 +145,7 @@ sub pull_sampleMetadata {
 }
 
 sub pull_submissionData {
-	my $metadata = "$userDir/gisaid_submission_profile.txt";
+	my $metadata = "$userDir/gisaid_ncbi_submission_profile.txt";
 	if(-e $metadata) {
 		open CONF, $metadata or die "Can't open $metadata $!";
         	while(<CONF>){
@@ -159,6 +159,7 @@ sub pull_submissionData {
              			$vars->{AUTHORS} =$2 if ($1 eq "authors");
              			$vars->{SUBMITTER} =$2 if ($1 eq "submitter");
              			$vars->{ID} =$2 if ($1 eq "gisaid_id");
+             			$vars->{NCBIID} =$2 if ($1 eq "ncbi_id");
               		}
       		  }
         	close CONF;

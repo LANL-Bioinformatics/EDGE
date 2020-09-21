@@ -47,7 +47,7 @@
 					GISAID
 			</h2>
 			<TMPL_IF NAME="GISAID_SUBMIT_TIME">
-                        <mark>This project was uploaded to GISAID on <TMPL_VAR NAME=GISAID_SUBMIT_TIME DEFAULT=-></mark><br/>
+                        <mark>This project was uploaded to GISAID and NCBI on <TMPL_VAR NAME=GISAID_SUBMIT_TIME DEFAULT=-></mark><br/>
                         </TMPL_IF>
 
 			<form id="edge-gisaid-upload-form">
@@ -129,7 +129,7 @@
 									<option value="Released" <TMPL_VAR NAME=SM_STATUS_Released>>Released</option>
 									<option value="Live" <TMPL_VAR NAME=SM_STATUS_Live>>Live</option>
 									<option value="Deceased" <TMPL_VAR NAME=SM_STATUS_Deceased>>Deceased</option>
-									<option value="Unknown" <TMPL_VAR NAME=SM_STATUS_OTHER>>Unknown</option>
+									<option value="Unknown" <TMPL_VAR NAME=SM_STATUS_Unknown>>Unknown</option>
 								</select>
 							</div>
 							<div class="ui-field-contain">
@@ -217,6 +217,17 @@
 								<input name="metadata-gisaid-pw" id="metadata-gisaid-pw" type="password"
 									class="metadata-input">
 							</div>
+							<div class="ui-field-contain">
+								<label for="metadata-ncbi-id">NCBI ID</label>
+								<input name="metadata-ncbi-id" id="metadata-ncbi-id" type="text"
+									value="<TMPL_VAR NAME=NCBIID DEFAULT=>" class="metadata-input">
+							</div>
+
+							<div class="ui-field-contain">
+								<label for="metadata-ncbi-pw">NCBI Password</label>
+								<input name="metadata-ncbi-pw" id="metadata-ncbi-pw" type="password"
+									class="metadata-input">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -225,7 +236,7 @@
 				<div class="edge-center">
 					<TMPL_UNLESS NAME="GISAID_SUBMIT_TIME">
 					<input data-mini="true" type="button" id="edge-gisaid-form-submit" data-inline="true"
-						class="edge-center" value="Submit to GISAID">
+						class="edge-center" value="Submit to GISAID & NCBI">
 					</TMPL_UNLESS>
 					<input data-mini="true" type="button" id="edge-gisaid-form-update" data-inline="true"
 						class="edge-center" value="Update">
@@ -236,7 +247,7 @@
 					<input data-mini="true" type="button" id="edge-gisaid-form-reset" data-inline="true"
 						class="edge-center" value="Reset">
 				</div>
-				<ul data-role="listview" data-inset="true" id="edge-submit-info">
+				<ul data-role="listview" data-inset="true" id="edge-repo-submit-info">
 					<!-- <li data-role="list-divider">Information</li> -->
 				</ul>
 			</form>
