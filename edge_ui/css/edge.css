@@ -503,20 +503,23 @@ pre code {
 	background:#f6f6f6;
 }
 
-#edge-submit-info > li
+#edge-submit-info > li,
+#edge-repo-submit-info > li
 {
 	line-height: 1em;
 	font-size: 0.9em;
 	font-weight: 700;
 }
 
-#edge-submit-info > li > a
+#edge-submit-info >li > a,
+#edge-repo-submit-info > li > a
 {
 	line-height: 1em;
 	font-size: 0.9em;
 }
 
-#edge-submit-info > li.list-info > a {
+#edge-submit-info > li.list-info > a,
+#edge-repo-submit-info > li.list-info > a {
 	background-color: #5cb85c;
 	color: #fff;
 	text-shadow: 0 2px 0 #387f38 !important;

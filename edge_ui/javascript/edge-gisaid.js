@@ -2,7 +2,7 @@ $( document ).ready(function()
 {
 	var checkpidInterval;
 	var newWindowHeader = "<html><head><title>EDGE COVID-19</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#02497e;'><h2 style='color:#fff;position:inherit; padding-left:20px;'>EDGE COVID-19</h2></div>";
-	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div><pre style='background-color: rgba(0,0,0,.8);overflow-y: auto;padding: 1em;'><code id='newWindownMsg' style='white-space: pre-wrap;color: white; font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;'></code></pre></body></html>";
+	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div><pre style='background-color: rgba(0,0,0,.8);overflow-y: auto;padding: 1em;'><code id='newWindowMsg' style='white-space: pre-wrap;color: white; font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;'></code></pre></body></html>";
         var newTitle = "EDGE COVID-19";
 	var page = $( this );
 	$("table td, table th, .tooltip").tooltipster({multiple:true});
@@ -94,7 +94,7 @@ $( document ).ready(function()
 			$("#edge_confirm_dialog_content").html(actionContent);
 			$('#edge_confirm_dialog').enhanceWithin().popup('open');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-				gisaid_actions(projs,formDom,action,projNames.join());
+				gisaid_actions(projs,formDom,action,projNames.join());$('#metadata-sample-consensus').html()
                 	});
 		}else{
 			gisaid_actions(projs,formDom,action,projNames.join());
@@ -136,7 +136,7 @@ $( document ).ready(function()
 		var proj=$('#edge-output-projid').attr("data-pid");
 		var projname=$('#edge-project-title').text().replace(' /','');
 		var formDom = $("#edge-gisaid-upload-form");
-		var selectedCon = $('#metadata-sample-consensus').val();
+		var selectedCon = $('#metadata-sample-consensus').children("option:selected").html();
 		if ( action == 'upload2gisaid' && ! /Ready to Submit/.test(selectedCon) ){
 			var actionContent = selectedCon + ' is NOT Ready to Submit. Do you want to proceed? <p>This action can not be undone.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
@@ -172,12 +172,12 @@ $( document ).ready(function()
 					if (action.toLowerCase().indexOf("upload2gisaid") >= 0){
 						w = window.open("","new","width=480,height=480");
 						w.document.body.innerHTML = '';
-						w.document.write( newWindowHeader + "Submit project(s) " + projname + " to GISAID and NCBI. Please wait..." + newWindowFooter);
+						w.document.write( newWindowHeader + "<p id='newWindowInfo'>Submit project(s) " + projname + " to GISAID and NCBI. Please wait...</p>" + newWindowFooter);
 					}
 				},
 				complete: function(data) {
-					setTimeout(function(){ $.mobile.loading( "hide" );},300);
 					$("#" + info_dom_id).listview("refresh");
+					setTimeout(function(){ $.mobile.loading( "hide" );},1000);
 				},
 				success: function(obj){
 					// display general submission error
@@ -190,7 +190,7 @@ $( document ).ready(function()
 							else{
 								dom = "<li data-icon='info' class='list-info'><a href='#'>"+i+": "+this.NOTE+"</a></li>";
 							}
-							$( "#" + info_dom_id ).append(dom).fadeIn("fast").listview("refresh");
+							$( "#" + info_dom_id ).append(dom).listview("refresh").fadeIn("fast");
 						}
 					});
 
@@ -218,7 +218,7 @@ $( document ).ready(function()
 								$( "#edge-gisaid-metadata-project-page" ).hide();
 								$( "#edge-project-page" ).show();
 							}else{
-								updateReport($('#edge-output-projid').attr("data-pid"));
+								//setTimeout(function(){ updateReport($('#edge-output-projid').attr("data-pid"));},3000);
 							}
 						}
 					}
@@ -332,7 +332,7 @@ $( document ).ready(function()
 			data: { "action": 'checkpid', "pid": data.PID,'protocol': location.protocol, 'sid':localStorage.sid},
 			success: function(obj){
 				if (data.type === "submit"){
-					var msgObj = $(w.document.body).find('#newWindownMsg');
+					var msgObj = $(w.document.body).find('#newWindowMsg');
 					getLog('./' + data.PATH, msgObj);
 				}
 				if( obj.STATUS == "DONE" ){
@@ -345,7 +345,11 @@ $( document ).ready(function()
 					if (data.type === "submit"){
 						var spinnerObj = $(w.document.body).find('#newWindowSpinner');
 						spinnerObj.removeClass("edge-sp edge-sp-circle");
-						var msgObj = $(w.document.body).find('#newWindownMsg');
+						var msgObj = $(w.document.body).find('#newWindowMsg');
+						var infoObj = $(w.document.body).find('#newWindowInfo');
+						infoObj.text(function(){
+							return $(this).text().replace("Please wait...","");
+						});
 						getLog('./' + data.PATH, msgObj, data.projname, true);
 						//updateReport($('#edge-output-projid').attr("data-pid"));
  						//$('#get_download_link').after(data.LINK);

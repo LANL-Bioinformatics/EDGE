@@ -22,7 +22,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= "--debug";
+my $debug= "";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -209,7 +209,7 @@ if($action eq "create-form") {
 		#if ( ! -e "$gisaid_done"){
 		#		$msg->{SUBMISSION_STATUS}="failure";
 		#}
-		#unlink "$upload_content_dir/submit.sh";
+		unlink $submit_script if (! $debug );
 		#unlink $projCompleteReport_cache;
 		
 	} else {
@@ -325,7 +325,7 @@ if($action eq "create-form") {
 		#if ( ! $upload_success_flag ){
 		#		addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/gisaid_submit.log ncbi_submit.log");
 		#}
-		#unlink "$metadata_out_dir/submit.sh";
+		unlink "$submit_script" if (! $debug );
 
 	}
 }else {
@@ -434,10 +434,14 @@ sub SetSubmitScript {
 	my $ncbi_cmd = shift;
 	open (my $fh,">","$submit_script");
 	my $cmd = "cd $edgeui_wwwroot\nexport PYTHONUNBUFFERED=on\n";
-	$cmd .= "if [ -f $submit_log ] && (! grep -q 'GISAID submit Completed' $submit_log ) then\n";
-	$cmd .= "  $gisaid_cmd\n";
+	$cmd .= "if [ -f $submit_log ]; then \n";
+        $cmd .=	"  if (! grep -q 'GISAID submit Completed' $submit_log ) then\n";
+	$cmd .= "    $gisaid_cmd\n";
+	$cmd .= "  else\n";
+	$cmd .= "    echo '# GISAID submit Completed already.'\n\n";
+	$cmd .= "  fi\n";
 	$cmd .= "else\n";
-	$cmd .= "  echo '# GISAID submit Complete already.'\n\n";
+	$cmd .= "  $gisaid_cmd\n";
 	$cmd .= "fi\n";
 	$cmd .= "if ( ! grep -q 'NCBI submit Completed' $submit_log ) then\n";
 	$cmd .= "  $ncbi_cmd\n";
