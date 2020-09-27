@@ -218,7 +218,7 @@ $( document ).ready(function()
 								$( "#edge-gisaid-metadata-project-page" ).hide();
 								$( "#edge-project-page" ).show();
 							}else{
-								//setTimeout(function(){ updateReport($('#edge-output-projid').attr("data-pid"));},3000);
+								setTimeout(function(){ updateReport($('#edge-output-projid').attr("data-pid"));},5000);
 							}
 						}
 					}
