@@ -74,7 +74,7 @@ if ( $username && $password || $um_config == 0){
  	}
 	#$html .= "<a href='' title='Compare Selected Projects Taxonomy Classification (HeatMap)' class='tooltip ui-btn ui-btn-d ui-icon-bullets ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>compare</a>";
  	if($sys->{edge_sample_metadata}) {
- 		$html .= "<a href='' title='Submit to GISAID/Export Selected Projects Metadata' class='tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-export</a>";
+ 		$html .= "<a href='' title='Submit to GISAID/NCBI Selected Projects Metadata' class='tooltip ui-btn ui-btn-d ui-icon-arrow-d ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-export</a>";
  	}
  	if($sys->{edge_sample_metadata} && $sys->{edge_sample_metadata_share2bsve}) {
  		$html .= "<a href='' title='Share Selected Projects Metadata/Pathogens with BSVE' class='tooltip ui-btn ui-btn-d ui-icon-arrow-u ui-btn-icon-notext ui-corner-all' data-role='button' role='button'>metadata-bsveadd</a>";
