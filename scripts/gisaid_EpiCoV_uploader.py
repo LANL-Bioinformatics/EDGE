@@ -129,6 +129,7 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
 
     # WARNING: different users might have different uploading options
     try:
+        time.sleep(iv)
         wait.until(EC.presence_of_element_located((By.XPATH, "//iframe")))
         iframe = driver.find_element_by_xpath("//iframe")
         if iframe.is_displayed() and iframe.get_attribute('id').startswith('sysoverlay'):

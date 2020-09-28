@@ -139,6 +139,8 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
                 
         
         try:
+                time.sleep(iv)      
+                wait.until(EC.presence_of_element_located((By.XPATH, "//iframe")))
                 iframe = driver.find_element_by_xpath("//iframe")
                 if iframe.is_displayed() and iframe.get_attribute('id').startswith('sysoverlay'):
                         print("Popup window detected...")
