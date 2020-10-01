@@ -160,11 +160,13 @@ sub pull_consensusFiles {
 	my $refname;
 	my @consensusFastaFiles = glob("$file_dir/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta");
 	foreach my $file (@consensusFastaFiles){
+		my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
 		open (my $fh, "<", $file) or die "Cannot open $file\n";
 		while(my $line=<$fh>){
 			chomp $line;
 			if ($line =~ /^>(\S+)_consensus_(\S+)/){
 				$refname->{$2}=$file;
+				$refname->{$file_name}=$file;
 				last;
 			}
 		}

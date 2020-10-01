@@ -56,7 +56,8 @@ sub pull_consensusInfo{
 	my $consensus_length_recommand=25000;
 	my $consensus_dpcov_recommand=10;
 	my $consensus_Nper_recommand=0.05;
-	my $con_comp = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta.comp";
+	my @con_comp_files = glob("$out_dir/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta.comp");
+	my $con_comp_info=&consensus_composition_info(\@con_comp_files);
 	open (my $cov_fh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt");
 	my $cov_string;
 	while(<$cov_fh>){
@@ -65,16 +66,28 @@ sub pull_consensusInfo{
 		my @array = split(/\t/,$_);
 		if( scalar @array > 8){
 			my $id=$array[0];
-			my $consense_comp_str =`grep $id $con_comp`;
-			my @consense_info = split /\s+/,$consense_comp_str;
 			my $linear_cov=sprintf("%.2f%%",$array[4]);
 			my $depth_cov=sprintf("%dX",$array[5]);
-			my $value="$id"."::"."$linear_cov"."::"."$depth_cov";
-			my $selected = ( $vars->{SM_COV} && $vars->{SM_COV} =~ /$id/ )? 'selected':'';
-			if ($consense_info[1] >= $consensus_length_recommand && $array[5] >= $consensus_dpcov_recommand && ($consense_info[8]/$consense_info[1]) <= $consensus_Nper_recommand){
-				$vars->{CON_LIST} .= "<option value='$value' $selected>$id ($linear_cov, $depth_cov), Ready to Submit</option>";
+			my $con_fasta=$con_comp_info->{$id}->{file};
+			my $con_fasta_prefix = $con_fasta =~ s/.fasta//r;
+			my $con_amb_fasta = $con_fasta_prefix."_w_ambiguous.fasta";
+			my $con_len = $con_comp_info->{$id}->{len} ;
+			my $con_N = $con_comp_info->{$id}->{N} + $con_comp_info->{$id}->{n};  
+			my ($selected, $amb_selected)=("",""); 
+			if ( $vars->{SM_COV} ){
+				if ($vars->{SM_COV} =~ /$con_fasta_prefix/  && $vars->{SM_COV} =~ /w_ambiguous/ ){
+					$amb_selected = "selected";
+				}elsif  ($vars->{SM_COV} =~ /$con_fasta_prefix/){
+					$selected = "selected";
+				}
+			}
+			if ($con_len >= $consensus_length_recommand && $array[5] >= $consensus_dpcov_recommand && ($con_N/$con_len) <= $consensus_Nper_recommand){
+				$vars->{CON_LIST} .= "<option value='${con_fasta}::${linear_cov}::${depth_cov}' $selected>$id ($linear_cov, $depth_cov), Ready to Submit</option>";
+				$vars->{CON_LIST} .= "<option value='${con_amb_fasta}::${linear_cov}::${depth_cov}' $amb_selected>$id ($linear_cov, $depth_cov, *With Ambiguous*), Ready to Submit</option>" if ( -r "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$con_amb_fasta");
+
 			}else{
-				$vars->{CON_LIST} .= "<option value='$value' $selected>$id ($linear_cov, $depth_cov)</option>";
+				$vars->{CON_LIST} .= "<option value='${con_fasta}::${linear_cov}::${depth_cov}' $selected>$id ($linear_cov, $depth_cov)</option>";
+				$vars->{CON_LIST} .= "<option value='${con_amb_fasta}::${linear_cov}::${depth_cov}' $amb_selected>$id ($linear_cov, $depth_cov, *With Ambiguous*)</option>" if ( -r "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$con_amb_fasta");
 			}
 		}
 	}       
@@ -100,6 +113,34 @@ sub pull_consensusInfo{
 	}
 	close $config_fh
 }
+sub consensus_composition_info{
+        my $comp_files = shift;
+        my %comp;
+	foreach my $file(@$comp_files){
+		my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
+        	open (my $fh, "<", $file);
+        	my $id;
+		while(<$fh>){
+			chomp;
+			next if ! /\w/;
+			if (/##(\S+)/){
+				$id = $1;
+				$id =~ s/\w+_consensus_(\S+)/$1/;
+				$comp{$id}->{file} = $file_name;
+				next;
+			}
+			my ($nuc,$num) = split /\t/,$_;
+			if ($nuc =~/Total length/){
+				$comp{$id}->{len} = $num;
+			}else {
+				$comp{$id}->{$nuc} = $num;
+			}
+		}
+		close $fh;
+	}
+        return \%comp;
+}
+
 sub pull_sampleMetadata {
 	my $metadata = "$out_dir/metadata_gisaid_ncbi.txt";
 	if(-e $metadata) {

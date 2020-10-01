@@ -394,7 +394,7 @@ $( document ).ready(function()
 		}
 	});
 
-	$("table td").tooltipster({multiple:true});
+	$("table td, table td > a").tooltipster({multiple:true});
 	$("table th").tooltipster({multiple:true});
 
 	//krona iframe 

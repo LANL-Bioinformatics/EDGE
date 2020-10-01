@@ -3284,7 +3284,11 @@ sub runReadsToGenome
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted.bam") if ( -e "$outputDir/$file_name.sort_sorted.bam");
 	    &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
-	    &executeCommand("cd $outputDir && seqtk comp ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
+	    &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
+	    if ( -e "$outputDir/${file_name}_consensus_w_ambiguous.fasta"){
+                &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus_w_ambiguous.fasta");
+                &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus_w_ambiguous.fasta > ${file_name}_consensus_w_ambiguous.fasta.comp");
+            }
 	    &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");

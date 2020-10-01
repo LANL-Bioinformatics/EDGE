@@ -156,8 +156,7 @@ if($action eq "create-form") {
 		my $selected_consensus = $opt{'metadata-sample-consensus'};
 		$selected_consensus =~ s/::/ /g;
 		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
-		$consensus_ref =~ s/_?\d?$//g;
-		$selected_consensus = "Consensus to ". $selected_consensus;
+		$selected_consensus =~ s/.fasta//;
 		writeMetaData($projDir,$selected_consensus);
 		#gisaid profile
 		writeProfile($profileDir);
@@ -168,11 +167,12 @@ if($action eq "create-form") {
 		if ($action eq "update"){
 			&returnParamsStatus();
 		}
+		my $consensus_ref_file = "$projDir/ReadsBasedAnalysis/readsMappingToRef/$consensus_ref";
 		if ($action eq "download"){
 			# download
 			my $zip_file = "$upload_content_dir/${prealname}_metadata.zip";
 			my $zip_file_rel = "$upload_content_reldir/${prealname}_metadata.zip";
-			my $cmd = "zip -j $zip_file $submit_metadata_out $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta 2>/dev/null";
+			my $cmd = "zip -j $zip_file $submit_metadata_out $consensus_ref_file 2>/dev/null";
 			`$cmd`;
 			$msg->{PATH} = $zip_file_rel;
 			addMessage("DOWNLOAD","failure","failed to zip metadata for downloading") unless (-e $zip_file);
@@ -180,13 +180,11 @@ if($action eq "create-form") {
 		}
 		#
 		#call gisaid upload 
-		my $fasta = `ls $projDir/ReadsBasedAnalysis/readsMappingToRef/${consensus_ref}*_consensus.fasta`;
-		chomp $fasta;
 		my $submit_log = "$upload_content_dir/submit.log";
 		my $submit_current_log = "$upload_content_dir/submit_current.log";
 		my $submit_script = "$upload_content_dir/submit.sh";
-		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} ." -f $fasta --headless $debug 2>\&1 | tee -a $submit_log";
-		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " -f $fasta --headless $debug 2>\&1 | tee -a $submit_log";
+		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} ." -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
+		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
 
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $gisaid_done, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
@@ -259,8 +257,7 @@ if($action eq "create-form") {
 		my $selected_consensus = $sampleConsensus[$i];
 		$selected_consensus =~ s/::/ /g;
 		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
-		$consensus_ref =~ s/_?\d?$//g;
-		$selected_consensus = "Consensus to ". $selected_consensus;
+		$selected_consensus =~ s/.fasta//;
 		#print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
 		my $upload_content_dir = "$projDir/UPLOAD";

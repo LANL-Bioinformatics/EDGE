@@ -28,7 +28,7 @@ def setup_argparse():
    
     covGrp = parser.add_argument_group('Coverage Input (required, mutually exclusive)')
     covGrp_me = covGrp.add_mutually_exclusive_group(required=True)
-    covGrp_me.add_argument('--bam', metavar='[FILE]', type=str,help='bam file')
+    covGrp_me.add_argument('--bam', metavar='[FILE]', type=str,help='sorted bam file (ex: samtools sort input.bam -o sorted.bam)')
     covGrp_me.add_argument('--cov', metavar='[FILE]', type=str,help='coverage file [position\tcoverage]')
     
     outGrp = parser.add_argument_group('Output')
@@ -38,7 +38,7 @@ def setup_argparse():
     #optGrp = parser.add_argument_group('Options')
     parser.add_argument('--pp', action='store_true', help='process proper paired only reads from bam file (illumina)')
     
-    parser.add_argument('--version', action='version', version='%(prog)s 0.1.2')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1.3')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -181,8 +181,8 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
     uniq_y=list(uniq_mean_d.values())
     barcolor1 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in y]
     barcolor2 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in uniq_y]
-    fig = go.Figure(data=[go.Bar(x=x, y=y, marker_color=barcolor1)])
-    fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=False))
+    fig = go.Figure(data=[go.Bar(x=x, y=y, marker_color=barcolor1,visible=False)])
+    fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=True))
     
     depthMean = [dict(type='line',
                     xref='paper',x0=0,x1=1,
@@ -242,13 +242,12 @@ def barplot(mean_dict,uniq_mean_d,input_bed,overall_mean,outdir,prefix):
         ),
         dict(
             buttons=list([
-                dict(label='Whole Amplicon',
-                     method='update',
-                     args=[{"visible": [True, False]}]),
                 dict(label='Unique',
                      method='update',
-                     args=[{"visible": [False, True]}])
-                
+                     args=[{"visible": [False, True]}]),
+                dict(label='Whole Amplicon',
+                     method='update',
+                     args=[{"visible": [True, False]}])
                 ]),
              direction="down",
              x=0.15,

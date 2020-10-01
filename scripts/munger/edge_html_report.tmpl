@@ -780,7 +780,12 @@
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
 									</TMPL_UNLESS>
 							          	<TMPL_IF NAME="RMREFCONSENSUS_SW">
-									<td><a class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download Fasta</a></td>
+									<td style="display:flex">
+									<a title="<TMPL_VAR NAME=RMREFCONSENSUSINFO>" class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFCONSENSUS>">Download Fasta</a> 
+									<TMPL_IF NAME="RMREFAMBCONSENSUS">
+									&nbsp;<a title="<TMPL_VAR NAME=RMREFAMBCONSENSUSINFO>" class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFAMBCONSENSUS>">Download Fasta</a> 
+									</TMPL_IF>
+									</td>
 									<TMPL_IF NAME="RMCONSUBMITOK">
 									<td><a class="edge-consensus-ok-to-submit edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-notext">OK</a></td>
 									</TMPL_IF>
