@@ -1832,16 +1832,18 @@ sub pull_readmapping_ref {
 			$refinfo->{"RMREFFILE"}=$refname->{$temp[0]}->{file};
 			#my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_html/$temp[0].html";
 			my $consensus_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.fasta";
+			my $consensus_ambiguous_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_w_ambiguous.fasta";
 			my $consensus_file_compsition = "$consensus_file.comp";
+			my $consensus_ambiguous_file_compsition = "$consensus_ambiguous_file.comp";
 			
 			$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 			if ( -e $consensus_file_compsition ){
-				open (my $fh, "<", $consensus_file_compsition);
-				my @consensus_info = split(/\s+/, <$fh>);
-				close $fh;
-				$refinfo->{"RMREFCONSENSUSINFO"} = "Len: $consensus_info[1]; A: $consensus_info[2]; C: $consensus_info[3]; G: $consensus_info[4]; T: $consensus_info[5]; N: $consensus_info[8] ";
+				$refinfo->{"RMREFCONSENSUSINFO"} = &consensus_composition_info($consensus_file_compsition);
+			}
+			if ( -e $consensus_ambiguous_file_compsition){
+				$refinfo->{"RMREFAMBCONSENSUSINFO"} = "*With Ambiguous* ". &consensus_composition_info($consensus_ambiguous_file_compsition);
 			}
 			$ref->{$temp[0]}=$refinfo;
 		}
@@ -1908,6 +1910,24 @@ sub pull_readmapping_ref {
 
 		$vars->{RMREF_UM_NOTE} = "Only top 5 results in terms of \"Mapped Reads\" are listed in the table.";
 	}
+}
+
+sub consensus_composition_info{
+	my $comp_file = shift;
+	open (my $fh, "<", $comp_file);
+	my @info_str;
+	while(<$fh>){
+		chomp;
+		next if /GC_content|gap/;
+		my ($nuc,$num) = split /\t/,$_;
+		if ($nuc =~/Total length/){
+			unshift @info_str, "Len: $num;";
+		}else {
+			push @info_str, "$nuc: $num;";
+		}
+	}
+	close $fh;
+	return join(" ",@info_str);
 }
 
 sub pull_summary {

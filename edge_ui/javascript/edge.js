@@ -3130,15 +3130,17 @@ $( document ).ready(function()
 		}
 		if (pipeline === "phame"){
 			setRunPipeline("EDGE",true);
-			$('#edge-runEDGE-modules-desc').hide();
-			$("#edge-runEDGE-modules").find(".edge-collapsible-options > select").val(0).slider("refresh");
-			$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').hide();
-			$("#edge-runEDGE-pa" ).show();
-			$("#edge-runEDGE-pa" ).collapsible( "option", "collapsed", false );
-			$("#edge-runEDGE-pa" ).find(".edge-collapsible-options > select").val(1).slider("refresh");
-			$("#edge-runEDGE-pa" ).find(".ui-collapsible-heading").hide();
-			collapsible_select_sync();
-			sync_input();
+			setTimeout(function() {
+				$('#edge-runEDGE-modules-desc').hide();
+				$("#edge-runEDGE-modules").find(".edge-collapsible-options > select").val(0).slider("refresh");
+				$("#edge-runEDGE-modules").find('div[data-role="collapsible"]').hide();
+				$("#edge-runEDGE-pa" ).show();
+				$("#edge-runEDGE-pa" ).collapsible( "option", "collapsed", false );
+				$("#edge-runEDGE-pa" ).find(".edge-collapsible-options > select").val(1).slider("refresh");
+				$("#edge-runEDGE-pa" ).find(".ui-collapsible-heading").hide();
+				collapsible_select_sync();
+				sync_input();
+			},1000);
 		}
 		$("#edge-content-pipeline" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){

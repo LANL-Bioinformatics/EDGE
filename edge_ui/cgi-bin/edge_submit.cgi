@@ -873,7 +873,7 @@ sub checkParams {
 			my $id = "edge-input-pe1-". ($i + 1);
 			$edge_input_pe1[$i] =~ s/ //g;
 			$edge_input_pe1[$i] = "$input_dir/$edge_input_pe1[$i]" if ($edge_input_pe1[$i] =~ /^\w/ && $edge_input_pe1[$i] !~ /^http|ftp/i);
-			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe1[$i]});
+			&addMessage("PARAMS","$id","Error: duplicated input. $edge_input_pe1[$i]") if ($files{$edge_input_pe1[$i]});
 			$files{$edge_input_pe1[$i]}=1;
 			if ($edge_input_pe1[$i] &&  $edge_input_pe1[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe1[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
@@ -884,7 +884,7 @@ sub checkParams {
 			my $id = "edge-input-pe2-". ($i + 1);
 			$edge_input_pe2[$i] =~ s/ //g;
 			$edge_input_pe2[$i] = "$input_dir/$edge_input_pe2[$i]" if ($edge_input_pe2[$i] =~ /^\w/ && $edge_input_pe2[$i] !~ /^http|ftp/i);
-			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_pe2[$i]});
+			&addMessage("PARAMS","$id","Error: duplicated input. $edge_input_pe2[$i]") if ($files{$edge_input_pe2[$i]});
 			$files{$edge_input_pe2[$i]}=1;
 			if ($edge_input_pe2[$i] &&  $edge_input_pe2[$i] !~ /^http|ftp/i  && ! -e $edge_input_pe2[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
@@ -895,7 +895,7 @@ sub checkParams {
 			my $id = "edge-input-se-". ($i + 1);
 			$edge_input_se[$i] =~ s/ //g;
 			$edge_input_se[$i] = "$input_dir/$edge_input_se[$i]" if ($edge_input_se[$i] =~ /^\w/ && $edge_input_se[$i] !~ /^http|ftp/i);
-			&addMessage("PARAMS","$id","Error: duplicated input.") if ($files{$edge_input_se[$i]});
+			&addMessage("PARAMS","$id","Error: duplicated input. $edge_input_se[$i]") if ($files{$edge_input_se[$i]});
 			$files{$edge_input_se[$i]}=1;
 			if ($edge_input_se[$i] &&  $edge_input_se[$i] !~ /^http|ftp/i  && ! -e $edge_input_se[$i]){
 				&addMessage("PARAMS","$id","Input error. Please check the file path.");
@@ -1068,15 +1068,15 @@ sub checkParams {
 		$opt{"edge-piret-euk-gff-file"} = $input_dir."/".$opt{"edge-piret-euk-gff-file"} if ($opt{"edge-piret-euk-gff-file"} =~ /^\w/);
 		$opt{"edge-piret-hisat2-index-file"} = $input_dir."/".$opt{"edge-piret-hisat2-index-file"} if ($opt{"edge-piret-hisat2-index-file"} =~ /^\w/);
 		
-		&addMessage("PARAMS", "edge-piret-exp-design-file","File not found. Please check the file path.") if ( $opt{"edge-piret-exp-design-file"} && ! -e $opt{"edge-piret-exp-design-file"} );
-		&addMessage("PARAMS", "edge-piret-prok-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-fasta-file"} && ! -e $opt{"edge-piret-prok-fasta-file"} );
+		&addMessage("PARAMS", "edge-piret-exp-design-file","File not found. Please check the file path/permission.") if ( $opt{"edge-piret-exp-design-file"} && ! -r $opt{"edge-piret-exp-design-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-fasta-file","File not found. Please check the file path/permission.") if ( $opt{"edge-piret-prok-fasta-file"} && ! -r $opt{"edge-piret-prok-fasta-file"} );
 		&addMessage("PARAMS", "edge-piret-prok-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-prok-fasta-file"} && ! is_fasta($opt{"edge-piret-prok-fasta-file"}) );
-		&addMessage("PARAMS", "edge-piret-prok-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-prok-gff-file"} && ! -e $opt{"edge-piret-prok-gff-file"} );
-		&addMessage("PARAMS", "edge-piret-prok-gff-file","Invalid input. GFF format required.") if ( -e $opt{"edge-piret-prok-gff-file"} && ! is_gff($opt{"edge-piret-prok-gff-file"}) );
-		&addMessage("PARAMS", "edge-piret-euk-fasta-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-fasta-file"} && ! -e $opt{"edge-piret-euk-fasta-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-gff-file","File not found. Please check the file path/permission.") if ( $opt{"edge-piret-prok-gff-file"} && ! -r $opt{"edge-piret-prok-gff-file"} );
+		&addMessage("PARAMS", "edge-piret-prok-gff-file","Invalid input. GFF format required. First line should be ##gff-version 3.") if ( -e $opt{"edge-piret-prok-gff-file"} && ! is_gff($opt{"edge-piret-prok-gff-file"}) );
+		&addMessage("PARAMS", "edge-piret-euk-fasta-file","File not found. Please check the file path/permission.") if ( $opt{"edge-piret-euk-fasta-file"} && ! -r $opt{"edge-piret-euk-fasta-file"} );
 		&addMessage("PARAMS", "edge-piret-euk-fasta-file","Invalid input. Fasta format required.") if ( -e $opt{"edge-piret-euk-fasta-file"} && ! is_fasta($opt{"edge-piret-euk-fasta-file"}) );
-		&addMessage("PARAMS", "edge-piret-euk-gff-file","File not found. Please check the file path.") if ( $opt{"edge-piret-euk-gff-file"} && ! -e $opt{"edge-piret-euk-gff-file"} );
-		&addMessage("PARAMS", "edge-piret-euk-gff-file","Invalid input. GFF format required.") if ( -e $opt{"edge-piret-euk-gff-file"} && ! is_gff($opt{"edge-piret-euk-gff-file"}) );
+		&addMessage("PARAMS", "edge-piret-euk-gff-file","File not found. Please check the file path/permission.") if ( $opt{"edge-piret-euk-gff-file"} && ! -r $opt{"edge-piret-euk-gff-file"} );
+		&addMessage("PARAMS", "edge-piret-euk-gff-file","Invalid input. GFF format required. First line should be ##gff-version 3.") if ( -e $opt{"edge-piret-euk-gff-file"} && ! is_gff($opt{"edge-piret-euk-gff-file"}) );
 		&addMessage("PARAMS","edge-piret-pvalue","Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-piret-pvalue"} >=0 && $opt{"edge-piret-pvalue"} <=1 );
 		
 		
@@ -1090,7 +1090,7 @@ sub checkParams {
 				chomp @tmp;  
 				my @gfiles = `ls $tmp[0]/*gbk $tmp[0]/*gbff 2>/dev/null`; 
 				chomp @gfiles; 
-				&addMessage("PARAMS","edge-ref-file-fromlist","Cannot find genbank for $_. The NCBI_genomes are not synced with Ref_list.json file.") if (!@gfiles);
+				&addMessage("PARAMS","edge-ref-file-fromlist","Cannot file genbank for $_. The NCBI_genomes are not synced with Ref_list.json file.") if (!@gfiles);
 				push @refs,@gfiles;
 			    } @refsl;
 			$num_selected = scalar(@refsl);
@@ -1210,11 +1210,11 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
 		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
-		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
-		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
-		if ($opt{"edge-qc-adapter"} && $opt{"edge-r2g-align-trim-bed-file"}){
-			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either FASTA file or BED file. Not Both.");
-		}
+ 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
+ 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
+ 		if ($opt{"edge-qc-adapter"} && $opt{"edge-r2g-align-trim-bed-file"}){
+ 			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either FASTA file or BED file. Not Both.");
+ 		}
 	}
 	if ( $opt{"edge-joinpe-sw"}){
 		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;
@@ -1318,6 +1318,7 @@ sub parse_qiime_mapping_files{
 			open ($fh,"<", "$f") or die "Cannot read $f\n";
 		}
 		my $column_headers=0;
+
 		while(<$fh>){
 			chomp;
 			next if (/^\n/);
@@ -1365,23 +1366,23 @@ sub is_gff
 }
 
 sub is_bed6_plus{
-    $SIG{'PIPE'}=sub{};
-    my $file=shift;
-    my ($fh,$pid)= open_file($file);
-    my $count=0;
-    my $check_num=100;
-    my $is_bed=0;
-    for ($count..$check_num){
-            my $line=<$fh>;
-            next if $line =~ /^#/;
-            my @col = split /\t/,$line;
-            if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[4] =~ /^\d+$/){
-                    $is_bed=1;
-            }
-    }
-    kill 9, $pid; # avoid gunzip broken pipe
-    $SIG{'PIPE'} = 'DEFAULT';
-    return $is_bed;
+     $SIG{'PIPE'}=sub{};
+     my $file=shift;
+     my ($fh,$pid)= open_file($file);
+     my $count=0;
+     my $check_num=100;
+     my $is_bed=0;
+     for ($count..$check_num){
+             my $line=<$fh>;
+             next if $line =~ /^#/;
+             my @col = split /\t/,$line;
+             if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[4] =~ /^\d+$/){
+                     $is_bed=1;
+             }
+     }
+     kill 9, $pid; # avoid gunzip broken pipe
+     $SIG{'PIPE'} = 'DEFAULT';
+     return $is_bed;
 }
 
 sub is_fastq
