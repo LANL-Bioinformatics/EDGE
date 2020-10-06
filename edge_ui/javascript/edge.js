@@ -24,8 +24,8 @@ $( document ).ready(function()
 	var inputFileID;
 	var inputFileDir  = "/public/";
 	var upFileType= "fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,gb,txt,bed,config,xls,xlsx";
-	var newWindowHeader = "<html><head><title>EDGE bioinformatics</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#50a253;'><h2 style='position:inherit; padding-left:20px;'>EDGE bioinformatics</h2></div>";
-        var newWindowFooter = "<div class='edge-sp edge-sp-circle'></div></body></html>";
+	var newWindowHeader = "<html><head><title>EDGE COVID-19</title><link rel='stylesheet' href='css/edge-output.css'/></head><div style='background:#02497e;'><h2 style='color:#fff;position:inherit; padding-left:20px;'>EDGE COVID-19</h2></div>";
+	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div></body></html>";
 	//var username;
 	//var password;
 	var userType;
@@ -1401,6 +1401,10 @@ $( document ).ready(function()
 			w = window.open();
 			w.document.write(newWindowHeader + "Running MetaComp. Please wait..." + newWindowFooter);
 		}
+		if ( action == 'tree'){
+			w = window.open();
+			w.document.write(newWindowHeader + "Running UShER. Please wait..." + newWindowFooter);
+		}
 		var userChkArray=[];
 		$('#edge-userList .ui-checkbox').children('label').each(function(){
 			if($(this).hasClass('ui-checkbox-on')){
@@ -1438,7 +1442,7 @@ $( document ).ready(function()
 				
 				if( data.STATUS == "SUCCESS" ){
 					$( "#edge_integrity_dialog_header" ).text("Message");
-					if ( action == 'compare'){
+					if ( action == 'compare' || action == 'tree'){
 						data.w = w;
 						if ( data.PID ){ 
 							checkpidInterval1 = setInterval(function(){checkprocess(data)},3000); 
@@ -2257,6 +2261,9 @@ $( document ).ready(function()
 						actionContent = "Do you want to <span id='action_type'>SHARE</span> projects' metadata/pathogens with BSVE?" ;
 					}
 					//END sample metadata
+					if(action === "tree"){
+						actionContent = "Do you want to do <span id='action_type'>TREE</span> placement of consensus genome(s) by <a href='https://genome.ucsc.edu/cgi-bin/hgPhyloPlace' target='new'> UShER</a> on projects";
+					}
 					if ( action === "0" ){
 						return;
 					}
@@ -2281,7 +2288,7 @@ $( document ).ready(function()
 						var projids=[];
 						$('[name="edge-projpage-ckb"]:checked').each(function( event ) {
 							projnames.push("<li>"+$(this).closest('td').next('td').find('.edge-project-page-link').text()+"</li>");
-							if ( action === 'compare' || action === 'metadata-export'){
+							if ( action === 'compare' || action === 'metadata-export' || action === 'tree' ){
 								projids.push($(this).val());
 							}else{
 								projids.push($(this).closest('td').next('td').find('.edge-project-page-link').attr('data-pid'));
@@ -2301,7 +2308,7 @@ $( document ).ready(function()
 
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 							var actionRequest=[];
-							if ( action === "compare" || action === 'metadata-export'){
+							if ( action === "compare" || action === 'metadata-export' || action === 'tree' ){
 								actionConfirm(action,focusProjCodes);
 							}else{
 								//loop with 200 ms delay

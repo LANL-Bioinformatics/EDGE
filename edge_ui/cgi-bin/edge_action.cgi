@@ -125,7 +125,7 @@ my $real_name = $pname;
 my $projCode;
 my $projStatus;
 my $projOwnerEmail;
-my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export');
+my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export' || $action eq 'tree');
 my $user_proj_dir = "$input_dir/tmp";
 my $userdir;
 if ( $umSystemStatus )
@@ -142,7 +142,7 @@ if ( $umSystemStatus )
 	$list = &getUserProjFromDB("owner");
 	my $user_info=&getUserInfo();
 	$userType=$user_info->{type};
-	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export' && $action ne 'tree');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
 	$userdir = "$input_dir/". md5_hex(lc($username));
@@ -174,7 +174,7 @@ if ( $umSystemStatus )
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
-	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export' && $action ne 'tree' );
 	if (!$real_name){
 		$info->{INFO} = "ERROR: No project with ID $pname.";
 		&returnStatus();
@@ -849,7 +849,41 @@ elsif( $action eq 'compare'){
 			$info->{PID} = ++$pid;
 		}
 	}
-}elsif($action eq 'contigblast'){
+}
+elsif( $action eq 'tree'){
+	my $compare_out_dir = "$out_dir/UShER/". md5_hex(join ('',@projCodes));
+	my $relative_outdir = "$out_rel_dir/UShER/". md5_hex(join ('',@projCodes));
+	my $consensus_fasta_files = join(" ",map { "$out_dir/$_/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta" } @projCodes);
+	make_path("$compare_out_dir",{chmod => 0755,});
+	my $relative_result_html = "$relative_outdir/index.html";
+	my $result_html = "$compare_out_dir/index.html";
+	$info->{PATH} = $relative_result_html;
+	$info->{INFO} = "The UShER result is available <a target='_blank' href=\'$runhost/$relative_result_html\'>here</a>";
+	if ( -s $result_html ){
+		$info->{STATUS} = "SUCCESS";
+	}else{
+		my $cmd = "cat $consensus_fasta_files > $compare_out_dir/input.fasta\n";
+		$cmd .= "$EDGE_HOME/scripts/run_remote_UShER.py -f $compare_out_dir/input.fasta -o $result_html\n";
+		#$cmd .= "cp -r $EDGE_HOME/edge_ui/css/hgPhyloPlace $compare_out_dir/style\n";
+		$cmd .= "cp -r $EDGE_HOME/edge_ui/javascript/hgPhyloPlace $compare_out_dir/js\n";
+		open (my $fh,">","$compare_out_dir/run.sh");
+		print $fh $cmd,"\n";
+		close $fh;
+		chdir $compare_out_dir;
+		$cmd = "bash $compare_out_dir/run.sh 2>\&1 1>>$compare_out_dir/UShER.log &";
+
+		my $pid = open TREE, "-|", $cmd or die $!;
+		close TREE;
+		if (not defined $pid ){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to run UShER";
+		}else{
+			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
+		}
+	}
+}
+elsif($action eq 'contigblast'){
 	if( $sys->{user_management} && !$permission->{$action} ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
