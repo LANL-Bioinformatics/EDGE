@@ -1922,10 +1922,10 @@ sub pull_readmapping_ref {
 			$refinfo->{"RMREFCONSENSUS_SW"}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 			$refinfo->{"RMREFVARCALL"}    = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 			if ( -e $consensus_file_compsition ){
-				 $refinfo->{"RMREFCONSENSUSINFO"} = &consensus_composition_info($consensus_file_compsition);
+				 $refinfo->{"RMREFCONSENSUSINFO"} = &consensus_composition_info($consensus_file_compsition,$temp[0]);
 			}
 			if ( -e $consensus_ambiguous_file_compsition){
-				 $refinfo->{"RMREFAMBCONSENSUSINFO"} = "*With Ambiguous* ". &consensus_composition_info($consensus_ambiguous_file_compsition);
+				 $refinfo->{"RMREFAMBCONSENSUSINFO"} = "*With Ambiguous* ". &consensus_composition_info($consensus_ambiguous_file_compsition,$temp[0]);
 			}
 			$ref->{$temp[0]}=$refinfo;
 		}
@@ -1998,20 +1998,28 @@ sub pull_readmapping_ref {
 
 sub consensus_composition_info{
 	my $comp_file = shift;
+	my $refid = shift;
 	open (my $fh, "<", $comp_file);
-	my @info_str;
+	my $id;
+	my %comp;
 	while(<$fh>){
 		chomp;
 		next if /GC_content|gap/;
+		next if ! /\w/;
+		if (/##(\S+)/){
+			$id = $1;
+			$id =~ s/(\S+)_consensus_(\S+)/$1/;
+			next;
+		}
 		my ($nuc,$num) = split /\t/,$_;
 		if ($nuc =~/Total length/){
-			unshift @info_str, "Len: $num;";
+			unshift @{$comp{$id}}, "Len: $num;";
 		}else {
-			push @info_str, "$nuc: $num;";
+			push @{$comp{$id}}, "$nuc: $num;";
 		}
 	}
 	close $fh;
-	return join(" ",@info_str);
+	return join(" ",@{$comp{$refid}});
 }
 sub consensus_fasta_stat{
 	my $fasta = shift;
