@@ -12,11 +12,11 @@ def parse_params():
                         metavar='[FILE]', type=ap.FileType(), required=True,
                         help="sequence file in FASTA format")
     p.add_argument('-o', '--out',
-                        metavar='[HTML]', type=str, 
-                        help="output HTML file")
+                        metavar='[HTML]', type=str, default='out.html',
+                        help="output HTML file [out.html]")
     args_parsed = p.parse_args()
-    if not args_parsed.out:
-        args_parsed.out = "out.html"
+   # if not args_parsed.out:
+   #     args_parsed.out = "out.html"
     return args_parsed
 
 def main():
