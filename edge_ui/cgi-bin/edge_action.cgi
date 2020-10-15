@@ -859,9 +859,9 @@ elsif( $action eq 'tree'){
 	my $result_html = "$compare_out_dir/index.html";
 	$info->{PATH} = $relative_result_html;
 	$info->{INFO} = "The UShER result is available <a target='_blank' href=\'$runhost/$relative_result_html\'>here</a>";
-	if ( -s $result_html ){
-		$info->{STATUS} = "SUCCESS";
-	}else{
+	#if ( -s $result_html ){
+	#		$info->{STATUS} = "SUCCESS";
+	#}else{
 		my $cmd = "cat $consensus_fasta_files > $compare_out_dir/input.fasta\n";
 		$cmd .= "$EDGE_HOME/scripts/run_remote_UShER.py -f $compare_out_dir/input.fasta -o $result_html\n";
 		#$cmd .= "cp -r $EDGE_HOME/edge_ui/css/hgPhyloPlace $compare_out_dir/style\n";
@@ -881,7 +881,7 @@ elsif( $action eq 'tree'){
 			$info->{STATUS} = "SUCCESS";
 			$info->{PID} = ++$pid;
 		}
-	}
+		#}
 }
 elsif($action eq 'contigblast'){
 	if( $sys->{user_management} && !$permission->{$action} ){
