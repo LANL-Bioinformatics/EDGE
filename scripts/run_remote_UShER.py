@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys
+import sys, traceback
 import requests
 import argparse as ap
 
@@ -23,22 +23,32 @@ def main():
     argvs = parse_params()
 
     # api-endpoint
-    URL = "https://hgwdev-demo-angie.gi.ucsc.edu/cgi-bin/hgPhyloPlace"
+    URL = "https://genome.ucsc.edu/cgi-bin/hgPhyloPlace"
 
     sendData = {'db':'wuhCor1'}
     sendFiles = {'sarsCoV2File':argvs.fasta}
 
-    try:
-        # sending get request and saving the response as out file
-        r = requests.post(url = URL, data = sendData, files= sendFiles)
-        with open(argvs.out, 'w') as outfile:
-            outfile.write(r.text.replace("../js/", "js/").replace("'../","'https://hgwdev-demo-angie.gi.ucsc.edu/").replace('"../','"https://hgwdev-demo-angie.gi.ucsc.edu/'))
-            #outfile.write(r.text.replace("../style/", "style/").replace("../js/", "js/").replace("../index.html", "index.html"))
-    finally:
-        pass
 
+    f = open(argvs.out, 'w')
+    r = None
+    try:
+        r = requests.head(URL)
+    except Exception:
+        f.write("<pre>%s</pre>" % traceback.format_exc())
+
+    if r and r.status_code == 200:
+        try:
+            # sending get request and saving the response as out file
+            r = requests.post(url = URL, data = sendData, files= sendFiles)
+            outfile.write(r.text.replace("../js/", "js/").replace("'../","'https://genome.ucsc.edu/").replace('"../','"https://genome.ucsc.edu/'))
+        except Exception:
+            f.write("<pre>%s</pre>" % traceback.format_exc())
+    else:
+        outhtml_string = "<b> Failed to access %s. The HTML return code is Error %s </b>" % (URL, r.status_code)
+        f.write(outhtml_string)
+
+    f.close()
 
 if __name__ == "__main__":
     main()
-
 
