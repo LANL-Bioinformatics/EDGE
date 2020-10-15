@@ -2008,7 +2008,7 @@ sub consensus_composition_info{
 		next if ! /\w/;
 		if (/##(\S+)/){
 			$id = $1;
-			$id =~ s/(\S+)_consensus_(\S+)/$1/;
+			$id =~ s/\S+_consensus_(\S+)/$1/;
 			next;
 		}
 		my ($nuc,$num) = split /\t/,$_;
