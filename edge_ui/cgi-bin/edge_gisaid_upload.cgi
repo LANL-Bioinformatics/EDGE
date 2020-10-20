@@ -8,6 +8,7 @@ use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename;
+use File::Path;
 use Digest::MD5 qw(md5_hex);
 use POSIX qw(strftime);
 require "./edge_user_session.cgi";
@@ -217,7 +218,7 @@ if($action eq "create-form") {
 	#delete HTML_Report/.complete_report_web
 	unlink $projCompleteReport_cache;
 
-}elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2gisaid"){
+}elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2gisaid" or $action eq "batch-template-download"){
 	# init status
 	$msg->{SUBMISSION_STATUS}="success";
 	my @selectedProjCodes = split /,/,$opt{proj};
@@ -280,6 +281,22 @@ if($action eq "create-form") {
 	if ($action eq "batch-update"){
 		&returnParamsStatus();
 	}
+	my $download_template_txt = "$metadata_out_dir/metadata_template.tsv";
+	my $download_template_txt_rel = "$relative_outdir/metadata_template.tsv";
+	if ($action eq "batch-template-download"){
+		mkpath($metadata_out_dir);
+		my @download_template_tsv_header = ("project-name",'virus-name','virus-passage','sample-collection-date','sample-location','sample-host','sample-gender','sample-age','sample-status','sample-sequencing-tech');
+		my @download_template_tsv_content;
+		foreach my $i (0..$#projCodes){
+			my $download_template_tsv_string = join("\t", $projNames[$i], $virusNames[$i],$virusPassages[$i],$sampleCollectionDates[$i],$sampleLocations[$i],$sampleHosts[$i],$sampleGenders[$i],$sampleAges[$i],$sampleStatus[$i],$sampleSequencingTech[$i]);
+			push @download_template_tsv_content, $download_template_tsv_string;
+		}
+
+		&write_tsv($download_template_txt,join("\t",@download_template_tsv_header), join("\n",@download_template_tsv_content));
+		$msg->{PATH} = $download_template_txt_rel;
+		addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata template tsv file") unless  (-r "$download_template_txt" );
+		&returnParamsStatus();
+	}
 	my $date_str = strftime "%Y%m%d", localtime;
 	my $batch_metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
 	my $all_sequences = "$metadata_out_dir/GISAID/all_sequences.fasta";
@@ -334,6 +351,15 @@ if ($action !~ /create.*form/){
 }
 
 ######################################################
+
+sub write_tsv{
+        my $outfile = shift;
+        my $header = shift;
+        my $content = shift;
+        open (my $ofh, ">", $outfile) or die "Cannot write to $outfile\n";
+        print $ofh join("\n",$header,$content);
+        close $ofh;
+}
 sub touchFile{
     my $file=shift;
     open (my $fh,">",$file) or die "$!";

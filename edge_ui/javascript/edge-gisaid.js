@@ -6,6 +6,10 @@ $( document ).ready(function()
         var newTitle = "EDGE COVID-19";
 	var page = $( this );
 	$("table td, table th, .tooltip").tooltipster({multiple:true});
+	$("#metadata-tab-example").tooltipster(
+                'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Nanopore</td></tr></table></span>')
+        );
+
 	//with checkbox
 	//https://www.gyrocode.com/projects/jquery-datatables-checkboxes/
 	var ProjDataTable = $('#edge-gisaid-metadata-project-page-table').DataTable({
@@ -62,14 +66,21 @@ $( document ).ready(function()
 	} );
 	// update/download batch form
 	$("#edge-gisaid-form-batch-update,#edge-gisaid-form-batch-download,#edge-gisaid-form-batch-submit").on( "click", function() {
-		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "batch-download": (this.id.toLowerCase().indexOf("update") >= 0)? "batch-update": "batch-upload2gisaid";
+		var action="";
+		if (this.id.toLowerCase().indexOf("batch-download") >= 0){
+			action = "batch-download";
+		}else if (this.id.toLowerCase().indexOf("batch-update") >= 0){
+			action = "batch-update";
+		}else if (this.id.toLowerCase().indexOf("batch-submit") >= 0){ 
+			action = "batch-upload2gisaid";
+		}
 		var formDom = $("#edge-gisaid-batch-upload-form");
 		var rows_selected = ProjDataTable.column(0).checkboxes.selected();
 		//console.log(rows_selected);
 		var projCodes=[];
 		var projNames=[];
 		var NotReadyCon=[];
-		if (rows_selected.length === 0 ){
+		if (rows_selected.length === 0){
 			showWarning("There are no projects selected.");
 			return;
 		}
@@ -77,12 +88,9 @@ $( document ).ready(function()
 			var rowIdx = item;
 			var pname = $(ProjDataTable.cell(rowIdx,1).data()).eq(0).val();
 			var pcode = $(ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
-			console.log(rowIdx);
-			console.log($(ProjDataTable.cell(rowIdx,1).data()).eq(0).val());
 			projCodes.push(pcode);
 			projNames.push(pname);
 			var selectedCon = $(ProjDataTable.cell(rowIdx,11).data()).eq(0).children("option:selected").html();
-			console.log(selectedCon);
 			if (action == 'batch-upload2gisaid' && ! /Ready to Submit/.test(selectedCon)){
 				NotReadyCon.push(pname);
 			}
@@ -94,10 +102,59 @@ $( document ).ready(function()
 			$("#edge_confirm_dialog_content").html(actionContent);
 			$('#edge_confirm_dialog').enhanceWithin().popup('open');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-				gisaid_actions(projs,formDom,action,projNames.join());$('#metadata-sample-consensus').html()
+				gisaid_actions(projs,formDom,action,projNames.join());
                 	});
 		}else{
 			gisaid_actions(projs,formDom,action,projNames.join());
+		}
+	});
+	$("#edge-gisaid-form-batch-template-download").on( "click", function() {
+		action='batch-template-download';
+		ProjDataTable.column(0).checkboxes.select();
+		var formDom = $("#edge-gisaid-batch-upload-form");
+		var rows_selected = ProjDataTable.column(0).checkboxes.selected();
+		var projCodes=[];
+		var projNames=[];
+		rows_selected.each(function (item, index) {
+			var rowIdx = item;
+			var pcode = $(ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
+			var pname = $(ProjDataTable.cell(rowIdx,1).data()).eq(0).val();
+			projCodes.push(pcode);
+			projNames.push(pname);
+		});
+		var projs = projCodes.join();
+		gisaid_actions(projs,formDom,action,projNames.join());
+		ProjDataTable.column(0).checkboxes.deselect();
+	});
+	
+	$("#metadata-upload-file").on('change',function(){
+		if (this.files.length){
+			Papa.parse(this.files[0], {
+				header: true,
+				skipEmptyLines: true,
+				complete: function(results) {
+					// each row 
+					$.each(results.data,function(index,item){
+						$.each(item, function(key,val){
+							if ( $('input[name$="' + key + 's"]').length ){
+								$('input[name$="' + key + 's"]').eq(index).val(val);
+							}
+							if( $('select[name$="' + key + 's"]').length || $('select[name$="' + key + '"]').length  ){
+								var res = val.toLowerCase();
+								if (!val){
+									res = 'unknown';
+								}
+								if (res != 'unknown'){
+									// CAP on first letter
+									res = val.charAt(0).toUpperCase() + val.slice(1);
+								}
+								$('select[name$="' + key + 's"]').eq(index).val(res).selectmenu('refresh');
+								$('select[name$="' + key + '"]').eq(index).val(res).selectmenu('refresh');
+							} 
+						}); 
+					});
+				}
+			});
 		}
 	});
 	( navigator.appVersion.indexOf("Mac")>=0)? $("#mac-scroll-bar-note").show():$("#mac-scroll-bar-note").hide();
@@ -123,6 +180,11 @@ $( document ).ready(function()
 	//form cancel
 	$( "#edge-gisaid-form-cancel" ).on( "click", function() {
 		updateReport($('#edge-output-projid').attr("data-pid"));
+	});
+	//template
+	$( "#metadata-upload-content" ).hide();
+	$( '#metadata-upload-toggle' ).on("click", function() {
+		$("#metadata-upload-content").toggle();
 	});
 
 	var loc = window.location.pathname.replace("//","/");
