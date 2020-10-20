@@ -40,7 +40,7 @@ def main():
         try:
             # sending get request and saving the response as out file
             r = requests.post(url = URL, data = sendData, files= sendFiles)
-            outfile.write(r.text.replace("../js/", "js/").replace("'../","'https://genome.ucsc.edu/").replace('"../','"https://genome.ucsc.edu/'))
+            f.write(r.text.replace("../js/", "js/").replace("'../","'https://genome.ucsc.edu/").replace('"../','"https://genome.ucsc.edu/'))
         except Exception:
             f.write("<pre>%s</pre>" % traceback.format_exc())
     else:
