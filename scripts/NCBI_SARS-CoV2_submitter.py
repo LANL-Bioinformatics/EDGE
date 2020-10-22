@@ -68,7 +68,6 @@ def parseMetadata(metadata):
         for line in metadata:
                 (key, value) = line.strip().split("=")
                 meta[key] = value
-
         return meta
 
 def parseFasta(fasta):

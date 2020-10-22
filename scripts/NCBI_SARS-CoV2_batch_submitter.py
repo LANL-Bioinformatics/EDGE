@@ -78,8 +78,7 @@ def parseTableToDict(file,extDict=OrderedDict()):
                         if 'human' in rows[i].lower() and header[i] == 'host':
                                 extDict[rows[0]][header[i]]='Home sapiens'
                         else:
-                                extDict[rows[0]][header[i]]=rows[i]
-                        
+                                extDict[rows[0]][header[i]]=rows[i]    
         return extDict
         
 def parseMetadata(metadata):
@@ -89,7 +88,6 @@ def parseMetadata(metadata):
         for line in metadata:
                 (key, value) = line.strip().split("=")
                 meta[key] = value
-
         return meta
 
 def parseFasta(fasta):
@@ -113,6 +111,13 @@ def waiting_table_to_get_ready(wait, sec=1):
         wait.until(EC.invisibility_of_element_located(
                 (By.XPATH,  "//tbody[@class='yui-dt-message']")))
         time.sleep(sec)
+        
+def set_viewport_size(driver, width, height):
+    window_size = driver.execute_script("""
+        return [window.outerWidth - window.innerWidth + arguments[0],
+          window.outerHeight - window.innerHeight + arguments[1]];
+        """, width, height)
+    driver.set_window_size(*window_size)
 
 def quit_driver(driver,outdir):
         screenshot= driver.get_screenshot_as_file(outdir+"/exit_ncbi_screenshot.png")
@@ -145,7 +150,7 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
                 options.add_argument("--headless")
 
         driver = webdriver.Firefox(firefox_profile=profile, options=options)
-
+        set_viewport_size(driver, 1280, 1280)
         ## quit the browser if there is any raised exception
         atexit.register(quit_driver,driver,outdir)
 
@@ -268,7 +273,18 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         # Step 5: Source Modifiers
         print("5. Source Modifiers")
         ### batch
-        driver.find_element_by_id('id_switch_to_single_seq_file_upload').click()
+        try:
+            # > 1 sequences
+            driver.find_elements_by_xpath("//ul[@id='id_1toall_style-srcmods_style']//label")[1].click()
+        except:
+            pass
+    
+        try:
+            # only one sequence
+            driver.find_element_by_id('id_switch_to_single_seq_file_upload').click()
+        except:
+	        pass 
+        
         srcmodsFile=os.path.abspath(source.name)
         driver.find_element_by_name('srcmods_file-srcmods_file').send_keys(srcmodsFile)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "b.filesize")))
