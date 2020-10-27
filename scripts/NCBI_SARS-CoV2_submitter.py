@@ -216,9 +216,12 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
         driver.find_element_by_id('id_sub_continue').click()
         time.sleep(10)
         
-        warning = driver.find_elements_by_xpath("//div[contains(@class,'warning')]")[0]
-        if warning.is_displayed:
+        try:
+            warning = driver.find_elements_by_xpath("//div[contains(@class,'warning')]")[0]
+            if warning.is_displayed:
                 screenshot= driver.get_screenshot_as_file(outdir+"/seq_warning_or_error.png")
+        except:
+            pass
                 
                 
         retry = 0
