@@ -218,6 +218,8 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
         for msg in warnings:
             if msg.is_displayed():
                 print(msg.text)
+                if 'cannot be empty' in msg.text:
+                    sys.exit(1)
 
         screenshot= driver.get_screenshot_as_file(outdir+"/submit_gisaid_screenshot.png")
     # close driver  No need close driver here since quit_driver function done when program exit
