@@ -90,7 +90,8 @@ $( document ).ready(function()
 			var pcode = $(ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
 			projCodes.push(pcode);
 			projNames.push(pname);
-			var selectedCon = $(ProjDataTable.cell(rowIdx,11).data()).eq(0).children("option:selected").html();
+			var selectedCon = $(ProjDataTable.cell(rowIdx,11).data()).eq(0).children("option:selected").html() || 
+                                          $(ProjDataTable.cell(rowIdx,11).data()).find('span').html() ;
 			if (action == 'batch-upload2gisaid' && ! /Ready to Submit/.test(selectedCon)){
 				NotReadyCon.push(pname);
 			}
