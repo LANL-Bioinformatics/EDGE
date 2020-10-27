@@ -215,8 +215,8 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
 
                 screenshot= driver.get_screenshot_as_file(outdir+"/submit_screenshot.png")
                         
-        # close driver
-        driver.quit()
+        # close driver  No need close driver here since quit_driver function done when program exit
+        #driver.quit()
 
 def main():
         argvs = parse_params()

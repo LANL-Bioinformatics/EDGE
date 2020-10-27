@@ -220,8 +220,8 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
                 print(msg.text)
 
         screenshot= driver.get_screenshot_as_file(outdir+"/submit_gisaid_screenshot.png")
-    # close driver
-    driver.quit()
+    # close driver  No need close driver here since quit_driver function done when program exit
+    #driver.quit()
 
 
 def parseMetadata(metadata):

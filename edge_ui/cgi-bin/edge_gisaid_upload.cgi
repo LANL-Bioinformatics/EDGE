@@ -208,7 +208,7 @@ if($action eq "create-form") {
 		#if ( ! -e "$gisaid_done"){
 		#		$msg->{SUBMISSION_STATUS}="failure";
 		#}
-		unlink $submit_script if (! $debug );
+		#unlink $submit_script if (! $debug );
 		#unlink $projCompleteReport_cache;
 		
 	} else {
@@ -262,6 +262,7 @@ if($action eq "create-form") {
 		#print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
 		my $upload_content_dir = "$projDir/UPLOAD";
+		mkpath($upload_content_dir);
 		my $gisaidDone = "$upload_content_dir/gisaid_ncbi_submission.done"; 
 		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
 		my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
@@ -339,7 +340,6 @@ if($action eq "create-form") {
 		#if ( ! $upload_success_flag ){
 		#		addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/gisaid_submit.log ncbi_submit.log");
 		#}
-		unlink "$submit_script" if (! $debug );
 
 	}
 }else {
@@ -483,6 +483,7 @@ sub SetSubmitScript {
 	}else{
 		$cmd .= "unlink $projCompleteReport_cache\n";
 	}
+	$cmd .=	"unlink $submit_script\n" if (! $debug );
 	print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
 	print $fh $cmd,"\n";
 	close $fh;

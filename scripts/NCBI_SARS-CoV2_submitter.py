@@ -295,8 +295,8 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
         # delete submission button
         #driver.find_element_by_id('delete_submission_wizard').click() 
 
-        # close driver
-        driver.quit()
+        # close driver  No need close driver here since quit_driver function done when program exit
+        #driver.quit()
 
 
 def main():
