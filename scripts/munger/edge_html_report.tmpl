@@ -753,9 +753,7 @@
 								  </TMPL_UNLESS>
 							          <TMPL_IF NAME="RMREFCONSENSUS_SW">
                                                                   <th data-priority='3' title="<TMPL_VAR NAME=RMCONPARAMETERS>">Consensus Genome</th>
-								  <TMPL_IF NAME="RMCONSUBMITOK_TH">
 								  <th data-priority='3' title="<TMPL_VAR NAME=RMCONSUMITVAL>">Ready to Submit </th>
-								  </TMPL_IF>
 							          </TMPL_IF>
 							
 								</tr>
@@ -786,9 +784,11 @@
 									&nbsp;<a title="<TMPL_VAR NAME=RMREFAMBCONSENSUSINFO>" class="ui-btn edge-icon-bg-green ui-shadow ui-corner-all ui-icon-arrow-d ui-btn-icon-notext" href="<TMPL_VAR NAME=RMREFAMBCONSENSUS>">Download Fasta</a> 
 									</TMPL_IF>
 									</td>
-									<TMPL_IF NAME="RMCONSUBMITOK">
-									<td><a class="edge-consensus-ok-to-submit edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-notext">OK</a></td>
-									</TMPL_IF>
+									<td>
+										<TMPL_IF NAME="RMCONSUBMITOK">
+										<a class="edge-consensus-ok-to-submit edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-notext">OK</a>
+										</TMPL_IF>
+									</td>
 							          	</TMPL_IF>
 								</tr>
 								</TMPL_LOOP>

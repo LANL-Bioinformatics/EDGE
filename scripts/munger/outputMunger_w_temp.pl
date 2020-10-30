@@ -997,7 +997,7 @@ sub pull_qc {
 	close ($qcfh);
 	if (-e "$out_dir/QcReads/NanoPlot-report.html" ){
 	    $vars->{QCREPORT} = "NanoPlot-report.html";
-	    $vars->{QCSTATS} = "QC.stats.txt" if ($vars->{PORECHOP});
+	    #$vars->{QCSTATS} = "QC.stats.txt" if ($vars->{PORECHOP});
 	}else{
 	    $vars->{QCREPORT} = "QC_qc_report.pdf";
 	}
@@ -1905,7 +1905,7 @@ sub pull_readmapping_ref {
 						$refinfo->{"RMCONGAP"} = ($consensus_info->{$consensus_id}->{gap_num})? $consensus_info->{$consensus_id}->{gap_num} : "0";
 						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
 							$refinfo->{'RMCONSUBMITOK'} = '1';
-							$vars->{'RMCONSUBMITOK_TH'}='1';
+							#$vars->{'RMCONSUBMITOK_TH'}='1';
 						}
 					}
 				}

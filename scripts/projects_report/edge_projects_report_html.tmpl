@@ -46,7 +46,7 @@
 		<TMPL_IF NAME="RUNINFO">
 			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 				<h4>Project/Run Information</h4>
-				<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+				<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 					<thead>
 						<tr>
 							<TMPL_IF NAME="RUNNAME">
@@ -59,16 +59,16 @@
 								<th data-priority='3'>Input Files</th>
 							</TMPL_IF>
 							<TMPL_IF NAME="SAMPLEMETADATA_NAME">
-								<th data-priority='4'>Sample Name</th>
+								<th data-priority='4'>Virus Name</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="SAMPLEMETADATA_TYPE">
-								<th data-priority='5'>Sample Type</th>
+							<TMPL_IF NAME="SAMPLEMETADATA_PASSAGE">
+								<th data-priority='5'>Passage details/history</th>
 							</TMPL_IF>
 							<TMPL_IF NAME="SAMPLEMETADATA_HOST">
 								<th data-priority='6'>Sample Host</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="SAMPLEMETADATA_SOURCE">
-								<th data-priority='7'>Isolation Source</th>
+							<TMPL_IF NAME="SAMPLEMETADATA_GENDER">
+								<th data-priority='7'>Gender</th>
 							</TMPL_IF>
 							<TMPL_IF NAME="SAMPLEMETADATA_COLLECTIONDATE">
 								<th data-priority='8'>Collection Date</th>
@@ -76,14 +76,14 @@
 							<TMPL_IF NAME="SAMPLEMETADATA_LOCATION">
 								<th data-priority='9'>Location</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="SAMPLEMETADATA_SEQCENTER">
-								<th data-priority='10'>Sequencing Center</th>
+							<TMPL_IF NAME="SAMPLEMETADATA_AGE">
+								<th data-priority='10'>Patient age</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="SAMPLEMETADATA_SEQUENCER">
-								<th data-priority='11'>Sequencer</th>
+							<TMPL_IF NAME="SAMPLEMETADATA_STATUS">
+								<th data-priority='11'>Patient status</th>
 							</TMPL_IF>
-							<TMPL_IF NAME="SAMPLEMETADATA_SEQDATE">
-								<th data-priority='12'>Sequencing Date</th>
+							<TMPL_IF NAME="SAMPLEMETADATA_SEQTECH">
+								<th data-priority='12'>Sequencing Technology</th>
 							</TMPL_IF>
 						</tr>
 					  </thead>
@@ -102,14 +102,14 @@
 								<TMPL_IF NAME="PROSAMPLEMETADATA_NAME">
 									<td><TMPL_VAR NAME=SAMPLENAME DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="PROSAMPLEMETADATA_TYPE">
-									<td><TMPL_VAR NAME=SAMPLETYPE DEFAULT=-></td>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_PASSAGE">
+									<td><TMPL_VAR NAME=SAMPLEPASSAGE DEFAULT=-></td>
 								</TMPL_IF>
 								<TMPL_IF NAME="PROSAMPLEMETADATA_HOST">
 									<td><TMPL_VAR NAME=SAMPLEHOST DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="PROSAMPLEMETADATA_SOURCE">
-									<td><TMPL_VAR NAME=ISOLATIONSOURCE DEFAULT=-></td>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_GENDER">
+									<td><TMPL_VAR NAME=SAMPLEGENDER DEFAULT=-></td>
 								</TMPL_IF>
 								<TMPL_IF NAME="PROSAMPLEMETADATA_COLLECTIONDATE">
 									<td><TMPL_VAR NAME=COLLECTIONDATE DEFAULT=-></td>
@@ -117,14 +117,14 @@
 								<TMPL_IF NAME="PROSAMPLEMETADATA_LOCATION">
 									<td><TMPL_VAR NAME=SAMPLELOCATION DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQCENTER">
-									<td><TMPL_VAR NAME=SEQCENTER DEFAULT=-></td>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_AGE">
+									<td><TMPL_VAR NAME=SAMPLEAGE DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQUENCER">
-									<td><TMPL_VAR NAME=SEQUENCER DEFAULT=-></td>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_STATUS">
+									<td><TMPL_VAR NAME=SAMPLESTATUS DEFAULT=-></td>
 								</TMPL_IF>
-								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQDATE">
-									<td><TMPL_VAR NAME=SEQDATE DEFAULT=-></td>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQTECH">
+									<td><TMPL_VAR NAME=SEQTECH DEFAULT=-></td>
 								</TMPL_IF>
 							</tr>
 						</TMPL_LOOP>
@@ -142,7 +142,7 @@
 				<ol>
 				<TMPL_IF NAME="PRE_RAWREADS">
 					<li><span class="li-report-content-title">Raw Reads</span><div class="li-report-content">
-					<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+					<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 						<thead>
 							<tr>
 								<th data-priority='1'>Project/Run Name</th>
@@ -174,7 +174,7 @@
 					
 					<TMPL_IF NAME="PRE_QUALTRIM_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -220,7 +220,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="PRE_QUALTRIM_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -234,12 +234,12 @@
 							  <tbody>
 								<TMPL_LOOP NAME=RUNINFO_LS>
 									<tr>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCQUALPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCQUALPNG_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREADLENPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCREADLENPNG_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCNUCPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCNUCPNG_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCPLOTPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCPLOTPNG_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREQCREPORTPDF_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCQUALPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCQUALPNG_TXT> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREADLENPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCREADLENPNG_TXT> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCNUCPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCNUCPNG_TXT> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCPLOTPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCPLOTPNG_TXT> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREQCREPORTPDF_TXT> </a></td>
 									</tr>
 								</TMPL_LOOP>
 							  </tbody>
@@ -252,7 +252,7 @@
 					
 					<TMPL_IF NAME="PRE_HOSTRMF_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -280,7 +280,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="PRE_HOSTRMF_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -291,9 +291,9 @@
 							  <tbody>
 								<TMPL_LOOP NAME=RUNINFO_LS>
 									<tr>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFPNG DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFPNG_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFREPORTPDF_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFPNG DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFPNG_TXT> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFREPORTPDF_TXT> </a></td>
 									</tr>
 								</TMPL_LOOP>
 							  </tbody>
@@ -314,7 +314,7 @@
 					
 					<TMPL_IF NAME="AA_ASSEMBLY_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -346,7 +346,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="AA_ASSEMBLY_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -374,7 +374,7 @@
 					
 					<TMPL_IF NAME="AA_MAPPING_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -403,8 +403,9 @@
 						</p>
 					</TMPL_IF>
 					<TMPL_IF NAME="AA_MAPPING_F">
+						<hr/>
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -434,7 +435,7 @@
 					
 					<TMPL_IF NAME="AA_ANNOTATION_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -460,7 +461,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="AA_ANNOTATION_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -495,7 +496,7 @@
 					<li><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					
 					<TMPL_IF NAME="REF_MAPPED_READS_S">
-						<h4>Stats Table</h4>
+						<h4>Mapped Reads</h4>
 						<!--<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
 							<thead>
 								<tr>
@@ -527,22 +528,19 @@
 						</p>
 					
 						<h4>References</h4>-->
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
 									<th data-priority='2'>Reference</th>
-									<th data-priority='3'>Name</th>
+									<th data-priority='9' class='ui-table-cell-hidden'>Name</th>
 									<th data-priority='4'>Length</th>
 									<th data-priority='5'>GC%</th>
 									<th data-priority='6'>Mapped Reads</th>
-									<th data-priority='7'>Base Coverage</th>
-									<th data-priority='8'>Avg Fold</th>
+									<th data-priority='7'>Mapped Reads%</th>
+									<th data-priority='8'>Base Coverage</th>
+									<th data-priority='9'>Avg Fold</th>
 									<th data-priority='9'>Fold std.</th>
-									<th data-priority='10'>Gaps</th>
-									<th data-priority='11'>Gap bases</th>
-									<th data-priority='12'>SNPs</th>
-									<th data-priority='13'>INDELs</th>
 								</tr>
 							  </thead>
 							  <tbody>
@@ -551,17 +549,14 @@
 										<tr>
 											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
-											<td><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
+											<td class='ui-table-cell-hidden'><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_LEN DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_GC DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_MAPPEDREADS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_MAPPEDREADS_PCT DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_BASECOV DEFAULT=-></td> 
 											<td><TMPL_VAR NAME=LS_REF_AVGFOLD DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_FOLDSTD DEFAULT=-></td>
-											<td><TMPL_VAR NAME=LS_REF_GAPS DEFAULT=-></td>
-											<td><TMPL_VAR NAME=LS_REF_GAPBASES DEFAULT=-></td>
-											<td><TMPL_VAR NAME=LS_REF_SNPS DEFAULT=-></td>
-											<td><TMPL_VAR NAME=LS_REF_INDELS DEFAULT=-></td> 
 										</tr>
 									</TMPL_LOOP>
 								</TMPL_LOOP>
@@ -570,10 +565,83 @@
 						<p class='extra-text-link'>Link to 
 							|<a data-ajax='false' href='<TMPL_VAR NAME=REFREADSREFSCSV DEFAULT=->'> ref_reads_refs.csv </a>
 						</p>
+						<hr/>
+						<h4>Consensus Genome Statistics</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reference</th>
+									<th data-priority='3'>Consensus Length</th>
+									<th data-priority='4'>GC%</th>
+									<th data-priority='5'>GAP</th>
+									<th data-priority='6'>Ns/ns</th>
+									<th data-priority='7'>5' Ns/ns</th>
+									<th data-priority='8'>3' Ns/ns</th>
+									<th data-priority='9'>SNPs</th>
+									<th data-priority='9'>INDELs</th>
+									<th data-priority='9' class='ui-table-cell-hidden'>Change Log</th>
+									<th data-priority='9'>Ready to Submit</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=REF_MAPPEDREADS_CNS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
+											<td title=<TMPL_VAR NAME=LS_CNS_COMP DEFAULT=->><TMPL_VAR NAME=LS_CNS_LEN DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_GC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_GAP DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_ALL_N DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_5_N DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_3_N DEFAULT=-></td> 
+											<td><TMPL_VAR NAME=LS_CNS_SNP DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_CNS_INDEL DEFAULT=-></td>
+											<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=LS_CNS_LOG>" target="_new">LOG</a></td>
+											<td><TMPL_VAR NAME=LS_CNS_READY_TO_SUBMIT DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFREADSCNSCSV DEFAULT=->'> ref_reads_cns.csv </a>
+						</p>
+						<TMPL_IF NAME="REF_MAPPED_READS_VAR">
+						<hr/>
+						<h4>Variant Call</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reference</th>
+									<th data-priority='3'>Variants</th>
+									<th data-priority='4'>INDELs</th>
+								</tr>
+							</thead>
+							 <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=REF_MAPPEDREADS_VAR_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_REF_VAR DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_INDEL DEFAULT=0></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							</tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFREADSVARCSV DEFAULT=->'> ref_reads_cns.csv </a>
+						</p>
+						</TMPL_IF>
 					</TMPL_IF>
 					<TMPL_IF NAME="REF_MAPPED_READS_F">
+						<hr/>
 						<h4>Figures</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -588,21 +656,24 @@
 										<tr>
 											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 											<td><TMPL_VAR NAME=REF_PNG_REF DEFAULT=-></td>
-											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_COV_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_COV_PNG_TXT DEFAULT=-> </a></td>
-											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_FOLDHIST_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_FOLDHIST_PNG_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=REF_COV_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_COV_PNG_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=REF_FOLDHIST_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_FOLDHIST_PNG_TXT DEFAULT=-> </a></td>
 										</tr>
 									</TMPL_LOOP>
 								</TMPL_LOOP>
 							  </tbody>
 						</table>
+						<hr/>
 						<h4>Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
 									<th data-priority='2'>All Plots PDF</th>
 									<th data-priority='3'>Reads2Ref SNPs Report</th>
+									<TMPL_IF NAME=REF_UNMAPPEDREADS_COV_SW>
 									<th data-priority='4'>Unmapped Reads</th>
+									</TMPL_IF>
 								</tr>
 							  </thead>
 							  <tbody>
@@ -611,7 +682,9 @@
 										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDREADS_ALLPLOTS_PDF DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDREADS_ALLPLOTS_PDF_TXT DEFAULT=-> </a></td>
 										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDREADS_SNPREPORT DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDREADS_SNPREPORT_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE DEFAULT=->'> <TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE_TXT DEFAULT=-> </a></td>
+										<TMPL_IF NAME=REF_UNMAPPEDREADS_COV_SW>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE DEFAULT=->'> <TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE_TXT></a></td>
+										</TMPL_IF>
 									</tr>
 								</TMPL_LOOP>
 							  </tbody>
@@ -624,7 +697,7 @@
 					
 					<TMPL_IF NAME="REF_MAPPED_CONTIGS_S">
 						<h4>Stats Table</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -656,13 +729,14 @@
 							|<a data-ajax='false' href='<TMPL_VAR NAME=REFCONTIGSSTATSCSV DEFAULT=->'> ref_contigs_stats.csv </a>
 						</p>
 
+						<hr/>
 						<h4>References</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
 									<th data-priority='2'>Reference</th>
-									<th data-priority='3'>Name</th>
+									<th data-priority='3' class='ui-table-cell-hidden'>Name</th>
 									<th data-priority='4'>Length</th>
 									<th data-priority='5'>GC%</th>
 									<th data-priority='6'>Mapped Contigs</th>
@@ -681,7 +755,7 @@
 										<tr>
 											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
 											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
-											<td><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
+											<td class='ui-table-cell-hidden'><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_LEN DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_GC DEFAULT=-></td>
 											<td><TMPL_VAR NAME=LS_REF_MAPPEDCONTIGS DEFAULT=-></td>
@@ -702,21 +776,26 @@
 						</p>
 					</TMPL_IF>
 					<TMPL_IF NAME="REF_MAPPED_CONTIGS_F">
+						<hr/>
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
 									<th data-priority='2'>All Plots PDF</th>
+									<TMPL_IF NAME=REF_MAPPEDCONTIGS_UNMAPPED_SW>
 									<th data-priority='3'>Unmapped Contigs</th>
+									</TMPL_IF>
 								</tr>
 							  </thead>
 							  <tbody>
 								<TMPL_LOOP NAME=RUNINFO_LS>
 									<tr>
 										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF_TXT DEFAULT=-> </a></td>
-										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF_TXT> </a></td>
+										<TMPL_IF NAME=REF_MAPPEDCONTIGS_UNMAPPED_SW>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV_TXT> </a></td>
+										</TMPL_IF>
 									</tr>
 								</TMPL_LOOP>
 							  </tbody>
@@ -737,7 +816,7 @@
 					
 					<TMPL_IF NAME="TAX_READ_S">
 						<h4>Genus</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -775,7 +854,7 @@
 							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXREADGENUSRANKSCSV DEFAULT=->'> read_based_genus_ranks.csv </a>
 						</p>
 						<h4>Species</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -813,7 +892,7 @@
 							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXREADSPECIESRANKSCSV DEFAULT=->'> read_based_species_ranks.csv </a>
 						</p>
 						<h4>Strain</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -853,7 +932,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_READ_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -886,7 +965,7 @@
 							  </tbody>
 						</table>
 						<h4>Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -912,7 +991,7 @@
 					
 					<TMPL_IF NAME="TAX_ASSEMBLY_S">
 						<h4>Contigs Stats</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -943,7 +1022,7 @@
 						</p>
 						
 						<h4>Rank by Top Hit Count</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -976,7 +1055,7 @@
 						</p>
 						
 						<h4>Rank by Assigned Length</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1010,7 +1089,7 @@
 					</TMPL_IF>
 					<TMPL_IF NAME="TAX_ASSEMBLY_F">
 						<h4>Figures/Files</h4>
-						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 							<thead>
 								<tr>
 									<th data-priority='1'>Project/Run Name</th>
@@ -1069,7 +1148,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1122,7 +1201,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1180,7 +1259,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1237,7 +1316,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1296,7 +1375,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1347,7 +1426,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1398,7 +1477,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table  ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1449,7 +1528,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>
@@ -1500,7 +1579,7 @@
 						</p>
 						<TMPL_IF NAME="TAX_READ_F">
 							<h4>Figures/Files</h4>
-							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<table data-role='table' data-mode='columntoggle' class='output-table ui-responsive'>
 								<thead>
 									<tr>
 										<th data-priority='1'>Project/Run Name</th>

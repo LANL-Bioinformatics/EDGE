@@ -49,24 +49,24 @@ if($settings->{'sample-metadata'} eq "on") {
 	$vars->{SAMPLEMETADATA} =1;
 	my @metadata_fields = split(",",$settings->{'sample-metadata-selected'});
 	foreach my $field (@metadata_fields) {
-		if($field eq "sample-name") {
+		if($field eq "virus-name") {
 			$vars->{SAMPLEMETADATA_NAME} =1;
-		} elsif($field eq "sample-type") {
-			$vars->{SAMPLEMETADATA_TYPE} =1;
+		} elsif($field eq "virus-passage") {
+			$vars->{SAMPLEMETADATA_PASSAGE} =1;
 		} elsif($field eq "host") {
 			$vars->{SAMPLEMETADATA_HOST} =1;
-		} elsif($field eq "isolation-source") {
-			$vars->{SAMPLEMETADATA_SOURCE} =1;
+		} elsif($field eq "sample-gender") {
+			$vars->{SAMPLEMETADATA_GENDER} =1;
 		} elsif($field eq "collection-date") {
 			$vars->{SAMPLEMETADATA_COLLECTIONDATE} =1;
 		} elsif($field eq "location") {
 			$vars->{SAMPLEMETADATA_LOCATION} =1;
-		} elsif($field eq "sequencing-center") {
-			$vars->{SAMPLEMETADATA_SEQCENTER} =1;
-		} elsif($field eq "sequencer") {
-			$vars->{SAMPLEMETADATA_SEQUENCER} =1;
-		} elsif($field eq "sequencing-date") {
-			$vars->{SAMPLEMETADATA_SEQDATE} =1;
+		} elsif($field eq "sample-sequencing-tech") {
+			$vars->{SAMPLEMETADATA_SEQTECH} =1;
+		} elsif($field eq "sample-status") {
+			$vars->{SAMPLEMETADATA_STATUS} =1;
+		} elsif($field eq "sample-age") {
+			$vars->{SAMPLEMETADATA_AGE} =1;
 		}
 	}
 }
@@ -322,6 +322,14 @@ eval {
 			$out_file_name = "ref_reads_refs.csv";
 			&create_ref_reads_refs_csv($out_file_name);
 			$vars->{REFREADSREFSCSV} = "$report_rel_dir/$out_file_name";
+			$out_file_name = "ref_reads_cns.csv";
+			&create_ref_reads_cns_csv($out_file_name);
+			$vars->{REFREADSCNSCSV} = "$report_rel_dir/$out_file_name";
+		}
+		if($vars->{REF_MAPPED_READS_VAR}) {
+			$out_file_name = "ref_reads_variants.csv";
+			&create_ref_reads_var_csv($out_file_name);
+			$vars->{REFREADSVARCSV} = "$report_rel_dir/$out_file_name";
 		}
 		if($vars->{REF_MAPPED_CONTIGS_S}) {
 			$out_file_name = "ref_contigs_stats.csv";
@@ -569,14 +577,14 @@ sub pull_reports {
 				while(<IN>) {
 					chomp;
 					s/^\s+|\s+$//g;
-					if(/<tr><td>Sample Name<\/td><td>(.*)<\/td><\/tr>/) {
+					if(/<tr><td>Virus name<\/td><td>(.*)<\/td><\/tr>/) {
 						$proj->{SAMPLENAME} = $1;
-						$reports_map{$project}{'sample-name'} = $1;
+						$reports_map{$project}{'virus-name'} = $1;
 						next;
 					}
-					if(/<tr><td>Sample Type<\/td><td>(.*)<\/td><\/tr>/) {
-						$proj->{SAMPLETYPE} = $1;
-						$reports_map{$project}{'sample-type'} = $1;
+					if(/<tr><td>Passage details\/history<\/td><td>(.*)<\/td><\/tr>/) {
+						$proj->{SAMPLEPASSAGE} = $1;
+						$reports_map{$project}{'virus-passage'} = $1;
 						next;
 					}
 					if(/<tr><td>Host<\/td><td>(.*)<\/td><\/tr>/) {
@@ -584,12 +592,12 @@ sub pull_reports {
 						$reports_map{$project}{'sample-host'} = $1;
 						next;
 					}
-					if(/<tr><td>Isolation Source<\/td><td>(.*)<\/td><\/tr>/) {
-						$proj->{ISOLATIONSOURCE} = $1;
-						$reports_map{$project}{'isolation-source'} = $1;
+					if(/<tr><td>Gender<\/td><td>(.*)<\/td><\/tr>/) {
+						$proj->{SAMPLEGENDER} = $1;
+						$reports_map{$project}{'sample-gender'} = $1;
 						next;
 					}
-					if(/<tr><td>Collection Date<\/td><td>(.*)<\/td><\/tr>/) {
+					if(/<tr><td>Collection date<\/td><td>(.*)<\/td><\/tr>/) {
 						$proj->{COLLECTIONDATE} = $1;
 						$reports_map{$project}{'collection-date'} = $1;
 						next;
@@ -599,19 +607,19 @@ sub pull_reports {
 						$reports_map{$project}{'sample-location'} = $1;
 						next;
 					}
-					if(/<tr><td>Sequencing Center<\/td><td>(.*)<\/td><\/tr>/) {
-						$proj->{SEQCENTER} = $1;
-						$reports_map{$project}{'sequencing-center'} = $1;
+					if(/<tr><td>Patient age<\/td><td>(.*)<\/td><\/tr>/) {
+						$proj->{SAMPLEAGE} = $1;
+						$reports_map{$project}{'sample-age'} = $1;
 						next;
 					}
-					if(/<tr><td>Sequencer<\/td><td>(.*)<\/td><\/tr>/) {
-						$proj->{SEQUENCER} = $1;
-						$reports_map{$project}{'sequencer'} = $1;
+					if(/<tr><td>Patient status<\/td><td>(.*)<\/td><\/tr>/) {
+						$proj->{SAMPLESTATUS} = $1;
+						$reports_map{$project}{'sample-status'} = $1;
 						next;
 					}
-					if(/<tr><td>Sequencing Date<\/td><td>(.*)<\/td><\/tr>/) {
-						$proj->{SEQDATE} = $1;
-						$reports_map{$project}{'sequencing-date'} = $1;
+					if(/<tr><td>Sequencing Technology<\/td><td>(.*)<\/td><\/tr>/) {
+						$proj->{SEQTECH} = $1;
+						$reports_map{$project}{'sample-sequencing-tech'} = $1;
 						last;
 					}
 					if(/<div .*data-role='collapsible' .*>/) {
@@ -673,7 +681,7 @@ sub pull_reports {
 						} 
 						next;
 					}
-					if/<tr><td>Nanopore Reads<\/td><td>(.*)<\/td><\/tr>/) {
+					if(/<tr><td>Nanopore Reads<\/td><td>(.*)<\/td><\/tr>/) {
 						if($type eq "raw-reads") {
 							$proj->{PRERAWREADNANOPORE} = $1;
 							$reports_map{$project}{'preprocess-nanopore-reads'} = $1;
@@ -716,13 +724,13 @@ sub pull_reports {
 						}
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_quality_report\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_quality_report\.png)" alt="QC_quality_report">/ | /<img class="preview_img" data-src="(.*QC_length_quality\.png)" alt="QC_quality_report">/) {
 						$proj->{PREQCQUALPNG} = $1;
 						$proj->{PREQCQUALPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-qual-png'} = $1;
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_read_length\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_read_length\.png)" alt="QC/) {
 						$proj->{PREQCREADLENPNG} = $1;
 						$proj->{PREQCREADLENPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-read-length-png'} = $1;
@@ -734,15 +742,21 @@ sub pull_reports {
 						$reports_map{$project}{'preprocess-nucleotide-png'} = $1;
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_quality_boxplot\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_quality_boxplot\.png)" alt="QC_quality_report">/ | /<img class="preview_img" data-src="(.*QC_read_loglength\.png)" alt="QC/) {
 						$proj->{PREQCPLOTPNG} = $1;
 						$proj->{PREQCPLOTPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-boxplot-png'} = $1;
 						next;
 					}
-					if(/<a data-ajax='false' href='(.*QC_qc_report\.pdf)'> QC Report PDF <\/a>/) {
+					if(/<a data-ajax='false' href='(.*QC_qc_report\.pdf)'> QC Report <\/a>/) {
 						$proj->{PREQCREPORTPDF} = $1;
 						$proj->{PREQCREPORTPDF_TXT} = "PDF";
+						$reports_map{$project}{'preprocess-qc-report-pdf'} = $1;
+						last;
+					}					
+					if(/<a data-ajax='false' href='(.*NanoPlot-report\.html)'> QC Report <\/a>/) {
+						$proj->{PREQCREPORTPDF} = $1;
+						$proj->{PREQCREPORTPDF_TXT} = "HTML";
 						$reports_map{$project}{'preprocess-qc-report-pdf'} = $1;
 						last;
 					}					
@@ -752,7 +766,7 @@ sub pull_reports {
 				}
 				next;
 			}
-			if(/<li><span class="li-report-content-title">Host Removal and Filter<\/span><div class="li-report-content">/) {
+			if(/<span class="li-report-content-title">Host Removal and Filter<\/span><div class="li-report-content">/) {
 				while(<IN>) {
 					chomp;
 					s/^\s+|\s+$//g;
@@ -961,7 +975,7 @@ sub pull_reports {
 			## end aa
 
 			## Reference based analysis			
-			if(/<h4>Reference-Based Analysis<\/h4>/) {
+			if(/<h4>Reference-Based SARS-CoV-2 Genome Analysis<\/h4>/) {
 				while(<IN>) {
 					chomp;
 					s/^\s+|\s+$//g;
@@ -1003,7 +1017,7 @@ sub pull_reports {
 							#}
 
 							###get references
-							if(/<th data-priority='1'>Reference<\/th>/) {
+							if(/<th data-priority='1'>Mapped Reads<\/th>/) {
 								while(<IN>) {
 									chomp;
 									if(/<tbody>/) {
@@ -1022,24 +1036,7 @@ sub pull_reports {
 										$ref->{PROJNAME} = $proj->{PROJNAME};
 										$ref->{PROJ} = $proj->{PROJ};
 										$ref->{PROPROJURL} = $vars->{PROJURL};
-										if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
-											$ref->{LS_REF_LINK} = $1;
-											$ref->{LS_REF} = $2;
-											$ref->{LS_REF_NAME} = $3;
-											$ref->{LS_REF_LEN} = $4;
-											$ref->{LS_REF_CONSENSUS} = $5;
-											$ref->{LS_REF_GC} = $6;
-											$ref->{LS_REF_MAPPEDREADS} = $7;
-											$ref->{LS_REF_MAPPEDREADS_PCT} = $8;
-											$ref->{LS_REF_BASECOV} = $9;
-											$ref->{LS_REF_AVGFOLD} = $10;
-											$ref->{LS_REF_FOLDSTD} = $11;
-											$ref->{LS_REF_GAPS} = $12;
-											$ref->{LS_REF_GAPBASES} = $13;
-											$ref->{LS_REF_SNPS} = $14;
-											$ref->{LS_REF_INDELS} = $15;
-											$ref->{LS_REF_MAPPEDREADS} =~ s/<a href.*>(.*)<\/a>/${1}/;
-										} elsif($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
+										if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td.*>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td.*>(.*)<\/td><td>(.*)<\/td>/) {
 											$ref->{LS_REF_LINK} = $1;
 											$ref->{LS_REF} = $2;
 											$ref->{LS_REF_NAME} = $3;
@@ -1050,27 +1047,20 @@ sub pull_reports {
 											$ref->{LS_REF_BASECOV} = $8;
 											$ref->{LS_REF_AVGFOLD} = $9;
 											$ref->{LS_REF_FOLDSTD} = $10;
-											$ref->{LS_REF_GAPS} = $11;
-											$ref->{LS_REF_GAPBASES} = $12;
-											$ref->{LS_REF_SNPS} = $13;
-											$ref->{LS_REF_INDELS} = $14;
 											$ref->{LS_REF_MAPPEDREADS} =~ s/<a href.*>(.*)<\/a>/${1}/;
-										} elsif($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
-											$ref->{LS_REF_LINK} = $1;
-											$ref->{LS_REF} = $2;
-											$ref->{LS_REF_NAME} = $3;
-											$ref->{LS_REF_LEN} = $4;
-											$ref->{LS_REF_GC} = $5;
-											$ref->{LS_REF_MAPPEDREADS} = $6;
+										}elsif($str =~ /<td title=.*>(.*)<\/td><td.*>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td.*>(.*)<\/td><td>(.*)<\/td>/) {
+											$ref->{LS_REF_LINK} = '#';
+											$ref->{LS_REF} = $1;
+											$ref->{LS_REF_NAME} = $2;
+											$ref->{LS_REF_LEN} = $3;
+											$ref->{LS_REF_GC} = $4;
+											$ref->{LS_REF_MAPPEDREADS} = $5;
+											$ref->{LS_REF_MAPPEDREADS_PCT} = $6;
 											$ref->{LS_REF_BASECOV} = $7;
 											$ref->{LS_REF_AVGFOLD} = $8;
 											$ref->{LS_REF_FOLDSTD} = $9;
-											$ref->{LS_REF_GAPS} = $10;
-											$ref->{LS_REF_GAPBASES} = $11;
-											$ref->{LS_REF_SNPS} = $12;
-											$ref->{LS_REF_INDELS} = $13;
 											$ref->{LS_REF_MAPPEDREADS} =~ s/<a href.*>(.*)<\/a>/${1}/;
-										}
+										} 
 										push @{$proj->{REF_MAPPEDREADS_REFS_LOOP}}, $ref;
 										push @{$reports_map{$project}{'ref-mappedreads-refs'}}, $ref;
 									} else {
@@ -1082,14 +1072,121 @@ sub pull_reports {
 								}
 								next;
 							}
-							
+							if(/<th data-priority='4'>Consensus Length<\/th>/) {
+								while(<IN>) {
+                                                                        chomp;
+                                                                        if(/<tbody>/) {
+                                                                                last;
+                                                                        }
+                                                                }
+                                                                my $str;
+                                                                while(<IN>) {
+                                                                        chomp;
+                                                                        s/^\s+|\s+$//g;
+                                                                        if(/<tr>/) {
+                                                                                $str = '';
+                                                                        } elsif(/<\/tr>/) {
+										##parse ref
+                                                                                my $ref;
+                                                                                $ref->{PROJNAME} = $proj->{PROJNAME};
+                                                                                $ref->{PROJ} = $proj->{PROJ};
+                                                                                $ref->{PROPROJURL} = $vars->{PROJURL};
+                                                                                if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td>(.*)<\/td><td title=.*>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
+											$ref->{LS_REF_LINK} = $1;
+                                                                                        $ref->{LS_REF} = $2;
+                                                                                        $ref->{LS_CNS_COMP} = $3;
+                                                                                        $ref->{LS_CNS_LEN} = $4;
+                                                                                        $ref->{LS_CNS_GC} = $5;
+                                                                                        $ref->{LS_CNS_GAP} = $6;
+                                                                                        $ref->{LS_CNS_ALL_N} = $7;
+                                                                                        $ref->{LS_CNS_5_N} = $8;
+                                                                                        $ref->{LS_CNS_3_N} = $9;
+                                                                                        $ref->{LS_CNS_SNP} = $10;
+                                                                                        $ref->{LS_CNS_INDEL} = $11;
+											$ref->{LS_CNS_LOG} = $vars->{RUNHOST}."/".$12;
+											#$13 LS_CNS_FASTA_DOWNLOAD
+                                                                                        $ref->{LS_CNS_READY_TO_SUBMIT} = $14;
+											$ref->{LS_CNS_READY_TO_SUBMIT} =~ s/edge-consensus-ok-to-submit//;
+
+										}elsif($str =~ /<td title=.*>(.*)<\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td>(.*)<\/td><td title=.*>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
+                                                                                        $ref->{LS_REF_LINK} = '#';
+                                                                                        $ref->{LS_REF} = $1;
+                                                                                        $ref->{LS_CNS_COMP} = $2;
+                                                                                        $ref->{LS_CNS_LEN} = $3;
+                                                                                        $ref->{LS_CNS_GC} = $4;
+                                                                                        $ref->{LS_CNS_GAP} = $5;
+                                                                                        $ref->{LS_CNS_ALL_N} = $6;
+                                                                                        $ref->{LS_CNS_5_N} = $7;
+                                                                                        $ref->{LS_CNS_3_N} = $8;
+                                                                                        $ref->{LS_CNS_SNP} = $9;
+                                                                                        $ref->{LS_CNS_INDEL} = $10;
+											$ref->{LS_CNS_LOG} = $vars->{RUNHOST}."/".$11;
+											#$12 LS_CNS_FASTA_DOWNLOAD
+                                                                                        $ref->{LS_CNS_READY_TO_SUBMIT} = $13;
+											$ref->{LS_CNS_READY_TO_SUBMIT} =~ s/edge-consensus-ok-to-submit//;
+
+                                                                                }
+										push @{$proj->{REF_MAPPEDREADS_CNS_LOOP}}, $ref;
+                                                                                push @{$reports_map{$project}{'ref-mappedreads-cns'}}, $ref;
+
+									} else {
+										$str .= $_;
+									}
+									if(/<\/tbody>/) {
+                                                                                last;
+                                                                        }
+								}
+								next;
+							}
+							if(/<th data-priority='2'>Variants<\/th>/) {
+								$vars->{REF_MAPPED_READS_VAR}=1;
+								while(<IN>) {
+                                                                        chomp;
+                                                                        if(/<tbody>/) {
+                                                                                last;
+                                                                        }
+                                                                }
+                                                                my $str;
+                                                                while(<IN>) {
+                                                                        chomp;
+                                                                        s/^\s+|\s+$//g;
+                                                                        if(/<tr>/) {
+                                                                                $str = '';
+                                                                        } elsif(/<\/tr>/) {
+										 ##parse ref
+                                                                                my $ref;
+                                                                                $ref->{PROJNAME} = $proj->{PROJNAME};
+                                                                                $ref->{PROJ} = $proj->{PROJ};
+                                                                                $ref->{PROPROJURL} = $vars->{PROJURL};
+                                                                                if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td>(.*)<\/td><td>(.*)<\/td>/){
+											$ref->{LS_REF_LINK} = $1;
+											$ref->{LS_REF} = $2;
+											$ref->{LS_REF_VAR} = $3;
+											$ref->{LS_REF_IDNEL} = $4;
+										}elsif($str =~ /<td title=.*>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/){
+											$ref->{LS_REF_LINK} = '#';
+											$ref->{LS_REF} = $1;
+											$ref->{LS_REF_VAR} = $2;
+											$ref->{LS_REF_IDNEL} = $3;
+										}
+										push @{$proj->{REF_MAPPEDREADS_VAR_LOOP}}, $ref;
+                                                                                push @{$reports_map{$project}{'ref-mappedreads-var'}}, $ref;
+									} else {
+										$str .= $_;
+									}
+									if(/<\/tbody>/) {
+                                                                                last;
+                                                                        }
+								}
+								next;
+							}
 							### get images
 							if(/<img class="preview_img" data-src="(.*\.png)" alt="Coverage">/) {
 								undef $img;
 								$img->{PROJNAME} = $proj->{PROJNAME};
 								$img->{PROJ} = $proj->{PROJ};
 								$img->{PROPROJURL} = $vars->{PROJURL};
-								$img->{REF_COV_PNG} = $1;
+								$img->{REF_COV_PNG} = $proj->{RUNHOST}."/".$1;
 								$img->{REF_COV_PNG_TXT} = "PNG";
 								$proj->{REF_MAPPEDREADS_PNGS} = 1;
 								if($img->{REF_COV_PNG} =~ /readsToRef_(.*)_base_coverage\.png/) {
@@ -1098,7 +1195,7 @@ sub pull_reports {
 								next;
 							}
 							if(/<img class="preview_img" data-src="(.*\.png)" alt="Fold histogram">/) {
-								$img->{REF_FOLDHIST_PNG} = $1;
+								$img->{REF_FOLDHIST_PNG} = $proj->{RUNHOST}."/".$1;
 								$img->{REF_FOLDHIST_PNG_TXT} = "PNG";
 								push @{$proj->{REF_MAPPEDREADS_PNGS_LOOP}}, $img;
 								$proj->{REF_MAPPEDREADS_PNGS} = 1;
@@ -1127,6 +1224,7 @@ sub pull_reports {
 								next;
 							}
 							if(/<a data-ajax='false' href='(.*UnmappedReads_coverage\.txt)'> Mapping Result <\/a>/) {
+								$vars->{REF_UNMAPPEDREADS_COV_SW} = 1;
 								$proj->{REF_UNMAPPEDREADS_COV_FILE} = $1;
 								$proj->{REF_UNMAPPEDREADS_COV_FILE_TXT} = "TXT";
 								last;
@@ -1232,6 +1330,7 @@ sub pull_reports {
 								next;
 							}
 							if(/<a data-ajax='false' href='(.*UnmappedContigs\.ctg_class\.top\.csv)'> Result <\/a>/) {
+								$vars->{REF_MAPPEDCONTIGS_UNMAPPED_SW} = 1;
 								$proj->{REF_MAPPEDCONTIGS_UNMAPPED_CSV} = $1;
 								$proj->{REF_MAPPEDCONTIGS_UNMAPPED_CSV_TXT} = "CSV";
 								last;
@@ -2222,19 +2321,27 @@ sub pull_reports {
 		$proj->{PRORUNDESC} = $vars->{RUNDESC};
 		$proj->{PRORUNFILES} = $vars->{RUNFILES};
 		$proj->{PROSAMPLEMETADATA_NAME} = $vars->{SAMPLEMETADATA_NAME};
-		$proj->{PROSAMPLEMETADATA_TYPE} = $vars->{SAMPLEMETADATA_TYPE};
+		$proj->{PROSAMPLEMETADATA_TYPE} = $vars->{SAMPLEMETADATA_PASSAGE};
 		$proj->{PROSAMPLEMETADATA_HOST} = $vars->{SAMPLEMETADATA_HOST};
-		$proj->{PROSAMPLEMETADATA_SOURCE} = $vars->{SAMPLEMETADATA_SOURCE};
+		$proj->{PROSAMPLEMETADATA_GENDER} = $vars->{SAMPLEMETADATA_GENDER};
 		$proj->{PROSAMPLEMETADATA_COLLECTIONDATE} = $vars->{SAMPLEMETADATA_COLLECTIONDATE};
 		$proj->{PROSAMPLEMETADATA_LOCATION} = $vars->{SAMPLEMETADATA_LOCATION};
-		$proj->{PROSAMPLEMETADATA_SEQCENTER} = $vars->{SAMPLEMETADATA_SEQCENTER};	
-		$proj->{PROSAMPLEMETADATA_SEQUENCER} = $vars->{SAMPLEMETADATA_SEQUENCER};	
-		$proj->{PROSAMPLEMETADATA_SEQDATE} = $vars->{SAMPLEMETADATA_SEQDATE};
+		$proj->{PROSAMPLEMETADATA_AGE} = $vars->{SAMPLEMETADATA_AGE};	
+		$proj->{PROSAMPLEMETADATA_STATUS} = $vars->{SAMPLEMETADATA_STATUS};	
+		$proj->{PROSAMPLEMETADATA_SEQTECH} = $vars->{SAMPLEMETADATA_SEQTECH};
 		
 		push @{$vars->{RUNINFO_LS}}, $proj;
 	}
 }
 
+sub write_file{
+	my $file_name = shift;
+	my $content = shift;
+	open my $ofh, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
+        print $ofh $content;
+        close $ofh;
+
+}
 sub create_run_info_csv {
 	my $file_name = shift;
 	#get header
@@ -2251,24 +2358,24 @@ sub create_run_info_csv {
 	if($settings->{'sample-metadata'} eq "on") {
 		my @metadata_fields = split(",",$settings->{'sample-metadata-selected'});
 		foreach my $field (@metadata_fields) {
-			if($field eq "sample-name") {
-				$content .= "Sample Name,";
-			} elsif($field eq "sample-type") {
-				$content .= "Sample Type,";
+			if($field eq "virus-name") {
+				$content .= "Virus Name,";
+			} elsif($field eq "virus-passage") {
+				$content .= "Passage details/history,";
 			} elsif($field eq "host") {
-				$content .= "Sample Host,";
-			} elsif($field eq "isolation-source") {
-				$content .= "Isolation Source,";
+				$content .= "Host,";
+			} elsif($field eq "sample-gender") {
+				$content .= "Gender,";
 			} elsif($field eq "collection-date") {
 				$content .= "Collection Date,";
 			} elsif($field eq "location") {
 				$content .= "Sample Location,";
-			} elsif($field eq "sequencing-center") {
-				$content .= "Sequencing Center,";
-			} elsif($field eq "sequencer") {
-				$content .= "Sequencer,";
-			} elsif($field eq "sequencing-date") {
-				$content .= "Sequencing Date,";
+			} elsif($field eq "sample-age") {
+				$content .= "Patient age,";
+			} elsif($field eq "sample-status") {
+				$content .= "Patient status,";
+			} elsif($field eq "sample-sequencing-tech") {
+				$content .= "Sequencing Technology,";
 			}
 		}
 	}
@@ -2291,17 +2398,17 @@ sub create_run_info_csv {
 		if($settings->{'sample-metadata'} eq "on") {
 			my @metadata_fields = split(",",$settings->{'sample-metadata-selected'});
 			foreach my $field (@metadata_fields) {
-				if($field eq "sample-name") {
-					($celltext = $reports_map{$project}{'sample-name'}) =~ s/"/""/g;
+				if($field eq "virus-name") {
+					($celltext = $reports_map{$project}{'virus-name'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
-				} elsif($field eq "sample-type") {
-					($celltext = $reports_map{$project}{'sample-type'}) =~ s/"/""/g;
+				} elsif($field eq "virus-passage") {
+					($celltext = $reports_map{$project}{'virus-passage'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
 				} elsif($field eq "host") {
 					($celltext = $reports_map{$project}{'sample-host'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
-				} elsif($field eq "isolation-source") {
-					($celltext = $reports_map{$project}{'isolation-source'}) =~ s/"/""/g;
+				} elsif($field eq "sample-gender") {
+					($celltext = $reports_map{$project}{'sample-gender'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
 				} elsif($field eq "collection-date") {
 					($celltext = $reports_map{$project}{'collection-date'}) =~ s/"/""/g;
@@ -2309,14 +2416,14 @@ sub create_run_info_csv {
 				} elsif($field eq "location") {
 					($celltext = $reports_map{$project}{'sample-location'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
-				} elsif($field eq "sequencing-center") {
-					($celltext = $reports_map{$project}{'sequencing-center'}) =~ s/"/""/g;
+				} elsif($field eq "sample-age") {
+					($celltext = $reports_map{$project}{'sample-age'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
-				} elsif($field eq "sequencer") {
-					($celltext = $reports_map{$project}{'sequencer'}) =~ s/"/""/g;
+				} elsif($field eq "sample-status") {
+					($celltext = $reports_map{$project}{'sample-status'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
-				} elsif($field eq "sequencing-date") {
-					($celltext = $reports_map{$project}{'sequencing-date'}) =~ s/"/""/g;
+				} elsif($field eq "sample-sequencing-tech") {
+					($celltext = $reports_map{$project}{'sample-sequencing-tech'}) =~ s/"/""/g;
 					$content .= "\"$celltext\"".",";
 				}
 			}
@@ -2324,9 +2431,7 @@ sub create_run_info_csv {
 		$content =~ s/,$/\n/;
 	}
 	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_raw_reads_csv {
@@ -2352,9 +2457,7 @@ sub create_raw_reads_csv {
 		$content .= "\"$celltext\""."\n";
 	}
 	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_trimmed_reads_csv {
@@ -2408,9 +2511,7 @@ sub create_trimmed_reads_csv {
 		$content .= "\"$celltext\""."\n";
 	}
 	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_hostrmf_csv {
@@ -2435,10 +2536,7 @@ sub create_hostrmf_csv {
 		$celltext = $reports_map{$project}{'preprocess-host-file'};
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_assembly_csv {
@@ -2469,10 +2567,7 @@ sub create_assembly_csv {
 		($celltext = $reports_map{$project}{'aa-assembly-size'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_read_mapping_csv {
@@ -2500,10 +2595,7 @@ sub create_read_mapping_csv {
 		($celltext = $reports_map{$project}{'aa-mapping-cov'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_annotation_csv {
@@ -2525,10 +2617,7 @@ sub create_annotation_csv {
 		($celltext = $reports_map{$project}{'aa-annotation-trna'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_ref_reads_stats_csv {
@@ -2559,10 +2648,7 @@ sub create_ref_reads_stats_csv {
 		($celltext = $reports_map{$project}{'ref-read-indels'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_ref_contigs_stats_csv {
@@ -2596,16 +2682,77 @@ sub create_ref_contigs_stats_csv {
 		($celltext = $reports_map{$project}{'ref-contig-indels'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
+sub create_ref_reads_var_csv {
+	my $file_name = shift;
+	my $content = "Project/Run Name,Reference,Variants,INDELs\n";
+	my $celltext;
+	foreach my $project (@projects) {
+		foreach my $ref (@{$reports_map{$project}{'ref-mappedreads-var'}}) {
+			($celltext = $reports_map{$project}{'run-name'}) =~ s/"/""/g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_REF}) =~ s/,|\s+|bp//g;
+                        $content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_REF_VAR}) =~ s/,|\s+|bp//g;
+                        $content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_REF_INDEL}) =~ s/,|\s+|bp//g;
+                        $content .= "\"$celltext\""."\n";
+		}
+	}
+	&write_file($file_name,$content);
+}
+sub create_ref_reads_cns_csv {
+	my $file_name = shift;
+	my $content = "Project/Run Name,Reference,Consensus Length,Consensus GC%,Gap,Ns/ns,5' Ns/ns,3' Ns/ns,SNPs,INDELs,Ready to Submit\n";
+	my $celltext;
+	foreach my $project (@projects) {
+		foreach my $ref (@{$reports_map{$project}{'ref-mappedreads-cns'}}) {
+			($celltext = $reports_map{$project}{'run-name'}) =~ s/"/""/g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_REF}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_LEN}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_GC}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_GAP}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_ALL_N}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_5_N}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_3_N}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_SNP}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_INDEL}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
+			($celltext = $ref->{LS_CNS_READY_TO_SUBMIT}) =~ s/,|\s+|bp//g;
+			$celltext = ($celltext =~ />OK</)? "Yes" : "No"; 
+			$content .= "\"$celltext\""."\n";
+		}
+	}
+	&write_file($file_name,$content);
+}
 sub create_ref_reads_refs_csv {
 	my $file_name = shift;
 	#get header
-	my $content = "Project/Run Name,Reference,Name,Length,GC%,Mapped Reads,Base Coverage,Avg Fold,Fold std.,Gaps,Gap bases,SNPs,INDELs\n";	
+	my $content = "Project/Run Name,Reference,Name,Length,GC%,Mapped Reads,Mapped Reads%,Base Coverage,Avg Fold,Fold std.\n";	
 	#get runs
 	my $celltext;
 	foreach my $project (@projects) {
@@ -2628,6 +2775,9 @@ sub create_ref_reads_refs_csv {
 			($celltext = $ref->{LS_REF_MAPPEDREADS}) =~ s/,|\s+|bp//g;
 			$content .= "\"$celltext\"".",";
 
+			($celltext = $ref->{LS_REF_MAPPEDREADS_PCT}) =~ s/,|\s+|bp//g;
+			$content .= "\"$celltext\"".",";
+
 			($celltext = $ref->{LS_REF_BASECOV}) =~ s/,|\s+|bp//g;
 			$content .= "\"$celltext\"".",";
 
@@ -2635,25 +2785,10 @@ sub create_ref_reads_refs_csv {
 			$content .= "\"$celltext\"".",";
 
 			($celltext = $ref->{LS_REF_FOLDSTD}) =~ s/,|\s+|bp//g;
-			$content .= "\"$celltext\"".",";
-
-			($celltext = $ref->{LS_REF_GAPS}) =~ s/,|\s+|bp//g;
-			$content .= "\"$celltext\"".",";
-
-			($celltext = $ref->{LS_REF_GAPBASES}) =~ s/,|\s+|bp//g;
-			$content .= "\"$celltext\"".",";
-
-			($celltext = $ref->{LS_REF_SNPS}) =~ s/,|\s+|bp//g;
-			$content .= "\"$celltext\"".",";
-
-			($celltext = $ref->{LS_REF_INDELS}) =~ s/,|\s+|bp//g;
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_ref_contigs_refs_csv {
@@ -2704,10 +2839,7 @@ sub create_ref_contigs_refs_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_read_genus_ranks_csv {
@@ -2749,10 +2881,7 @@ sub create_tax_read_genus_ranks_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_read_species_ranks_csv {
@@ -2794,10 +2923,7 @@ sub create_tax_read_species_ranks_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_read_strain_ranks_csv {
@@ -2839,10 +2965,7 @@ sub create_tax_read_strain_ranks_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_assembly_contigs_stats_csv {
@@ -2872,10 +2995,7 @@ sub create_tax_assembly_contigs_stats_csv {
 		($celltext = $reports_map{$project}{'tax-assembly-unclassified-contigs-bases'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\""."\n";
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_assembly_count_ranks_csv {
@@ -2908,10 +3028,7 @@ sub create_tax_assembly_count_ranks_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_assembly_len_ranks_csv {
@@ -2944,10 +3061,7 @@ sub create_tax_assembly_len_ranks_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_tool_gottcha_csv {
@@ -2975,10 +3089,7 @@ sub create_tax_tool_gottcha_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_tool_gottcha2_csv {
@@ -3012,10 +3123,7 @@ sub create_tax_tool_gottcha2_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_tool_pangia_csv {
@@ -3052,10 +3160,7 @@ sub create_tax_tool_pangia_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 sub create_tax_tool_other_csv {
@@ -3080,10 +3185,7 @@ sub create_tax_tool_other_csv {
 			$content .= "\"$celltext\""."\n";
 		}
 	}
-	
-	open OUT, ">$out_dir/$file_name" || die "failed to open $out_dir/$file_name: $!";
-	print OUT $content;
-	close OUT;
+	&write_file($file_name,$content);
 }
 
 
