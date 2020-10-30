@@ -97,9 +97,27 @@ sub pull_antismash{
 
 sub pull_qiime{
 	my $output_dir = "$out_dir/QiimeAnalysis";
+	my $log = "$output_dir/processLog.txt";
 	if (-e "$output_dir/index.html"){
 		$vars->{QIIME_OUT_INDEX} = "$output_dir/index.html"; 
 	}
+	if (-e "$log"){
+                $vars->{QIIME_OUT_PROCESSLOG} = "$log";
+		open(my $fh, "<", $log);
+		while(<$fh>){
+			if ($_ = ~/error/i){
+				my $line = $_;
+                                $line =~ s/'$//;
+                                $line =~ s/\\n\\n/<br>/g;
+                                $line =~ s/\\n/<br>/g;
+                                $line =~ s/$abs_outDir\///;
+                                $line =~ s/b''?//g;
+				$vars->{ERROR_qiime} = $line;
+				last;
+			}
+		}
+		close $fh;
+        }
 	#else{
 	#	$vars->{QIIME_OUT_INDEX} = "$output_dir/otus/index.html"; 
 	#} 

@@ -709,13 +709,13 @@ sub pull_reports {
 						}
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_quality_report\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_quality_report\.png)" alt="QC_quality_report">/ | /<img class="preview_img" data-src="(.*QC_length_quality\.png)" alt="QC_quality_report">/) {
 						$proj->{PREQCQUALPNG} = $1;
 						$proj->{PREQCQUALPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-qual-png'} = $1;
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_read_length\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_read_length\.png)" alt="QC/) {
 						$proj->{PREQCREADLENPNG} = $1;
 						$proj->{PREQCREADLENPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-read-length-png'} = $1;
@@ -727,25 +727,31 @@ sub pull_reports {
 						$reports_map{$project}{'preprocess-nucleotide-png'} = $1;
 						next;
 					}
-					if(/<img class="preview_img" data-src="(.*QC_quality_boxplot\.png)" alt="QC_quality_report">/) {
+					if(/<img class="preview_img" data-src="(.*QC_quality_boxplot\.png)" alt="QC_quality_report">/ | /<img class="preview_img" data-src="(.*QC_read_loglength\.png)" alt="QC/) {
 						$proj->{PREQCPLOTPNG} = $1;
 						$proj->{PREQCPLOTPNG_TXT} = "PNG";
 						$reports_map{$project}{'preprocess-qc-boxplot-png'} = $1;
 						next;
 					}
-					if(/<a data-ajax='false' href='(.*QC_qc_report\.pdf)'> QC Report PDF <\/a>/) {
+					if(/<a data-ajax='false' href='(.*QC_qc_report\.pdf)'> QC Report <\/a>/) {
 						$proj->{PREQCREPORTPDF} = $1;
 						$proj->{PREQCREPORTPDF_TXT} = "PDF";
 						$reports_map{$project}{'preprocess-qc-report-pdf'} = $1;
 						last;
 					}					
+					if(/<a data-ajax='false' href='(.*NanoPlot-report\.html)'> QC Report <\/a>/) {
+                                                $proj->{PREQCREPORTPDF} = $1;
+                                                $proj->{PREQCREPORTPDF_TXT} = "HTML";
+                                                $reports_map{$project}{'preprocess-qc-report-pdf'} = $1;
+                                                last;
+                                        }
 					if(/<div .*data-role='collapsible' .*>/) {
 						last;
 					}
 				}
 				next;
 			}
-			if(/<li><span class="li-report-content-title">Host Removal and Filter<\/span><div class="li-report-content">/) {
+			if(/<span class="li-report-content-title">Host Removal and Filter<\/span><div class="li-report-content">/) {
 				while(<IN>) {
 					chomp;
 					s/^\s+|\s+$//g;

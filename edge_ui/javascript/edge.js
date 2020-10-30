@@ -3952,6 +3952,7 @@ $( document ).ready(function()
 					multiple:true
 				});
 				$( "#edge-projects-report-page .edge-report-form-block" ).enhanceWithin();
+				$('#edge-projects-report-form-submit').parent().enhanceWithin();
 
 				$.getScript( "./javascript/edge-projects-report.js" )
 					.done(function( script, textStatus ) {
