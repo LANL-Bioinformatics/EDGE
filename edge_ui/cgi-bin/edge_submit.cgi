@@ -1658,7 +1658,7 @@ sub getSRAmetaData{
  		$opt{'metadata-exp-title'} = $exp_title;
 		$opt{'metadata-sequencer'} = $instrument;
 
-		my $url2 = "http://www.ebi.ac.uk/ena/data/warehouse/search?query=accession=$sample_acc&result=sample&fields=accession,collection_date,country,description,first_public,isolation_source,location,scientific_name,sample_alias,center_name,environment_material,host,host_status,host_sex&display=report";
+		my $url2 = "https://www.ebi.ac.uk/ena/portal/api/filereport?query=accession=$sample_acc&result=sample&fields=accession,collection_date,country,description,first_public,isolation_source,location,scientific_name,sample_alias,center_name,environment_material,host,host_status,host_sex&display=report";
 		my $cmd2 =  ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url2\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url2\" 2>/dev/null";
 		my $web_result2 = `$cmd2`;
 		my @lines2 = split '\n', $web_result2;
@@ -1723,7 +1723,6 @@ sub getSRAmetaData{
 			$opt{'lng'} = $lng;
 			$opt{'metadata-seq-date'} = $seqDate;
  			$opt{'metadata-seq-center'} = $center;
-
 		}
 	}
 	return 0;
