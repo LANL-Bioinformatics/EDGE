@@ -67,6 +67,7 @@ if( scalar keys %$list && $sys->{edgeui_auto_run} ){
 				chdir $RealBin;
 				my $json = `$RealBin/edge_action.cgi $proj rerun "" "" "" "" $domain 0 2>> $proj_dir/error.log`;
 				print STDERR "$json\n" if ($debug);
+				next if $json =~ /failure/i;
 				#print STDERR "$cmd\n" if ($debug);
 				$num_cpu_used += $list->{$i}->{CPU};
 			}else{
