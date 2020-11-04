@@ -98,6 +98,7 @@ my $edge_ref_genome_file_max = $sys->{edge_ref_genome_file_max} || 20;
 my $edge_phylo_genome_file_max = $sys->{edge_phylo_genome_file_max} || 20;
 my $projlist;
 my @pnames;
+my $sra_info;
 
 ##### Logan add Specialty Gene Options Convert to Percent#####
 my $sb_min_id = sprintf("%.3f", $opt{"edge-sg-identity-options"});
@@ -379,7 +380,8 @@ sub createConfig {
 			$opt_orig->{"edge-proj-desc"} = $projlist->{$pname}->{"description"};
 			$opt_orig->{"edge-proj-name"} = $real_names[$i];
 			$opt_orig->{"edge-ref-file"} = $projlist->{$pname}->{"reference"};
-                }
+			$opt_orig->{"edge-sra-acc"} = $projlist->{$pname}->{"sra"};
+        }
 		#backup config first
 		move ("$config_out", "$config_out.bak") if( -e $config_out );
 		move ("$json_out","$json_out.bak") if( -e $json_out );
@@ -408,7 +410,7 @@ sub createConfig {
 						$line =~ s/^projdesc=.*/projdesc=$opt{"edge-proj-desc"}/;
 					}
 					elsif( $line =~ /^projid=/ ){
-						$line =~ s/^projdesc=.*/projdesc=$pname/;
+						$line =~ s/^projid=.*/projid=$pname/;
 					}
 					$line =~ s/[`;]//g;
 					&addMessage("GENERATE_CONFIG","failure","Invalid config") if ($line =~ /\.\.\//);
@@ -447,6 +449,46 @@ sub createConfig {
 				$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname  ;
 				$opt{"edge-ref-file"} = $projlist->{$pname}->{"reference"} if ($projlist->{$pname}->{"reference"});
 				$opt{"edge-ref-sw"} = 1 if ($projlist->{$pname}->{"reference"});
+				if ($projlist->{$pname}->{"sra"}){
+					$opt{"edge-sra-acc"} = uc $projlist->{$pname}->{"sra"};
+					$opt{"edge-sra-sw"} = 1;
+					&loadSRAinfoToOpt($sra_info,$real_names[$i]);
+					if ( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /nanopore|minion|pacbio/i ){
+						$opt{"edge-fastq-source"} = "nanopore";
+						$opt{"edge-qc-minl"} = 350;
+						$opt{"edge-qc-q"} = 7;
+						$opt{"splitrim-minq"}= 7 ;
+						$opt{"edge-r2g-max-clip"}= 150;
+						$opt{"edge-r2g-con-min-baseQ"}= 5;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.8 ;
+						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
+						$opt{"edge-r2g-aligner"} = 'minimap2' ;
+						$opt{"edge-r2c-aligner"} = 'minimap2' ;
+						$opt{"edge-assembler"} = 'lrasm' ;
+						$opt{"edge-r2g-variantcall-sw"} = 0;
+						$opt{"edge-lrasm-preset"} = "ont";
+						if( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i){
+							$opt{"edge-r2c-aligner-options"} = "-x map-pb";
+							$opt{"edge-r2g-aligner-options"} = "-x map-pb";
+							$opt{"edge-lrasm-preset"} = "pb";
+						}
+					}else{ # illumina
+						$opt{"edge-fastq-source"} = "not";
+						$opt{"edge-qc-minl"} = 50;
+						$opt{"edge-qc-q"} = 20;
+						$opt{"splitrim-minq"}= 20 ;
+						$opt{"edge-r2g-max-clip"}= 50;
+						$opt{"edge-r2g-con-min-baseQ"}= 20;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.5 ;
+						$opt{"edge-r2g-con-disableBAQ"}= 0 ;
+						$opt{"edge-r2g-aligner"} = 'bwa' ;
+						$opt{"edge-r2c-aligner"} = 'bwa' ;
+						$opt{"edge-assembler"} = 'idba_ud' if $opt{"edge-assembler"} eq 'lrasm' ; 
+						$opt{"edge-r2g-variantcall-sw"} = 1;
+						$opt{"edge-r2c-aligner-options"} = "";
+						$opt{"edge-r2g-aligner-options"} = "";
+					}
+				}
 			}
 			$opt{"edge-proj-id"} = $pname;
 			$opt{"edge-proj-code"} = $projlist->{$pname}->{projCode};
@@ -672,6 +714,7 @@ sub addProjToDB{
 		my $info =  from_json($result_json);
 		my $new_id =  $info->{"id"};
 		my $projCode = &getProjcode($new_id);
+		## here pnames been replace by id
 		$pnames[$pname_index] = $new_id;
 		&addMessage("PROJECT_NAME","info","Assigned project $pname with ID $new_id");
 		&addMessage("ASSIGN_PROJ_ID","failure","Database doens't assign $pname a project ID. You may not be logged in properly. Please contact admins.") if (!$new_id);
@@ -823,28 +866,35 @@ sub checkParams {
 			my $pe2=$projlist->{$pname}->{"q2"};
 			my $se=$projlist->{$pname}->{"s"};
 			my $ref=$projlist->{$pname}->{"reference"};
+			my @sra_accs = split(/,/,$projlist->{$pname}->{"sra"}); 
 
 			if ($namesUsed{$pname}){
 				&addMessage("PARAMS","edge-batch-input-excel", "Duplicate project name found.");
 			}else{
-    				$namesUsed{$pname}=1;
-    			}
+    			$namesUsed{$pname}=1;
+    		}
+    		
 			my $field_id = "edge-batch-input-excel";
-    			&addMessage("PARAMS",$field_id,"Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
-    			&addMessage("PARAMS",$field_id,"Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
-    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS",$field_id,"Invalid characters detected in $ref of $pname.") if (-f $ref and $ref =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
-    			&addMessage("PARAMS",$field_id,"Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
-    			&addMessage("PARAMS",$field_id,"Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
-    			&addMessage("PARAMS",$field_id,"Input error. Please check the reference file path of $pname") if ($ref && $ref !~ /^http|ftp/i && ! -e $ref);
+			&addMessage("PARAMS",$field_id,"Invalid project name. Only alphabets, numbers and underscore are allowed in project name.") if ($pname =~ /\W/);
+			&addMessage("PARAMS",$field_id,"Invalid project name. Please input at least 3 characters but less than 30 .") if (length($pname) < 3 || length($pname) > 30);
+			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe1 of $pname.") if (-f $pe1 and $pe1 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+			&addMessage("PARAMS",$field_id,"Invalid characters detected in $pe2 of $pname.") if (-f $pe2 and $pe2 =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+			&addMessage("PARAMS",$field_id,"Invalid characters detected in $ref of $pname.") if (-f $ref and $ref =~ /[\<\>\!\~\@\#\$\^\&\;\*\(\)\"\' ]/);
+			&addMessage("PARAMS",$field_id,"Input error. Please check the q1 file path of $pname") if ($pe1 && $pe1 !~ /^http|ftp/i && ! -e $pe1);
+			&addMessage("PARAMS",$field_id,"Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
+			&addMessage("PARAMS",$field_id,"Input error. Please check the reference file path of $pname") if ($ref && $ref !~ /^http|ftp/i && ! -e $ref);
 			&addMessage("PARAMS",$field_id,"Invalid input. Fasta or Genbank format required of $pname") if ( -e $ref && ! is_fasta($ref) && ! is_genbank($ref));
-    			&addMessage("PARAMS",$field_id,"Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-    			&addMessage("PARAMS",$field_id,"Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2);
+			&addMessage("PARAMS",$field_id,"Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
+			&addMessage("PARAMS",$field_id,"Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2 && !@sra_accs);
+			foreach my $sra_id (@sra_accs){
+				&addMessage("PARAMS",$field_id,"Input error. Please check the SRA accession of $pname") if ( $sra_id =~ /[^a-zA-Z0-9\-_\.]\,/);
+				( my $return,$sra_info)=&getSRAmetaData($sra_id,$pname, $sra_info);
+				&addMessage("PARAMS",$field_id,"Input error. Cannot find $sra_id of $pname") if (!$return);
+			}
 			if ( -e "$ref"){
 				$opt{"edge-ref-file[]"}=$ref;
 			}
-    		}
+    	}
 	}else{  ## Single project input
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Only alphabets, numbers, dashs, dot and underscore are allowed in project name.") if( $opt{"edge-proj-name"} =~ /[^a-zA-Z0-9\-_\.]/ );
 		&addMessage("PARAMS","edge-proj-name","Invalid project name. Please input at least 3 characters but less than 30.") if( length($opt{"edge-proj-name"}) < 3  || length($pname) > 30 );
@@ -931,8 +981,9 @@ sub checkParams {
 			&addMessage("PARAMS","edge-sra-acc","Input error. Please input SRA accession") if ( ! $opt{'edge-sra-acc'} || $opt{'edge-sra-acc'} =~ /[^a-zA-Z0-9\-_\.]\,/);
 			my @SRA_ids = split /,/,$opt{'edge-sra-acc'};
 			foreach my $sra_id (@SRA_ids){
-				my $return=&getSRAmetaData($sra_id);
-				&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $sra_id") if ($return);
+				(my $return,$sra_info)=&getSRAmetaData($sra_id,$pname, $sra_info);
+				&addMessage("PARAMS","edge-sra-acc","Input error. Cannot find $sra_id") if (!$return);
+				&loadSRAinfoToOpt($sra_info, $pname);
 			}
 		}
 		if ($opt{'edge-inputS-sw'} eq "fastq"){
@@ -1455,7 +1506,9 @@ sub count_fasta {
 }
 ##sample metadata
 sub createSampleMetadataFile {
-	foreach my $pname (@pnames){
+	for my $i (0..$#pnames){
+		my $pname = $pnames[$i];
+		&loadSRAinfoToOpt($sra_info,$real_names[$i]);
 		if ( $sys->{edge_sample_metadata} && ($opt{'metadata-study-title'} || $opt{'metadata-sample-name'} || $opt{'metadata-exp-title'})){
 			#travels
 			my $travel_out = "$out_dir/$pname/metadata_travels.txt";
@@ -1591,105 +1644,124 @@ sub createSampleMetadataFile {
 }
 
 sub getSRAmetaData{
-	my $accession=shift;
-	$accession =~ s/\s+//g;
+	my $acc = shift;
+	my $pname = shift;
+	my $sra_info = shift;
+	$acc =~ s/\s+//g;
 	my $proxy = $ENV{HTTP_PROXY} || $ENV{http_proxy} || $sys->{proxy};
 	$proxy = "--proxy \'$proxy\' " if ($proxy);
-	my $url="https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$accession&result=read_run&display=report&fields=run_accession,sample_accession,study_accession,study_title,experiment_title,scientific_name,instrument_model,instrument_platform,library_layout,base_count&limit=1000";
+	my $url = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=$acc";
 	my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
-	my $web_result = `$cmd`;
-	my @lines = split '\n', $web_result;
-	return 1 if ($#lines == 0);
-        #print STDERR "$#lines run(s) found from EBI-ENA.\n";
-        foreach my $line (@lines){
-		next if $line =~ /^study_accession/;
-                chomp;
-		my @f = split '\t', $line;
-		
-                my $run_acc  = $f[0]; #run_accession
-		my $sample_acc = $f[1]; #sample_accession
-		my $study_acc = $f[2]; #study_accession
-		my $study_title = $f[3]; #study_title
-                my $exp_title  = $f[4]; #experiment_accession
-		my $instrument = $f[6]; #instrument_model
-                my $platform = $f[7]; #instrument_platform
-                my $library  = $f[8]; #library_layout
-                $opt{'metadata-sra-run-acc'} = $run_acc;
-		$opt{'metadata-study-id'} = $study_acc;
-		$opt{'metadata-study-title'} = $study_title;
- 		$opt{'metadata-exp-title'} = $exp_title;
-		$opt{'metadata-sequencer'} = $instrument;
-
-		my $url2 = "http://www.ebi.ac.uk/ena/data/warehouse/search?query=accession=$sample_acc&result=sample&fields=accession,collection_date,country,description,first_public,isolation_source,location,scientific_name,sample_alias,center_name,environment_material,host,host_status,host_sex&display=report";
-		my $cmd2 =  ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url2\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url2\" 2>/dev/null";
-		my $web_result2 = `$cmd2`;
-		my @lines2 = split '\n', $web_result2;
-		my ($sampleType, $host, $collectionDate, $city, $state, $country, $lat, $lng,$seqPlatform, $gender, $hostCondition, $source, $sampleName, $center, $seqDate, $location);
-		foreach my $line2 (@lines2){
-			chomp;
-			next if($line2 =~ /^accession/);
-			next if ($line2 =~ /^\s*$/);
-			my @parts = split /\t/, $line2;
-			$collectionDate = $parts[1];
-			if($collectionDate =~ /\//) {
-				my @its = split /\//, $collectionDate;
-				$collectionDate = $its[1]; 
-			}
-			print STDERR $collectionDate,"\n";;
-			$location = $parts[2];
-  			$sampleName = $parts[3];
- 			$sampleName = $parts[8] unless $sampleName;
- 			$seqDate = $parts[4];
-   			if($seqDate =~ /\//) {
-   				my @its = split /\//, $seqDate;
-  				$seqDate = $its[1];     
-			}       
-			$source = $parts[5];
-			$source = $parts[10] unless $source;
-			my $latlng = $parts[6];
-			$latlng =~ s/^\s+//;
-			my @its = split /\s+/, $latlng;
-			$lat = $its[0];
-			$lng = $its[2];
-			if($its[1] eq "S") {
-				$lat = -$lat;
-			}
-			if($its[3] eq "W") {
-				$lng = -$lng;
-			}
-			$host = $parts[11];
-			$sampleType = "environmental";
-			my $stype = lc $parts[7];
-			if($stype =~ /human|homo/ || lc($host) =~ /human|homo/) {
-				$sampleType = "human";
-			} 
-			elsif($stype =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/ || lc($host) =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/) {
-				$sampleType = "animal";
-			} 
-			$center = $parts[9];
-			$hostCondition = $parts[12];
-			$gender = $parts[13];   
-			#($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);	
-
-			$opt{'metadata-sample-name'} = $sampleName;
-			$opt{'metadata-sample-type'} = $sampleType;
-			$opt{'metadata-host-gender'} = $gender;
-			$opt{'metadata-host'} = $host;
-			$opt{'metadata-host-condition'} = $hostCondition;
-			$opt{'metadata-isolation-source'} = $source;
-			$opt{'metadata-sample-collection-date'} = $collectionDate;
-			$opt{'metadata-sample-location'} = $location;
-			$opt{'locality'} = $city if $city ne "NA";
- 			$opt{'administrative_area_level_1'} = $state if $state ne "NA";
- 			$opt{'country'} = $country;
- 			$opt{'lat'} = $lat;
-			$opt{'lng'} = $lng;
-			$opt{'metadata-seq-date'} = $seqDate;
- 			$opt{'metadata-seq-center'} = $center;
-
-		}
+	my $SRA_fh;
+	my $pid = open ($SRA_fh, "-|")
+			or exec($cmd);
+	my $line_num=0;
+	my $platform;
+	while(my $line=<$SRA_fh>){
+		chomp;
+		next if $line =~ /^Run/;
+		next unless $line =~ /\S/;
+		my @f = split ',', $line;
+		my $sub_acc  = $f[42]; #Submission acc
+		my $exp_acc  = $f[10]; #experiment_accession
+		my $run_acc  = $f[0];  #run
+		my $size_MB  = $f[7];
+		$platform = $f[18]; #platform
+		my $model = $f[19];
+		my $study_id = $f[20];
+		my $library  = $f[15]; #LibraryLayout
+		my $url      = $f[9];  #download_path
+		my $sample_acc = $f[24];
+		my $taxID = $f[27];
+		my $sampleName = $f[29];
+		$sra_info->{$pname}->{'metadata-sra-run-acc'} = $run_acc;
+		$sra_info->{$pname}->{'metadata-study-id'} = $study_id;
+		$sra_info->{$pname}->{'metadata-sequencer'} = $platform.' '.$model;
+		$sra_info->{$pname}->{'metadata-sample-name'} = $sampleName;
+		$line_num++;
 	}
-	return 0;
+	close $SRA_fh;
+	if (!$line_num){
+		return ($line_num,$sra_info);
+	}
+	### Get detailed metadata from ebi ena portal api
+	my $url2 = "https://www.ebi.ac.uk/ena/portal/api/filereport?accession=$acc&result=read_run&fields=accession,collection_date,country,description,first_public,isolation_source,location,scientific_name,sample_alias,center_name,environment_material,host,host_status,host_sex,experiment_title,study_title";
+	my $cmd2 =  ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url2\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url2\" 2>/dev/null";
+	my $web_result2 = `$cmd2`;
+	my @lines2 = split '\n', $web_result2;
+	my ($sampleType, $host, $collectionDate, $city, $state, $country, $lat, $lng,$seqPlatform, $gender, $hostCondition, $source, $sampleName, $center, $seqDate, $location);
+	foreach my $line2 (@lines2){
+		chomp $line2;
+		next if($line2 =~ /^run_accession/);
+		next if ($line2 =~ /^\s*$/);
+		my @parts = split /\t/, $line2;
+		$collectionDate = $parts[3];
+		if($collectionDate =~ /\//) {
+			my @its = split /\//, $collectionDate;
+			$collectionDate = $its[3];
+		}
+		$location = $parts[4];
+		$sampleName = $parts[5];
+		$sampleName = $parts[10] unless $sampleName;
+		$seqDate = $parts[6];
+		if($seqDate =~ /\//) {
+			my @its = split /\//, $seqDate;
+			$seqDate = $its[1];
+		}
+		$source = $parts[7];
+		$source = $parts[12] unless $source;
+		my $latlng = $parts[8];
+		$latlng =~ s/^\s+//;
+		my @its = split /\s+/, $latlng;
+		$lat = $its[0];
+		$lng = $its[2];
+		if($its[1] eq "S") {
+			$lat = -$lat;
+		}
+		if($its[3] eq "W") {
+			$lng = -$lng;
+		}
+		$host = $parts[13];
+		$sampleType = "environmental";
+		my $stype = lc $parts[9];
+		if($stype =~ /human|homo/ || lc($host) =~ /human|homo/) {
+			$sampleType = "human";
+		}
+		elsif($stype =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/ || lc($host) =~ /mouse|rat|pig|fish|ant|chicken|bee|frog/){
+			$sampleType = "animal";
+		}
+		$center = $parts[11];
+		$hostCondition = $parts[14];
+		$gender = $parts[15];
+		#($lat,$lng,$city,$state,$country,$location) = getGeocode($lat, $lng, $location);
+
+		$sra_info->{$pname}->{'metadata-sample-name'} = $sampleName;
+		$sra_info->{$pname}->{'metadata-sample-type'} = $sampleType;
+		$sra_info->{$pname}->{'metadata-host-gender'} = $gender;
+		$sra_info->{$pname}->{'metadata-host'} = $host;
+		$sra_info->{$pname}->{'metadata-host-condition'} = $hostCondition;
+		$sra_info->{$pname}->{'metadata-isolation-source'} = $source;
+ 		$sra_info->{$pname}->{'metadata-sample-collection-date'} = $collectionDate;
+		$sra_info->{$pname}->{'metadata-sample-location'} = $location;
+		$sra_info->{$pname}->{'locality'} = $city if $city ne "NA";
+		$sra_info->{$pname}->{'administrative_area_level_1'} = $state if $state ne "NA";
+		$sra_info->{$pname}->{'country'} = $country || $location;
+		$sra_info->{$pname}->{'lat'} = $lat;
+		$sra_info->{$pname}->{'lng'} = $lng;
+		$sra_info->{$pname}->{'metadata-seq-date'} = $seqDate;
+		$sra_info->{$pname}->{'metadata-seq-center'} = $center;
+		$sra_info->{$pname}->{'metadata-study-title'} = $parts[17];
+		$sra_info->{$pname}->{'metadata-exp-title'} = $parts[16];
+	}
+	return ($line_num,$sra_info);
+}
+
+sub loadSRAinfoToOpt {
+	my $sra_info = shift;
+	my $pname = shift;
+	foreach my $key (keys %{$sra_info->{$pname}}){
+		$opt{$key} = $sra_info->{$pname}->{$key};
+	}
 }
 
 sub getGeocode($){
