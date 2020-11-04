@@ -2262,7 +2262,7 @@ $( document ).ready(function()
 					}
 					//END sample metadata
 					if(action === "tree"){
-						actionContent = "Do you want place following genome(s) into a larger SARS-CoV-2 tree using <a href='https://genome.ucsc.edu/cgi-bin/hgPhyloPlace' target='new'>UShER</a>?"
+						actionContent = "Do you want place following genome(s) into a larger SARS-CoV-2 tree using <a href='https://genome.ucsc.edu/cgi-bin/hgPhyloPlace' target='new'>UShER</a> and UCSC genome browser?"
 					}
 					if ( action === "0" ){
 						return;
