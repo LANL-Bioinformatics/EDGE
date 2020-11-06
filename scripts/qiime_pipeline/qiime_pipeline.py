@@ -19,7 +19,7 @@ import glob
 import re
 import numpy as np
 import pandas as pd
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 script_path = os.path.dirname(os.path.abspath(__file__))
@@ -187,9 +187,9 @@ def fix_mappingFile(mappingFile,out_dir):
     f =  open (mappingFile, "r")
     ff = open (fix_f, 'w')
     category_list=list()
-    non_category_list=['SampleID','Barcode','Linker','Day','Description']
+    non_category_list=['#SampleID','Barcode','Linker','Day','Description','Time','Files']
     num_sample = 0
-    cat_dict=defaultdict(dict)
+    cat_dict=defaultdict(Counter)
     for line in f:
         if not line.strip():continue
         temp = [ x.rstrip().strip(' "') for x in line.strip().split('\t')]
@@ -214,6 +214,9 @@ def fix_mappingFile(mappingFile,out_dir):
             num_sample += 1
     for x in header:
         if x not in non_category_list:
+            ## for Beta diversity test, each group should have > 1 samples to get within sample distances ??
+            ##  https://forum.qiime2.org/t/error-on-beta-group-significance/1789/6
+            ## if len(cat_dict[x]) > 1 and len(cat_dict[x]) < num_sample and all(v > 1 for v in cat_dict[x].values()):
             if len(cat_dict[x]) > 1 and len(cat_dict[x]) < num_sample:
                 category_list.append(x)        
     f.close    
@@ -821,6 +824,7 @@ if __name__ == '__main__':
                 qiime_export_html("DiversityAnalysis/%s_distance_matrix.qza" % x ,"DiversityAnalysis/%s_distance_matrix" % x)
                 if len(category_list) > 0:
             	    for g in category_list:
+                        ## disable --p-pairwise to avoid error in https://forum.qiime2.org/t/error-on-beta-group-significance/1789/6 ??
                         cmd = ("qiime diversity beta-group-significance --i-distance-matrix DiversityAnalysis/%s_distance_matrix.qza "
                                 "--m-metadata-file %s --m-metadata-column %s --o-visualization DiversityAnalysis/%s-%s-significance.qzv --p-pairwise") % (x, mappingFile, g, x, g)
                         process_cmd(cmd, '%s: Beta diversity PERMANOVA test' % (g) )
