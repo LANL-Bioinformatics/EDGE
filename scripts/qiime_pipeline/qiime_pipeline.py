@@ -187,7 +187,7 @@ def fix_mappingFile(mappingFile,out_dir):
     f =  open (mappingFile, "r")
     ff = open (fix_f, 'w')
     category_list=list()
-    non_category_list=['#SampleID','Barcode','Linker','Day','Description','Time','Files']
+    non_category_list=['#SampleID','Barcode','Linker','Day','Description','Files']
     num_sample = 0
     cat_dict=defaultdict(Counter)
     for line in f:
@@ -214,6 +214,12 @@ def fix_mappingFile(mappingFile,out_dir):
             num_sample += 1
     for x in header:
         if x not in non_category_list:
+            try:
+                ## Assume all numeric is not category
+                if (all( x.isnumeric() for x in cat_dict[x])):
+                    continue
+            except:
+                pass
             ## for Beta diversity test, each group should have > 1 samples to get within sample distances ??
             ##  https://forum.qiime2.org/t/error-on-beta-group-significance/1789/6
             ## if len(cat_dict[x]) > 1 and len(cat_dict[x]) < num_sample and all(v > 1 for v in cat_dict[x].values()):
