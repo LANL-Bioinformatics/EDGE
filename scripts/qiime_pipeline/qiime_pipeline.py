@@ -193,7 +193,7 @@ def fix_mappingFile(mappingFile,out_dir):
     for line in f:
         if not line.strip():continue
         temp = [ x.rstrip().strip(' "') for x in line.strip().split('\t')]
-        temp[0] = temp[0].replace('.', '-').replace('_', '-')
+        temp[0] = temp[0].replace('.', '-').replace('_', '-').replace(' ','-')
         if line.lower().startswith('#'):
             line = line.strip().replace('sample_name', 'Sample_Name')
             temp = [ x.rstrip().strip(' "') for x in line.split('\t')]

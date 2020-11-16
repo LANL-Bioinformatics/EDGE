@@ -1677,7 +1677,9 @@
 			</TMPL_IF>
 			<p class='extra-text-link'>Link to
 			|<a data-ajax='false' href='<TMPL_VAR NAME=QIIME_OUT_PROCESSLOG DEFAULT=->'> process.log </a>
+			<TMPL_IF NAME="QIIME_OUT_TAXONOMY">
 			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/TaxonomyAnalysis'> TaxonomyAnalysis result </a>
+			</TMPL_IF>
 			|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/QiimeAnalysis/'> Directory </a>
 			</p>
 			

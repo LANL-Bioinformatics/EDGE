@@ -105,7 +105,7 @@ sub pull_qiime{
                 $vars->{QIIME_OUT_PROCESSLOG} = "$log";
 		open(my $fh, "<", $log);
 		while(<$fh>){
-			if ($_ = ~/error/i){
+			if ($_ = ~/error|failed/i){
 				my $line = $_;
                                 $line =~ s/'$//;
                                 $line =~ s/\\n\\n/<br>/g;
@@ -118,6 +118,7 @@ sub pull_qiime{
 		}
 		close $fh;
         }
+	$vars->{QIIME_OUT_TAXONOMY} = 1 if ( -e "$output_dir/TaxonomyAnalysis/taxonomy.qza");
 	#else{
 	#	$vars->{QIIME_OUT_INDEX} = "$output_dir/otus/index.html"; 
 	#} 
