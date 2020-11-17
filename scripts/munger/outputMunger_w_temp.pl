@@ -105,7 +105,7 @@ sub pull_qiime{
                 $vars->{QIIME_OUT_PROCESSLOG} = "$log";
 		open(my $fh, "<", $log);
 		while(<$fh>){
-			if ($_ = ~/error|failed/i){
+			if ($_ =~ /error|failed/i){
 				my $line = $_;
                                 $line =~ s/'$//;
                                 $line =~ s/\\n\\n/<br>/g;
