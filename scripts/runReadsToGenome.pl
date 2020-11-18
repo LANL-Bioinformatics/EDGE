@@ -264,7 +264,8 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`snap-aligner single $ref_file.snap $singleton -o $outDir/singleton$$.sam $snap_options`;
 		}
 		elsif ($aligner =~ /minimap2/i){
-			`minimap2  --MD $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+			my $minimap2_sr_options =  ($minimap2_options =~ /-x /)? "":"-x sr ";
+			`minimap2  --MD $minimap2_options -a $minimap2_sr_options $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
 		}
 		`samclip --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam $align_trim_pipe_cmd | samtools view -@ $samtools_threads -t $ref_file.fai -uhS  - | samtools sort $samtools_sort_ram -T $tmp -@ $samtools_threads -O BAM -o $outDir/singleton$$.bam` if (-s "$outDir/singleton$$.sam");
 	}
