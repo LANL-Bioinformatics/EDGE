@@ -187,17 +187,18 @@ def fix_mappingFile(mappingFile,out_dir):
     f =  open (mappingFile, "r")
     ff = open (fix_f, 'w')
     category_list=list()
+    fix_metadata_list=list()
     non_category_list=['#SampleID','Barcode','Linker','Day','Description','Files']
     num_sample = 0
     cat_dict=defaultdict(Counter)
     for line in f:
         if not line.strip():continue
-        temp = [ x.rstrip().strip(' "') for x in line.strip().split('\t')]
+        temp = [ x.strip(' "\'\n') for x in line.strip().split('\t')]
         temp[0] = temp[0].replace('.', '-').replace('_', '-').replace(' ','-')
         if line.lower().startswith('#'):
             line = line.strip().replace('sample_name', 'Sample_Name')
-            temp = [ x.rstrip().strip(' "') for x in line.split('\t')]
-            header = line.split('\t')
+            temp = [ x.strip(' "\'\n').replace(' ','-') for x in line.split('\t')]
+            header = temp
         else:
             if len(temp) > len(header):
                 sys.exit("[Error] Metadata row contains more cells than are declared by the header. Row detail: %s" % line)
@@ -207,9 +208,8 @@ def fix_mappingFile(mappingFile,out_dir):
             for i, e in enumerate(temp):
                 if header[i] not in non_category_list:
                     cat_dict[header[i]][temp[i]]=1
-
-        new_line = "\t".join(temp)
-        ff.write(new_line + "\n")
+                    
+        fix_metadata_list.append("\t".join(temp))
         if not line.lower().startswith('#'):
             num_sample += 1
     for x in header:
@@ -226,6 +226,18 @@ def fix_mappingFile(mappingFile,out_dir):
             if len(cat_dict[x]) > 1 and len(cat_dict[x]) < num_sample:
                 category_list.append(x)        
     f.close    
+
+    for line in fix_metadata_list:
+        temp = line.split('\t')
+        if line.lower().startswith('#'):
+            header = temp
+        else:
+            for i, e in enumerate(temp):
+                if header[i] in category_list:
+                    temp[i]=re.sub('[^0-9a-zA-Z]+', '-',temp[i])
+        new_line = "\t".join(temp)
+        ff.write(new_line + "\n")
+        
     ff.close
     os.remove(mappingFile)
     
@@ -832,7 +844,7 @@ if __name__ == '__main__':
             	    for g in category_list:
                         ## disable --p-pairwise to avoid error in https://forum.qiime2.org/t/error-on-beta-group-significance/1789/6 ??
                         cmd = ("qiime diversity beta-group-significance --i-distance-matrix DiversityAnalysis/%s_distance_matrix.qza "
-                                "--m-metadata-file %s --m-metadata-column %s --o-visualization DiversityAnalysis/%s-%s-significance.qzv --p-pairwise") % (x, mappingFile, g, x, g)
+                                "--m-metadata-file %s --m-metadata-column '%s' --o-visualization DiversityAnalysis/%s-%s-significance.qzv --p-pairwise") % (x, mappingFile, g, x, g)
                         process_cmd(cmd, '%s: Beta diversity PERMANOVA test' % (g) )
                         if os.path.isfile("DiversityAnalysis/%s-%s-significance.qzv" % (x, g)):
                             qiime_export_html("DiversityAnalysis/%s-%s-significance.qzv" % (x,g),"DiversityAnalysis/%s_%s_boxplot" % (x,g))
@@ -880,10 +892,11 @@ if __name__ == '__main__':
     raw_table = 'QCandFT/table.qza'
     data_table = 'DiversityAnalysis/rarefied_table.qza' if os.path.isfile('DiversityAnalysis/rarefied_table.qza') else 'QCandFT/table.qza'
     if not os.path.isfile('TaxonomyAnalysis/taxa-bar-plots.qzv'):
-        mkdir_p('TaxonomyAnalysis')    
+        mkdir_p('TaxonomyAnalysis')
+        classifier_cpu = 8 if argvs.cpus >8 else argvs.cpus
         taxa_cmd = ("qiime feature-classifier classify-sklearn --i-classifier %s " 
                     "--i-reads QCandFT/rep-seqs.qza --o-classification TaxonomyAnalysis/taxonomy.qza "
-                    "--p-n-jobs %d " ) % (nb_classifier,argvs.cpus) 
+                    "--p-n-jobs %d " ) % (nb_classifier,classifier_cpu) 
         process_cmd(taxa_cmd, 'Taxonomic analyses')
         taxa_table_cmd = ('qiime metadata tabulate --m-input-file QCandFT/rep-seqs.qza --m-input-file TaxonomyAnalysis/taxonomy.qza --o-visualization TaxonomyAnalysis/taxonomy.qzv')
         process_cmd(taxa_table_cmd, 'Taxonomic tabulate')
@@ -904,7 +917,7 @@ if __name__ == '__main__':
         process_cmd(cmd)
         for g in category_list:
             cmd = ("qiime composition ancom --i-table TaxonomyAnalysis/comp-table-l6.qza --m-metadata-file %s "
-                   "--m-metadata-column %s --o-visualization TaxonomyAnalysis/l6-ancom-%s.qzv ") % (mappingFile, g, g)
+                   "--m-metadata-column '%s' --o-visualization TaxonomyAnalysis/l6-ancom-%s.qzv ") % (mappingFile, g, g)
             process_cmd(cmd,'%s: Taxonomic abundance testing with ANCOM' % (g))
             qiime_export_html('TaxonomyAnalysis//l6-ancom-%s.qzv' % (g),'TaxonomyAnalysis/l6-ancom-%s' % (g) )
 

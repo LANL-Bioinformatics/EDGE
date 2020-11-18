@@ -110,7 +110,8 @@ sub pull_qiime{
                                 $line =~ s/'$//;
                                 $line =~ s/\\n\\n/<br>/g;
                                 $line =~ s/\\n/<br>/g;
-                                $line =~ s/$abs_outDir\///;
+                                $line =~ s/$www_root\///;
+				$line =~ s/$out_dir\///;
                                 $line =~ s/b''?//g;
 				$vars->{ERROR_qiime} = $line;
 				last;
