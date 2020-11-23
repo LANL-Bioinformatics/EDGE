@@ -13,6 +13,7 @@ my $opt_unmapped;
 my $opt_passfilter;
 my $prefix = "Reads";
 my $mapped_ref_id="";
+my $remove_soft_clip;
 GetOptions(  
             'in_offset=i'  =>  \$in_offset,
             'out_offset=i' =>  \$out_offset,
@@ -21,6 +22,7 @@ GetOptions(
 	    'id=s'	   =>  \$mapped_ref_id, 
             'unmapped'     =>  \$opt_unmapped,
             'pf'           =>  \$opt_passfilter,
+            'remove_softclip' => \$remove_soft_clip,  
             'prefix=s'     =>  \$prefix,
             'help|?'       =>  sub{Usage()}
 );
@@ -47,10 +49,20 @@ while(<IN>)
 {
   chomp;
   my @array=split /\t/,$_;
+  my $CIGAR = $array[5];
+  my $seq = $array[9];
+  my $q_seq = $array[10];
+  my ($front_soft_clip_num, $end_soft_clip_num) = (0,0);
+  if ($CIGAR =~ /^(\d+)S/) { $front_soft_clip_num = $1;}
+  if ($CIGAR =~ /(\d+)S$/) { $end_soft_clip_num = $1;}
+  if ($remove_soft_clip){
+	$seq = substr $array[9], $front_soft_clip_num, length($array[9]) - $front_soft_clip_num - $end_soft_clip_num;
+	$q_seq = substr $array[10], $front_soft_clip_num, length($array[10]) - $front_soft_clip_num - $end_soft_clip_num;
+  }
   next if ($opt_passfilter and ($array[1] & 512));
   if ($in_offset != $out_offset)
   {
-     $array[10]=&quality_conversion($array[10],$in_offset,$out_offset);
+     $q_seq=&quality_conversion($q_seq,$in_offset,$out_offset);
   }
   if($array[1] & 1)    
   {
@@ -59,50 +71,35 @@ while(<IN>)
       )  
       {
           $se_count++;
-          $array[9]=ReverseComplement($array[9]) if ($array[1] & 16);
-          $array[10]=reverse($array[10])if ($array[1] & 16);
-          print $se_fh "@",$array[0],"\n";
-          print $se_fh $array[9],"\n";
-          print $se_fh "+\n";
-          print $se_fh $array[10],"\n";
+          $seq=ReverseComplement($seq) if ($array[1] & 16);
+          $q_seq=reverse($q_seq)if ($array[1] & 16);
+          &write_read($se_fh,$array[0],$seq,$q_seq);
       }else{
-          $array[9]=ReverseComplement($array[9]) if ($array[1] & 16);
-          $array[10]=reverse($array[10])if ($array[1] & 16);
+          $seq=ReverseComplement($seq) if ($array[1] & 16);
+          $q_seq=reverse($q_seq)if ($array[1] & 16);
           if ($mapped_ref_id &&  $array[6] ne "="){
               $se_count++;
-              print $se_fh "@",$array[0],"\n";
-              print $se_fh $array[9],"\n";
-              print $se_fh "+\n";
-              print $se_fh $array[10],"\n";
+              &write_read($se_fh,$array[0],$seq,$q_seq);
               next;	
           }
           if ($array[1] & 64)
           {
               $p1_count++;
-              print $pair1_fh "@",$array[0],"/1\n";
-              print $pair1_fh $array[9],"\n";
-              print $pair1_fh "+\n";
-              print $pair1_fh $array[10],"\n";
+              &write_read($pair1_fh,$array[0]."/1",$seq,$q_seq);
           }
           elsif($array[1] & 128)
           {
               $p2_count++;
-              print $pair2_fh "@",$array[0],"/2\n";
-              print $pair2_fh $array[9],"\n";
-              print $pair2_fh  "+\n";
-              print $pair2_fh $array[10],"\n";
+              &write_read($pair2_fh,$array[0]."/2",$seq,$q_seq);
           }
       }
   }
   else
   { 
      $se_count++;
-     $array[9]=ReverseComplement($array[9]) if ($array[1] & 16);
-     $array[10]=reverse($array[10])if ($array[1] & 16);
-     print $se_fh "@",$array[0],"\n";
-     print $se_fh $array[9],"\n";
-     print $se_fh "+\n";
-     print $se_fh $array[10],"\n";
+     $seq=ReverseComplement($seq) if ($array[1] & 16);
+     $q_seq=reverse($q_seq)if ($array[1] & 16);
+     &write_read($se_fh,$array[0],$seq,$q_seq);
   }
 }
 close IN;
@@ -120,6 +117,16 @@ unlink "$prefix.2.fastq" if ( -z "$prefix.2.fastq");
 unlink "$prefix.se.fastq" if ( -z "$prefix.se.fastq");
 unlink $sortName_sam_file;
 
+sub write_read{
+	my $fh = shift;
+	my $id = shift;
+	my $seq = shift;
+	my $q_seq = shift;
+	print $fh "@",$id,"\n";
+	print $fh $seq,"\n";
+	print $fh "+\n";
+	print $fh $q_seq,"\n";
+}
 
 sub quality_conversion
 {
@@ -147,18 +154,19 @@ Usage: $0  <bam_file>
 # require samtools in PATH.
 
 Options:
--in_offset      Offset nubmer for ASCII encoding from input
--out_offset     Offset nubmer for ASCII encoding for output 
-                Type of ASCII encoding: 33 (standard) or 64 (illumina 1.3+)
-                Use this option to convert the encoding offset.
-                default: no conversion.
--mapped         For retrieving mapped reads from alignment bam file
-		-id   retrieving reads mapped to this reference ID. (e.g. contig_00001)
+-in_offset        Offset nubmer for ASCII encoding from input
+-out_offset       Offset nubmer for ASCII encoding for output 
+                  Type of ASCII encoding: 33 (standard) or 64 (illumina 1.3+)
+                  Use this option to convert the encoding offset.
+                  default: no conversion.
+-mapped           For retrieving mapped reads from alignment bam file
+		  -id   retrieving reads mapped to this reference ID. (e.g. contig_00001)
  
--unmapped       For retrieving unmapped reads from alignment bam file
--pf             Output passFilter reads only
--prefix         Output file prefix (default: Reads)
--help           Show this usage
+-unmapped         For retrieving unmapped reads from alignment bam file
+-remove_softclip  Remove softclipped nucleotide bases
+-pf               Output passFilter reads only
+-prefix           Output file prefix (default: Reads)
+-help             Show this usage
 
 END
 #-type           pe or se.  pe=paired end, se=single end. The pe type will output reads' name with /1 or /2.
