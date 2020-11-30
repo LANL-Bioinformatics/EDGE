@@ -11,6 +11,7 @@ my $out_offset=33;
 my $opt_mapped;
 my $opt_unmapped;
 my $opt_passfilter;
+my $cpu = 4;
 my $prefix = "Reads";
 my $mapped_ref_id="";
 my $remove_soft_clip;
@@ -23,6 +24,7 @@ GetOptions(
             'unmapped'     =>  \$opt_unmapped,
             'pf'           =>  \$opt_passfilter,
             'remove_softclip' => \$remove_soft_clip,  
+	    'cpu=i'        =>  \$cpu,
             'prefix=s'     =>  \$prefix,
             'help|?'       =>  sub{Usage()}
 );
@@ -40,7 +42,8 @@ open (my $pair2_fh, ">$prefix.2.fastq");
 open (my $se_fh, ">$prefix.se.fastq");
 my $sortName_sam_file = "unmapped$$.sam";
 $mapped_ref_id = "\"$mapped_ref_id\"" if ($mapped_ref_id);
-system("samtools view $samtools_flag $file $mapped_ref_id | sort -T $workingDir -k 1,1 > $sortName_sam_file");
+system("samtools sort -l 0 -T $workingDir -n -@ $cpu $file 2>/dev/null | samtools view -@ $cpu $samtools_flag - $mapped_ref_id  > $sortName_sam_file");
+#system("samtools view $samtools_flag $file $mapped_ref_id | sort -T $workingDir -k 1,1 > $sortName_sam_file");
 open (IN, $sortName_sam_file) or die $!;
 my $p1_count=0;
 my $p2_count=0;
@@ -60,6 +63,7 @@ while(<IN>)
 	$q_seq = substr $array[10], $front_soft_clip_num, length($array[10]) - $front_soft_clip_num - $end_soft_clip_num;
   }
   next if ($opt_passfilter and ($array[1] & 512));
+  next if ($array[1] & 3840); # not primary / supplementary / PCR or optical duplicate / fails platform/vendor quality checks
   if ($in_offset != $out_offset)
   {
      $q_seq=&quality_conversion($q_seq,$in_offset,$out_offset);
@@ -67,7 +71,7 @@ while(<IN>)
   if($array[1] & 1)    
   {
       if ( ($opt_mapped and ($array[1] & 8))  or # the other mate unmapped reads
-           ($opt_unmapped and !(($array[1] & 4) && ($array[1] & 8)))
+           ($opt_unmapped and !(($array[1] & 4) && ($array[1] & 8))) 
       )  
       {
           $se_count++;
@@ -163,6 +167,7 @@ Options:
 		  -id   retrieving reads mapped to this reference ID. (e.g. contig_00001)
  
 -unmapped         For retrieving unmapped reads from alignment bam file
+-cpu              samtools cpu [default: 4]
 -remove_softclip  Remove softclipped nucleotide bases
 -pf               Output passFilter reads only
 -prefix           Output file prefix (default: Reads)

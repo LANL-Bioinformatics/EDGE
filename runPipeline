@@ -218,10 +218,11 @@ my $tax_kingdom=$configuration->{kingdom};
 my $referenceGenome;
 my $genbankFile;
 my $gff3File;
+my $ref_headers;#array ref
 
 my $annotateProgram=$configuration->{annotateProgram}||"prokka";
 
-($referenceGenome,$genbankFile,$gff3File)=&check_reference_genome(\@referenceGenome) if (@referenceGenome);
+($referenceGenome,$genbankFile,$gff3File, $ref_headers)=&check_reference_genome(\@referenceGenome) if (@referenceGenome);
 
 if ($referenceGenome)
 {
@@ -230,7 +231,7 @@ if ($referenceGenome)
 
     if ($QCpairFile or $QCunpairFile){
 	if ($configuration->{DoReadsMappingReference}){
-            ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome);
+            ($r2gVCF,$r2gGap)=&runReadsToGenome($QCpairFile,$QCunpairFile,\@referenceGenome, $ref_headers);
 
             if ($configuration->{MapUnmappedReads} || $configuration->{r2g_extract_unmapped}){
                 ($r2gUnmappedPaired, $r2gUnmappedSingle,$numOfunmappedReads) = &retrieveUnmappedReads(\@referenceGenome);
@@ -1310,6 +1311,7 @@ sub check_reference_genome
     my $file_list="$outDir/Reference/ref_list.txt";
     my @files =  @{$referenceGenome_r};
     my @fasta_files;
+    my $ref_headers;
     my $check_value=0;
     &make_dir($outputDir);
     &make_dir("$outDir/ReferenceBasedAnalysis");
@@ -1402,14 +1404,14 @@ sub check_reference_genome
     {
         my $cmd = "awk '{print \$0}' ". join(" ",@fasta_files). "> $referenceGenome.tmp ";
         &executeCommand($cmd);
-	&correct_fasta_header("$referenceGenome.tmp",$referenceGenome);
+	$ref_headers = &correct_fasta_header("$referenceGenome.tmp",$referenceGenome);
 	unlink "$referenceGenome.tmp";
     }
     else
     {
-	&correct_fasta_header("$fasta_files[0]", "$referenceGenome") if ( ! -s $referenceGenome );
+	$ref_headers = &correct_fasta_header("$fasta_files[0]", "$referenceGenome") if ( ! -s $referenceGenome );
     }
-    
+
     my $ref_header = `head -n 1 $referenceGenome`;
     if ($ref_header =~ m/virus|viral|phage/i ) {$tax_kingdom= "Viruses";}
    
@@ -1426,7 +1428,7 @@ sub check_reference_genome
     if (!$tax_kingdom) { $tax_kingdom = ($refSize < 580000)? "Viruses":"Bacteria";}
    
     &printRunTime($time);
-    return($referenceGenome,$referenceGBK,$gff3File);
+    return($referenceGenome,$referenceGBK,$gff3File, $ref_headers);
 }
 
 
@@ -3155,6 +3157,7 @@ sub runReadsToGenome
     my $pairFile=shift;
     my $unpairFile=shift;
     my $referenceFile_r = shift;
+    my $ref_headers = shift;
     my $referenceFiles = join(" ",@$referenceFile_r);
 #    print STDERR scalar(@$referenceFile_r)."\n";
     my $referenceCount = scalar(@$referenceFile_r);
@@ -3197,11 +3200,9 @@ sub runReadsToGenome
     unlink glob("$outputDir/*gap.coords");
     unlink "$outputDir/variantAnalysis.finished";
     unlink "$outputDir/getConsensus.finished";
-    
+
     my $parameters;    
-    $parameters .= " -p \'$pairFile\'" if ($pairFile);
-    $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters .= " -d $outputDir -pre $outPrefix -ref $referenceFiles -cpu $numCPU -consensus 0";
+    $parameters .= " -pre $outPrefix -cpu $numCPU -consensus 0";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
 	$parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
@@ -3223,8 +3224,18 @@ sub runReadsToGenome
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
-    $parameters .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} " if ($configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}));
-    my $command = "perl $RealBin/scripts/runReadsToGenome.pl $parameters 1>$log 2>\&1 ";
+    if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) ){
+	my $alignTrim_parameters = $parameters;
+        $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
+        $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
+	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
+    	($pairFile, $unpairFile)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
+    }
+	    
+    $parameters .= " -ref $referenceFiles";
+    $parameters .= " -p \'$pairFile\'" if ($pairFile);
+    $parameters .= " -u $unpairFile" if ( -s $unpairFile);
+    my $command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir $parameters 1>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
       &executeCommand($command);
@@ -3298,6 +3309,53 @@ sub runReadsToGenome
     }
     &printRunTime($time);
     return ($outVCF,$outGap);
+}
+
+sub getAlignTrimReads{
+	my $cmd = shift;
+	my $ref_r = shift;
+	my $ref_headers = shift;
+	my $log = shift;
+	my $outputDir = shift;
+	my $pairFile;
+	my $unpairFile;
+	my $AlignTrim_ref = @$ref_r[0];
+	if ($configuration->{r2g_align_trim_bed_file} =~ /artic_ncov|SC2_200324/){
+		if (my ($NC_044512_ref) = grep $_ =~ /NC_045512|MN908947/, @$ref_r) {
+			$AlignTrim_ref = $NC_044512_ref;
+		}
+	}else{
+		open (my $fh, "<", $configuration->{r2g_align_trim_bed_file}) or die "Cannot open Bed file\n";
+		my $ref_id;
+		while(<$fh>){
+			next if /^#/;
+			my @array = split /\t/;
+			$ref_id = $array[0];
+			last if $ref_id;
+		}
+		close $fh;
+		if (my ($align_trim_ref) = grep $_ =~ /$ref_id/, @$ref_headers) {
+			$AlignTrim_ref = $align_trim_ref;
+		} 
+	}
+	$cmd .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} -ref $AlignTrim_ref -no_snp -no_plot";
+	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
+	&lprint ("  ## Get Align Trimmed Reads \n");
+	$cmd .= " 1>$log 2>\&1";
+	&executeCommand($cmd);
+	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
+	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
+	&executeCommand($extract_reads_cmd);
+	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
+		$pairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq $outputDir/AlignTrimMapping/AlignTrimmedReads.2.fastq";
+	}
+	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.se.fastq"){
+		$unpairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.se.fastq";
+	}
+	if ( ! $pairFile and ! $unpairFile){
+		die "failed: No reads remain after align trim. Please see $log\n";
+	}
+	return ($pairFile,$unpairFile);
 }
 
 sub get_consensus_gap{
@@ -3874,6 +3932,7 @@ sub runIdbaAssembly
 sub correct_fasta_header {
 	my $fasta = shift;
 	my $output_fasta = shift;
+	my @headers;
 	open (my $fh, "<", $fasta);
 	open (my $ofh , ">", $output_fasta);
 	while (<$fh>){
@@ -3883,6 +3942,7 @@ sub correct_fasta_header {
 			my $id = $1;
 			my $desc = $2;
 			$id =~ s/\W/_/g;
+			push @headers, $id;
 			print $ofh ">".$id." $desc\n";
 		}else{
 			print $ofh $_,"\n";
@@ -3890,6 +3950,7 @@ sub correct_fasta_header {
 	}
 	close $fh;
 	close $ofh;
+	return \@headers;
 }
 
 sub rename_filter_fasta
