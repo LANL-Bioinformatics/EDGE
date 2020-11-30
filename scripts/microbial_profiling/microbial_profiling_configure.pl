@@ -60,7 +60,7 @@ $opt{"gottcha2-e-plnDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Plan
 $opt{"gottcha2-e-fugDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Fungi.species.fna.gz";
 $opt{"gottcha2-e-ptzDB"} ||= "$EDGE_HOME/database/GOTTCHA2/RefSeq-Release89.Protozoa.species.fna.gz";
 $opt{"diamond-db"} ||= "$EDGE_HOME/database/diamond/RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd";
-$opt{"centrifuge-db"} ||= "$EDGE_HOME/database/Centrifuge/p_compressed.1.cf";
+$opt{"centrifuge-db"} ||= "$EDGE_HOME/database/Centrifuge/hpv.1.cf";
 
 #PanGIA configs
 my $config_json = readListFromJson($opt{"configJson"});
@@ -133,7 +133,7 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -bwa-db             $EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna
     -metaphlan-db       $EDGE_HOME/database/metaphlan/mpa
     -kraken-db          $EDGE_HOME/database/kraken2
-    -centrifuge-db      $EDGE_HOME/database//Centrifuge/p_compressed.1.cf
+    -centrifuge-db      $EDGE_HOME/database//Centrifuge/hpv.1.cf
     -gottcha-v-speDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species
     -gottcha-b-speDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species
     -gottcha-v-strDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.strain
