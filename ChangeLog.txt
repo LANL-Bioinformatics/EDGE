@@ -1,4 +1,4 @@
--- Version 2020
+-- Version 20201130
 EDGE 2.4.0
 * Update bcftools from 1.6 to 1.10.2
 * Update samtools from 1.9 to 1.10
@@ -22,7 +22,7 @@ EDGE 2.4.0
 * Update sratoolskit from 2.8.2 to 2.9.6
 * Update JBrowse from 1.12.3 to 1.16.8
 * Update Anaconda2 and Anaconda3 to 2019.10 and 2020.02
-* Update lrasm from 0.1.0 to 0.2.0 which include new assembler wtdbg2
+* Update lrasm from 0.1.0 to 0.3.0 which include new assembler wtdbg2 and (meta)flye
 * Update gottcha dmd complier and use conda to install rapsearch2
 * Add MaxBin tools for metagenome contig binning
 * Add debug flag in auto_run script
@@ -58,7 +58,7 @@ EDGE GUI 2.4.0
 * Add extract reads fastq for Kraken result
 * Add Secondary Metabolite Analysis Annotation
 * Update Qiime to version 2
-* Add wtdbg2 long reads assembly algorithm option
+* Add wtdbg2 and (meta)flye long reads assembly algorithm option
 * Add Unicycler option for assembly
 * Hover to show accession id for genome search result list
 * Update final_report.pdf to match with web based summary result page
