@@ -52,13 +52,30 @@
 <a id="what-is-edge" class="anchor" href="#what-is-edge" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is EDGE?</h3>
 
 <p>
-EDGE bioinformatics was <strong>developed to help biologists process Next Generation Sequencing data</strong> (in the form of <strong>raw FASTQ</strong> files), even if they have little to no bioinformatics expertise. EDGE is a highly integrated and interactive web-based platform that is capable of running many of the standard analyses that biologists require for viral, bacterial/archaeal, and metagenomic samples. EDGE provides the following analytical workflows: <strong>quality trimming and host removal, assembly and annotation, comparisons against known references, taxonomy classification of reads and contigs, whole genome SNP-based phylogenetic analysis, and PCR analysis</strong>. EDGE provides an intuitive web-based interface for user input, allows users to visualize and interact with selected results (e.g. JBrowse genome browser), and generates a final detailed PDF report. Results in the form of tables, text files, graphic files, and PDFs can be downloaded. A user management system allows tracking of an individual’s EDGE runs, along with the ability to share, post publicly, delete, or archive their results.
+EDGE bioinformatics was <strong>developed to help biologists process Next Generation Sequencing data</strong> (in the form of <strong>raw FASTQ</strong> files), even if they have little to no bioinformatics expertise. EDGE is a highly integrated and interactive web-based platform that is capable of running many of the standard analyses that biologists require for viral, bacterial/archaeal, and metagenomic samples. EDGE provides the following analytical workflows: <strong>quality trimming and host removal, assembly and annotation, comparisons against known references, taxonomy classification of reads and contigs, whole genome SNP-based phylogenetic analysis, QIIME2 workflows, Reference based Transcriptomics analysis(beta), and PCR analysis</strong>. EDGE provides an intuitive web-based interface for user input, allows users to visualize and interact with selected results (e.g. JBrowse genome browser), and generates a final detailed PDF report. Results in the form of tables, text files, graphic files, and PDFs can be downloaded. A user management system allows tracking of an individual’s EDGE runs, along with the ability to share, post publicly, delete, or archive their results.
 </p>
 <p>
 While the design of EDGE was intentionally done to be as simple as possible for the user, there is still no single ‘tool’ or algorithm that fits all use-cases in the bioinformatics field. Our intent is to provide a detailed panoramic view of your sample from various analytical standpoints, but users are encouraged to have some insight into how each tool or workflow functions, and how the results should best be interpreted.
 </p>
 
 <h3><a id="news" class="anchor" href="#news" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's New? </h3>
+<p>
+  <b>Updates 12/03/2020:</b>
+  <ul>
+    
+    <li>EDGE version <a href="https://github.com/LANL-Bioinformatics/EDGE/releases">v2.4.0 release.</a> See detailed in <a href="https://github.com/LANL-Bioinformatics/EDGE/blob/v2.4.0/ChangeLog.txt"> Change Log</a></li>
+    <li>Docker image:  <a href="https://hub.docker.com/r/bioedge/edge_24_ubuntu">bioedge/edge_24_ubuntu:20201130</a></li>
+  </ul>
+</p>
+<p>
+  <b>Updates 06/15/2020:</b>
+  <ul>
+    
+    <li>EDGE COVID19 version web service online. <a href="https://edge-covid19.edgebioinformatics.org/"> https://edge-covid19.edgebioinformatics.org</a></li>
+    <li>Docker image:  <a href="https://hub.docker.com/r/bioedge/edge-covid19">bioedge/edge-covid19</a></li>
+  </ul>
+</p>
+<p>
 <p>
   <b>Updates 07/24/2018:</b>
   <ul>
@@ -150,13 +167,13 @@ While the design of EDGE was intentionally done to be as simple as possible for 
 
 <h3><a id="using-edge" class="anchor" href="#using-edge" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using EDGE</h3>
 <p>
-A demonstration version of EDGE is currently available at <a href="https://bioedge.lanl.gov/">https://bioedge.lanl.gov/</a> with example data sets available to the public to view and/or re-run and also allows EDGE runs of SRA/ENA data. (This webserver <strong>does not currently support upload of data due in part to LANL security regulations</strong>, however local installations are meant to be fully functional.) 
+A demonstration version of EDGE is currently available at <a href="https://edgebioinformatics.org//">https://edgebioinformatics.org/</a> with example data sets available to the public to view and/or re-run and also allows EDGE runs of SRA/ENA data.
 
-To run EDGE, go to the <a href="https://bioedge.lanl.gov/">EDGE webpage</a>. You will need to create an account in order to start a project, which you can do with the icon in the top right corner. Once you've created an account and have logged in, you can start a project. From the menu on the left, click "Run EDGE". This will open a page titled "Input your sample", and from here you will see a list of drop down menus that will allow you to label your project, input FASTQ files, and select the tools you would like to use. Pre-Processing, Assembly and Annotation, and Taxonomy Classification are turned on by default. 
+To run EDGE, go to the <a href="https://edgebioinformatics.org/">EDGE webpage</a>. You will need to create an account in order to start a project, which you can do with the icon in the top right corner. Once you've created an account and have logged in, you can start a project. From the menu on the left, click "Run EDGE". This will open a page titled "Input your sample", and from here you will see a list of drop down menus that will allow you to label your project, input FASTQ files, and select the tools you would like to use. Pre-Processing, Assembly and Annotation, and Taxonomy Classification are turned on by default. 
 
 While your project is running you can watch it's progress and system usage using the Job Progress sidebar, which opens using the icon in the top right corner. 
 
-For those that want to run EDGE v1.1 offline, installation instructions can be found in our documentation, which can be accessed <a href="https://edge.readthedocs.io/en/v1.1/index.html">https://edge.readthedocs.io/en/v1.1/index.html</a>. There is also a link to the documentation on the EDGE website. For basic information about EDGE, visit the <a href="https://edge.readthedocs.io/en/v1.1/EDGE_ABCs.html"> EDGE ABC’s</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
+For those that want to run EDGE v2.4 offline, installation instructions can be found in our documentation, which can be accessed <a href="https://edge.readthedocs.io/en/v2.4/index.html">https://edge.readthedocs.io/en/v2.4/index.html</a>. There is also a link to the documentation on the EDGE website. For basic information about EDGE, visit the <a href="https://edge.readthedocs.io/en/v2.4/EDGE_ABCs.html"> EDGE ABC’s</a>, that provide a brief overview of EDGE, the various workflows, and the computational environment restraints for local use.
 </p>
 
 <h3><a id="output" class="anchor" href="#output" aria-hidden="true"><span class="octicon octicon-link"></span></a>Output</h3>
