@@ -5,30 +5,34 @@ use FindBin qw($RealBin);
 use CGI qw(:standard);
 use lib "$RealBin/../../lib";
 use JSON;
-
 my $info; # info to return
 my $cgi     = CGI->new;
 my %opt     = $cgi->Vars();
 my $queries = $opt{'query'} || $ARGV[0];
-
-# read system params from config template
-my $config_tmpl = "$RealBin/edge_config.tmpl";
-my $sys         = &getSysParamFromConfig($config_tmpl);
+&stringSanitization(\%opt);
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 my $edgeui_wwwroot = $sys->{edgeui_wwwroot};
+my $EDGE_HOME = $ENV{EDGE_HOME};
+$EDGE_HOME ||= "$RealBin/../..";
+$ENV{PATH} = "$EDGE_HOME/bin:$ENV{PATH}";
 
 my $ref_json_file = "$edgeui_wwwroot/data/Ref_list.json";
 
-my $list = &readListFromJson($ref_json_file);
-my @ref_list = keys %$list;
-
-
 my @names = grep {  length($_)>=3 } split / /,$queries;
-my $grep_term = join("|",@names);
-if (@names){
-	map { $info->{$_}=$list->{$_};} grep { /$grep_term/i } @ref_list;
-}
+my $search_str = join " or ", map { "contains(".'"'."$_".'")' } @names;
+# case incenstive search is 2x slower. 
+#my $search_str = join " or ", map { "test(".'"'."$_".'";"i")' } @names;
+my $jq_cmd = "jq -c '.| with_entries( select(.key|$search_str))' $ref_json_file";
+#print STDERR $jq_cmd,"\n";
 
-&returnStatus();
+my $return_json = `$jq_cmd`;
+
+print $cgi->header('application/json');
+print $return_json;
+exit;
+#&returnStatus();
 
 sub returnStatus {
         my $json;
@@ -54,19 +58,32 @@ sub readListFromJson {
 sub getSysParamFromConfig {
         my $config = shift;
         my $sys;
+        my $flag=0;
         open CONF, $config or die "Can't open $config: $!";
         while(<CONF>){
-                if( /^\[system\]/ ){
-                        while(<CONF>){
-                                chomp;
-                                last if /^\[/;
-                                if ( /^([^=]+)=([^=]+)/ ){
-                                        $sys->{$1}=$2;
-                                }
-                        }
-                }
-                last;
-        }
+			if( /^\[system\]/ ){
+				$flag=1;
+				while(<CONF>){
+					chomp;
+					last if /^\[/;
+					if ( /^([^=]+)=([^=]+)/ ){
+						$sys->{$1}=$2;
+					}
+				}
+			}
+			last;
+		}
         close CONF;
+        die "Incorrect system file\n" if (!$flag);
         return $sys;
+}
+sub stringSanitization{
+	my $opt=shift;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		if($str =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
+	}
 }

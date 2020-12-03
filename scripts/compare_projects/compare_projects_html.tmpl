@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class='ui-mobile'><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+	<base href='.'>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no'>
+	<title>EDGE bioinformatics</title>
+	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="stylesheet" href="css/edge-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
+	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/edge.css"/>
+	<link rel='stylesheet' href='css/edge-output.css'/>
+	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
+	<link rel="stylesheet" href="css/jquery.dataTables.min.css" />
+	<link rel="stylesheet" href="css/jquery.dataTables.custom.css" />
+	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/jquery.dataTables.min.js"></script>
+	<script src="javascript/edge-output.js"></script>
+	<script src="javascript/jquery.tooltipster.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.autoload.min.js"></script>
+</head>
+
+<body class='ui-mobile-viewport'>
+
+<div data-role='page' class='edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active' tabindex='0' style='padding-bottom: 82px;'>
+
+	<div data-role='header' class='edge-header ui-header ui-bar-inherit'>
+		<div class='edge-logo'>
+			<img src='images/edge_logo.svg'>
+			<h2 class='ui-title' role='heading' aria-level='1'>EDGE bioinformatics</h2>
+		</div>
+	</div><!-- /header -->
+
+	<div role='main' id='edge-content-report' class='ui-content edge-content edge-output'>
+		<h2>Projects Taxonomy Classification Comparison Result</h2>
+		<ol>
+		<li><span class="li-report-content-title">Summary</span><div class="li-report-content">
+			<table id='edge-compare-summary-table' data-role='table' class='output-table ui-responsive'>
+			  <thead>
+				<tr>
+				  <th data-priority='1'>Project Name</th>
+				  <th data-priority='2'>Reads</th>
+				  <th data-priority='3'>Total Bases</th>
+				  <th data-priority='4'>Mean Read Length</th>
+				  <th data-priority='5'>Taxonomy Classification Tools</th>
+				</tr>
+			  </thead>
+			  <tbody>
+			  	<TMPL_LOOP NAME=LOOP_PROJSUMMARY>
+				<tr>
+				  <td title="Desc: <TMPL_VAR NAME=PROJDESC DEFAULT=->"><a data-ajax='false' href="<TMPL_VAR NAME=RUNHOST>/?proj=<TMPL_VAR NAME=PROJID DEFAULT=->"><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+				  <td><TMPL_VAR NAME=INPUTREADSNUM DEFAULT=-></td>
+				  <td><TMPL_VAR NAME=INPUTREADSBASE DEFAULT=-></td>
+				  <td><TMPL_VAR NAME=INPUTMRL DEFAULT=-></td>
+				  <td><TMPL_VAR NAME=PROJCPTOOLS DEFAULT=-></td>
+				</tr>
+				</TMPL_LOOP>
+			  </tbody>
+			</table>
+	<!--		<p class='extra-text-link'>Link to
+				<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->'> Directory </a>
+			</p>-->
+		</div></li>
+		
+		<li><span class="li-report-content-title">Heatmaps</span><div class="li-report-content">
+				<div class="ui-field-contain">
+			    	<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" id="edge-compare-rt-choose">
+			    	    <input type="radio" name="edge-compare-rt-choose-rank" id="edge-compare-rt-choose-rank-a" value="genus">
+			    	    <label for="edge-compare-rt-choose-rank-a">Genus</label>
+			    	    <input type="radio" name="edge-compare-rt-choose-rank" id="edge-compare-rt-choose-rank-b" value="species" checked="checked">
+			    	    <label for="edge-compare-rt-choose-rank-b">Species</label>
+			    	    <input type="radio" name="edge-compare-rt-choose-rank" id="edge-compare-rt-choose-rank-c" value="strain">
+			    	    <label for="edge-compare-rt-choose-rank-c">Strain</label>
+			    	</fieldset>
+				</div>
+				<TMPL_IF NAME=ANCHARLINK>
+					<p style="text-align: right;font-size: 0.85em;" class="edge-compare-output edge-compare-species"><TMPL_VAR NAME=ANCHARLINK></p>
+				</TMPL_IF>
+				<ul>
+				<TMPL_LOOP NAME=LOOP_CPTOOL>
+				<TMPL_IF NAME=GOTTCHA>
+				<TMPL_LOOP NAME=LOOP_GOTTCHA> 
+				<li class="edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>">
+					<span class="li-report-content-title">GOTTCHA</span>
+					<div class="ui-grid-a ui-responsive">
+						<TMPL_IF NAME=CPKINGDOMB>
+						<div class="ui-block-a">
+							<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMB> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLBPDF >'> [PDF] </a></span>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLBSVG >'></img>
+							</a>
+						</div>
+						</TMPL_IF>
+						<TMPL_IF NAME=CPKINGDOMV>
+						<div class="ui-block-b">
+							<span class="iframe_label"><TMPL_VAR NAME=CPKINGDOMV> <a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLVPDF >'> [PDF] </a></span>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLVSVG >'></img>
+							</a>
+						</div>
+						</TMPL_IF>
+					</div>
+				</li>
+				</TMPL_LOOP>
+				<TMPL_ELSE>
+				<li class="edge-compare-output edge-compare-<TMPL_VAR NAME=CPRANK>" id="<TMPL_VAR NAME=CPTOOLANCHOR>">
+					<span class="li-report-content-title"><TMPL_VAR NAME=CPTOOLNAME></span>
+					<div class="ui-grid-a">
+						<div class="ui-responsive ui-block-a">
+							<span class="iframe_label"><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLSVG >'> [Full] </a><a data-ajax='false' href='#' data-src='<TMPL_VAR NAME=CPTOOLPDF >'> [PDF] </a></span>
+							<TMPL_IF NAME=CPTOOLSVG>
+							<a href="#popup-general-svg" data-rel="popup" data-position-to="window" data-transition="fade"><img width="100%" src='<TMPL_VAR NAME=CPTOOLSVG >'></img>
+							</a>
+							<TMPL_ELSE>
+							<p>No Assignments.</p>
+							</TMPL_IF>
+						
+						</div>
+					</div>
+				</li>
+				</TMPL_IF>
+				</TMPL_LOOP>
+				</ul>
+		</div></li>
+		</ol>
+
+		<div data-role="popup" id="popup-general-svg" data-overlay-theme="b" data-theme="b" data-corners="false">
+			<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+			<a href="#" data-rel="back"><object id="popup-general-obj" type="image/svg+xml"></object></a>
+		</div>
+		<div data-role="popup" id="popup-general" data-overlay-theme="b" data-theme="b" data-corners="false">
+		  <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+		  <a href="#" data-rel="back"><img id="popup-general-img" src=""></a>
+		</div>
+
+		<div data-role="popup" id="edge-outputfile-dialog" data-overlay-theme="b" data-theme="b" data-dismissible="true" class="edge-dialog">
+			<div data-role="header" data-theme="a" style="width:100%" class="ui-header ui-bar-a">
+				<h4 class='ui-title'>Select a file</h4>
+			</div>
+			<div role="main" class="ui-content">
+				<div id="edge-outputfile-tree"></div>
+			</div>
+		</div><!-- /file viewer -->
+
+	</div><!-- /content -->
+
+
+	<div data-role='footer' data-position='fixed' data-tap-toggle='false' class='edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup' role='contentinfo'>
+		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
+		<div class='edge-footer-logo'>
+			<img src='images/logo_DTRA.png'/>
+			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
+	</div><!-- /footer -->
+
+</div><!-- /page -->
+
+</script>
+</body></html>

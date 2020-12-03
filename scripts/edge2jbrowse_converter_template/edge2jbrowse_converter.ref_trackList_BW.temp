@@ -1,9 +1,9 @@
       {
-         "label"         : "DOC",
-         "key"           : "Depth of Coverage",
+         "label"         : "DOC_%%REFID%%",
+         "key"           : "Depth of Coverage %%REFID%%",
          "category" : "Reads Based Analysis",
          "storeClass"    : "JBrowse/Store/SeqFeature/BigWig",
-         "urlTemplate"   : "readsToRef.mapped.sort.bam.bw",
+         "urlTemplate"   : "%%BWFILENAME%%",
          "type"          : "JBrowse/View/Track/Wiggle/XYPlot",
          "variance_band" : true,
          "autoscale"     : "local",

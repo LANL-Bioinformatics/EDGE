@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 my $col = 5; #genus
 $col = 6 if $ARGV[0] eq "species";
@@ -14,6 +14,6 @@ while(<STDIN>){
 	$r->{$lineage} += $temp[0];
 }
 
-foreach my $l ( keys %$r){
+foreach my $l ( sort {$a cmp $b} keys %$r){
 	print "$r->{$l}\t$l\n";
 }

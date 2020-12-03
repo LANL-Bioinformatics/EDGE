@@ -1,8 +1,9 @@
 #!/bin/bash
 #$ -cwd
-#$ -l h_vmem=2.6G
+#$ -l h_vmem=10G
 #$ -m abe
 #$ -j y
+#SBATCH --mem-per-cpu=10G
 
 set -e;
 
@@ -15,6 +16,7 @@ OPTIONS:
    -d      Database
    -o      Output directory
    -p      Output prefix
+   -a      BWA alignment parameters.
    -t      Number of threads (default: 24)
    -f      platform pacbio
    -h      help
@@ -30,8 +32,9 @@ INPUT_OPTION=
 PLATFORM=
 PLATFORM_OPTION=
 BWASCORECUT=
+BWAMETHOD=
 
-while getopts "i:d:o:p:t:f:b:h" OPTION
+while getopts "i:d:o:p:t:f:a:b:h" OPTION
 do
      case $OPTION in
         i) FASTQ=$OPTARG
@@ -48,7 +51,9 @@ do
            ;;
         b) BWASCORECUT=$OPTARG
            ;;
-	    h) usage
+	a) BWAMETHOD=$OPTARG
+	   ;;
+	h) usage
            exit
            ;;
      esac
@@ -60,7 +65,7 @@ then
      exit 1;
 fi
 
-export PATH=$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
+export PATH=$EDGE_HOME/bin:$EDGE_HOME/scripts/microbial_profiling/script:$EDGE_HOME/scripts:$PATH;
 
 mkdir -p $OUTPATH
 
@@ -68,15 +73,15 @@ echo "[BEGIN]"
 
 set -x;
 
-bwa mem -t $THREADS -T $BWASCORECUT $REFDB $FASTQ > $OUTPATH/$PREFIX.sam
-bwa_sam2read_taxa.pl species preload < $OUTPATH/$PREFIX.sam > $OUTPATH/$PREFIX.out.read_classification &
+bwa mem -t $THREADS $BWAMETHOD -T $BWASCORECUT $REFDB $FASTQ > $OUTPATH/$PREFIX.sam
+# bwa_sam2read_taxa.pl species preload < $OUTPATH/$PREFIX.sam > $OUTPATH/$PREFIX.out.read_classification &
 bwa_sam2giReadCount.pl < $OUTPATH/$PREFIX.sam > $OUTPATH/${PREFIX}.csv &
 
 wait
 
 convert_gi2list.pl < $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.list &
 convert_gi2tabTree.pl < $OUTPATH/$PREFIX.csv > $OUTPATH/$PREFIX.out.tab_tree
-ktImportText -a $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+ktImportText $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
 
 wait
 

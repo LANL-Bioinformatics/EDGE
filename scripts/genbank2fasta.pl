@@ -34,7 +34,7 @@ if (!$get_translation && !$get_gene && !$get_genome) {
 
 my $seqout;
 if ($get_genome){
-   $seqout = new Bio::SeqIO('-format' => 'fasta', -fh => \*STDOUT);
+  # $seqout = new Bio::SeqIO('-format' => 'fasta', -fh => \*STDOUT);
 }
 
 my ($basename,$dir,$ext)= fileparse($ARGV[0], qr/\.[^.]*/);
@@ -49,11 +49,19 @@ my $inseq = Bio::SeqIO->new(-format => 'genbank', -file => $gb_file);
 my $n;
 my $protein_accession;
 while (my $seq = $inseq->next_seq){ 
+	my $Locus_id = $seq->display_id();
 	if ($get_genome){
-		$seqout->write_seq($seq);
+		my $genome_seq = $seq->seq();
+		$genome_seq =~ s/(.{70})/$1\n/g; 
+        	chomp $genome_seq;
+		my $acc = $seq->accession_number();
+		$acc = $Locus_id if $acc eq "unknown";
+		my $version = ($seq->seq_version())? $seq->seq_version(): 1 ;
+		my $desc = $seq->description();
+		print ">".$acc.".$version "."$desc\n".$genome_seq."\n";
+		#$seqout->write_seq($seq);
 		next;
 	}
-	my $Locus_id = $seq->display_id();
 	my $contig_seq = $seq->seq();
 	my $contig_len = $seq->length;
 	my ($output_aa, $output_contig, $fig_id, $product, $aa_Seq, 

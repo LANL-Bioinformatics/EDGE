@@ -120,13 +120,13 @@ foreach my $input (@ARGV)
 	{
 		next if ( /^#/ );
 		chomp;
-		if ( /^GI/ ){
+		if ( /^Accession/ ){
 			@header = split /\t/, $_ ;
 			next;
 		}
 		
 		my @fields = split /\t/;
-		my $gi = $fields[0];
+		my $acc = $fields[0];
 		my $queryID;
 
 		my $magnitude;
@@ -137,7 +137,7 @@ foreach my $input (@ARGV)
 		#addByLineage($tree, $set, &getLineage($gi), undef, $magnitude);
 		#my $gi = convName2Gi($name);
 		
-		my $taxID = getTaxIDFromGI($gi);
+		my $taxID = getTaxIDFromAcc($acc);
 		
 		my @score;
 		

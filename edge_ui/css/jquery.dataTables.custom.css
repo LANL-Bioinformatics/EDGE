@@ -1,0 +1,42 @@
+.dataTables_wrapper {
+  margin: 1em;
+}
+
+table.dataTable thead th,
+table.dataTable thead td {
+  border-bottom: 1px solid #c9c9c9;
+}
+
+table.dataTable tfoot th,
+table.dataTable tfoot td {
+  border-top: 1px solid #c9c9c9;
+}
+
+table.dataTable.no-footer {
+  border-bottom: 1px solid #c9c9c9;
+}
+
+.dataTables_info {
+  font-size: 0.8em;
+}
+
+.dataTables_paginate {
+  font-size: 0.8em;
+}
+
+.dataTables_length label {
+  font-size: 0.8em;
+}
+
+.dataTables_filter label {
+  font-size: 0.8em;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  min-width: 1.3em;
+  padding: 0.3em 0.8em;
+}
+
+table.dataTable tbody tr.selected {
+    background-color: #FFE867;
+}

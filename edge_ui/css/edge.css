@@ -30,13 +30,16 @@
 .edge-home .edge-header h5 {
 	font-family: Arial;
 	font-weight: 300;
-    text-align: left;
-    font-size: 0.7em;
-    position: absolute;
-    color: white;
-    margin: -2em;
-    text-shadow: none;
-    left: 15em;
+	text-align: left;
+	font-size: 0.7em;
+	position: absolute;
+	color: white;
+	margin: -2em;
+	margin-top: -1.6em;
+	margin-left: -7em;
+	text-shadow: none;
+	left: 15em;
+	white-space: nowrap;
 }
 
 .edge-home .edge-header h2 a {
@@ -75,7 +78,117 @@
 	display: inline-block;
 }
 
+
+/* app-home */
+.edge-home .app-showcase {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: column nowrap;
+    margin: 0 2em 0;
+    //padding-left:12.5%;
+}
+
+#edge-apps-home .ui-grid-b > .ui-block-a,
+#edge-apps-home .ui-grid-b > .ui-block-b,
+#edge-apps-home .ui-grid-b > .ui-block-c {
+    background-color: #eee;
+    margin:1em;
+    border-radius: 25px;
+    width:25%;
+}
+
+
+.edge-home .app-artwork {
+    cursor: pointer;
+    margin:  0 2rem 2rem;
+    margin-top:10px;
+    -webkit-box-flex: 0;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto
+}
+
+.edge-home .app-artwork img {
+    height: 100%;
+    width:100%;
+    box-shadow: 0 4px 8px -4px #666;
+    border-collapse: separate
+}
+
+.edge-home .app-artwork a {
+    border-bottom-color: transparent
+}
+
+.edge-home .app-info {
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+    padding: 10px;
+    text-align: left;
+    background-color: transparent;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: column nowrap;
+    flex-flow: column nowrap
+}
+
+.edge-home .app-name-version {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto
+}
+
+.edge-home .app-name {
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 80%;
+    font-weight: 700;
+    color: #222;
+    line-height: 1.5rem
+}
+
+.edge-home .app-version {
+    font-size: 71%;
+    font-weight: 400;
+    color: #aaa;
+    float: right;
+    line-height: 1.5rem;
+    margin-left: 1rem
+}
+
+.edge-home .app-summary {
+    font-size: 77%;
+    font-weight: 500;
+    color: #888;
+    display: block;
+    float: none;
+    margin: .5rem 0;
+    -webkit-box-flex: 100;
+    -ms-flex: 100 1 auto;
+    flex: 100 1 auto
+}
+
 /* sign in sign out */
+
+input#signIn-email{
+	background-image:url(../images/email.png);
+	background-repeat:no-repeat;
+	background-position:6px;
+	padding-left:35px;
+}
+input#signIn-password{
+	background-image:url(../images/password.png);
+	background-repeat:no-repeat;
+	background-position:6px;
+	padding-left:35px;
+}
 
 .edge-home .edge-header .edge-user-btn  {
 	right: 8% ;
@@ -93,6 +206,28 @@
 	text-align: left;
 	text-shadow: none;
 }
+
+.edge-navmenu-button-div {
+	position: relative;
+	right: 10% ;
+	height:1em;
+	text-align: right;
+	margin-left: 15em;
+	top: 1em;
+}
+
+.edge-navmenu-button-div .edge-nav-btn {
+	font-size: 12.5px;
+	color: #FFF !important;
+	text-shadow: none;
+	font-weight: 400;
+	text-decoration: none;
+}
+
+#edge-project-title {
+	visibility: hidden;
+}
+
 
 #signInForm .inline-small {
 	font-size: 0.8em;
@@ -115,19 +250,27 @@ div#popupUser a {
 }
 /* logo */
 .edge-logo {
-	width: 50%;
-    margin: 0 auto;
+	width: 25%;
 	position: relative;
+	float: left;
+	margin: auto 3em;
 }
 .edge-logo img {
 	width:36px;
 	position: absolute;
-	top:10px;
+	top:5px;
 }
 .edge-sponsor-logo img {
       /*  height: 30px; */
 	float: right;
         width: auto;
+}
+
+.edge-project-header {
+	margin: auto;
+}
+.edge-project-title {
+	margin: 0
 }
 
 /* tooltip */
@@ -151,13 +294,14 @@ div#popupUser a {
 	font-size: 1.2em;
 }
 
-/* dialog */
-#edge-input-toggle {
-	color: #777;
+.edge-additional-options-toggle {
+	color: #777 !important;
 	font-size: 0.9em;
-	font-weight: 300;
+	font-weight: 300 !important;
 	text-decoration: none;
 }
+
+/* dialog */
 .edge-dialog{
 	width:90%;
 }
@@ -211,7 +355,15 @@ pre code {
 	margin: 10px 15px;
 	float: right;
 }
+.edge-home .edge-footer .edge-footer-logo-left {
+	margin: 10px 15px;
+	float: left;
+}
 .edge-home .edge-footer .edge-footer-logo img {
+	height: 50px;
+	width: auto;
+}
+.edge-home .edge-footer .edge-footer-logo-left img {
 	height: 50px;
 	width: auto;
 }
@@ -231,6 +383,15 @@ pre code {
 	margin: 1em 1em .75em;
 	float:left;
 }
+
+#scroll-up-btn {
+	position: fixed;
+	right: 1em;
+	bottom:4em;
+	-webkit-border-radius: .3125em;
+	border-radius: .3125em;
+}
+
 .ui-field-contain {
 	border-bottom-width: 0px;
 }
@@ -243,6 +404,13 @@ pre code {
 
 .edge-navmenu-panel .ui-btn:hover::after {
 	opacity: .4;
+}
+
+.edge-navmenu-panel .edge-proj-active {
+	background: linear-gradient(        to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -webkit-linear-gradient(to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -o-linear-gradient(     to bottom,#0159b0 0,#014AB0 100% ) !important;
+	background: -moz-linear-gradient(   to bottom,#0159b0,  #014AB0 100% ) !important;
 }
 
 /* Content */
@@ -459,7 +627,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 /* buttons for adding/removing inputs */
-.btnDel-edge-input-se {
+.btnDel-edge-input {
 	visibility: hidden;
 }
 
@@ -469,6 +637,9 @@ div.edge-collapsible-options .ui-btn {
 
 .btnAdd-edge-input {
 	float: right;
+}
+.btnAdd-edge-taxa-custom-db {
+	margin-left: .5em !important;
 }
 
 /* searchable select menu */
@@ -555,7 +726,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-panel-inner .ui-listview .ui-listview > li > .edge-project-list {
-	background: #4d4d4d !important;
+	background: #4d4d4d;
 	color: #fff;
 	text-shadow: 0 2px 0 #000 !important;
 	opacity: 1 !important;
@@ -595,6 +766,9 @@ div.edge-collapsible-options .ui-btn {
 }
 .edge-time-bg-grey {
     background-color: #aaa;
+}
+.edge-time-bg-black {
+    background-color: #000000;
 }
 
 .edge-fg-green {
@@ -643,6 +817,7 @@ div.edge-collapsible-options .ui-btn {
 }
 
 .edge-navmenu-panel .ui-icon-recycle:after,
+.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 .edge-navmenu-panel .ui-icon-delete:after,
 .edge-navmenu-panel .ui-icon-check:after {
 	opacity: 0.9;
@@ -685,6 +860,50 @@ div.edge-collapsible-options .ui-btn {
 	display: none;
 }
 
+@media (max-width: 26em) {
+        .edge-logo {
+                text-align: left;
+                margin-left: 3em;
+        }
+        .edge-home .edge-header h2 {
+                font-size:1em;
+        }
+}
+
+@media (max-width: 30em) {
+        .edge-home .app-showcase {
+                display: grid;
+        }
+        #edge-apps-home .ui-grid-b > .ui-block-a,
+        #edge-apps-home .ui-grid-b > .ui-block-b,
+        #edge-apps-home .ui-grid-b > .ui-block-c {
+                width:70%;
+        }
+}
+
+@media (min-width: 35em) {
+	.edge-block-content {
+		min-height: 18em;
+	}
+        .edge-logo {
+                text-align: left;
+                margin-left: 4em;
+        }
+	.edge-logo img {
+		top: 8px;	
+	}
+	.edge-home .edge-header h5 {
+		margin: -1.8em;
+	}
+	.edge-navmenu-button-div {
+		right: 7% ;
+		top: 1.2em;
+	}
+	#edge-project-title {
+		visibility: visible;
+	}
+}
+
 @media (min-width: 60em) {
 	.edge-logo {
 		text-align: left;
@@ -692,6 +911,7 @@ div.edge-collapsible-options .ui-btn {
 	}
 	.edge-logo img {
 		left:1%;
+		top: 10px;
 	}
 	
 	.edge-home .edge-header h2 {
@@ -700,6 +920,27 @@ div.edge-collapsible-options .ui-btn {
 		font-weight: 700;
 		text-align: left;
 	}
+
+	.edge-home .edge-header h5 {
+		margin: -2em;
+	}
+	
+	@media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0) 
+	{
+		.edge-home .edge-header h5 {
+			margin: -1.6em;
+		}
+	}
+
+	.edge-navmenu-button-div {
+		right: 7% ;
+		top: 1.4em;
+	}
+
+	#edge-project-title {
+		visibility: visible;
+	}
+
 	.edge-home .edge-navmenu-link {
 		display: none;
 	}
@@ -748,14 +989,7 @@ div.edge-collapsible-options .ui-btn {
 	.edge-home .edge-navmenu-panel .ui-panel-inner {
 		margin-top: 5em;
 		margin-bottom: 5em;
-		/*max-width: 21em;*/
 	}
-/*	.edge-home .edge-content {
-		width: 67%;
-		padding-left: 5%;
-		padding-right: 3%;
-		float: right;
-	}*/
 	.edge-home .edge-content {
 		padding-left: 4em;
 		padding-right: 3%;
@@ -775,7 +1009,7 @@ div.edge-collapsible-options .ui-btn {
 	.edge-navmenu-panel .ui-collapsible,
 	.edge-navmenu-panel .ui-collapsible-content,
 	.edge-navmenu-panel .ui-btn {
-		background: none !important;
+		background: none;
 		border-color: #ddd !important;
 	}
 		
@@ -791,6 +1025,7 @@ div.edge-collapsible-options .ui-btn {
 	
 	.edge-navmenu-panel .ui-icon-load:after,
 	.edge-navmenu-panel .ui-icon-check:after,
+	.edge-navmenu-panel .ui-icon-arrow-u-r:after,
 	.edge-navmenu-panel .ui-icon-recycle:after
 	{
 		opacity: 0.9;
@@ -811,29 +1046,6 @@ div.edge-collapsible-options .ui-btn {
 		right: 17em;
 	}
 }
-
-@media (min-width: 35em) {
-	.edge-block-content {
-		min-height: 18em;
-	}
-}
-
-@media (max-width: 35em) {
-        .edge-logo {
-                text-align: left;
-                margin-left: 4em;
-        }
-}
-@media (max-width: 26em) {
-        .edge-logo {
-                text-align: left;
-                margin-left: 3em;
-        }
-        .edge-home .edge-header h2 {
-                font-size:1em;
-        }
-}
-
 
 /* View source popup */
 #edge-view-source-popup.ui-popup-container {
@@ -898,3 +1110,139 @@ div.edge-collapsible-options .ui-btn {
 	font-size: 0.85em;
 }
 
+.flex-container {
+	display: -webkit-flex; /* Safari */
+	display: flex;
+	-webkit-flex-wrap: wrap; /* Safari */
+	flex-wrap:         wrap;
+}
+.flex-container .ui-btn {
+	margin:0.2em;
+}
+
+//progressbar
+#progressbar-block {
+	position: relative;
+	width: 100%;
+}
+#progressbar-block div.ui-slider {
+	width: 100%;
+	height: inherit;
+	margin: inherit;
+	display: inline-block;
+}
+#progressbar-block div.ui-slider-track {
+	background-color: #ddd;
+}
+#progressbar-block div.ui-btn-active {
+	background-image: url("images/progress.gif"), linear-gradient(to right, rgb(0, 0, 0), #2ad) !important;
+	height: 100%;
+	filter: alpha(opacity=25) !important;
+	opacity: 0.25 !important;
+}
+#progressbar-block div.overlay {
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 500;
+}
+#progressbar-val {
+	color: white;
+	text-shadow: 0 2px 0 #111 !important;
+	left: 0px;
+	min-width: 200px;
+	position: absolute;
+	top: 10px;
+	text-align: center;
+	z-index: 600;
+}
+
+/* sample metadata*/
+.ui-btn.my-tooltip-btn,
+.ui-btn.my-tooltip-btn:hover,
+.ui-btn.my-tooltip-btn:active {
+	background: none;
+	border: 0;
+	margin:0px;
+	width:1.2em;
+	height:1.2em;
+}
+
+
+
+.edge-tabs a.ui-btn {
+	margin:0px;
+	margin-left:0px;
+	margin-right:0px;
+}
+.edge-tabs .ui-grid-a {
+	margin:0.1em;
+}
+
+.noscriptmsg{ 
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top:10px
+}
+
+.edge-uploadfile-myuploads-path {
+    padding: 0.5em;
+    font-weight: 600;
+    /* background-color: rgba(0,0,0,.8) !important; */
+    /* overflow-y: auto; */
+    /* min-width: 20em; */
+    color: goldenrod;
+    font-family: 'Courier New', Courier, monospace
+}
+
+#edge-uploadfile-notice {
+    font-size: 1em;
+    line-height: 1.5;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+}
+
+
+.edge-tool-parameters {
+    border-style: solid;
+    border-width: thin;
+    padding-left: 1em;
+}
+.edge-tool-parameters legend{
+    font-size:0.9em;
+}
+.edge-tool-parameters label{
+    font-size:0.9em;
+}
+
+.edge-popup-container {
+    display:flex;
+}
+
+.edge-popup-container > div,
+.edge-popup-container > input,
+.edge-popup-container > label {
+        display: inline-block;
+}
+.edge-popup-container > label,
+.edge-popup-container >.ui-rangeslider>label{
+    width: 50%;
+    position: relative;
+    top: 12px;
+}
+.edge-popup-container > label~[class*=ui-]:not(.ui-slider-switch) {
+    width:100%;
+}
+
+
+/*
+.edge-home .ui-widget.ui-widget-content {
+	border: 0px solid #c5c5c5;
+}
+.edge-home .ui-widget-content {
+	border: 0px solid #dddddd;
+	background: #ffffff;
+	color: #333333;
+}*/

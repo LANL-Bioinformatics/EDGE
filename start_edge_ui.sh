@@ -3,6 +3,8 @@
 sleep 1
 clear
 
+EDGE_HOME=$( cd $(dirname $0) ; pwd -P )
+
 function checkSystemInstallation
 {
     IFS=:

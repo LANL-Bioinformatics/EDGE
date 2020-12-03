@@ -7,6 +7,8 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/QcReads/QC.log
 	Test=$rootdir/TestOutput/QcReads/QC.stats.txt
 	Expect=$rootdir/QC.stats.txt
 	testName="EDGE QC test";
@@ -16,6 +18,10 @@ test_result(){
 		touch "$rootdir/TestOutput/test.success"
 	else
 		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >> $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

@@ -4,41 +4,54 @@ use strict;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use FindBin qw($RealBin);
-use lib "$RealBin/../../lib";
+use lib "../../lib";
 use JSON;
 use CGI qw(:standard);
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
-require "edge_user_session.cgi";
+use File::Path qw(make_path remove_tree);
+use File::Copy;
+use Email::Valid;
+require "./edge_user_session.cgi";
 
 my $cgi    = CGI->new;
 my %opt    = $cgi->Vars();
 my $username = $opt{username};
 my $password = $opt{password};
 my $action = lc($opt{action});
-my $pname = $opt{proj}; 
+my @pname = split /,/,$opt{proj}; 
 my $protocol = $opt{protocol};
 my $sid    = $opt{sid};
 $action   ||= $ARGV[0];
 $username ||= $ARGV[1];
 $password ||= $ARGV[2];
-$pname    ||= $ARGV[3];
+$pname[0] ||= $ARGV[3];
 $sid      ||= $ARGV[4];
 
-# read system params from config template
-my $config_tmpl  = "$RealBin/edge_config.tmpl";
-my $sys          = &getSysParamFromConfig( -e $opt{"edge-input-config"} ? $opt{"edge-input-config"} : $config_tmpl );
+my $domain       = $ENV{'HTTP_HOST'};
+$domain ||= "edgeset.lanl.gov";
+my ($webhostname) = $domain =~ /^(\S+?)\./;
+
+my $info;
+my %data;
+
+&stringSanitization(\%opt);
+
+# read system params from sys.properties
+my $sysconfig    = "$RealBin/../sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
+$sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
+$sys->{edgeui_output} = "$sys->{edgeui_output}"."/$webhostname" if ( -d "$sys->{edgeui_output}/$webhostname");
+my $edgeui_admin = $sys->{edgeui_admin};
+my $edgeui_adminpw = $sys->{edgeui_admin_password}; 
 my $um_switch	 = $sys->{user_management};
 my $um_url       = $sys->{edge_user_management_url};
 my $edge_input   = $sys->{edgeui_input};
-my $domain       = $ENV{'HTTP_HOST'};
 my $sessionValid = 0;
-$domain ||= "edgeset.lanl.gov";
 $protocol ||= "http:";
 $um_url ||= "$protocol//$domain/userManagement";
 #print Dumper (\%ENV);
-my $info;
-my %data;
+
 
 #check session
 if( $sys->{user_management} ){
@@ -79,14 +92,37 @@ elsif ($action eq "login"){
 	unless( $info->{error} ){
 		my $sid = createSession($username,$password,$info->{type});
 		$info->{SESSION} = $sid;
+		my $user_dir_old=md5_hex($username);
 		my $user_dir=md5_hex(lc($username));
+		make_path("$edge_input/$user_dir/MyProjects/",{chmod => 0755,});
+		make_path("$edge_input/$user_dir/MyUploads/",{chmod => 0755,});
+		if ( $user_dir_old ne $user_dir && -d "$edge_input/$user_dir_old"){
+			move_recursive("$edge_input/$user_dir_old", "$edge_input/$user_dir");
+			remove_tree("$edge_input/$user_dir_old");
+		}
 		$info->{UserDir} = $user_dir; 
-		`mkdir -p $edge_input/$user_dir/MyProjects/`;
-		`ln -sf $edge_input/public/data $edge_input/$user_dir/PublicData` if (! -e "$edge_input/$user_dir/PublicData");a
-		`ln -sf $edge_input/public/projects $edge_input/$user_dir/PublicProjects` if (! -e "$edge_input/$user_dir/PublicProjects");
+		my $user_preference = "$edge_input/$user_dir/.edgeuser";
+		my $cronjobs = `crontab -l 2>/dev/null`;
+		$info->{CleanData} = $sys->{edgeui_proj_store_days} if ($sys->{edgeui_proj_store_days} > 0 && $cronjobs =~ /edge_data_cleanup/);
+		unlink glob("$edge_input/$user_dir/.sid*");
+		symlink("$edge_input/public/data", "$edge_input/$user_dir/PublicData") if (! -e "$edge_input/$user_dir/PublicData");
+		symlink("$edge_input/public/projects", "$edge_input/$user_dir/PublicProjects") if (! -e "$edge_input/$user_dir/PublicProjects");
+		open my $fh, ">", "$edge_input/$user_dir/.sid$sid"; close $fh;
+		if ( -e "$user_preference" && -s $user_preference){
+			my $user_preference_info = readListFromJson($user_preference);
+			foreach my $key (keys %{$user_preference_info}){
+				 $info->{"user$key"} = $user_preference_info->{$key};
+			}
+		}
+		else{
+			open my $fh, ">", "$user_preference"; close $fh;
+		} 
 	}
 }
 elsif ($action eq "logout"){
+	my ($username,$password,$userType)=getCredentialsFromSession($sid);
+	my $user_dir=md5_hex(lc($username));
+	unlink "$edge_input/$user_dir/.sid$sid";
 	my $valid = closeSession($sid);
 
 	$info->{error} = "failed to close the session:$sid\n" unless $valid;
@@ -105,8 +141,8 @@ elsif ($action eq "update"){
 elsif ($action eq "sociallogin"){
 	
 	my %admin_data = (
-                admin_email => "edge-admin\@lanl.gov",
-                admin_password => "852d13c37fec9f0ee004ac121abcf2c5"
+                admin_email => "$edgeui_admin",
+                admin_password => "$edgeui_adminpw"
         );
 	my $admin_data = to_json(\%admin_data);
 	&um_service($um_url,$admin_data,"WS/user/admin/getUsers");
@@ -119,7 +155,7 @@ elsif ($action eq "sociallogin"){
                 email => $social_email,
 		password => $auto_pass
 	);
-	if ($info->{$social_email}){
+	if ($info->{$social_email} and $info->{$social_email} =~ /yes/i){
 		$info={};
 		#try to login 
 		my $data = to_json(\%data);
@@ -134,13 +170,12 @@ elsif ($action eq "sociallogin"){
 			&um_service($um_url,$data,"WS/user/getInfo");
 		}
 		$info->{password} = $auto_pass;
-	}else{	# no existing account, auto register user by user social login info
-		$data{firstname} = $social_fn;
-		$data{lastname} = $social_ln;
-		my $data = to_json(\%data);
-		&um_service($um_url,$data,"WS/user/register");
-		&um_service($um_url,$data,"WS/user/getInfo");
-		$info->{password} = $auto_pass;
+	}elsif($info->{$social_email}){
+		$info->{error} = "The existing account is not active.";
+	}else{	# no existing account, redirect to register user page by user social login info
+		$info->{social_acc} = $social_email;
+		$info->{social_fn} = $social_fn;
+		$info->{social_ln} = $social_ln;
 	}
 }
 elsif ($action eq "share" || $action eq "unshare"){
@@ -148,16 +183,94 @@ elsif ($action eq "share" || $action eq "unshare"){
 	
 	if( $valid ){
 		my $service = ($action eq "share")? "WS/project/getNonguests":"WS/project/getGuests"; 
-		%data = (
-            email => $username,
+        %data = (
+			email => $username,
             password => $password,
-			project_id => $pname
-    	    );
+			project_id => $pname[0]
+			);
+		if (scalar(@pname)>1 || $pname[0] !~ /\d/ ){
+			$service = "WS/user/admin/getUsers"; 
+			%data = (
+            	admin_email => $edgeui_admin,
+            	admin_password => $edgeui_adminpw,
+    	    	);
+		}
     	my $data = to_json(\%data);
     	&um_service($um_url,$data,$service);
 	}
 	else{
 		$info->{error} = "Invalid session.\n";
+	}
+}
+elsif ($action eq "report-share" || $action eq "report-unshare"){
+	my $valid = verifySession($sid);
+	
+	if( $valid ){
+		my $service = "WS/user/admin/getUsers"; 
+		%data = (
+		    	admin_email => $edgeui_admin,
+		    	admin_password => $edgeui_adminpw,
+    	    	);
+	    	my $data = to_json(\%data);
+	    	&um_service($um_url,$data,$service);
+	} else{
+		$info->{error} = "Invalid session.\n";
+	}
+}elsif($action eq 'write-user-preference'){
+	my $valid = verifySession($sid);
+
+	if ($valid){
+		my ($username,$password,$userType) = getCredentialsFromSession($sid);
+		my $user_dir=md5_hex(lc($username));
+		my $user_preference = "$edge_input/$user_dir/.edgeuser";
+		my $user_preference_info;
+		if ( -e $user_preference && -s $user_preference){
+			$user_preference_info =	readListFromJson($user_preference);
+		}
+		foreach my $key (keys %opt){
+			if ($key =~ /^user-(.*)/){
+				my $user_key = $1;
+				$opt{$key} = "#".$opt{$key} if $user_key =~ /background/;
+				$user_preference_info->{$user_key} = $opt{$key};
+			}
+		}
+		saveListToJason($user_preference_info,$user_preference);
+		
+	}else{
+		$info->{error} = "Invalid session.\n";
+	}
+}elsif($action eq 'getmyuploadfiles'){
+	my $valid = verifySession($sid);
+	if ($valid){
+		my $user_dir=md5_hex(lc($username));
+		my $user_upload_dir = "$edge_input/$user_dir/MyUploads/";
+		opendir(my $dh, $user_upload_dir) || die "Can't opendir $user_upload_dir: $!";
+		my @files = map { (-d "$user_upload_dir/$_")? $_."/":$_ } grep { $_ ne '.' and $_ ne '..' } readdir($dh);
+		closedir $dh;
+		$info->{list} = \@files;
+		$info->{path} = "EDGE_input/$user_dir/MyUploads/";
+	}else{
+		$info->{error} = "Invalid session.\n";
+	}
+}elsif($action eq 'deleteuploadfiles'){
+	my $valid = verifySession($sid);
+
+	if ($valid){
+		my $user_dir=md5_hex(lc($username));
+		my $user_upload_dir = "$edge_input/$user_dir/MyUploads/";
+		my @file_list =  split /,/, $opt{selectmyfiles};
+		foreach my $file(@file_list){
+			next if ( $file =~ /\.\.\//);
+			my $path="$user_upload_dir/$file";
+			if ( -d $path){
+				remove_tree($path);
+			}elsif( -f $path){
+				unlink $path or warn "Could not unlink $file: $!";;
+			}
+		}
+
+	}else{
+		 $info->{error} = "Invalid session.\n";
 	}
 }
 
@@ -169,9 +282,11 @@ elsif ($action eq "share" || $action eq "unshare"){
 sub getSysParamFromConfig {
 	my $config = shift;
 	my $sys;
-	open CONF, $config or die "Can't open $config: $!";
+	my $flag=0;
+	open (CONF, "<",$config) or die "Can't open $config: $!";
 	while(<CONF>){
 		if( /^\[system\]/ ){
+			$flag=1;
 			while(<CONF>){
 				chomp;
 				last if /^\[/;
@@ -183,6 +298,7 @@ sub getSysParamFromConfig {
 		last;
 	}
 	close CONF;
+	die "Incorrect system file\n" if (!$flag);
 	return $sys;
 }
 
@@ -220,21 +336,22 @@ sub um_service {
 	my $result_json = $response->decoded_content;
 	print $result_json,"\n" if (@ARGV);
 	if ($result_json =~ /\"error_msg\":"(.*)"/)
-        {
-                $info->{error}=$1;
-                return;
-        }
+	{
+		$info->{error}=$1;
+		return;
+    }
 	if ($service =~ /login|getInfo/)
 	{
-        	my $tmp_r = from_json($result_json);
+		my $tmp_r = from_json($result_json);
 		$info->{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
 		
 	}else{
-        	my $array_ref =  from_json($result_json);
-		if ($service =~ /getUsers/){
+		my $array_ref =  from_json($result_json);
+		if ($action =~ /sociallogin/){
 			foreach (@$array_ref){
 				my $email=$_->{email};
-				$info->{"$email"} = 1;
+				my $active=$_->{active};
+				$info->{"$email"} = $active;
 			}
 		}else{
 			$info =  $array_ref;
@@ -248,4 +365,63 @@ sub returnStatus {
     $json = to_json( $info, { ascii => 1, pretty => 1 } ) if $info && $ARGV[0];
     print $cgi->header('application/json'), $json;
     exit;
+}
+
+sub stringSanitization{
+	my $opt=shift;
+	my $dirtybit=0;
+	foreach my $key (keys %opt){
+		my $str = $opt->{$key};
+		next if $key eq "newPass";
+		next if $key eq "password";
+		next if $key eq "keywords";
+
+		if ($key eq "username" || $key eq "email"){
+			$dirtybit =1  if ! &emailValidate($str);
+		}else{
+			$opt->{$key} =~ s/[`;'"]/ /g;
+			$dirtybit=1 if ($opt->{$key} =~ /[^0-9a-zA-Z\,\-\_\^\@\=\:\\\.\/\+ ]/);
+		}
+		if ($dirtybit){
+			$info->{INFO} = "Invalid characters detected \'$str\'.";
+			&returnStatus();
+		}
+	}
+}
+
+sub emailValidate{
+	my $email=shift;
+	$email = lc($email);
+	#my $username = qr/[a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?/;
+	#my $domain   = qr/[a-z0-9.-]+/;
+	#my $regex = $email =~ /^$username\@$domain$/;
+	return Email::Valid->address($email);
+}
+
+sub move_recursive{
+	my $source_dir=shift;
+	my $destination_dir=shift;
+	for my $file (glob ("$source_dir/*")) {
+   		move ($file, "$destination_dir/") or die $!;
+	}
+}
+
+sub saveListToJason {
+        my ($list, $file) = @_;
+        open (JSON, ">", $file) or die "Can't write to file: $file\n";
+        my $json = to_json($list, {utf8 => 1, pretty => 1});
+        print JSON $json;
+        close JSON;
+}
+sub readListFromJson {
+	my $json = shift;
+	my $list = {};
+	if( -r $json ){
+		open JSON, "<", $json;
+		flock(JSON, 1);
+		local $/ = undef;
+		$list = decode_json(<JSON>);
+		close JSON;
+	}
+	return $list;
 }

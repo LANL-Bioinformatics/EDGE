@@ -9,6 +9,7 @@
 
 use strict;
 use Getopt::Long;
+use File::Basename;
 use FindBin qw($Bin);
 
 $ENV{PATH} = "$Bin:$ENV{EDGE_HOME}/edge_ui/JBrowse/bin:/$ENV{PATH}";
@@ -25,25 +26,32 @@ my $res=GetOptions(\%opt,
     'gff3out=s',                 #edge_analysis.gff3
     # generate JBrowse tracks -----------------------------------------------------------------------------
     'in-ctg-fa=s',               #AssemblyBasedAnalysis/contigs.fa
+    'in-ctg-tax-assign=s',
     'in-ref-fa=s',               
     'in-ctg-anno-gff3=s',        #AssemblyBasedAnalysis/Annotation/PROKKA.gff
+    'in-orf-ar-gff3=s',	         #AssemblyBasedAnalysis/SpecialtyGenes/With_AR_markers_hit
+    'in-orf-vf-gff3=s',         #AssemblyBasedAnalysis/SpecialtyGenes/With_VF_markers_hit
     'in-ctg-adj-primer-gff3=s',  #AssayCheck/PCR.design.primers.gff3
     'in-read2ctg-bam=s',         #AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam
-    'in-read2ref-bam=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam
+    'in-read2ref-dir=s',         #ReadsBasedAnalysis/readsMappingToRef
     'in-primer2ctg-bam=s',       #AssayCheck/pcrContigValidation.bam
     'in-primer2ref-bam=s',       #AssayCheck/pcrRefValidation.bam
     'in-read2ref-vcf=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
+    'in-primer2ref-bed=s',
     'outdir=s',                  #JBrowse
     'ctg-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ctg_coord_conf
     'ctg-coord-bam-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ctg-coord-primer-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
-    'ref-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ref_coord_conf
+    'ref-coord-conf=s',          #\$pDGE_HOME/script/edge2jbrowse_converter.ref_coord_conf
     'ref-coord-bam-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ref-coord-vcf-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ref-coord-primer-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'ref-coord-bw-conf=s',      #\$EDGE_HOME/script/edge2jbrowse_converter.ctg-coord-ext-conf
     'out-ctg_coord-dir=s',       #[outdir]/jb_ctg_tracks/
     'out-ref-coord-dir=s',       #[outdir]/jb_ref_tracks/
+    'bam-file-depth=i'  ,         # default 300x
+    'bam-file-maq=i'    ,        # default 42    ideal => # 60 for bwa and minimap2, 42 for bowtie   
+    'threads=i'    ,             # default 4 for samtools
     'debug',
     'help|h|?'
 ) || &usage();
@@ -52,16 +60,20 @@ my $debug = $opt{debug} ? 1 : 0;
 if ( $opt{help} || scalar keys %opt == 0 ) { &usage(); }
 
 # setting up default values
+my $repeat_track_size_cutoff = 20000000; #~20M;
 $opt{'proj_outdir'}            ||= ".";
 $opt{'in-phage-finder'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Prophage/phageFinder_summary.txt";
 $opt{'in-ctg2ref-coords'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.coords";
 $opt{'in-ctg2ref-snps'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.SNPs_report.txt";
 $opt{'in-ctg2ref-indels'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef.Indels_report.txt";
 $opt{'in-ctg-fa'}              ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/contigs.fa";
+$opt{'in-ctg-tax-assign'}      ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Taxonomy/lca_ctg.tsv";
 $opt{'in-ctg-anno-gff3'}       ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Annotation/PROKKA.gff";
 $opt{'in-ctg-adj-primer-gff3'} ||= "$opt{'proj_outdir'}/AssayCheck/PCR.design.primers.gff3";
+$opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/AR_genes_rgi.gff";
+$opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.gff";
 $opt{'in-read2ctg-bam'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam";
-$opt{'in-read2ref-bam'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam";
+$opt{'in-read2ref-dir'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef";
 $opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 $opt{'in-primer2ctg-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrContigValidation.bam";
 $opt{'in-primer2ref-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrRefValidation.bam";
@@ -71,12 +83,17 @@ $opt{'ctg-coord-bam-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jb
 $opt{'ctg-coord-primer-conf'}  ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ctg_trackList_PCR.temp";
 $opt{'ref-coord-conf'}         ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_conf.temp";
 $opt{'ref-coord-bam-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_BAM.temp";
+$opt{'ref-coord-con-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_CON.temp";
 $opt{'ref-coord-vcf-conf'}     ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_VCF.temp";
 $opt{'ref-coord-primer-conf'}  ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_PCR.temp";
 $opt{'ref-coord-bw-conf'}      ||= "$Bin/edge2jbrowse_converter_template/edge2jbrowse_converter.ref_trackList_BW.temp";
 $opt{'gff3out'}                ||= "$opt{'outdir'}/edge_analysis.gff3";
 $opt{'out-ctg-coord-dir'}      ||= "$opt{'outdir'}/ctg_tracks";
 $opt{'out-ref-coord-dir'}      ||= "$opt{'outdir'}/ref_tracks";
+$opt{'bam-file-depth'}         ||= "300";
+$opt{'bam-file-maq'}           ||= "42";
+$opt{'threads'}                ||= "4";
+
 
 &main();
 
@@ -106,18 +123,19 @@ sub main {
 	if( -s $opt{'in-ctg-fa'} ){
 		print "\n# Preparing files for JBrowse with CONTIG-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ctg-coord-dir'}");
-		executeCommand("mkdir -p $opt{'out-ctg-coord-dir'}");
+		executeCommand("mkdir -m 777 -p $opt{'out-ctg-coord-dir'}");
 		executeCommand("cat $opt{gff3out} >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 
 		if( -e $opt{'in-ctg-anno-gff3'} ){
 			print "#  - amending annotation gff3...";
-			&fixProkkaGff( $opt{'in-ctg-anno-gff3'}, "$opt{outdir}/contig_annotation.gff3" );
+			&fixRefGff3( $opt{'in-ctg-anno-gff3'}, $opt{'in-ctg-fa'}, "$opt{outdir}/contig_annotation_tmp.gff3");
+			&fixProkkaGff(  "$opt{outdir}/contig_annotation_tmp.gff3", $opt{'in-ctg-tax-assign'},"$opt{outdir}/contig_annotation.gff3" );
 			executeCommand("cat $opt{outdir}/contig_annotation.gff3 >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}
 
 		if( -e $opt{'in-ctg-adj-primer-gff3'} ){
-			print "#  - adding PcrDesignPrimers gff3...";
+			print "#  - Adding PcrDesignPrimers gff3...";
 			executeCommand("cat $opt{'in-ctg-adj-primer-gff3'} >> $opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}	
@@ -125,22 +143,38 @@ sub main {
 		print "\n# Generating CONTIG-based tracks:\n";
 		
 		#generate CONTIG-based tracks
-		print "#  - adding feature tracks...";
+		print "#  - Adding feature tracks...";
 		my $esc_str = $opt{'out-ctg-coord-dir'};
 		$esc_str =~ s/\//\\\//g;
 		executeCommand("cat $opt{'ctg-coord-conf'} | perl -p -e \"s/%%GFF3DIR%%/$esc_str/\" > $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf");
 		executeCommand("prepare-refseqs.pl --fasta $opt{'in-ctg-fa'} --out $opt{'out-ctg-coord-dir'} --key 'Contig sequence'");
 		executeCommand("ln -s $opt{'in-ctg-fa'} $opt{'out-ctg-coord-dir'}/contigs.fa");
-		executeCommand("biodb-to-json.pl --compress --quiet --conf $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf --out $opt{'out-ctg-coord-dir'}");
+		executeCommand("biodb-to-json.pl --compress --quiet --conf $opt{'out-ctg-coord-dir'}/edge2jbrowse_converter.ctg_conf --out $opt{'out-ctg-coord-dir'}") if( -e $opt{'in-ctg-anno-gff3'} );
 		print "Done.\n";
-
+		if (-e $opt{'in-orf-ar-gff3'}){
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-ar-gff3'} --key 'Antibiotics Resistance Genes' --trackLabel 'AR' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+		}
+		if (-e $opt{'in-orf-vf-gff3'}){
+			executeCommand("flatfile-to-json.pl --gff $opt{'in-orf-vf-gff3'} --key 'Virulence Genes' --trackLabel 'Virulence' --metadata '{ \"category\": \"Annotation\" }' --compress --out $opt{'out-ctg-coord-dir'}");
+		}
+		if (  -s $opt{'in-ctg-fa'} < $repeat_track_size_cutoff ){
+			print "#  - Adding repeats tracks...";
+			executeCommand("get_repeat_coords.pl -o $opt{outdir}/contigs_repeats.txt $opt{'in-ctg-fa'} > $opt{outdir}/contigs_repeats.log  2>&1");
+			executeCommand("flatfile-to-json.pl --gff  $opt{outdir}/contigs_repeats.txt.gff3 --key 'Repeat' --trackLabel 'REPEAT' --metadata '{\"category\": \"Annotation\"}' --compress --out $opt{'out-ctg-coord-dir'} --className feature5 --arrowheadClass null");
+			print "Done.\n";
+		}
 		#add read2ctg BAM track
 		if( -e $opt{'in-read2ctg-bam'} ){
 			print "#  - Adding read2ctg BAM track...";
-			executeCommand("samtools view -F4 -h $opt{'in-read2ctg-bam'} | samtools view -bS - > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
-			executeCommand("samtools sort $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort");
+			my $in_read2ctg_dir = dirname($opt{'in-read2ctg-bam'});
+			my $depth_cov = `grep 'Avg_coverage' $in_read2ctg_dir/readsToContigs.alnstats.txt | awk '{print \$2}'`;
+			chomp $depth_cov;
+			my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
+			executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $opt{'in-read2ctg-bam'} | samtools calmd -u --threads $opt{'threads'} - $opt{'in-ctg-fa'} 2>/dev/null > $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam");
+			executeCommand("samtools sort  --threads $opt{'threads'} -T $opt{outdir} -o $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam -O BAM $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam  2>/dev/null");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/readsToContigs.mapped.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-bam-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
+			unlink "$opt{'out-ctg-coord-dir'}/readsToContigs.mapped.bam";
 			print "Done.\n";
 		}
 
@@ -148,14 +182,14 @@ sub main {
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ctg-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort $opt{'in-primer2ctg-bam'} $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort");
+			executeCommand("samtools sort -O BAM -o $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam -T $opt{outdir} $opt{'in-primer2ctg-bam'} 2>/dev/null");
 			executeCommand("samtools index $opt{'out-ctg-coord-dir'}/pcrContigValidation.sort.bam");
 			executeCommand("add-track-json.pl $opt{'ctg-coord-primer-conf'} $opt{'out-ctg-coord-dir'}/trackList.json");
 			print "Done.\n";
 		}
 		
 		print "#  - Indexing features...";
-		executeCommand("generate-names.pl --out $opt{'out-ctg-coord-dir'}");
+		executeCommand("generate-names.pl --hashBits 16 --out $opt{'out-ctg-coord-dir'}");
 		print "Done.\n";
 	}
 
@@ -171,15 +205,16 @@ sub main {
 
 	#generate jb tracks using REF as coordinates
 	if( -e $opt{'in-ref-fa'} ){
+		my ($ref_name,$ref_file_num)=&pull_referenceName($opt{'proj_outdir'});
 		print "\n# Preparing files for JBrowse with REF-based tracks:\n";
 		executeCommand("rm -rf $opt{'out-ref-coord-dir'}/");
-		executeCommand("mkdir -p $opt{'out-ref-coord-dir'}/");
+		executeCommand("mkdir -m 777 -p $opt{'out-ref-coord-dir'}/");
 		executeCommand("cat $opt{gff3out} >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
 		
 		if( -e $opt{'in-ref-gff3'} ){
 			print "#  - Amending annotation gff3...";
-			&fixRefGff3( $opt{'in-ref-gff3'}, $opt{'in-ref-fa'}, "$opt{outdir}/ref_annotation.gff3");
-			executeCommand("cat $opt{outdir}/ref_annotation.gff3 >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
+			&fixRefGff3( $opt{'in-ref-gff3'}, $opt{'in-ref-fa'}, "$opt{'out-ref-coord-dir'}/ref_annotation.gff3");
+			#executeCommand("cat $opt{outdir}/ref_annotation.gff3 >> $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3");
 			print "Done.\n";
 		}
 		
@@ -190,18 +225,24 @@ sub main {
 		executeCommand("prepare-refseqs.pl --fasta $opt{'in-ref-fa'} --out $opt{'out-ref-coord-dir'}");
 		print "Done.\n";
 		
-		print "#  - adding feature tracks...";
+		print "#  - Adding feature tracks...";
 		my $esc_str = $opt{'out-ref-coord-dir'};
 		$esc_str =~ s/\//\\\//g;
 		executeCommand("cat $opt{'ref-coord-conf'} | perl -p -e \"s/%%GFF3DIR%%/$esc_str/\" > $opt{'out-ref-coord-dir'}/edge2jbrowse_converter.ref_conf");
 		executeCommand("ln -s $opt{'in-ref-fa'} $opt{'out-ref-coord-dir'}/reference.fasta");
-		executeCommand("biodb-to-json.pl --compress --conf $opt{'out-ref-coord-dir'}/edge2jbrowse_converter.ref_conf --out $opt{'out-ref-coord-dir'}");
+		executeCommand("biodb-to-json.pl --compress --conf $opt{'out-ref-coord-dir'}/edge2jbrowse_converter.ref_conf --out $opt{'out-ref-coord-dir'}") if ( -e $opt{'in-ref-gff3'} );
 		print "Done.\n";
-	
+		
+		if (  -s $opt{'in-ref-fa'} < $repeat_track_size_cutoff && $ref_file_num<2){
+			print "#  - Adding repeats tracks...";
+			executeCommand("get_repeat_coords.pl -o $opt{outdir}/ref_repeats.txt $opt{'in-ref-fa'} >  $opt{outdir}/ref_repeats.log  2>&1" );
+			executeCommand("flatfile-to-json.pl --gff  $opt{outdir}/ref_repeats.txt.gff3 --key 'Repeat' --trackLabel 'REPEAT' --metadata '{\"category\": \"Annotation\"}' --compress --out  $opt{'out-ref-coord-dir'} --className feature5 --arrowheadClass null") if ( -s "$opt{outdir}/ref_repeats.txt.gff3");
+			print "Done.\n";
+		}
 		#add pcrValidation track
 		if( -e $opt{'in-primer2ref-bam'} ){
 			print "#  - Adding pcrValidation track...";
-			executeCommand("samtools sort $opt{'in-primer2ref-bam'} $opt{'out-ref-coord-dir'}/pcrRefValidation.sort");
+			executeCommand("samtools sort -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam $opt{'in-primer2ref-bam'} 2>/dev/null");
 			executeCommand("samtools index $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam");
 			my $mapped_num = `samtools idxstats $opt{'out-ref-coord-dir'}/pcrRefValidation.sort.bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 			chomp $mapped_num;
@@ -213,36 +254,84 @@ sub main {
 				print STDERR "pcrValication: No mapped reads. Skip converting BAM to tracks.\n";
 			}
 		}
-
-		if( -e $opt{'in-read2ref-bam'} ){
-			my $mapped_num = `samtools idxstats $opt{'in-read2ref-bam'} | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
-			chomp $mapped_num;
-			if( $mapped_num ){
-				print "#  - Adding read2ref BAM track...";
-				executeCommand("samtools view -F4 -h $opt{'in-read2ref-bam'} | samtools view -bS - > $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam");
-				executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort");
-				executeCommand("samtools index $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort.bam");
-				executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				print "Done.\n";
-	
-				print "#  - Adding BigWig track...";
-				executeCommand("convert_bam2bigwig.pl $opt{'out-ref-coord-dir'}/readsToRef.mapped.sort.bam");
-				executeCommand("add-track-json.pl $opt{'ref-coord-bw-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				print "Done.\n";
-	
-				print "#  - Adding read2ref VCF track...";
-				executeCommand("bgzip -c $opt{'in-read2ref-vcf'} > $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-	   			executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/readsToRef.vcf.gz");
-				executeCommand("add-track-json.pl $opt{'ref-coord-vcf-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
-				print "Done.\n";
+		if( -e $opt{"in-ctg2ref-coords"} ){
+			executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Mapping Contigs to Reference' --trackLabel 'CTG2REF' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Ctg2Ref_coords --compress --out $opt{'out-ref-coord-dir'} --className match_part  --arrowheadClass arrowhead");
+		}
+		if( -e $opt{"in-ctg2ref-snps"} ){
+			executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'SNP (Assembly)' --trackLabel 'SNP' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type SNPs --compress --out $opt{'out-ref-coord-dir'} --className 'triangle hgred' --arrowheadClass null");
+		}
+		if( -e $opt{"in-ctg2ref-indels"} ){
+			if (`grep Deletion $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3`){
+				executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Deletion (Assembly)' --trackLabel 'DEL' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Deletion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
 			}
-			else{
-				print STDERR "ReadsToRef: No mapped reads. Skip converting BAM to tracks.\n";
+			if (`grep Insertion $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3`){
+				executeCommand("flatfile-to-json.pl --gff $opt{'out-ref-coord-dir'}/edge_analysis_merged.gff3 --key 'Insertion (Assembly)' --trackLabel 'INSERTION' --metadata '{\"category\": \"Assembly Based Analysis\"}' --type Insertion --compress --out $opt{'out-ref-coord-dir'} --className 'generic_part_a' --arrowheadClass null");
+			}
+		}
+		if ( -e $opt{"in-primer2ref-bed"} ){
+			print "#  - Adding Primer Bed track...\n";
+			my $bedfile_prefix=basename($opt{'in-primer2ref-bed'},".bed");
+			executeCommand("flatfile-to-json.pl --bed $opt{'in-primer2ref-bed'} --trackType CanvasFeatures --key $bedfile_prefix --trackLabel 'PRIMER' --metadata '{\"category\": \"Primers\"}' --compress --out $opt{'out-ref-coord-dir'}  --className match_part --arrowheadClass arrowhead");
+		}
+
+
+		if( -d $opt{'in-read2ref-dir'} ){
+			my @refseqs_id = keys %{$ref_name};
+			foreach my $acc ( @refseqs_id ){
+				my $file_prefix = $ref_name->{$acc}->{file};
+				$acc =~ s/\W/\_/g;
+				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
+				my $bam_nodup = (-e "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam")?"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam":"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted.bam";
+				my $vcf = "$opt{'in-read2ref-dir'}/$file_prefix.vcf";
+				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
+				my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
+				chomp $depth_cov;
+				my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
+				chomp $mapped_num;
+				if( $mapped_num ){
+					print "#  - Adding read2ref $acc BAM track...";
+					#	print "samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null \n";
+					executeCommand("samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools calmd -u --threads $opt{'threads'} - $opt{'out-ref-coord-dir'}/reference.fasta 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null");
+					#executeCommand("samtools sort $opt{'out-ref-coord-dir'}/readsToRef.mapped.bam $opt{'out-ref-coord-dir'}/$file_prefix.mapped.sort");
+					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam");
+					executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bam-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					#executeCommand("add-track-json.pl $opt{'ref-coord-bam-conf'} $opt{'out-ref-coord-dir'}/trackList.json");
+					#unlink "$opt{'out-ref-coord-dir'}/readsToRef.mapped.bam";
+					print "Done.\n";
+					
+					if ( -e $bam_nodup ){
+						print "#  - Adding read2refc$acc Consensus Coverage track...";
+						$depth_cov=`samtools depth -a -m 0 $bam_nodup | awk 'BEGIN{a=0;b=0;}{a=a+1; b=b+\$3;}END{print b/a}'`;
+						my $subsample_ratio_for_con = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
+						executeCommand("samtools view $subsample_ratio_for_con --threads $opt{'threads'} -q $opt{'bam-file-maq'} -F4 -uh $bam_nodup $acc 2>/dev/null | samtools calmd -u --threads $opt{'threads'} - $opt{'out-ref-coord-dir'}/reference.fasta 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam - 2>/dev/null");
+						executeCommand("samtools index $opt{'out-ref-coord-dir'}/$acc.mapped_nodup.sort.bam");
+						executeCommand("sed -e 's/%%BAMFILENAME%%/$acc.mapped_nodup.sort.bam/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-con-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+						print "Done.\n";
+					}
+					
+					print "#  - Adding BigWig $acc track...";
+					#print("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
+					executeCommand("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
+					executeCommand("sed -e 's/%%BWFILENAME%%/$acc.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					print "Done.\n";
+	
+				}
+				else{
+					print STDERR "ReadsToRef: No mapped reads to $acc. Skip converting BAM to tracks.\n";
+				}
+				#if ( -e $opt{'in-read2ref-vcf'} ){
+				if ( -e $vcf ){
+					print "#  - Adding read2ref $acc VCF track...";
+					executeCommand("bgzip -c $vcf > $opt{'out-ref-coord-dir'}/$acc.vcf.gz");
+	   				executeCommand("tabix -p vcf $opt{'out-ref-coord-dir'}/$acc.vcf.gz");
+					executeCommand("sed -e 's/%%VCFFILENAME%%/$acc.vcf.gz/'  -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-vcf-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
+					print "Done.\n";
+				}
 			}
 		}
 		
 		print "#  - Indexing features...";
-		executeCommand("generate-names.pl --out $opt{'out-ref-coord-dir'}");	
+		executeCommand("generate-names.pl --hashBits 16 --out $opt{'out-ref-coord-dir'}");	
 		print "Done.\n";
 	}
 
@@ -353,7 +442,7 @@ sub fixRefGff3 {
 			foreach my $fn ( @fname ){
 				chomp $fn;
 				$fn =~ s/^>//;
-				if( $fn =~ /^$gn/ ){
+				if( $fn =~ /^$gn/ || $gn =~ /^$fn/ ){
 					$name_mapping{$gn} = $fn;
 					last;
 				}
@@ -405,9 +494,20 @@ sub fixRefGff3 {
 }
 
 sub fixProkkaGff {
-	my ($infile,$outfile) = @_;
+	my ($infile,$tax_file,$outfile) = @_;
 	my $out_text;
-	
+	my %tax;
+	if ( -e $tax_file){
+		open (my $fh, "<", $tax_file);
+		while(<$fh>){
+			chomp;
+			my @array=split /\t/,$_;
+			#next if $array[1] ne "species";
+			$tax{$array[0]}{name}=$array[6];
+			$tax{$array[0]}{taxid}=$array[4];
+		}
+		close $fh;
+	}
 	open IN, $infile or die "Can't run PROKKA GFF3: $!\n";
 
 	while(<IN>){
@@ -432,6 +532,9 @@ sub fixProkkaGff {
 		else{
 			chomp;
 			next if /^#/;
+			my @fields=split /\t/,$_;
+			my $tax_id=($tax{$fields[0]}{taxid})?";db_xref=taxon:$tax{$fields[0]}{taxid}":"";
+			my $tax_name=($tax{$fields[0]}{name})?";organism=$tax{$fields[0]}{name}":"";
 			s/;product=([^;]+)/;Product=$1;Description=$1/i unless /;Description=/;
 			if( /;gene=/i ){
 				s/;gene=([^;]+)/;gene=$1;Name=$1/i;
@@ -439,7 +542,7 @@ sub fixProkkaGff {
 			else{
 				s/\tID=([^;]+)/\tID=$1;Name=$1/i;
 			}
-			$out_text .= "$_\n";
+			$out_text .= "$_$tax_id$tax_name\n";
 		}
 	}
 	$/ = "\n";
@@ -625,6 +728,30 @@ sub encode {
 	return $str;
 }
 
+sub pull_referenceName {
+	my $out_dir = shift;
+	my $refname;
+	my $num=0;
+        if( -e "$out_dir/Reference/ref_list.txt" ){
+                open (my $fh, "$out_dir/Reference/ref_list.txt") or die "Cannot open ref_list.txt";
+                while(my $ref=<$fh>){
+                        next if (!$ref);
+                        chomp $ref;
+			next if ( ! -e "$out_dir/Reference/$ref.fasta");
+			$num++;
+                        my @fasta_header =`grep "^>" $out_dir/Reference/$ref.fasta`;
+                        foreach my $header (@fasta_header){
+                                chomp $header;
+                                if ($header =~ /^>(\S+)\s*(.*)$/ ){
+                                        $refname->{$1}->{desc}=$2;
+                                        $refname->{$1}->{file}=$ref;
+                                }
+                        }
+                }
+        }
+	return ($refname,$num);
+}
+
 sub executeCommand 
 {
     my $command = shift;
@@ -661,7 +788,7 @@ $0 [OPTIONS]
     --in-ctg-adj-primer-gff3  AssayCheck/PCR.design.primers.gff3
     --in-read2ctg-bam         AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam
                               (.bai is required in the same directory)
-    --in-read2ref-bam         ReadsBasedAnalysis/readsMappingToRef/readsToRef.sort.bam
+    --in-read2ref-dir         ReadsBasedAnalysis/readsMappingToRef/
                               (.bai is required in the same directory)
     --in-read2ref-vcf         ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
     --gff3out                 edge_analysis.gff3
@@ -670,6 +797,10 @@ $0 [OPTIONS]
     --ref-coord-conf          \$EDGE_HOME/script/edge2jbrowse_converter.ref_coord_conf
     --out-ctg_coord-dir       [outdir]/ctg_tracks/
     --out-ref-coord-dir       [outdir]/ref_tracks/
+    --bam-file-depth          default 300x
+    --bam-file-maq            default 42    ideal => # 60 for bwa and minimap2, 42 for bowtie
+    --threads                 default 4 for samtools
+
     --help|h|?
 
 __END__

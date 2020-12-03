@@ -1,0 +1,102 @@
+[system]
+##edge_ui environmental vars
+edgeui_wwwroot=%EDGE_HOME%/edge_ui
+edgeui_input=%EDGE_HOME%/edge_ui/EDGE_input
+edgeui_output=%EDGE_HOME%/edge_ui/EDGE_output
+edgeui_report=%EDGE_HOME%/edge_ui/EDGE_report
+edgeui_archive=
+edgeui_tol_cpu=%TOTAL_NUM_CPU%
+edgeui_auto_queue=1
+edgeui_auto_run=1
+edgeui_admin=
+edgeui_admin_password=
+## project direcotry will be delete after 7 days. set 0 to turn off
+edgeui_proj_store_days=0
+edgeui_project_list_num=25
+edgeui_result_table_rows=3000
+max_num_jobs=3
+debug=0
+maintenance=0
+## configure user management system  1: with 0: without
+user_management=1
+## if user management system is not in the same domain with edge
+## ex: http://www.someother.com/userManagement
+edge_user_management_url=http://localhost/userManagement
+## configure user upload function  1: able 0: disable
+user_upload=1
+## max file size for user upload
+user_upload_maxFileSize='1gb'
+user_upload_fileext=fastq,fq,fa,fasta,fna,contigs,gbk,gbff,genbank,bed,hmm,gb,gz,text,config,txt,ini,xls,xlsx,gff,gff3
+## max user dir size in GB
+user_upload_dir_maxsize=50
+## download tool use curl or wget
+download_interface=curl
+proxy=
+user_social_login=0
+## job done email notification
+email_notification=0
+## job error email notification
+error_notification=0
+## email will send not only to project owner but to the email_recipients here
+email_recipient=
+
+## modules
+m_qc=1
+m_assembly_annotation=1
+m_reference_based_analysis=1
+m_taxonomy_classfication=1
+m_phylogenetic_analysis=1
+m_pcr_primer_analysis=1
+m_qiime=1
+m_specialty_genes_profiling=1
+m_targetedngs=1
+m_piret=1
+
+## Virluence Factoer database
+VFDB_dbhost=localhost
+VFDB_dbport=3306
+VFDB_dbname=virulenceFactors
+VFDB_dbuser=edge_user
+VFDB_dbpasswd=edge_user_password
+
+## modules parameters
+edge_ref_genome_file_max=20
+edge_phylo_genome_file_max=20
+
+##configure cluster system  1: with 0: without
+cluster=0
+scheduler=sge
+slurm_bin=/cm/shared/apps/slurm/18.08.4/bin
+sge_bin=/cm/shared/apps/sge/2011.11p1/bin/linux-x64
+sge_root=/cm/shared/apps/sge/2011.11p1
+sge_cell=default
+sge_cluster_name=seqclust
+cluster_job_notify=edge@yourdomain.com
+cluster_job_prefix=EDGE_pipeline_
+cluster_qsub_options=
+##uge
+cluster_job_resource=mem_free=12G,h_vmem=12G -pe smp <CPU> -binding linear:<CPU/2>
+##slurm
+#cluster_job_resource=--mem-per-cpu=10G --cpus-per-task <CPU> 
+##pbs
+##cluster_job_resource=nodes=1:trailer:ppn=<CPU>,walltime=50:00:00,mem=100gb
+cluster_job_max_cpu=64
+
+##configure edge pathogen detection 1: with 0: without
+edge_pathogen_detection=0
+pathogen_dbhost=localhost
+pathogen_dbname=pathogens
+pathogen_dbuser=edge_user
+pathogen_dbpasswd=edge_user_password
+
+##configure edge sample metadata option 1: with 0: without
+edge_sample_metadata=0
+##edge DB
+edge_dbhost=localhost
+edge_dbname=edgeDB
+edge_dbuser=edge_user
+edge_dbpasswd=edge_user_password
+
+###bsve edge sample metadata api (not up yet)
+bsve_api_url=https://global-metagenomics-api.lanl.gov/edgeBsveAPI
+bsve_api_debug=1

@@ -1,9 +1,10 @@
 #! /usr/bin/perl
 # required: 1. R
-#           2. samtools
+#           2. samtools > 1.1
 #           3. bwa
 #           4. bowtie2
 #           5. ContigCoverageFold_plots_from_samPileup.pl
+#           6. Samclip
 #     input: reads files: forward.fastq and reverse.fastq [or single end files and Long fasta files]
 #            reference genome/contigs
 #     output: bam file (reads placement from bwa/bowtie + samtools)
@@ -16,6 +17,7 @@
 # 20100824
 # 20110923 add filter contigs fasta output
 # 20120111 change flag names and add bowtie2
+# 20180123 use samtools 1.6
 
 use strict;
 use Getopt::Long;
@@ -29,14 +31,18 @@ $|=1;
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
 
 my ($file1, $file2, $paired_files, $ref_file, $outDir,$file_long,$singleton,$pacbio,$offset);
-my $bwa_options="-t 4 ";
-my $bowtie_options="-p 4 -a ";
+my $numCPU = 4;
+my $bwa_options="-t $numCPU ";
+my $minimap2_options="-t $numCPU ";
+my $bowtie_options="-p $numCPU -a ";
 my $cov_cut_off=0;
 my $aligner="bwa";
 my $pacbio_bwa_option="-b5 -q2 -r1 -z10 ";
+my $max_clip=50;
 my $prefix="ReadsMapping";
 my ($file1,$file2);
 my $skip_aln;
+my $tmp;
 GetOptions( 
             'aligner=s' => \$aligner,
             'p=s'       => \$paired_files,
@@ -46,12 +52,17 @@ GetOptions(
             'u=s' => \$singleton, # illumina singleton 
             'd=s'   => \$outDir,
             'c=f'   => \$cov_cut_off, 
+            'cpu=i' => \$numCPU,
+	    'max_clip=i' => \$max_clip,
             'bwa_options=s' => \$bwa_options,
             'bowtie_options=s' => \$bowtie_options,
+            'minimap2_options=s' => \$minimap2_options,
             'skip_aln'  => \$skip_aln,
             'pacbio'  => \$pacbio,
             'help|?',  sub {Usage()}
 );
+
+$tmp = $outDir;
 
 unless ( -e $ref_file && $outDir) { &Usage;}
 unless ( $paired_files or -e $file_long or -e $singleton) { &Usage; }
@@ -76,7 +87,7 @@ Usage: perl $0
                -d                        output directory
                -aligner                  bwa or bowtie (default: bwa)
                -bwa_options <String>     bwa options
-                                         type "bwa aln" to see options
+                                         type "bwa mem" to see options
                                          default: "-t 4 "
                                          -t        <int> number of threads [4] 
                                          -I        the input is in the Illumina 1.3+ FASTQ-like format
@@ -86,7 +97,12 @@ Usage: perl $0
                                          -p           <int> number of alignment threads to launch [4] 
                                          -a           report all alignments; very slow
                                          --phred64    qualities are Phred+64
+               -minimap2_options         minimap2_options
+                                         type "minimap2" to see options
+                                         default: "-t 4 "
                -skip_aln                 <bool> skip alignment step
+	       -max_clip                 Maximum clip length to allow. filter [default: 50]
+               -cpu <NUM>                number of CPUs [4]  will overwrite the aligner threads
                -c  <NUM>                 cutoff value of contig coverage for final fasta file. (default:noFilter) 
 
 Synopsis:
@@ -106,12 +122,12 @@ my $bam_output="$outDir/$prefix.sort.bam";
 my $bam_index_output="$outDir/$prefix.sort.bam.bai";
 my $pileup_output="$outDir/$prefix.pileup";
 
-my ($bwa_threads)= $bwa_options =~ /-t (\d+)/;
-my ($bowtie_threads)= $bowtie_options =~ /-p (\d+)/;
-my $samtools_threads;
-$samtools_threads = $bwa_threads if ($aligner =~ /bwa/); 
-$samtools_threads = $bowtie_threads if ($aligner =~ /bowtie/);
-$samtools_threads = 1 if (!$samtools_threads); 
+if ($bwa_options =~ /-t\s+\d+/) { $bwa_options =~ s/-t\s+\d+/-t $numCPU/; } else { $bwa_options .= " -t $numCPU ";}
+if ($minimap2_options =~ /-t\s+\d+/){$minimap2_options =~ s/-t\s+\d+/-t $numCPU/;}else{$minimap2_options .= " -t $numCPU ";};
+if ($bowtie_options =~ /-p\s+\d+/){$bowtie_options =~ s/-p\s+\d+/-p $numCPU/ ;}else{$bowtie_options .= " -p $numCPU ";}
+my $samtools_threads = $numCPU;
+
+my ($ref_file_name, $ref_file_path, $ref_file_suffix)=fileparse("$ref_file", qr/\.[^.]*/);
 
 unlink $bam_output;
 unlink $bam_index_output;
@@ -134,61 +150,80 @@ elsif ($aligner =~ /bwa/i and ! -e "$ref_file.bwt")
     `bwa index $ref_file`;
 
 }
-
+elsif ($aligner =~ /minimap2/i ){
+    # fold sequence in 100 bp per line (samtools cannot accept > 65535 bp one line sequence)
+    $ref_file=&fold($ref_file);
+    `minimap2 -d $tmp/$ref_file_name.mmi $ref_file `;
+}
  
+
+## index reference sequence 
+&executeCommand("samtools faidx $ref_file") if (! -e "$ref_file.fai");
+
 if ($file_long)
 {
    print "Mapping Long reads\n";
    if ($aligner =~ /bowtie/i){
      `bowtie2 --local $bowtie_options -x $ref_file -fU $file_long -S $outDir/LongReads$$.sam`;
    }
-   else
+   elsif ($aligner =~ /bwa/i)
    {
-     my ($bwa_threads)= $bwa_options =~ /-t (\d+)/; 
-     if ($pacbio)
-     {
-     &executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     }
-     else
-     {
-     &executeCommand("bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     }
-  #my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' /tmp/LongReads$$.sam | uniq - | wc -l`;
-  #`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
+     $bwa_options .= ' -x pacbio ' if ($pacbio);
+     #&executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
+     &executeCommand("bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam ");
+   }elsif ($aligner =~ /minimap2/i){
+     `minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
    }
-   &executeCommand("samtools view -uhS $outDir/LongReads$$.sam | samtools sort -@ $samtools_threads - $outDir/LongReads$$");
+
+   &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam | samtools view -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - ") if ( -s "$outDir/LongReads$$.sam");
 }
 if ($paired_files){
    print "Mapping paired end reads\n";
    $offset = fastq_utility::checkQualityFormat($file1);
-   if ($offset==64) {$bowtie_options=$bowtie_options." --phred64 ";$bwa_options=$bwa_options." -I ";}
+   my $quality_options="";
    if ($aligner =~ /bowtie/i){
-     &executeCommand("bowtie2 $bowtie_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam");
+     $quality_options= " --phred64 " if ($offset==64);
+     &executeCommand("bowtie2 $bowtie_options $quality_options -x $ref_file -1 $file1 -2 $file2 -S $outDir/paired$$.sam");
    }
-   else
+   elsif($aligner =~ /bwa_short/i)
    {
-     &executeCommand("bwa aln $bwa_options $ref_file $file1 > /tmp/reads_1_$$.sai");
-     &executeCommand("bwa aln $bwa_options $ref_file $file2 > /tmp/reads_2_$$.sai");
-     &executeCommand("bwa sampe $ref_file /tmp/reads_1_$$.sai /tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam");
+     $quality_options= " -I " if ($offset==64);
+     &executeCommand("bwa aln $bwa_options $quality_options $ref_file $file1 > $tmp/reads_1_$$.sai");
+     &executeCommand("bwa aln $bwa_options $quality_options $ref_file $file2 > $tmp/reads_2_$$.sai");
+     &executeCommand("bwa sampe $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam");
    }
-   &executeCommand("samtools view -uhS $outDir/paired$$.sam | samtools sort -@ $samtools_threads - $outDir/paired$$");
+   elsif($aligner =~ /bwa/i)
+   {
+     &executeCommand("bwa mem $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam ");
+   }elsif ($aligner =~ /minimap2/i){
+     `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
+   }
+   &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/paired$$.sam | samtools sort -n -T $tmp -l 0 -@ $samtools_threads |  samtools fixmate -m -@ $samtools_threads  - - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/paired$$.bam - ") if (-s "$outDir/paired$$.sam");
 }
 
 if ($singleton)  
 {
     print "Mapping single end reads\n";
     $offset = fastq_utility::checkQualityFormat($singleton);
-    if ($offset==64) {$bowtie_options=$bowtie_options."--phred64 ";$bwa_options=$bwa_options."-I ";}
+    my $quality_options="";
 
     if ($aligner =~ /bowtie/i){
-       &executeCommand("bowtie2 $bowtie_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam");
+       $quality_options= " --phred64 " if ($offset==64);
+       &executeCommand("bowtie2 $bowtie_options $quality_options -x $ref_file -U $singleton -S $outDir/singleton$$.sam");
     }
-    else
+    elsif($aligner =~ /bwa_short/i)
     {
-      &executeCommand("bwa aln $bwa_options $ref_file $singleton > /tmp/singleton$$.sai");
-      &executeCommand("bwa samse -n 50 $ref_file /tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam");
+      $quality_options= " -I " if ($offset==64);
+      &executeCommand("bwa aln $bwa_options $quality_options $ref_file $singleton > $tmp/singleton$$.sai");
+      &executeCommand("bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam");
     }
-    &executeCommand("samtools view -uhS $outDir/singleton$$.sam | samtools sort -@ $samtools_threads - $outDir/singleton$$");
+    elsif($aligner =~ /bwa/i)
+    {
+      &executeCommand("bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam ");
+    } elsif ($aligner =~ /minimap2/i){
+      `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+    }
+    &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam  | samtools view -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o  $outDir/singleton$$.bam - ") if  (-s "$outDir/singleton$$.sam");
 } 
 
 if ($file_long and $paired_files and $singleton){
@@ -221,10 +256,8 @@ elsif($file_long)
 } # skip_aln
   # get alignment statistical numbers
   &executeCommand("samtools flagstat $bam_output > $stats_output");
-   ## index reference sequence 
-  &executeCommand("samtools faidx $ref_file") if (! -e "$ref_file.fai");
   # generate pileup file for coverage calculation
-  &executeCommand("samtools mpileup -BQ0 -d10000000 -f  $ref_file $bam_output >$pileup_output");
+  &executeCommand("samtools mpileup -ABQ0 -d10000000 -f  $ref_file $bam_output >$pileup_output");
 
 
   # pull out un-mapped reads list 
@@ -261,8 +294,8 @@ elsif($file_long)
    `mv $outDir/update_table$$ $outDir/${prefix}_coverage.table`;
 
   # clean up
-  `rm /tmp/*$$*`;
-  `rm $outDir/*$$*`;
+  `rm -rf $tmp/*$$*`;
+  `rm -rf $outDir/*$$*`;
   unlink "$outDir/$prefix.pileup";
 
 
@@ -298,8 +331,8 @@ sub splitContigFile
     my $seq_number = `grep -c ">" $file`;
     my $mid_point = int($seq_number/2);
     my $n;
-    open (OUT,">/tmp/Contig$$.01");
-    open (OUT2,">/tmp/Contig$$.02");
+    open (OUT,">$tmp/Contig$$.01");
+    open (OUT2,">$tmp/Contig$$.02");
     while(<IN>)
     {
        chomp;
@@ -339,7 +372,7 @@ sub fold {
     my $seq_name;
     my $len_cutoff=199;
     open (IN,$file);
-    open (OUT,">/tmp/Contig$$");
+    open (OUT,">$tmp/Contig$$");
     while(<IN>){
       chomp;
       if(/>/)
@@ -368,5 +401,5 @@ sub fold {
     }
     close IN;
     close OUT;
-    return ("/tmp/Contig$$");
+    return ("$tmp/Contig$$");
 }

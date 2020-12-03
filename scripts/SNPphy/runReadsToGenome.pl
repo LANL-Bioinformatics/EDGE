@@ -626,7 +626,7 @@ if ($seq and length($seq)>$len_cutoff){ # last sequence
 }
 close IN;
 close OUT;
-if ($seq_num<1){die "No seqeucne in your reference file\n";}
+if ($seq_num<1){die "No sequence in your reference file\n";}
 return ("/tmp/Contig$$.fold");
 }
 

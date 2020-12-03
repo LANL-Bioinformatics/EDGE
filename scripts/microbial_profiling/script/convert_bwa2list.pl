@@ -35,7 +35,7 @@ while(<TAXA>)
 	next if /^#/;
 	next if /^$/;
 
-	#0 GI
+	#0 Accession
 	#1 Length
 	#2 GC%
 	#3 Avg_fold
@@ -52,10 +52,10 @@ while(<TAXA>)
 		next;
 	}
 
-	my $gi = $fields[0];
-	my $taxID = getTaxIDFromGI($gi);
+	my $acc = $fields[0];
+	my $taxID = getTaxIDFromGI($acc);
 
-	print STDERR "[WARNING] Can't find GI#$gi: $fields[8]\n" unless $taxID;
+	print STDERR "[WARNING] Can't find Accession#$acc: $fields[8]\n" unless $taxID;
 
 	my $rank = "replicon";
 	my $name = $fields[8];

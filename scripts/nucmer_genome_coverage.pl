@@ -13,13 +13,17 @@ my $identity_cutoff=85;
 my $end_cutoff=0.05;
 my $query_cov_cutoff=0;
 my $ref_cov_cutoff=0;
+my $dotplot=0;
+my $mincluster=65;
 my $prefix="Output";
 my $delta_file;
 GetOptions('e=f', \$end_cutoff,
            'i=f', \$identity_cutoff,
  #          'q=f',  \$query_cov_cutoff,
  #          'r=f',  \$ref_cov_cutoff
+           'c=i',  \$mincluster,
            'p=s'  , \$prefix,
+           'd'    ,  \$dotplot,
            'delta=s', \$delta_file  
           );
           
@@ -33,7 +37,9 @@ if (scalar(@ARGV)<1){
    print  "      -e      ratio of the query length on each end is ignored (default 0.05, >=90% query should align)\n";
 #   print  "      -r     at least this percent alignment coverage in the reference sequence [0..100]\n";
 #   print  "      -q     at least this percent alignment coverage in the query sequence [0..100]\n";
+   print  "      -c      mincluster   Sets the minimum length of a cluster of matches (default 65)\n";
    print  "      -i      at least this percent identifity between alignement [0..100] (default 85)\n";
+   print  "      -d      dotplot for first 50 reference if gnuplot existed\n";
    print  "      -p      output prefix\n";
    print  "      -delta  provide delta file to skip nucmer alignment step.\n";
    exit;
@@ -52,7 +58,7 @@ if ($delta_file)
 }
 else
 {
-   system ("nucmer --maxmatch --prefix=$prefix $referenceFile $queryFile  2>/dev/null");
+   system ("nucmer --maxmatch -c $mincluster --prefix=$prefix $referenceFile $queryFile 2>/dev/null");
    system ("show-coords -clTr $prefix.delta > $prefix.coords");
    system ("delta-filter -1 -i $identity_cutoff $prefix.delta > $prefix.filterforSNP");
    system ("show-snps -CT $prefix.filterforSNP > $prefix.snps");
@@ -63,6 +69,7 @@ my ($numSNPs,$numINDELs,$variantCount_r)=&SNP_INDEL_COUNT("$prefix.snps");
 print $log_fh "Mapping criteria\n";
 #$end_cutoff=0.5 if ($end_cutoff>0.5);
 #printf (">= %.1f%% query length in the middle should align\n",100-$end_cutoff*100*2);
+printf $log_fh ("nucmer -c the minimum length of a cluster of matches %d \n",$mincluster);
 printf $log_fh ("Aligned portion should be >= %.2f %% identity\n",$identity_cutoff);
 
 my %query_used;
@@ -80,7 +87,7 @@ my %reference=&getSeqInfo($referenceFile,0);
 print "Loading query $queryFile...\n";
 my %query=&getSeqInfo($queryFile,1);
 my $total_reads_num = scalar (keys (%query));
-print $log_fh  "Total_reads:\t$total_reads_num\n";
+print $log_fh  "Total_contigs:\t$total_reads_num\n";
 
 my ($total_identity,$total_hit)=(0,0);
 open (my $Rtable,">${prefix}.coordsR");
@@ -169,20 +176,32 @@ par(mar=c(5,6,4,2))
 # read the data
 data.hits.all  <- read.table(file=\"${prefix}.coordsR\", header=TRUE, dec=\".\")
 data.gaps.all  <- read.table(file=\"${prefix}_ref_zero_cov_coord.txt\")\n";
-
-foreach my $ref (keys  %reference){
+ 
+my $ref_count=0;
+foreach my $ref (sort { $reference{$b}->{len} <=> $reference{$a}->{len} } keys  %reference){
   my $mapped_contig_count = scalar( keys %{$ref_used{$ref}});
   $reference{$ref}->{mappedCount} = $mapped_contig_count;
   $variantCount_r->{$ref}->{INDELs} = $variantCount_r->{$ref}->{INDELs} || 0;
   $variantCount_r->{$ref}->{SNPs} = $variantCount_r->{$ref}->{SNPs} || 0;
+  $ref_count++;
+  if ($ref_count <= 50  && $dotplot){
+        (my $output_prefix = $ref) =~  s/\W/\_/g;
+        $output_prefix = ${prefix}."_".$output_prefix."_dotplot";
+  	system("mummerplot --fat -png $prefix.delta -r \"$ref\" --large  --prefix $output_prefix 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
+  	system("rm -f $output_prefix.*plot $output_prefix.gp $output_prefix.filter");
+  }
 }
+
+system("mummerplot --fat -png $prefix.delta --large --prefix $prefix.dotplot 1>/dev/null 2>/dev/null") if (`which gnuplot 2>/dev/null`);
+system("rm -f $prefix.*plot $prefix.gp $prefix.filter");
 
 foreach my $ref (sort {$reference{$b}->{mappedCount} <=> $reference{$a}->{mappedCount}} keys %reference)
 {
   my $ref_len=$reference{$ref}->{len};
   my $ref_desc=$reference{$ref}->{desc};
   my $mapped_contig_count =  $reference{$ref}->{mappedCount};
-  my ($genome_covered_pos, $gaps, @gap_array, $gap_num,$cov,$total_cov);
+  my ($genome_covered_pos, $gaps, $gap_num,$cov,$total_cov) = (0,0,0,0,0);
+  my @gap_array;
   if ($ref_used{$ref})
   {   
       for (1..$ref_len){
@@ -275,12 +294,11 @@ for(i in 1: dim(data.hits)[1]) {
 # get margin coordiates
 pa<-par('usr');
 # plot gap regions
-rect(1,round(pa[3]),data.gaps[i,1]-1,round(pa[3])+0.5,col="black",border=NA)
-for(i in 2:(dim(data.gaps)[1]-1)){
- #rect(data.gaps[i-1,2]+1,round(pa[3]),data.gaps[i,1]-1,round(pa[3])+0.5,col="black",border=NA)
- rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)
+if (dim(data.gaps)[1] > 0){
+	for(i in 1:dim(data.gaps)[1]){
+		rect(data.gaps[i,1],round(pa[3]),data.gaps[i,2],round(pa[3])+0.5,col="black",border=NA)	
+	}
 }
-#rect(data.gaps[dim(data.gaps)[1],2],round(pa[3]),$ref_len,round(pa[3])+0.5,col="black",border=NA)
 
 # add Legend
 Coverage <- sprintf ("Coverage: %.2f %%", $genome_covered_pos/$ref_len*100)
@@ -301,7 +319,7 @@ close OUT2;
 close UNUSEDREF;
 print Rplot "garbage <- dev.off();\nq()\n";
 close Rplot;
-system ("R --vanilla --slave --silent < ${prefix}.R 2>/dev/null");
+system ("R --vanilla --slave --silent < ${prefix}.R 2>/dev/null"); 
 unlink "$prefix.R";
 unlink "${prefix}.coordsR";
 
@@ -481,7 +499,7 @@ sub SNP_INDEL_COUNT
         {
 		if ($r_base eq '.'){ #insertion
                         $indel{$r_tag}->{$r_position}->{seq} .= $q_base;
-			$count{$r_tag}->{INDELs}++;
+			#$count{$r_tag}->{INDELs}++;
                 }
                 if ($q_base eq '.'){ # deletion
                         if ($indel{$r_tag}->{$r_position-$delet_base})
@@ -489,7 +507,7 @@ sub SNP_INDEL_COUNT
                                 $r_position = $r_position - $delet_base;
                                 $indel{$r_tag}->{$r_position}->{seq}.= $r_base;
                                 $delet_base++;
-				$count{$r_tag}->{INDELs}++;
+			#	$count{$r_tag}->{INDELs}++;
                         }else {
                                 $indel{$r_tag}->{$r_position}->{seq}.= $r_base;
                                 $delet_base=1;
@@ -502,6 +520,7 @@ sub SNP_INDEL_COUNT
     close $fh;
     foreach my $id (keys %indel){
         my %pos = %{$indel{$id}};
+	$count{$id}->{INDELs} = scalar (keys %pos);
         $Indels_count += scalar (keys %pos);
     }
     return ($SNPs_count, $Indels_count,\%count);

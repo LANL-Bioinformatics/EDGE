@@ -45,8 +45,9 @@ while(<STDIN>)
 		print "$fields[0]\t\n";
 	}
 	else{#mapped
-		my ($gi) = $fields[2] =~ /gi\|(\d+)/;
-		my $name = gi2rank($gi,$rank);
+		#my ($gi) = $fields[2] =~ /gi\|(\d+)/;
+		my $acc = getAccFromSeqID($fields[2]);
+		my $name = acc2rank($acc,$rank);
 		if($name){
 			print "$fields[0]\t$name\n";
 		}

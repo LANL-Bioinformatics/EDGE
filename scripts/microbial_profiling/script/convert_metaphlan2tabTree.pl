@@ -1,5 +1,8 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
+
+my $tax;
+
 
 while(<STDIN>){
 	chomp;
@@ -11,5 +14,10 @@ while(<STDIN>){
     $phylo =~ s/\|\w__/\t/g;
     $phylo =~ s/_/ /g;
 
-    print "$count\t$phylo\n"
+    $tax->{$phylo} = $count;
+
+}
+
+foreach my $phylo ( sort {$a cmp $b} keys %$tax ){
+    print "$tax->{$phylo}\t$phylo\n";
 }

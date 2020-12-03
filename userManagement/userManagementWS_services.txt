@@ -7,6 +7,8 @@ http://<hostname>:<port>/userManagementWS/project/add
 HTTP PUT requests:
 http://<hostname>:<port>/userManagementWS/user/activate
 http://<hostname>:<port>/userManagementWS/user/getInfo
+http://<hostname>:<port>/userManagementWS/user/getRuns
+http://<hostname>:<port>/userManagementWS/user/getpublicRuns
 http://<hostname>:<port>/userManagementWS/user/getProjects
 http://<hostname>:<port>/userManagementWS/user/login
 http://<hostname>:<port>/userManagementWS/user/publishedProjects
@@ -15,9 +17,11 @@ http://<hostname>:<port>/userManagementWS/user/setPasswd
 http://<hostname>:<port>/userManagementWS/user/uniqueEmail
 http://<hostname>:<port>/userManagementWS/user/update
 http://<hostname>:<port>/userManagementWS/user/validateToken
+http://<hostname>:<port>/userManagementWS/user/updateProjectDisplay
 
 http://<hostname>:<port>/userManagementWS/user/admin/getProjects
 http://<hostname>:<port>/userManagementWS/user/admin/getUsers
+http://<hostname>:<port>/userManagementWS/user/admin/getRuns
 http://<hostname>:<port>/userManagementWS/user/admin/update
 
 http://<hostname>:<port>/userManagementWS/project/delete

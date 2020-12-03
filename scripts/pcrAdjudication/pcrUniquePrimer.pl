@@ -37,7 +37,8 @@ my $res=GetOptions(\%opt,
     'len_max=i',
     'len_opt=i',
     'len_min=i',
-	'top|p=s',
+    'top|p=s',
+    'tmp=s',
     'debug|d',
     'help|?') || &Usage();
 
@@ -45,6 +46,9 @@ if ( $opt{help} ) { &Usage(); }
 
 # DEBUG flag
 my $DEBUG = defined $opt{debug} ? 1 : 0;
+
+# tmp directory
+my $tmp =  $opt{tmp} || '/tmp';
 
 # PCR reagent salt concentration (Molar)
 # Following parameters are the default values of Primer3-Web v4.0.0
@@ -252,19 +256,19 @@ sub exclude_region {
 	my $now = time;
 
     # write primer sets to a fasta file
-    open CHUNK, ">/tmp/FASTA_CHUNK_$$.fa" or die "failed to write primers: $!n";
+    open CHUNK, ">$tmp/FASTA_CHUNK_$$.fa" or die "failed to write primers: $!n";
     foreach my $contig ( keys %$fasta_r ){
 		print CHUNK ">$contig\n".$fasta_r->{$contig}->{seq}."\n";
 	}
 	close CHUNK;
 
-    my $cmd = "blastn -db $BLASTN_DB -perc_identity 100 -word_size 30 -ungapped -penalty -1000 -query /tmp/FASTA_CHUNK_$$.fa -num_threads $numCPU -outfmt '6 qseqid qstart length' -out /tmp/PRIMER_EXR_$$.txt";
+    my $cmd = "blastn -db $BLASTN_DB -perc_identity 100 -word_size 30 -ungapped -penalty -1000 -query $tmp/FASTA_CHUNK_$$.fa -num_threads $numCPU -outfmt '6 qseqid qstart length' -out $tmp/PRIMER_EXR_$$.txt";
     print STDERR "\n\t[COMMAND] $cmd\n" if defined $DEBUG && $DEBUG;
     
     &execCmd($cmd, 1);
     
 	# run blast & parse result
-    open BLAST_OUT, "cat /tmp/PRIMER_EXR_$$.txt | awk -F\\\\t '{if(\$3 >= 30) print \$0}' | sort -u -k1,1 -k2n,2 |" or die "Fail to running blastn: $!\n";
+    open BLAST_OUT, "cat $tmp/PRIMER_EXR_$$.txt | awk -F\\\\t '{if(\$3 >= 30) print \$0}' | sort -u -k1,1 -k2n,2 |" or die "Fail to running blastn: $!\n";
 
 	my($cur_contig, $start, $length) = ("",0,0);
 
@@ -356,18 +360,18 @@ PRIMER_MIN_SIZE=$PRIMER_MIN_SIZE
 ";
  
         # save primer config to p3_config file
-        open (my $configFH, ">/tmp/p3-$id-$$.config" ) or die "write p3_config fail $!";
+        open (my $configFH, ">$tmp/p3-$id-$$.config" ) or die "write p3_config fail $!";
         print $configFH $p3_config;
         close $configFH;
    }
 
     # prepare command
-    my $cmd = "parallel -j $numCPU primer3_core {} ::: /tmp/p3-*-$$.config > /tmp/PRIMER_P3_$$.out";
+    my $cmd = "cd $tmp; parallel -j $numCPU primer3_core {} ::: p3-*-$$.config > $tmp/PRIMER_P3_$$.out";
     print STDERR "\t[COMMAND] $cmd\n" if defined $DEBUG && $DEBUG;
     &execCmd($cmd,1);
 
     # run primer3
-    open PRIMER3, "/tmp/PRIMER_P3_$$.out" or die "ERROR: can't read Primer3 result.\n";
+    open PRIMER3, "$tmp/PRIMER_P3_$$.out" or die "ERROR: can't read Primer3 result.\n";
 	
     # parse primer3 result
     my $primer;
@@ -415,7 +419,7 @@ sub check_primers {
     my %ctg_primer_cnt;
 
 	# write primer sets to a fasta file
-	open PRI, ">/tmp/PRIMER_$$.fa" or die "failed to write primers: $!n";
+	open PRI, ">$tmp/PRIMER_$$.fa" or die "failed to write primers: $!n";
 	foreach my $id ( keys %$primer ){
 		printf PRI ">$id-LEFT\n".$primer->{$id}->{LEFT}->{SEQUENCE}."\n";
 		printf PRI ">$id-RIGHT\n".$primer->{$id}->{RIGHT}->{SEQUENCE}."\n";
@@ -423,15 +427,15 @@ sub check_primers {
 	close PRI;
 
 	# run bwa & parse result
-    my $cmd = "bwa mem -k5 -A1 -B1 -O3 -E1 -T5 -t$numCPU $BWA_DB /tmp/PRIMER_$$.fa > /tmp/PRIMER_CHK_BWA_$$.sam 2>/dev/null";
+    my $cmd = "bwa mem -k5 -A1 -B1 -O3 -E1 -T5 -t$numCPU $BWA_DB $tmp/PRIMER_$$.fa > $tmp/PRIMER_CHK_BWA_$$.sam 2>/dev/null";
     &execCmd($cmd,1);
     print STDERR "\t[COMMAND] $cmd\n" if defined $DEBUG && $DEBUG;
 
-    $cmd = "samtools view -F 4 -S /tmp/PRIMER_CHK_BWA_$$.sam > /tmp/PRIMER_CHK_BWA_$$.mapped.sam 2>/dev/null";
+    $cmd = "samtools view -F 4 -S $tmp/PRIMER_CHK_BWA_$$.sam > $tmp/PRIMER_CHK_BWA_$$.mapped.sam 2>/dev/null";
     &execCmd($cmd,1);
     print STDERR "\t[COMMAND] $cmd\n" if defined $DEBUG && $DEBUG;
     
-    open BWA_OUT, "/tmp/PRIMER_CHK_BWA_$$.mapped.sam" or die "failed to read BWA output: $!\n";
+    open BWA_OUT, "$tmp/PRIMER_CHK_BWA_$$.mapped.sam" or die "failed to read BWA output: $!\n";
 	while(<BWA_OUT>){
 		chomp;
 		my @temp = split /\t/, $_;
@@ -487,7 +491,7 @@ sub check_background_tm {
     my $now = time;
     my $qualifiedPairCount=0;
 
-    open BWA_OUT, "/tmp/PRIMER_CHK_BWA_$$.mapped.sam" or die "failed to read BWA output: $!\n";
+    open BWA_OUT, "$tmp/PRIMER_CHK_BWA_$$.mapped.sam" or die "failed to read BWA output: $!\n";
 
     while(<BWA_OUT>){
         chomp;

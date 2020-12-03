@@ -1,0 +1,107 @@
+#edge-projects-report-page .extra-text-link {
+	font-size: 0.85em;
+	text-align: right;
+}
+
+#edge-projects-report-page ol > li {
+	list-style-type: lower-alpha;
+	margin-top: 1em;
+	color: #003567;
+}
+
+#edge-projects-report-page p {
+    color: #333333
+}
+
+#edge-projects-report-page .iframe_label {
+    font-size: 0.85em;
+}
+
+#edge-projects-report-page span.iframe_label {
+	display: block;
+    font-size: 0.85em;
+	overflow: hidden;
+}
+
+#edge-projects-report-page  ol > li  ol > li {
+	list-style-type: lower-roman;
+	color: #333333;
+}
+
+#edge-projects-report-page img.preview_img {
+    max-width:97%;
+    max-height:97%;
+	min-width:160px;
+	min-width:120px;
+    width: auto;
+    height: auto;
+}
+
+
+#edge-projects-report-page iframe {
+	width: 100%;
+	height: 95%;
+	border: none;
+}
+
+#edge-projects-report-page .output-table {
+	width: 98%;
+	margin: 1em;
+	font-size: 0.85em;
+}
+
+#edge-projects-report-page li > .li-report-content-title {
+	cursor: pointer;
+}
+
+
+#edge-projects-report-page .ui-grid-c {
+	margin-top: 1em;
+}
+
+#edge-projects-report-page .ui-grid-a > .ui-block-a,
+#edge-projects-report-page .ui-grid-a > .ui-block-b{
+	padding: 0.7em;
+	border: 1px solid #ddd;
+	margin-right: 0.7em;
+	width: 100%;
+}
+
+#edge-projects-report-page .ui-grid-c > .ui-block-a,
+#edge-projects-report-page .ui-grid-c > .ui-block-b,
+#edge-projects-report-page .ui-grid-c > .ui-block-c,
+#edge-projects-report-page .ui-grid-c > .ui-block-d {
+	padding: 0.3em !important;
+	border: 1px solid #ddd;
+	margin-right: 0.3em;
+	width: 100%;
+}
+
+#edge-projects-report-page a {cursor: pointer;}
+
+@media (min-width: 36em) {
+	#edge-projects-report-page .ui-grid-a > .ui-block-a,
+	#edge-projects-report-page .ui-grid-a > .ui-block-b{
+		width: 46%;
+	}
+	
+	#edge-projects-report-page .ui-grid-c > .ui-block-a,
+	#edge-projects-report-page .ui-grid-c > .ui-block-b,
+	#edge-projects-report-page .ui-grid-c > .ui-block-c,
+	#edge-projects-report-page .ui-grid-c > .ui-block-d {
+		width: 23%;
+	}
+}
+
+#edge-projects-report-page .snp_phylogeny > .ui-block-a,
+#edge-projects-report-page .snp_phylogeny > .ui-block-b{
+	height: 550px;
+	overflow: auto;
+}
+
+@media (min-width: 60em) {
+	#edge-projects-report-page {
+		width: 90%;
+		float: none;
+	}
+}

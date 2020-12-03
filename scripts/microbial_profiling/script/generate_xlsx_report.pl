@@ -47,14 +47,14 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info )
 	foreach my $tool ( sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$tools )
 	{
 		next if $tool eq 'system';
+		next unless -e "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt";	
 		my $worksheet = $workbook->add_worksheet( $tool );
 		$worksheet->set_default_row( 15 );
 
 		my $fmt_h = $workbook->add_format( align => 'center', bg_color => '#D9D9D9', size => 12 );
 		my $fmt_b = $workbook->add_format( size => 12 );
 	
-		next unless -e "$p_outdir/$count\_$fnb/$tool/$fnb.out.list";	
-		my @data = &csv2array( "$p_outdir/$count\_$fnb/$tool/$fnb.out.list" );
+		my @data = &csv2array( "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt" );
 		&worksheet_set_column_wid( $worksheet, @data );
 
 		my @header = shift @data;
@@ -87,9 +87,9 @@ foreach my $tool ( sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$t
 
 		my $fmt_h = $workbook->add_format( align => 'center', bg_color => '#D9D9D9', size => 12 );
 		my $fmt_b = $workbook->add_format( size => 12 );
-	
-		next unless -e "$p_outdir/$count\_$fnb/$tool/$fnb.out.list";
-		my @data = &csv2array( "$p_outdir/$count\_$fnb/$tool/$fnb.out.list" );
+		
+		next unless -e "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt";
+		my @data = &csv2array( "$p_repdir/$idx\_$fnb/$tool/$fnb-$tool.list.txt" );
 		&worksheet_set_column_wid( $worksheet, @data );
 
 		my @header = shift @data;
@@ -103,6 +103,7 @@ foreach my $tool ( sort {$tools->{$a}->{ORDER}<=>$tools->{$b}->{ORDER}} keys %$t
 		$count++;
 	}
 	$workbook->close();
+	unlink $outfile if ! -e "$p_repdir/1_allReads//$tool/allReads-$tool.list.txt";
 }
 
 $count=1;
@@ -171,6 +172,7 @@ sub restore_settings {
 		next if /^$/;
 		next if /^#/;
 		next if /^;;/;
+		next if (! /\S/);
 		if ( /^\[(.+)\]$/ ){
 			$section = $1;
 			$set->{$section}->{ORDER} = $count++;

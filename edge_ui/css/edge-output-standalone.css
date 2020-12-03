@@ -4,3 +4,45 @@
 		float: none;
 	}
 }
+@media print {
+	@page { margin: 1 in;
+                size: landscape;
+
+        }
+	html{
+		background-color: #FFFFFF;
+	}
+	body{
+	}
+	.rtaxToolresult{
+		display:block !important;
+		page-break-before: always;
+		page-break-inside: avoid;
+	}
+	.edge-header, edge-footer{
+		position:absolute !important;
+	}
+
+	.not-print , .extra-text-link, .ui-table-columntoggle-btn, .iframe_label > a, .dataTables_length, .dataTables_filter. #scroll-up-btn{
+		display:none !important;
+	}
+	img, .edge-output-tool-summary, .edge-report-plots, .edge-taxa-report, .output-table{
+		page-break-inside: avoid;
+	}
+	.ui-block-a, .ui-block-b, .ui-block-c, .ui-block-d{
+		width: 82% !important;
+		page-break-inside: avoid;
+	}
+
+	.edge-print-page{
+                page-break-before: always;
+                page-break-inside: avoid;
+        }
+	.snp_phylogeny{
+		width: 70% !important;	
+		height: 90% !important;
+	}
+	#ctaxTag,#c2gTag,#checkMTag,#binningTag,#antismashTag,#annoTag,#r2cTag{
+		page-break-inside: avoid;
+	}
+}

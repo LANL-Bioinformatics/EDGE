@@ -7,15 +7,21 @@ if [ -z ${EDGE_HOME+x} ]; then
 fi
 
 test_result(){
-	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/contigs.fa
+	MainErrLog=$rootdir/TestOutput/error.log
+	TestLog=$rootdir/TestOutput/AssemblyBasedAnalysis/assembly.log
+	Test=$rootdir/TestOutput/AssemblyBasedAnalysis/testAssembly_contigs.fa
 	testName="EDGE Reads Assembly test";
-	if [ -s $Test ]
+	if [[ $(find $Test -type f -size +4500000c 2>/dev/null) ]]
 	then
 		grep -c ">" $Test | awk '{print "Contigs number: " $1}'
 		echo "$testName finished"
 		touch "$rootdir/TestOutput/test.success"
 	else
 		echo "$testName failed!"
+		if [ -f "$TestLog" ]
+		then
+			cat $TestLog >>  $MainErrLog
+		fi
 		touch "$rootdir/TestOutput/test.fail"
 	fi
 }

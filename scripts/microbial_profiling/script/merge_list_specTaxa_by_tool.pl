@@ -1,13 +1,17 @@
 #!/usr/bin/perl
 use strict;
 use Getopt::Long;
+use FindBin qw($RealBin);
+use lib $RealBin;
+use gi2lineage; 
 
 my %opt;
 my $res=GetOptions(\%opt,
                    'level|l=s',
-                   'outdir|o=s',
+                   'output|o=s',
+                   'otu=s',
                    'prefix|p=s',
-				   'taxalist=s',
+		   'taxalist=s',
                    'display_read_count',
                    'top|t=i',
                    'help|h|?') || &usage();
@@ -104,27 +108,93 @@ foreach my $taxa ( keys %$matrix ){
 	$order->{BY_TAXA_SUM}->{$taxa} = -$sum;
 }
 
+if ( defined $opt{otu}){
+	loadTaxonomy();
+	open OTU, ">", "$opt{otu}";
+	print OTU "#OTU ID\t$tool\ttaxonomy\n";
+}
 print STDERR "Generating matrix...";
-print "ID\t",join("\t",@datasets),"\n";
+my $fh;
+if (defined $opt{output}){
+	open $fh, ">" , "$opt{output}";
+}else{
+	$fh = *STDOUT;
+}
+print $fh "ID\t",join("\t",@datasets),"\n";
 my $cnt=0;
+my $unknow=1;
 foreach my $taxa ( sort { $order->{BY_TAXALIST}->{$a} <=> $order->{BY_TAXALIST}->{$b} ||
-					      $order->{BY_TAXA_SUM}->{$a} <=> $order->{BY_TAXA_SUM}->{$b}
-																					} keys %$matrix ) {
-	print $taxa;
+			  $order->{BY_TAXA_SUM}->{$a} <=> $order->{BY_TAXA_SUM}->{$b}
+			} keys %$matrix ) {
+	my $value=0;
+	print $fh $taxa,"\t" if( defined $opt{top} && $cnt < $opt{top});
+	my @values=();
 	foreach my $dataset ( @datasets ){
 		my $number = $matrix->{$taxa}->{$dataset}->{$tool} ? $matrix->{$taxa}->{$dataset}->{$tool} : 0;
 		if( $count->{$dataset}->{$tool} > 0 ){
-            my $value = defined $opt{display_read_count} ? $number : $number/$count->{$dataset}->{$tool}*100;
-			print "\t",$value;
-		}
-		else{
-			print "\t0";
-		}
+			$value = defined $opt{display_read_count} ? $number : $number/$count->{$dataset}->{$tool}*100;
+		}else{$value=0;}
+		push @values, $value;
 	}
-	print "\n";
+	print $fh join("\t",@values),"\n" if( defined $opt{top} && $cnt < $opt{top});
 
-	if( defined $opt{top} ){
-		last if ++$cnt == $opt{top};
+	if ( defined $opt{otu}){
+		(my $taxId, my $lineage, $unknow) = get_lineage($taxa,$unknow);
+		print OTU $taxId,"\t", join("\t",@values),"\t",$lineage,"\n";
 	}
+	++$cnt;
+	
 }
+
+close $fh;
+close OTU if (defined $opt{otu});
 print STDERR "...done\n";
+
+sub get_lineage{
+	my $tax_name = shift;
+	my $unknow_count = shift;
+	my @rank=();
+	my %major_level = (
+		'superkingdom' => 'k',
+		'phylum'       => 'p',
+		'class'        => 'c',
+		'order'        => 'o',
+		'family'       => 'f',
+		'genus'        => 'g',
+		'species'      => 's'
+	);
+	my %level = (
+		'k' => '',
+		'p' => '',
+		'c' => '',
+		'o' => '',
+		'f' => '',
+		'g' => '',
+		's' => ''
+	);
+	my $taxId = name2taxID($tax_name);
+	my $inTaxID = $taxId;
+	my $rank = getTaxRank($taxId);
+	my $lineage = "k__; p__; c__; o__; f__; g__; s__$tax_name";
+	if (!$inTaxID){
+		$inTaxID = "unknow.$unknow_count";
+		$unknow_count++;
+		return ($inTaxID, $lineage,$unknow_count);
+	}
+
+	while ($taxId){
+		if( defined $major_level{$rank} ){
+			$level{$major_level{$rank}} = $tax_name;
+		}
+		last if $tax_name eq 'root';
+		$taxId = getTaxParent($taxId);
+		$rank = getTaxRank($taxId);
+		$tax_name = getTaxName($taxId);	
+		$tax_name =~ s/ /_/g;
+	}
+	foreach my $lvl ( ('s','g','f','o','c','p','k') ){
+		unshift @rank,"${lvl}__$level{$lvl}";
+	}
+	$lineage=join "; ", @rank;
+	return ($inTaxID, $lineage,$unknow_count);
+}

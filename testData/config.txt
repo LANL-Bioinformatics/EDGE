@@ -1,5 +1,26 @@
+[project]
+##number of cpu
+cpu=4
+##store output to [outpath]/[projname]
+outpath=
+projname=runTest
+projdesc=Grand test script
+projid=
+projcode=
+projowner=
+projrunhost=
+
+[Download Fastq]
+DoFastqDownload=auto
+
+[Download SRA]
+DoSRADownload=0
+## SRA accessions ByrRun, ByExp, BySample, ByStudy 
+SRA_id=SRX674271
+
 [Count Fastq]
 DoCountFastq=auto
+fastq_source=not
 
 [Quality Trim and Filter]
 DoQC=1
@@ -28,15 +49,20 @@ singleCellMode=
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
+## support bowtie or bwa
+r2c_aligner=bowtie
+r2c_aligner-options=
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
 DoReadsMappingReference=auto
-bowtieOptions=
+## support bowtie or bwa
+r2g_aligner=bowtie
+r2g_aligner_options=
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoTaxonomy=1
+DoReadsTaxonomy=1
 AllReads=0
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v,metaphlan,bwa,kraken_mini
 
@@ -62,11 +88,20 @@ contig_size_cut_for_annotation=700
 annotateProgram=prokka
 ## provide SourceGBK for RATT to transfer annotation
 annotateSourceGBK=
+DoKeggOmicsView=
+
+[Contigs Binning]
+DoBinning=0
+contig_size_cut_for_binning=1000
+binning-max-itr=50
+binning-prob=0.9
+binning-markerset=107
+binning-abund-file=
 
 [ProPhage Detection]
 DoProPhageDetection=1
 
-[SNP Phylogeny]
+[Phylogenetic Analysis]
 DoSNPtree=1
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
 SNPdbName=Ecoli

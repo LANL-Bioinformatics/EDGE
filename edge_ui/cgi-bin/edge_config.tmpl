@@ -1,29 +1,14 @@
-[system]
-##edge_ui environmental vars
-edgeui_wwwroot=%EDGE_HOME%/edge_ui
-edgeui_input=%EDGE_HOME%/edge_ui/EDGE_input
-edgeui_output=%EDGE_HOME%/edge_ui/EDGE_output
-edgeui_archive=
-edgeui_tol_cpu=%TOTAL_NUM_CPU%
-edgeui_auto_queue=1
-edgeui_auto_run=1
-debug=0
+[project]
 ##number of cpu
 cpu=<TMPL_VAR NAME=edge-proj-cpu>
 ##store output to [outpath]/[projname] 
-outpath=<TMPL_VAR NAME=edge-proj-outpath>
+##outpath=<TMPL_VAR NAME=edge-proj-outpath>
 projname=<TMPL_VAR NAME=edge-proj-name>
 projdesc=<TMPL_VAR NAME=edge-proj-desc>
-## configure user management system  1: with 0: without
-user_management=0
-## if user management system is not in the same domain with edge
-## ex: http://www.someother.com/userManagement
-edge_user_management_url=
-## configure user upload function  1: able 0: disable
-user_upload=1
-## max file size for user upload
-user_upload_maxFileSize='5gb'
-user_social_login=0
+projid=<TMPL_VAR NAME=edge-proj-id>
+projcode=<TMPL_VAR NAME=edge-proj-code>
+projowner=<TMPL_VAR NAME=edge-proj-owner>
+projrunhost=<TMPL_VAR NAME=edge-proj-runhost>
 
 [Download Fastq]
 DoFastqDownload=auto
@@ -35,10 +20,13 @@ SRA_id=<TMPL_VAR NAME=edge-sra-acc DEFAULT=>
 
 [Count Fastq]
 DoCountFastq=auto
+fastq_source=<TMPL_VAR NAME=edge-fastq-source>
 
 [Quality Trim and Filter]
 ## boolean, 1=yes, 0=no
 DoQC=<TMPL_VAR NAME=edge-qc-sw DEFAULT=0>
+## phred encoding offset,  0 for autocheck
+qc_phred_offset=<TMPL_VAR NAME=edge-qc-phred-offset DEFAULT=0>
 ##Targets quality level for trimming
 q=<TMPL_VAR NAME=edge-qc-q DEFAULT=5>
 ##Trimmed sequence length will have at least minimum length 
@@ -46,17 +34,28 @@ min_L=<TMPL_VAR NAME=edge-qc-minl DEFAULT=50>
 ##Average quality cutoff
 avg_q=<TMPL_VAR NAME=edge-qc-avgq DEFAULT=0>
 ##"N" base cutoff.  Trimmed read has more than this number of continuous base "N" will be discarded. 
-n=<TMPL_VAR NAME=edge-qc-n DEFAULT=0>
+n=<TMPL_VAR NAME=edge-qc-n DEFAULT=10>
 ##Low complexity filter ratio, Maximum fraction of mono-/di-nucleotide sequence
 lc=<TMPL_VAR NAME=edge-qc-lc DEFAULT=0.85>
 ## Trim reads with adapters or contamination sequences
 adapter=<TMPL_VAR NAME=edge-qc-adapter DEFAULT=>
+porechop=<TMPL_VAR NAME=edge-porechop-sw DEFAULT=0>
+## Trim polyA (>15)
+polyA=<TMPL_VAR NAME=edge-qc-polyA DEFAULT=>
 ## phiX filter, boolean, 1=yes, 0=no
 ## phiX=<TMPL_VAR NAME=edge-qc-phix DEFAULT=0>
 ## Cut # bp from 5 end before quality trimming/filtering 
 5end=<TMPL_VAR NAME=edge-qc-5end DEFAULT=0>
 ## Cut # bp from 3 end before quality trimming/filtering 
 3end=<TMPL_VAR NAME=edge-qc-3end DEFAULT=0>
+
+<TMPL_IF NAME=edge-joinpe-sw>
+[Join PE Reads]
+DoJoinPE=<TMPL_VAR NAME=edge-joinpe-sw DEFAULT=0>
+fastqjoin-maxdiff=<TMPL_VAR NAME=edge-joinpe-maxdiff DEFAULT=8>
+fastqjoin-minoverlap=<TMPL_VAR NAME=edge-joinpe-minoverlap DEFAULT=6>
+fastqjoin-usejoined-only=<TMPL_VAR NAME=edge-joinpe-usejoined-only DEFAULT=0>
+</TMPL_IF>
 
 [Host Removal]
 ## boolean, 1=yes, 0=no
@@ -71,34 +70,85 @@ similarity=<TMPL_VAR NAME=edge-hostrm-similarity DEFAULT=90>
 ## boolean, 1=yes, 0=no
 DoAssembly=<TMPL_VAR NAME=edge-assembly-sw DEFAULT=1>
 assembledContigs=<TMPL_VAR NAME=edge-assembled-contig-file>
+inputContigs=<TMPL_VAR NAME=edge-input-contig-file>
 minContigSize=<TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>
-## spades or idba_ud
+## spades, idba_ud, megahit, unicycler, or lrasm 
 assembler=<TMPL_VAR NAME=edge-assembler DEFAULT="idba_ud">
-idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=124> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
+idbaOptions="--pre_correction --mink <TMPL_VAR NAME=edge-assembly-mink DEFAULT=31> --maxk <TMPL_VAR NAME=edge-assembly-maxk DEFAULT=121> --step <TMPL_VAR NAME=edge-assembly-step DEFAULT=20> --min_contig <TMPL_VAR NAME=edge-assembly-minc DEFAULT=200>"
 ## for spades
-singleCellMode=<TMPL_VAR NAME=edge-spades-sc-sw DEFAULT=0>
-pacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
-nanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
+## support algorithm: default, singlecell,metagenome,plasmid,rna
+SpadesAlgorithm=<TMPL_VAR NAME=edge-spades-algorithm DEFAULT=default>
+SpadesPacbioFile=<TMPL_VAR NAME=edge-spades-pacbio-file>
+SpadesNanoporeFile=<TMPL_VAR NAME=edge-spades-nanopore-file>
+## for megahit
+megahit_preset=<TMPL_VAR NAME=edge-megahit-preset DEFAULT=meta>
+## for unicycler
+unicycler_mode=<TMPL_VAR NAME=edge-unicycler-mode DEFAULT=normal>
+unicycler_lreads_file=<TMPL_VAR NAME=edge-unicycler-lreads-file>
+unicycler_min_lreads=<TMPL_VAR NAME=edge-unicycler-min-lreads DEFAULT=2000>
+## for lrasm
+lrasm_num_consensus=<TMPL_VAR NAME=edge-lrasm-num-consensus DEFAULT=3>
+lrasm_preset=<TMPL_VAR NAME=edge-lrasm-preset DEFAULT=ont>
+lrasm_ec=<TMPL_VAR NAME=edge-lrasm-ec DEFAULT=1>
+lrasm_algorithm=<TMPL_VAR NAME=edge-lrasm-algorithm DEFAULT=miniasm>
+
 
 [Reads Mapping To Contigs]
 # Reads mapping to contigs
 DoReadsMappingContigs=auto
+## support bowtie or bwa or minimap2
+r2c_aligner=<TMPL_VAR NAME=edge-r2c-aligner DEFAULT="bwa">
+r2c_aligner_options=<TMPL_VAR NAME=edge-r2c-aligner-options>
+r2c_extract_unmapped=<TMPL_VAR NAME=edge-r2c-getunmapped-sw DEFAULT=0>
 
 [Reads Mapping To Reference]
 # Reads mapping to reference
 DoReadsMappingReference=<TMPL_VAR NAME=edge-ref-sw DEFAULT=0>
-bowtieOptions=
+## support bowtie or bwa or minimap2
+r2g_aligner=<TMPL_VAR NAME=edge-r2g-aligner DEFAULT="bwa">
+r2g_aligner_options=<TMPL_VAR NAME=edge-r2g-aligner-options>
+r2g_max_clip=<TMPL_VAR NAME=edge-r2g-max-clip DEFAULT=50>
+r2g_align_trim_bed_file=<TMPL_VAR NAME=edge-r2g-align-trim-bed-file>
+##r2g_min_mapq=<TMPL_VAR NAME=edge-r2g-min-mapQ DEFAULT=42>
 window_size=1000
 step_size=200
 reference=<TMPL_VAR NAME=edge-ref-file>
 MapUnmappedReads=<TMPL_VAR NAME=edge-ref-unmapped-read-class DEFAULT=0>
+r2g_extract_mapped=<TMPL_VAR NAME=edge-r2g-getmapped-sw DEFAULT=0>
+r2g_extract_unmapped=<TMPL_VAR NAME=edge-r2g-getunmapped-sw DEFAULT=0>
+r2g_get_consensus=<TMPL_VAR NAME=edge-r2g-getconsensus-sw DEFAULT=0>
+r2g_consensus_min_mapQ=<TMPL_VAR NAME=edge-r2g-con-min-mapQ DEFAULT=42>
+r2g_consensus_max_cov=<TMPL_VAR NAME=edge-r2g-con-max-cov DEFAULT=8000>
+r2g_consensus_alt_prop=<TMPL_VAR NAME=edge-r2g-con-alt-prop DEFAULT=0.5>
+r2g_consensus_altIndel_prop=<TMPL_VAR NAME=edge-r2g-con-altIndel-prop DEFAULT=0.5>
+r2g_consensus_min_cov=<TMPL_VAR NAME=edge-r2g-con-min-cov DEFAULT=5>
+r2g_consensus_min_baseQ=<TMPL_VAR NAME=edge-r2g-con-min-baseQ DEFAULT=20>
+r2g_consensus_disable_BAQ=<TMPL_VAR NAME=edge-r2g-con-disableBAQ DEFAULT=0>
+r2g_consensus_pcr_dedup=<TMPL_VAR NAME=edge-r2g-con-pcrdedup DEFAULT=1>
+r2g_variant_call=<TMPL_VAR NAME=edge-r2g-variantcall-sw DEFAULT=1>
+r2g_variant_call_ploidy=<TMPL_VAR NAME=edge-r2g-variantcall-ploidy DEFAULT="haploid">
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
+DoReadsTaxonomy=<TMPL_VAR NAME=edge-taxa-sw DEFAULT=1>
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=<TMPL_VAR NAME=edge-taxa-allreads DEFAULT=0>
 enabledTools=<TMPL_VAR NAME=edge-taxa-enabled-tools DEFAULT="bwa">
+splitrim-minq=<TMPL_VAR NAME=splitrim-minq DEFAULT=20>
+custom-gottcha-genDB-b=<TMPL_VAR NAME=custom-gottcha-gendb-b>
+custom-gottcha-speDB-b=<TMPL_VAR NAME=custom-gottcha-spedb-b>
+custom-gottcha-strDB-b=<TMPL_VAR NAME=custom-gottcha-strdb-b>
+custom-gottcha-genDB-v=<TMPL_VAR NAME=custom-gottcha-gendb-v>
+custom-gottcha-speDB-v=<TMPL_VAR NAME=custom-gottcha-spedb-v>
+custom-gottcha-strDB-v=<TMPL_VAR NAME=custom-gottcha-strdb-v>
+custom-gottcha2-speDB-b=<TMPL_VAR NAME=custom-gottcha2-spedb-b>
+custom-gottcha2-genDB-v=<TMPL_VAR NAME=custom-gottcha2-gendb-v>
+custom-gottcha2-speDB-v=<TMPL_VAR NAME=custom-gottcha2-spedb-v>
+custom-bwa-db=<TMPL_VAR NAME=custom-bwa>
+custom-metaphlan-db=<TMPL_VAR NAME=custom-metaphlan2>
+custom-kraken-db=<TMPL_VAR NAME=custom-kraken>
+custom-pangia-db=<TMPL_VAR NAME=custom-pangia>
+custom-diamond-db=<TMPL_VAR NAME=custom-diamond>
 
 [Contigs Mapping To Reference]
 # Contig mapping to reference
@@ -128,10 +178,43 @@ contig_size_cut_for_annotation=<TMPL_VAR NAME=edge-anno-size-cut DEFAULT=700>
 annotateProgram=<TMPL_VAR NAME=edge-anno-tool DEFAULT=prokka>
 ## provide SourceGBK for RATT to transfer annotation
 annotateSourceGBK=<TMPL_VAR NAME=edge-anno-source-file>
+customHMM=<TMPL_VAR NAME=edge-anno-hmm-file>
+DoKeggOmicsView=<TMPL_VAR NAME=edge-anno-kegg-sw DEFAULT=1>
 
 [ProPhage Detection]
-DoProPhageDetection=<TMPL_VAR NAME=edge-anno-sw DEFAULT=0>
+DoProPhageDetection=auto
 
+<TMPL_IF NAME=edge-sma-sw>
+[Secondary Metabolite Analysis]
+DoSMA=<TMPL_VAR NAME=edge-sma-sw DEFAULT=0>
+antismash-taxon=<TMPL_VAR NAME=antismash-taxon DEFAULT='bacteria'>
+antismash-clusterblast=<TMPL_VAR NAME=antismash-clusterblast>
+antismash-subclusterblast=<TMPL_VAR NAME=antismash-subclusterblast>
+antismash-knownclusterblast=<TMPL_VAR NAME=antismash-knownclusterblast>
+antismash-smcogs=<TMPL_VAR NAME=antismash-smcogs>
+antismash-asf=<TMPL_VAR NAME=antismash-asf>
+antismash-fullhmm=<TMPL_VAR NAME=antismash-fullhmm>
+antismash-cassis=<TMPL_VAR NAME=antismash-cassis>
+antismash-tta=<TMPL_VAR NAME=antismash-tta>
+antismash-borderpredict=<TMPL_VAR NAME=antismash-borderpredict>
+antismash-inclusive=<TMPL_VAR NAME=antismash-inclusive>
+antismash-inclusive-cdsnr=<TMPL_VAR NAME=antismash-inclusive-cdsnr DEFAULT=5>
+antismash-inclusive-threshold=<TMPL_VAR NAME=antismash-inclusive-threshold DEFAULT=0.6>
+antismash-inclusive-npfams=<TMPL_VAR NAME=antismash-inclusive-npfams DEFAULT=5>
+</TMPL_IF>
+
+[Contigs Binning]
+DoBinning=<TMPL_VAR NAME=edge-binning-sw DEFAULT=0>
+contig_size_cut_for_binning=<TMPL_VAR NAME=edge-binning-size-cut DEFAULT=1000>
+binning-max-itr=<TMPL_VAR NAME=binning-max-itr DEFAULT=50>
+binning-prob=<TMPL_VAR NAME=binning-prob DEFAULT=0.9>
+binning-markerset=<TMPL_VAR NAME=binning-markerset DEFAULT=107>
+binning-abund-file=<TMPL_VAR NAME=edge-binning-abund-file>
+
+[Binning CheckM]
+DoCheckM=<TMPL_VAR NAME=edge-binning-checkM-sw DEFAULT=0>
+
+<TMPL_IF NAME=edge-phylo-sw>
 [Phylogenetic Analysis]
 DoSNPtree=<TMPL_VAR NAME=edge-phylo-sw DEFAULT=0>
 ## Availabe choices are Ecoli, Yersinia, Francisella, Brucella, Bacillus
@@ -146,12 +229,26 @@ SNPrefGenome=<TMPL_VAR NAME=edge-phylo-ref-select-ref>
 treeMaker=<TMPL_VAR NAME=edge-phylo-tree DEFAULT=FastTree>
 ## SRA accessions ByrRun, ByExp, BySample, ByStudy
 SNP_SRA_ids=<TMPL_VAR NAME=edge-phylo-sra-acc DEFAULT=>
+PhaMEbootstrap=<TMPL_VAR NAME=edge-phylo-bootstrap-sw DEFAULT=1>
+PhaMEbootstrap_num=<TMPL_VAR NAME=edge-phylo-bootstrap-num DEFAULT=100>
+</TMPL_IF>
+
+<TMPL_IF NAME=edge-sg-sw>
+[Gene Family Analysis]
+DoReadsSpecialtyGenes=<TMPL_VAR NAME=edge-reads-sg-sw DEFAULT=0>
+DoORFsSpecialtyGenes=<TMPL_VAR NAME=edge-orfs-sg-sw DEFAULT=0>
+SpecialtyGenesSearchTool=<TMPL_VAR NAME=edge-sg-stool DEFAULT='rapsearch2'>
+ShortBREDMinPercIdentity=<TMPL_VAR NAME=edge-sg-identity-options DEFAULT=0.95>
+ShortBREDMinPercLength=<TMPL_VAR NAME=edge-sg-length-options DEFAULT=0.95>
+</TMPL_IF>
+
 
 [Primer Validation]
 DoPrimerValidation=<TMPL_VAR NAME=edge-primer-valid-sw DEFAULT=0>
 maxMismatch=<TMPL_VAR NAME=edge-primer-valid-mm DEFAULT=1>
 primer=<TMPL_VAR NAME=edge-primer-valid-file>
 
+<TMPL_IF NAME=edge-primer-adj-sw>
 [Primer Design]
 ## boolean, 1=yes, 0=no
 DoPrimerDesign=<TMPL_VAR NAME=edge-primer-adj-sw DEFAULT=0>
@@ -167,9 +264,77 @@ len_max=<TMPL_VAR NAME=edge-primer-adj-len-max DEFAULT=27>
 tm_diff=<TMPL_VAR NAME=edge-primer-adj-df DEFAULT=5>
 ## display # top results for each target
 top=<TMPL_VAR NAME=edge-primer-adj-num DEFAULT=5>
+</TMPL_IF>
 
 [Generate JBrowse Tracks]
-DoJBrowse=1
+DoJBrowse=<TMPL_VAR NAME=edge-jbroswe-sw DEFAULT=1>
+JBrowse_bam_min_depth=<TMPL_VAR NAME=edge-jbroswe-min-depth DEFAULT=300>
+
+<TMPL_IF NAME=edge-qiime-sw>
+[Qiime analysis]
+DoQiimeAnalysis=<TMPL_VAR NAME=edge-qiime-sw DEFAULT=0>
+## Greengenes, SILVA, SILVA-V3-V4 or ITS
+qiime_amplicon_type=<TMPL_VAR NAME=edge-qiime-at-sw DEFAULT="GreenGenes">
+qiime_input_dir=<TMPL_VAR NAME=edge-qiime-reads-dir-input DEFAULT=>
+qiime_mapping_file=<TMPL_VAR NAME=edge-qiime-mapping-files>
+qiime_barcode_file=<TMPL_VAR NAME=edge-qiime-barcode-fq-files>
+qiime_phred_offset=<TMPL_VAR NAME=edge-qiime-phred-offset DEFAULT=33>
+qiime_sampling_depth=<TMPL_VAR NAME=edge-qiime-sampling-depth DEFAULT=1000>
+qiime_qcMethod=<TMPL_VAR NAME=edge-qiime-qcMethod DEFAULT="dada2">
+qiime_trimLeftForward=<TMPL_VAR NAME=edge-qiime-trimLeftForward DEFAULT="20">
+qiime_trimLeftReverse=<TMPL_VAR NAME=edge-qiime-trimLeftReverse DEFAULT="20">
+qiime_truncLenForward=<TMPL_VAR NAME=edge-qiime-truncLenForward DEFAULT="0">
+qiime_truncLenReverse=<TMPL_VAR NAME=edge-qiime-truncLenReverse DEFAULT="0">
+qiime_trimLen=<TMPL_VAR NAME=edge-qiime-trimLen DEFAULT="20">
+qiime_truncLen=<TMPL_VAR NAME=edge-qiime-truncLen DEFAULT="0">
+qiime_autoDepth=<TMPL_VAR NAME=edge-qiime-autoDepth>
+qiime_q_threshold=<TMPL_VAR NAME=edge-qiime-phred-quality-threshold DEFAULT=4>
+qiime_max_n=<TMPL_VAR NAME=edge-qiime-max-n DEFAULT=1>
+qiime_percIdentity=<TMPL_VAR NAME=edge-qiime-otus-perc-identity DEFAULT="0.99">
+qiime_min_per_read_length_fraction=<TMPL_VAR NAME=edge-qiime-min-per-read-length-fraction DEFAULT=0.5>
+</TMPL_IF>
+
+<TMPL_IF NAME=edge-targetedngs-sw>
+[DETEQT analysis]
+DoDETEQT=<TMPL_VAR NAME=edge-targetedngs-sw DEFAULT=0>
+targetedNGS_ref=<TMPL_VAR NAME=edge-targetedngs-ref-file>
+targetedNGS_input_dir=<TMPL_VAR NAME=edge-targetedngs-dir-input>
+targetedNGS_sample_file=<TMPL_VAR NAME=edge-targetedngs-samplefile>
+targetedNGS_q_cutoff=<TMPL_VAR NAME=edge-targetedngs-q-cutoff DEFAULT=0.8145>
+targetedNGS_depth_cutoff=<TMPL_VAR NAME=edge-targetedngs-depth-cutoff DEFAULT=1000>
+targetedNGS_len_cutoff=<TMPL_VAR NAME=edge-targetedngs-len-cutoff DEFAULT=100>
+targetedNGS_mode=<TMPL_VAR NAME=edge-targetedngs-mode DEFAULT=PE>
+targetedNGS_platform=<TMPL_VAR NAME=edge-targetedngs-flatform DEFAULT=illumina>
+targetedNGS_expectedCoverage=<TMPL_VAR NAME=edge-targetedngs-ec DEFAULT=1>
+targetedNGS_expectedIdentity=<TMPL_VAR NAME=edge-targetedngs-eid DEFAULT=1>
+targetedNGS_expectedBaseQ=<TMPL_VAR NAME=edge-targetedngs-ebq DEFAULT=37>
+targetedNGS_expectedMapQ=<TMPL_VAR NAME=edge-targetedngs-emq DEFAULT=60>
+targetedNGS_coverageWeight=<TMPL_VAR NAME=edge-targetedngs-cw DEFAULT=0.25>
+targetedNGS_identityWeight=<TMPL_VAR NAME=edge-targetedngs-iw DEFAULT=0.25>
+targetedNGS_baseqWeight=<TMPL_VAR NAME=edge-targetedngs-bw DEFAULT=0.25>
+targetedNGS_mapqWeight=<TMPL_VAR NAME=edge-targetedngs-mw DEFAULT=0.25>
+</TMPL_IF>
+
+<TMPL_IF NAME=edge-piret-sw>
+[PiReT transcriptomics analysis]
+DoPiReTAnalysis=<TMPL_VAR NAME=edge-piret-sw DEFAULT=0>
+piret_input_dir=<TMPL_VAR NAME=edge-piret-dir-input>
+piret_exp_design_file=<TMPL_VAR NAME=edge-piret-exp-design-file>
+piret_kingdom=<TMPL_VAR NAME=edge-piret-kingdom DEFAULT="prokarya">
+piret_prokaryote_fasta=<TMPL_VAR NAME=edge-piret-prok-fasta-file>
+piret_prokaryote_gff=<TMPL_VAR NAME=edge-piret-prok-gff-file>
+piret_eukarya_fasta=<TMPL_VAR NAME=edge-piret-euk-fasta-file>
+piret_eukarya_gff=<TMPL_VAR NAME=edge-piret-euk-gff-file>
+piret_p_value=<TMPL_VAR NAME=edge-piret-pvalue DEFAULT=0.0001>
+piret_method=<TMPL_VAR NAME=edge-piret-method>
+piret_stranded=<TMPL_VAR NAME=edge-piret-stranded DEFAULT=0>
+piret_index=<TMPL_VAR NAME=edge-piret-hisat2-index-file>
+</TMPL_IF>
+
+<TMPL_IF NAME=edge-bioAI-sw>
+[BioAI assay design]
+
+</TMPL_IF>
 
 [HTML Report]
 DoHTMLReport=1

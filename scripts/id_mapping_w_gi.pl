@@ -34,7 +34,7 @@ sub load_mapping_file
 #ID	Length	GC%	Avg_fold	Fold_std	Base_Coverage%	Mapped_reads
 open (IN, $coverage_table) or die "$!";
 my $head=<IN>;
-my $head = "GI\tLength\tGC%\tAvg_fold\tFold_std\tBase_Coverage%\tMapped_reads\tLinear_length\tID\n";
+my $head = "Accession\tLength\tGC%\tAvg_fold\tFold_std\tBase_Coverage%\tMapped_reads\tLinear_length\tID\n";
 my %coverage;
 while (<IN>)
 {
@@ -55,8 +55,10 @@ foreach my $id (sort {$coverage{$b}{$sort_method}<=>$coverage{$a}{$sort_method}}
 {
      next if ($coverage{$id}{len}<1000);
      next if ($coverage{$id}{reads}==0);
-     my ($gi) = $id =~ /gi\|(\d+)\|/;
-     print $gi,"\t";
+     
+     #my ($gi) = $id =~ /gi\|(\d+)\|/;
+     my $acc = getAccFromSeqID($id);
+     print $acc,"\t";
      #print $id,"\t";
      print $coverage{$id}{len},"\t";
      print $coverage{$id}{cg},"\t";
@@ -66,4 +68,26 @@ foreach my $id (sort {$coverage{$b}{$sort_method}<=>$coverage{$a}{$sort_method}}
      print $coverage{$id}{reads},"\t";
      print $coverage{$id}{bases},"\t";
      print $mapping{"$id"},"\n";
+}
+
+sub getAccFromSeqID
+{
+	my ($seqID) = @_;
+	
+	$seqID =~ /^>?(\S+)/;
+	
+	my $acc = $1;
+	
+	if ( $acc =~ /\|/ )
+	{
+		$acc = (split /\|/, $acc)[3];
+	}
+	
+	if ( $acc !~ /^\d+$/ && $acc !~ /^[A-Z]+_?[A-Z]*\d+(\.\d+)?$/ )
+	{
+		$invalidAccs{$acc} = 1;
+		return undef;
+	}
+	
+	return $acc;
 }

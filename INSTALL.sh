@@ -9,18 +9,178 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$PATH:$rootdir/bin/
+export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
+export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
-assembly_tools=( idba spades )
-annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn )
-utility_tools=( bedtools R GNU_parallel tabix JBrowse primer3 samtools sratoolkit )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer )
-taxonomy_tools=( kraken metaphlan kronatools gottcha )
+if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
+
+gcc_version=$(gcc -dumpversion)
+anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
+anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
+
+
+assembly_tools=( idba spades megahit lrasm racon unicycler )
+annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
+taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr pangia )
 phylogeny_tools=( FastTree RAxML )
-perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session )
-all_tools=("${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${perl_modules[@]}")
+perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
+python_packages=( Anaconda2 Anaconda3 )
+metagenome_tools=( MaxBin checkM )
+pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
+all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_MaxBin(){
+local VER=2.2.6
+echo "------------------------------------------------------------------------------
+                           Installing MaxBin
+------------------------------------------------------------------------------
+"
+tar xzf FragGeneScan1.31.tar.gz 
+cd FragGeneScan1.31
+make clean
+make fgs
+cd $rootdir/thirdParty
+
+tar xzf MaxBin-$VER.tar.gz 
+cd MaxBin-$VER
+cd src
+make
+cd ..
+cat << _EOM > setting
+[FragGeneScan] $rootdir/thirdParty/FragGeneScan1.31
+[Bowtie2] $rootdir/bin
+[HMMER3] $rootdir/bin
+[IDBA_UD] $rootdir/bin
+_EOM
+ln -sf $rootdir/thirdParty/MaxBin-$VER $rootdir/bin/MaxBin
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           MaxBin installed
+------------------------------------------------------------------------------
+"
+
+}
+
+
+install_diamond(){
+local VER=0.9.10
+echo "------------------------------------------------------------------------------
+                           Installing diamond aligner
+------------------------------------------------------------------------------
+"
+tar xvzf diamond-linux64.tar.gz
+rm -f diamond_manual.pdf
+mv -f diamond $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           diamond aligner installed
+------------------------------------------------------------------------------
+"
+}
+
+install_reference-based_assembly(){
+echo "------------------------------------------------------------------------------
+                           Installing reference-based_assembly package
+------------------------------------------------------------------------------
+"
+Org_PATH=$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
+tar xvzf reference-based_assembly.tgz
+cd reference-based_assembly
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/reference-based_assembly $rootdir/bin/
+cd $rootdir/thirdParty
+export PATH=$Org_PATH
+echo "
+------------------------------------------------------------------------------
+                           reference-based_assembly package installed
+------------------------------------------------------------------------------
+"
+}
+
+install_FaQCs(){
+local VER=2.09
+echo "------------------------------------------------------------------------------
+                           Installing FaQCs $VER
+------------------------------------------------------------------------------
+"
+tar xvzf FaQCs-$VER.tar.gz
+cd FaQCs
+make
+cp -f FaQCs $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           FaQCs $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_omics-pathway-viewer(){
+local VER=0.3
+echo "------------------------------------------------------------------------------
+                           Installing omics-pathway-viewer $VER
+------------------------------------------------------------------------------
+"
+tar xvzf omics-pathway-viewer.tgz
+cp $rootdir/thirdParty/omics-pathway-viewer/scripts/opaver_anno.pl $rootdir/bin/opaver_anno.pl
+cp -fR $rootdir/thirdParty/omics-pathway-viewer/opaver_web $rootdir/edge_ui/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           omics-pathway-viewer $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_DETEQT(){
+local VER=0.3.1
+echo "------------------------------------------------------------------------------
+                           Installing DETEQT $VER
+------------------------------------------------------------------------------
+"
+tar xvzf DETEQT-$VER.tgz
+cd DETEQT
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/DETEQT $rootdir/bin/DETEQT
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           DETEQT $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_PyPiReT(){
+local VER=1.0.0
+echo "------------------------------------------------------------------------------
+                           Installing PyPiReT $VER
+------------------------------------------------------------------------------
+"
+tar xvzf PyPiReT-$VER.tgz
+cd PyPiReT
+Org_PATH=$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
+if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
+then
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
+fi 
+./installer.sh piret
+ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
+export PATH=$Org_PATH
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           PyPiReT $VER installed
+------------------------------------------------------------------------------
+"
+}
+
 install_idba()
 {
 echo "------------------------------------------------------------------------------
@@ -32,7 +192,7 @@ cd idba-1.1.1
 sed -i.bak 's/kMaxShortSequence = 128/kMaxShortSequence = 351/' src/sequence/short_sequence.h
 sed -i.bak 's/kNumUint64 = 4/kNumUint64 = 6/' src/basic/kmer.h
 #src/sequence/short_sequence.h:    static const uint32_t kMaxShortSequence = 128
-./configure --prefix=$rootdir
+./configure --prefix=$rootdir CXXFLAGS='-g -O2 -std=c++03'
 make 
 make install
 cp bin/idba_ud $rootdir/bin/.
@@ -53,16 +213,95 @@ echo "
 
 
 install_spades(){
+local VER=3.13.0
 echo "------------------------------------------------------------------------------
-                           Installing SPAdes 3.5.0
+                           Installing SPAdes $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf SPAdes-3.5.0-Linux.tar.gz 
-ln -sf $rootdir/thirdParty/SPAdes-3.5.0-Linux/bin/spades.py $rootdir/bin/spades.py
+tar xvzf SPAdes-$VER-Linux.tar.gz 
+ln -sf $rootdir/thirdParty/SPAdes-$VER-Linux/bin/spades.py $rootdir/bin/spades.py
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           SPAdes installed
+                           SPAdes $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_megahit(){
+local VER=1.1.3
+## --version MEGAHIT v1.1.3
+echo "------------------------------------------------------------------------------
+                           Installing megahit $VER
+------------------------------------------------------------------------------
+"
+tar xvzf megahit-$VER.tar.gz 
+cd megahit-$VER
+make
+cp -f megahit* $rootdir/bin/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           megahit $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_unicycler(){
+local VER=0.4.8
+echo "------------------------------------------------------------------------------
+                           Installing Unicycler $VER
+------------------------------------------------------------------------------"
+if  ( echo ${gcc_version%.*} | awk '{if($1>="4.9") exit 0; else exit 1}' )
+then
+	tar xvzf Unicycler-$VER.tar.gz
+	sed -i.bak 's,min(8,min(4,g' Unicycler-$VER/setup.py
+	$anaconda3bin/pip install Unicycler-$VER/
+else
+	$anaconda3bin/conda install -y -c bioconda unicycler
+fi
+
+echo "
+------------------------------------------------------------------------------
+                           Unicycler $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_racon(){
+local VER=1.4.13
+echo "------------------------------------------------------------------------------
+                           Installing racon $VER
+------------------------------------------------------------------------------"
+tar xvzf racon-v$VER.tar.gz
+cd racon-v$VER
+mkdir -p build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -Dracon_build_wrapper=ON -Dspoa_optimize_for_portability=ON ..
+make
+cp -f bin/racon* $rootdir/bin/
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           racon $VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_lrasm(){
+local VER=0.3.0
+echo "------------------------------------------------------------------------------
+                           Installing long_read_assembly $VER
+------------------------------------------------------------------------------
+"
+tar xvzf long_read_assembly-$VER.tgz
+cd long_read_assembly
+./INSTALL.sh
+ln -sf $rootdir/thirdParty/long_read_assembly/lrasm $rootdir/bin/lrasm
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           long_read_assembly $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -91,85 +330,156 @@ echo "
 
 install_prokka()
 {
+local VER=1.14.5
 echo "------------------------------------------------------------------------------
-                           Installing prokka-1.11
+                           Installing prokka-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf prokka-1.11.tar.gz
-cd prokka-1.11
+tar xvzf prokka-$VER.tar.gz
+cd prokka-$VER
+# remove old perl modules
+# https://github.com/tseemann/prokka/issues/293
+#rm -rf perl5
 cd $rootdir/thirdParty
-ln -sf $rootdir/thirdParty/prokka-1.11/bin/prokka $rootdir/bin/prokka
-$rootdir/thirdParty/prokka-1.11/bin/prokka --setupdb
+ln -sf $rootdir/thirdParty/prokka-$VER/bin/prokka $rootdir/bin/prokka
+$rootdir/thirdParty/prokka-$VER/bin/prokka --setupdb
 echo "
 ------------------------------------------------------------------------------
-                           prokka-1.11 installed
+                           prokka-$VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_barrnap()
 {
+local VER=0.9
 echo "------------------------------------------------------------------------------
-                           Installing barrnap-0.4.2
+                           Installing barrnap-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf barrnap-0.4.2.tar.gz
-cd barrnap-0.4.2
+tar xvzf barrnap-$VER.tar.gz
+cd barrnap-$VER
 cd $rootdir/thirdParty
-ln -sf $rootdir/thirdParty/barrnap-0.4.2/bin/barrnap $rootdir/bin/barrnap
+ln -sf $rootdir/thirdParty/barrnap-$VER/bin/barrnap $rootdir/bin/barrnap
 echo "
 ------------------------------------------------------------------------------
-                           barrnap-0.4.2 installed
+                           barrnap-$VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 
-install_bedtools()
-{
+install_seqtk(){
+local VER=1.3
 echo "------------------------------------------------------------------------------
-                           Installing bedtools-2.19.1
+                           Installing seqtk-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf bedtools-2.19.1.tar.gz
-cd bedtools2-2.19.1
+tar xvzf seqtk-$VER.tgz
+cd seqtk-$VER
+make 
+cp -fR seqtk $rootdir/bin/. 
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           seqtk-$VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_bedtools()
+{
+local VER=2.27.1
+echo "------------------------------------------------------------------------------
+                           Installing bedtools-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf bedtools-$VER.tar.gz
+cd bedtools2
 make 
 cp -fR bin/* $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           bedtools-2.19.1 installed
+                           bedtools-$VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_sratoolkit()
 {
+local VER=2.9.6
 echo "------------------------------------------------------------------------------
-                           Installing sratoolkit.2.4.4-linux64
+                           Installing sratoolkit.$VER-linux64
 ------------------------------------------------------------------------------
 "
-tar xvzf sratoolkit.2.4.4-linux64.tgz
-cd sratoolkit.2.4.4-linux64
-ln -sf $rootdir/thirdParty/sratoolkit.2.4.4-linux64/bin/fastq-dump $rootdir/bin/fastq-dump
-ln -sf $rootdir/thirdParty/sratoolkit.2.4.4-linux64/bin/vdb-dump $rootdir/bin/vdb-dump
+tar xvzf sratoolkit.$VER-linux64.tgz
+cd sratoolkit.$VER-linux64
+ln -sf $rootdir/thirdParty/sratoolkit.$VER-linux64/bin/fastq-dump $rootdir/bin/fastq-dump
+ln -sf $rootdir/thirdParty/sratoolkit.$VER-linux64/bin/vdb-dump $rootdir/bin/vdb-dump
+./bin/vdb-config --restore-defaults
+./bin/vdb-config -s /repository/user/default-path=$rootdir/edge_ui/ncbi
+./bin/vdb-config -s /repository/user/main/public/root=$rootdir/edge_ui/ncbi/public
+if [[ -n ${HTTP_PROXY} ]]; then
+	proxy_without_protocol=${HTTP_PROXY#http://}
+        ./bin/vdb-config --proxy $proxy_without_protocol
+fi
+if [[ -n ${http_proxy} ]]; then
+	proxy_without_protocol=${http_proxy#http://}
+        ./bin/vdb-config --proxy $proxy_without_protocol
+fi
+
+ln -sf $HOME/.ncbi $rootdir/.ncbi
+
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           sratoolkit.2.4.3-linux64 installed
+                           sratoolkit.$VER-linux64 installed
+------------------------------------------------------------------------------
+"
+}
+
+install_Chromium(){
+echo "------------------------------------------------------------------------------
+                           Installing Chromium 
+------------------------------------------------------------------------------
+"
+unzip chrome-linux.zip
+echo "
+------------------------------------------------------------------------------
+                           Chromium 75.0.3767.0
+------------------------------------------------------------------------------
+"
+}
+
+
+install_ea-utils(){
+echo "------------------------------------------------------------------------------
+                           Installing ea-utils.1.1.2-537
+------------------------------------------------------------------------------
+"
+tar xvzf ea-utils.1.1.2-537.tar.gz
+cd ea-utils.1.1.2-537
+PREFIX=$rootdir make install
+
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           ea-utils.1.1.2-537 installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_R()
 {
+local VER=3.6.3
 echo "------------------------------------------------------------------------------
-                           Compiling R 2.15.3
+                           Compiling R $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf R-2.15.3.tar.gz
-cd R-2.15.3
-./configure --prefix=$rootdir --with-readline=no 
+tar xvzf R-$VER.tar.gz
+cd R-$VER
+./configure --prefix=$rootdir
 make
 make install
 cd $rootdir/thirdParty
@@ -179,15 +489,40 @@ echo "
 ------------------------------------------------------------------------------
 "
 }
+install_Rpackages()
+{
+echo "------------------------------------------------------------------------------
+                           installing R packages
+------------------------------------------------------------------------------
+"
+local VER=3.6.3
+tar xzf R-${VER}-Packages.tgz  
+echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gridExtra\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file - 
+echo "if(\"devtools\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"devtools\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"phyloseq\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"phyloseq\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"dplyr\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"dplyr\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"Cairo\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"Cairo\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"plotly\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"plotly\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"MetaComp\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"MetaComp\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+echo "if(\"gplots\" %in% rownames(installed.packages()) == FALSE)  {install.packages(c(\"gplots\"), repos = NULL, type=\"source\", contriburl=\"file:Rpackages/\")}" | $rootdir/bin/Rscript --no-init-file  - 
+rm -r Rpackages/
+echo "options(bitmapType='cairo')" > $HOME/.Rprofile
+echo "
+------------------------------------------------------------------------------
+                           R packages installed
+------------------------------------------------------------------------------
+"
+}
 
 install_GNU_parallel()
 {
+local VER=20190422
 echo "------------------------------------------------------------------------------
                            Compiling GNU parallel
 ------------------------------------------------------------------------------
 "
-tar xvzf parallel-20140622.tar.gz
-cd parallel-20140622
+tar xvzf parallel-$VER.tar.gz
+cd parallel-$VER
 ./configure --prefix=$rootdir 
 make
 make install
@@ -201,25 +536,27 @@ echo "
 
 install_BLAST+()
 {
+local VER=2.10.0
 echo "------------------------------------------------------------------------------
-                           Install ncbi-blast-2.2.28+-x64
+                           Install ncbi-blast-$VER+-x64
 ------------------------------------------------------------------------------
 "
-BLAST_ZIP=ncbi-blast-2.2.29+-x64-linux.tar.gz
+BLAST_ZIP=ncbi-blast-$VER+-x64-linux.tar.gz
 if [[ "$OSTYPE" == "darwin"* ]]
 then
 {
-    BLAST_ZIP=ncbi-blast-2.2.29+-universal-macosx.tar.gz
+    VER=2.2.29
+    BLAST_ZIP=ncbi-blast-$VER+-universal-macosx.tar.gz
 }
 fi
 
 tar xvzf $BLAST_ZIP
-cd ncbi-blast-2.2.29+
-cp -fR bin/* $rootdir/bin/.
+cd ncbi-blast-$VER+
+cp -fR bin/* $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           ncbi-blast-2.2.28+-x64 installed
+                           ncbi-blast-$VER+-x64 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -249,43 +586,78 @@ echo "
 "
 }
 
-install_kraken()
+install_kraken2()
 {
+local VER=2.0.7
 echo "------------------------------------------------------------------------------
-                           Install kraken-0.10.4-beta
+                           Install kraken-$VER-beta
 ------------------------------------------------------------------------------
 "
-tar xvzf kraken-0.10.4-beta.tgz
-cd kraken-0.10.4-beta
-./install_kraken.sh $rootdir/bin/
+tar xvzf kraken-$VER.tgz
+cd kraken2-$VER-beta
+./install_kraken2.sh $rootdir/bin/
 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           kraken-0.10.4-beta installed
+                           kraken-$VER installed
+------------------------------------------------------------------------------
+"
+}
+
+install_centrifuge()
+{
+local VER=1.0.4
+echo "------------------------------------------------------------------------------
+                           Install centrifuge-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf centrifuge-$VER-beta.tgz
+cd centrifuge-$VER-beta
+make 
+cp centrifuge $rootdir/bin/
+cp centrifuge-* $rootdir/bin/
+
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           centrifuge-$VER installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_JBrowse()
 {
+local VER=1.16.8
 echo "------------------------------------------------------------------------------
-                           Installing JBrowse-1.11.6
+                           Installing JBrowse-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf JBrowse-1.11.6.tar.gz
-cd JBrowse-1.11.6
-./setup.sh
-mkdir -p -m 775 data
-cd $rootdir/thirdParty
+tar xvzf JBrowse-$VER.tar.gz
+if [ -e $rootdir/edge_ui/JBrowse/data ]
+then
+  mv $rootdir/edge_ui/JBrowse/data $rootdir/edge_ui/JBrowse_olddata
+fi
 if [ -e $rootdir/edge_ui/JBrowse ]
 then
-  rm $rootdir/edge_ui/JBrowse
+  rm -rf $rootdir/edge_ui/JBrowse
 fi
-ln -sf $rootdir/thirdParty/JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
+
+mv JBrowse-$VER $rootdir/edge_ui/JBrowse
+cd $rootdir/edge_ui/JBrowse
+./setup.sh
+if [ -e $rootdir/edge_ui/JBrowse_olddata ]
+then
+  mv $rootdir/edge_ui/JBrowse_olddata $rootdir/edge_ui/JBrowse/data
+else
+  mkdir -p -m 775 data
+fi
+
+cd $rootdir/thirdParty
+#ln -sf $rootdir/thirdParty/JBrowse-1.11.6 $rootdir/edge_ui/JBrowse
 echo "
 ------------------------------------------------------------------------------
-                           JBrowse-1.11.6 installed
+                           JBrowse-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -363,20 +735,18 @@ echo "
 
 install_bowtie2()
 {
+local VER=2.4.1
 echo "------------------------------------------------------------------------------
-                           Compiling bowtie2 2.1.0
+                           Install bowtie2 $VER
 ------------------------------------------------------------------------------
 "
-tar xvzf bowtie2-2.1.0.tar.gz
-cd bowtie2-2.1.0
-make
-cp bowtie2 $rootdir/bin/.
-cp bowtie2-build $rootdir/bin/.
-cp bowtie2-align $rootdir/bin/.
+tar xvzf bowtie2-$VER-linux-x86_64.tgz
+cd bowtie2-$VER-linux-x86_64
+cp bowtie2* $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           bowtie2 compiled
+                           bowtie2 $VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -387,7 +757,9 @@ echo "--------------------------------------------------------------------------
                            Compiling gottcha-1.0b
 ------------------------------------------------------------------------------
 "
-tar xvzf gottcha.tar.gz
+tar xzf gottcha.tar.gz
+rm -rf gottcha/ext/opt/dmd2/
+tar xzf dmd.2.082.0.linux.tgz -C gottcha/ext/opt
 cd gottcha
 ./INSTALL.sh
 ln -sf $PWD/bin/gottcha.pl $rootdir/bin/
@@ -399,19 +771,91 @@ echo "
 "
 }
 
-install_metaphlan()
+install_gottcha2()
 {
 echo "------------------------------------------------------------------------------
-                           Compiling metaphlan-1.7.7
+                           Compiling gottcha-2.1 BETA
 ------------------------------------------------------------------------------
 "
-tar xvzf metaphlan-1.7.7.tar.gz
-cd metaphlan-1.7.7
-cp -fR metaphlan.py $rootdir/bin/.
+tar xvzf gottcha2.tar.gz
+cd gottcha2
+#ln -sf $PWD/gottcha.py $rootdir/bin/
+ln -sf $rootdir/database/GOTTCHA2 ./database
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           metaphlan-1.7.7 compiled
+                           gottcha-2.1 BETA installed
+------------------------------------------------------------------------------
+"
+}
+
+install_miccr()
+{
+local VER=0.0.2
+echo "------------------------------------------------------------------------------
+                           Installing miccr-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf miccr-$VER.tgz
+cd miccr
+ln -sf $rootdir/database/miccrDB ./database
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           miccr-$VER installed
+------------------------------------------------------------------------------
+"
+}
+
+
+install_pangia()
+{
+local VER=1.0.0
+echo "------------------------------------------------------------------------------
+                           Installing PANGIA $VER BETA
+------------------------------------------------------------------------------
+"
+if [ -e $rootdir/thirdParty/pangia/pangia-vis/data ]
+then
+  mv $rootdir/thirdParty/pangia/pangia-vis/data $rootdir/thirdParty/pangia-vis-data
+fi
+if [ -e $rootdir/thirdParty/pangia ]
+then
+  rm -rf $rootdir/thirdParty/pangia
+fi
+
+tar xvzf pangia-$VER.tar.gz
+cd pangia
+if [ -e $rootdir/thirdParty/pangia-vis-data ]
+then
+  cp -rf $rootdir/thirdParty/pangia-vis-data/* $rootdir/thirdParty/pangia/pangia-vis/data/
+  rm -rf $rootdir/thirdParty/pangia-vis-data
+fi 
+
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           pangia-$VER BETA
+------------------------------------------------------------------------------
+"
+}
+
+
+install_metaphlan2()
+{
+local VER=2.7.7
+echo "------------------------------------------------------------------------------
+                           Installing metaphlan-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf metaphlan-$VER.tgz
+cd metaphlan-$VER
+cp -fR metaphlan2.py $rootdir/bin/.
+cp -fR utils/read_fastx.py $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           metaphlan-$VER installed
 ------------------------------------------------------------------------------
 "
 }
@@ -441,8 +885,8 @@ tar xvzf glimmer302b.tar.gz
 cd glimmer3.02/SimpleMake
 make
 cp ../bin/* $rootdir/bin/.
-cp ../scripts/* $rootdir/scripts/.
-for i in $rootdir/scripts/*.csh
+cp ../scripts/* $rootdir/bin/.
+for i in $rootdir/bin/*.csh
 do 
  sed -i.bak 's!/fs/szgenefinding/Glimmer3!'$rootdir'!' $i
  sed -i.bak 's!/fs/szgenefinding/Glimmer3!'$rootdir'!' $i
@@ -487,6 +931,21 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                            prodigal.v2_60 compiled
+------------------------------------------------------------------------------
+"
+}
+
+install_ShortBRED()
+{
+echo "------------------------------------------------------------------------------
+                           Installing ShortBRED
+------------------------------------------------------------------------------
+"
+tar xvzf ShortBRED-0.9.4M.tgz
+ln -sf $rootdir/thirdParty/ShortBRED-0.9.4M $rootdir/bin/ShortBRED
+echo "
+------------------------------------------------------------------------------
+                           ShortBRED installed
 ------------------------------------------------------------------------------
 "
 }
@@ -538,6 +997,24 @@ echo "
 "
 }
 
+install_minimap2()
+{
+local VER=2.17
+echo "------------------------------------------------------------------------------
+                           Compiling minimap2 $VER
+------------------------------------------------------------------------------
+"
+tar xvzf minimap2-${VER}_x64-linux.tgz
+cd minimap2-${VER}_x64-linux
+cp minimap2 $rootdir/bin/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           minimap2 compiled
+------------------------------------------------------------------------------
+"
+}
+
 install_mummer()
 {
 echo "------------------------------------------------------------------------------
@@ -553,6 +1030,7 @@ cp show-coords $rootdir/bin/.
 cp show-snps $rootdir/bin/.
 cp mgaps $rootdir/bin/.
 cp delta-filter $rootdir/bin/.
+cp mummerplot $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -569,7 +1047,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf primer3-2.3.5.tar.gz
 cd primer3-2.3.5/src
-make
+make CC_OPTS='-fpermissive -g -Wall -D__USE_FIXED_PROTOTYPES__'
 cp primer3_core $rootdir/bin/.
 cp oligotm $rootdir/bin/.
 cp ntthal $rootdir/bin/.
@@ -586,39 +1064,62 @@ echo "
 
 install_kronatools()
 {
+local VER=2.7
 echo "------------------------------------------------------------------------------
-               Installing KronaTools-2.4
+               Installing KronaTools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf KronaTools-2.4.tar.gz
-cd KronaTools-2.4
+tar xvzf KronaTools-$VER.tar.gz
+cd KronaTools-$VER
 perl install.pl --prefix $rootdir --taxonomy $rootdir/database/Krona_taxonomy
 #./updateTaxonomy.sh --local
 cp $rootdir/scripts/microbial_profiling/script/ImportBWA.pl scripts/
-ln -sf $rootdir/thirdParty/KronaTools-2.4/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
+ln -sf $rootdir/thirdParty/KronaTools-$VER/scripts/ImportBWA.pl $rootdir/bin/ktImportBWA 
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                        KronaTools-2.4 Installed
+                        KronaTools-$VER Installed
 ------------------------------------------------------------------------------
 "
 }
 
 install_samtools()
 {
+local VER=1.10
 echo "------------------------------------------------------------------------------
-                           Compiling samtools 0.1.19
+                           Compiling samtools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf samtools-0.1.19.tar.gz
-cd samtools-0.1.19
+tar xvzf samtools-$VER.tar.gz
+cd samtools-$VER
+#make CFLAGS='-g -fPIC -Wall -O2'
+./configure --prefix=$rootdir
 make
-cp samtools $rootdir/bin/.
-cp bcftools/bcftools $rootdir/bin/.
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           samtools compiled
+                           samtools $VER compiled
+------------------------------------------------------------------------------
+"
+}
+
+install_bcftools()
+{
+local VER=1.10.2
+echo "------------------------------------------------------------------------------
+                           Compiling bcftools-$VER
+------------------------------------------------------------------------------
+"
+tar xvzf bcftools-$VER.tar.gz
+cd bcftools-$VER
+./configure --prefix=$rootdir
+make
+make install
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           bcftools $VER compiled
 ------------------------------------------------------------------------------
 "
 }
@@ -659,19 +1160,20 @@ echo "
 
 install_perl_parallel_forkmanager()
 {
+local VER=1.19
 echo "------------------------------------------------------------------------------
-               Installing Perl Module Parallel-ForkManager-1.03
+               Installing Perl Module Parallel-ForkManager-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf Parallel-ForkManager-1.03.tar.gz
-cd Parallel-ForkManager-1.03
+tar xvzf Parallel-ForkManager-$VER.tar.gz
+cd Parallel-ForkManager-$VER
 perl Makefile.PL
 make
 cp -fR blib/lib/* $rootdir/lib/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                        Parallel-ForkManager-1.03 Installed
+                        Parallel-ForkManager-$VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -855,6 +1357,7 @@ echo "
 "
 }
 
+
 install_perl_cgi_session()
 {
 echo "------------------------------------------------------------------------------
@@ -870,6 +1373,267 @@ cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
                          CGI-Session-4.48 Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_perl_email_valid(){
+local VER=1.202
+echo "-----------------------------------------------------------------------------
+		Installing Perl Module Email-Valid-$VER
+ ------------------------------------------------------------------------------
+"
+tar xvzf Email-Valid-$VER.tar.gz
+cd Email-Valid-$VER
+perl Makefile.PL
+make
+cp -fR blib/lib/* $rootdir/lib/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+		Email-Valid-$VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_perl_mailtools(){
+local VER=2.20
+echo "-----------------------------------------------------------------------------
+		Installing Perl Module MailTools-$VER
+ ------------------------------------------------------------------------------
+"
+tar xvzf MailTools-$VER.tar.gz
+cd MailTools-$VER
+perl Makefile.PL
+make
+cp -fR blib/lib/* $rootdir/lib/.
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+		MailTools-$VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_Anaconda2()
+{
+local VER=2019.10
+echo "------------------------------------------------------------------------------
+                 Installing Python Anaconda2 $VER
+------------------------------------------------------------------------------
+"
+if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
+    bash Anaconda2-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
+fi
+ln -fs $anaconda2bin/python $rootdir/bin
+#ln -fs $anaconda2bin/pip $rootdir/bin
+#ln -fs $anaconda2bin/conda $rootdir/bin
+
+#tar -xvzf Anaconda2Packages.tgz
+#$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
+#$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
+#$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
+$anaconda2bin/conda config --add channels defaults
+$anaconda2bin/conda config --add channels bioconda
+$anaconda2bin/conda config --add channels conda-forge
+$anaconda2bin/pip install biopython==1.76 xlsx2csv
+$anaconda2bin/conda install -y mysql-connector-python
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
+#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
+$anaconda2bin/pip install matplotlib==2.2.5
+matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
+perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
+#rm -r Anaconda2Packages/
+echo "
+------------------------------------------------------------------------------
+                         Python Anaconda2 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_Anaconda3()
+{
+local VER=2020.02
+echo "------------------------------------------------------------------------------
+                 Installing Python Anaconda3 $VER
+------------------------------------------------------------------------------
+"
+if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
+    bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
+fi
+ln -fs $anaconda3bin/python3 $rootdir/bin
+$anaconda3bin/conda update -n base -y conda
+#tar -xvzf Anaconda3Packages.tgz
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/conda config --add channels defaults
+$anaconda3bin/conda config --add channels bioconda
+$anaconda3bin/conda config --add channels conda-forge
+$anaconda3bin/conda create -y -n py36
+$anaconda3bin/pip install CairoSVG pandas pysam
+ln -fs $anaconda3bin/cairosvg $rootdir/bin
+
+echo "
+------------------------------------------------------------------------------
+                         Python Anaconda3 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_cmake(){
+echo "------------------------------------------------------------------------------
+                        Installing cmake
+------------------------------------------------------------------------------
+"
+$anaconda2bin/conda install -y libgcc cmake
+echo "
+------------------------------------------------------------------------------
+                         cmake Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_rapsearch2(){
+echo "------------------------------------------------------------------------------
+                        Installing rapsearch2 binary
+------------------------------------------------------------------------------
+"
+$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
+ln -s $anaconda2bin/rapsearch $rootdir/bin/rapsearch2
+echo "
+------------------------------------------------------------------------------
+                         Rapsearch2  Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_rgi(){
+local VER=5.1.0
+echo "------------------------------------------------------------------------------
+                        Installing RGI $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -n py36 -c bioconda rgi=5.1.0
+
+echo "
+------------------------------------------------------------------------------
+                         RGI $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_checkM()
+{
+local VER=1.1.2
+echo "------------------------------------------------------------------------------
+                        Installing checkM $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/pip install checkm-genome
+echo -e "$rootdir/database/checkM\n" | $anaconda3bin/checkm data setRoot
+tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
+cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
+cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
+cp  pplacer-Linux-v1.1.alpha19/rppr $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         checkM $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_qiime2()
+{
+local VER=2019.10
+echo "------------------------------------------------------------------------------
+                        Installing QIIME2 $VER
+------------------------------------------------------------------------------
+"
+if [ -e "$rootdir/thirdParty/Anaconda3/envs/qiime2" ]
+then
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
+fi
+
+$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.10-py36-linux-conda.yml
+echo "
+------------------------------------------------------------------------------
+                         QIIME2 $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_antismash()
+{
+local VER=4.2.0
+echo "------------------------------------------------------------------------------
+                        Installing antiSMASH $VER
+------------------------------------------------------------------------------
+"
+if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
+then
+  rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
+fi
+$anaconda2bin/conda create -y -n antismash antismash=4.2.0
+echo "
+------------------------------------------------------------------------------
+                         antiSMASH $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_bokeh()
+{
+local VER=1.1.0
+echo "------------------------------------------------------------------------------
+                        Installing bokeh $VER
+------------------------------------------------------------------------------
+"
+#$anaconda3bin/pip install  --no-index --find-links=./Anaconda3Packages bokeh==$VER
+$anaconda3bin/pip install bokeh==$VER
+echo "
+------------------------------------------------------------------------------
+                         bokeh $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_NanoPlot()
+{
+echo "------------------------------------------------------------------------------
+                 	Installing NanoPlot
+------------------------------------------------------------------------------
+"
+#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
+$anaconda3bin/pip install NanoPlot
+ln -fs $anaconda3bin/NanoPlot $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         NanoPlot Installed
+------------------------------------------------------------------------------
+"
+}
+install_Porechop()
+{
+echo "------------------------------------------------------------------------------
+                 	Installing Porechop
+------------------------------------------------------------------------------
+"
+#$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
+$anaconda3bin/conda install -n py36 -y porechop
+ln -fs $anaconda3bin/../envs/py36/bin/porechop $rootdir/bin
+echo "
+------------------------------------------------------------------------------
+                         Porechop Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -903,6 +1667,10 @@ containsElement () {
   local e
   for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
   return 1
+}
+
+versionStr() { 
+  echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; 
 }
 
 print_usage()
@@ -957,6 +1725,11 @@ print_tools_list()
    do
 	   echo "* $i"
    done
+   echo -e "\nMetagenome"
+   for i in "${metagenome_tools[@]}"
+   do
+	   echo "* $i"
+   done
    echo -e "\nUtility"
    for i in "${utility_tools[@]}"
    do
@@ -967,6 +1740,16 @@ print_tools_list()
    do
 	   echo "* $i"
    done
+   echo -e "\nPython_Packages"
+   for i in "${python_packages[@]}"
+   do
+           echo "* $i"
+   done
+   echo -e "\nPipeline_Tools"
+   for i in "${pipeline_tools[@]}"
+   do
+           echo "* $i"
+   done
 }
 
 
@@ -974,20 +1757,10 @@ print_tools_list()
 if ( checkSystemInstallation csh )
 then
   #echo "csh is found"
-  echo ""
+  echo -n ""
 else
   echo "csh is not found"
   echo "Please Install csh first, then INSTALL the package"
-  exit 1
-fi
-
-if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
-then 
-  #perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
-  echo ""
-else 
-  echo "Cannot find a perl Bioperl Module installed" 1>&2
-  echo "Please install Bioperl (http://www.bioperl.org/)"
   exit 1
 fi
 
@@ -1037,6 +1810,13 @@ then
         done
         echo -e "Phylogeny tools installed.\n"
         exit 0;; 
+      Metagenome)
+        for tool in "${metagenome_tools[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Metagenome tools installed.\n"
+        exit 0;; 
       Utility)
         for tool in "${utility_tools[@]}"
         do
@@ -1050,22 +1830,36 @@ then
             install_$tool
         done
         echo -e "Perl_Modules installed.\n"
-        exit 0;;
+        exit 0 ;;
+      Python_Packages)
+        for tool in "${python_packages[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Python_Packages installed.\n"
+        exit 0 ;;
+      Pipeline_Tools)
+        for tool in "${pipeline_tools[@]}"
+        do
+            install_$tool
+        done
+        echo -e "Pipeline_Tools installed.\n"
+        exit 0 ;;
       force)
-        for tool in "${all_tools[@]}" 
+        for tool in "${all_tools[@]}"
         do
             install_$tool
         done
         ;;
       *)
-        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" )
+        if ( containsElement "$f" "${assembly_tools[@]}" || containsElement "$f" "${annotation_tools[@]}" || containsElement "$f" "${alignments_tools[@]}" || containsElement "$f" "${taxonomy_tools[@]}" || containsElement "$f" "${phylogeny_tools[@]}" || containsElement "$f" "${metagenome_tools[@]}" || containsElement "$f" "${utility_tools[@]}" || containsElement "$f" "${perl_modules[@]}" || containsElement "$f" "${python_packages[@]}" || containsElement "$f" "${pipeline_tools[@]}" )
         then
             install_$f
         else
             echo "$f: no this tool in the list"
             print_tools_list
         fi
-        exit 0;;
+        exit;;
     esac
   done
 fi
@@ -1078,6 +1872,38 @@ else
  # echo "Please Install inkscape, then INSTALL the package"
  # exit 1
 fi
+
+if perl -MBio::Root::Version -e 'print $Bio::Root::Version::VERSION,"\n"' >/dev/null 2>&1 
+then 
+  perl -MBio::Root::Version -e 'print "BioPerl Version ", $Bio::Root::Version::VERSION," is found\n"'
+else 
+  echo "Cannot find a perl Bioperl Module installed" 1>&2
+  echo "Please install Bioperl (http://www.bioperl.org/)"
+  exit 1
+fi
+
+if $rootdir/bin/python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
+then
+  $rootdir/bin/python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
+else
+  install_Anaconda2
+fi
+
+if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
+then
+  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
+else
+  install_Anaconda3
+fi
+
+if ( checkSystemInstallation cmake )
+then
+  echo "cmake is found"
+else
+  echo "cmake is not found"
+  install_cmake
+fi
+
 
 if [[ "$OSTYPE" == "darwin"* ]]
 then
@@ -1100,7 +1926,17 @@ else
     if ( checkLocalInstallation R )
     then
     {
-        echo "R is found"
+	R_VER=`$rootdir/bin/R --version | perl -nle 'print $& if m{version \d+\.\d+}'`;
+	if  ( echo $R_VER | awk '{if($2>="3.6") exit 0; else exit 1}' )
+	then
+	{
+        	echo "R $R_VER found"
+	}
+	else
+	{
+		install_R
+	}
+	fi
     }
     else
     {
@@ -1110,22 +1946,55 @@ else
 }
 fi
 
-echo "if(\"gridExtra\" %in% rownames(installed.packages()) == FALSE)  {install.packages(\"gridExtra_0.9.1.tar.gz\", repos = NULL, type=\"source\")}" | Rscript -  
+install_Rpackages
 
 if ( checkSystemInstallation bedtools )
 then
-  echo "bedtools is found"
+  bedtoolsVER=`bedtools --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  if  ( echo  $bedtoolsVER | awk '{if($1>="2.27") exit 0; else exit 1}' )
+  then 
+     echo "bedtools $bedtoolsVER is found"
+  else
+     install_bedtools
+  fi
 else
   echo "bedtools is not found"
   install_bedtools 
 fi
 
+if ( checkSystemInstallation FaQCs )
+then
+  FaQCs_VER=`FaQCs --version 2>&1| awk '{print $2}'`;
+  if  ( echo $FaQCs_VER | awk '{if($1>="2.08") exit 0; else exit 1}' )
+  then
+    echo "FaQCs $FaQCs_VER found"
+  else
+    install_FaQCs
+  fi
+else
+  echo "FaQCs is not found"
+  install_FaQCs
+fi
+
 if ( checkSystemInstallation fastq-dump )
 then
-  echo "sratoolkit is found"
+  sratoolkit_VER=`fastq-dump --version | perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if  ( echo $sratoolkit_VER | awk '{if($1>="2.9.2") exit 0; else exit 1}' )
+  then
+    echo "sratoolkit $sratoolkit_VER found"
+  else
+    install_sratoolkit
+  fi
 else
   echo "sratoolkit is not found"
-  install_sratoolkit 
+  install_sratoolkit
+fi
+
+if ( checkSystemInstallation fastq-join )
+then
+  echo "fastq-join is found"
+else
+  install_ea-utils
 fi
 
 if ( checkSystemInstallation parallel )
@@ -1136,15 +2005,28 @@ else
   install_GNU_parallel
 fi
 
+if ( checkSystemInstallation seqtk )
+then
+  echo "seqtk is found"
+else
+  install_seqtk
+fi
+
 if ( checkSystemInstallation blastn )
 then
-  echo "BLAST+ is found"
+   BLAST_VER=`blastn -version | grep blastn | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
+   if [ $(versionStr $BLAST_VER) -ge $(versionStr "2.8.0") ]
+   then
+     echo "BLAST+ $BLAST_VER found"
+   else
+     install_BLAST+
+   fi
 else
   echo "BLAST+ is not found"
   install_BLAST+
 fi
 
-if ( checkSystemInstallation blastall )
+if ( checkLocalInstallation blastall )
 then
   echo "blastall is found"
 else
@@ -1162,7 +2044,13 @@ fi
 
 if ( checkLocalInstallation ktImportBLAST )
 then
-  echo "KronaTools is found"
+  Krona_VER=`$rootdir/bin/ktGetLibPath | perl -nle 'print $& if m{KronaTools-\d\.\d}' | perl -nle 'print $& if m{\d\.\d}'`;
+  if  ( echo $Krona_VER | awk '{if($1>="2.6") exit 0; else exit 1}' )
+  then
+    echo "KronaTools $Krona_VER found"
+  else
+    install_kronatools
+  fi
 else
   echo "KronaTools is not found"
   install_kronatools
@@ -1193,7 +2081,15 @@ else
   install_prokka
 fi
 
-if [ -x $rootdir/thirdParty/RATT/start.ratt.sh   ]
+if [ -x "$rootdir/thirdParty/chrome-linux/chrome" ]
+then
+   echo "Chromium is found"
+else
+   echo "Chromium is not found"
+   install_Chromium
+fi
+
+if [ -x "$rootdir/thirdParty/RATT/start.ratt.sh" ]
 then
   echo "RATT is found"
 else
@@ -1241,13 +2137,41 @@ else
   install_tbl2asn
 fi
 
-
-if ( checkLocalInstallation kraken )
+if ( checkLocalInstallation ShortBRED/shortbred_quantify.py )
 then
-  echo "kraken is found"
+  echo "ShortBRED is found"
 else
-  echo "kraken is not found"
-  install_kraken
+  echo "ShortBRED is not found"
+  install_ShortBRED
+fi
+
+
+if ( checkLocalInstallation kraken2 )
+then
+  kraken2_VER=`kraken2 --version | grep version | perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  if  ( echo $kraken2_VER | awk '{if($1>=2.0) exit 0; else exit 1}' )
+  then
+    echo "kraken2 $kraken2_VER found"
+  else
+    install_kraken2
+  fi
+else
+  echo "kraken2 is not found"
+  install_kraken2
+fi
+
+if ( checkLocalInstallation centrifuge )
+then
+  centrifuge_VER=`centrifuge --version | grep "centrifuge-class version" | perl -nle 'print $1 if m{(\d+\.\d+\.\d+)}'`;
+  if  ( echo $centrifuge_VER | awk '{if($1>="1.0.4") exit 0; else exit 1}' )
+  then
+    echo "centrifuge $centrifuge_VER found"
+  else
+    install_centrifuge
+  fi
+else
+  echo "centrifuge is not found"
+  install_centrifuge
 fi
 
 if ( checkSystemInstallation tabix )
@@ -1268,10 +2192,44 @@ fi
 
 if ( checkSystemInstallation bowtie2 )
 then
-  echo "bowtie2 is found"
+  bowtie_VER=`bowtie2 --version | grep bowtie | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
+  if  ( echo $bowtie_VER | awk '{if($2>="2.2.4") exit 0; else exit 1}' )
+  then 
+    echo "bowtie2 $bowtie_VER found"
+  else
+    install_bowtie2
+  fi
 else
   echo "bowtie2 is not found"
   install_bowtie2
+fi
+
+if ( checkSystemInstallation diamond )
+then
+  diamond_VER=`diamond --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+.\d+)}'`;
+  if  ( echo $diamond_VER | awk '{if($1>="0.9.10") exit 0; else exit 1}' )
+  then
+    echo "diamond $diamond_VER found"
+  else
+    install_diamond
+  fi
+else
+  echo "diamond is not found"
+  install_diamond
+fi
+
+if ( checkSystemInstallation minimap2 )
+then
+  minimap2_VER=`minimap2 --version 2>&1| perl -nle 'print $1 if m{(\d+\.\d+)}'`;
+  if  ( echo $minimap2_VER | awk '{if($1>="2.16") exit 0; else exit 1}' )
+  then
+    echo "minimap2 $minimap2_VER found"
+  else
+    install_minimap2
+  fi
+else
+  echo "minimap2 is not found"
+  install_minimap2
 fi
 
 if ( checkLocalInstallation bwa )
@@ -1284,10 +2242,38 @@ fi
 
 if ( checkLocalInstallation samtools )
 then
-  echo "samtools is found"
+  samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+.\d+)}'`;
+  if [ -z "$samtools_installed_VER" ]
+  then
+      samtools_installed_VER=`samtools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`; 
+  fi
+  if [ $(versionStr $samtools_installed_VER) -ge $(versionStr "1.9") ]
+  then
+      echo "samtools is found"
+  else
+      echo "samtools is not found"
+      install_samtools
+  fi
 else
-  echo "samtools is not found"
   install_samtools
+fi
+
+if ( checkLocalInstallation bcftools )
+then
+  bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+.\d+)}'`;
+  if [ -z "$bcftools_installed_VER" ]
+  then
+      bcftools_installed_VER=`bcftools 2>&1| grep 'Version'|perl -nle 'print $1 if m{Version: (\d+\.\d+)}'`;
+  fi
+  if [ $(versionStr $bcftools_installed_VER) -ge $(versionStr "1.9") ]
+  then
+      echo "bcftools is found"
+  else
+      echo "bcftools is not found"
+      install_bcftools
+  fi
+else
+  install_bcftools
 fi
 
 if ( checkLocalInstallation nucmer )
@@ -1298,7 +2284,14 @@ else
   install_mummer
 fi
 
-if ( checkSystemInstallation wigToBigWig )
+if ( checkSystemInstallation jq )
+then 
+  echo "jq is found"
+else
+  ln -sf $rootdir/thirdParty/jq-linux64 $rootdir/bin/jq
+fi
+
+if ( checkLocalInstallation wigToBigWig )
 then
   echo "wigToBigWig is found"
 else
@@ -1323,20 +2316,97 @@ else
   install_idba
 fi
 
-if ( checkLocalInstallation spades.py )
+if ( checkSystemInstallation spades.py )
 then
-  echo "SPAdes is found"
+  spades_VER=`spades.py 2>&1 | perl -nle 'print $& if m{\d\.\d+\.\d}'`;
+  if ( echo $spades_VER | awk '{if($1>="3.13.0") exit 0; else exit 1}' )
+  then
+    echo "SPAdes $spades_VER found"
+  else
+    install_spades
+  fi
 else
   echo "SPAdes is not found"
   install_spades
 fi
 
-if [ -x $rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh  ]
+if ( checkSystemInstallation megahit  )
+then
+  ## --version MEGAHIT v1.1.3
+  megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if  ( echo $megahit_VER | awk '{if($1>="1.1.3") exit 0; else exit 1}' )
+  then
+    echo "megahit $megahit_VER found"
+  else
+    install_megahit
+  fi
+else
+  echo "megahit is not found"
+  install_megahit
+fi
+
+if [ -x "$rootdir/thirdParty/Anaconda3/bin/unicycler" ]
+then
+  unicycler_installed_VER=`$rootdir/thirdParty/Anaconda3/bin/unicycler --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  if ( echo $unicycler_installed_VER | awk '{if($1>="0.4.7") exit 0; else exit 1}' )
+  then
+    echo "Unicycler $unicycler_installed_VER found"
+  else
+    install_unicycler
+  fi
+else
+  echo "unicycler is not found"
+  install_unicycler
+fi
+
+if ( checkSystemInstallation racon )
+then
+  racon_installed_VER=`racon --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  if [ $(versionStr $racon_installed_VER) -ge $(versionStr "1.3.1") ]
+  then
+    echo "racon $racon_installed_VER found"
+  else
+    install_racon
+  fi
+else
+  echo "racon is not found"
+  install_racon
+fi
+
+if ( checkSystemInstallation lrasm  )
+then
+  lrasm_VER=`lrasm --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if  ( echo $lrasm_VER | awk '{if($1>="0.2.0") exit 0; else exit 1}' )
+  then
+    echo "lrasm $lrasm_VER found"
+  else
+    install_lrasm
+  fi
+else
+  echo "lrasm is not found"
+  install_lrasm
+fi
+
+if [ -x "$rootdir/thirdParty/phage_finder_v2.1/bin/phage_finder_v2.1.sh" ]
 then
   echo "phage_finder_v2.1 is found"
 else
   echo "phage_finder_v2 is not found"
   install_phageFinder
+fi
+
+if [ -x "$rootdir/bin/MaxBin/src/MaxBin" ]
+then
+  MaxBin_VER=`$rootdir/bin/MaxBin/run_MaxBin.pl -v | head -1 |perl -nle 'print $& if m{\d\.\d}'`;
+  if ( echo $MaxBin_VER | awk '{if($1>="2.2") exit 0; else exit 1}' )
+  then
+    echo "MaxBin2 is found"
+  else
+    install_MaxBin
+  fi
+else
+  echo "MaxBin2 is not found"
+  install_MaxBin
 fi
 
 if ( checkLocalInstallation gottcha.pl  )
@@ -1347,12 +2417,60 @@ else
   install_gottcha
 fi
 
-if ( checkLocalInstallation metaphlan.py  )
+if [ -x "$rootdir/thirdParty/gottcha2/gottcha2.py" ]
 then
-  echo "metaphlan  is found"
+  gottcha2_VER=`$rootdir/thirdParty/gottcha2/gottcha2.py -h | grep VERSION |perl -nle 'print $& if m{\d\.\d}'`;
+  if ( echo $gottcha2_VER | awk '{if($1>="2.1") exit 0; else exit 1}' )
+  then
+    echo "GOTTCHA2 $gottcha2_VER is found"
+  else
+    install_gottcha2
+  fi
 else
-  echo "metaphlan  is not found"
-  install_metaphlan
+  echo "GOTTCHA2 is not found"
+  install_gottcha2
+fi
+
+if [ -x "$rootdir/thirdParty/miccr/miccr.py" ]
+then
+  miccr_VER=`$rootdir/thirdParty/miccr/miccr.py -h | grep MICCR |perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if ( echo $miccr_VER | awk '{if($1>="0.0.2") exit 0; else exit 1}' )
+  then
+    echo "miccr $miccr_VER is found"
+  else
+    install_miccr
+  fi
+else
+  echo "miccr is not found"
+  install_miccr
+fi
+
+if [ -x "$rootdir/thirdParty/pangia/pangia.py" ]
+then
+  pangia_VER=`$rootdir/thirdParty/pangia/pangia.py -h | grep 'PanGIA Bioinformatics' |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if [ $(versionStr $pangia_VER) -ge $(versionStr "1.0.0") ]
+  then
+    echo "PANGIA $pangia_VER is found"
+  else
+    install_pangia
+  fi
+else
+  echo "PANGIA is not found"
+  install_pangia
+fi
+
+if ( checkLocalInstallation metaphlan2.py  )
+then
+  metaphlan_VER=`metaphlan2.py -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if ( echo $metaphlan_VER | awk '{if($1>="2.7.7") exit 0; else exit 1}' )
+  then
+    echo "metaphlan2  is found"
+  else
+    install_metaphlan2
+  fi
+else
+  echo "metaphlan2 is not found"
+  install_metaphlan2
 fi
 
 if ( checkLocalInstallation primer3_core  )
@@ -1366,16 +2484,163 @@ fi
 if ( checkSystemInstallation FastTreeMP )
 then
   FastTree_VER=`FastTreeMP  2>&1 | perl -nle 'print $& if m{version \d+\.\d+\.\d+}'`;
-  if  ( echo $FastTree_VER | awk '{if($1>="2.1.8") exit 0; else exit 1}' )
-  then 
+  if  ( echo $FastTree_VER | awk '{if($2>="2.1.8") exit 0; else exit 1}' )
+  then
     echo "FastTreeMP is found"
   else
-    install_FastTree
+   install_FastTree
   fi
 else
   echo "FastTreeMP is not found"
   install_FastTree
 fi
+
+if ( checkLocalInstallation reference-based_assembly )
+then
+    echo "reference-based_assembly is found"
+else
+    echo "reference-based_assembly is not found"
+    install_reference-based_assembly
+fi
+
+if ( checkLocalInstallation rapsearch2 )
+then
+    echo "rapsearch2 is found"
+else
+    echo "rapsearch2 is not found"
+    install_rapsearch2
+fi
+
+if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
+then
+  RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
+  then
+    echo "RGI $RGI_VER is found"
+  else
+    install_rgi
+  fi
+else
+  echo "RGI is not found"
+  install_rgi
+fi
+
+if ( checkLocalInstallation porechop )
+then
+    echo "porechop is found"
+else
+    echo "porechop is not found"
+    install_Porechop
+fi
+
+if ( checkLocalInstallation NanoPlot )
+then
+    echo "NanoPlot is found"
+else
+    echo "NanoPlot is not found"
+    install_NanoPlot
+fi
+
+if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
+then
+  qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
+  then
+    echo "QIIME2 $qiime2_VER is found"
+  else
+    install_qiime2
+  fi
+else
+  echo "QIIME2 is not found"
+  install_qiime2
+fi
+
+
+if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
+then
+  antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if [ $(versionStr $antismash_VER) -ge $(versionStr "4.2.0") ]
+  then
+    echo "antiSMASH $antismash_VER is found"
+  else
+    install_antismash
+  fi
+else
+  echo "antiSMASH is not found"
+  install_antismash
+fi
+
+if [ -x "$anaconda3bin/checkm" ]
+then
+  checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $checkM_VER | awk '{if($1 >="1.1.0") exit 0; else exit 1}' )
+  then
+    echo "checkM $checkM_VER is found"
+  else
+    install_checkM
+  fi
+else
+  echo "checkM is not found"
+  install_checkM
+fi
+
+if [ -x "$anaconda3bin/bokeh" ]
+then
+  bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if ( echo $bokeh_VER | awk '{if($1=="1.1.0") exit 0; else exit 1}' )
+  then
+    echo "bokeh $bokeh_VER is found"
+  else
+    install_bokeh
+  fi
+else
+  echo "bokeh is not found"
+  install_bokeh
+fi
+
+if ( checkLocalInstallation DETEQT )
+then
+  DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
+  if  ( echo $DETEQT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
+  then
+    echo "DETEQT is found"
+  else
+   install_DETEQT
+  fi
+else
+  echo "DETEQT is not found"
+  install_DETEQT
+fi
+
+
+if ( checkLocalInstallation piret)
+then
+  PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+  then
+    echo "PyPiReT is found"
+  else
+   install_PyPiReT
+  fi
+else
+  echo "PyPiReT is not found"
+  install_PyPiReT
+fi
+
+if ( checkLocalInstallation opaver_anno.pl )
+then
+  opaver_VER=`opaver_anno.pl -h | perl -nle 'print $1 if m{Version: v(\d+\.\d+)}'`;
+  if  ( echo $opaver_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+  then
+    echo "omics-pathwar-viewer is found"
+  else
+   install_omics-pathway-viewer
+  fi
+else
+  echo "omics-pathway-viewer is not found"
+  install_omics-pathway-viewer
+fi
+
 
 if ( checkSystemInstallation raxmlHPC-PTHREADS )
 then
@@ -1388,7 +2653,13 @@ fi
 #if [ -f $rootdir/lib/Parallel/ForkManager.pm ]
 if ( checkPerlModule Parallel::ForkManager )
 then
-  echo "Perl Parallel::ForkManager is found"
+  Parallel_ForManager_installed_VER=`perl -e "use lib '$rootdir/lib'; use Parallel::ForkManager; print \\\$Parallel::ForkManager::VERSION;"`
+  if  ( echo $Parallel_ForManager_installed_VER | awk '{if($1>="1.03") exit 0; else exit 1}' )
+  then
+    echo "Perl Parallel::ForkManager $Parallel_ForManager_installed_VER is found"
+  else 
+    install_perl_parallel_forkmanager
+  fi
 else
   echo "Perl Parallel::ForkManager is not found"
   install_perl_parallel_forkmanager
@@ -1481,7 +2752,23 @@ else
   install_perl_cgi_session
 fi
 
-if [ -x $rootdir/thirdParty/JBrowse-1.11.6/bin/prepare-refseqs.pl ]
+if ( checkPerlModule Email::Valid )
+then
+  echo "Perl Email::Valid is found"
+else
+  echo "Perl Email::Valid is not found"
+  install_perl_email_valid
+fi
+
+if ( checkPerlModule Mail::Address )
+then
+  echo "Perl Mail::Address is found"
+else
+  echo "Perl Mail::Address is not found"
+  install_perl_mailtools
+fi
+
+if [ -x "$rootdir/edge_ui/JBrowse/bin/prepare-refseqs.pl" ]
 then
   echo "JBrowse is found"
 else
@@ -1503,31 +2790,74 @@ cd $rootdir
 
 mkdir -p $rootdir/edge_ui/data
 perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl $rootdir/edge_ui/data/Host/* > $rootdir/edge_ui/data/host_list.json
-perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
+#perl $rootdir/edge_ui/cgi-bin/edge_build_list.pl -sort_by_size -basename $rootdir/database/NCBI_genomes/  > $rootdir/edge_ui/data/Ref_list.json
+
+echo "Setting up EDGE_input"
+if [ -d $rootdir/edge_ui/EDGE_input/ ]
+then
+    rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
+    ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
+else
+	mkdir -p $HOME/EDGE_input
+	rm -rf $rootdir/edge_ui/EDGE_input
+	ln -sf $HOME/EDGE_input $rootdir/edge_ui/EDGE_input
+	rsync -a $rootdir/deployment/public $rootdir/edge_ui/EDGE_input/
+   	ln -sf $rootdir/testData $rootdir/edge_ui/EDGE_input/public/data/
+fi
+if [ ! -d $rootdir/edge_ui/EDGE_output/ ]
+then
+   	echo "Setting up EDGE_output"
+   	mkdir -p $HOME/EDGE_output
+	rm -rf $rootdir/edge_ui/EDGE_output
+	ln -sf $HOME/EDGE_output $rootdir/edge_ui/EDGE_output
+fi
+if [ ! -d $rootdir/edge_ui/EDGE_report/ ]
+then
+	echo "Setting up EDGE_report"
+	mkdir -p $HOME/EDGE_report
+	rm -rf $rootdir/edge_ui/EDGE_report
+	ln -sf $HOME/EDGE_report $rootdir/edge_ui/EDGE_report
+fi
 
 if [ -f $HOME/.bashrc ]
 then
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bashrc
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bashrc
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
 }
 else
 {
   echo "#Added by EDGE pipeline installation" >> $HOME/.bash_profile
   echo "export EDGE_HOME=$rootdir" >> $HOME/.bash_profile
-  echo "export PATH=$rootdir/bin/:$PATH:$rootdir/scripts" >> $HOME/.bash_profile
+  echo "export EDGE_PATH=$rootdir/bin/:$rootdir/scripts" >> $HOME/.bashrc
+  echo "export PATH=\$EDGE_PATH:\$PATH:" >> $HOME/.bashrc
+}
+fi
+# Check for existing sys.properties file before regenerating a new one from original
+if [ -e $rootdir/edge_ui/sys.properties ] 
+then
+{
+	cp $rootdir/edge_ui/sys.properties $rootdir/edge_ui/sys.properties.bak
+	cp $rootdir/edge_ui/sys.properties.original $rootdir/edge_ui/sys.properties
+}
+else
+{
+	cp $rootdir/edge_ui/sys.properties.original $rootdir/edge_ui/sys.properties
 }
 fi
 
-sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
+sed -i 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/sys.properties
 sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_apache.conf
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/edge_httpd.conf
+sed -i.bak 's,%EDGE_HOME%,'"$rootdir"',g' $rootdir/edge_ui/apache_conf/pangia-vis.conf
 
 TOLCPU=`cat /proc/cpuinfo | grep processor | wc -l`;
 if [ $TOLCPU -gt 0 ]
 then
 {
-	sed -i.bak 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/cgi-bin/edge_config.tmpl
+	sed -i 's,%TOTAL_NUM_CPU%,'"$TOLCPU"',g' $rootdir/edge_ui/sys.properties
 	DEFAULT_CPU=`echo -n $((TOLCPU/3))`;
 	if [ $DEFAULT_CPU -lt 1 ]
 	then
@@ -1541,6 +2871,19 @@ then
 	fi
 }
 fi
+
+
+
+## Cleanup
+#rm -rf $rootdir/thirdParty/Anaconda3Packages/
+$anaconda2bin/conda clean -y -a
+$anaconda3bin/conda clean -y -a
+
+# set up a cronjob for project old files clena up
+echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
+(crontab -l ; echo "* * * * * perl $rootdir/edge_ui/cgi-bin/edge_auto_run.pl > /dev/null 2>&1") | crontab -
+(crontab -l ; echo "00 05 * * * perl $rootdir/edge_ui/cgi-bin/edge_um_project_monitor.pl > /dev/null 2>&1") | crontab -
+(crontab -l ; echo "*/1 * * * * bash $rootdir/scripts/pangia-vis-checker.sh > /dev/null 2>&1") | crontab -
 
 echo "
 

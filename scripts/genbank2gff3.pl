@@ -462,6 +462,7 @@ for my $file ( @files ) {
     while ( my $seq = $in->next_seq() ) {
         my $seq_name = $seq->accession_number;
 	$seq_name = $seq->id if $seq_name eq "unknown";
+	my $seq_version = ($seq->seq_version())? $seq->seq_version(): 1 ;
         my $end = $seq->length;
         my @to_print;
 
@@ -497,7 +498,7 @@ for my $file ( @files ) {
         # construct a GFF header
         # add: get source_type from attributes of source feature? chromosome=X tag
         # also combine 1st ft line here with source ft from $seq ..
-        my($header,$info)= gff_header($seq_name, $end, $source_type, $source_feat);
+        my($header,$info)= gff_header("$seq_name.$seq_version", $end, $source_type, $source_feat);
         print $out $header;
         print "# working on $info\n" if($verbose);
         
@@ -513,7 +514,8 @@ for my $file ( @files ) {
             my $method = $feature->primary_tag;
             next if($SOURCEID =~/UniProt|swiss|trembl/i && $method ne $source_type);
             
-            $feature->seq_id($seq->id) unless($feature->seq_id);
+            #$feature->seq_id($seq_name.".".$seq_version) unless($feature->seq_id);
+            $feature->seq_id($seq_name.".".$seq_version);
             $feature->source_tag($SOURCEID);
             
             # dgg; need to convert some Genbank to GFF tags: note->Note; db_xref->Dbxref;
@@ -612,7 +614,7 @@ for my $file ( @files ) {
           ## problem here when multiple GB Seqs in one file; all FASTA needs to go at end of $out
           ## see e.g. Mouse: mm_ref_chr19.gbk has NT_082868 and NT_039687 parts in one .gbk
           ## maybe write this to temp .fa then cat to end of lumped gff $out
-              print $lumpfa_fh ">$seq_name\n$dna" if $dna;
+              print $lumpfa_fh ">$seq_name.$seq_version\n$dna" if $dna;
               foreach my $aid (sort keys %proteinfa) { 
                 my $aa= delete $proteinfa{$aid}; 
                 $method{'RESIDUES(tr)'} += length($aa);
@@ -690,8 +692,7 @@ sub typeorder {
 
 sub sort_by_feattype {
   my($at,$bt)= ($a->primary_tag, $b->primary_tag);
-  return (typeorder($at) <=> typeorder($bt))  
-    or ($at cmp $bt);
+  return (typeorder($at) <=> typeorder($bt)) || ($at cmp $bt);
     ## or ($a->name() cmp $b->name());
 }
 

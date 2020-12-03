@@ -49,7 +49,7 @@ if( $tol_num_contig > $contig_split_at ){
 	`awk 'BEGIN {n_seq=0;} /^>/ {if(n_seq%$num_per_split==0){file=sprintf("$path/temp_tbl2asn/split%d.tbl",n_seq);} print >> file; n_seq++; next;} { print >> file; }' < $path/$fn.tbl`;
 	
 	print STDERR "Running NCBI tbl2asn...\n";
-	`parallel 'tbl2asn.orig $tbl2asn_arg -i {} > /dev/null 2>&1' ::: $path/temp_tbl2asn/*.fa`;
+	`cd $path/temp_tbl2asn; parallel 'tbl2asn.orig $tbl2asn_arg -i {} > /dev/null 2>&1' ::: *.fa`;
 	
 	print STDERR "Combining genbank file...\n";
 	`cat $path/temp_tbl2asn/*.gbf > $path/$fn.gbf`;

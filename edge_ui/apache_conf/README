@@ -12,7 +12,15 @@
     > sudo a2enmod cgid
     > sudo a2enmod proxy proxy_http
 
-3. Modify sample apache configuration file: $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf alias directories to match install
+3. Modify sample apache/httpd configuration file: 
+
+    For Ubuntu
+    > vim $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf
+    Make sure lines 2,3,13,14,26,51 have the appropriate path
+
+    For CentOS
+    > vim $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf
+    Make sure lines 2,3,11,12,26,51 have the appropriate path
 
 4. Copy edge_apache.conf to the apache or Insert content into httpd.conf
 
@@ -20,14 +28,26 @@
     > cp $EDGE_HOME/edge_ui/apache_conf/edge_apache.conf /etc/apache2/conf-available/
     > ln -s /etc/apache2/conf-available/edge_apache.conf /etc/apache2/conf-enabled/
     For CentOS
-    /etc/httpd/conf/httpd.conf
+    > sudo cp $EDGE_HOME/edge_ui/apache_conf/edge_httpd.conf /etc/httpd/conf.d/
 
 
-4. Modify permissions:  mod permissions on installed directory to match apache user (ex: change from www-data to edge)
+4. Modify configuration file:  
+    
+    For Ubuntu
+    mod permissions on installed directory to match apache user (ex: change from www-data to edge)
+
+    For CentOS
+    > sudo vim /etc/httpd/conf/httpd.conf
+    Modify lines as follows:
+    66 modify line: User edge
+    67 modify line: Group edge
+    95 modify line: ServerName localhost
+    247 comment out line: ScriptAlias /cgi-bin/ "/var/www/cgi-bin/" 
+    294 uncomment line: AddHandler cgi-script .cgi
 
 5. Restart the apache2 to active the new configuration
 
     For Ubuntu
     > service apache2 restart
     For CentOS
-    > service http restart
+    > sudo httpd -k restart

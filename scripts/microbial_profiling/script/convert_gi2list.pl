@@ -35,13 +35,13 @@ while(<STDIN>)
 
 	next unless $fields[0];
 
-	my $gi = $fields[0];
-	my $taxID = getTaxIDFromGI($gi);
+	my $acc = $fields[0];
+	my $taxID = getTaxIDFromAcc($acc);
 
-	print STDERR "[WARNING] Can't find GI#$gi\n" unless $taxID;
+	print STDERR "[WARNING] Can't find Accession#$acc\n" unless $taxID;
 
 	my $rank = "replicon";
-	my $name = $gi;
+	my $name = $acc;
 
 	$taxa->{$rank}->{$name}->{READ_COUNT} = 0 unless defined $taxa->{$rank}->{$name}->{READ_COUNT};
 	$taxa->{$rank}->{$name}->{READ_COUNT} += $fields[1];
@@ -53,6 +53,7 @@ while(<STDIN>)
 		#print STDERR "Processing GI:$gi TAXID:$taxID NAME:'$fields[8]'...\n";
 
 		$rank = getTaxRank($taxID);
+		$rank ||= "no rank";
 		$rank = "strain" if $rank eq "no rank";
 		$name = getTaxName($taxID);
 

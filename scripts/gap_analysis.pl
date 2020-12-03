@@ -118,8 +118,10 @@ sub process_with_GFF
             
             if ($old_id ne $id){
             	&print_timeInterval($time,"Processing Gaps on $id");
+		%gap_pos=();
             	delete $gap_pos{$old_id} if ($gap_pos{$old_id});
-            	my @gaps = grep {$id} @Gap_file;
+            	my @gaps = grep {/$id/} @Gap_file;
+		#print STDERR join("\n",$id,@gaps);
             	foreach my $gap_line(@gaps){
             		chomp $gap_line;
 			my ($gap_s, $gap_end, $gap_len,$ref_id) = split /\s+/,$gap_line;
@@ -159,8 +161,9 @@ while (my $seq = $inseq->next_seq){
   my $genome_len = $seq->length;
   if ($old_id ne $Locus_id){
         &print_timeInterval($time,"Processing Gaps on $Locus_id");
+	%gap_pos=();
         delete $gap_pos{$old_id} if ($gap_pos{$old_id});
-        my @gaps = grep {$Locus_id} @Gap_file;
+        my @gaps = grep {/$Locus_id/} @Gap_file;
         foreach my $gap_line(@gaps){
 		my ($gap_s, $gap_end, $gap_len,$ref_id) = split /\s+/,$gap_line;
 		for($gap_s..$gap_end){$gap_pos{$_}=$gap_line;}

@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --job-name=<JOB_NAME> 
+#SBATCH --output=<JOB_LOG>
+#SBATCH --ntasks=1
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=<JOB_NOTIFY>
+#SBATCH <JOB_RESOURCE_REQUEST> 
+
+umask 002
+
+export _JAVA_OPTIONS="-Xmx512M -XX:MaxPermSize=512m"
+
+<COMMAND>
+

@@ -1,15 +1,19 @@
 #!/usr/bin/perl
 use strict;
 use Getopt::Long;
+use FindBin qw($RealBin);
+use lib $RealBin;
+use gi2lineage;
 
 my %opt;
 my $res=GetOptions(\%opt,
                    'level|l=s',
-                   'outdir|o=s',
-				   'tplist|t=s',
-				   'filter|f=s',
+                   'output|o=s',
+                   'otu=s',
+		   'tplist|t=s',
+		   'filter|f=s',
                    'display_read_count',
-				   'show_all_tp',
+		   'show_all_tp',
                    'top|t=i',
                    'help|h|?') || &usage();
 
@@ -23,24 +27,27 @@ my $data;
 my $tools;
 my $filters;
 my %tool_order=(
-	'blastn'          => 10,
-	'bwa'             => 20,
-	'bwa-target'      => 25,
-	'kraken'          => 26,
-	'kraken_mini'     => 27,
-	'gottcha-genDB-b' => 30,
-	'gottcha-speDB-b' => 40,
-	'gottcha-strDB-b' => 50,
-	'sequedex-opg'    => 90,
-	'sequedex-tol'    => 100,
-	'metaphlan'       => 110,
-	'metacv'          => 120,
-	'metaphyler-bn'   => 130,
-	'metaphyler-bx'   => 140,
-	'metaphyler-srv'  => 150,
-	'gottcha-genDB-v' => 160,
-	'gottcha-speDB-v' => 161,
-	'gottcha-strDB-v' => 162
+	'gottcha2-genDB-v' => 1,
+	'gottcha2-speDB-v' => 2,
+	'gottcha2-strDB-v' => 3,
+	'gottcha2-speDB-b' => 4,
+	'gottcha-genDB-v'  => 5,
+	'gottcha-speDB-v'  => 6,
+	'gottcha-strDB-v'  => 7,
+	'blastn'           => 8,
+	'bwa-target'       => 9,
+	'kraken'           => 10,
+	'kraken2'          => 11,
+	'kraken_mini'      => 12,
+	'sequedex-opg'     => 13,
+	'sequedex-tol'     => 14,
+	'metaphlan'        => 15,
+	'metaphlan2'       => 16,
+	'metacv'           => 17,
+	'bwa'              => 18,
+	'pangia'           => 19,
+	'centrifuge'       => 20,
+	'diamond'          => 21 
 );
 
 #parsing filter
@@ -65,11 +72,11 @@ foreach my $file ( @listfile ){
 	($dataset,$tool) = $file =~ /\d+_([^\/]+)\/([^\/]+)\/([^\/]+)\.[^\.]+$/;
 
 	if( $opt{level} =~ /species/i ){
-		next if $tool =~ /gottcha-genDB/;
+		next if $tool =~ /gottcha\d?-genDB/;
 	}
 	elsif( $opt{level} =~ /strain/i ){
-		next if $tool =~ /gottcha-speDB/;
-		next if $tool =~ /gottcha-genDB/;
+		next if $tool =~ /gottcha\d?-speDB/;
+		next if $tool =~ /gottcha\d?-genDB/;
 	}
 
 	$tools->{$tool}=1;
@@ -166,31 +173,99 @@ foreach my $taxa ( keys %$matrix ){
 # Generating matrix
 #############################
 
+if ( defined $opt{otu}){
+	loadTaxonomy();
+	open OTU, ">", "$opt{otu}";
+	print OTU "#OTU ID\t",join("\t",sort { $tool_order{$a} <=> $tool_order{$b} } keys %$tools),"\ttaxonomy\n";
+}
+
 print STDERR "Generating matrix...\n";
 
-print "ID\t",join("\t",sort { $tool_order{$a} <=> $tool_order{$b} } keys %$tools),"\n";
+my $fh;
+if (defined $opt{output}){
+	open $fh, ">" , "$opt{output}";
+}else{
+	$fh = *STDOUT ;
+}
+print $fh "ID\t",join("\t",sort { $tool_order{$a} <=> $tool_order{$b} } keys %$tools),"\n";
 my $cnt=0;
+my $unknow=1;
 foreach my $taxa ( sort { $order->{BY_TPLIST}->{$a} <=> $order->{BY_TPLIST}->{$b} ||
-					      $order->{BY_TAXA_SUM}->{$a} <=> $order->{BY_TAXA_SUM}->{$b}
-																					} keys %$matrix ) {
-	print $taxa;
+		          $order->{BY_TAXA_SUM}->{$a} <=> $order->{BY_TAXA_SUM}->{$b}
+			} keys %$matrix ) {
+	my $value=0;
+	print $fh $taxa,"\t" if( defined $opt{top} && $cnt < $opt{top});
+	my @values=();
 	foreach my $tool ( sort { $tool_order{$a} <=> $tool_order{$b} } keys %$tools ){
 		my $number = $matrix->{$taxa}->{$dataset}->{$tool} ? $matrix->{$taxa}->{$dataset}->{$tool} : 0;
 		if( $count->{$dataset}->{$tool} > 0 ){
-            my $value = defined $opt{display_read_count} ? $number : $number/$count->{$dataset}->{$tool}*100;
-			print "\t",$value;
+			$value = defined $opt{display_read_count} ? $number : $number/$count->{$dataset}->{$tool}*100;
 		}
 		else{
-			print "\t0";
+			$value=0;
 		}
+		push @values, $value; 
 	}
-	print "\n";
-
-	if( defined $opt{top} ){
-		last if ++$cnt == $opt{top};
+	print $fh join("\t",@values),"\n" if( defined $opt{top} && $cnt < $opt{top});
+	if ( defined $opt{otu}){
+		(my $taxId, my $lineage, $unknow) = get_lineage($taxa,$unknow);
+		print OTU $taxId,"\t", join("\t",@values),"\t",$lineage,"\n";
 	}
+	++$cnt;
 }
+
+close $fh;
+close OTU if (defined $opt{otu});
 print STDERR "...done\n";
+
+sub get_lineage{
+	my $tax_name = shift;
+	my $unknow_count = shift;
+	my @rank=();
+	my %major_level = (
+		'superkingdom' => 'k',
+		'phylum'       => 'p',
+		'class'        => 'c',
+		'order'        => 'o',
+		'family'       => 'f',
+		'genus'        => 'g',
+		'species'      => 's'
+	);
+	my %level = (
+		'k' => '',
+		'p' => '',
+		'c' => '',
+		'o' => '',
+ 		'f' => '',
+		'g' => '',
+		's' => ''
+	);
+	my $taxId = name2taxID($tax_name);
+	my $inTaxID = $taxId;
+	my $rank = getTaxRank($taxId);
+	my $lineage = "k__; p__; c__; o__; f__; g__; s__$tax_name";
+	if (!$inTaxID){
+		$inTaxID = "unknow.$unknow_count";
+		$unknow_count++;
+		return ($inTaxID, $lineage,$unknow_count);
+	}
+
+	while ($taxId){
+		if( defined $major_level{$rank} ){
+			$level{$major_level{$rank}} = $tax_name;
+		}
+		last if $tax_name eq 'root';
+		$taxId = getTaxParent($taxId);
+		$rank = getTaxRank($taxId);
+		$tax_name = getTaxName($taxId);
+		$tax_name =~ s/ /_/g;
+	}
+	foreach my $lvl ( ('s','g','f','o','c','p','k') ){
+		unshift @rank,"${lvl}__$level{$lvl}";
+	}
+	$lineage=join "; ", @rank;
+	return ($inTaxID, $lineage,$unknow_count);
+}
 
 sub usage {
 	print STDERR '
@@ -255,7 +330,9 @@ OPTIONS:
       
       **** [not available yet] ****
       Default sorting order is TPLIST following by the sum of a organism.
-      
+ 
+  --output   matrix output filename
+  --otu      output name for otu table format text file      
   --help
 
 ';

@@ -127,6 +127,7 @@ def read_params(args):
                 'seismic', 'spectral', 'spring', 'summer', 'terrain', 'winter'] + [n for n,c in my_colormaps]
     p.add_argument( '-c', type=str, choices = col_maps, default = 'jet',
                     help="Set the colormap. Default is \"jet\"." )
+    p.add_argument( '--title', type=str, default = None,help="Set title")
 
     return vars(p.parse_args())
 
@@ -228,7 +229,7 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
                       cm._segmentdata['green'][0][1],
                       cm._segmentdata['blue'][0][1]   ]
     axmatrix = fig.add_axes(    [0.0,0.0,1.0,1.0],
-                                axisbg=bottom_col)
+                                facecolor=bottom_col)
     if any([c < 0.95 for c in bottom_col]):
         axmatrix.spines['right'].set_color('none')
         axmatrix.spines['left'].set_color('none')
@@ -293,7 +294,7 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
             line.set_linewidth(3)
 
     if cb_l > 0.0:
-        axcolor = fig.add_axes([0,-0.1,1.0,cb_l])
+        axcolor = fig.add_axes([0,-0.04,1.0,cb_l])
         cbar = fig.colorbar(im, cax=axcolor, orientation='horizontal')
         cbar.ax.tick_params(labelsize=label_font_size-3)
         if cm_ticks:
@@ -344,7 +345,7 @@ def read_dm( fin, n ):
     sys.exit()
 
 
-def hclust(  fin, fout,
+def hclust(  fin, fout, title,
              method = "average",
              dist_func = "euclidean",
              feat_dist_func = "d",
@@ -437,6 +438,8 @@ def hclust(  fin, fout,
         samples2classes_panel( fig, sample_labels, s2l, idx1, idx2, 0.025*8.0/ysize, xsize, label_cols, legendon, legend_font_size, label2cols, legend_ncol )
 
     heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, sample_labels, feat_labels, label_font_size, -cm_h*8.0/ysize, cm_h*0.8*8.0/ysize, flabelon, slabelon, cm_ticks, gridon, ydend_offset+0.02*8.0/ysize )
+    if title:
+        fig.suptitle(title,x=xsize+0.5,y=1.18,fontsize=label_font_size,ha='left')
 
     fig.savefig(    fout, bbox_inches='tight',
                     pad_inches = pad_inches,
@@ -448,6 +451,7 @@ if __name__ == '__main__':
 
     hclust(   fin  = pars['in'],
               fout = pars['out'],
+              title = pars['title'],
               method = pars['m'],
               dist_func = pars['d'],
               feat_dist_func = pars['f'],

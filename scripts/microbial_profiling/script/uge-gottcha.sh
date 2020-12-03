@@ -2,6 +2,7 @@
 #$ -l h_vmem=2.6G
 #$ -j y
 #$ -cwd
+#SBATCH --mem-per-cpu=10G
 
 usage(){
 cat << EOF
@@ -12,7 +13,7 @@ ARGUMENTS:
    -o      Output directory
    -p      Output prefix
    -l      Level [genus|species|strain]
-   -k      Database type - bacteria or viruses [bact|viru|both]. Default is "bact".
+   -d      Database
 
 OPTIONS:
    -t      Number of threads. [default is 4]
@@ -37,13 +38,13 @@ OUTPATH=
 LVL="species"
 THREADS=4
 PRE_SPLITRIM=
-BWAMETHOD="mem -k 30 -T 0 -B 100 -O 100 -E 100"
+BWAMETHOD=" -k 30 -T 0 -B 100 -O 100 -E 100"
 
 TRIM_MINL=
 TRIM_FIXL=30
 TRIM_MINQ=20
 TRIM_ASCI=33
-DB=$EDGE_HOME/database/GOTTCHA/
+DB=$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species
 
 while getopts "i:o:p:l:d:t:a:q:f:m:s:h" OPTION
 do
@@ -56,7 +57,7 @@ do
            ;;
         l) LVL=$OPTARG
            ;;
-        d) DB+=$OPTARG
+        d) DB=$OPTARG
            ;;
         t) THREADS=$OPTARG
            ;;
@@ -98,7 +99,7 @@ mkdir -p $OUTPATH
 # splitrim 1st FASTQ FILE
 if [[ -z "$PRE_SPLITRIM" && ! -s "$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}/${PREFIX}_splitrim.fastq" ]]
 then
-	`$EDGE_HOME/thirdParty/gottcha/bin/splitrim --inFile=$FASTQ --ascii=$TRIM_ASCI --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$PREFIX --outPath=$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}`
+	$EDGE_HOME/thirdParty/gottcha/bin/splitrim --inFile=$FASTQ --ascii=$TRIM_ASCI --fixL=$TRIM_FIXL --recycle --minQ=$TRIM_MINQ --prefix=$PREFIX --outPath=$OUTPATH/../../sequence_processed/splitrim_fixL${TRIM_FIXL}Q${TRIM_MINQ}
 else
 	echo "[TRIM] Skip splitrim step...";
 fi
@@ -118,7 +119,7 @@ else
 	fi
 fi
 
-gottcha.pl --mode all -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB
+gottcha.pl --mode all --bwaOpt "$BWAMETHOD" -i $FASTQ -t $THREADS -stDir $SPLITRIM --outdir $OUTPATH -p $PREFIX --database $DB --dumpSam 
 
 set +e;
 
@@ -130,7 +131,7 @@ awk -F\\t '{if(NR>1){out=$1"\t"$2"\t"$3"\t"; { for(i=4;i<=NF;i++){out=out"\t"$i}
 gottcha_sum_lineage.pl $LVL < $OUTPATH/${PREFIX}_temp/$PREFIX.lineage.tsv > $OUTPATH/$PREFIX.out.tab_tree
 
 #generate KRONA chart
-ktImportText -a $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
+ktImportText  $OUTPATH/$PREFIX.out.tab_tree -o $OUTPATH/$PREFIX.krona.html
 
 set +x;
 echo "";

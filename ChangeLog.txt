@@ -1,3 +1,402 @@
+-- Version 20201130
+EDGE 2.4.0
+* Update bcftools from 1.6 to 1.10.2
+* Update samtools from 1.9 to 1.10
+* Update racon from 1.3.1 to 1.4.13
+* Add Python package lzstring, h5py
+* Add biom format output for taxonomy classification module.
+* Fix bug: data clean script in docker or symlink directory
+* Fix bug: the fix mapping file Description column
+* Fix bug: contig map to reference INDELs counting and show >85% mapped contig number
+* Fix bug: RATT annotatiom embl format
+* Update gottcha2 and pangia codes for corresponding database update
+* Update megahit from 1.0.3 to 1.1.3.
+* Update R from 3.3.2 to 3.6.3
+* Update rgi from 3.1.1 to 5.1.0
+* Update bowtie2 from 2.2.6 to 2.4.1
+* Update bedtools from 2.19.1 to 2.27.1
+* Update minimap2 from 2.10 to 2.16
+* Update prokka from 1.13 to 1.14.5
+* Update ncbi-blast from 2.5.0 to 2.10.0
+* Update SPAdes from 3.11.1 to 3.13.0
+* Update sratoolskit from 2.8.2 to 2.9.6
+* Update JBrowse from 1.12.3 to 1.16.8
+* Update Anaconda2 and Anaconda3 to 2019.10 and 2020.02
+* Update lrasm from 0.1.0 to 0.3.0 which include new assembler wtdbg2 and (meta)flye
+* Update gottcha dmd complier and use conda to install rapsearch2
+* Add MaxBin tools for metagenome contig binning
+* Add debug flag in auto_run script
+* Add vcf filter options: -I and -r for alternative bases ration and INDEL depth support value
+* Add Centrifuge taxonomy classification tool
+* Update Kraken to Kraken-2.0.7
+* Update Contig taxonomy classification from bwa to minimap2, perl to python
+* Add CheckM v1.1.2 tool for assessing the quality of metagenome Binning
+* Add AntiSmash v4.2.0 tool for secondary metbolite analysis
+* Add QIIME2 pipeline and installation/requirement 
+* Add script to extract VF/AMR protein
+* Add "reference" column support for batch submit input excel file
+* Add Chromium v75.0.3767.0
+* Add Unicycler 0.4.8 for hybrid assembly
+* Add Pilon 1.2.3
+* Add Seqtk 1.3
+* Add slurm scheduler support
+* Add jq for json file query and quick dynamic search
+* Add Align Trim for primers trim by BED coordinates
+* Add Samclip to filter large clipped aligned reads
+* Add primer track in JBrowse if BED file is used
+* Allow upload bed file and add BED format check
+
+EDGE GUI 2.4.0
+* Add Ploidy option for Variant calling
+* Add anchor link in the result page to quick accession module result
+* Add one more line for LibreOffice xlsx format check
+* Adjust mobile portrait width for front page
+* Fix bug: the reset function disabled show on the registration iframe page.
+* Add Binning tag in Assembly and Annotation Module
+* Add CheckM switch in Assembly and Annotation Module
+* Update Taxonomy tool result display by user select options
+* Add extract reads fastq for Kraken result
+* Add Secondary Metabolite Analysis Annotation
+* Update Qiime to version 2
+* Add wtdbg2 and (meta)flye long reads assembly algorithm option
+* Add Unicycler option for assembly
+* Hover to show accession id for genome search result list
+* Update final_report.pdf to match with web based summary result page
+* Add primer trim method switch, FaQCs or Align_trim
+* Add the PCR deduplicates switch for consensus
+* Add the MaxClip option
+
+
+Database:
+GOTTCHA2: update to Refseq90
+Kraken2: New db from Refseq (as of Dec 20, 2018)
+MiccrDB: New db from Refseq (as of Dec 20, 2018)
+CheckM_DB: source https://data.ace.uq.edu.au/public/CheckM_databases/ (2015 Jan)
+CARD: update to 3.0.0 
+QIIME2 amplicon: Greengeen 13_8, SLIVA 132, Fungal ITS version 8.0 trained by scikit-learn 0.20.2
+
+-- Version 20180829
+EDGE version 2.3.1
+* fix bug: blank SRA accesion variable 
+* Add comma separated single reads support for batch submit
+* Add script to update existing projects status, runtime, submission time
+* Add contig taxonomy classification info (species) into JBrowse annotation gff track 
+* Assign HOME to EDGE_HOME when not using regular user runing PanGIA
+* Update samtools from 1.6 to 1.9
+* Auto Adjust bwa alignment score by reads length for PanGIA pipeline.
+
+EDGE GUI 2.3.1
+* fix bug: corrupted gz file using Upload function
+
+-- Version 20180724
+EDGE version 2.3.0
+* Update Kraken version from 0.10.4 beta to 1.0
+* Update Metaphlan from 1.7.7 to 2.7.7
+* Add global numCPU option for runReadsToGenome and runReadsToContig scripts
+* Add Qiime taxonomy plot bar chart and alpha diversity analysis for only one sample
+* fix bug: fasta header correction for consensus pipeline
+* fix bug: project rerun in docker container. remove some system call
+* update PyPiRt version from 0.3 to 0.3.2. ID to SampleID.
+
+EDGE GUI version 2.3.0
+* Add Take Notes Button in result page
+* Update userManagement API to return all fields of project page in json to speed up page loading
+* Update Metaphlan to Metaphlan2
+* Multiple SRA number input with comma separated
+* Add Phred Quality Offset for QC module
+* fix bug: project report selection
+
+Database:
+* MiniKraken database update from version 2014 to 20171101 8GB version.
+* Add Metaphlan2 database
+
+-- Version 20180618
+EDGE version 2.2.0
+* Update pangia from 2.4.5 to 2.4.10
+* Add changes for modules when Nanopore Reads option is on.
+* Add Test Case for Nanopore data
+* Update prokka version from 1.11 to 1.13
+* Update barrnap version from 0.4.2 to 0.9
+* Add cmake 3.6 and racon v1.3.1 software for compling and assembly
+* fix bug : minimize backtick used in edge_action.cgi, runDETEQT in config.tmpl
+* fix bug: qsub error check for taxonomy classfication module 
+* fix bug: unknown accesion for genbank to fasta conversion
+* fix issue: sra download with ssl self-certificate or insecure connection
+* fix bug: gottcha bwa opiton error
+* fix bug: PiReT exp design parsing and load correct pirect env
+* fix bug: Phylogeney analysis if only provide geonome files
+
+EDGE GUI version 2.2.0
+* Add Nanopore Reads Options
+* Add app-like front page
+* Add auto turn on if host file/primer file input selected
+* Add parameter in the Piret Result and fix typo, datatable
+* Add number sequence fragments check for reference based analysis
+* Auto turn on hose removal if host selected from the list
+* Add color spectrum for user custom theme color
+* Add dynamic table for PiReT differnetial expression significant genes
+* Add check process status for extract reads fastq
+* Add cache edge info/projectlist page. 
+* Add check status for long process actions to avoid timeout
+* Make action "Delete" and "Empty" run in background to avoid timeout
+* Use json for projectspages table to speed up the page loading process
+* Add Password requirement for user registration. (Must contain at least one
+number and one uppercase and one lowercase letter and one special character,
+and at least 8 or more characters.)
+* fix bug: project report \x0000 null character and html tag invalid
+* fix bug: jquery mobile dialog error on extract reads/contigs
+* fix bug:Fixed read number at comparative table for pangia
+
+-- Version 20180502
+EDGE version 2.1.1
+* Add SSL configuration example
+* fix bug: Cannot find file name with many dots of PhaME input genome
+* fix bug: FaQCs polyA flag expected no argument
+* support uge for taxonomy classification module
+
+EDGE GUI version 2.1.1
+* fix bug: reconfiguration action and submit
+* fix bug: PiReT tab to json script
+* fix bug: piret directory submit using absolute path. Piret result page update
+* fix bug: Safari does not like window.open in ajax sucesss.
+* fix bug: autorun failed introducd by update of edge_submit.cgi, need new line for the print message to log 
+
+
+-- Version 20180425
+EDGE version 2.1.0
+1. Add minimap2, a long noisy read aligner
+2. Update samtools/bcftools from 0.1.19 to 1.6 
+3. Update FaQCs to 2.07 and allow process long reads
+4. Add alinger option for PhaME. support bowtie/bwa/minimap2
+5. Update MetaComp to 1.0.2.
+6. Add bokeh server check script for PanGIA visulization, pangia-vis-checker.sh
+8. Update pangia from 2.3.2 to 2.4.5
+9. Update tbl2asn
+10. Update targetedNGS tool and rename to DETEQT, and update its test case
+11. Get proxy setting from system for SRA download
+12. Remove .complete_report_web for import script
+13. Check symlink for pangia-vis, JBrowse and Opaver data.
+14. Add PyPiReT Pipeline (https://github.com/mshakya/PyPiReT) Pipeline for Reference based Transcriptomics.
+15. Add long reads assembler pipeline (minimap2 -> miniasm -> racon, https://gitlab.com/chienchi/long_read_assembly)
+16. Update Anaconda3 from 4.1.1. to 5.1.0
+17. Add NanoPlot v1.13.0, Plotting scripts for long read sequencing data. (https://github.com/wdecoster/NanoPlot)
+18. Add Porechop v0.2.3, a tool for finding and removing adapters from Oxford Nanopore reads. (https://github.com/rrwick/Porechop)
+
+EDGE GUI version 2.1.0
+1. Allow batch submit with http/ftp for input reads
+2. Add option to use only joined PE reads for downstream analysis
+3. Add diamond and pangia heatmap from MetaComp.
+4. Add minimap2 GUI option (mapping to contigs/reference) for nanopore dataset
+5. Add security of Apache configuration and bokeh proxy service for pangia-vis
+6. Add file content check of upload files.  
+7. Add messages when NCBI_Genomes are not synced with ref_list.json file
+8. Add project owner in the result page
+9. Remove output path from GUI
+10. Add javascript disabled msg
+11. Get userType from server side
+12. Security Patch on all cgi scripts by sanitize all input. 
+13. Redirect to register page when social login failed.
+14. Reset button on select menu
+15. Check session for upload. Remove some system call
+16. Add load num for project pages
+17. Use xlsx2csv for batch excel file process
+18. Sanitize batch sumbit input
+19. Allow upload gff fomrat text file
+20. Rename TargetedNGS to DETEQT
+21. Add batch project info into config.json for reconfig function.
+22. Add Beta version of Pipeline for Reference based Transcriptomics.(PyPiReT)
+23. Add LRASM assembler (long reads assembler)
+
+EDGE docker:
+https://hub.docker.com/r/bioedge/edge_dev/
+1. Developed docker_deploy scripts
+
+Database:
+Full Kraken database is available on ftp://ftp.lanl.gov/public/genome/EDGE/full_kraken_db/
+User can use it as custom kraken db. The database is large (155G after unzip) and using it requires ~150 GB memory too.
+
+
+Bugs fixes: reconfig with unexpected behavior, edge_actions.cgi sequential actions on multiple projects, 
+            the null chcaracter in the config.txt cause error on runPipeline, fix link for example data set
+            ...
+
+-- Version devel 2.0.0
+2018/01/16
+1. Add mummerplot for contig to reference dotplot
+2. Add .gz support for provided contigs fasta
+3. Convert upload text file newlines to UNIX format.
+4. Update Pathogen database and pathogen identification script to apply on gottcha2 result
+5. Update/Check metadata with SRA id and automatically retrieve metadata info from EBI ENA API
+6. Chagne gi to taxonomy mapping to acc to taxonomy mapping
+7. Kronatools from 2.6 to 2.7
+8. Track uge cluster pending jobs
+9. Add gbff extension for genbank file
+10. Publish video tutorial series on Youtube (https://www.youtube.com/playlist?list=PL7DNo6h5wJsTh2l2GK3N86Imb-9fYQFfH)
+11. Change reads to reference mapping algorithm: from mapping reads to concatnated reference To reads to reference individually.  
+12. Update matplotlib to 2.0.0 for Qiime Compatible
+13. Add Pacbio CCS reads quality encoding format check
+14. QC: raise the opt_q=20 if data is NextSeq
+15. Wrap R packages and Python (Anaconda2 and Anaconda3) Packages for no internet installation.
+16. Add PanGIA Bioinformatics Pipeline
+17. Update SPAdes from 3.7.1 to 3.11.1 
+18. R version 2.15.3 to 3.3.2
+19. Add metagenome option for prokka annotation 
+20. Add wget as download interface for sra/file download
+21. tbl2asn from 24.9 to 25.3
+22. sratoolkit from 2.5.4 to 2.8.1
+23. Update MetaComp to v1.3 and add gottcha2 comparison scripts
+24. Resume failed taxonomy profling result when project rerun.
+25. Remove forking function in microbial_profiling.pl 
+26. Add edgeui_result_table_rows variable in sys.properties for control result page contigs table rows
+27. sra2fastq.pl updates to v0.5: 1) auto switching download site from NCBI-SRA/EBI-ENA/DDBJ; 2) separate http and ftp proxy
+28. Update adapter trimming algorithm. if more than one adapter in a read, the read is tosed.
+29. Separate autorun feature from edge_info into a cronjob
+30. Add cache file for the finished projectpage info. 
+31. Sort taxonomy tree dendrogram alphabetically 
+32. Publish EDGE_ABCs.pdf document and link on the homepage
+33. Add default max (20) and min(3) input genomes check for reference mapping and phylogenetic analysis
+34. Add CarioSVG package for svg to pdf conversion.
+35. Add Python3 support 
+36. Using RGI for Specialty Genes Detection module
+37. Added max_num_jobs to allow control over how many jobs can be submitted
+38. Add error_notification switch 
+39. Allow manual proxy setup
+40. Add TargetedNGS pipeline
+41. Add script to print tool version
+42. Add contig only input function
+43. Add omics pathway viewer tool 
+44. Update FaQCs to version 2.06. speed up 10x
+45. Support gz on provided contig file
+46. Reduce memory usge for runReadsToGenome to large/many Genomes
+47. Add consensus pipeline
+48. Add Diamond aligner version 0.9.10
+49. Use JSON::XS to speed json decoding 
+50. Add meta data in EXCEL(xlsx format) support for qiime pipeline
+51. Add consensus JBrowse Track. 
+52. Update JBrowse from 1.11.6 to 1.12.3. 
+53. Add find repeats (self_nucmer) script and add JBrowse tracks for repeats
+
+GUI update:
+1. Add NCBI link for reads to reference accession
+2. Add Phred+33 or Phred+64 GUI options for Qiime
+3. Add extract mapped reads fastq or mapped contig fasta function in the result table
+4. Make error msg read easier on the result web page
+5. Check browser localstorage support
+6. Add PanGIA Bioinformatics Pipeline option for taxonomy profiling
+7. Check online with internet before loading google maps api for metadata
+8. Add rnaSPAdes, plasmidSPAdes options for SPAades assembler 
+9. Add Reconfig/rerun project action (beta)
+10. Sample Metadata actions: Add. Edit. Delete, Export as Excel
+11. Share metadata/pathogens button for surveillance
+12. Hide project display action
+13. Add alt-click projectname to open in a new tab in project page and mouse over reminder
+14. Add custom db input for reads taxonomy profiling 
+15. Add polyA trim option.
+16. Add user defined metadata input textfield. 
+17. Add tooltips for many parameters 
+18. Add project name banner beside username and as a button that can switch to project report immediately (no-loading).
+19. Improved mobile compatibilities
+20. Icons updated for mobile devices for making an app icon on the mobile device (see https://edge.readthedocs.io/en/develop/troubleshooting.html)
+21. Add select all checkbox for the project page
+22. Add progress bar to report page.
+23. Update Specialty Genes Detection module result display
+24. Performance improvement for listing projects and project report
+25. Add edge site information form when first time EDGE use for metadata usage
+26. Add TargetedNGS pipeline
+27. Add splitrim minimum quality level option.
+28. Add Stitch Paired End Reads function in Pre-processing module
+29. Add Contig only Input for EDGE and GUI button
+30. Allow gbff extension upload
+31. Add KEGG plot from prokka result
+32. Add Options for Consensus pipeline
+33. Add Diamond protein based taxonomy classifier
+34. Add security check for uploading files, need session id and targetDir
+35. Add chart_type option for qiime pipeline
+36. Add multiple projects report pipeline
+36. Redesign the Gene Family module output table.
+
+New Databases;
+GOTTCHA2: RefSeq-Release81.Virus, RefSeq-Release81.Bacteria
+PanGIA: NCBI_genomes_111216_p_GRCh38.fa 
+Diamond: RefSeq_Release83.nr_protein_withRefSeq_viral_102317.protein.faa.dmnd
+Host bwa index:  pig, sheep, cow, monkey, hamster. and goat.
+
+Bugs fixes: resume taxanomy profiling result excel report,  JBrowse Error reading name store, qiime input check, download project zip file.
+             tax id not exist in the NCBI taxonomy dump, trim 5 end and trim 3 end does not work, concatenate reference fasta with newline,
+             Multiple genome reference input check , dynamic search box on dialog and popup, etc.
+
+-- Version 1.5
+2016/08/25
+1. User management allows to configure email notification 
+2. Check host file writable for bwa index and reuse the index if it existed.
+3. Adjust NextSeq trimming quality to q=16
+4. Allow user logged in until CGI session expired
+5. QC script will report invalid gzip format issue
+6. R version 2.15.3 to 3.2.2, 
+7. KronaTools version 2.4 to 2.6, 
+8. Bowtie2 2.1.0 to 2.2.6, 
+9. gridExtra version 0.9.1 to 2.0.0
+10. Upgrade sratoolkit version from 2.4.4 to 2.5.4 which support proxy setup and make sra2fastq.pl work on pacbio and solid platform.
+11. SPAdes from 3.5.0 to 3.7.1 (with meta flag for metagenome)
+12. Add project name at the right bottom of final report pdf
+13. Add Computational resource check before preforming any action or submit new job.
+14. Clean intermediate files script for cron jobs set up. If cron job set up, EDGE will pop up reminding message
+15. Utility scripts to convert bam to fastq and extract fasta by taxonomy from contigs profiling result
+16. Update project dir by using secure code instead of project id
+17. Add email functions when job complete or shared to others
+18. Separate [system] configruation from edge_config.tmpl into sys.properties.
+19. Add bam_to_fastq_by_taxa.pl script to extract fastq from gottcha result by taxonomy
+20. Add edgeamdin acoount info into sys.properties and remove them from embeded code
+21. Make the example apache configuration file ready for copy with EDGE installation script
+22. Add a hash table on host file to avoid duplication
+23. Add ShortBRED and RAPSearch thirdparty tools and installation scripts.
+24. Add ShortBRED function for Antibotic resistance genes and Virulence Genes and simple ouptut count table
+25. MEGAHIT metagenome assembler.
+26. (univa) UGE cluster submission support (alpha test)
+27. Qiime amplicon analysis pipeline for 16s/18s/ITS data (Greengenes/SILVA/ITS)
+28. Allow the multiple runs/lanes (with or without duplicate barcodes) into the Qiime amplicon analysis pipeline
+29. Add MetaComp package (https://github.com/seninp-bioinfo/MetaComp. Pavel Senin).
+30. Add module configuration on/off in the sys.properties
+31. Add email_recipient in sys.properties that email will send not only to project owner but to the email_recipients here.
+32. Added import script and helper perl script, imports project into um from tar.gz
+33. Rename contigs.fa to $projectname_contigs.fa which can be setting up for phylogenies. 
+34. Add GOTTCHA2 compatibility
+35. Add sample metadata module and pathogen detection module
+36. Update FastTree from 2.1.7 to 2.1.9 and complied with double precision
+37. Add data cleanup option for the runPipeline script to remove .sam .bam .gz .fastq .fq. tgz files after run finished
+38. Add 17 module/unit tests
+39. Add "force" option to install all tools locally in the INSTALL.sh
+40. Concatenate gff files for PhaME module and modify gff coordinate for mutliple segments reference
+41. Update PhaME: the phylogeny analysis module
+42. Improve edge report performance
+
+GUI update:
+1. GUI: Skip hidden files while selecting files
+2. GUI: Scroll up button
+3. GUI: download project button, which will compress the project directory but exclude bam, sam, fastq , gz files
+4. GUI: Add aligner and aligner options for mapping reads to contig/reference
+5. GUI: Add Bootstrap option for Phylogenetic analysis
+6. GUI: option to extract unmapped/mapped reads from reads mapping to contigs/reference
+7. GUI: Add extract reads from gottcha/bwa result by taxonomy
+8. GUI: options for MEGAHIT metagenome assembler
+9. GUI: A new navigate menu for Qiime analysis pipeline
+10. GUI: /edge_ui/?proj=xxxxxxxxx  url query works on the secure project code.
+11. GUI: A new Specialty Genes Detection module for EDGE pipepine.
+12. GUI: Mutliple project selection with actions drop list. Delete, Share, Publish, Archive, Compare Gottcha result.
+13. GUI: Result page with Contig table view for JBrowse link and Blast NT function.
+14. Brighter highlighting of the job that being displayed in the left project bar
+15. Add project list number show limit but still searchable for hiddent list. This will speed up when user have hundreds projects
+16. Add rename project name /desc action
+17. Add empty/interrupt/empty actions for mutiple projects. allow interrupt on queue jobs
+18. Add define gap action to dynamic display gap analysis result table
+19. Add plus button for adding more reference genome select box.
+20. Change project page action drop list to buttons
+
+Database update:
+1. GOTTCHA db version v20150825
+
+Bugs fixes: batch submit bugs, tree view cutting issue, upload function fail when user management system is off, overly running taxonomy profiling tools in parallel... etc.
+
 -- Version 1.1
 2015/08/19
 1. Add size limit to contig for annotation ( default 700bp)

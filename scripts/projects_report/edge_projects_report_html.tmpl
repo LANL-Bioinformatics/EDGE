@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html class='ui-mobile'><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+	<base href='.'>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no'>
+	<title>EDGE bioinformatics</title>
+	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="icon" href="images/edge.ico" type="image/x-icon">
+	<link rel="stylesheet" href="css/edge-theme.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.3.min.css" />
+	<link rel="stylesheet" href="css/jqueryFileTree.css" />
+	<link rel="stylesheet" href="css/edge.css"/>
+	<link rel='stylesheet' href='css/edge-output.css'/>
+	<link rel='stylesheet' href='css/edge-output-standalone.css'/>	
+	<link rel='stylesheet' href='css/jquery.dataTables.min.css'/>	
+	<link rel='stylesheet' href='css/jquery.dataTables.custom.css'/>	
+	<link rel='stylesheet' href='css/tooltipster.css'/>
+	<script src="javascript/jquery.js"></script>
+	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
+	<script src="javascript/edge-output.js"></script>
+	<script src="javascript/raphael-min.js" ></script>
+	<script src="javascript/jquery.dataTables.min.js" ></script>
+	<script src="javascript/jsphylosvg-min.js"></script>    
+	<script src="javascript/jquery.tooltipster.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.extra.min.js"></script>
+	<script src="javascript/jquery.lazyloadxt.autoload.min.js"></script>
+</head>
+
+<body class='ui-mobile-viewport'>
+
+<div data-role='page' class='edge-home ui-page ui-page-theme-a ui-page-footer-fixed ui-page-active' tabindex='0' style='padding-bottom: 82px;'>
+
+	<div data-role='header' class='edge-header ui-header ui-bar-inherit'>
+		<div class='edge-logo'>
+			<img src='images/edge_logo.svg'>
+			<h2 class='ui-title' role='heading' aria-level='1'>EDGE bioinformatics</h2>
+		</div>
+	</div><!-- /header -->
+
+	<div role='main' id='edge-projects-report-page' class='ui-content edge-content edge-output'>
+		<h2 id="edge-output-reportname" data-pid="<TMPL_VAR NAME=REPORTID>"><TMPL_VAR NAME=REPORTNAME DEFAULT=-></h2>
+		<p>
+			Description: <TMPL_VAR NAME=REPORTDESC DEFAULT=-><br/>
+		</p>	
+		<TMPL_IF NAME="RUNINFO">
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+				<h4>Project/Run Information</h4>
+				<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+					<thead>
+						<tr>
+							<TMPL_IF NAME="RUNNAME">
+								<th data-priority='1'>Project/Run Name</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="RUNDESC">
+								<th data-priority='2'>Description</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="RUNFILES">
+								<th data-priority='3'>Input Files</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_NAME">
+								<th data-priority='4'>Sample Name</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_TYPE">
+								<th data-priority='5'>Sample Type</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_HOST">
+								<th data-priority='6'>Sample Host</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_SOURCE">
+								<th data-priority='7'>Isolation Source</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_COLLECTIONDATE">
+								<th data-priority='8'>Collection Date</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_LOCATION">
+								<th data-priority='9'>Location</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_SEQCENTER">
+								<th data-priority='10'>Sequencing Center</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_SEQUENCER">
+								<th data-priority='11'>Sequencer</th>
+							</TMPL_IF>
+							<TMPL_IF NAME="SAMPLEMETADATA_SEQDATE">
+								<th data-priority='12'>Sequencing Date</th>
+							</TMPL_IF>
+						</tr>
+					  </thead>
+					  <tbody>
+						<TMPL_LOOP NAME=RUNINFO_LS>
+							<tr>
+								<TMPL_IF NAME="PRORUNNAME">
+									<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PRORUNDESC">
+									<td><TMPL_VAR NAME=PROJDESC DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PRORUNFILES">
+									<td><TMPL_VAR NAME=PROJFILES DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_NAME">
+									<td><TMPL_VAR NAME=SAMPLENAME DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_TYPE">
+									<td><TMPL_VAR NAME=SAMPLETYPE DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_HOST">
+									<td><TMPL_VAR NAME=SAMPLEHOST DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_SOURCE">
+									<td><TMPL_VAR NAME=ISOLATIONSOURCE DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_COLLECTIONDATE">
+									<td><TMPL_VAR NAME=COLLECTIONDATE DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_LOCATION">
+									<td><TMPL_VAR NAME=SAMPLELOCATION DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQCENTER">
+									<td><TMPL_VAR NAME=SEQCENTER DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQUENCER">
+									<td><TMPL_VAR NAME=SEQUENCER DEFAULT=-></td>
+								</TMPL_IF>
+								<TMPL_IF NAME="PROSAMPLEMETADATA_SEQDATE">
+									<td><TMPL_VAR NAME=SEQDATE DEFAULT=-></td>
+								</TMPL_IF>
+							</tr>
+						</TMPL_LOOP>
+					  </tbody>
+				</table>
+				<p class='extra-text-link'>Link to 
+					|<a data-ajax='false' href='<TMPL_VAR NAME=RUNINFOCSV DEFAULT=->'> runs_info.csv </a>
+				</p>			
+			</div>
+		</TMPL_IF>
+			
+		<TMPL_IF NAME="PREPROCESS">
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+				<h4>Pre-processing</h4>
+				<ol>
+				<TMPL_IF NAME="PRE_RAWREADS">
+					<li><span class="li-report-content-title">Raw Reads</span><div class="li-report-content">
+					<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+						<thead>
+							<tr>
+								<th data-priority='1'>Project/Run Name</th>
+								<th data-priority='2'>Reads</th>
+								<th data-priority='3'>Total Bases</th>
+								<th data-priority='4'>Mean Read Length</th>	
+							</tr>
+						  </thead>
+						  <tbody>
+							<TMPL_LOOP NAME=RUNINFO_LS>
+								<tr>
+									<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+									<td><TMPL_VAR NAME=PRERAWREADS DEFAULT=-></td>
+									<td><TMPL_VAR NAME=PRERAWBASES DEFAULT=-></td>
+									<td><TMPL_VAR NAME=PRERAWREADLEN DEFAULT=-></td>
+								</tr>
+							</TMPL_LOOP>
+						  </tbody>
+					</table>
+					<p class='extra-text-link'>Link to 
+						|<a data-ajax='false' href='<TMPL_VAR NAME=RAWREADSCSV DEFAULT=->'> raw_reads_stats.csv </a>
+					</p>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="PRE_QUALTRIM">
+					<li><span class="li-report-content-title">Quality Trimming</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="PRE_QUALTRIM_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='5'>Trimmed Reads</th>
+									<th data-priority='6'>Trimmed Reads %</th>
+									<th data-priority='7'>Trimmed Total Bases</th>
+									<th data-priority='8'>Trimmed Total Bases %</th>
+									<th data-priority='9'>Trimmed Mean Read Length</th>
+									<th data-priority='10'>Paired Reads</th>
+									<th data-priority='11'>Paired Reads %</th>
+									<th data-priority='12'>Paired Total Bases</th>
+									<th data-priority='13'>Paired Total Bases %</th>
+									<th data-priority='14'>Unpaired Reads</th>
+									<th data-priority='15'>Unpaired Reads %</th>
+									<th data-priority='16'>Unpaired Total Bases</th>
+									<th data-priority='17'>Unpaired Total Bases %</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>										
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=PRETRIMREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMREADSPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMBASES DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMBASESPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMREADLEN DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMPAIREDREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMPAIREDREADSPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMPAIREDBASES DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMPAIREDBASESPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMUNPAIREDREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMUNPAIREDREADSPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMUNPAIREDBASES DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PRETRIMUNPAIREDBASESPCT DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TRIMREADSCSV DEFAULT=->'> trimmed_reads_stats.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="PRE_QUALTRIM_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Quality Report</th>
+									<th data-priority='3'>Read Length</th>
+									<th data-priority='4'>Nucleotide Cont</th>
+									<th data-priority='5'>Quality Boxplot</th>
+									<th data-priority='6'>QC Report PDF</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCQUALPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCQUALPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREADLENPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCREADLENPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCNUCPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCNUCPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCPLOTPNG DEFAULT=->'> <TMPL_VAR NAME=PREQCPLOTPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREQCREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREQCREPORTPDF_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="PRE_HOSTRMF">
+					<li><span class="li-report-content-title">Host Removal and Filter</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="PRE_HOSTRMF_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reads</th>
+									<th data-priority='3'>Non-host Reads</th>
+									<th data-priority='4'>Non-host Reads %</th>
+									<th data-priority='5'>Host File(s)</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=PREHOSTRMFREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PREHOSTRMFNONHOSTREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PREHOSTRMFNONHOSTREADSPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=PREHOSTFILE DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=HOSTRMFREADSCSV DEFAULT=->'> host_removal_stats.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="PRE_HOSTRMF_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Host Removal Result</th>
+									<th data-priority='3'>Report PDF</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFPNG DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=PREHOSTRMFREPORTPDF DEFAULT=->'> <TMPL_VAR NAME=PREHOSTRMFREPORTPDF_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				</ol>					
+			</div>
+		</TMPL_IF>
+			
+		<TMPL_IF NAME="ASSEMBLYANNOTATION">
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+				<h4>Assembly and Annotation</h4>
+				<ol>
+				<TMPL_IF NAME="AA_ASSEMBLY">
+					<li><span class="li-report-content-title">De Novo Assembly</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="AA_ASSEMBLY_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Assembly Tool</th>
+									<th data-priority='3'>Number of Contigs</th>
+									<th data-priority='4'>N50</th>
+									<th data-priority='5'>Max Contig Size</th>
+									<th data-priority='6'>Min Contig Size</th>
+									<th data-priority='7'>Total Assembly Size</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_TOOL DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_CONTIGS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_N50 DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_MAXCONTIGSIZE DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_MINCONTIGSIZE DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ASSEMBLY_SIZE DEFAULT=-></td> 
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=ASSEMBLYCSV DEFAULT=->'> assembly.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="AA_ASSEMBLY_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Assembly Length</th>
+									<th data-priority='3'>Assembly GC Content</th>
+									<th data-priority='4'>Report PDF</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ASSEMBLY_LENPNG DEFAULT=->'> <TMPL_VAR NAME=AA_ASSEMBLY_LENPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ASSEMBLY_GCPNG DEFAULT=->'> <TMPL_VAR NAME=AA_ASSEMBLY_GCPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ASSEMBLY_REPORTPDF DEFAULT=->'> <TMPL_VAR NAME=AA_ASSEMBLY_REPORTPDF_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="AA_MAPPING">
+					<li><span class="li-report-content-title">Assembly Validation by Read Mapping</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="AA_MAPPING_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Number of Mapped Reads</th>
+									<th data-priority='3'>% of Total Reads</th>
+									<th data-priority='4'>Number of Unmapped Reads</th>
+									<th data-priority='5'>% of Total Reads</th>
+									<th data-priority='6'>Average Fold Coverage</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=AA_MAPPING_MAPPEDREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_MAPPING_MAPPEDPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_MAPPING_UNMAPPEDREADS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_MAPPING_UNMAPPEDPCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_MAPPING_COV DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=READMAPPINGCSV DEFAULT=->'> read_mapping.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="AA_MAPPING_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Depth vs Len</th>
+									<th data-priority='3'>Coverage vs Len</th>
+									<th data-priority='4'>GC vs Depth</th>
+									<th data-priority='5'>Report PDF</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_MAPPING_COVDLPNG DEFAULT=->'> <TMPL_VAR NAME=AA_MAPPING_COVDLPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_MAPPING_COVLPNG DEFAULT=->'> <TMPL_VAR NAME=AA_MAPPING_COVLPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_MAPPING_COVGDPNG DEFAULT=->'> <TMPL_VAR NAME=AA_MAPPING_COVGDPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_MAPPING_REPORTPDF DEFAULT=->'> <TMPL_VAR NAME=AA_MAPPING_REPORTPDF_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="AA_ANNOTATION">
+					<li><span class="li-report-content-title">Annotation</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="AA_ANNOTATION_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>CDS</th>
+									<th data-priority='3'>rRNA</th>
+									<th data-priority='4'>tRNA</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=AA_ANNOTATION_CDS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ANNOTATION_RRNA DEFAULT=-></td>
+										<td><TMPL_VAR NAME=AA_ANNOTATION_TRNA DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=ANNOTATIONCSV DEFAULT=->'> annotation.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="AA_ANNOTATION_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Annotation Stats</th>
+									<th data-priority='3'>GFF3 File</th>
+									<th data-priority='4'>GenBank File</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ANNOTATION_STATSPNG DEFAULT=->'> <TMPL_VAR NAME=AA_ANNOTATION_STATSPNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ANNOTATION_GFF3 DEFAULT=->'> <TMPL_VAR NAME=AA_ANNOTATION_GFF3_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=AA_ANNOTATION_GBK DEFAULT=->'> <TMPL_VAR NAME=AA_ANNOTATION_GBK_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				</ol>					
+			</div>
+		</TMPL_IF>
+			
+		<TMPL_IF NAME="REF">
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+				<h4>Reference-Based Analysis</h4>
+				<ol>
+				<TMPL_IF NAME="REF_MAPPED_READS">
+					<li><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="REF_MAPPED_READS_S">
+						<h4>Stats Table</h4>
+						<!--<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Number of Mapped Reads</th>
+									<th data-priority='3'>% of Total Post-QC Reads</th>
+									<th data-priority='4'>Average Fold</th>
+									<th data-priority='5'>Linear Coverage</th>
+									<th data-priority='6'>SNPs</th>
+									<th data-priority='7'>InDels</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=REF_MAPPED_READS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_POST_QC_READS_PCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_READ_AVG_FOLD DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_READ_LINEAR_COV DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_READ_SNPS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_READ_INDELS DEFAULT=-></td> 
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFREADSSTATSCSV DEFAULT=->'> ref_reads_stats.csv </a>
+						</p>
+					
+						<h4>References</h4>-->
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reference</th>
+									<th data-priority='3'>Name</th>
+									<th data-priority='4'>Length</th>
+									<th data-priority='5'>GC%</th>
+									<th data-priority='6'>Mapped Reads</th>
+									<th data-priority='7'>Base Coverage</th>
+									<th data-priority='8'>Avg Fold</th>
+									<th data-priority='9'>Fold std.</th>
+									<th data-priority='10'>Gaps</th>
+									<th data-priority='11'>Gap bases</th>
+									<th data-priority='12'>SNPs</th>
+									<th data-priority='13'>INDELs</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=REF_MAPPEDREADS_REFS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_LEN DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_MAPPEDREADS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_BASECOV DEFAULT=-></td> 
+											<td><TMPL_VAR NAME=LS_REF_AVGFOLD DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_FOLDSTD DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GAPS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GAPBASES DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_SNPS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_INDELS DEFAULT=-></td> 
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFREADSREFSCSV DEFAULT=->'> ref_reads_refs.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="REF_MAPPED_READS_F">
+						<h4>Figures</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reference</th>
+									<th data-priority='3'>Coverage</th>
+									<th data-priority='4'>Fold Histogram</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=REF_MAPPEDREADS_PNGS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=REF_PNG_REF DEFAULT=-></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_COV_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_COV_PNG_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_FOLDHIST_PNG DEFAULT=->'> <TMPL_VAR NAME=REF_FOLDHIST_PNG_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<h4>Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>All Plots PDF</th>
+									<th data-priority='3'>Reads2Ref SNPs Report</th>
+									<th data-priority='4'>Unmapped Reads</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDREADS_ALLPLOTS_PDF DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDREADS_ALLPLOTS_PDF_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDREADS_SNPREPORT DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDREADS_SNPREPORT_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE DEFAULT=->'> <TMPL_VAR NAME=REF_UNMAPPEDREADS_COV_FILE_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="REF_MAPPED_CONTIGS">
+					<li><span class="li-report-content-title">Contigs Mapped to Reference(s)</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="REF_MAPPED_CONTIGS_S">
+						<h4>Stats Table</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Number of Mapped Contigs</th>
+									<th data-priority='3'>Contigs That Mapped With > 85% Identity</th>
+									<th data-priority='4'>Average Fold</th>
+									<th data-priority='5'>Linear Coverage</th>
+									<th data-priority='6'>Average Identity</th>
+									<th data-priority='7'>SNPs</th>
+									<th data-priority='8'>InDels</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=REF_MAPPED_CONTIGS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_MAPPED_CONTIGS_PASS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_CONTIG_AVG_FOLD DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_CONTIG_LINEAR_COV DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_CONTIG_AVG_IDT_PCT DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_CONTIG_SNPS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=REF_CONTIG_INDELS DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFCONTIGSSTATSCSV DEFAULT=->'> ref_contigs_stats.csv </a>
+						</p>
+
+						<h4>References</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Reference</th>
+									<th data-priority='3'>Name</th>
+									<th data-priority='4'>Length</th>
+									<th data-priority='5'>GC%</th>
+									<th data-priority='6'>Mapped Contigs</th>
+									<th data-priority='7'>Mapped Contigs%</th>
+									<th data-priority='8'>Base Coverage</th>
+									<th data-priority='9'>Avg Fold</th>
+									<th data-priority='10'>Gaps</th>
+									<th data-priority='11'>Gap bases</th>
+									<th data-priority='12'>SNPs</th>
+									<th data-priority='13'>INDELs</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=REF_MAPPEDCONTIGS_REFS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_REF_LINK DEFAULT=->'><TMPL_VAR NAME=LS_REF DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_REF_NAME DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_LEN DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_MAPPEDCONTIGS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_MAPPEDCONTIGS_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_BASECOV DEFAULT=-></td> 
+											<td><TMPL_VAR NAME=LS_REF_AVGFOLD DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GAPS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_GAPBASES DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_SNPS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_REF_INDELS DEFAULT=-></td> 
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=REFCONTIGSREFSCSV DEFAULT=->'> ref_contigs_refs.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="REF_MAPPED_CONTIGS_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>All Plots PDF</th>
+									<th data-priority='3'>Unmapped Contigs</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_ALLPLOTS_PDF_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV DEFAULT=->'> <TMPL_VAR NAME=REF_MAPPEDCONTIGS_UNMAPPED_CSV_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				</ol>					
+			</div>
+		</TMPL_IF>
+			
+		<TMPL_IF NAME="TAX">
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+				<h4>Taxonomy Classification</h4>
+				<ol>
+				<TMPL_IF NAME="TAX_READ">
+					<li><span class="li-report-content-title">Read-based Taxonomy Classification</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="TAX_READ_S">
+						<h4>Genus</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Tool</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>%Reads</th>
+									<th data-priority='5'>Rank</th>
+									<th data-priority='6'>Top1</th>
+									<th data-priority='7'>Top2</th>
+									<th data-priority='8'>Top3</th>
+									<th data-priority='9'>Top4</th>
+									<th data-priority='10'>Top5</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_READ_GENUS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_TOOL DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RANK DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP2 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP3 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP4 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP5 DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXREADGENUSRANKSCSV DEFAULT=->'> read_based_genus_ranks.csv </a>
+						</p>
+						<h4>Species</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Tool</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>%Reads</th>
+									<th data-priority='5'>Rank</th>
+									<th data-priority='6'>Top1</th>
+									<th data-priority='7'>Top2</th>
+									<th data-priority='8'>Top3</th>
+									<th data-priority='9'>Top4</th>
+									<th data-priority='10'>Top5</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_READ_SPECIES_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_TOOL DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RANK DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP2 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP3 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP4 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP5 DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXREADSPECIESRANKSCSV DEFAULT=->'> read_based_species_ranks.csv </a>
+						</p>
+						<h4>Strain</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Tool</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>%Reads</th>
+									<th data-priority='5'>Rank</th>
+									<th data-priority='6'>Top1</th>
+									<th data-priority='7'>Top2</th>
+									<th data-priority='8'>Top3</th>
+									<th data-priority='9'>Top4</th>
+									<th data-priority='10'>Top5</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_READ_STRAIN_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_TOOL DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_READS_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RANK DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP2 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP3 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP4 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP5 DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXREADSTRAINRANKSCSV DEFAULT=->'> read_based_strain_ranks.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_READ_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Rank</th>
+									<th data-priority='3'>Heatmap</th>
+									<th data-priority='4'>Radar Map</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td>Genus</td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_GENUS_HEATMAP_PNG DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_GENUS_HEATMAP_PNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_GENUS_RADARCHART_HTML DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_GENUS_RADARCHART_HTML_TXT DEFAULT=-> </a></td>
+									</tr>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td>Species</td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_SPECIES_HEATMAP_PNG DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_SPECIES_HEATMAP_PNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_SPECIES_RADARCHART_HTML DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_SPECIES_RADARCHART_HTML_TXT DEFAULT=-> </a></td>
+									</tr>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td>Strain</td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_STRAIN_HEATMAP_PNG DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_STRAIN_HEATMAP_PNG_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_STRAIN_RADARCHART_HTML DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_STRAIN_RADARCHART_HTML_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<h4>Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Summary Table</th>
+									<th data-priority='3'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_REPORT_SUM DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_REPORT_SUM_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_READ_REPORT_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_READ_REPORT_ABUNDANCE_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="TAX_ASSEMBLY">
+					<li><span class="li-report-content-title">Assembly-based Community Profiling</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="TAX_ASSEMBLY_S">
+						<h4>Contigs Stats</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Total Contigs</th>
+									<th data-priority='3'>Total Bases</th>
+									<th data-priority='4'>Classified Contigs</th>
+									<th data-priority='5'>Classified Bases</th>
+									<th data-priority='6'>Unclassified Contigs</th>
+									<th data-priority='7'>Unclassified Bases</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_TOTALCONTIGS_STATS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_TOTALCONTIGS_BASES DEFAULT=-></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_CLASSCONTIGS_STATS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_CLASSCONTIGS_BASES DEFAULT=-></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_UNCLASSCONTIGS_STATS DEFAULT=-></td>
+										<td><TMPL_VAR NAME=TAX_ASSEMBLY_UNCLASSCONTIGS_BASES DEFAULT=-></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXASSEMBLYCONTIGSSTATSCSV DEFAULT=->'> assembly_based_contigs.csv </a>
+						</p>
+						
+						<h4>Rank by Top Hit Count</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Rank</th>
+									<th data-priority='3'>Top1</th>
+									<th data-priority='4'>Top2</th>
+									<th data-priority='5'>Top3</th>
+									<th data-priority='6'>Top4</th>
+									<th data-priority='7'>Top5</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_ASSEMBLY_COUNT_RANK_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_RANK DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP2 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP3 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP4 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP5 DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXASSEMBLYHITRANKSCSV DEFAULT=->'> assembly_based_hit_count_ranks.csv </a>
+						</p>
+						
+						<h4>Rank by Assigned Length</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Rank</th>
+									<th data-priority='3'>Top1</th>
+									<th data-priority='4'>Top2</th>
+									<th data-priority='5'>Top3</th>
+									<th data-priority='6'>Top4</th>
+									<th data-priority='7'>Top5</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_ASSEMBLY_LEN_RANK_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_RANK DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP1 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP2 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP3 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP4 DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_TOP5 DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXASSEMBLYLENRANKSCSV DEFAULT=->'> assembly_based_assigned_length_ranks.csv </a>
+						</p>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_ASSEMBLY_F">
+						<h4>Figures/Files</h4>
+						<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Length Barplot</th>
+									<th data-priority='3'>Count Barplot</th>
+									<th data-priority='4'>Scatter Plot</th>
+									<th data-priority='5'>Report PDF</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<tr>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_ASSEMBLY_LEN_BARPLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_ASSEMBLY_LEN_BARPLOT_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_ASSEMBLY_COUNT_BARPLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_ASSEMBLY_COUNT_BARPLOT_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_ASSEMBLY_LEN_SCATTERPLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_ASSEMBLY_LEN_SCATTERPLOT_TXT DEFAULT=-> </a></td>
+										<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_ASSEMBLY_REPORT_PDF DEFAULT=->'> <TMPL_VAR NAME=TAX_ASSEMBLY_REPORT_PDF_TXT DEFAULT=-> </a></td>
+									</tr>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				<TMPL_IF NAME="TAX_TOOL">
+					<li><span class="li-report-content-title">Taxonomy Classification Tools</span><div class="li-report-content">
+					
+					<TMPL_IF NAME="TAX_TOOL_GBS">
+						<h4>GOTTCHA (bacterial species database)</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>% Plasmid</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_GBS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_PLASMID_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLGBSCSV DEFAULT=->'> tax_tool_gottcha_b_species.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_GVS">
+						<h4>GOTTCHA (viral species database)</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>% Plasmid</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_GVS_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_PLASMID_PCT DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLGVSCSV DEFAULT=->'> tax_tool_gottcha_v_species.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					
+					<TMPL_IF NAME="TAX_TOOL_GBS2">
+						<h4>GOTTCHA2 (BacteriaViruses species database)</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>Linear LEN</th>
+									<th data-priority='5'>Linear DOC</th>
+									<th data-priority='6'>Rollup DOC</th>
+									<th data-priority='7'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_GBS2_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_LEN DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_LDOC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RDOC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLGBS2CSV DEFAULT=->'> tax_tool_gottcha2_b_species.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS2_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS2_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS2_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS2_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GBS2_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GBS2_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_GVS2">
+						<h4>GOTTCHA2 (viral species database)</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>Linear LEN</th>
+									<th data-priority='5'>Linear DOC</th>
+									<th data-priority='6'>Rollup DOC</th>
+									<th data-priority='7'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_GVS2_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_LEN DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_LDOC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RDOC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLGVS2CSV DEFAULT=->'> tax_tool_gottcha2_v_species.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS2_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS2_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS2_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS2_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_GVS2_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_GVS2_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_PANGIA">
+						<h4>PanGIA</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='4'>Linear COV</th>
+									<th data-priority='5'>Linear DOC</th>
+									<th data-priority='6'>RS Norm Reads</th>
+									<th data-priority='7'>Score</th>
+									<th data-priority='8'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_PANGIA_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_COV DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_DOC DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_RS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_SCORE DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLPANGIACSV DEFAULT=->'> tax_tool_pangia.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_PANGIA_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_PANGIA_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_PANGIA_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_PANGIA_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_PANGIA_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_PANGIA_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_METAPHLAN">
+						<h4>Metaphlan2</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_METAPHLAN_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLMETAPHLANCSV DEFAULT=->'> tax_tool_metaphlan.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_METAPHLAN_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_METAPHLAN_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_METAPHLAN_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_METAPHLAN_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_METAPHLAN_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_METAPHLAN_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_BWA">
+						<h4>BWA (reads mapping)</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_BWA_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLBWACSV DEFAULT=->'> tax_tool_bwa.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_BWA_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_BWA_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_BWA_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_BWA_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_BWA_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_BWA_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_KRAKEN">
+						<h4>Kraken2</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_KRAKEN_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLKRAKENCSV DEFAULT=->'> tax_tool_kraken.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_KRAKEN_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_KRAKEN_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_KRAKEN_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_KRAKEN_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_KRAKEN_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_KRAKEN_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					<TMPL_IF NAME="TAX_TOOL_DIAMOND">
+						<h4>Diamond</h4>
+						<table data-role='none' class='output-table edge-output-tool-summary display'  style="width:100%" cellspacing="0">
+							<thead>
+								<tr>
+									<th data-priority='1'>Project/Run Name</th>
+									<th data-priority='2'>Taxonomy</th>
+									<th data-priority='3'>Reads</th>
+									<th data-priority='5'>Abundance</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<TMPL_LOOP NAME=RUNINFO_LS>
+									<TMPL_LOOP NAME=TAX_TOOL_DIAMOND_LOOP>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=LS_TAX_LINK DEFAULT=->'><TMPL_VAR NAME=LS_TAX DEFAULT=-></a></td>
+											<td><TMPL_VAR NAME=LS_READS DEFAULT=-></td>
+											<td><TMPL_VAR NAME=LS_ABUNDANCE DEFAULT=-></td>
+										</tr>
+									</TMPL_LOOP>
+								</TMPL_LOOP>
+							  </tbody>
+						</table>
+						<p class='extra-text-link'>Link to 
+							|<a data-ajax='false' href='<TMPL_VAR NAME=TAXTOOLDIAMONDCSV DEFAULT=->'> tax_tool_diamond.csv </a>
+						</p>
+						<TMPL_IF NAME="TAX_READ_F">
+							<h4>Figures/Files</h4>
+							<table data-role='table' data-mode='columntoggle' class='output-table output-table-twocol ui-responsive'>
+								<thead>
+									<tr>
+										<th data-priority='1'>Project/Run Name</th>
+										<th data-priority='2'>Tree Plot</th>
+										<th data-priority='3'>Krona Plot</th>
+										<th data-priority='4'>Abundance</th>
+									</tr>
+								  </thead>
+								  <tbody>
+									<TMPL_LOOP NAME=RUNINFO_LS>
+										<tr>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=PROPROJURL DEFAULT=->/<TMPL_VAR NAME=PROJ DEFAULT=->/HTML_Report/report.html'><TMPL_VAR NAME=PROJNAME DEFAULT=-></a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_DIAMOND_TREE_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_DIAMOND_TREE_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_DIAMOND_KRONA_PLOT DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_DIAMOND_KRONA_PLOT_TXT DEFAULT=-> </a></td>
+											<td><a data-ajax='false' target='_blank' href='<TMPL_VAR NAME=RUNHOST DEFAULT=->/<TMPL_VAR NAME=TAX_TOOL_DIAMOND_ABUNDANCE DEFAULT=->'> <TMPL_VAR NAME=TAX_TOOL_DIAMOND_ABUNDANCE_TXT DEFAULT=-> </a></td>
+										</tr>
+									</TMPL_LOOP>
+								  </tbody>
+							</table>
+						</TMPL_IF>
+					</TMPL_IF>
+					</div></li>
+				</TMPL_IF>
+				</ol>					
+			</div>
+		</TMPL_IF>
+
+
+
+	</div><!-- /content -->
+
+
+	<div data-role='footer' data-position='fixed' data-tap-toggle='false' class='edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup' role='contentinfo'>
+		<div class='edge-footer-logo'>
+			<img src='images/logo_DTRA.png'/>
+			<img src='images/logo_NMRC.png'/><img src='images/logo_LANL.png'/><img src='images/logo_NNSA.png'/></div>
+	</div><!-- /footer -->
+
+</div><!--  /page -->
+
+</body></html>

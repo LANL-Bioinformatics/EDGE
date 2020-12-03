@@ -26,8 +26,8 @@ print to_json($list,{pretty=>1});
 
 sub parseRefGb {
 	($basename_opt)?
-	$File::Find::name =~ /([^\/]+)\/([^\/]+\.(gb|gbk|genbank))$/i && push @{$list->{$1}}, $_:
-	$File::Find::name =~ /([^\/]+)\/([^\/]+\.(gb|gbk|genbank))$/i && push @{$list->{$1}}, $File::Find::name;
+	$File::Find::name =~ /([^\/]+)\/([^\/]+\.(gb|gbk|gbff|genbank))$/i && push @{$list->{$1}}, $_:
+	$File::Find::name =~ /([^\/]+)\/([^\/]+\.(gb|gbk|gbff|genbank))$/i && push @{$list->{$1}}, $File::Find::name;
 }
 
 sub parseRefFa {
