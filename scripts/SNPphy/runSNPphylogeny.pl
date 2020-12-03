@@ -46,6 +46,8 @@ my $evolanal=0;
 my $mappingGaps;
 my $ptree;
 my $ps=0;
+# When 60% linear reference lenght are gap (query compared to)
+my $gap_cutoff=0.60;
 
 #my $control= "SNPphy.ctl";
 my $control = $ARGV[0];
