@@ -352,7 +352,7 @@ $( document ).ready(function()
 			},
 			success: function(data){
 				//console.log("got response");
-				
+				$( "#edge-gisaid-metadata-project-page" ).hide();		
 				$( "#edge-content-report" ).html(data);
 				$( "#edge-content-report div[data-role='popup']" ).popup();
 				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
