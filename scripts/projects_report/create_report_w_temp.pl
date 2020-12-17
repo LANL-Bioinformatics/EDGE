@@ -1108,7 +1108,7 @@ sub pull_reports {
 								$proj->{REF_MAPPEDREADS_ALLPLOTS_PDF_TXT} = "PDF";
 								next;
 							}
-							if(/<a data-ajax='false' href='(.*readsToRef.SNPs_report\.txt)'> SNP Report <\/a>/) {
+							if(/<a data-ajax='false' href='(.*readsToRef.SNPs_report\.txt)'> SNV Report <\/a>/) {
 								$proj->{REF_MAPPEDREADS_SNPREPORT} = $1;
 								$proj->{REF_MAPPEDREADS_SNPREPORT_TXT} = "TXT";
 								next;

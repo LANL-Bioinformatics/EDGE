@@ -660,7 +660,7 @@
 								  <th data-priority='5'>Gap bases</th>
 								  </TMPL_UNLESS>
 							          <TMPL_IF NAME=RMREFVARCALL>
-								  <th data-priority='4'>SNPs</th>
+								  <th data-priority='4'>SNVs</th>
 								  <th data-priority='4'>INDELs</th>
 							          </TMPL_IF>
 								</tr>
@@ -733,7 +733,7 @@
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef_plots.pdf'> All Plots PDF </a>
 
 								<TMPL_IF NAME="RMREFSNPFILE">
-								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNP Report </a>
+								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNV Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFGAPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
