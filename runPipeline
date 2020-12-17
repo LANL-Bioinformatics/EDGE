@@ -3213,7 +3213,6 @@ sub runReadsToGenome
 	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
-        $parameters =~ s/-u /-long / if $ont_flag;
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
@@ -3228,6 +3227,7 @@ sub runReadsToGenome
 	my $alignTrim_parameters = $parameters;
         $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
         $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
+        $alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
 	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
     	($pairFile, $unpairFile)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
     }
@@ -3235,6 +3235,7 @@ sub runReadsToGenome
     $parameters .= " -ref $referenceFiles";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
+    $parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir $parameters 1>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");

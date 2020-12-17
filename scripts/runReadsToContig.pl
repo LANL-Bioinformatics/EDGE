@@ -172,7 +172,7 @@ if ($file_long)
      #&executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
      &executeCommand("bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam ");
    }elsif ($aligner =~ /minimap2/i){
-     `minimap2 -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
+     `minimap2 --MD -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
    }
 
    &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/LongReads$$.sam | samtools view -t $ref_file.fai -uhS - | samtools sort -T $tmp -@ $samtools_threads -O BAM -o $outDir/LongReads$$.bam - ") if ( -s "$outDir/LongReads$$.sam");
@@ -221,7 +221,8 @@ if ($singleton)
     {
       &executeCommand("bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam ");
     } elsif ($aligner =~ /minimap2/i){
-      `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
+      my $minimap2_sr_options =  ($minimap2_options =~ /-x /)? "":"-x sr ";
+      `minimap2 --MD $minimap2_options -a $minimap2_sr_options $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
     }
     &executeCommand("samclip --overhang --ref $ref_file --max $max_clip  < $outDir/singleton$$.sam  | samtools view -t $ref_file.fai -uhS $outDir/singleton$$.sam | samtools sort -T $tmp -@ $samtools_threads -O BAM -o  $outDir/singleton$$.bam - ") if  (-s "$outDir/singleton$$.sam");
 } 

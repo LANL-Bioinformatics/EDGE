@@ -746,7 +746,7 @@
 								  <th data-priority='6'>5' Ns/ns</th>
 								  <th data-priority='6'>3' Ns/ns</th>
 								  </TMPL_UNLESS>
-								  <th data-priority='2'>SNPs</th>
+								  <th data-priority='2'>SNVs</th>
 								  <th data-priority='2'>INDELs</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Change Log</th>
@@ -864,7 +864,7 @@
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef_plots.pdf'> All Plots PDF </a>
 
 								<TMPL_IF NAME="RMREFSNPFILE">
-								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNP Report </a>
+								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNV Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFINDELFILE">
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt'> INDELs Report </a>
