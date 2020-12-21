@@ -1684,6 +1684,7 @@ sub pull_taxa {
 					my $res_row;
 					
 					if( $t[0] eq "species"){
+					#if( $t[0] =~ /genus|species|strain/){
 						$res_row->{CPABU_LVL} = $t[0];
 						$res_row->{CPABU_TAX} = ($t[1] =~ /unclassied|unassign/i or $t[1] eq "NA" )? $t[1]:
 									"<a href=\'http://www.ncbi.nlm.nih.gov/genome/?term=\"$t[1]\"\' target='_blank'>$t[1]</a>";
@@ -1715,6 +1716,11 @@ sub pull_taxa {
 							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[14]*100);
 							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 							#$res_row->{PANGIA_VIS_LINK} = "pangia-vis?r=pangia-vis/data/$projname.tsv";
+						}
+						elsif( $toolname =~ /diamond/){
+							$res_row->{CPABU_REA} = _reformat_val($t[5]);
+							$res_row->{CPABU_ABU} = sprintf "%.1f", ($t[5]*100);
+							$res_row->{CPABU_DOWNLOAD_TAX_ID} = $t[4];
 						}
 						elsif( $toolname =~ /metaphlan/ ){
 							$res_row->{CPABU_REA} = "N/A";
@@ -1760,7 +1766,7 @@ sub pull_taxa {
 
 			$tool->{CPTOOL_TREE}  = "" unless -e $tool->{CPTOOL_TREE};
 			$tool->{CPTOOL_KRONA} = "" unless -e $tool->{CPTOOL_KRONA};
-			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia|centrifuge|kraken/);
+			$tool->{CPABU_DOWNLOAD_LIST} = 1 if ($row->{CPTOOL}=~/gottcha|bwa|pangia|centrifuge|kraken|diamond/);
 
 			if( $row->{CPTOOL}=~/pangia/ ){
 				my $sys_pvis_dir="$ENV{'EDGE_HOME'}/thirdParty/pangia/pangia-vis/data";
