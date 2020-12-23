@@ -157,7 +157,7 @@ def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d):
     for key in amplicon_d:
         start = amplicon_d[key][0]
         end = amplicon_d[key][-1]
-        mean_dict[key] = cov_np_array[start:end].mean()
+        mean_dict[key] = 0 if start > cov_np_array.size else cov_np_array[start:end].mean()
     return mean_dict
     
 def write_dict_to_file(mean_d,uniq_mean_d,outdir,prefix):
