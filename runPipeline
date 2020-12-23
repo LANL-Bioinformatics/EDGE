@@ -3227,9 +3227,9 @@ sub runReadsToGenome
 	my $alignTrim_parameters = $parameters;
         $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
         $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
-        $alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
+	$alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
 	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
-    	($pairFile, $unpairFile)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
+    	($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
     }
 	    
     $parameters .= " -ref $referenceFiles";
@@ -3245,9 +3245,9 @@ sub runReadsToGenome
     }
     if ($configuration->{r2g_align_trim_bed_file}){
 	# ampilcon coverage plot
-	my ($bed_prefix,$bed_dir,$bed_suffix) = fileparse($configuration->{r2g_align_trim_bed_file},".bed");
+	my ($bed_prefix,$bed_dir,$bed_suffix) = fileparse($configuration->{r2g_align_trim_bed_file},qw(.bed .bedpe));
 	my $bed_file_flag = (-e "$bed_dir/$bed_prefix.bedpe")? "--bedpe $bed_dir/$bed_prefix.bedpe":"--bed $configuration->{r2g_align_trim_bed_file}";
-	my @cov_files = glob("$outputDir/*coverage");
+	my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
 	foreach my $cov_f (@cov_files){
  	       $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $bed_file_flag";
 	       &executeCommand($command);
@@ -3335,8 +3335,8 @@ sub getAlignTrimReads{
 			last if $ref_id;
 		}
 		close $fh;
-		if (my ($align_trim_ref) = grep $_ =~ /$ref_id/, @$ref_headers) {
-			$AlignTrim_ref = $align_trim_ref;
+		if (my ($align_trim_ref_index) = grep $_ =~ /$ref_id/, 0..$#{$ref_headers}) {
+			$AlignTrim_ref = $ref_r->[$align_trim_ref_index];
 		} 
 	}
 	$cmd .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} -ref $AlignTrim_ref -no_snp -no_plot";
@@ -3356,7 +3356,7 @@ sub getAlignTrimReads{
 	if ( ! $pairFile and ! $unpairFile){
 		die "failed: No reads remain after align trim. Please see $log\n";
 	}
-	return ($pairFile,$unpairFile);
+	return ($pairFile,$unpairFile,$AlignTrim_ref);
 }
 
 sub get_consensus_gap{
