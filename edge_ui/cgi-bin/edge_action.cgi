@@ -756,15 +756,15 @@ elsif( $action eq 'getreadsbytaxa'){
 	my $tax_result;
 	if( $cptool_for_reads_extract =~ /centrifuge/i ){
                 $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
-                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$1}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+                $cmd = "awk '{print \$1\"\t\"\$3}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
         }
         if( $cptool_for_reads_extract =~ /kraken/i ){
                 $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
-                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$2}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+                $cmd = "awk '{print \$2\"\t\"\$3}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
         }
         if( $cptool_for_reads_extract =~ /diamond/i ){
                 $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.raw.txt";
-                $cmd = "awk '\$2==\"$taxa_for_contig_extract\" {print \$1}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+		$cmd = "awk '{print \$1\"\t\"\$2}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
         }
 
 	# bring process to background and return to ajax
