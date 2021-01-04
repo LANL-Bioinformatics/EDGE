@@ -1188,29 +1188,6 @@ $( document ).ready(function()
 			//alert('maximum fields reached')
 		}   
 	});
-	$('.btnAdd-edge-ref-file').click( function(e) {
-                e.preventDefault();
-                // how many "duplicatable" input fields we currently have
-                var num = $('.edge-ref-file-block').length;
-                console.log(num);       
-                // the numeric ID of the new input field being added    
-                var newNum      = new Number(num + 1);  
-                var newElem = $('#edge-ref-file-block' + num ).clone().attr('id', 'edge-ref-file-block' + newNum);
-                newElem.find('label:first').attr( 'for', 'edge-ref-file-' + newNum ).text('Reference genome (' + newNum + ')');
-                newElem.find('input:first').attr( 'id', 'edge-ref-file-' + newNum ).attr('name', 'edge-ref-file');
-                newElem.find('.btnAdd-edge-ref-file').remove();
-                // insert newElem
-                $('#edge-ref-file-block' + num).after(newElem);
-                        // bind the selector 
-                        newElem.find(".edge-file-selector").on( "click", function() {
-                        inputFileID = $(this).prevAll().children().prop("id");
-                });
-                // business rule: limit the number of fields to 5
-                if (newNum == 5) {
-                        $('.btnAdd-edge-ref-file' ).addClass('ui-disabled');
-                        //alert('maximum fields reached')
-                }   
-        });
 
 	$( ".edge-collapsible-options > select" ).on( "change", function() {
 		collapsible_select_sync();
@@ -2023,7 +2000,11 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner3').click().checkboxradio("refresh");
 			}
 		});
-		
+		$(":radio[name='edge-binning-checkM-sw']").on("change", function(){
+                        if($('#edge-binning-checkM-sw1').is(':checked')){
+                                $('#edge-binning-sw1').click().checkboxradio("refresh");
+                        }
+                });
 		$('#edge-assembled-conti-file-div').hide();
 		$(":radio[name='edge-assembled-contig-sw']").on("change", function(){
 			if($('#edge-assembled-contig1').is(':checked')){
