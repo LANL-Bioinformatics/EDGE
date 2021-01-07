@@ -33,7 +33,7 @@
 if(jQuery) (function($){
 	
 	$.extend($.fn, {
-		fileTree: function(o, h, dire) {
+		fileTree: function(o, h, dire=false, altc=false) {
 			// Defaults
 			if( !o ) var o = {};
 			if( o.root == undefined ) o.root = '/';
@@ -60,7 +60,7 @@ if(jQuery) (function($){
 				}
 				
 				function bindTree(t) {
-					$(t).find('LI A').bind(o.folderEvent, function() {
+					$(t).find('LI A').bind(o.folderEvent, function(e) {
 						if( $(this).parent().hasClass('directory') ) {
 							if( $(this).parent().hasClass('collapsed') ) {
 								// Expand
@@ -77,7 +77,11 @@ if(jQuery) (function($){
 								$(this).parent().removeClass('expanded').addClass('collapsed');
 							}
 						} else {
-							h($(this).attr('rel'));
+							if (e.altKey){
+								altc($(this).attr('rel'));
+							}else{
+								h($(this).attr('rel'));
+							}
 						}
 						return false;
 					});
