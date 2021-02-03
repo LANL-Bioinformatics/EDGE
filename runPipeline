@@ -3320,6 +3320,7 @@ sub getAlignTrimReads{
 	my $outputDir = shift;
 	my $pairFile;
 	my $unpairFile;
+	my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 	my $AlignTrim_ref = @$ref_r[0];
 	if ($configuration->{r2g_align_trim_bed_file} =~ /artic_ncov|SC2_200324/){
 		if (my ($NC_044512_ref) = grep $_ =~ /NC_045512|MN908947/, @$ref_r) {
@@ -3340,6 +3341,7 @@ sub getAlignTrimReads{
 		} 
 	}
 	$cmd .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} -ref $AlignTrim_ref -no_snp -no_plot";
+	$cmd .= " -align_trim_strand " if ! $ont_flag;
 	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
 	&lprint ("  ## Get Align Trimmed Reads \n");
 	$cmd .= " 1>$log 2>\&1";

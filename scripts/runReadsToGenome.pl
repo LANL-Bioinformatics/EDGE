@@ -60,7 +60,7 @@ my $max_clip=50;
 my $align_trim_bed_file='';
 my $map_quality=42; #default 42, bwa or minimap2 may need use 60
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
-my $max_depth=300; # maximum read depth
+my $max_depth=1000; # maximum read depth
 # varinat filter
 my $min_alt_bases=3;  # minimum number of alternate bases
 my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
@@ -68,6 +68,7 @@ my $min_depth=5; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
 my $disableBAQ;
+my $align_trim_strand;
 
 
 $ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
@@ -96,6 +97,7 @@ GetOptions(
             'min_depth=i' => \$min_depth,
 	    'max_clip=i' => \$max_clip,
 	    'align_trim_bed_file=s' => \$align_trim_bed_file,
+            'align_trim_strand' => \$align_trim_strand,
             'snp_gap_filter=i' => \$snp_gap_filter,
 	    'ploidy=s' => \$ploidy,
 	    'disableBAQ' => \$disableBAQ,
@@ -151,7 +153,8 @@ if ($snap_options =~ /-t\s+\d+/){$snap_options =~ s/-t\s+\d+/-t $numCPU/;}else{$
 my $samtools_threads=$numCPU;
 my $samtools_sort_ram = "-m ".sprintf("%dM", (4000/$numCPU > 768)? 768:4000/$numCPU); # RAM per thread
 
-my $align_trim_pipe_cmd=(-e $align_trim_bed_file )? "| align_trim.py  $align_trim_bed_file  2> /dev/null ":"";
+my $align_trim_strand_flag=($align_trim_strand)? "--strand":"";
+my $align_trim_pipe_cmd=(-e $align_trim_bed_file )? "| align_trim.py $align_trim_strand_flag $align_trim_bed_file  2> /dev/null ":"";
 
 my @bam_outputs;
 for my $ref_file_i ( 0..$#ref_files ){
@@ -1027,6 +1030,7 @@ Usage: perl $0
 	       -maq                      minimium mapping quality filter [default: 42]
 	       -max_clip                 Maximum clip length to allow. filter [default: 50]
 	       -align_trim_bed_file      provide 6+ column bed file (ex: primer coordinates) for trimming 
+               -align_trim_strand        The strand is taken into account while doing the aligntrim
                -skip_aln                 <bool> skip the alignment steps, assume bam files were generated 
                                          and with proper prefix,outpurDir.  default: off
                -no_plot                  <bool> default: off
@@ -1039,11 +1043,11 @@ Usage: perl $0
 	       -ploidy                   haploid or diploid
                # Variant Filter parameters
 	       -disableBAQ               disableBAQ calculation
-               -max_depth                maximum read depth [300]
+               -max_depth                maximum read depth [1000]
                -min_indel_candidate_depth minimum number gapped reads for indel candidates [3]
                -min_alt_bases            minimum number of alternate bases [3]
                -min_alt_ratio            minimum ratio of alternate bases [0.3]
-               -min_depth                minimum read depth [7]
+               -min_depth                minimum read depth [5]
                -snp_gap_filter           SNP within INT bp around a gap to be filtered [3]
 		 
 

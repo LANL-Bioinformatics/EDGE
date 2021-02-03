@@ -215,7 +215,7 @@ Note: This command discards indels. Output: QUAL #non-indel #SNPs #transitions #
 }
 
 sub varFilter {
-  my %opts = (d=>2, D=>10000000, a=>2, r=>3e-1, W=>10, Q=>10, w=>3, I=>5e-1, p=>undef, 1=>1e-10, 2=>1e-100, 3=>0, 4=>1e-4, G=>0, S=>1000, e=>1e-4);
+  my %opts = (d=>2, D=>10000000, a=>2, r=>3e-1, W=>10, Q=>10, w=>3, I=>5e-1, p=>undef, 1=>1e-15, 2=>1e-100, 3=>0, 4=>1e-4, G=>0, S=>1000, e=>1e-4);
   getopts('pd:D:W:Q:w:a:r:1:2:3:4:G:I:S:e:', \%opts);
   die(qq/
 Usage:   vcfutils.pl varFilter [options] <in.vcf>

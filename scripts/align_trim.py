@@ -152,27 +152,38 @@ def go(args):
         ## if the alignment starts before the end of the primer, trim to that position
 
         try:
+            ## softmask the alignment if left primer start/end inside alignment
+           
             if args.start:
                 primer_position = p1[2]['start']
             else:
                 primer_position = p1[2]['end']
-
-            if s.reference_start < primer_position:
-                trim(cigar, s, primer_position, 0)
+            
+            if args.strand:
+                if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <=  p1[2]['end']:
+                    trim(cigar, s, primer_position, 0)
             else:
-                if args.verbose:
-                    sys.stderr.write("ref start %s >= primer_position %s" % (s.reference_start, primer_position))
-
+                if s.reference_start < primer_position:
+                    trim(cigar, s, primer_position, 0)
+                else:
+                    if args.verbose:
+                        sys.stderr.write("ref start %s >= primer_position %s" % (s.reference_start, primer_position))
+           
+            ## softmask the alignment if right primer start/end inside alignment
             if args.start:
                 primer_position = p2[2]['start']
             else:
                 primer_position = p2[2]['end']
-
-            if s.reference_end > primer_position:
-                trim(cigar, s, primer_position, 1)
+            
+            if args.strand:
+                if s.is_reverse and s.reference_start >=  p2[2]['start'] and s.reference_start <=  p2[2]['end']:
+                    trim(cigar, s, primer_position, 1)
             else:
-                if args.verbose:
-                    sys.stderr.write("ref end %s >= primer_position %s" % (s.reference_end, primer_position))
+                if s.reference_end > primer_position:
+                    trim(cigar, s, primer_position, 1)
+                else:
+                    if args.verbose:
+                        sys.stderr.write("ref end %s >= primer_position %s" % (s.reference_end, primer_position))
         except Exception as e:
             sys.stderr.write("problem %s" % (e,))
             pass
@@ -196,8 +207,11 @@ def go(args):
              continue
 
         outfile.write(s)
-
-    reportfh.close()
+        
+    infile.close()
+    outfile.close()   
+    if args.report:
+        reportfh.close()
 
 
 import argparse
@@ -207,6 +221,7 @@ parser.add_argument('bedfile', help='BED file containing the amplicon scheme')
 parser.add_argument('--normalise', type=int, help='Subsample to n coverage')
 parser.add_argument('--report', type=str, help='Output report to file')
 parser.add_argument('--start', action='store_true', help='Trim to start of primers instead of ends')
+parser.add_argument('--strand', action='store_true', help='The strand is taken into account while doing the trimming ')
 parser.add_argument('--verbose', action='store_true', help='Debug mode')
 
 args = parser.parse_args()
