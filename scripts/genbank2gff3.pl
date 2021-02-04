@@ -431,14 +431,14 @@ for my $file ( @files ) {
     die "$! $file" unless($stdin || -e $file);
     print "# Input: $file\n" if($verbose);
 
+    my ($vol,$dirs,$fileonly) = File::Spec->splitpath($file); 
     my ($lump_fh, $lumpfa_fh, $outfile, $outfa);
     if ($stdout) {
       $lump_fh= *STDOUT; $lump="stdout$$";
-      $outfa= "stdout$$.fa";  # this is a temp file ... see below
+      $outfa= "$dirs/stdout$$.fa";  # this is a temp file ... see below
       open $lumpfa_fh, ">$outfa" or die "Could not create a lump outfile called ($outfa) because ($!)\n";
 
     } elsif ( $lump ) {
-        my ($vol,$dirs,$fileonly) = File::Spec->splitpath($file); 
         $lump = File::Spec->catfile($outdir, $fileonly.'.gff');
         ($outfa = $lump) =~ s/\.gff/\.fa/;
         open $lump_fh, ">$lump" or die "Could not create a lump outfile called ($lump) because ($!)\n";
