@@ -97,6 +97,7 @@ my $sys = &getSysParams("$RealBin/edge_ui/sys.properties");
 &Usage("Missing input files.") unless (@unpairedReadsFile or @pairedReadsFile or $configuration->{'DoSRADownload'} or $configuration->{qiime_input_dir} or $configuration->{targetedNGS_input_dir}  or $configuration->{inputContigs} or $inputContigs or $configuration->{piret_input_dir});
 &Usage("Missing output directory path.") unless ($outDir);
 &make_dir($outDir);
+chdir $outDir;
 my $abs_outDir=Cwd::abs_path("$outDir");
 unlink "$abs_outDir/HTML_Report/writeHTMLReport.finished";
 &setProxy if $sys->{proxy};
@@ -3779,7 +3780,7 @@ sub runAssembly
 
     # clean up
     remove_tree("$AssemblerOutDir");
-    unlink "core";
+    unlink "core*";
 
     &printRunTime($time);
     &touchFile("$outputDir/runAssembly.finished");
@@ -3939,7 +3940,7 @@ sub runIdbaAssembly
     unlink $short_pairFastaFile;
     unlink $short_unpairFastaFile;
     unlink $long_reads;
-    unlink "core";
+    unlink "core*";
     &printRunTime($time);
     &touchFile("$outputDir/runIdbaAssembly.finished");
     return ($contig_file, $contig_for_annotation);
