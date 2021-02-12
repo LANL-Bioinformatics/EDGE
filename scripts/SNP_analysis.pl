@@ -338,6 +338,7 @@ sub process_snp_file
       my $snp_quality;
       my $vcf_info;
       my $vcf_info2;
+      my $indel_flag=0;
       my ($dp, $dp_alt, $dp_alt_ratio, $dp_f_r, $mean_quality);
       my ($ref_pos,$ref_base,$snp,$snp_pos,$buff,$dist,$ref_direction,$snp_direction,$ref_id,$query_id);
       if ($format =~ /nucmer/i) 
@@ -354,6 +355,9 @@ sub process_snp_file
               $dp_alt_ratio = sprintf("%.2f",$dp_alt/$dp);
               $dp_f_r = "$3:$4";
           }
+	  my @SNPs_events = split/,/$snp;
+	  map { if (length($_) > 1) {$indel_flag = 1;} } @SNP_events;
+	  $indel_flag = 1 if length($ref_base) > 1 or $vcf_info =~ /INDEL/;
           $mean_quality = $1 if ($vcf_info =~ /MQ=(\d+)/);
       }
       elsif ($format =~ /changelog/){
@@ -371,7 +375,7 @@ sub process_snp_file
       if (defined $coding_location_r->{$Locus_id}->{$ref_pos}) # in CDS
       {
           my ($start,$end,$strand,$product)= split /\t/, $coding_location_r->{$Locus_id}->{$ref_pos};
-          if ($ref_base eq "." or $snp eq "." or $vcf_info =~ /INDEL/)  #insertion/deletion
+          if ($ref_base eq "." or $snp eq "." or $indel_flag)  #insertion/deletion
           #if ($ref_base eq "." or $snp eq "." or $vcf_info =~ /INDEL/ or length ($snp) != length($ref_base))  #insertion/deletion
           {
              my $type;
@@ -544,7 +548,7 @@ sub process_snp_file
       } # end in CDS
       else   # not in CDS
       {
-           if ($ref_base eq "." or $snp eq "." or $vcf_info =~ /INDEL/)  #insertion/deletion
+           if ($ref_base eq "." or $snp eq "." or $indel_flag)  #insertion/deletion
          # if ($ref_base eq "." or $snp eq "." or $vcf_info =~ /INDEL/ or length ($snp) != length($ref_base))  #insertion/deletion
           {
              my $type;
