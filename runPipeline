@@ -3203,7 +3203,7 @@ sub runReadsToGenome
     unlink "$outputDir/getConsensus.finished";
 
     my $parameters;    
-    $parameters .= " -pre $outPrefix -cpu $numCPU -consensus 0";
+    $parameters .= " -pre $outPrefix -cpu $numCPU -consensus 0 -disableBAQ";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
 	$parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
@@ -3219,7 +3219,7 @@ sub runReadsToGenome
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
-    $parameters .= " -no_indels -disableBAQ" if $ont_flag;
+    $parameters .= " -no_indels " if $ont_flag;
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
