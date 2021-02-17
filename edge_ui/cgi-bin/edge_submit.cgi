@@ -481,7 +481,7 @@ sub createConfig {
 						$opt{"edge-r2g-max-clip"}= 50;
 						$opt{"edge-r2g-con-min-baseQ"}= 20;
 						$opt{"edge-r2g-con-altIndel-prop"} = 0.5 ;
-						$opt{"edge-r2g-con-disableBAQ"}= 0 ;
+						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
 						$opt{"edge-r2g-aligner"} = 'bwa' ;
 						$opt{"edge-r2c-aligner"} = 'bwa' ;
 						$opt{"edge-assembler"} = 'idba_ud' if $opt{"edge-assembler"} eq 'lrasm' ; 
