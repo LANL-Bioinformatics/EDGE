@@ -1,5 +1,9 @@
 # EDGE-COVID19
 
+## build 202103
+* Lowered default threshold for detecting indels in amplicon-based ONT data to 0.6 (from 0.8)
+* Add swift primer trim option
+
 ## build 20210216
 * Add funding acknowledgement in about page
 * Incorrect uses of align_trim on Illumina samples while trimming the ARTIC primers was fixed by making the trimming strand specific. We recommend rerunning your samples if it was generated using Illumina following the ARTIC protocol.
