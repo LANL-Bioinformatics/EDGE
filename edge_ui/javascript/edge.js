@@ -2086,6 +2086,16 @@ $( document ).ready(function()
 				$('#edge-piret-method').selectmenu("refresh",true);
 			}
 		});
+		$(":radio[name='edge-porechop-sw']").on("change", function(){
+			if($('#edge-fastq-source-sw1').is(':checked')){
+				if( ! $('#edge-r2g-align-trim-bed-file').val()){
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
+				}else{
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
+					//$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
+				}
+			}
+		});
 		//$('.edge-nanopore-options').hide();
 		$(":radio[name='edge-fastq-source']").on("change", function(){
 			$( "#edge-r2g-aligner-sw, #edge-r2c-aligner-sw").find('input').prop('disabled',false);
