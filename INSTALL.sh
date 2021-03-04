@@ -20,7 +20,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
-annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
+annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi pangolin )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
@@ -1514,6 +1514,21 @@ echo "
 "
 }
 
+install_pangolin(){
+local VER=2.3.2
+echo "------------------------------------------------------------------------------
+                        Installing pangolin $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda create -y -n pangolin -c bioconda pangolin=2.3.2
+
+echo "
+------------------------------------------------------------------------------
+                         pangolin Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_selenium(){
 local VER=3.141.0
 echo "------------------------------------------------------------------------------
@@ -2514,6 +2529,21 @@ else
     echo "reference-based_assembly is not found"
     install_reference-based_assembly
 fi
+
+if [ -x "$anaconda3bin/../envs/pangolin/bin/pangolin" ]
+then|
+    Pangolin_VER=`$anaconda3bin/../envs/pangolin/bin/pangolin  -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+    if [ $(versionStr $Pangolin_VER) -ge $(versionStr "2.3.2") ]
+    then
+      echo "Pangolin $Pangolin_VER is found"
+    else
+      install_pangolin
+    fi
+else
+   echo "Pangolin is not found"
+   install_pangolin
+fi
+
 
 # if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
 # then

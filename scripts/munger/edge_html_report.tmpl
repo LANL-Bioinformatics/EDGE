@@ -748,6 +748,7 @@
 								  </TMPL_UNLESS>
 								  <th data-priority='2'>SNVs</th>
 								  <th data-priority='2'>INDELs</th>
+								  <th data-priority='2'>Lineage</th>
 								  <TMPL_UNLESS NAME="STANDALONE">
 								  <th data-priority='6' class='ui-table-cell-hidden'>Change Log</th>
 								  </TMPL_UNLESS>
@@ -774,6 +775,7 @@
 									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
 									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
+									<td title="<TMPL_VAR NAME=RMCONLINEAGEINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLINEAGE DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
 									</TMPL_UNLESS>

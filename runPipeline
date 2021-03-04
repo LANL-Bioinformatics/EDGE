@@ -3228,9 +3228,9 @@ sub runReadsToGenome
 	my $alignTrim_parameters = $parameters;
         $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
         $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
-	$alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
+        $alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
 	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
-    	($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
+	($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir);
     }
 	    
     $parameters .= " -ref $referenceFiles";
@@ -3305,6 +3305,14 @@ sub runReadsToGenome
                 &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus_w_ambiguous.fasta > ${file_name}_consensus_w_ambiguous.fasta.comp");
             }
 	    &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
+
+            my $pangolin_env= "$RealBin/thirdParty/Anaconda3/envs/pangolin";
+            my $pangolin_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $pangolin_env";
+            my $pangolin_log= "$outputDir/pangolin.log";
+            $command = "$pangolin_env_activate; pangolin -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
+            &lprint ("  Running \n  $command \n");
+            &executeCommand($command);
+
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
@@ -3342,13 +3350,14 @@ sub getAlignTrimReads{
 		} 
 	}
 	$cmd .= " -align_trim_bed_file $configuration->{r2g_align_trim_bed_file} -ref $AlignTrim_ref -no_snp -no_plot";
-	$cmd .= " -align_trim_strand " if ! $ont_flag;
+        $cmd .= " -align_trim_strand " if ! $ont_flag;
 	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
 	&lprint ("  ## Get Align Trimmed Reads \n");
 	$cmd .= " 1>$log 2>\&1";
+	&lprint ("  Running \n  $cmd \n");
 	&executeCommand($cmd);
 	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
-	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
+	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip  -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
 	&executeCommand($extract_reads_cmd);
 	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
 		$pairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq $outputDir/AlignTrimMapping/AlignTrimmedReads.2.fastq";
@@ -3767,7 +3776,7 @@ sub runAssembly
 
     # clean up
     remove_tree("$AssemblerOutDir");
-    unlink "core*";
+    unlink "core";
 
     &printRunTime($time);
     &touchFile("$outputDir/runAssembly.finished");
@@ -3927,7 +3936,7 @@ sub runIdbaAssembly
     unlink $short_pairFastaFile;
     unlink $short_unpairFastaFile;
     unlink $long_reads;
-    unlink "core*";
+    unlink "core";
     &printRunTime($time);
     &touchFile("$outputDir/runIdbaAssembly.finished");
     return ($contig_file, $contig_for_annotation);

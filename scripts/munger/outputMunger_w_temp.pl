@@ -1887,11 +1887,13 @@ sub pull_readmapping_ref {
 			my $consensus_ambiguous_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_w_ambiguous.fasta";
 			my $consensus_file_compsition = "$consensus_file.comp";
 			my $consensus_ambiguous_file_compsition = "$consensus_ambiguous_file.comp";
+			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
 			if ( -e $consensus_file ){
 				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
 				my ($consensus_info,$consensus_info2 )= &consensus_fasta_stat($consensus_file,$consensus_log_file);
+				my $lineage_info = &parse_lineage($consensus_lineage);
 				foreach my $consensus_id (keys %$consensus_info){
 					if ($consensus_id =~ /$temp[0]/i){
 						$refinfo->{"RMCONLEN"} = $consensus_info->{$consensus_id}->{length};
@@ -1906,6 +1908,11 @@ sub pull_readmapping_ref {
 						if ($refinfo->{"RMCONLEN"} >= $consensus_length_recommand && $temp[5] >= $consensus_dpcov_recommand && ($refinfo->{"RMCONTOTALN"} / $refinfo->{"RMCONLEN"}) <= $consensus_Nper_recommand ){
 							$refinfo->{'RMCONSUBMITOK'} = '1';
 							#$vars->{'RMCONSUBMITOK_TH'}='1';
+						}
+
+						if ($lineage_info){
+							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage};
+							$refinfo->{"RMCONLINEAGEINFO"} = "Prob: $lineage_info->{$consensus_id}->{probability}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
 						}
 					}
 				}
@@ -1996,6 +2003,27 @@ sub pull_readmapping_ref {
 	}
 }
 
+sub parse_lineage{
+	my $file = shift;
+
+	return if ! -e $file;
+
+	my %lineage;
+	open(my $fh, "<", $file);
+	while(<$fh>){
+		chomp;
+		next if(/^taxon,/);
+		my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
+		$lineage{$cid}->{lineage} = $lineage_assign;
+		$lineage{$cid}->{probability} = $prob;
+		$lineage{$cid}->{version} = $pangoLearnVersion;
+		$lineage{$cid}->{status} = $status;
+		$lineage{$cid}->{note} = $note;
+	}
+	close $fh;
+	return \%lineage;
+}
+
 sub consensus_composition_info{
 	my $comp_file = shift;
 	my $refid = shift;
@@ -2069,12 +2097,12 @@ sub consensus_fasta_stat{
 		chomp;
 		next if /RATIO_OF_REF/;
 		my @field=split("\t",$_);
-		if ($field[2] eq '-'){
+		if ($field[2] =~ /-/){
 			$info2{$field[0]}->{indel_num}++;
-			$info2{$field[0]}->{indel_num_len} = length($field[3]);
-		}elsif($field[3] eq '-'){
+			$info2{$field[0]}->{indel_num_len} += length($field[3]);
+		}elsif($field[3] =~ /-/){
 			$info2{$field[0]}->{indel_num}++;
-			$info2{$field[0]}->{indel_num_len} = length($field[2]);
+			$info2{$field[0]}->{indel_num_len} += length($field[2]);
 		}elsif($field[3] eq 'n'){
 			$info2{$field[0]}->{gaps_num}++;
 		}elsif($field[3] eq 'N'){
