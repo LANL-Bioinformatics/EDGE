@@ -259,6 +259,11 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
                 screenshot= driver.get_screenshot_as_file(outdir+"/seq_warning_or_error.png")
         except:
             pass
+            
+        try:
+            driver.find_elements_by_xpath("//ul[@id='id_internal_ns-gap_type']//label")[0].click()
+        except:
+            pass
                 
         retry = 0
         while retry <= rt and 'Source Modifiers' != driver.find_elements_by_xpath("//h2")[0].text:
@@ -351,7 +356,7 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         #driver.find_element_by_id('delete_submission_wizard').click() 
 
         # close driver  No need close driver here since quit_driver function done when program exit
-        #driver.quit()
+        # driver.quit()
 
 
 def main():
