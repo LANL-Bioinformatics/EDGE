@@ -1916,7 +1916,7 @@ sub pull_readmapping_ref {
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage};
 							$refinfo->{"RMCONLINEAGEINFO"} = "Prob: $lineage_info->{$consensus_id}->{probability}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
 						}
-						if ($indel_frameshift_info){
+						if ($indel_frameshift_info->{$temp[0]}){
 							$refinfo->{"RMCONFRAMESHIFT"} = 1;
 							$refinfo->{"RMCONFRAMESHIFTINFO"} = "Frameshift Warning: please check $refinfo->{'RMREFFILE'}_consensus.Indels_report.txt for details.";
 						}
@@ -2019,7 +2019,7 @@ sub parse_INDELs_report{
 		next if(/INDEL_position/);
 		my ($id,$pos,$nu,$length,$type,$product,$start,$end) = split/\t/,$_;
 		my $event = "$type:$pos:$nu:$product";
-		if ($length % 3 and $product !~ /Intergenic/){
+		if ($length % 3 and $product !~ /Intergenic/i){
 			# frameshift INDELs
 			push @{$report{$id}}, $event;
 		}
