@@ -1887,6 +1887,7 @@ sub pull_readmapping_ref {
 			my $consensus_ambiguous_file = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_w_ambiguous.fasta";
 			my $consensus_file_compsition = "$consensus_file.comp";
 			my $consensus_ambiguous_file_compsition = "$consensus_ambiguous_file.comp";
+			my $consensus_indels_report =  "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.Indels_report.txt";
 			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
 			if ( -e $consensus_file ){
@@ -1894,6 +1895,7 @@ sub pull_readmapping_ref {
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
 				my ($consensus_info,$consensus_info2 )= &consensus_fasta_stat($consensus_file,$consensus_log_file);
 				my $lineage_info = &parse_lineage($consensus_lineage);
+				my $indel_frameshift_info = &parse_INDELs_report($consensus_indels_report);
 				foreach my $consensus_id (keys %$consensus_info){
 					if ($consensus_id =~ /$temp[0]/i){
 						$refinfo->{"RMCONLEN"} = $consensus_info->{$consensus_id}->{length};
@@ -1913,6 +1915,10 @@ sub pull_readmapping_ref {
 						if ($lineage_info){
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage};
 							$refinfo->{"RMCONLINEAGEINFO"} = "Prob: $lineage_info->{$consensus_id}->{probability}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
+						}
+						if ($indel_frameshift_info){
+							$refinfo->{"RMCONFRAMESHIFT"} = 1;
+							$refinfo->{"RMCONFRAMESHIFTINFO"} = "Frameshift Warning: please check $refinfo->{'RMREFFILE'}_consensus.Indels_report.txt for details.";
 						}
 					}
 				}
@@ -2001,6 +2007,24 @@ sub pull_readmapping_ref {
 
 		$vars->{RMREF_UM_NOTE} = "Only top 5 results in terms of \"Mapped Reads\" are listed in the table.";
 	}
+}
+
+sub parse_INDELs_report{
+	my $file=shift;
+	return if ! -e $file;
+	my %report;
+	open(my $fh, "<", $file);
+	while(<$fh>){
+		chomp;
+		next if(/INDEL_position/);
+		my ($id,$pos,$nu,$length,$type,$product,$start,$end) = split/\t/,$_;
+		my $event = "$type:$pos:$nu:$product";
+		if ($length % 3 and $product !~ /Intergenic/){
+			# frameshift INDELs
+			push @{$report{$id}}, $event;
+		}
+	}
+	return \%report;
 }
 
 sub parse_lineage{

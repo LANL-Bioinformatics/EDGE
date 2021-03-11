@@ -774,7 +774,11 @@
 									<td title="<TMPL_VAR NAME=RMCONTAILNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
-									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0></td>
+									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0>
+									<TMPL_IF NAME="RMCONFRAMESHIFT">
+									<a title="<TMPL_VAR NAME=RMCONFRAMESHIFTINFO>" style="display:inline-flex;margin-left:0.2em;" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn">FRAMESHIFTWARNING</a>
+									</TMPL_IF>
+									</td>
 									<td title="<TMPL_VAR NAME=RMCONLINEAGEINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLINEAGE DEFAULT=-></td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
