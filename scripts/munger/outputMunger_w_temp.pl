@@ -1890,6 +1890,7 @@ sub pull_readmapping_ref {
 			my $consensus_indels_report =  "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.Indels_report.txt";
 			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
+			$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report if ( -r $consensus_indels_report);
 			if ( -e $consensus_file ){
 				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
