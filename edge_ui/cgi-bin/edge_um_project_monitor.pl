@@ -243,7 +243,7 @@ sub pull_summary {
 		}
 		elsif( / Running/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
-			$list->{$cnt}->{PROJSTATUS} = "Running";
+			$list->{$cnt}->{PROJSTATUS} = "running";
 		}
 		elsif( /failed/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";
