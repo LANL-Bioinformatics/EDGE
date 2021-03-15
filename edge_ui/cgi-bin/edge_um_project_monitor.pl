@@ -63,16 +63,16 @@ foreach my $hash_ref ( @projectlist) {
 
 	next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" );
 	my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
-	my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
+	my $processlog = (-r "$proj_dir/process_current.log")? "$proj_dir/process_current.log" : ( (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt");
 #print "$processlog\n";
 		
 	if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
 		$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
 		$status=($status =~ /finished/i)?"Complete":"Archived";
-	}elsif( $status =~ /unstarted/i){
-		$list->{$id}->{PROJSUBTIME}=$created_time;
-		$list->{$id}->{RUNTIME}="";
-		$status="Unstarted";
+	#}elsif( $status =~ /unstarted/i){
+		#$list->{$id}->{PROJSUBTIME}=$created_time;
+		#$list->{$id}->{RUNTIME}="";
+		#$status="Unstarted";
 	}elsif( $status =~ /in process/i){
        		$list->{$id}->{PROJSUBTIME}=$created_time;
       		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
@@ -85,7 +85,7 @@ foreach my $hash_ref ( @projectlist) {
 	$list->{$id}->{PROJNAME} = $id;
 	if (!$list->{$id}->{PROJSTATUS}){
 		$list->{$id}->{PROJSTATUS} = $status;
-		$list->{$id}->{PROJSTATUS} = "running" if ($status =~ /running/);
+		$list->{$id}->{PROJSTATUS} = "running" if ($status =~ /running/i);
 		$list->{$id}->{PROJSTATUS} = "failed" if ($status =~ /fail/);
 	}
 	$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
