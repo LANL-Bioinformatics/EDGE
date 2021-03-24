@@ -1676,10 +1676,16 @@ sub variantAnalysis
     }
     foreach my $con_log_file(@r2g_consensus_log_files){
       my $prefix = basename($con_log_file,".changelog");
-      my $output = "$r2g_outputDir/$prefix.gaps_report.txt";
+      my $ambiguous_log  = "$r2g_outputDir/${prefix}_w_ambiguous.log";
+      symlink($con_log_file,$ambiguous_log);
       $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $con_log_file $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $ambiguous_log $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+      unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
+      unlink $ambiguous_log;
     }
 
     &printRunTime($time);

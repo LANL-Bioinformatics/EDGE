@@ -49,6 +49,7 @@ if (!$variant_count)
 my $result;  # $result->{Locus_id}->{snp}, $result->{Locus_id}->{indel}
 my $inseq;
 my $myCodonTable   = Bio::Tools::CodonTable->new();
+my $ambiguous_mode = ($SNPs_file =~ /w_ambiguous/)? 1 : 0;
 
 if ($Genbankfile){
     &print_timeInterval($time,"Loading Genbank");
@@ -81,6 +82,7 @@ else
 {
    print  OUT2 "Chromosome\tINDEL_position\tSequence\tLength\tType\tProduct\tCDS_start\tCDS_end\n";
 }
+
 
 foreach my $locus_id (keys %{$result})
 {
@@ -355,14 +357,20 @@ sub process_snp_file
               $dp_alt_ratio = sprintf("%.2f",$dp_alt/$dp);
               $dp_f_r = "$3:$4";
           }
-	  my @SNPs_events = split/,/$snp;
-	  map { if (length($_) > 1) {$indel_flag = 1;} } @SNP_events;
+	  my @SNPs_events = split/,/, $snp;
+	  map { if (length($_) > 1) {$indel_flag = 1;} } @SNPs_events;
 	  $indel_flag = 1 if length($ref_base) > 1 or $vcf_info =~ /INDEL/;
           $mean_quality = $1 if ($vcf_info =~ /MQ=(\d+)/);
       }
       elsif ($format =~ /changelog/){
 	  my ($RATIO_OF_REF,$HQ_DOC,$HQ_RATIO_OF_REF,$HQ_RATIO_OF_CON);
 	  ($ref_id,$ref_pos,$ref_base,$snp,$dp,$RATIO_OF_REF,$dp_alt_ratio,$HQ_DOC,$HQ_RATIO_OF_REF,$HQ_RATIO_OF_CON)=split /\t/,$snps_line;
+          if ($ambiguous_mode){
+             $snp =~ s/\w\((\w)\)/$1/;
+          }else{
+             $snp =~ s/\(\w\)//;
+             next if ($ref_base eq $snp);
+          }
 	  $ref_base = "." if $ref_base eq '-';
 	  $snp = '.' if $snp eq '-';
       }else
