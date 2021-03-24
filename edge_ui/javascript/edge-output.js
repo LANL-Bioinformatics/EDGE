@@ -396,7 +396,7 @@ $( document ).ready(function()
 
 	$("table td, table td > a").tooltipster({multiple:true});
 	$("table th").tooltipster({multiple:true});
-
+	$(".edge-upright-tooltip-icon").tooltipster('option','position','bottom');
 	//krona iframe 
 /*	$( "#edge-content-report iframe" ).each(function(){
 		var kf = this;		

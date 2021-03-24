@@ -162,6 +162,19 @@ table.output-table-twocol thead tr th:first-child {
 	overflow-y: auto;
 }
 
+
+#edge-content-report .edge-with-small-icon {
+	position: relative;
+	text-align: center;
+}
+#edge-content-report .edge-upright-tooltip-icon {
+	position: absolute;
+	display: inline-flex;
+	font-size:14px;
+	top: -0.1em;
+	right:-0.1em;
+}
+
 /* edge spinner */
 .edge-sp {
   width: 24px;

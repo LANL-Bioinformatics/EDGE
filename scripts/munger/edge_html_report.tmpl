@@ -774,12 +774,16 @@
 									<td title="<TMPL_VAR NAME=RMCONTAILNINFO DEFAULT=->"><TMPL_VAR NAME=RMCONTAILN DEFAULT=-></td>
 									</TMPL_UNLESS>
 									<td><TMPL_VAR NAME=RMCONSNP DEFAULT=0></td>
-									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0>
+									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->" class="edge-with-small-icon"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0>
 									<TMPL_IF NAME="RMCONFRAMESHIFT">
-									<a title="<TMPL_VAR NAME=RMCONFRAMESHIFTINFO>" style="display:inline-flex;margin-left:0.2em;" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn" href="<TMPL_VAR NAME=RMCONIDNELREPORT>">FRAMESHIFTWARNING</a>
+									<a title="<TMPL_VAR NAME=RMCONFRAMESHIFTINFO>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon" href="<TMPL_VAR NAME=RMCONIDNELREPORT>">FRAMESHIFTWARNING</a>
 									</TMPL_IF>
 									</td>
-									<td title="<TMPL_VAR NAME=RMCONLINEAGEINFO DEFAULT=->"><TMPL_VAR NAME=RMCONLINEAGE DEFAULT=-></td>
+									<td title="<TMPL_VAR NAME=RMCONLINEAGEINFO DEFAULT=->" class="edge-with-small-icon"><TMPL_VAR NAME=RMCONLINEAGE DEFAULT=->
+									<TMPL_IF NAME="RMCONLINEAGEWARN">
+									<a title="<TMPL_VAR NAME=RMCONLINEAGEWARN>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon">RMCONLINEAGEWARN</a>
+									</TMPL_IF>
+									</td>
 									<TMPL_UNLESS NAME="STANDALONE">
 									<td class='ui-table-cell-hidden'><a href="<TMPL_VAR NAME=RMREFCONSENSUSLOG>">Change Log</a></td>
 									</TMPL_UNLESS>

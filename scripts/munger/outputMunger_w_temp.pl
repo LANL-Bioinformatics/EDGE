@@ -1914,8 +1914,9 @@ sub pull_readmapping_ref {
 						}
 
 						if ($lineage_info){
-							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage};
+							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage_link};
 							$refinfo->{"RMCONLINEAGEINFO"} = "Prob: $lineage_info->{$consensus_id}->{probability}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
+							$refinfo->{"RMCONLINEAGEWARN"} = $lineage_info->{$consensus_id}->{warning};
 						}
 						if ($indel_frameshift_info->{$temp[0]}){
 							$refinfo->{"RMCONFRAMESHIFT"} = 1;
@@ -2039,10 +2040,20 @@ sub parse_lineage{
 		chomp;
 		next if(/^taxon,/);
 		my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
+		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$lineage_assign&loc=USA'>$lineage_assign</a>";
 		$lineage{$cid}->{lineage} = $lineage_assign;
+		$lineage{$cid}->{lineage_link} = $lineage_assign_link;
 		$lineage{$cid}->{probability} = $prob;
 		$lineage{$cid}->{version} = $pangoLearnVersion;
 		$lineage{$cid}->{status} = $status;
+		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'B.1.1351' or $lineage_assign eq 'B.1.1427' or $lineage_assign eq 'B.1429' ){
+			$note .= "; VOC"; 
+			$lineage{$cid}->{warning} = "VOC";
+		}
+		if ($lineage_assign eq 'B.1526' or $lineage_assign eq 'P.2' or $lineage_assign eq 'B.1.1525'){
+			$note .= "; VOI"; 
+			$lineage{$cid}->{warning} = "VOI";
+		}
 		$lineage{$cid}->{note} = $note;
 	}
 	close $fh;
