@@ -4280,6 +4280,59 @@ $( document ).ready(function()
 			}
 		});
 	};
+	//SRA upload
+	$("#metadata-sra-upload").on("click", function(){
+		//console.log("gisaid upload");
+		page.find( ".edge-action-panel" ).panel( "close" );
+		upload2SRA($(this).attr("id"));
+	});
+	
+	function upload2SRA(action_id){
+		if (!focusProjName){
+			showWarning("No focus project for the action");
+			return false;
+		}
+		$.ajax({
+			url: "./cgi-bin/edge_sra_upload.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: { "proj" : focusProjName, "projname":focusProjRealName, "sid":localStorage.sid, "action":"create-form", "userDir":localStorage.udir },
+			beforeSend: function(){
+				if ($('#edge-gisaid-upload-form').length){
+					$('#edge-gisaid-upload-form').remove();
+				}
+				if ($('#edge-gisaid-batch-upload-form').length){
+					$('#edge-gisaid-batch-upload-form').remove();
+				}
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				//console.log("got response");
+				allMainPage.hide();
+				$( "#edge-gisaid-metadata-project-page" ).html(data);
+				$( "#edge-gisaid-metadata-project-page" ).show();
+				$( "#edge-gisaid-metadata-project-page" ).enhanceWithin();
+				$.getScript( "./javascript/edge-gisaid.js" )
+					.done(function( script, textStatus ) {
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( jqxhr, settings, exception );
+				});
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("Failed to retrieve the report. Please REFRESH the page and try again."+data);
+			}
+		});
+	}
 	//GISAID
 	//upload to GISAID
 	$("#metadata-gisaid-upload, #metadata-gisaid-edit").on("click", function(){

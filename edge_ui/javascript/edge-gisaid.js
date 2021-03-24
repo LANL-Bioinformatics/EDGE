@@ -5,10 +5,12 @@ $( document ).ready(function()
 	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div><pre style='background-color: rgba(0,0,0,.8);overflow-y: auto;padding: 1em;'><code id='newWindowMsg' style='white-space: pre-wrap;color: white; font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;'></code></pre></body></html>";
         var newTitle = "EDGE COVID-19";
 	var page = $( this );
-	$("table td, table th, .tooltip").tooltipster({multiple:true});
+	$("table td, table th, .tooltip").tooltipster({
+						multiple:true, maxWidth: '480', interactive: true
+					});
 	$("#metadata-tab-example").tooltipster(
-                'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Nanopore</td></tr></table></span>')
-        );
+            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Nanopore</td></tr></table></span>')
+    ).tooltipster('option','maxWidth','700');
 
 	//with checkbox
 	//https://www.gyrocode.com/projects/jquery-datatables-checkboxes/
@@ -57,6 +59,7 @@ $( document ).ready(function()
 		// update JQM select span selected name
 		if ($(this).is("select")){
 			$(this).selectmenu('refresh');
+	
 			//var value = $(this).val() || $td.find('option').eq(0).html();
 			//$td.find('span').html(value);
 		}
@@ -177,9 +180,12 @@ $( document ).ready(function()
 	$( "#edge-gisaid-form-reset" ).on( "click", function() {
 		$( "#edge-gisaid-upload-form" )[0].reset();
 	});
+	$( "#edge-sra-form-reset" ).on( "click", function() {
+		$( "#edge-sra-upload-form" )[0].reset();
+	});
 	
 	//form cancel
-	$( "#edge-gisaid-form-cancel" ).on( "click", function() {
+	$( "#edge-gisaid-form-cancel, #edge-sra-form-cancel" ).on( "click", function() {
 		updateReport($('#edge-output-projid').attr("data-pid"));
 	});
 	//template
@@ -474,5 +480,34 @@ $( document ).ready(function()
 		$( "#edge_integrity_dialog_content" ).html(dialog_content);
 		$( "#edge_integrity_dialog" ).popup('open');
 	}
+
+	//NCBI SRA
+	$(".metadata-sra-bioproject-use-id").hide();
+	$('#metadata-sra-bioproject-sw').on("change",function(){
+		if ( $("#metadata-sra-bioproject-sw1").is(':checked') ){
+			$(".metadata-sra-bioproject-use-id").show();
+			$(".metadata-sra-bioproject-input").hide();
+		}
+		if ( $("#metadata-sra-bioproject-sw2").is(':checked') ){
+			$(".metadata-sra-bioproject-use-id").hide();
+			$(".metadata-sra-bioproject-input").show();
+		}
+	});
+	
+	var model_optgroups = $('#metadata-sra-meta-libmodel').find('optgroup');
+	$('#metadata-sra-meta-platform').on("change",function(){
+		var platform = $(this).val();
+		var previous_optgroups = $('#metadata-sra-meta-libmodel').find('optgroup').detach();
+		var element = $.grep(model_optgroups,function(n,i){
+					return n.label == platform;
+			});
+		$(element).appendTo($("#metadata-sra-meta-libmodel"));
+        $('#metadata-sra-meta-libmodel').selectmenu("refresh");
+	});
+	$('#metadata-sra-meta-libmodel').on("change",function(){
+		var platform = $("#metadata-sra-meta-libmodel option:selected").parent().attr('label');
+		$('#metadata-sra-meta-platform').val(platform).selectmenu("refresh");
+	});
+
 });
 //# sourceURL=edge-output.js
