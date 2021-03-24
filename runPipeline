@@ -1672,6 +1672,8 @@ sub variantAnalysis
     my $outputDir="$outDir/AssemblyBasedAnalysis/contigMappingToRef/";
     my $log = "$outputDir/variantAnalysis.log";
     my $r2g_outputDir="$outDir/ReadsBasedAnalysis/readsMappingToRef/";
+    my @r2g_consensus_log_files = glob("$r2g_outputDir/*consensus.changelog");
+    my @r2g_consensus_gap_files = glob("$r2g_outputDir/*consensus.gaps");
     my $c2g_gapAnalysisOutput="$outputDir/GapVSReference.report.txt";
     my $r2g_gapAnalysisOutput="$r2g_outputDir/GapVSReference.report.txt";
     my $r2g_gapJSONanalysisOutput = "$r2g_outputDir/GapVSReference.report.json";
@@ -1718,6 +1720,26 @@ sub variantAnalysis
       $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $r2g_gap_file > $r2g_gapAnalysisOutput 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
+    }
+    foreach my $con_gap_file(@r2g_consensus_gap_files){
+      my $prefix = basename($con_gap_file,".gaps");
+      my $output = "$r2g_outputDir/$prefix.gaps_report.txt";
+      $cmd="$RealBin/scripts/gap_analysis.pl -gff $gff3File -gap $con_gap_file >  $output 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    foreach my $con_log_file(@r2g_consensus_log_files){
+      my $prefix = basename($con_log_file,".changelog");
+      my $ambiguous_log  = "$r2g_outputDir/${prefix}_w_ambiguous.log";
+      symlink($con_log_file,$ambiguous_log);
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $con_log_file $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $ambiguous_log $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+      unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
+      unlink $ambiguous_log;
     }
 
     &printRunTime($time);
