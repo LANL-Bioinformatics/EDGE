@@ -163,11 +163,13 @@ table.output-table-twocol thead tr th:first-child {
 }
 
 
-#edge-content-report .edge-with-small-icon {
+#edge-content-report .edge-with-small-icon,
+#edge-projects-report-page .edge-with-small-icon{
 	position: relative;
 	text-align: center;
 }
-#edge-content-report .edge-upright-tooltip-icon {
+#edge-content-report .edge-upright-tooltip-icon,
+#edge-projects-report-page .edge-upright-tooltip-icon {
 	position: absolute;
 	display: inline-flex;
 	font-size:14px;
