@@ -195,7 +195,7 @@ $( document ).ready(function()
 	});
 
 	var loc = window.location.pathname.replace("//","/");
-        var edge_path = loc.substring(0,loc.lastIndexOf('/'));
+    var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 	//$("#edge-gisaid-form-submit").parent().hide();
 	//$("#edge-gisaid-form-download").parent().hide();
 	//form submit
@@ -508,6 +508,143 @@ $( document ).ready(function()
 		var platform = $("#metadata-sra-meta-libmodel option:selected").parent().attr('label');
 		$('#metadata-sra-meta-platform').val(platform).selectmenu("refresh");
 	});
+	$( "#edge-sra-form-submit, #edge-sra-form-download, #edge-sra-form-update" ).on( "click", function() {
+		var action = (this.id.toLowerCase().indexOf("download") >= 0)? "download" : (this.id.toLowerCase().indexOf("update") >= 0)? "update" : "upload2sra";
+		var proj=$('#edge-output-projid').attr("data-pid");
+		var projname=$('#edge-project-title').text().replace(' /','');
+		var formDom = $("#edge-sra-upload-form");
+		if ( action == 'upload2sra' ){
+			var actionContent =  'Submit to NCBI SRA. Do you want to proceed? <p>This action can not be undone.</p>';
+			$("#edge_confirm_dialog_content").html(actionContent);
+			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				sra_actions(proj,formDom,action,projname);
+            });
+		}else{
+			sra_actions(proj,formDom,action,projname);
+		}
+		
+	});
 
+	function sra_actions(proj, form, action, projname){
+		var w;
+		var info_dom_id = ( action.indexOf("batch") >=0 )? "edge-sra-batch-submit-info" : "edge-sra-submit-info";
+		$.ajax({
+				url: "./cgi-bin/edge_sra_upload.cgi",
+				type: "POST",
+				dataType: "json",
+				cache: false,
+				//data: $( "#edge-run-pipeline-form" ).serialize(),
+				data: ( form.serialize() +'&'+ $.param({ 'proj': proj, 'sid':localStorage.sid, 'action':action, "userDir":localStorage.udir })),
+				beforeSend: function(){
+					$(".list-info, .list-info-delete").fadeOut().remove(); //clear div
+					page.find("input").removeClass("highlight");
+				
+					$.mobile.loading( "show", {
+						text: "submitting...",
+						textVisible: 1,
+						html: ""
+					});
+					if (action.toLowerCase().indexOf("upload2sra") >= 0){
+						w = window.open("","new","width=480,height=480");
+						w.document.body.innerHTML = '';
+						w.document.write( newWindowHeader + "<p id='newWindowInfo'>Submit project(s) " + projname + " to NCBI SRA. Please wait...</p>" + newWindowFooter);
+					}
+				},
+				complete: function(data) {
+					$("#" + info_dom_id).listview("refresh");
+					setTimeout(function(){ $.mobile.loading( "hide" );},1000);
+				},
+				success: function(obj){
+					// display general submission error
+					$.each(obj, function(i,v){
+						if( i!="PARAMS" && i!="SUBMISSION_STATUS" && i!="PATH" && i!="PID"){
+							var dom;
+							if( this.STATUS == "failure" ){
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>"+i+": "+this.NOTE+"</a></li>";
+							}
+							else{
+								dom = "<li data-icon='info' class='list-info'><a href='#'>"+i+": "+this.NOTE+"</a></li>";
+							}
+							$( "#" + info_dom_id ).append(dom).listview("refresh").fadeIn("fast");
+						}
+					});
+
+					if( obj.SUBMISSION_STATUS == "success" ){
+						$( ".highlight").removeClass("highlight");
+						if ( action.toLowerCase().indexOf("download") >= 0){
+							window.open(edge_path + obj.PATH);
+						}else{
+							if ( action.toLowerCase().indexOf("upload2sra") >= 0){
+								obj.w = w;
+								obj.spinner_id = 'newWindowSpinner';
+								obj.type = "submit";
+								obj.projname = projname;
+								if (obj.PID) {
+									checkpidInterval = setInterval(function(){check_process(obj)},3000);
+								}
+
+							}
+							if (action.toLowerCase().indexOf("update") >= 0){
+								$( "#edge_integrity_dialog_header" ).text("Message");
+								$( "#edge_integrity_dialog_content" ).text("Your project(s) SRA metadata was successfully updated.");
+								setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
+							}
+							if (action.toLowerCase().indexOf("batch") >= 0 ){
+								$( "#edge-sra-metadata-project-page" ).hide();
+								$( "#edge-project-page" ).show();
+							}else{
+								setTimeout(function(){ updateReport($('#edge-output-projid').attr("data-pid"));},5000);
+							}
+						}
+					}
+					else{
+						// display error information
+						if(! $.isEmptyObject(obj.PARAMS)){
+							var projlistIndex = Object.keys(obj.PARAMS);
+							$.each(projlistIndex, function(j,h){
+								$.each(obj.PARAMS[h], function(i,v){
+									$("[name^='"+i+"']").eq(h).addClass("highlight");
+									$("#"+i).addClass("highlight");
+									$("#"+i).parents('div[data-role="collapsible"]').collapsible( "option", "collapsed", false );
+									var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>"+v+"</a></li>";
+									$( "#" + info_dom_id ).fadeIn("fast");
+									$(dom).appendTo("#" + info_dom_id).on("click", function(){
+										$('html, body').animate({
+											scrollTop: $("#"+i).offset().top-100
+										}, 200);
+									});
+								});
+							});
+						}else{
+							var dom;
+							if ( action === "upload2sra"){
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to NCBI SRA. Please check UPLOAD/sra_submit.log in the project directory for detail.</a></li>";
+							}
+							if ( action === "batch-upload2gisaid"){
+								dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to submit to NCBI SRA.</a></li>";
+							}
+							$( "#" + info_dom_id ).append(dom).fadeIn("fast");
+						}
+						if (w){
+							setTimeout(function(){ w.close(); },300);
+						}
+					}
+				
+					if( $(".list-info, .list-info-delete").size() ){
+						var h = $( "#" + info_dom_id ).outerHeight();
+						var h1 = parseInt(h)+100;
+						$('html, body').animate({ scrollTop: "+="+h1+"px" }, 500);
+					}
+
+				},
+				error: function(data){
+					var dom = "<li data-icon='delete' data-theme='c' class='list-info-delete'><a href='#'>FAILED to run NCBI SRA submission CGI. Please check server error log for detail.</a></li>";
+					$( "#" +info_dom_id ).append(dom).fadeIn("fast");
+					//listview("refresh");
+					if (w){ w.close();}
+				}
+			});
+	}
 });
 //# sourceURL=edge-output.js

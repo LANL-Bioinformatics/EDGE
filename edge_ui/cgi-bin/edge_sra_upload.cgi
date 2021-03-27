@@ -148,30 +148,33 @@ if($action eq "create-form") {
 	my $upload_content_reldir = "$projDir_rel/UPLOAD";
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
+	make_dir($upload_content_dir);
 	if(-e $projDir) {
 		#sample metadata
-		my $gisaid_done = "$upload_content_dir/gisaid_ncbi_submission.done";
-		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
-		my $selected_consensus = $opt{'metadata-sample-consensus'};
-		$selected_consensus =~ s/::/ /g;
-		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
-		$selected_consensus =~ s/.fasta//;
-		writeMetaData($projDir,$selected_consensus);
-		#gisaid profile
-		writeProfile($profileDir);
-		#create an input file for submission pipeline
-		writeSubmissionFile($projDir,$selected_consensus,$submit_metadata_out);
+		my $sra_done = "$upload_content_dir/ncbi_sra_submission.done";
+		my $metadata_project= "$upload_content_dir/sra_project.txt";
+		my $metadata_sample = "$upload_content_dir/sra_samples.txt";
+		my $metadata_exp    = "$upload_content_dir/sra_experiments.txt";
+		my $metadata_filelist    = "$upload_content_dir/sra_filelist.txt";
+		
+		#my $date_str = strftime "%Y%m%d", localtime;
+		my $sra_submit_data_dir = "$upload_content_dir/sra_transfer_".$pname;
+		my ($input_pe_fastq, $input_se_fastq) = get_input_fastq($projDir,$sra_submit_data_dir);
+		
+		writeBioProject($projDir,$metadata_project);
+		writeBioSamples($projDir,$metadata_sample);
+		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq,);
 
 		unlink "$projCompleteReport_cache";
 		if ($action eq "update"){
 			&returnParamsStatus();
 		}
-		my $consensus_ref_file = "$projDir/ReadsBasedAnalysis/readsMappingToRef/$consensus_ref";
+
 		if ($action eq "download"){
 			# download
-			my $zip_file = "$upload_content_dir/${prealname}_metadata.zip";
-			my $zip_file_rel = "$upload_content_reldir/${prealname}_metadata.zip";
-			my $cmd = "zip -j $zip_file $submit_metadata_out $consensus_ref_file 2>/dev/null";
+			my $zip_file = "$upload_content_dir/${prealname}_sra_metadata.zip";
+			my $zip_file_rel = "$upload_content_reldir/${prealname}_sra_metadata.zip";
+			my $cmd = "zip -j $zip_file $metadata_project $metadata_sample $metadata_exp 2>/dev/null";
 			`$cmd`;
 			$msg->{PATH} = $zip_file_rel;
 			addMessage("DOWNLOAD","failure","failed to zip metadata for downloading") unless (-e $zip_file);
@@ -179,13 +182,22 @@ if($action eq "create-form") {
 		}
 		#
 		#call gisaid upload 
-		my $submit_log = "$upload_content_dir/submit.log";
-		my $submit_current_log = "$upload_content_dir/submit_current.log";
-		my $submit_script = "$upload_content_dir/submit.sh";
-		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} ." -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
-		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
-
-		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $gisaid_done, $gisaid_cmd, $ncbi_cmd);
+		my $submit_log = "$upload_content_dir/sra_submit.log";
+		my $submit_current_log = "$upload_content_dir/sra_submit_current.log";
+		my $submit_script = "$upload_content_dir/sra_submit.sh";
+		## prepare submission.xml file
+		my $ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_xml.py --input-dir $sra_submit_data_dir --listfile $metadata_filelist --projectfile $metadata_project --metadatafile $metadata_sample ";
+		$ncbi_cmd .= "--libselection \'$opt{'metadata-sra-meta-libselection'}\' --libstrategy \'$opt{'metadata-sra-meta-libstrategy'}\' --datatype 'Raw sequence reads' --instrument \'$opt{'metadata-sra-meta-libmodel'}\' ";
+		$ncbi_cmd .= "--libsource \'$opt{'metadata-sra-meta-libsource'}\'  --platform \'$opt{'metadata-sra-meta-platform'}\' --samplescope eMultiisolate --liblayout \'$opt{'metadata-sra-meta-liblayout'}\' ";
+		$ncbi_cmd .= "--libdesign \'$opt{'metadata-sra-meta-libdesign'}\'  --libtitle \'$opt{'metadata-sra-meta-libtitle\'  ";
+		## file transfer commands;
+		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/";
+		$ncbi_cmd .= "\ncd $upload_content_dir\n";
+		$ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_ascp.py --ncbi-sra-dir \'$ncbi_sra_dir\' --input-dir \'".basename($sra_submit_data_dir)."/\' ";
+		$ncbi_cmd .= " --ncbi-username ". $sys->{sra_submission_account}
+		$ncbi_cmd .= " --ncbi-private-key ". $sys->{sra_acsp_keyfile} .  "\n";
+		
+		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $sra_done, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
 			or exec ("/bin/bash $submit_script > $submit_current_log &");
@@ -351,6 +363,51 @@ if ($action !~ /create.*form/){
 
 ######################################################
 
+sub get_input_fastq {
+	my $projdir = shift;
+	my $transfer_dir = shift;
+	make_dir($transfer_dir);
+	my @PEFILES;
+	my @SEFILES;
+	open(my $sumfh, "$projdir/process.log") or die $!;
+	while(<$sumfh>) {
+		chomp;
+		#parse input files
+		if( /runPipeline .*-p (.*) -\w/ || /runPipeline .*-p (.*) >/ || /runPipeline .*-p (.*)$/) {
+			push @PEFILES, split /\s+/,$1;
+		}
+		if(/runPipeline .*-u (.*) -\w/ || /runPipeline .*-u (.*) >/ || /runPipeline .*-u (.*)$/){
+			push @SEFILES, split /\s+/,$1;
+		}
+		if(/SRA_id=(.*)/){
+            # this should not be the case since it already in SRA db.  Just for test.
+        	my @SRAFILES = glob("$projdir/SRA_Download/*fastq.gz");
+        	my %pair;
+        	foreach (@SRAFILES){
+				if (/(\S+)_?.?[12]/){
+					push @PEFILES, "$projdir/SRA_Download/$_";
+				}else{
+					push @SEFILES, "$projdir/SRA_Download/$_";
+				}
+			}
+        }
+    }
+	close $sumfh;
+	
+	foreach my $file_i (0..$#PEFILES){
+		my $basename = basename($PEFILES[$file_i]);
+		symlink($PEFILES[$file_i], "$transfer_dir/$basename");
+		$PEFILES[$file_i] = "$transfer_dir/$basename";
+	}
+	foreach my $file_i (0..$#SEFILES){
+		my $basename = basename($SEFILES[$file_i]);
+		symlink($SEFILES[$file_i], "$transfer_dir/$basename");
+		$SEFILES[$file_i] = "$transfer_dir/$basename";
+	}
+	
+	return (\@PEFILES,\@SEFILES);
+}
+
 sub write_tsv{
         my $outfile = shift;
         my $header = shift;
@@ -364,117 +421,139 @@ sub touchFile{
     open (my $fh,">",$file) or die "$!";
     close $fh;
 }
-sub writeSubmissionFile{
-	my $outdir = shift;
-	my $selected_consensus = shift;
-	my $metadata_out = shift;
-	open my $ofh,  ">$metadata_out";
-	print $ofh <<"OUTMSG";
-virus_name=$opt{'metadata-virus-name'}
-virus_passage=$opt{'metadata-virus-passage'}
-collection_date=$opt{'metadata-sample-collection-date'}
-location=$opt{'metadata-sample-location'}
-host=$opt{'metadata-sample-host'}
-gender=$opt{'metadata-sample-gender'}
-age=$opt{'metadata-sample-age'}
-status=$opt{'metadata-sample-status'}
-sequencing_technology=$opt{'metadata-sample-sequencing-tech'}
-assembly_method=$opt{'metadata-sample-assembly-method'}
-originating_lab=$opt{'metadata-orig-lab'}
-originating_address=$opt{'metadata-orig-address'} 
-submitting_lab=$opt{'metadata-sub-lab'}
-submitting_address=$opt{'metadata-sub-address'}
-authors=$opt{'metadata-authors'}
-submitter=$opt{'metadata-submitter'}
-gisaid_id=$opt{'metadata-gisaid-id'}
-ncbi_id=$opt{'metadata-ncbi-id'}
-coverage=$selected_consensus
-OUTMSG
 
-	#print $ofh "gisaid_pw=".$opt{'metadata-gisaid-pw'}."\n";#
-	close $ofh;
-}
-
-sub writeMetaData{
+sub writeBioProject{
 	my $outdir = shift;
-	my $selected_consensus = shift;
-	my $metadata_out = "$outdir/metadata_gisaid_ncbi.txt";
-	my @virusName = split /[\x0]/, $opt{'metadata-virus-names'};
-	open my $ofh,  ">$metadata_out";
+	my $outfile = shift;
+
+	open my $ofh,  ">$outfile";
 	print $ofh <<"OUTMSG";
-virus_name=$opt{'metadata-virus-name'}
-virus_passage=$opt{'metadata-virus-passage'}
-collection_date=$opt{'metadata-sample-collection-date'}
-location=$opt{'metadata-sample-location'}
-host=$opt{'metadata-sample-host'}
-gender=$opt{'metadata-sample-gender'}
-age=$opt{'metadata-sample-age'}
-status=$opt{'metadata-sample-status'}
-sequencing_technology=$opt{'metadata-sample-sequencing-tech'}
-coverage=$selected_consensus
+Last	BPH
+First	LANL
+Center	LANL Biosecurity and Public Health
+Type	Center
+Website	https://edge-covid19.edgebioinformatics.org/
+ProjectName	$opt{'metadata-sra-bioproject-title'}
+ProjectTitle	$opt{'metadata-sra-bioproject-title'}
+Description	$opt{'metadata-sra-bioproject-desc'} 
+Organism	Severe acute respiratory syndrome coronavirus 2
+Email	$opt{'metadata-sra-submitter'} 
+Release	$opt{'metadata-sra-release-date'} 
+Resource	{"$opt{'metadata-sra-bioproject-link-desc'}":"$opt{'metadata-sra-bioproject-link-url'}"}
 OUTMSG
 	close $ofh;
 }
 
-sub writeProfile{
-	my $dir = shift;
-	my $profile_out =  "$dir/gisaid_ncbi_submission_profile.txt";
-	if(-e $profile_out) {
-		open my $fh, $profile_out or die "Can't open $profile_out $!";
-		while(<$fh>){
-			chomp;
-			next if(/^#/);
-			if ( /(.*)=(.*)/ ){
-				$opt{'metadata-submitter'} =$2 if ($1 eq "submitter" && !$opt{'metadata-submitter'});
-				$opt{'metadata-gisaid-id'} =$2 if ($1 eq "gisaid_id" && !$opt{'metadata-gisaid-id'});
-				$opt{'metadata-ncbi-id'} =$2 if ($1 eq "ncbi_id" && !$opt{'metadata-ncbi-id'});
-			}
-		}
-		close $fh;
+sub writeBioSamples{
+	my $outdir = shift;
+	my $outfile = shift;
+	my $append = shift;
+	my @sample_string;
+	
+	if (!$append){ unlink $outfile; }
+	open my $ofh,  ">>", "$outfile";
+	my @header = ("sample_name", "sample_title", "organism", "isolate", "collected_by", "collection_date", 
+	              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
+	              "host_health_state","host_age","host_sex",
+	              "passage_history", "description", "purpose_of_sampling",
+	              "purpose_of_sequencing","GISAID_accession");
+	if ($opt{'metadata-sra-bioproject-id'}) { push @header, "bioproject_accession"; }
+	
+	$sample_string[0] = $opt{'metadata-sra-biosample-name'} ;
+	$sample_string[1] = "not collected";
+	$sample_string[2] = "Severe acute respiratory syndrome coronavirus 2";
+	$sample_string[3] = $opt{'metadata-sra-biosample-isolate'};
+	$sample_string[4] = ($opt{'metadata-sra-biosample-collect-by'})? $opt{'metadata-sra-biosample-collect-by'} : "not collected";
+	$sample_string[5] = ($opt{'metadata-sra-biosample-collection-date'})? $opt{'metadata-sra-biosample-collection-date'} : "not collected";
+	$sample_string[6] = ($opt{'metadata-sra-biosample-location'})? $opt{'metadata-sra-biosample-location'} : "not collected";
+	$sample_string[7] = ($opt{'metadata-sra-biosample-isolate-source'})? $opt{'metadata-sra-biosample-isolate-source'} : "not collected";
+	$sample_string[8] = ($opt{'metadata-sra-biosample-latlon'})? $opt{'metadata-sra-biosample-latlon'} : "not collected";
+	$sample_string[9] = ($opt{'metadata-sra-biosample-host'})? $opt{'metadata-sra-biosample-host'} : "not collected";
+	$sample_string[10] = "Severe acute respiratory syndrome";
+	$sample_string[11] = ($opt{'metadata-sra-biosample-status'})? $opt{'metadata-sra-biosample-status'} : "not collected";
+	$sample_string[12] = ($opt{'metadata-sra-biosample-age'})? $opt{'metadata-sra-biosample-age'} : "not collected";
+	$sample_string[13] = ($opt{'metadata-sra-biosample-gender'})? $opt{'metadata-sra-biosample-gender'} : "not collected";
+	$sample_string[14] = ($opt{'metadata-sra-biosample-passage'})? $opt{'metadata-sra-biosample-passage'} : "not collected";
+	$sample_string[15] = "not collected";
+	$sample_string[16] = ($opt{'metadata-sra-biosample-ps'})? $opt{'metadata-sra-biosample-ps'} : "not collected";
+	$sample_string[17] = ($opt{'metadata-sra-meta-ps'})? $opt{'metadata-sra-meta-ps'} : "not collected";
+	$sample_string[18] = ($opt{'metadata-sra-biosample-gisaid'})? $opt{'metadata-sra-biosample-gisaid'} : "not collected";
+	if ($opt{'metadata-sra-bioproject-id'}) {
+		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
 	}
-
-	open my $ofh,  ">$profile_out";
-	print $ofh <<"OUTMSG";
-originating_lab=$opt{'metadata-orig-lab'}
-originating_address=$opt{'metadata-orig-address'}
-submitting_lab=$opt{'metadata-sub-lab'}
-submitting_address=$opt{'metadata-sub-address'}
-authors=$opt{'metadata-authors'}
-submitter=$opt{'metadata-submitter'}
-gisaid_id=$opt{'metadata-gisaid-id'}
-ncbi_id=$opt{'metadata-ncbi-id'}
-OUTMSG
+	
+	if (!$append){
+		print $ofh, "#Pathogen.cl.1.0\n";
+		print $ofh, join("\t",@header),"\n";
+	}
+	print $ofh, join("\t",@sample_string), "\n";
 	close $ofh;
+}
+
+sub writeExperiment{
+	my $outdir = shift;
+	my $outfile = shift;
+	my $outfilelist = shift;
+	my $input_pe_fastq = shift;
+	my $input_se_fastq = shift;
+	my $append = shift;
+	my @sample_string;
+
+	if (!$append){ unlink $outfile; unlink $outfilelist;}
+	open my $ofh,  ">>", "$outfile";
+	open my $oflh, ">>", "$outfilelist";
+	my @header = ("sample_name","library_ID","title","library_strategy","library_source",
+				  "library_selection","library_layout","platform","instrument_model",
+				  "design_description","filetype","filename","filename2","filename3",
+				  "filename4");
+	
+	$sample_string[0] = $opt{'metadata-sra-biosample-name'} ;
+	$sample_string[1] = $opt{'metadata-sra-biosample-name'}."_lib";
+	$sample_string[2] = ($opt{'metadata-sra-meta-title'})? $opt{'metadata-sra-meta-title'} : "not collected";
+	$sample_string[3] = $opt{'metadata-sra-meta-libstrategy'};
+	$sample_string[4] = $opt{'metadata-sra-meta-libsource'};
+	$sample_string[5] = $opt{'metadata-sra-meta-libselection'};
+	$sample_string[6] = $opt{'metadata-sra-meta-liblayout'};
+	$sample_string[7] = $opt{'metadata-sra-meta-platform'};
+	$sample_string[8] = $opt{'metadata-sra-meta-libmodel'};
+	$sample_string[9] = ($opt{'metadata-sra-meta-design'})? $opt{'metadata-sra-meta-design'} : "not collected";
+	$sample_string[10] = "fastq";
+	foreach my $file(@$input_pe_fastq){
+		push @sample_string, basename($file);
+	}
+	foreach my $file(@$input_se_fastq){
+		push @sample_string, basename($file);
+	}
+	
+	if (!$append){
+		print $ofh, join("\t",@header),"\n";
+	}
+	print $ofh, join("\t",@sample_string), "\n";
+	print $oflh, join("\t",$sample_string[0],@sample_string),"\n";
+	close $ofh;
+	close $oflh;
 }
 
 sub SetSubmitScript {
 	my $submit_script = shift;
 	my $submit_log = shift;
 	my $projCompleteReport_cache = shift;
-	my $gisaid_done = shift;
-	my $gisaid_cmd = shift;
+	my $sra_done = shift;
 	my $ncbi_cmd = shift;
 	open (my $fh,">","$submit_script");
 	my $cmd = "cd $edgeui_wwwroot\nexport PYTHONUNBUFFERED=on\n";
 	$cmd .= "if [ -f $submit_log ]; then \n";
-        $cmd .=	"  if (! grep -q 'GISAID submit Completed' $submit_log ) then\n";
-	$cmd .= "    $gisaid_cmd\n";
-	$cmd .= "  else\n";
-	$cmd .= "    echo '# GISAID submit Completed already.'\n\n";
-	$cmd .= "  fi\n";
-	$cmd .= "else\n";
-	$cmd .= "  $gisaid_cmd\n";
-	$cmd .= "fi\n";
+  
 	$cmd .= "if ( ! grep -q 'NCBI submit Completed' $submit_log ) then\n";
 	$cmd .= "  $ncbi_cmd\n";
 	$cmd .= "else\n";
 	$cmd .= "  echo '# NCBI submit Completed already,'\n\n";
 	$cmd .= "fi\n";
-	$cmd .= "if ( grep -q 'GISAID submit Completed' $submit_log ) && ( grep -q 'NCBI submit Completed' $submit_log ) then\n";
-	if ( ref($gisaid_done) eq 'ARRAY'){
-		$cmd .= "  touch ". join(" ",@$gisaid_done) . "\n";
+	$cmd .= "if ( grep -q 'NCBI submit Completed' $submit_log ) then\n";
+	if ( ref($sra_done) eq 'ARRAY'){
+		$cmd .= "  touch ". join(" ",@$sra_done) . "\n";
 	}else{
-		$cmd .= "  touch $gisaid_done\n";
+		$cmd .= "  touch $sra_done\n";
 	}
 	$cmd .= "fi\n";
 	if ( ref($projCompleteReport_cache) eq 'ARRAY'){
@@ -713,6 +792,12 @@ sub addMessage {
 		$msg->{$job}->{NOTE}=$note if defined $note;
 		$msg->{SUBMISSION_STATUS}=$status if $status eq "failure";
 	}
+}
+
+sub make_dir{
+        my $dir=shift;
+        make_path($dir,{chmod => 0755,});
+        return 0;
 }
 
 sub checkParams {

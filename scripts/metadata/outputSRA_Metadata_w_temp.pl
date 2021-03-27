@@ -6,6 +6,8 @@ use File::Basename;
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use POSIX qw{strftime};
+use File::Path qw(make_path remove_tree);
+use File::Copy;
 
 my $out_dir       = $ARGV[0];
 my $html_outfile  = $ARGV[1];
@@ -44,10 +46,10 @@ sub output_html {
 	close ($htmlfh);
 }
 sub check_submission_status{
-	my $gisaid_done = "$out_dir/UPLOAD/gisaid_ncbi_submission.done";
-	if ( -e $gisaid_done){
-		my $gisaid_submit_date = strftime "%F",localtime((stat("$gisaid_done"))[9]);
-                $vars->{GISAID_SUBMIT_TIME} = $gisaid_submit_date;
+	my $sra_done = "$out_dir/UPLOAD/ncbi_sra_submission.done";
+	if ( -e $sra_done){
+		my $sra_submit_date = strftime "%F",localtime((stat("$sra_done"))[9]);
+                $vars->{SRA_SUBMIT_TIME} = $sra_submit_date;
 	}
 }
 

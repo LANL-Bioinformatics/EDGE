@@ -38,6 +38,7 @@ def main(argv):
         print("Failed to upload %s to NCBI" % ready_file)
         return(False)
 
+    print("NCBI submit Completed");
     return(True)
 
 if __name__ == '__main__':
