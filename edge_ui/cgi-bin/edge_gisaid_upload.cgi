@@ -277,7 +277,7 @@ if($action eq "create-form") {
 		#gisaid profile
 		writeProfile($profileDir);
 		#create an input file for submission pipeline
-		writeSubmissionFile($projDir,$selected_consensus);
+		writeSubmissionFile($projDir,$selected_consensus,$submit_metadata_out);
 		unlink $projCompleteReport_cache;
 	}
 	if ($action eq "batch-update"){
@@ -416,6 +416,8 @@ age=$opt{'metadata-sample-age'}
 status=$opt{'metadata-sample-status'}
 sequencing_technology=$opt{'metadata-sample-sequencing-tech'}
 coverage=$selected_consensus
+bioproject=$opt{'metadata-sample-bioproject-id'}
+release=$opt{'metadata-sample-release-date'}
 OUTMSG
 	close $ofh;
 }

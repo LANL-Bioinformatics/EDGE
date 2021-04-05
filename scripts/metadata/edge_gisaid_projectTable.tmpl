@@ -94,6 +94,28 @@
 </table>
 	<p class='edge_tool_note' id="mac-scroll-bar-note">Don't see X scroll bar!! On Mac, please try <a href="https://heresthethingblog.com/2015/03/10/mac-tip-macs-scroll-bars/" target="_new">this</a>.</p>
 	<br /><br />
+	<div class="ui-corner-all custom-corners" id="edge-gisaid-metadata-additional-info">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Additional information</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div class="ui-field-contain">
+				<label for="metadata-sample-bioproject-id">Existing BioProject<a title="[Optional] PRJNA714680 is BioProject ID for SARS-CoV-2 WGS: Los Alamos National Laboratory, Biosecurity and Public Health." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<input type="text" id="metadata-sample-bioproject-id2" name="metadata-sample-bioproject-id"
+							placeholder="[Optional] PRJNAXXXXX, ex:PRJNA714680" 
+							value="<TMPL_VAR NAME=SM_BIOPROJECT_ID DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-sample-release-date">Release date</label>
+				<input type="text" data-role="date" data-mini="true" data-clear-btn="false"
+						value="<TMPL_VAR NAME=SM_RELEASE_DATE DEFAULT=>" name="metadata-sample-release-date"
+						id="metadata-sample-release-date2"
+						placeholder="Example: 2021-04-20"
+						maxlength="30" class="metadata-input metadata-input-date">
+			</div>
+		</div>
+	</div>
+	<br /><br />
 	<div class="ui-corner-all custom-corners">
 		<div class="ui-bar ui-bar-d">
 			<b><em>Institute information</em></b>
@@ -127,6 +149,7 @@
 		</div>
 	</div>
 	<br /><br />
+	
 	<div class="ui-corner-all custom-corners" id="edge-gisaid-metadata-submitter-info">
 		<div class="ui-bar ui-bar-d">
 			<b><em>Submitter information</em> <a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" title="Only required for submission."></a> </b>

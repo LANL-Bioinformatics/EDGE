@@ -247,7 +247,9 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         print("4. Sequences")
         wait.until(EC.text_to_be_present_in_element((By.XPATH,"//h2"),"Sequences"))
         driver.find_elements_by_xpath("//ul[@id='id_release-choice']//label")[0].click()
-
+        if "release" in authorsMetadata and authorsMetadata['release']:
+            driver.find_elements_by_xpath("//ul[@id='id_release-choice']//label")[1].click()
+            driver.find_element_by_name('release-release_date').send_keys(authorsMetadata['release'])
         driver.find_element_by_name('sequences_file-sequences_file').send_keys(seqfile_abs)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "b.filesize")))
         time.sleep(iv)

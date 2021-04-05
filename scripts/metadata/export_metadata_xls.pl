@@ -60,11 +60,11 @@ my $row=2;
 my $col=0;
 my $seqID="seq0";
 
-my @src_tsv_header = ("Sequence_ID","Organism","isolate","collection-date","country","host","Collected-By");
+my @src_tsv_header = ("Sequence_ID","Organism","isolate","collection-date","country","host","Collected-By","BioProject");
 my @src_tsv_content;
 my @cmt_tsv_header = ("SeqID","StructuredCommentPrefix","Assembly Method","Coverage","Sequencing Technology","StructuredCommentSuffix");
 my @cmt_tsv_content;
-
+my $release_date;
 #write metadata to sheets
 foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
@@ -113,16 +113,26 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment Icon
 	my ($virus,$country,$identifier,$year) = split /\//, $vars->{VIR_NAME};
 	my $ncbi_virus_name = "SARS-CoV-2/Homo sapiens/$country/$identifier/$year";
-	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB});
+	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB},$vars->{SM_BIOPROJECT_ID});
 	push @src_tsv_content, $src_tsv_string;
 	my $cmt_tsv_string = join("\t",$seqID,"Assembly-Data",$vars->{ASM_METHOD},$vars->{SM_COV},$vars->{SM_SEQUENCING_TECH},"Assembly-Data");
 	push @cmt_tsv_content, $cmt_tsv_string;
+	$release_date = $vars->{SM_RELEASE_DATE};
 	$row++;
 }
 
 $template->SaveAs($out);
 &write_tsv($source_tsvout, join("\t",@src_tsv_header), join("\n",@src_tsv_content));
 &write_tsv($comment_tsvout,join("\t",@cmt_tsv_header), join("\n",@cmt_tsv_content));
+&append_release_date_to_submitter_profiler($submitter_profile,$release_date);
+
+sub append_release_date_to_submitter_profiler{
+	my $file = shift;
+	my $date = shift;
+	open (my $fh ,">>", $file) or die "Cannot open $file";
+	print $fh "release=$date\n";
+	close $fh;
+}
 
 sub write_tsv{
 	my $outfile = shift;
@@ -225,6 +235,8 @@ sub pull_sampleMetadata {
                                 $vars->{SM_STATUS} =$2 if ($1 eq "status");
                                 $vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
                                 $vars->{SM_COV} = $2 if ($1 eq "coverage");
+                                $vars->{SM_BIOPROJECT_ID} =$2 if ($1 eq "bioproject");
+                                $vars->{SM_RELEASE_DATE} =$2 if ($1 eq "release");
                         }
                 }
                 close CONF;
