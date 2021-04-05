@@ -4,6 +4,7 @@ use strict;
 use CGI qw(:standard);
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 use FindBin qw($RealBin);
+use lib "../../lib";
 use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
@@ -390,6 +391,8 @@ submitter=$opt{'metadata-submitter'}
 gisaid_id=$opt{'metadata-gisaid-id'}
 ncbi_id=$opt{'metadata-ncbi-id'}
 coverage=$selected_consensus
+bioproject=$opt{'metadata-sample-bioproject-id'}
+release=$opt{'metadata-sample-release-date'}
 OUTMSG
 
 	#print $ofh "gisaid_pw=".$opt{'metadata-gisaid-pw'}."\n";#
@@ -483,7 +486,7 @@ sub SetSubmitScript {
 	}else{
 		$cmd .= "unlink $projCompleteReport_cache\n";
 	}
-	$cmd .=	"unlink $submit_script\n" if (! $debug );
+	$cmd .= "unlink $submit_script\n" if (! $debug );
 	print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
 	print $fh $cmd,"\n";
 	close $fh;

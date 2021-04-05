@@ -210,8 +210,9 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
         wait.until(EC.text_to_be_present_in_element((By.XPATH,"//h2"),"Sequences"))
         driver.find_elements_by_xpath("//ul[@id='id_release-choice']//label")[0].click()
         # release date input
-        # driver.find_elements_by_xpath("//ul[@id='id_release-choice']//label")[1].click()
-        # driver.find_element_by_name('release-release_date').send_keys('2021-05-30')
+        if "release" in metadata and metadata['release']:
+            driver.find_elements_by_xpath("//ul[@id='id_release-choice']//label")[1].click()
+            driver.find_element_by_name('release-release_date').send_keys(metadata['release'])
         driver.find_element_by_name('sequences_file-sequences_file').send_keys(seqfile_abs)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "b.filesize")))
         time.sleep(iv)
@@ -249,9 +250,10 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
         driver.find_element_by_name('srcmods-isolate').send_keys(srcmods[2])
         driver.find_element_by_name('srcmods-collection_date').send_keys(metadata['collection_date'])
         #Add Bioproject 
-        #driver.find_element_by_xpath("//select[@id='field_picker_1']/option[text()='Bioproject']").click()
-        #driver.find_elements_by_xpath( "//a[@class='auto-add-field']")[0].click()
-        #driver.find_element_by_name('srcmods-bioproject').send_keys(metadata['Bioproject'])
+        if "bioproject" in metadata and metadata['bioproject']:
+            driver.find_element_by_xpath("//select[@id='field_picker_1']/option[text()='Bioproject']").click()
+            driver.find_elements_by_xpath( "//a[@class='auto-add-field']")[0].click()
+            driver.find_element_by_name('srcmods-bioproject').send_keys(metadata['bioproject'])
         #Add Biosample
         #driver.find_element_by_xpath("//select[@id='field_picker_1']/option[text()='Biosample']").click()
         #driver.find_elements_by_xpath( "//a[@class='auto-add-field']")[0].click()
