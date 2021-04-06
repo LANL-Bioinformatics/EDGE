@@ -15,6 +15,8 @@ my $projname = $ARGV[2];
 my $userDir = $ARGV[3];
 my @out_dir_parts = split('/', $out_dir);
 my $projid = $out_dir_parts[-1];
+my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
+my $sys          = &getSysParamFromConfig($sysconfig);
 
 ## Instantiate the variables
 my $vars;
@@ -25,6 +27,11 @@ eval {
 	&pull_submissionData();
 	&pull_consensusInfo();
 	&check_submission_status();
+	&pull_bioproject();
+	&pull_biosamples();
+	&pull_experiments();
+	&pull_sra_additional();
+	
 };
 
 output_html();
@@ -33,6 +40,12 @@ sub output_html {
 	$vars->{OUTPUTDIR}  = $out_dir;
 	$vars->{PROJNAME} ||= $projname;
 	$vars->{PROJID} ||= $projid;
+	
+	if ($vars->{BIOPROJECT_ID}){
+		$vars->{USE_BIOPROJECT_ID}="checked='checked'";
+	}else{
+		$vars->{NOT_USE_BIOPROJECT_ID}="checked='checked'";
+	}
 	
 	my $template = HTML::Template->new(filename => "$RealBin/edge_sra_upload.tmpl",
 		                               strict => 0,
@@ -50,8 +63,140 @@ sub check_submission_status{
 	if ( -e $sra_done){
 		my $sra_submit_date = strftime "%F",localtime((stat("$sra_done"))[9]);
                 $vars->{SRA_SUBMIT_TIME} = $sra_submit_date;
+                $vars->{SRA_SUBMIT_DISABLE} = 1;
+	}
+	if (!$sys->{sra_acsp_keyfile} or !$sys->{sra_submission_account}){
+		$vars->{SRA_SUBMIT_DISABLE} = 1;
 	}
 }
+
+sub pull_bioproject{
+	my $metadata = "$out_dir/UPLOAD/sra_project.txt";
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my ($key, $value) = split /\t/,$_;
+			$vars->{BIOPROJECT_TITLE} =$value if ($key eq "BIOPROJECT_TITLE");
+			$vars->{BIOPROJECT_DESC} =$value if ($key eq "BIOPROJECT_DESC");
+			$vars->{BIOPROJECT_LINK_DESC} =$value if ($key eq "BIOPROJECT_LINK_DESC");
+			$vars->{BIOPROJECT_LINK_URL} =$value if ($key eq "BIOPROJECT_LINK_URL");
+		}
+		close $fh;
+	}
+}
+
+
+sub pull_biosamples{
+	my $metadata = "$out_dir/UPLOAD/sra_samples.txt";
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+		#my @headers = ("sample_name", "sample_title", "organism", "isolate", "collected_by", "collection_date", 
+		#              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
+		#              "host_health_state","host_age","host_sex",
+		#              "passage_history", "description", "purpose_of_sampling",
+		#              "purpose_of_sequencing","GISAID_accession","bioproject_accession");
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my (@headers, @itmes);
+			my @items = split /\t/,$_ ;
+			if (/^sample_name/){
+				@headers = @items;
+			}else{
+				$vars->{BIOSAMPLE_NAME} =$items[0];
+				$vars->{BIOSAMPLE_ISOLATE} =$items[3];
+				$vars->{BIOSAMPLE_CBY} =$items[4];
+				$vars->{BIOSAMPLE_CDATE} =$items[5];
+				$vars->{BIOSAMPLE_LOC} =$items[6];
+				$vars->{BIOSAMPLE_ISOLATESOURCE} =$items[7];
+				$vars->{BIOSAMPLE_LATLON} =$items[8];
+				$vars->{BIOSAMPLE_HOST} =$items[9];
+				$vars->{"BIOSAMPLE_STATUS_"."$items[11]"} ="selected";
+				$vars->{BIOSAMPLE_AGE} =$items[12];
+				$vars->{"BIOSAMPLE_GENDER_"."$items[13]"} ="selected";
+				$vars->{BIOSAMPLE_PASSAGE} =$items[14];
+				(my $selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
+				$vars->{"BIOSAMPLE_PS_"."$selected_BIOSAMPLE_PS"} ="selected";
+				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
+				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
+				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
+				$vars->{BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
+			}
+		}
+		close $fh;
+	}
+	$vars->{BIOSAMPLE_NAME} ||= $configuration->{projname};
+}
+
+sub pull_experiments{
+	my $metadata = "$out_dir/UPLOAD/sra_experiments.txt";
+	my ($selected_SRA_LIBSTRATEGY, $selected_SRA_LIBSOURCE, $selected_SRA_LIBSELECT, $selected_SRA_SEQMODEL)=("","","","");
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+	#my @header = ("sample_name","library_ID","title","library_strategy","library_source",
+	#			  "library_selection","library_layout","platform","instrument_model",
+	#			  "design_description","filetype","filename","filename2","filename3",
+	#			  "filename4");
+		
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my (@headers, @itmes);
+			my @items = split /\t/,$_; 
+			if (/^sample_name/){
+				@headers = @items;
+			}else{
+			#  {methodology} of {organism}: {sample info}"
+				$vars->{"SRA_LIBTITLE"} =$items[2];
+				($selected_SRA_LIBSTRATEGY = $items[3]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSTRATEGY_"."$selected_SRA_LIBSTRATEGY"} = "selected";
+				($selected_SRA_LIBSOURCE = $items[4]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSOURCE_"."$selected_SRA_LIBSOURCE"} = "selected";
+				($selected_SRA_LIBSELECT = $items[5]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSELECT_"."$selected_SRA_LIBSELECT"} = "selected";
+				$vars->{"SRA_LIBLAYOUT_"."$items[6]"} = "selected";
+				$vars->{"SRA_PLATFORM_"."$items[7]"} = "selected";
+				($selected_SRA_SEQMODEL = $items[8]) =~ s/\s/_/g;
+				$vars->{"SRA_SEQMODEL_"."$selected_SRA_SEQMODEL"} = "selected";
+				$vars->{"SRA_LIBDESIGN"} =$items[9];
+			}
+		}
+		close $fh;
+	}	
+	my $amplicon_method;
+	if( $configuration->{porechop} =~ /artic_ncov2019_primer_schemes_(.*)/){
+		$amplicon_method = "ARTIC $1 amplicon ";
+	}elsif ( $configuration->{porechop} =~ /SC2_200324/){
+		$amplicon_method = "CDC primer shceme SC2_200324 amplicon ";
+	}elsif ( $configuration->{porechop} =~ /swift_primer_schemes_v2/){
+		$amplicon_method = "SWIFT primer shceme V2 amplicon ";
+	}  
+	my $default_title = $amplicon_method . "Sequencing of SARS-CoV-2 from ". $vars->{BIOSAMPLE_ISOLATESOURCE} if ($vars->{BIOSAMPLE_ISOLATESOURCE} !~ /missing|not collected|unknown|not available|NA|Other/i);
+	$vars->{"SRA_LIBTITLE"} ||= $default_title;
+	my $default_design = $amplicon_method. "_" . $selected_SRA_SEQMODEL;
+	$vars->{"SRA_LIBDESIGN"} ||= $default_design;
+}
+sub pull_sra_additional {
+	my $metadata = "$out_dir/UPLOAD/sra_additional_info.txt";
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			if ( /(.*)=(.*)/ ){
+				$vars->{SRA_SUBMITTER} =$2 if ($1 eq "metadata-sra-submitter");
+				$vars->{SRA_RELEASE_DATE} =$2 if ($1 eq "metadata-sra-release-date");
+			}
+		}
+		close $fh
+	}
+	$vars->{SRA_SUBMITTER} ||= $configuration->{projowner};
+	my $today_str = strftime "%Y-%m-%d", localtime;
+	$vars->{SRA_RELEASE_DATE} ||= $today_str;
+}
+
 
 sub pull_consensusInfo{
 	# coverage info is at ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt
@@ -115,6 +260,7 @@ sub pull_consensusInfo{
 	}
 	close $config_fh
 }
+
 sub consensus_composition_info{
         my $comp_files = shift;
         my %comp;
@@ -143,48 +289,34 @@ sub consensus_composition_info{
         return \%comp;
 }
 
+
+
 sub pull_sampleMetadata {
 	my $metadata = "$out_dir/metadata_gisaid_ncbi.txt";
 	if(-e $metadata) {
-        	open CONF, $metadata or die "Can't open $metadata $!";
-        	while(<CONF>){
-      			chomp;
-               	 	next if(/^#/);
-           		if ( /(.*)=(.*)/ ){
-             			$vars->{VIR_NAME} =$2 if ($1 eq "virus_name");
-             			$vars->{VIR_PASSAGE} =$2 if ($1 eq "virus_passage");
-             			$vars->{SM_CDATE} =$2 if ($1 eq "collection_date");
-             			$vars->{SM_LOC} =$2 if ($1 eq "location");
-             			$vars->{SM_HOST} =$2 if ($1 eq "host");
-             			$vars->{SM_GENDER} = $2 if ($1 eq "gender");
-             			$vars->{SM_AGE} =$2 if ($1 eq "age");
-             			$vars->{SM_STATUS} =$2 if ($1 eq "status");
-             			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
+       	open CONF, $metadata or die "Can't open $metadata $!";
+       	while(<CONF>){
+     		chomp;
+       	 	next if(/^#/);
+       		if ( /(.*)=(.*)/ ){
+				$vars->{BIOSAMPLE_ISOLATE} =$2 if ($1 eq "virus_name");
+				$vars->{BIOSAMPLE_PASSAGE} =$2 if ($1 eq "virus_passage");
+				$vars->{BIOSAMPLE_CDATE} =$2 if ($1 eq "collection_date");
+				$vars->{SM_LOC} =$2 if ($1 eq "location");
+				$vars->{BIOSAMPLE_HOST} =$2 if ($1 eq "host");
+				$vars->{"BIOSAMPLE_GENDER_".$2} = "selected" if ($1 eq "gender");
+				$vars->{BIOSAMPLE_AGE} =$2 if ($1 eq "age");
+				$vars->{"BIOSAMPLE_STATUS_".$2} = "selected" if ($1 eq "status");
+				$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
 				$vars->{SM_COV} = $2 if ($1 eq "coverage");
-              		}
-      		}
-		if ($vars->{SM_GENDER} =~ /Female/i){
-			$vars->{SM_GENDER_FEMALE} = "selected";
-		}elsif($vars->{SM_GENDER} =~ /Male/i){
-			$vars->{SM_GENDER_MALE} = "selected";
-		}elsif($vars->{SM_GENDER} =~ /Unknown/i){
-			$vars->{SM_GENDER_UNKNOWN} = "selected";
-		}elsif($vars->{SM_GENDER} =~ /Other/i){
-			$vars->{SM_GENDER_OTHER} = "selected";
-		}
-		if ($vars->{SM_STATUS} =~ /Hospitalized/i){
-			$vars->{SM_STATUS_Hospitalized} = "selected";
-		}elsif($vars->{SM_STATUS} =~ /Released/i){
-			$vars->{SM_STATUS_Released} = "selected";
-		}elsif($vars->{SM_STATUS} =~ /Live/i){
-			$vars->{SM_STATUS_Live} = "selected";
-		}elsif($vars->{SM_STATUS} =~ /Deceased/i){
-			$vars->{SM_STATUS_Deceased} = "selected";
-		}elsif($vars->{SM_STATUS} =~ /Unknown/i){
-			$vars->{SM_STATUS_Unknown} = "selected";
-		}
-        	close CONF;
+				$vars->{BIOPROJECT_ID} = $2 if ($1 eq "bioproject");
+            }
+      	}
+		my ($continent, $country, $region)= split("/",$vars->{SM_LOC});
+		$vars->{BIOSAMPLE_LOC} = "$country: $region";
+        close CONF;
 	}
+	
 }
 
 sub pull_submissionData {
@@ -196,6 +328,7 @@ sub pull_submissionData {
                	 	next if(/^#/);
            		if ( /(.*)=(.*)/ ){
              			$vars->{ORIG_LAB} =$2 if ($1 eq "originating_lab");
+             			$vars->{BIOSAMPLE_CBY} = $vars->{ORIG_LAB};
              			$vars->{ORIG_ADDRESS} =$2 if ($1 eq "originating_address");
              			$vars->{SUB_LAB} =$2 if ($1 eq "submitting_lab");
              			$vars->{SUB_ADDRESS} =$2 if ($1 eq "submitting_address");
@@ -252,4 +385,27 @@ sub pull_EDGEConfig
     }
     close $fh;
     return \%hash;
+}
+
+sub getSysParamFromConfig {
+	my $config = shift;
+	my $sys;
+	my $flag=0;
+	open CONF, $config or die "Can't open $config: $!";
+	while(<CONF>){
+		if( /^\[system\]/ ){
+			$flag=1;
+			while(<CONF>){
+				chomp;
+				last if /^\[/;
+				if ( /^([^=]+)=([^=]+)/ ){
+					$sys->{$1}=$2;
+				}
+			}
+		}
+		last;
+	}
+	close CONF;
+	die "Incorrect system file\n" if (!$flag);
+	return $sys;
 }

@@ -21,7 +21,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi pangolin )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium ascp )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
@@ -1529,6 +1529,21 @@ echo "
 "
 }
 
+install_ascp(){
+local VER=3.9.6
+echo "------------------------------------------------------------------------------
+                        Installing ascp $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -c rpetit3 aspera-connect
+
+echo "
+------------------------------------------------------------------------------
+                         ascp Installed
+------------------------------------------------------------------------------
+"
+}
+
 install_selenium(){
 local VER=3.141.0
 echo "------------------------------------------------------------------------------
@@ -2531,7 +2546,7 @@ else
 fi
 
 if [ -x "$anaconda3bin/../envs/pangolin/bin/pangolin" ]
-then|
+then
     Pangolin_VER=`$anaconda3bin/../envs/pangolin/bin/pangolin  -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
     if [ $(versionStr $Pangolin_VER) -ge $(versionStr "2.3.2") ]
     then
@@ -2544,6 +2559,19 @@ else
    install_pangolin
 fi
 
+if [ -x "$anaconda3bin/ascp" ]
+then
+  ascp_VER=`$anaconda3bin/ascp --version | perl -nle 'print $1 if m{ascp.*?(\d\.\d+\.\d+)}'`;
+  if [ $(versionStr $ascp_VER) -ge $(versionStr "3.9.1") ]
+  then
+    echo "ascp $ascp_VER is found"
+  else
+    install_ascp
+  fi
+else
+  echo "ascp is not found"
+  install_ascp
+fi
 
 # if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
 # then

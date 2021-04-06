@@ -2805,7 +2805,7 @@ $( document ).ready(function()
 				}
 				//END sample metadata
 				// GISAID
-                		if(obj.INFO.SHOWGISAID && focusProjIsOwner) {
+                		if(focusProjIsOwner) {
 					$("#metadata-gisaid-actions").show();
 				} else {
 					$("#metadata-gisaid-actions").hide();
@@ -4317,9 +4317,9 @@ $( document ).ready(function()
 			success: function(data){
 				//console.log("got response");
 				allMainPage.hide();
-				$( "#edge-gisaid-metadata-project-page" ).html(data);
-				$( "#edge-gisaid-metadata-project-page" ).show();
-				$( "#edge-gisaid-metadata-project-page" ).enhanceWithin();
+				$( "#edge-sra-metadata-project-page" ).html(data);
+				$( "#edge-sra-metadata-project-page" ).show();
+				$( "#edge-sra-metadata-project-page" ).enhanceWithin();
 				$.getScript( "./javascript/edge-gisaid.js" )
 					.done(function( script, textStatus ) {
 				})

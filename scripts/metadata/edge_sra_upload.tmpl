@@ -6,7 +6,7 @@
 	<base href='.'>
 	<meta charset='utf-8'>
 	<meta name='viewport' content='width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no'>
-	<title>EDGE bioinformatics</title>
+	<title>EDGE COVID-19</title>
 	<link rel="shortcut icon" href="images/edge.ico" type="image/x-icon">
 	<link rel="icon" href="images/edge.ico" type="image/x-icon">
 	<link rel="stylesheet" href="css/edge-theme.min.css" />
@@ -38,7 +38,7 @@
 		<div data-role='header' class='edge-header ui-header ui-bar-inherit'>
 			<div class='edge-logo'>
 				<img src='images/edge_logo.svg'>
-				<h2 class='ui-title' role='heading' aria-level='1'>EDGE bioinformatics</h2>
+				<h2 class='ui-title' role='heading' aria-level='1'>EDGE COVID-19</h2>
 			</div>
 		</div><!-- /header -->
 
@@ -58,9 +58,9 @@
 							<div class="ui-field-contain" id="metadata-sra-bioproject-sw">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 								<legend>Use Registered BioProject</legend>
-								<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw1" value="1">
+								<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw1" value="1" <TMPL_VAR NAME=USE_BIOPROJECT_ID DEFAULT=>>
 								<label for="metadata-sra-bioproject-sw1">Yes</label>
-								<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw2" value="0" checked="checked">
+								<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw2" value="0" <TMPL_VAR NAME=NOT_USE_BIOPROJECT_ID DEFAULT=>>
 								<label for="metadata-sra-bioproject-sw2">No</label>
 							</fieldset>
 							</div>
@@ -68,7 +68,7 @@
 								<label for="metadata-sra-bioproject-id">Existing BioProject<a title="PRJNA714680 is BioProject ID for SARS-CoV-2 WGS: Los Alamos National Laboratory, Biosecurity and Public Health." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
 								<input type="text" id="metadata-sra-bioproject-id" name="metadata-sra-bioproject-id"
 									placeholder="PRJNAXXXXX, ex:PRJNA714680" 
-									value="<TMPL_VAR NAME=BIOPROJECT_NAME DEFAULT=>" class="metadata-input">
+									value="<TMPL_VAR NAME=BIOPROJECT_ID DEFAULT=>" class="metadata-input">
 							</div>
 							<div class="ui-field-contain metadata-sra-bioproject-input">
 								<label for="metadata-sra-bioproject-title">Project title<a title="Provide a brief title, as a phrase or short sentence for public display." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
@@ -159,7 +159,7 @@
 							<div class="ui-field-contain">
 								<label for="metadata-sra-biosample-collection-date">Collection date</label>
 								<input type="text" data-role="date" data-mini="true" data-clear-btn="false"
-									value="<TMPL_VAR NAME=BIOSAMPLE_CDATE DEFAULT=>" name="metadata-sample-collection-date"
+									value="<TMPL_VAR NAME=BIOSAMPLE_CDATE DEFAULT=>" name="metadata-sra-biosample-collection-date"
 									id="metadata-sra-biosample-collection-date"
 									placeholder="ex: 2020-03-27, 2020-03 (collection in March, day unknown), 2020 (month and day unknown)"
 									maxlength="30" class="metadata-input metadata-input-date">
@@ -176,7 +176,7 @@
 								<label for="metadata-sra-biosample-latlon">Lat Lon<a title="The coordinates of the geographical location of sample or host collection.If known, provide the geographical coordinates of the location where the sample was collected. Specify as degrees latitude and longitude in the format 'd[d.dddd] N|S d[dd.dddd] W|E'. If unknown, put 'not collected', or other null value like 'missing'." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
 								<input type="text" id="metadata-sra-biosample-latlon" name="metadata-sra-biosample-latlon"
 									placeholder="ex: 38.98 N 77.11 W"
-									value="<TMPL_VAR NAME=BIOSAMPLE_CBY DEFAULT=>" class="metadata-input">
+									value="<TMPL_VAR NAME=BIOSAMPLE_LATLON DEFAULT=>" class="metadata-input">
 							</div>
 							
 							<div class="ui-field-contain">
@@ -191,10 +191,10 @@
 								<label for="metadata-sra-biosample-gender">Host gender</label>
 								<select name="metadata-sra-biosample-gender" id="metadata-sra-biosample-gender" data-mini="true" data-native-menu="false" class="metadata-input">
 									<option value="">Select Gender</option>
-									<option value="Male" <TMPL_VAR NAME=BIOSAMPLE_GENDER_MALE>>Male</option>
-									<option value="Female" <TMPL_VAR NAME=BIOSAMPLE_GENDER_FEMALE>>Female</option>
-									<option value="Undeclared" <TMPL_VAR NAME=BIOSAMPLE_GENDER_OTHER>>Other</option>
-									<option value="Unknown" <TMPL_VAR NAME=BIOSAMPLE_GENDER_UNKNOWN>>Unknown</option>
+									<option value="Male" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Male>>Male</option>
+									<option value="Female" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Female>>Female</option>
+									<option value="Undeclared" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Undeclared>>Other</option>
+									<option value="Unknown" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Unknown>>Unknown</option>
 								</select>
 							</div>
 
@@ -273,7 +273,7 @@
 									<option value="CLONE" <TMPL_VAR NAME=SRA_LIBSTRATEGY_CLONE>>CLONE</option>
 									<option value="Hi-C" <TMPL_VAR NAME=SRA_LIBSTRATEGY_Hi-C>>Hi-C</option>
 									<option value="RNA-Seq" <TMPL_VAR NAME=SRA_LIBSTRATEGY_RNA-Seq>>RNA-Seq</option>
-									<option value="OTHER" <TMPL_VAR NAME=SRA_LIBSTRATEGY_AMPLICON>>OTHER</option>
+									<option value="OTHER" <TMPL_VAR NAME=SRA_LIBSTRATEGY_OTHER>>OTHER</option>
 								</select>
 							</div>
 							<div class="ui-field-contain">
@@ -303,10 +303,10 @@
 								<label for="metadata-sra-meta-platform">Sequencing Platform</label>
 								<select name="metadata-sra-meta-platform" id="metadata-sra-meta-platform" data-mini="true" data-native-menu="false" class="metadata-input">
 									<option value="">Select Platform</option>
-									<option value="ILLUMINA" <TMPL_VAR NAME=SRA_PLATFORM_LS454>>ILLUMINA</option>
+									<option value="ILLUMINA" <TMPL_VAR NAME=SRA_PLATFORM_ILLUMINA>>ILLUMINA</option>
 									<option value="OXFORD_NANOPORE" <TMPL_VAR NAME=SRA_PLATFORM_OXFORD_NANOPORE>>OXFORD_NANOPORE</option>
 									<option value="PACBIO_SMRT" <TMPL_VAR NAME=SRA_PLATFORM_PACBIO_SMRT>>PACBIO_SMRT</option>
-									<option value="_LS454" <TMPL_VAR NAME=SRA_PLATFORM_LS454>>_LS454</option>
+									<option value="_LS454" <TMPL_VAR NAME=SRA_PLATFORM__LS454>>_LS454</option>
 									<option value="ABI_SOLID" <TMPL_VAR NAME=SRA_PLATFORM_ABI_SOLID>>ABI_SOLID</option>
 									<option value="BGISEQ" <TMPL_VAR NAME=SRA_PLATFORM_BGISEQ>>BGISEQ</option>
 									<option value="CAPILLARY" <TMPL_VAR NAME=SRA_PLATFORM_CAPILLARY>>CAPILLARY</option>
@@ -328,72 +328,74 @@
 										<option value="454 GS Junior" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_Junior>>454 GS Junior</option>
 									</optgroup>
 									<optgroup label = "ABI_SOLID">
-										<option value="AB 5500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_5500>>AB 5500 Genetic Analyzer</option>
-										<option value="AB 5500xl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_5500xl>>AB 5500xl Genetic Analyzer</option>
-										<option value="AB 5500x-Wl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_5500xWL>>AB 5500x-Wl Genetic Analyzer</option>
-										<option value="AB SOLiD 3 Plus System" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_3_PLUS>>AB SOLiD 3 Plus System</option>
-										<option value="AB SOLiD 4 System" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_4>>AB SOLiD 4 System</option>
-										<option value="AB SOLiD 4hq System," <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_4hq>>AB SOLiD 4hq System,</option>
-										<option value="AB SOLiD PI System" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_PI>>AB SOLiD PI System</option>
-										<option value="AB SOLiD System" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID>>AB SOLiD System</option>
-										<option value="AB SOLiD System 2.0" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_2>>AB SOLiD System 2.0</option>
-										<option value="AB SOLiD System 3.0" <TMPL_VAR NAME=SRA_SEQMODEL_SOLID_2>>AB SOLiD System 3.0</option>
+										<option value="AB 5500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500_Genetic_Analyzer>>AB 5500 Genetic Analyzer</option>
+										<option value="AB 5500xl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500xl_Genetic_Analyzer>>AB 5500xl Genetic Analyzer</option>
+										<option value="AB 5500x-Wl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500x-Wl_Genetic_Analyzer>>AB 5500x-Wl Genetic Analyzer</option>
+										<option value="AB SOLiD 3 Plus System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_3_Plus_System>>AB SOLiD 3 Plus System</option>
+										<option value="AB SOLiD 4 System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_4_System>>AB SOLiD 4 System</option>
+										<option value="AB SOLiD 4hq System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_4hq_System>>AB SOLiD 4hq System,</option>
+										<option value="AB SOLiD PI System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_PI_System>>AB SOLiD PI System</option>
+										<option value="AB SOLiD System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System>>AB SOLiD System</option>
+										<option value="AB SOLiD System 2.0" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System_2.0>>AB SOLiD System 2.0</option>
+										<option value="AB SOLiD System 3.0" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System_3.0>>AB SOLiD System 3.0</option>
 									</optgroup>
 									<optgroup label = "BGISEQ">
-										<option value="BGISEQ-500" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ_500>>BGISEQ-500</option>
-										<option value="DNBSEQ-G400" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ_DNBSEQ-G400>>DNBSEQ-G400</option>
-										<option value="DNBSEQ-G50" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ_DNBSEQ-G50>>DNBSEQ-G50</option>
-										<option value="DNBSEQ-T7" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ_DNBSEQ-T7>>DNBSEQ-T7</option>
+										<option value="BGISEQ-500" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ-500>>BGISEQ-500</option>
+										<option value="DNBSEQ-G400" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-G400>>DNBSEQ-G400</option>
+										<option value="DNBSEQ-G50" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-G50>>DNBSEQ-G50</option>
+										<option value="DNBSEQ-T7" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-T7>>DNBSEQ-T7</option>
 									</optgroup>
 									<optgroup label = "CAPILLARY">
-										<option value="AB 310 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_310>>AB 310 Genetic Analyzer</option>
-										<option value="AB 3130 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3130>>AB 3130 Genetic Analyzer</option>
-										<option value="AB 3130xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3130xL>>AB 3130xL Genetic Analyzer</option>
-										<option value="AB 3500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3500>>AB 3500 Genetic Analyzer</option>
-										<option value="AB 3500xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3500xL>>AB 3500xL Genetic Analyzer</option>
-										<option value="AB 3730 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3730>>AB 3730 Genetic Analyzer</option>
-										<option value="AB 3730xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_CAPILLARY_3730xL>>AB 3730xL Genetic Analyzer</option>
+										<option value="AB 310 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_310_Genetic_Analyzer>>AB 310 Genetic Analyzer</option>
+										<option value="AB 3130 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3130_Genetic_Analyzer>>AB 3130 Genetic Analyzer</option>
+										<option value="AB 3130xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3130xL_Genetic_Analyzer>>AB 3130xL Genetic Analyzer</option>
+										<option value="AB 3500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3500_Genetic_Analyzer>>AB 3500 Genetic Analyzer</option>
+										<option value="AB 3500xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3500xL_Genetic_Analyzer>>AB 3500xL Genetic Analyzer</option>
+										<option value="AB 3730 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3730_Genetic_Analyzer>>AB 3730 Genetic Analyzer</option>
+										<option value="AB 3730xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3730xL_Genetic_Analyzer>>AB 3730xL Genetic Analyzer</option>
 									</optgroup>
 									<optgroup label = "COMPLETE_GENOMICS">
-										<option value="Complete Genomics" <TMPL_VAR NAME=SRA_SEQMODEL_COMPLETE_GENOMICS>>Complete Genomics</option>
+										<option value="Complete Genomics" <TMPL_VAR NAME=SRA_SEQMODEL_Complete_Genomics>>Complete Genomics</option>
 									</optgroup>
 									<optgroup label = "HELICOS">
-										<option value="Helicos HeliScope" <TMPL_VAR NAME=SRA_SEQMODEL_HELICOS>>Helicos HeliScope</option>
+										<option value="Helicos HeliScope" <TMPL_VAR NAME=SRA_SEQMODEL_Helicos_HeliScope>>Helicos HeliScope</option>
 									</optgroup>
 									<optgroup label = "ILLUMINA">
-										<option value="Illumina MiSeq" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_MiSeq>>MiSeq</option>
-										<option value="Illumina NextSeq 500" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_NextSeq500>>NextSeq 500</option>
-										<option value="Illumina NextSeq 550" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_NextSeq550>>NextSeq 550</option>
-										<option value="HiSeq X Five" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeqX5>>HiSeq X Five</option>
-										<option value="HiSeq X Ten" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeqX10>>HiSeq X Ten</option>
-										<option value="Illumina Genome Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_GA>>Genome Analyzer</option>
-										<option value="Illumina Genome Analyzer II" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_GAII>>Genome Analyzer II</option>
-										<option value="Illumina Genome Analyzer IIx" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_GAIIx>>Genome Analyzer IIx</option>
-										<option value="Illumina HiScanSQ" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiScanSQ>>Illumina HiScanSQ</option>
-										<option value="Illumina HiSeq 1000" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq1000>>HiSeq 1000</option>
-										<option value="Illumina HiSeq 1500" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq1500>>HiSeq 1500</option>
-										<option value="Illumina HiSeq 2000" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq2000>>HiSeq 2000</option>
-										<option value="Illumina HiSeq 2500" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq2500>>HiSeq 2500</option>
-										<option value="Illumina HiSeq 3000" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq3000>>HiSeq 3000</option>
-										<option value="Illumina HiSeq 4000" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_HiSeq4000>>HiSeq 4000</option>
-										<option value="Illumina iSeq 100" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_iSeq100>>iSeq 100</option>
-										<option value="Illumina NovaSeq 600" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_NovaSeq600>>NovaSeq 6000</option>
-										<option value="Illumina MiniSeq" <TMPL_VAR NAME=SRA_SEQMODEL_IILUM_MiniSeq>>MiniSeq</option>
+										<option value="Illumina MiSeq" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_MiSeq>>MiSeq</option>
+										<option value="Illumina NextSeq 500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_500>>NextSeq 500</option>
+										<option value="Illumina NextSeq 550" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_550>>NextSeq 550</option>
+										<option value="Illumina NextSeq 1000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_1000>>NextSeq 1000</option>
+										<option value="Illumina NextSeq 2000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_2000>>NextSeq 2000</option>
+										<option value="HiSeq X Five" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_X_Five>>HiSeq X Five</option>
+										<option value="HiSeq X Ten" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_X_Ten>>HiSeq X Ten</option>
+										<option value="Illumina Genome Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer>>Genome Analyzer</option>
+										<option value="Illumina Genome Analyzer II" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer_II>>Genome Analyzer II</option>
+										<option value="Illumina Genome Analyzer IIx" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer_IIx>>Genome Analyzer IIx</option>
+										<option value="Illumina HiScanSQ" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiScanSQ>>Illumina HiScanSQ</option>
+										<option value="Illumina HiSeq 1000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_1000>>HiSeq 1000</option>
+										<option value="Illumina HiSeq 1500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_1500>>HiSeq 1500</option>
+										<option value="Illumina HiSeq 2000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_2000>>HiSeq 2000</option>
+										<option value="Illumina HiSeq 2500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_2500>>HiSeq 2500</option>
+										<option value="Illumina HiSeq 3000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_3000>>HiSeq 3000</option>
+										<option value="Illumina HiSeq 4000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_4000>>HiSeq 4000</option>
+										<option value="Illumina iSeq 100" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_iSeq_100>>iSeq 100</option>
+										<option value="Illumina NovaSeq 600" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NovaSeq_600>>NovaSeq 6000</option>
+										<option value="Illumina MiniSeq" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_MiniSeq>>MiniSeq</option>
 									</optgroup>
 									<optgroup label = "ION_TORRENT">
-										<option value="Ion Torrent PGM" <TMPL_VAR NAME=SRA_SEQMODEL_ION_TORRENT_PGM>>PGM</option>
-										<option value="Ion Torrent Proton" <TMPL_VAR NAME=SRA_SEQMODEL_ION_TORRENT_Proton>>Proton</option>
-										<option value="Ion Torrent S5" <TMPL_VAR NAME=SRA_SEQMODEL_ION_TORRENT_S5>>S5</option>
-										<option value="Ion Torrent S5 XL" <TMPL_VAR NAME=SRA_SEQMODEL_ION_TORRENT_S5XL>>S5 XL</option>
+										<option value="Ion Torrent PGM" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_PGM>>PGM</option>
+										<option value="Ion Torrent Proton" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_Proton>>Proton</option>
+										<option value="Ion Torrent S5" <TMPL_VAR NAME=SRA_SEQMODEL_Ion-Torrent_S5>>S5</option>
+										<option value="Ion Torrent S5 XL" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_S5_XL>>S5 XL</option>
 									</optgroup>
 									<optgroup label = "OXFORD_NANOPORE">
-										<option value="MinION" <TMPL_VAR NAME=SRA_SEQMODEL_MANOPORE_MinION>>MinION</option>
-										<option value="GridION" <TMPL_VAR NAME=SRA_SEQMODEL_MANOPORE_GridION>>GridION</option>
-										<option value="PromethION" <TMPL_VAR NAME=SRA_SEQMODEL_MANOPORE_PromethION>>PromethION</option>
+										<option value="MinION" <TMPL_VAR NAME=SRA_SEQMODEL_MinION>>MinION</option>
+										<option value="GridION" <TMPL_VAR NAME=SRA_SEQMODEL_GridION>>GridION</option>
+										<option value="PromethION" <TMPL_VAR NAME=SRA_SEQMODEL_PromethION>>PromethION</option>
 									</optgroup>
 									<optgroup label = "PACBIO_SMRT">
 										<option value="PacBio RS" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_RS>>PacBio RS</option>
-										<option value="PacBio RS II" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_RSII>>PacBio RS II</option>
+										<option value="PacBio RS II" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_RS_II>>PacBio RS II</option>
 										<option value="PacBio Sequel" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_Sequel>>PacBio Sequel</option>
 									</optgroup>
 								</select>
@@ -404,9 +406,9 @@
 										<option value="">Select Reason</option>
 										<option value="Baseline surveillance" <TMPL_VAR NAME=SRA_PS_Baseline_surveillance>>Baseline surveillance</option>
 										<option value="Targeted surveillance" <TMPL_VAR NAME=SRA_PS_Targeted_surveillance>>Targeted surveillance</option>
-										<option value="Cluster or Outbreak investigation" <TMPL_VAR NAME=SRA_PS_Outbreak_investigation>>Cluster/Outbreak investigation</option>
+										<option value="Cluster or Outbreak investigation" <TMPL_VAR NAME=SRA_PS_Cluster_or_Outbreak_investigation>>Cluster/Outbreak investigation</option>
 										<option value="Research" <TMPL_VAR NAME=SRA_PS_Research>>Research</option>
-										<option value="Missing" <TMPL_VAR NAME=SRA_PS_Unknown>>Unknown</option>
+										<option value="Missing" <TMPL_VAR NAME=SRA_PS_Missing>>Unknown</option>
 									</select>
 							</div>
 						</div>
@@ -435,7 +437,7 @@
 				<br/><br/>
 
 				<div class="edge-center">
-					<TMPL_UNLESS NAME="NCBI_SRA_SUBMIT_TIME">
+					<TMPL_UNLESS NAME="SRA_SUBMIT_DISABLE">
 					<input data-mini="true" type="button" id="edge-sra-form-submit" data-inline="true"
 						class="edge-center" value="Submit to NCBI">
 					</TMPL_UNLESS>

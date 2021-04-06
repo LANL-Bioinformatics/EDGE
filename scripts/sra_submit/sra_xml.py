@@ -170,7 +170,7 @@ class SubmitXML():
 
         return(True)    # end of SetBiosample
 
-    def SetFASTQ(self, fastq, title, sid, attr, date):
+    def SetFASTQ(self, fastq, title, sid, attr, date, bioprojectID = None):
         """ FASTQ files and sequencing instrument """
         # list of FASTQ files
         fq = [self.SetElement("File", "", {"file_path": f}, [
@@ -180,11 +180,14 @@ class SubmitXML():
         attr["library_name"] = "%s.%s" % (fastq[0], sid)
         at = [self.SetElement("Attribute", attr[k], {"name": k}) for k in attr.keys()]
 
+        if bioprojectID:
+            bpid_attr = [self.SetElement("PrimaryId", bioprojectID, {"db": "BioProject"})]
+        else:
+            bpid_attr = [self.SetElement("SPUID", title, {"spuid_namespace": self.org})]
         # supplemental information
         rf = [
             self.SetElement("AttributeRefId", "", {"name": "BioProject"}, [
-                self.SetElement("RefId", "", {}, [
-                    self.SetElement("SPUID", title, {"spuid_namespace": self.org})])]),
+                self.SetElement("RefId", "", {}, bpid_attr)]),
             self.SetElement("AttributeRefId", "", {"name": "BioSample"}, [
                 self.SetElement("RefId", "", {}, [
                     self.SetElement("SPUID", sid + ":" + date, {"spuid_namespace": self.org})])]),
@@ -257,7 +260,10 @@ class SubmitXML():
         for k, v in fastq.items():
             sid = k
             fqs += [False if f == "null" else True for f in v]
-            self.SetFASTQ(v, project["ProjectName"], sid, library, date)
+            if "bioproject_accession" not in sample[k]:
+                self.SetFASTQ(v, project["ProjectName"], sid, library, date)
+            else:
+                self.SetFASTQ(v, None, sid, library, date, sample[k]["bioproject_accession"])
 
         return(not (False in fqs))
 
@@ -304,7 +310,7 @@ def ValidateLog(f):
 def main(argv):
     validate_xml = os.path.join(os.path.dirname(argv.project), "validate.xml")
     submit_xml = os.path.join(argv.input_dir, "submission.xml")
-
+    print("Generate Submission.xml file")
     #SaveEmail(args.project) # save the user email address
 
     ncbi = SubmitXML()      # generate the XML file for SRA submission
@@ -324,7 +330,7 @@ def main(argv):
         return(1)
 
     ncbi.Write(submit_xml)
-
+    print("Validate Submission.xml by NCBI ")
     with open(validate_xml, "w") as rp:
         subprocess.call(["curl", "-X", "POST", "-d", "@%s" % submit_xml,
             "https://www.ncbi.nlm.nih.gov/projects/biosample/validate/"], stdout = rp)

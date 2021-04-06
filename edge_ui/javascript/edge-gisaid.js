@@ -482,8 +482,7 @@ $( document ).ready(function()
 	}
 
 	//NCBI SRA
-	$(".metadata-sra-bioproject-use-id").hide();
-	$('#metadata-sra-bioproject-sw').on("change",function(){
+	function check_bioproject_id (){
 		if ( $("#metadata-sra-bioproject-sw1").is(':checked') ){
 			$(".metadata-sra-bioproject-use-id").show();
 			$(".metadata-sra-bioproject-input").hide();
@@ -492,7 +491,9 @@ $( document ).ready(function()
 			$(".metadata-sra-bioproject-use-id").hide();
 			$(".metadata-sra-bioproject-input").show();
 		}
-	});
+	}
+	check_bioproject_id();
+	$('#metadata-sra-bioproject-sw').on("change",check_bioproject_id);
 	
 	var model_optgroups = $('#metadata-sra-meta-libmodel').find('optgroup');
 	$('#metadata-sra-meta-platform').on("change",function(){
@@ -514,7 +515,7 @@ $( document ).ready(function()
 		var projname=$('#edge-project-title').text().replace(' /','');
 		var formDom = $("#edge-sra-upload-form");
 		if ( action == 'upload2sra' ){
-			var actionContent =  'Submit to NCBI SRA. Do you want to proceed? <p>This action can not be undone.</p>';
+			var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the samples and metadata to the NCBI SRA, and agree to remit the samples and related metadata to the public domain.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
 			$('#edge_confirm_dialog').enhanceWithin().popup('open');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){

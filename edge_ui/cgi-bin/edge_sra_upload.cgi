@@ -9,7 +9,7 @@ use JSON;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename;
-use File::Path;
+use File::Path qw(make_path remove_tree);
 use Digest::MD5 qw(md5_hex);
 use POSIX qw(strftime);
 require "./edge_user_session.cgi";
@@ -24,7 +24,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= "";
+my $debug= "1";
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -152,21 +152,24 @@ if($action eq "create-form") {
 	if(-e $projDir) {
 		#sample metadata
 		my $sra_done = "$upload_content_dir/ncbi_sra_submission.done";
-		my $metadata_project= "$upload_content_dir/sra_project.txt";
-		my $metadata_sample = "$upload_content_dir/sra_samples.txt";
-		my $metadata_exp    = "$upload_content_dir/sra_experiments.txt";
+		my $metadata_project  = "$upload_content_dir/sra_project.txt";
+		my $metadata_sample   = "$upload_content_dir/sra_samples.txt";
+		my $metadata_exp      = "$upload_content_dir/sra_experiments.txt";
 		my $metadata_filelist    = "$upload_content_dir/sra_filelist.txt";
+		my $metadata_other_info  = "$upload_content_dir/sra_additional_info.txt";
 		
-		#my $date_str = strftime "%Y%m%d", localtime;
-		my $sra_submit_data_dir = "$upload_content_dir/sra_transfer_".$pname;
+		my $date_str = strftime "%Y%m%d%H%M%S", localtime;
+		my $sra_submit_data_dir = "$upload_content_dir/sra_transfer_".$date_str.$pname;
 		my ($input_pe_fastq, $input_se_fastq) = get_input_fastq($projDir,$sra_submit_data_dir);
 		
 		writeBioProject($projDir,$metadata_project);
 		writeBioSamples($projDir,$metadata_sample);
-		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq,);
+		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq);
+		wrtieAdditional($projDir,$metadata_other_info);
 
 		unlink "$projCompleteReport_cache";
 		if ($action eq "update"){
+			remove_tree($sra_submit_data_dir);
 			&returnParamsStatus();
 		}
 
@@ -174,10 +177,11 @@ if($action eq "create-form") {
 			# download
 			my $zip_file = "$upload_content_dir/${prealname}_sra_metadata.zip";
 			my $zip_file_rel = "$upload_content_reldir/${prealname}_sra_metadata.zip";
-			my $cmd = "zip -j $zip_file $metadata_project $metadata_sample $metadata_exp 2>/dev/null";
+			my $cmd = "zip -j $zip_file $metadata_project $metadata_sample $metadata_exp $metadata_filelist $metadata_other_info 2>/dev/null";
 			`$cmd`;
 			$msg->{PATH} = $zip_file_rel;
 			addMessage("DOWNLOAD","failure","failed to zip metadata for downloading") unless (-e $zip_file);
+			remove_tree($sra_submit_data_dir);
 			&returnParamsStatus();
 		}
 		#
@@ -189,13 +193,14 @@ if($action eq "create-form") {
 		my $ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_xml.py --input-dir $sra_submit_data_dir --listfile $metadata_filelist --projectfile $metadata_project --metadatafile $metadata_sample ";
 		$ncbi_cmd .= "--libselection \'$opt{'metadata-sra-meta-libselection'}\' --libstrategy \'$opt{'metadata-sra-meta-libstrategy'}\' --datatype 'Raw sequence reads' --instrument \'$opt{'metadata-sra-meta-libmodel'}\' ";
 		$ncbi_cmd .= "--libsource \'$opt{'metadata-sra-meta-libsource'}\'  --platform \'$opt{'metadata-sra-meta-platform'}\' --samplescope eMultiisolate --liblayout \'$opt{'metadata-sra-meta-liblayout'}\' ";
-		$ncbi_cmd .= "--libdesign \'$opt{'metadata-sra-meta-libdesign'}\'  --libtitle \'$opt{'metadata-sra-meta-libtitle\'  ";
+		$ncbi_cmd .= "--libdesign \'$opt{'metadata-sra-meta-design'}\'  --libtitle \'$opt{'metadata-sra-meta-title'}\'  | tee -a $submit_log ";
 		## file transfer commands;
-		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/";
-		$ncbi_cmd .= "\ncd $upload_content_dir\n";
-		$ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_ascp.py --ncbi-sra-dir \'$ncbi_sra_dir\' --input-dir \'".basename($sra_submit_data_dir)."/\' ";
-		$ncbi_cmd .= " --ncbi-username ". $sys->{sra_submission_account}
-		$ncbi_cmd .= " --ncbi-private-key ". $sys->{sra_acsp_keyfile} .  "\n";
+		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/" ;
+		$ncbi_cmd .= "\n cd $upload_content_dir \n";
+		$ncbi_cmd .= "\n echo 'Transfer files to NCBI' \n";
+		$ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_ascp.py --ncbi-sra-dir \'$ncbi_sra_dir\' --input-dir \'". basename($sra_submit_data_dir) . "\/\' ";
+		$ncbi_cmd .= " --ncbi-username ". $sys->{'sra_submission_account'} ;
+		$ncbi_cmd .= " --ncbi-private-key ". $sys->{'sra_acsp_keyfile'} .  " | tee -a $submit_log \n";
 		
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $sra_done, $ncbi_cmd);
 		my $script_fh;
@@ -206,7 +211,7 @@ if($action eq "create-form") {
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{
 			$msg->{PID} = ++$pid;
-			$msg->{PATH} = "$upload_content_reldir/submit_current.log";
+			$msg->{PATH} = "$upload_content_reldir/sra_submit_current.log";
 			addMessage("SUBMIT",'success',"See the log window for status.");
 		}
 		#or exec ('/bin/bash', "$upload_content_dir/submit.sh");
@@ -332,7 +337,7 @@ if($action eq "create-form") {
 	}
 	if ($msg->{SUBMISSION_STATUS} eq "success" && $action eq "batch-upload2gisaid"){
 		my $submit_log = "$metadata_out_dir/submit.log";
-		my $submit_current_log = "$metadata_out_dir/submit_current.log";
+		my $submit_current_log = "$metadata_out_dir/sra_submit_current.log";
 		my $submit_script = "$metadata_out_dir/submit.sh";
 		my $gisaid_cmd = "$EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $batch_metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
 		my $ncbi_cmd  = "$EDGE_HOME/scripts/NCBI_SARS-CoV2_batch_submitter.py -f $ncbi_all_sequences -s $ncbi_source_tsvout -c $ncbi_comment_tsvout -a $ncbi_submitter_profile -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
@@ -345,7 +350,7 @@ if($action eq "create-form") {
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{
 			$msg->{PID} = ++$pid;
-			$msg->{PATH} = "$relative_outdir/submit_current.log";
+			$msg->{PATH} = "$relative_outdir/sra_submit_current.log";
 			addMessage("BATCH-SUBMIT",'success',"See the log window for status.");
 		}
 		#if ( ! $upload_success_flag ){
@@ -373,6 +378,9 @@ sub get_input_fastq {
 	while(<$sumfh>) {
 		chomp;
 		#parse input files
+		if( /runPipeline/ ) {
+			undef @PEFILES, @SEFILES; 
+        }
 		if( /runPipeline .*-p (.*) -\w/ || /runPipeline .*-p (.*) >/ || /runPipeline .*-p (.*)$/) {
 			push @PEFILES, split /\s+/,$1;
 		}
@@ -383,11 +391,15 @@ sub get_input_fastq {
             # this should not be the case since it already in SRA db.  Just for test.
         	my @SRAFILES = glob("$projdir/SRA_Download/*fastq.gz");
         	my %pair;
-        	foreach (@SRAFILES){
-				if (/(\S+)_?.?[12]/){
-					push @PEFILES, "$projdir/SRA_Download/$_";
-				}else{
-					push @SEFILES, "$projdir/SRA_Download/$_";
+        	if (scalar(@SRAFILES)==1){
+        		@SEFILES = @SRAFILES;
+        	}else{
+				foreach (@SRAFILES){
+					if (/(\S+)_?.?[12]/){
+						push @PEFILES, "$_";
+					}else{
+						push @SEFILES, "$_";
+					}
 				}
 			}
         }
@@ -422,9 +434,22 @@ sub touchFile{
     close $fh;
 }
 
+sub wrtieAdditional{
+	my $outdir = shift;
+	my $outfile = shift;
+
+	open my $ofh,  ">$outfile";
+	print $ofh <<"OUTMSG";
+sra-submitter=$opt{'metadata-sra-submitter'}
+sra-release-date=$opt{'metadata-sra-release-date'}
+OUTMSG
+	close $ofh;
+}
+
 sub writeBioProject{
 	my $outdir = shift;
 	my $outfile = shift;
+
 
 	open my $ofh,  ">$outfile";
 	print $ofh <<"OUTMSG";
@@ -433,14 +458,21 @@ First	LANL
 Center	LANL Biosecurity and Public Health
 Type	Center
 Website	https://edge-covid19.edgebioinformatics.org/
-ProjectName	$opt{'metadata-sra-bioproject-title'}
-ProjectTitle	$opt{'metadata-sra-bioproject-title'}
-Description	$opt{'metadata-sra-bioproject-desc'} 
 Organism	Severe acute respiratory syndrome coronavirus 2
 Email	$opt{'metadata-sra-submitter'} 
 Release	$opt{'metadata-sra-release-date'} 
 Resource	{"$opt{'metadata-sra-bioproject-link-desc'}":"$opt{'metadata-sra-bioproject-link-url'}"}
 OUTMSG
+
+	if ($opt{'metadata-sra-bioproject-title'}){
+		print $ofh "ProjectName\t$opt{'metadata-sra-bioproject-title'}\n"; 
+	}
+	if ($opt{'metadata-sra-bioproject-title'}){
+		print $ofh "ProjectTitle\t$opt{'metadata-sra-bioproject-title'}\n";
+	}
+	if ($opt{'metadata-sra-bioproject-desc'}){
+		print "Description\t$opt{'metadata-sra-bioproject-desc'}\n";
+	}
 	close $ofh;
 }
 
@@ -483,10 +515,10 @@ sub writeBioSamples{
 	}
 	
 	if (!$append){
-		print $ofh, "#Pathogen.cl.1.0\n";
-		print $ofh, join("\t",@header),"\n";
+		print $ofh "#Pathogen.cl.1.0\n";
+		print $ofh join("\t",@header),"\n";
 	}
-	print $ofh, join("\t",@sample_string), "\n";
+	print $ofh join("\t",@sample_string), "\n";
 	close $ofh;
 }
 
@@ -498,7 +530,7 @@ sub writeExperiment{
 	my $input_se_fastq = shift;
 	my $append = shift;
 	my @sample_string;
-
+	my @file_string;
 	if (!$append){ unlink $outfile; unlink $outfilelist;}
 	open my $ofh,  ">>", "$outfile";
 	open my $oflh, ">>", "$outfilelist";
@@ -520,16 +552,18 @@ sub writeExperiment{
 	$sample_string[10] = "fastq";
 	foreach my $file(@$input_pe_fastq){
 		push @sample_string, basename($file);
+		push @file_string, basename($file);
 	}
 	foreach my $file(@$input_se_fastq){
 		push @sample_string, basename($file);
+		push @file_string, basename($file);
 	}
 	
 	if (!$append){
-		print $ofh, join("\t",@header),"\n";
+		print $ofh join("\t",@header),"\n";
 	}
-	print $ofh, join("\t",@sample_string), "\n";
-	print $oflh, join("\t",$sample_string[0],@sample_string),"\n";
+	print $ofh join("\t",@sample_string), "\n";
+	print $oflh join(",",$sample_string[0],@file_string),"\n";
 	close $ofh;
 	close $oflh;
 }
@@ -545,9 +579,12 @@ sub SetSubmitScript {
 	$cmd .= "if [ -f $submit_log ]; then \n";
   
 	$cmd .= "if ( ! grep -q 'NCBI submit Completed' $submit_log ) then\n";
-	$cmd .= "  $ncbi_cmd\n";
+	$cmd .= "  $ncbi_cmd  \n";
 	$cmd .= "else\n";
 	$cmd .= "  echo '# NCBI submit Completed already,'\n\n";
+	$cmd .= "fi\n";
+	$cmd .= "else\n";
+	$cmd .= "  $ncbi_cmd  \n";
 	$cmd .= "fi\n";
 	$cmd .= "if ( grep -q 'NCBI submit Completed' $submit_log ) then\n";
 	if ( ref($sra_done) eq 'ARRAY'){
@@ -559,9 +596,9 @@ sub SetSubmitScript {
 	if ( ref($projCompleteReport_cache) eq 'ARRAY'){
 		$cmd .= "rm -f ". join(" ",@$projCompleteReport_cache) . "\n";
 	}else{
-		$cmd .= "unlink $projCompleteReport_cache\n";
+		$cmd .= "rm -f  $projCompleteReport_cache\n";
 	}
-	$cmd .= "unlink $submit_script\n" if (! $debug );
+	$cmd .= "rm -f  $submit_script\n" if (! $debug );
 	print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
 	print $fh $cmd,"\n";
 	close $fh;
