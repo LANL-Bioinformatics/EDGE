@@ -1515,12 +1515,12 @@ echo "
 }
 
 install_pangolin(){
-local VER=2.3.2
+local VER=2.3.8
 echo "------------------------------------------------------------------------------
                         Installing pangolin $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda create -y -n pangolin -c bioconda pangolin=2.3.2
+$anaconda3bin/conda create -y -n pangolin -c bioconda pangolin
 
 echo "
 ------------------------------------------------------------------------------
