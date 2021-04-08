@@ -463,9 +463,17 @@ $( document ).ready(function()
 					}else if ( /GISAID submit Completed/.test(text) ){
 						msg = "Projects " + projname + " submmited to GISAID sucessfully. Please check log window for NCBI submission.";
 					}else if ( /NCBI submit Completed/.test(text) ){
-						msg = "Projects " + projname + " submmited to NCBI sucessfully. Please check log window for GISAID submission.";
+						if ( /sra_submit/.test(texturl) ){
+							msg = "Projects " + projname + " submmited to NCBI SRA sucessfully.";
+						}else{
+							msg = "Projects " + projname + " submmited to NCBI sucessfully. Please check log window for GISAID submission.";
+						}
 					}else{
-						msg = "Projects " + projname + " submission to GISAID and NCBI failed. Please check log window.";
+						if ( /sra_submit/.test(texturl) ){
+							msg = "Projects " + projname + " submmited to NCBI SRA failed. Please check log window.";
+						}else{
+							msg = "Projects " + projname + " submission to GISAID and NCBI failed. Please check log window.";
+						}
 					}
 					showWarning(msg);
 				}
