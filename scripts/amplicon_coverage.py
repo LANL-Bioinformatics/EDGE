@@ -44,6 +44,7 @@ def setup_argparse():
     #optGrp = parser.add_argument_group('Options')
     parser.add_argument('--pp', action='store_true', help='process proper paired only reads from bam file (illumina)')
     parser.add_argument('--mincov', metavar='[INT]', type=int, help='minimum coverage to count as ambiguous N site [default:10]', default=10)
+    parser.add_argument('-r', '--refID', metavar='[STR]',type=str , help='reference accession (bed file first field')
     
     parser.add_argument('--version', action='version', version='%(prog)s 0.2.0')
     args_parsed = parser.parse_args()
@@ -59,13 +60,14 @@ def mkdir_p(directory_name):
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
 
-def covert_bed_to_amplicon_dict(input,cov_array,unique=False):
+def covert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
     ## convert bed file to amplicon region dictionary
     input_bed = input
     cov_zero_array = np.zeros_like(cov_array)
     amplicon=defaultdict(dict)
     primers_pos=list()
-    cmd = 'grep -v alt %s | paste - - | cut -f 2,3,4,8,9 | sed -e "s/_LEFT//g" -e "s/_RIGHT//g" ' % (input_bed)
+    RefID = '""' if RefID is None else RefID
+    cmd = 'grep -v alt %s | grep %s | paste - - | cut -f 2,3,4,8,9 | sed -e "s/_LEFT//g" -e "s/_RIGHT//g" ' % (input_bed, RefID)
     proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE) 
     previous_id=''
     outs, errs = proc.communicate()
@@ -96,13 +98,14 @@ def covert_bed_to_amplicon_dict(input,cov_array,unique=False):
          
     return amplicon
 
-def covert_bedpe_to_amplicon_dict(input,cov_array,unique=False):
+def covert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
     ## convert bed file to amplicon region dictionary 
     input_bedpe = input
     cov_zero_array = np.zeros_like(cov_array)
     amplicon=defaultdict(dict)
     primers_pos=list()
-    cmd = 'cut -f 2,3,5,6,7 %s ' % (input_bedpe)
+    RefID = '""' if RefID is None else RefID
+    cmd = 'grep %s %s | cut -f 2,3,5,6,7 ' % (RefID, input_bedpe)
     proc = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE) 
     previous_id=''
     outs, errs = proc.communicate()
@@ -145,7 +148,7 @@ def parse_cov_file(input):
     cov_array=np.array(cov_list)
     return cov_array
 
-def parse_bam_file(bam,pp,outdir):
+def parse_bam_file(bam,pp,outdir,RefID):
 
     bam_input = bam
     if pp:
@@ -172,7 +175,10 @@ def parse_bam_file(bam,pp,outdir):
     cov_list = []
     for line in pysam.samtools.depth("-aa","-d0", bam_input ,split_lines=True):
         id, pos, cov = line.rstrip().split("\t")
-        cov_list.append(int(cov))
+        if RefID and RefID == id:
+            cov_list.append(int(cov))
+        else:
+            cov_list.append(int(cov))
     cov_array=np.array(cov_list)
     return cov_array
 
@@ -427,15 +433,15 @@ def run(argvs):
         cov_array = parse_cov_file(argvs.cov)
         prefix = Path(argvs.cov).stem
     if (argvs.bam):
-        cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.outdir)
+        cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.refID, argvs.outdir)
         prefix = Path(argvs.bam).stem 
     if (argvs.bed):
-        amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array)
-        uniq_amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,True)
+        amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID)
+        uniq_amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID,True)
         bedfile = argvs.bed
     if (argvs.bedpe):
-        amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array)
-        uniq_amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,True)
+        amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID)
+        uniq_amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID,True)
         bedfile = argvs.bedpe
    
     

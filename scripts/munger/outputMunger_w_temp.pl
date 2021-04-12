@@ -741,7 +741,7 @@ sub pull_sampleMetadata {
 		}
         	close CONF;
 		pull_other();
-        	if($vars->{SMD_TYPE} eq "human") {
+        	if($vars->{SMD_TYPE} and $vars->{SMD_TYPE} eq "human") {
 				pull_travels();
 				pull_symptoms();
 		}

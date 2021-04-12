@@ -5,6 +5,7 @@ import sys
 import csv
 from copy import copy
 from collections import defaultdict
+import re
 
 def read_bed_file(fn):
     bedfile = []
@@ -13,6 +14,7 @@ def read_bed_file(fn):
         for row in reader:
         # ref start end primername
             bedrow = {}
+            bedrow['Reference'] = row[0]
             bedrow['Primer_ID'] = row[3]
             bedrow['direction'] = row[5]
             if bedrow['direction'] == '+':
@@ -32,21 +34,25 @@ def check_still_matching_bases(s):
     return False
 
 def trim(cigar, s, start_pos, end):
+    
     if not end:
         pos = s.pos
     else:
         pos = s.reference_end
-
     eaten = 0
     while 1:
         ## chomp stuff off until we reach pos
-        if end:
-            flag, length = cigar.pop()
-        else:
-            flag, length = cigar.pop(0)
+        try:
+            if end:
+                flag, length = cigar.pop()
+            else:
+                flag, length = cigar.pop(0)
 
-        if args.verbose:
-            sys.stderr.write("Chomped a %s, %s" % (flag, length))
+            if args.verbose:
+                sys.stderr.write("Chomped a %s, %s" % (flag, length))
+        except IndexError:
+            sys.stderr.write("Ran out of cigar during soft masking - completely masked read will be ignored")
+            break
 
         if flag == 0:
             ## match
@@ -74,7 +80,6 @@ def trim(cigar, s, start_pos, end):
             break
         if end and pos <= start_pos and flag == 0:
             break
-
         #print >>sys.stderr, "pos:%s %s" % (pos, start_pos)
 
     extra = abs(pos - start_pos)
@@ -90,7 +95,6 @@ def trim(cigar, s, start_pos, end):
             else:
                 cigar.insert(0, (0, extra))
             eaten -= extra
-
     if not end:
         s.pos = pos - extra
 
@@ -106,11 +110,14 @@ def trim(cigar, s, start_pos, end):
 
     #print >>sys.stderr,  s.query_name, oldcigarstring[0:50], s.cigarstring[0:50]
 
-def find_primer(bed, pos, direction):
+def find_primer(bed, pos, direction, refID):
    # {'Amplicon_size': '1874', 'end': 7651, '#Region': 'region_4', 'start': 7633, 'Coords': '7633', "Sequence_(5-3')": 'GCTGGCCCGAAATATGGT', 'Primer_ID': '16_R'}
    from operator import itemgetter
 
-   closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction], key=itemgetter(0))
+   ref_alt_ID = re.sub(r'[^\w]','_',refID)
+   search_term = re.compile (r'%s|%s' % (refID,ref_alt_ID) )
+   
+   closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
    return closest
 
 
@@ -126,7 +133,9 @@ def go(args):
     outfile = pysam.AlignmentFile("-", "wh", template=infile)
     for s in infile:
         cigar = copy(s.cigartuples)
-
+        refname = s.reference_name
+        #qname = s.query_name
+       
         ## logic - if alignment start site is _before_ but within X bases of
         ## a primer site, trim it off
 
@@ -138,8 +147,8 @@ def go(args):
             sys.stderr.write("%s skipped as supplementary" % (s.query_name))
             continue
 
-        p1 = find_primer(bed, s.reference_start, '+')
-        p2 = find_primer(bed, s.reference_end, '-')
+        p1 = find_primer(bed, s.reference_start, '+', refname)
+        p2 = find_primer(bed, s.reference_end, '-',refname)
 
         report = "%s\t%s\t%s\t%s_%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (s.query_name, s.reference_start, s.reference_end, p1[2]['Primer_ID'], p2[2]['Primer_ID'], p1[2]['Primer_ID'], abs(p1[1]), p2[2]['Primer_ID'], abs(p2[1]), s.is_secondary, s.is_supplementary, p1[2]['start'], p2[2]['end'])
 #SRR11085797.8084709	14	165	nCoV-2019_1_LEFT_nCoV-2019_1_RIGHT	nCoV-2019_1_LEFT	16	nCoV-2019_1_RIGHT	245	False	False	30	385
@@ -210,6 +219,7 @@ def go(args):
         
     infile.close()
     outfile.close()   
+    sys.stderr.close()
     if args.report:
         reportfh.close()
 
