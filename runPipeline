@@ -3392,7 +3392,6 @@ sub getAlignTrimReads{
 	my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 	my $AlignTrim_ref = @$ref_r[0];
 	if ($bed_file =~ /artic_ncov|SC2_200324|swift_primer_schemes_v2/){
-	if ($configuration->{r2g_align_trim_bed_file} =~ /artic_ncov|SC2_200324/){
 		if (my ($NC_044512_ref) = grep $_ =~ /NC_045512|MN908947/, @$ref_r) {
 			$AlignTrim_ref = $NC_044512_ref;
 		}
