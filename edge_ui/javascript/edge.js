@@ -2298,7 +2298,7 @@ $( document ).ready(function()
 						var projids=[];
 						$('[name="edge-projpage-ckb"]:checked').each(function( event ) {
 							projnames.push("<li>"+$(this).closest('td').next('td').find('.edge-project-page-link').text()+"</li>");
-							if ( action === 'compare' || action === 'metadata-export' || action === 'tree' ){
+							if ( action === 'compare' || action === 'metadata-export' || action === 'tree' || action === "sra-submission" ){
 								projids.push($(this).val());
 							}else{
 								projids.push($(this).closest('td').next('td').find('.edge-project-page-link').attr('data-pid'));
@@ -2310,6 +2310,10 @@ $( document ).ready(function()
 							load_metedata_project_page(focusProjCodes);
 							return;
 						}
+						if ( action === "sra-submission" ){
+							load_sra_project_page(focusProjCodes);
+							return;
+						}
 						$("#edge_confirm_dialog_content").html(actionContent);
 						$( "#edge_confirm_dialog" ).enhanceWithin().popup('open');
 						if ( action === "share" ){
@@ -2318,7 +2322,7 @@ $( document ).ready(function()
 
 						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 							var actionRequest=[];
-							if ( action === "compare" || action === 'metadata-export' || action === 'tree' ){
+							if ( action === "compare" || action === 'metadata-export' || action === 'tree' || action === "sra-submission" ){
 								actionConfirm(action,focusProjCodes);
 							}else{
 								//loop with 200 ms delay
@@ -2485,6 +2489,48 @@ $( document ).ready(function()
 			error: function(data){
 				$.mobile.loading( "hide" );
 				showWarning("Failed to retrieve the gisaid metadata page. Please REFRESH the page and try again.");
+			}
+		});
+	}
+	function load_sra_project_page(focusProjName){
+		$.ajax({
+			url: "./cgi-bin/edge_sra_upload.cgi",
+			type: "POST",
+			dataType: "html",
+			cache: false,
+			data: { "proj" : focusProjName, "sid":localStorage.sid, "action":"create-batch-form", "userDir":localStorage.udir },
+			beforeSend: function(){
+				if ($('#edge-sra-upload-form').length){
+					$('#edge-sra-upload-form').remove();
+				}
+				if ($('#edge-gisaid-batch-upload-form').length){
+                                        $('#edge-gisaid-batch-upload-form').remove();
+                                }
+				$.mobile.loading( "show", {
+					text: "Load...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				allMainPage.hide();
+				$( "#edge-sra-metadata-project-page" ).html(data);
+				$( "#edge-sra-metadata-project-page" ).show();
+				$( "#edge-sra-metadata-project-page" ).enhanceWithin();
+				$.getScript( "./javascript/edge-gisaid.js" )
+					.done(function( script, textStatus ) {
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( jqxhr, settings, exception );
+				});
+
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				showWarning("Failed to retrieve the SRA metadata page. Please REFRESH the page and try again.");
 			}
 		});
 	}

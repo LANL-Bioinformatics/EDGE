@@ -122,7 +122,7 @@ if($action eq "create-form") {
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $projects = join(",",map { "$edgeui_output/$_" } @projCodes);
 
-	my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/metadata/outputSRAMetadata_w_temp_table.pl -projects $projects -out $outHtml -udir $profileDir";
+	my $cmd = "cd $edgeui_wwwroot; $EDGE_HOME/scripts/metadata/outputSRA_Metadata_w_temp_table.pl -projects $projects -out $outHtml -udir $profileDir";
 	`$cmd`;
 	#print STDERR "$cmd";
 
