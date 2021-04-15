@@ -190,9 +190,9 @@ class SubmitXML():
             del attr["design_description"]
         if "title" in attr and not attr["title"]:
             del attr["title"]
-        for key in ['library_ID','filetype','filename','filenam2','filename3','filename4','assembly','fasta_file']:
-            attr.pop(key, None)
-       
+        for i in ['library_ID','filetype','filename','filename2','filename3','filename4','assembly','fasta_file']:
+            attr.pop(i, None)
+        
         # instrument and library attributes
         attr["library_name"] = "%s.%s" % (fastq[0], sid)
         at = [self.SetElement("Attribute", attr[k], {"name": k}) for k in attr.keys()]
@@ -275,11 +275,11 @@ class SubmitXML():
         for k, v in fastq.items():
             sid = k
             fqs += [False if f == "null" else True for f in v]
-            exp = library[k] if os.path.exists(exp) else library
+            exp_library = library[k] if os.path.exists(exp) else library
             if "bioproject_accession" not in sample[k]:
-                self.SetFASTQ(v, project["ProjectName"], sid, exp, date)
+                self.SetFASTQ(v, project["ProjectName"], sid, exp_library, date)
             else:
-                self.SetFASTQ(v, None, sid, exp, date, sample[k]["bioproject_accession"])
+                self.SetFASTQ(v, None, sid, exp_library, date, sample[k]["bioproject_accession"])
 
         return(not (False in fqs))
 

@@ -151,7 +151,7 @@ sub pull_biosamples{
 				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
 				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
 				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
-				$vars->{BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
+				$info->{BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
 			}
 		}
 		close $fh;
@@ -347,7 +347,7 @@ sub pull_sampleMetadata {
 				$vars->{"BIOSAMPLE_STATUS_".$2} = "selected" if ($1 eq "status");
 				$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
 				$vars->{SM_COV} = $2 if ($1 eq "coverage");
-				$vars->{BIOPROJECT_ID} = $2 if ($1 eq "bioproject");
+				$info->{BIOPROJECT_ID} = $2 if ($1 eq "bioproject");
 			}
 		}
 		my ($continent, $country, $region)= split("/",$vars->{SM_LOC});

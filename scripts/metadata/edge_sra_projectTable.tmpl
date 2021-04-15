@@ -46,6 +46,7 @@
 			</div>
 		</div>
 	</div>
+	<br /><br />
 	<div class="ui-corner-all custom-corners">
 		<div class="ui-bar ui-bar-d">
 			<b><em>Biosamples</em></b>
@@ -110,7 +111,7 @@
 						</td>
 						<td><input type="text" data-mini="true" name="metadata-sra-biosample-ages" value="<TMPL_VAR NAME=BIOSAMPLE_AGE DEFAULT=>" placeholder=""></td>
 						<td>
-							<select name="metadata-sra-biosample-status" data-role="none" data-mini="true" data-native-menu="true">
+							<select name="metadata-sra-biosample-statuss" data-role="none" data-mini="true" data-native-menu="true">
 								<option value="">Select Status</option>
 								<option value="Hospitalized" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Hospitalized DEFAULT=>>Hospitalized</option>
 								<option value="Released" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Released DEFAULT=>>Released</option>
@@ -143,7 +144,7 @@
 			<p class='edge_tool_note' id="mac-scroll-bar-note">Don't see X scroll bar!! On Mac, please try <a href="https://heresthethingblog.com/2015/03/10/mac-tip-macs-scroll-bars/" target="_new">this</a>.</p>
 		</div>
 	</div>
-
+	<br /><br />
 	<div class="ui-corner-all custom-corners">
 		<div class="ui-bar ui-bar-d">
 			<b><em>Experiments</em></b>
@@ -182,7 +183,7 @@
 						<td><TMPL_VAR NAME=ROWINDEX></td>
 						<td><a href='#' data-mini="true" class='edge-project-page-link ' data-pid='<TMPL_VAR NAME=PROJCODE>'><TMPL_VAR NAME=PROJNAME></a></td>
 						<td><input type="text" data-mini="true" name="metadata-sra-meta-titles" placeholder="" value="<TMPL_VAR NAME=SRA_LIBTITLE DEFAULT=>" ></td>
-						<td><input type="text" data-mini="true" name="metadata-sra-meta-designs" placeholder="" value="<TMPL_VAR NAME=SRA_LIBDESIGN DEFAULT=>" ></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-meta-design-descriptions" placeholder="" value="<TMPL_VAR NAME=SRA_LIBDESIGN DEFAULT=>" ></td>
 						<td>
 							<select name="metadata-sra-meta-library-selections" data-role="none"  data-mini="true" data-native-menu="true">
 								<option value="">Select libselection</option>

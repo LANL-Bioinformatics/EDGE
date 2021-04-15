@@ -12,10 +12,10 @@ $( document ).ready(function()
             'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Nanopore</td></tr></table></span>')
     ).tooltipster('option','maxWidth','700');
 	$("#biosample-tab-example").tooltipster(
-            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>sample-name</th><th>sample-isolate</th><th>sample-isolate-source</th><th>sample-location</th><th>sample-passage</th><th>sample-collection-date</th><th>sample-collection-by</th><th>sample-latlon</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-purpose</th><th>sample-gisaid-acc</th></tr><tr><td>project1</td><td>NM-LANL-00001</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10001/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>65</td><td>Released</td><td>Research</td></tr><tr><td>project2</td><td>NM-LANL-00002</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10002/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>not collected</td><td>unknown</td><td>Research</td></tr></table></span>')
-    ).tooltipster('option','maxWidth','800');
+            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>sample-name</th><th>sample-isolate</th><th>sample-isolate-source</th><th>sample-location</th><th>sample-passage</th><th>sample-collection-date</th><th>sample-collection-by</th><th>sample-latlon</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-purpose</th><th>sample-gisaid-acc</th></tr><tr><td>project1</td><td>NM-LANL-00001</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10001/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>65</td><td>Released</td><td>Research</td><td>EPI_ISL_596447</td></tr><tr><td>project2</td><td>NM-LANL-00002</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10002/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>not collected</td><td>unknown</td><td>Research</td><td>not collected</td></tr></table></span>')
+    ).tooltipster('option','maxWidth','880');
     $("#experiment-tab-example").tooltipster(
-            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>title</th><th>design</th><th>library-selection</th><th>library-strategy</th><th>library-layout</th><th>library-source</th><th>platform</th><th>library-model</th><th>sequencing-purpose</th></tr><tr><td>project1</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>paired</td><td>Viral RNA</td><td>ILLUMINA</td><td>MiSeq</td><td>Baseline surveillance</td></tr><tr><td>project2</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>single</td><td>Viral RNA</td><td>OXFORD_NANOPORE</td><td>MinION</td><td>Research</td></tr></table></span>')
+            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>title</th><th>design_description</th><th>library-selection</th><th>library-strategy</th><th>library-layout</th><th>library-source</th><th>platform</th><th>library-model</th><th>sequencing-purpose</th></tr><tr><td>project1</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>paired</td><td>Viral RNA</td><td>ILLUMINA</td><td>MiSeq</td><td>Baseline surveillance</td></tr><tr><td>project2</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>single</td><td>Viral RNA</td><td>OXFORD_NANOPORE</td><td>MinION</td><td>Research</td></tr></table></span>')
     ).tooltipster('option','maxWidth','700');
 	//with checkbox
 	//https://www.gyrocode.com/projects/jquery-datatables-checkboxes/
@@ -23,8 +23,15 @@ $( document ).ready(function()
 			"pageLength": 25,
 			"columnDefs": [ 
 				{'targets':[0], "visible":false},
+				{ 'targets': [2,3], 
+                    			'render': function (data, type, full, meta) {
+						// adjust input text width
+                       		 		return "<div style='width:250px;'>" + data + "</div>";
+                    			},
+                		},
 				{'targets':[2,3,4,5,6,7,8,9,10], 'type': 'string',
 					'render': function (data, type, row, meta) {
+						console.log
 						if (type === 'filter' || type === 'sort') {
 							var api = new $.fn.dataTable.Api(meta.settings);
 							var td = api.cell({row: meta.row, column: meta.col}).node();
@@ -32,14 +39,9 @@ $( document ).ready(function()
 						}
 						return data;
 					}
-				},
-				{
-                    'render': function (data, type, full, meta) {
-                        return "<div style='white-space:normal;width:200px;'>" + data + "</div>";
-                    },
-                    'targets': [2,3]
-                }
+				}
  			],
+			"autoWidth": false,
 			"select": { "style": 'multi'},
 			"scrollX": true,
 			"destroy": true,
@@ -62,17 +64,33 @@ $( document ).ready(function()
 	$('#edge-sra-experiment-project-page-table input').css('white-space','initial');
 	// adjust the columns misalignment sometimes.
 	SRA_EXP_ProjDataTable.columns.adjust();
+	// dynamic update libmodel or platform selections
+	var batch_model_optgroups = $("[name='metadata-sra-meta-library-models']").eq(0).find('optgroup');
+	$("[name='metadata-sra-meta-platforms']").on("change",function(){
+		var platform = $(this).val();
+		var $libmodel = $(this).parents('tr').find("[name='metadata-sra-meta-library-models']");
+		var previous_optgroups = $libmodel.find('optgroup').detach();
+		var element = $.grep(batch_model_optgroups,function(n,i){
+					return n.label == platform;
+			});
+		$(element).appendTo($libmodel);
+		$libmodel.selectmenu("refresh");
+	});
+	$("[name='metadata-sra-meta-library-models']").on("change",function(){
+		var platform =  $(this).find('option:selected').parent().attr('label');
+		$(this).parents('tr').find("[name='metadata-sra-meta-platforms']").val(platform).selectmenu("refresh");
+	});
 	// For search/filter input and select datatable
 	//https://www.gyrocode.com/articles/jquery-datatables-how-to-search-and-order-by-input-or-select-elements/
-	$( '#edge-sra-biosample-project-page-table' ).on( 'change', 'tbody select, tbody input[type="text"]', function () {
+	$( '#edge-sra-experiment-project-page-table' ).on( 'change', 'tbody select, tbody input[type="text"]', function () {
 		var $td = $(this).closest('td');
 		// update JQM select span selected name
 		if ($(this).is("select")){
 			$(this).selectmenu('refresh');
-	
 			//var value = $(this).val() || $td.find('option').eq(0).html();
 			//$td.find('span').html(value);
 		}
+		SRA_EXP_ProjDataTable.columns.adjust();
  		//invalidate the DT cache
 		SRA_EXP_ProjDataTable.cell($td).invalidate();
 	} );
@@ -80,6 +98,12 @@ $( document ).ready(function()
 			"pageLength": 25,
 			"columnDefs": [ 
 				{'targets': 0, 'checkboxes': {'selectRow': true} },
+				{'targets': 3, 
+                    			'render': function (data, type, full, meta) {
+						// adjust input text width
+                       		 		return "<div style='width:300px;'>" + data + "</div>";
+                    			}
+				},
 				{'targets':[2,3,4,5,6,7,8,9,10,11,12,13,14,15], 'type': 'string', 'width': "20%",
 					'render': function (data, type, row, meta) {
 						if (type === 'filter' || type === 'sort') {
@@ -125,6 +149,7 @@ $( document ).ready(function()
 			//var value = $(this).val() || $td.find('option').eq(0).html();
 			//$td.find('span').html(value);
 		}
+		SRA_SAMPLE_ProjDataTable.columns.adjust();
  		//invalidate the DT cache
 		SRA_SAMPLE_ProjDataTable.cell($td).invalidate();
 	} );
@@ -304,21 +329,21 @@ $( document ).ready(function()
 	});
 	$("#edge-sra-form-biosample-template-download").on( "click", function() {
 		action='batch-biosample-template-download';
-		SRA_EXP_ProjDataTable.column(0).checkboxes.select();
+		SRA_SAMPLE_ProjDataTable.column(0).checkboxes.select();
 		var formDom = $("#edge-sra-batch-upload-form");
-		var rows_selected = SRA_EXP_ProjDataTable.column(0).checkboxes.selected();
+		var rows_selected = SRA_SAMPLE_ProjDataTable.column(0).checkboxes.selected();
 		var projCodes=[];
 		var projNames=[];
 		rows_selected.each(function (item, index) {
 			var rowIdx = item;
-			var pcode = $(SRA_EXP_ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
-			var pname = $(SRA_EXP_ProjDataTable.cell(rowIdx,1).data()).eq(0).val();
+			var pcode = $(SRA_SAMPLE_ProjDataTable.cell(rowIdx,1).data()).eq(1).val();
+			var pname = $(SRA_SAMPLE_ProjDataTable.cell(rowIdx,1).data()).eq(0).val();
 			projCodes.push(pcode);
 			projNames.push(pname);
 		});
 		var projs = projCodes.join();
 		sra_actions(projs,formDom,action,projNames.join());
-		SRA_EXP_ProjDataTable.column(0).checkboxes.deselect();
+		SRA_SAMPLE_ProjDataTable.column(0).checkboxes.deselect();
 	});
 	
 	$("#metadata-upload-file,#sra-biosample-upload-file,#sra-experiment-upload-file").on('change',function(){

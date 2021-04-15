@@ -2046,7 +2046,7 @@ sub parse_lineage{
 		$lineage{$cid}->{probability} = $prob;
 		$lineage{$cid}->{version} = $pangoLearnVersion;
 		$lineage{$cid}->{status} = $status;
-		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ ){
+		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ ){
 			$note .= "; VOC"; 
 			$lineage{$cid}->{warning} = "VOC";
 		}

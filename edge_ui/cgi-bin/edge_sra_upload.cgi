@@ -24,7 +24,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= 0;
+my $debug= 1;
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -246,13 +246,13 @@ if($action eq "create-form") {
 	unlink $metadata_out_dir;
 	make_dir($metadata_out_dir);
 	my $date_str = strftime "%Y%m%d%H%M%S", localtime;
-	my $sra_submit_data_dir = "$metadata_out_dir/sra_transfer_".$date_str.$pname;
+	my $sra_submit_data_dir = "$metadata_out_dir/sra_transfer_".$date_str.md5_hex(join ('',@selectedProjCodes));
 	my $batch_sra_bioproject = "$metadata_out_dir/sra_project.txt";
 	my $batch_sra_biosample = "$metadata_out_dir/sra_samples.txt";
 	my $batch_sra_experiment = "$metadata_out_dir/sra_experiments.txt";
 	my $batch_sra_filelist = "$metadata_out_dir/sra_filelist.txt";
 	my $batch_sra_other_info = "$metadata_out_dir/sra_additional_info.txt";
-	
+	unlink $batch_sra_experiment, $batch_sra_biosample, $batch_sra_filelist;
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $projects = join(",",map { "$edgeui_output/$_" } @selectedProjCodes);
 	## Data from UI input
@@ -262,23 +262,23 @@ if($action eq "create-form") {
 	my @isolates = split /[\x0]/, $opt{'metadata-sra-biosample-isolates'};
 	my @isolateSources = split /[\x0]/, $opt{'metadata-sra-biosample-isolate-sources'};
 	my @sampleLocations = split /[\x0]/, $opt{'metadata-sra-biosample-locations'};
-	my @samplePassages = split /[\x0]/, $opt{'meta-data-sra-biosample-passages'};
+	my @samplePassages = split /[\x0]/, $opt{'metadata-sra-biosample-passages'};
 	my @sampleCollectionDates = split /[\x0]/, $opt{'metadata-sra-biosample-collection-dates'};
-	my @sampleCollectionBys = split /[\x0]/, $opt{'metadata-sra-biosample-collection-bys'};
+	my @sampleCollectionBys = split /[\x0]/, $opt{'metadata-sra-biosample-collect-bys'};
 	my @sampleLatlons = split /[\x0]/, $opt{'metadata-sra-biosample-latlons'};
 	my @sampleHosts = split /[\x0]/, $opt{'metadata-sra-biosample-hosts'};
 	my @sampleGenders = split /[\x0]/,$opt{'metadata-sra-biosample-genders'};
 	my @sampleAges = split /[\x0]/,$opt{'metadata-sra-biosample-ages'};
-	my @sampleStatus = split /[\x0]/,$opt{'metadata-sra-biosample-status'};
+	my @sampleStatus = split /[\x0]/,$opt{'metadata-sra-biosample-statuss'};
 	my @samplePurposes = split /[\x0]/,$opt{'metadata-sra-biosample-purposes'};
 	my @sampleGISAIDaccs = split /[\x0]/,$opt{'metadata-sra-biosample-gisaid-accs'};
 	my @expTitles = split /[\x0]/,$opt{'metadata-sra-meta-titles'};
-	my @expDesigns = split /[\x0]/,$opt{'metadata-sra-meta-designs'};
+	my @expDesigns = split /[\x0]/,$opt{'metadata-sra-meta-design-descriptions'};
 	my @expLibSelections = split /[\x0]/,$opt{'metadata-sra-meta-library-selections'};
 	my @expLibStrategys = split /[\x0]/,$opt{'metadata-sra-meta-library-strategys'};
 	my @expLibLayouts = split /[\x0]/,$opt{'metadata-sra-meta-library-layouts'};
 	my @expLibSources = split /[\x0]/,$opt{'metadata-sra-meta-library-sources'};
-	my @expPlatforms = split /[\x0]/,$opt{'metadata-sra-meta-library-platforms'};
+	my @expPlatforms = split /[\x0]/,$opt{'metadata-sra-meta-platforms'};
 	my @expLibModels = split /[\x0]/,$opt{'metadata-sra-meta-library-models'};
 	my @expSeqPurposes = split /[\x0]/,$opt{'metadata-sra-meta-sequencing-purposes'};
 	my $bioprojectID = $opt{'metadata-sra-bioproject-id'};
@@ -304,11 +304,12 @@ if($action eq "create-form") {
 		$opt{'metadata-sra-biosample-latlon'} = $sampleLatlons[$i];
 		$opt{'metadata-sra-biosample-host'} = $sampleHosts[$i];
 		$opt{'metadata-sra-biosample-gender'} = $sampleGenders[$i];
+		$opt{'metadata-sra-biosample-status'} = $sampleStatus[$i];
 		$opt{'metadata-sra-biosample-age'} = $sampleAges[$i];
 		$opt{'metadata-sra-biosample-ps'} = $samplePurposes[$i];
 		$opt{'metadata-sra-biosample-gisaid'} = $sampleGISAIDaccs[$i];
 		$opt{'metadata-sra-meta-title'} = $expTitles[$i];
-		$opt{'metadata-sra-meta-design'} = $expDesigns[$i];
+		$opt{'metadata-sra-meta-design-description'} = $expDesigns[$i];
 		$opt{'metadata-sra-meta-libselection'} = $expLibSelections[$i];
 		$opt{'metadata-sra-meta-libstrategy'} = $expLibStrategys[$i];
 		$opt{'metadata-sra-meta-liblayout'} = $expLibLayouts[$i];
@@ -336,15 +337,16 @@ if($action eq "create-form") {
 		checkParams($projNames[$i],$i) if $action eq "batch-upload2sra";
 		
 		writeBioProject($metadata_project);
-		writeBioSamples($projDir,$metadata_sample,0,0);
+		writeBioSamples($projDir,$metadata_sample,0,0);  
 		writeBioSamples($metadata_out_dir,$batch_sra_biosample,$i,1);  ## append data table
-		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq);
+		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq,0,0);
 		writeExperiment($metadata_out_dir,$batch_sra_experiment,$batch_sra_filelist, $input_pe_fastq, $input_se_fastq,$i,1); ## append data table
 		wrtieAdditional($metadata_other_info);
 		
 		unlink $projCompleteReport_cache;
 	}
 	if ($action eq "batch-update"){
+		remove_tree($sra_submit_data_dir);
 		&returnParamsStatus();
 	}
 	my $download_biosample_template_txt = "$metadata_out_dir/metadata_biosample_template.tsv";
@@ -355,12 +357,12 @@ if($action eq "create-form") {
 		
 		my @download_biosample_template_tsv_header = ("project-name",'sample-name','sample-isolate','sample-isolate-source','sample-location','sample-passage','sample-collection-date','sample-collect-by','sample-latlon','sample-host','sample-gender','sample-age','sample-purpose','sample-gisaid-acc');
 		my @download_biosample_template_tsv_content;
-		my @download_bioexperiment_template_tsv_header = ("project-name",'title','desgin','library-selection','library-strategy','library-layout','library-source','platform','library-model','sequencing-purpose');
+		my @download_bioexperiment_template_tsv_header = ("project-name",'title','design-description','library-selection','library-strategy','library-layout','library-source','platform','library-model','sequencing-purpose');
 		my @download_bioexperiment_template_tsv_content;
 		foreach my $i (0..$#projCodes){
 			my $download_biosample_template_tsv_string = join("\t", $projNames[$i], $sampleNames[$i],$isolates[$i],$isolateSources[$i],$sampleLocations[$i],$samplePassages[$i],$sampleCollectionDates[$i],$sampleCollectionBys[$i],$sampleLatlons[$i],$sampleHosts[$i],$sampleGenders[$i],$sampleAges[$i],$samplePurposes[$i],$sampleGISAIDaccs[$i]);
 			push @download_biosample_template_tsv_content, $download_biosample_template_tsv_string;
-			my $download_bioexperiment_template_tsv_string = join("\t", $expTitles[$i], $expDesigns[$i],$expLibSelections[$i],$expLibStrategys[$i],$expLibLayouts[$i],$expLibSources[$i],$expPlatforms[$i],$expLibModels[$i],$expSeqPurposes[$i]);
+			my $download_bioexperiment_template_tsv_string = join("\t", $projNames[$i], $expTitles[$i], $expDesigns[$i],$expLibSelections[$i],$expLibStrategys[$i],$expLibLayouts[$i],$expLibSources[$i],$expPlatforms[$i],$expLibModels[$i],$expSeqPurposes[$i]);
 			push @download_bioexperiment_template_tsv_content, $download_bioexperiment_template_tsv_string;
 		}
 		
@@ -371,16 +373,17 @@ if($action eq "create-form") {
 		}
 		if ($action eq "batch-bioexperiment-template-download" ){
 			&write_tsv($download_bioexperiment_template_txt,join("\t",@download_bioexperiment_template_tsv_header), join("\n",@download_bioexperiment_template_tsv_content));
-			$msg->{PATH} = $download_biosample_template_txt_rel;
+			$msg->{PATH} = $download_bioexperiment_template_txt_rel;
 			addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata SRA experiment template tsv file") unless  (-r "$download_bioexperiment_template_txt" );
 		}
+		remove_tree($sra_submit_data_dir);
 		&returnParamsStatus();
 	}
 	
 	if ($action eq "batch-download"){
 		my $date_str2 = strftime "%Y%m%d", localtime;
 		my $zip_file = "$metadata_out_dir/${date_str2}_edge_covid19_sra_metadata.zip";
-		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_sra_metadata.zip";
+		my $zip_file_rel = "$relative_outdir/${date_str2}_edge_covid19_sra_metadata.zip";
 	
 		my $cmd = "zip -j $zip_file $batch_sra_bioproject $batch_sra_biosample $batch_sra_experiment $batch_sra_filelist $batch_sra_other_info 2>/dev/null";
 		`$cmd`;
@@ -389,6 +392,7 @@ if($action eq "create-form") {
 		addMessage("BATCH-DOWNLOAD","failure","failed to export SRA biosample metadata") unless (-e "$batch_sra_biosample" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to export SRA experiments metadata") unless (-e "$batch_sra_experiment" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to zip exported file") unless (-e $zip_file );
+		remove_tree($sra_submit_data_dir);
 		&returnParamsStatus();
 	}
 	if ($msg->{SUBMISSION_STATUS} eq "success" && $action eq "batch-upload2sra"){
@@ -934,15 +938,15 @@ sub checkParams {
 	#&addMessage("PARAMS", "metadata-sra-biosample-gisaid", "$projname GISAID accession is required.", $index) unless ( $opt{'metadata-sra-biosample-gisaid'} );
 
 	# SRA experiments
-	&addMessage("PARAMS", "metadata-sra-meta-title", "Experiment Title is required.") unless ( $opt{'metadata-sra-meta-title'});
-	&addMessage("PARAMS", "metadata-sra-meta-design", "Experiment Design is required.") unless ( $opt{'metadata-sra-meta-design'});
-	&addMessage("PARAMS", "metadata-sra-meta-libselection", "Library Selection is required.") unless ( $opt{'metadata-sra-meta-libselection'});
-	&addMessage("PARAMS", "metadata-sra-meta-libstrategy", "Library Strategy is required.") unless ( $opt{'metadata-sra-meta-libstrategy'});
-	&addMessage("PARAMS", "metadata-sra-meta-liblayout", "Library Layout is required.") unless ( $opt{'metadata-sra-meta-liblayout'});
-	&addMessage("PARAMS", "metadata-sra-meta-libsource", "Library Source is required.") unless ( $opt{'metadata-sra-meta-libsource'});
-	&addMessage("PARAMS", "metadata-sra-meta-platform", "Platform is required.") unless ( $opt{'metadata-sra-meta-platform'});
-	&addMessage("PARAMS", "metadata-sra-meta-libmodel", "Library Model is required.") unless ( $opt{'metadata-sra-meta-libmodel'});
-	&addMessage("PARAMS", "metadata-sra-meta-ps", "Purpose of sequencing is required.") unless ( $opt{'metadata-sra-meta-ps'});
+	&addMessage("PARAMS", "metadata-sra-meta-title", "Experiment Title is required." , $index) unless ( $opt{'metadata-sra-meta-title'});
+	&addMessage("PARAMS", "metadata-sra-meta-design", "Experiment Design is required." , $index) unless ( $opt{'metadata-sra-meta-design-description'});
+	&addMessage("PARAMS", "metadata-sra-meta-libselection", "Library Selection is required." , $index) unless ( $opt{'metadata-sra-meta-libselection'});
+	&addMessage("PARAMS", "metadata-sra-meta-libstrategy", "Library Strategy is required." , $index) unless ( $opt{'metadata-sra-meta-libstrategy'});
+	&addMessage("PARAMS", "metadata-sra-meta-liblayout", "Library Layout is required." , $index) unless ( $opt{'metadata-sra-meta-liblayout'});
+	&addMessage("PARAMS", "metadata-sra-meta-libsource", "Library Source is required." , $index) unless ( $opt{'metadata-sra-meta-libsource'});
+	&addMessage("PARAMS", "metadata-sra-meta-platform", "Platform is required." , $index) unless ( $opt{'metadata-sra-meta-platform'});
+	&addMessage("PARAMS", "metadata-sra-meta-libmodel", "Library Model is required." , $index) unless ( $opt{'metadata-sra-meta-libmodel'});
+	&addMessage("PARAMS", "metadata-sra-meta-ps", "Purpose of sequencing is required." , $index) unless ( $opt{'metadata-sra-meta-ps'});
 	
 	if ($action eq 'upload2sra' or $action eq 'batch-upload2sra'){
 		&addMessage("PARAMS", "metadata-sra-submitter", "Submitter is required.") unless ( $opt{'metadata-sra-submitter'});
