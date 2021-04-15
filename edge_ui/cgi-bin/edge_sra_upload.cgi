@@ -234,7 +234,7 @@ if($action eq "create-form") {
 	#delete HTML_Report/.complete_report_web
 	unlink $projCompleteReport_cache;
 
-}elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2gisaid" or $action eq "batch-template-download"){
+}elsif( $action eq "batch-download" or $action eq "batch-update" or $action eq "batch-upload2sra" or $action eq "batch-biosample-template-download" or $action eq "batch-bioexperiment-template-download"){
 	# init status
 	$msg->{SUBMISSION_STATUS}="success";
 	my @selectedProjCodes = split /,/,$opt{proj};
@@ -244,105 +244,170 @@ if($action eq "create-form") {
 	my $metadata_out_dir = "$edgeui_output/sample_metadata_export/$short_username/". md5_hex(join ('',@selectedProjCodes));
 	my $relative_outdir = "$relpath/sample_metadata_export/$short_username/". md5_hex(join ('',@selectedProjCodes));
 	unlink $metadata_out_dir;
+	make_dir($metadata_out_dir);
+	my $date_str = strftime "%Y%m%d%H%M%S", localtime;
+	my $sra_submit_data_dir = "$metadata_out_dir/sra_transfer_".$date_str.$pname;
+	my $batch_sra_bioproject = "$metadata_out_dir/sra_project.txt";
+	my $batch_sra_biosample = "$metadata_out_dir/sra_samples.txt";
+	my $batch_sra_experiment = "$metadata_out_dir/sra_experiments.txt";
+	my $batch_sra_filelist = "$metadata_out_dir/sra_filelist.txt";
+	my $batch_sra_other_info = "$metadata_out_dir/sra_additional_info.txt";
+	
 	my $profileDir = $sys->{edgeui_input}."/$userDir";
 	my $projects = join(",",map { "$edgeui_output/$_" } @selectedProjCodes);
+	## Data from UI input
 	my @projCodes = split /[\x0]/, $opt{'metadata-projcodes'};
 	my @projNames =  split /[\x0]/, $opt{'metadata-projnames'};
-	my @virusNames = split /[\x0]/, $opt{'metadata-virus-names'};
-	my @virusPassages = split /[\x0]/, $opt{'metadata-virus-passages'};
-	my @sampleCollectionDates = split /[\x0]/, $opt{'metadata-sample-collection-dates'};
-	my @sampleLocations = split /[\x0]/, $opt{'metadata-sample-locations'};
-	my @sampleHosts = split /[\x0]/, $opt{'metadata-sample-hosts'};
-	my @sampleGenders = split /[\x0]/,$opt{'metadata-sample-genders'};
-	my @sampleAges = split /[\x0]/,$opt{'metadata-sample-ages'};
-	my @sampleStatus = split /[\x0]/,$opt{'metadata-sample-status'};
-	my @sampleSequencingTech = split /[\x0]/,$opt{'metadata-sample-sequencing-techs'};
-	my @sampleConsensus = split /[\x0]/,$opt{'metadata-sample-consensus'};
-	my @gisaidDoneFiles;
+	my @sampleNames = split /[\x0]/, $opt{'metadata-sra-biosample-names'};
+	my @isolates = split /[\x0]/, $opt{'metadata-sra-biosample-isolates'};
+	my @isolateSources = split /[\x0]/, $opt{'metadata-sra-biosample-isolate-sources'};
+	my @sampleLocations = split /[\x0]/, $opt{'metadata-sra-biosample-locations'};
+	my @samplePassages = split /[\x0]/, $opt{'meta-data-sra-biosample-passages'};
+	my @sampleCollectionDates = split /[\x0]/, $opt{'metadata-sra-biosample-collection-dates'};
+	my @sampleCollectionBys = split /[\x0]/, $opt{'metadata-sra-biosample-collection-bys'};
+	my @sampleLatlons = split /[\x0]/, $opt{'metadata-sra-biosample-latlons'};
+	my @sampleHosts = split /[\x0]/, $opt{'metadata-sra-biosample-hosts'};
+	my @sampleGenders = split /[\x0]/,$opt{'metadata-sra-biosample-genders'};
+	my @sampleAges = split /[\x0]/,$opt{'metadata-sra-biosample-ages'};
+	my @sampleStatus = split /[\x0]/,$opt{'metadata-sra-biosample-status'};
+	my @samplePurposes = split /[\x0]/,$opt{'metadata-sra-biosample-purposes'};
+	my @sampleGISAIDaccs = split /[\x0]/,$opt{'metadata-sra-biosample-gisaid-accs'};
+	my @expTitles = split /[\x0]/,$opt{'metadata-sra-meta-titles'};
+	my @expDesigns = split /[\x0]/,$opt{'metadata-sra-meta-designs'};
+	my @expLibSelections = split /[\x0]/,$opt{'metadata-sra-meta-library-selections'};
+	my @expLibStrategys = split /[\x0]/,$opt{'metadata-sra-meta-library-strategys'};
+	my @expLibLayouts = split /[\x0]/,$opt{'metadata-sra-meta-library-layouts'};
+	my @expLibSources = split /[\x0]/,$opt{'metadata-sra-meta-library-sources'};
+	my @expPlatforms = split /[\x0]/,$opt{'metadata-sra-meta-library-platforms'};
+	my @expLibModels = split /[\x0]/,$opt{'metadata-sra-meta-library-models'};
+	my @expSeqPurposes = split /[\x0]/,$opt{'metadata-sra-meta-sequencing-purposes'};
+	my $bioprojectID = $opt{'metadata-sra-bioproject-id'};
+	my $bioprojectTitle = $opt{'metadata-sra-bioproject-title'};
+	my $bioprojectDesc = $opt{'metadata-sra-bioproject-desc'};
+	my $bioprojectLinkDesc = $opt{'metadata-sra-bioproject-link-desc'};
+	my $bioprojectLinkUrl = $opt{'metadata-sra-bioproject-link-url'};
+
+	writeBioProject($batch_sra_bioproject);
+	wrtieAdditional($batch_sra_other_info);
+	my @SRADoneFiles;
 	my @projCompleteReport_cacheFiles;
 	foreach my $i (0..$#projCodes){
 		next if ! $selectedProjCode{$projCodes[$i]};
-		$opt{'metadata-virus-name'} = $virusNames[$i];
-		$opt{'metadata-virus-passage'} = $virusPassages[$i];
-		$opt{'metadata-sample-collection-date'} = $sampleCollectionDates[$i];
-		$opt{'metadata-sample-location'} = $sampleLocations[$i];
-		$opt{'metadata-sample-host'} = $sampleHosts[$i];
-		$opt{'metadata-sample-gender'} = $sampleGenders[$i];
-		$opt{'metadata-sample-age'} = $sampleAges[$i];
-		$opt{'metadata-sample-status'} = $sampleStatus[$i];
-		$opt{'metadata-sample-sequencing-tech'} = $sampleSequencingTech[$i];
-		my $selected_consensus = $sampleConsensus[$i];
-		$selected_consensus =~ s/::/ /g;
-		my ($consensus_ref,$consensus_cov,$consensus_depth) = split(/\s+/,$selected_consensus);
-		$selected_consensus =~ s/.fasta//;
-		#print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
+		# save for each project checkParams
+		$opt{'metadata-sra-biosample-name'} = $sampleNames[$i];
+		$opt{'metadata-sra-biosample-isolate'} = $isolates[$i];
+		$opt{'metadata-sra-biosample-isolate-source'} = $isolateSources[$i];
+		$opt{'metadata-sra-biosample-location'} = $sampleLocations[$i];
+		$opt{'metadata-sra-biosample-passage'} = $samplePassages[$i];
+		$opt{'metadata-sra-biosample-collection-date'} = $sampleCollectionDates[$i];
+		$opt{'metadata-sra-biosample-collect-by'} = $sampleCollectionBys[$i];
+		$opt{'metadata-sra-biosample-latlon'} = $sampleLatlons[$i];
+		$opt{'metadata-sra-biosample-host'} = $sampleHosts[$i];
+		$opt{'metadata-sra-biosample-gender'} = $sampleGenders[$i];
+		$opt{'metadata-sra-biosample-age'} = $sampleAges[$i];
+		$opt{'metadata-sra-biosample-ps'} = $samplePurposes[$i];
+		$opt{'metadata-sra-biosample-gisaid'} = $sampleGISAIDaccs[$i];
+		$opt{'metadata-sra-meta-title'} = $expTitles[$i];
+		$opt{'metadata-sra-meta-design'} = $expDesigns[$i];
+		$opt{'metadata-sra-meta-libselection'} = $expLibSelections[$i];
+		$opt{'metadata-sra-meta-libstrategy'} = $expLibStrategys[$i];
+		$opt{'metadata-sra-meta-liblayout'} = $expLibLayouts[$i];
+		$opt{'metadata-sra-meta-libsource'} = $expLibSources[$i];
+		$opt{'metadata-sra-meta-platform'} = $expPlatforms[$i];
+		$opt{'metadata-sra-meta-libmodel'} = $expLibModels[$i];
+		$opt{'metadata-sra-meta-ps'} = $expSeqPurposes[$i];
+		
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
 		my $upload_content_dir = "$projDir/UPLOAD";
-		mkpath($upload_content_dir);
-		my $gisaidDone = "$upload_content_dir/gisaid_ncbi_submission.done"; 
-		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
+		make_dir($upload_content_dir);
+		my $sra_done = "$upload_content_dir/ncbi_sra_submission.done";
+		my $metadata_project  = "$upload_content_dir/sra_project.txt";
+		my $metadata_sample   = "$upload_content_dir/sra_samples.txt";
+		my $metadata_exp      = "$upload_content_dir/sra_experiments.txt";
+		my $metadata_filelist    = "$upload_content_dir/sra_filelist.txt";
+		my $metadata_other_info  = "$upload_content_dir/sra_additional_info.txt";
+		my ($input_pe_fastq, $input_se_fastq) = get_input_fastq($projDir,$sra_submit_data_dir);
 		my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
-		push @gisaidDoneFiles, $gisaidDone;
+		push @SRADoneFiles, $sra_done;
 		push @projCompleteReport_cacheFiles, $projCompleteReport_cache;
 		my $ownProjectFlag = 1 if ($ownProjlist->{$projCodes[$i]});
-		addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( $action eq "batch-upload2gisaid" && !$ownProjectFlag);
-		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2gisaid" && -e $gisaidDone);
-		checkParams($projNames[$i],$i) if $action eq "batch-upload2gisaid";
-		writeMetaData($projDir,$selected_consensus);
-		#gisaid profile
-		writeProfile($profileDir);
-		#create an input file for submission pipeline
-		writeSubmissionFile($projDir,$selected_consensus);
+		addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( $action eq "batch-upload2sra" && !$ownProjectFlag);
+		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2sra" && -e $sra_done);
+		checkParams($projNames[$i],$i) if $action eq "batch-upload2sra";
+		
+		writeBioProject($metadata_project);
+		writeBioSamples($projDir,$metadata_sample,0,0);
+		writeBioSamples($metadata_out_dir,$batch_sra_biosample,$i,1);  ## append data table
+		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq);
+		writeExperiment($metadata_out_dir,$batch_sra_experiment,$batch_sra_filelist, $input_pe_fastq, $input_se_fastq,$i,1); ## append data table
+		wrtieAdditional($metadata_other_info);
+		
 		unlink $projCompleteReport_cache;
 	}
 	if ($action eq "batch-update"){
 		&returnParamsStatus();
 	}
-	my $download_template_txt = "$metadata_out_dir/metadata_template.tsv";
-	my $download_template_txt_rel = "$relative_outdir/metadata_template.tsv";
-	if ($action eq "batch-template-download"){
-		mkpath($metadata_out_dir);
-		my @download_template_tsv_header = ("project-name",'virus-name','virus-passage','sample-collection-date','sample-location','sample-host','sample-gender','sample-age','sample-status','sample-sequencing-tech');
-		my @download_template_tsv_content;
+	my $download_biosample_template_txt = "$metadata_out_dir/metadata_biosample_template.tsv";
+	my $download_biosample_template_txt_rel = "$relative_outdir/metadata_biosample_template.tsv";
+	my $download_bioexperiment_template_txt = "$metadata_out_dir/metadata_sra_experiment_template.tsv";
+	my $download_bioexperiment_template_txt_rel = "$relative_outdir/metadata_sra_experiment_template.tsv";
+	if ($action eq "batch-biosample-template-download" or $action eq "batch-bioexperiment-template-download"){
+		
+		my @download_biosample_template_tsv_header = ("project-name",'sample-name','sample-isolate','sample-isolate-source','sample-location','sample-passage','sample-collection-date','sample-collect-by','sample-latlon','sample-host','sample-gender','sample-age','sample-purpose','sample-gisaid-acc');
+		my @download_biosample_template_tsv_content;
+		my @download_bioexperiment_template_tsv_header = ("project-name",'title','desgin','library-selection','library-strategy','library-layout','library-source','platform','library-model','sequencing-purpose');
+		my @download_bioexperiment_template_tsv_content;
 		foreach my $i (0..$#projCodes){
-			my $download_template_tsv_string = join("\t", $projNames[$i], $virusNames[$i],$virusPassages[$i],$sampleCollectionDates[$i],$sampleLocations[$i],$sampleHosts[$i],$sampleGenders[$i],$sampleAges[$i],$sampleStatus[$i],$sampleSequencingTech[$i]);
-			push @download_template_tsv_content, $download_template_tsv_string;
+			my $download_biosample_template_tsv_string = join("\t", $projNames[$i], $sampleNames[$i],$isolates[$i],$isolateSources[$i],$sampleLocations[$i],$samplePassages[$i],$sampleCollectionDates[$i],$sampleCollectionBys[$i],$sampleLatlons[$i],$sampleHosts[$i],$sampleGenders[$i],$sampleAges[$i],$samplePurposes[$i],$sampleGISAIDaccs[$i]);
+			push @download_biosample_template_tsv_content, $download_biosample_template_tsv_string;
+			my $download_bioexperiment_template_tsv_string = join("\t", $expTitles[$i], $expDesigns[$i],$expLibSelections[$i],$expLibStrategys[$i],$expLibLayouts[$i],$expLibSources[$i],$expPlatforms[$i],$expLibModels[$i],$expSeqPurposes[$i]);
+			push @download_bioexperiment_template_tsv_content, $download_bioexperiment_template_tsv_string;
 		}
-
-		&write_tsv($download_template_txt,join("\t",@download_template_tsv_header), join("\n",@download_template_tsv_content));
-		$msg->{PATH} = $download_template_txt_rel;
-		addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata template tsv file") unless  (-r "$download_template_txt" );
+		
+		if ($action eq "batch-biosample-template-download" ){
+			&write_tsv($download_biosample_template_txt,join("\t",@download_biosample_template_tsv_header), join("\n",@download_biosample_template_tsv_content));
+			$msg->{PATH} = $download_biosample_template_txt_rel;
+			addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata biosample template tsv file") unless  (-r "$download_biosample_template_txt" );
+		}
+		if ($action eq "batch-bioexperiment-template-download" ){
+			&write_tsv($download_bioexperiment_template_txt,join("\t",@download_bioexperiment_template_tsv_header), join("\n",@download_bioexperiment_template_tsv_content));
+			$msg->{PATH} = $download_biosample_template_txt_rel;
+			addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata SRA experiment template tsv file") unless  (-r "$download_bioexperiment_template_txt" );
+		}
 		&returnParamsStatus();
 	}
-	my $date_str = strftime "%Y%m%d", localtime;
-	my $batch_metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
-	my $all_sequences = "$metadata_out_dir/GISAID/all_sequences.fasta";
-	my $ncbi_all_sequences = "$metadata_out_dir/NCBI/all_sequences_ncbi.fasta";
-	my $metadata_NCBI_outdir = "$metadata_out_dir/NCBI";
-	my $ncbi_source_tsvout = "$metadata_NCBI_outdir/source.src";
-	my $ncbi_comment_tsvout = "$metadata_NCBI_outdir/comment.cmt";
-	my $ncbi_submitter_profile =  "$metadata_NCBI_outdir/submitter_profile.txt";
-	system("$EDGE_HOME/scripts/metadata/export_metadata_xls.pl", "-out", "$batch_metadata_out", "-projects", "$projects", "-udir",$profileDir);
+	
 	if ($action eq "batch-download"){
-		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
-		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_consensus_fasta_metadata.zip";
-		my $cmd = "cd $metadata_out_dir; zip -r $zip_file GISAID NCBI 2>/dev/null";
+		my $date_str2 = strftime "%Y%m%d", localtime;
+		my $zip_file = "$metadata_out_dir/${date_str2}_edge_covid19_sra_metadata.zip";
+		my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_sra_metadata.zip";
+	
+		my $cmd = "zip -j $zip_file $batch_sra_bioproject $batch_sra_biosample $batch_sra_experiment $batch_sra_filelist $batch_sra_other_info 2>/dev/null";
 		`$cmd`;
 		$msg->{PATH} = $zip_file_rel;
 
-		addMessage("BATCH-DOWNLOAD","failure","failed to export sample metadata to .xls file") unless (-e "$batch_metadata_out" );
-		addMessage("BATCH-DOWNLOAD","failure","failed to export sample consensus fasta files") unless (-e "$all_sequences" );
+		addMessage("BATCH-DOWNLOAD","failure","failed to export SRA biosample metadata") unless (-e "$batch_sra_biosample" );
+		addMessage("BATCH-DOWNLOAD","failure","failed to export SRA experiments metadata") unless (-e "$batch_sra_experiment" );
 		addMessage("BATCH-DOWNLOAD","failure","failed to zip exported file") unless (-e $zip_file );
 		&returnParamsStatus();
 	}
-	if ($msg->{SUBMISSION_STATUS} eq "success" && $action eq "batch-upload2gisaid"){
-		my $submit_log = "$metadata_out_dir/submit.log";
+	if ($msg->{SUBMISSION_STATUS} eq "success" && $action eq "batch-upload2sra"){
+		my $submit_log = "$metadata_out_dir/sra_submit.log";
 		my $submit_current_log = "$metadata_out_dir/sra_submit_current.log";
-		my $submit_script = "$metadata_out_dir/submit.sh";
-		my $gisaid_cmd = "$EDGE_HOME/scripts/gisaid_EpiCoV_batch_uploader.py -m $batch_metadata_out -f $all_sequences -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
-		my $ncbi_cmd  = "$EDGE_HOME/scripts/NCBI_SARS-CoV2_batch_submitter.py -f $ncbi_all_sequences -s $ncbi_source_tsvout -c $ncbi_comment_tsvout -a $ncbi_submitter_profile -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " --headless $debug 2>\&1 | tee -a $submit_log";
-
-		SetSubmitScript($submit_script, $submit_log, \@projCompleteReport_cacheFiles,\@gisaidDoneFiles, $gisaid_cmd, $ncbi_cmd);
+		my $submit_script = "$metadata_out_dir/sra_submit.sh";
+		
+		## prepare submission.xml file
+		my $ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_xml.py --input-dir $sra_submit_data_dir --listfile $batch_sra_filelist --projectfile $batch_sra_bioproject --metadatafile $batch_sra_biosample ";
+		$ncbi_cmd .= "--experimentfile $batch_sra_experiment --datatype 'Raw sequence reads' --samplescope eMultiisolate   | tee -a $submit_log ";
+		## file transfer commands;
+		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/" ;
+		$ncbi_cmd .= "\n cd $metadata_out_dir \n";
+		$ncbi_cmd .= "\n echo 'Transfer files to NCBI' \n";
+		$ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_ascp.py --ncbi-sra-dir \'$ncbi_sra_dir\' --input-dir \'". basename($sra_submit_data_dir) . "\/\' ";
+		$ncbi_cmd .= " --ncbi-username ". $sys->{'sra_submission_account'} ;
+		$ncbi_cmd .= " --ncbi-private-key ". $sys->{'sra_acsp_keyfile'} .  " | tee -a $submit_log \n";
+		
+		SetSubmitScript($submit_script, $submit_log, \@projCompleteReport_cacheFiles, \@SRADoneFiles, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
 			or exec ("/bin/bash $submit_script > $submit_current_log &");
@@ -435,7 +500,6 @@ sub touchFile{
 }
 
 sub wrtieAdditional{
-	my $outdir = shift;
 	my $outfile = shift;
 
 	open my $ofh,  ">$outfile";
@@ -447,7 +511,6 @@ OUTMSG
 }
 
 sub writeBioProject{
-	my $outdir = shift;
 	my $outfile = shift;
 
 
@@ -479,11 +542,12 @@ OUTMSG
 sub writeBioSamples{
 	my $outdir = shift;
 	my $outfile = shift;
+	my $index = shift;
 	my $append = shift;
 	my @sample_string;
 	
 	if (!$append){ unlink $outfile; }
-	open my $ofh,  ">>", "$outfile";
+	open (my $ofh,  ">>", "$outfile") or die "Cannot write to $outfile";
 	my @header = ("sample_name", "sample_title", "organism", "isolate", "collected_by", "collection_date", 
 	              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
 	              "host_health_state","host_age","host_sex",
@@ -514,7 +578,7 @@ sub writeBioSamples{
 		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
 	}
 	
-	if (!$append){
+	if (!$index){
 		print $ofh "#Pathogen.cl.1.0\n";
 		print $ofh join("\t",@header),"\n";
 	}
@@ -528,6 +592,7 @@ sub writeExperiment{
 	my $outfilelist = shift;
 	my $input_pe_fastq = shift;
 	my $input_se_fastq = shift;
+	my $index = shift;
 	my $append = shift;
 	my @sample_string;
 	my @file_string;
@@ -558,8 +623,10 @@ sub writeExperiment{
 		push @sample_string, basename($file);
 		push @file_string, basename($file);
 	}
-	
-	if (!$append){
+	while ( (15 - scalar(@sample_string)) > 0){
+		push @sample_string,"";
+	}
+	if (!$index){
 		print $ofh join("\t",@header),"\n";
 	}
 	print $ofh join("\t",@sample_string), "\n";

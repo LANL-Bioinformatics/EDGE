@@ -1,0 +1,384 @@
+<h2>Selected Projects Metadata</h2>
+
+<form id="edge-sra-batch-upload-form">
+	<div class="ui-corner-all custom-corners">
+		<div class="ui-bar ui-bar-d">
+			<b><em>BioProject</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div class="ui-field-contain" id="metadata-sra-bioproject-sw">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Use Registered BioProject</legend>
+					<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw1" value="1" <TMPL_VAR NAME=USE_BIOPROJECT_ID DEFAULT=>>
+					<label for="metadata-sra-bioproject-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="metadata-sra-bioproject-sw" id="metadata-sra-bioproject-sw2" value="0" <TMPL_VAR NAME=NOT_USE_BIOPROJECT_ID DEFAULT=>>
+					<label for="metadata-sra-bioproject-sw2">No</label>
+				</fieldset>
+				</div>
+				<div class="ui-field-contain metadata-sra-bioproject-use-id">
+					<label for="metadata-sra-bioproject-id">Existing BioProject<a title="PRJNA714680 is BioProject ID for SARS-CoV-2 WGS: Los Alamos National Laboratory, Biosecurity and Public Health." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<input type="text" id="metadata-sra-bioproject-id" name="metadata-sra-bioproject-id"
+						placeholder="PRJNAXXXXX, ex:PRJNA714680" 
+						value="<TMPL_VAR NAME=BIOPROJECT_ID DEFAULT=>" class="metadata-input">
+				</div>
+				<div class="ui-field-contain metadata-sra-bioproject-input">
+					<label for="metadata-sra-bioproject-title">Project title<a title="Provide a brief title, as a phrase or short sentence for public display." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<input type="text" id="metadata-sra-bioproject-title" name="metadata-sra-bioproject-title"
+						placeholder="ex: SARS-CoV-2 WGS: Los Alamos National Laboratory" 
+						value="<TMPL_VAR NAME=BIOPROJECT_TITLE DEFAULT=>" class="metadata-input">
+				</div>
+				<div class="ui-field-contain metadata-sra-bioproject-input">
+					<label for="metadata-sra-bioproject-desc">Project description<a title="Provide a description (a paragraph) of the study goals and relevance." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<textarea id="metadata-sra-bioproject-desc" name="metadata-sra-bioproject-desc"
+						placeholder="" 
+						value="<TMPL_VAR NAME=BIOPROJECT_DESC DEFAULT=>" class="metadata-input"></textarea>
+				</div>
+				<div class="ui-field-contain metadata-sra-bioproject-input">
+					<label for="metadata-sra-bioproject-link-desc">External Link Desc<a title="Display name of website that is related to this study." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<input type="text" id="metadata-sra-bioproject-link-desc" name="metadata-sra-bioproject-link-desc"
+						value="<TMPL_VAR NAME=BIOPROJECT_LINK_DESC DEFAULT=>" class="metadata-input">
+				</div>
+				<div class="ui-field-contain metadata-sra-bioproject-input">
+					<label for="metadata-sra-bioproject-link-url">External Link URL<a title="URL of website that is related to this study." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
+					<input type="text" id="metadata-sra-bioproject-link-url" name="metadata-sra-bioproject-link-url"
+						value="<TMPL_VAR NAME=BIOPROJECT_LINK_URL DEFAULT=>" class="metadata-input">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui-corner-all custom-corners">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Biosamples</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div style="font-size:0.8em">Type directly in the form below OR <a data-ajax='false' href="#" id="metadata-upload-toggle">upload a tab-delimited text file.</a></div>
+			<div style="font-size:0.8em;background-color:#e2f3f8;padding:1px;" id="metadata-upload-content" >
+				<ol>
+					<li><a data-ajax='false' href="#" id='edge-sra-form-biosample-template-download' >Download biosample template table.</a></li>
+					<li>Edit the downloaded table in Microsoft Excel or any other text editors.<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" id="biosample-tab-example"></a> </li>
+					<li>Save the table as a tab-delimited text file.</li>
+					<li>Upload your saved table file.
+						<input type="file" id="sra-biosample-upload-file" name="sra-biosample-upload-file" data-role="none">
+					</li>
+				</ol>
+			</div>
+	
+			<table id='edge-sra-biosample-project-page-table' class="display nowrap" style="width:100%">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Project Name</th>
+						<th title="Unique Sample name">Sample name</th>
+						<th style="padding-right:6.5em;" title="SARS-CoV2/Host/Country/Identifier/year, ex:SARS-CoV2/Homo sapiens/USA/NM-LANL-10001/2021">Isolate</th>
+						<th title="Describes the physical, environmental and/or local geographical source of the biological sample from which the sample was derived.">Isolate source</th>
+						<th style="padding-right:5em;" title="Put country field first, followed by state/province/region, separated by a colon.">Location</th>
+						<th title="ex:Original, Vero">Passage Details</th>
+						<th title="ex: 2020-03-27, 2020-03 (collection in March, day unknown), 2020 (month and day unknown)">Collection Date</th>
+						<th title="ex: New Mexico Department of Health">Collected by</th>
+						<th title="ex: 38.98 N 77.11 W">Lat Lon</th>
+						<th style="padding-right:2em;" title="ex: Human, Environment, Canine, Manis javanica, Rhinolophus affinis, unknown">Host</th>
+						<th>Host Gender</th>
+						<th title="ex: 65, 7 monthis, or unknown">Host Age</th>
+						<th title="Information regarding health state of the individual sampled at the time of sampling.">Host Health Status</th>
+						<th>Purpose of sampling</th>
+						<th title="ex: EPI_ISL_596447 or not collected">GISAID accession</th>
+						<th>Submitted to SRA</th>
+					</tr>
+				</thead>
+				<tbody>
+					<TMPL_LOOP NAME=LOOP_METADATA>
+					<tr>
+						<td><TMPL_VAR NAME=ROWINDEX></td>
+						<td><input type="hidden" data-mini="true" name="metadata-projnames" value="<TMPL_VAR NAME=PROJNAME DEFAULT=>"><input type="hidden" data-mini="true" name="metadata-projcodes" value="<TMPL_VAR NAME=PROJCODE DEFAULT=>"><a href='#' data-mini="true" class='edge-project-page-link ' data-pid='<TMPL_VAR NAME=PROJCODE>'><TMPL_VAR NAME=PROJNAME></a></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-names" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_NAME DEFAULT=>" ></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-isolates" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_ISOLATE DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-isolate-sources" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_ISOLATESOURCE DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-locations" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_LOC DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-passages" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_PASSAGE DEFAULT=>"></td>
+						<td><input type="text" data-role="date" data-mini="true" data-clear-btn="false" class='metadata-input-date' name="metadata-sra-biosample-collection-dates" maxlength="30" value="<TMPL_VAR NAME=BIOSAMPLE_CDATE DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-collect-bys" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_CBY DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-latlons" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_LATLON DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-hosts" placeholder="" value="<TMPL_VAR NAME=BIOSAMPLE_HOST DEFAULT=>"> </td>
+						<td>
+							<select name="metadata-sra-biosample-genders" data-role="none" data-mini="true" data-native-menu="true">
+								<option value="">Select Gender</option>
+								<option value="Male" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Male>>Male</option>
+								<option value="Female" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Female>>Female</option>
+								<option value="Other" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Undeclared>>Other</option>
+								<option value="unknown" <TMPL_VAR NAME=BIOSAMPLE_GENDER_Unknown>>Unknown</option>
+							</select>
+						</td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-ages" value="<TMPL_VAR NAME=BIOSAMPLE_AGE DEFAULT=>" placeholder=""></td>
+						<td>
+							<select name="metadata-sra-biosample-status" data-role="none" data-mini="true" data-native-menu="true">
+								<option value="">Select Status</option>
+								<option value="Hospitalized" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Hospitalized DEFAULT=>>Hospitalized</option>
+								<option value="Released" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Released DEFAULT=>>Released</option>
+								<option value="Live" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Live DEFAULT=>>Live</option>
+								<option value="Deceased" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Deceased DEFAULT=>>Deceased</option>
+								<option value="Missing" <TMPL_VAR NAME=BIOSAMPLE_STATUS_Unknown DEFAULT=>>Unknown</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-biosample-purposes" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select Reason</option>
+								<option value="Cluster Investigation" <TMPL_VAR NAME=BIOSAMPLE_PS_Cluster_Investigation>>Cluster Investigation</option>
+								<option value="Diagnostic Testing" <TMPL_VAR NAME=BIOSAMPLE_PS_Diagnostic_Testing>>Diagnostic Testing</option>
+								<option value="Research" <TMPL_VAR NAME=BIOSAMPLE_PS_Research>>Research</option>
+								<option value="Surveillance Testing" <TMPL_VAR NAME=BIOSAMPLE_PS_Surveillance_Testing>>Surveillance Testing</option>
+								<option value="Viral Passage Experiment" <TMPL_VAR NAME=BIOSAMPLE_PS_Viral_Passage_Experiment>>Viral Passage Experiment</option>
+								<option value="Missing" <TMPL_VAR NAME=BIOSAMPLE_PS_Unknown>>Unknown</option>
+							</select>
+						</td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-gisaid-accs" placeholder=""  value="<TMPL_VAR NAME=BIOSAMPLE_GISAIDACC DEFAULT=>"></td>
+						<td>
+							<TMPL_IF NAME="SRA_SUBMIT_TIME">
+							<a data-mini="true" class="edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-left" style="cursor: default;pointer-events: none;"><TMPL_VAR NAME="SRA_SUBMIT_TIME"></a>
+							</TMPL_IF>
+						</td>
+					</tr>
+					</TMPL_LOOP>
+				</tbody>
+			</table>
+			<p class='edge_tool_note' id="mac-scroll-bar-note">Don't see X scroll bar!! On Mac, please try <a href="https://heresthethingblog.com/2015/03/10/mac-tip-macs-scroll-bars/" target="_new">this</a>.</p>
+		</div>
+	</div>
+
+	<div class="ui-corner-all custom-corners">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Experiments</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div style="font-size:0.8em">Type directly in the form below OR <a data-ajax='false' href="#" id="metadata-upload-toggle2" >upload a tab-delimited text file.</a></div>
+			<div style="font-size:0.8em;background-color:#e2f3f8;padding:1px;" id="metadata-upload-content2" >
+				<ol>
+					<li><a data-ajax='false' href="#" id='edge-sra-form-bioexperiment-template-download' >Download experiments template table.</a></li>
+					<li>Edit the downloaded table in Microsoft Excel or any other text editors.<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn" id="experiment-tab-example"></a> </li>
+					<li>Save the table as a tab-delimited text file.</li>
+					<li>Upload your saved table file.
+						<input type="file" id="sra-experiment-upload-file" name="sra-experiment-upload-file" data-role="none">
+					</li>
+				</ol>
+			</div>
+			<table id='edge-sra-experiment-project-page-table' class="display nowrap" style="width:100%">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Project Name</th>
+						<th title="Short description that will identify the dataset on public pages. {methodology} of {organism}: {sample info}">Title</th>
+						<th title="Brief description of the methods used to create the sequencing library.">Design</th>
+						<th>Library Selection</th>
+						<th>Library Strategy</th>
+						<th>Library Layout</th>
+						<th>Library Source</th>
+						<th>Sequencing Platform</th>
+						<th>Sequencing Model</th>
+						<th>Purpose of sequencing</th>
+					</tr>
+				</thead>
+				<tbody>
+					<TMPL_LOOP NAME=LOOP_METADATA>
+					<tr>
+						<td><TMPL_VAR NAME=ROWINDEX></td>
+						<td><a href='#' data-mini="true" class='edge-project-page-link ' data-pid='<TMPL_VAR NAME=PROJCODE>'><TMPL_VAR NAME=PROJNAME></a></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-meta-titles" placeholder="" value="<TMPL_VAR NAME=SRA_LIBTITLE DEFAULT=>" ></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-meta-designs" placeholder="" value="<TMPL_VAR NAME=SRA_LIBDESIGN DEFAULT=>" ></td>
+						<td>
+							<select name="metadata-sra-meta-library-selections" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select libselection</option>
+								<option value="PCR" <TMPL_VAR NAME=SRA_LIBSELECT_PCR>>PCR</option>
+								<option value="RT-PCR" <TMPL_VAR NAME=SRA_LIBSELECT_RT-PCR>>RT-PCR</option>
+								<option value="RANDOM PCR" <TMPL_VAR NAME=SRA_LIBSELECT_RANDOM_PCR>>RANDOM PCR</option>
+								<option value="cDNA" <TMPL_VAR NAME=SRA_LIBSELECT_cRNA>>cDNA</option>
+								<option value="cDNA_randomPriming" <TMPL_VAR NAME=SRA_LIBSELECT_cDNA_randomPriming>>cDNA_randomPriming</option>
+								<option value="other" <TMPL_VAR NAME=SRA_LIBSELECT_other>>other</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-library-strategys" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select libstrategy</option>
+								<option value="AMPLICON" <TMPL_VAR NAME=SRA_LIBSTRATEGY_AMPLICON>>AMPLICON</option>
+								<option value="WGS" <TMPL_VAR NAME=SRA_LIBSTRATEGY_WGS>>WGS</option>
+								<option value="WGA" <TMPL_VAR NAME=SRA_LIBSTRATEGY_WGA>>WGA</option>
+								<option value="CLONE" <TMPL_VAR NAME=SRA_LIBSTRATEGY_CLONE>>CLONE</option>
+								<option value="Hi-C" <TMPL_VAR NAME=SRA_LIBSTRATEGY_Hi-C>>Hi-C</option>
+								<option value="RNA-Seq" <TMPL_VAR NAME=SRA_LIBSTRATEGY_RNA-Seq>>RNA-Seq</option>
+								<option value="OTHER" <TMPL_VAR NAME=SRA_LIBSTRATEGY_OTHER>>OTHER</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-library-layouts" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select liblayout</option>
+								<option value="paired" <TMPL_VAR NAME=SRA_LIBLAYOUT_Paired>>Paired</option>
+								<option value="single" <TMPL_VAR NAME=SRA_LIBLAYOUT_Single>>Single</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-library-sources" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select libsource</option>
+								<option value="Viral RNA" <TMPL_VAR NAME=SRA_LIBSOURCE_Viral_RNA>>Viral RNA</option>
+								<option value="Genomic" <TMPL_VAR NAME=SRA_LIBSOURCE_Genomic>>Genomic</option>
+								<option value="Transcriptomic" <TMPL_VAR NAME=SRA_LIBSOURCE_Transcriptomic>>Transcriptomic</option>
+								<option value="Metagenomic" <TMPL_VAR NAME=SRA_LIBSOURCE_Metagenomic>>Metagenomic</option>
+								<option value="Metatranscriptomic" <TMPL_VAR NAME=SRA_LIBSOURCE_Metatranscriptomic>>Metatranscriptomic</option>
+								<option value="Synthetic" <TMPL_VAR NAME=SRA_LIBSOURCE_Synthetic>>Synthetic</option>
+								<option value="Genomic Single Cell" <TMPL_VAR NAME=SRA_LIBSOURCE_Genomic_Single_Cell>>Genomic Single Cell</option>
+								<option value="Transcriptomic Single Cell" <TMPL_VAR NAME=SRA_LIBSOURCE_Transcriptomic_Single_Cell>>Transcriptomic Single Cell</option>
+								<option value="Other" <TMPL_VAR NAME=SRA_LIBSOURCE_Other>>Other</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-platforms" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select Platform</option>
+								<option value="ILLUMINA" <TMPL_VAR NAME=SRA_PLATFORM_ILLUMINA>>ILLUMINA</option>
+								<option value="OXFORD_NANOPORE" <TMPL_VAR NAME=SRA_PLATFORM_OXFORD_NANOPORE>>OXFORD_NANOPORE</option>
+								<option value="PACBIO_SMRT" <TMPL_VAR NAME=SRA_PLATFORM_PACBIO_SMRT>>PACBIO_SMRT</option>
+								<option value="_LS454" <TMPL_VAR NAME=SRA_PLATFORM__LS454>>_LS454</option>
+								<option value="ABI_SOLID" <TMPL_VAR NAME=SRA_PLATFORM_ABI_SOLID>>ABI_SOLID</option>
+								<option value="BGISEQ" <TMPL_VAR NAME=SRA_PLATFORM_BGISEQ>>BGISEQ</option>
+								<option value="CAPILLARY" <TMPL_VAR NAME=SRA_PLATFORM_CAPILLARY>>CAPILLARY</option>
+								<option value="COMPLETE_GENOMICS" <TMPL_VAR NAME=SRA_PLATFORM_COMPLETE_GENOMICS>>COMPLETE_GENOMICS</option>
+								<option value="HELICOS" <TMPL_VAR NAME=SRA_PLATFORM_HELICOS>>HELICOS</option>
+								<option value="ION_TORRENT" <TMPL_VAR NAME=SRA_PLATFORM_ION_TORRENT>>ION_TORRENT</option>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-library-models" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select Model</option>
+								<optgroup label = "_LS454">
+									<option value="454 GS" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS>>454 GS</option>
+									<option value="454 GS_20" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_20>>454 GS 20</option>
+									<option value="454 GS FLX" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_FLX>>454 GS FLX</option>
+									<option value="454 GS FLX+" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_FLX_PLUS>>454 GS FLX+</option>
+									<option value="454 GS FLX Titanium" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_FLX_Titanium>>454 GS FLX Titanium</option>
+									<option value="454 GS Junior" <TMPL_VAR NAME=SRA_SEQMODEL_454_GS_Junior>>454 GS Junior</option>
+								</optgroup>
+								<optgroup label = "ABI_SOLID">
+									<option value="AB 5500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500_Genetic_Analyzer>>AB 5500 Genetic Analyzer</option>
+									<option value="AB 5500xl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500xl_Genetic_Analyzer>>AB 5500xl Genetic Analyzer</option>
+									<option value="AB 5500x-Wl Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_5500x-Wl_Genetic_Analyzer>>AB 5500x-Wl Genetic Analyzer</option>
+									<option value="AB SOLiD 3 Plus System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_3_Plus_System>>AB SOLiD 3 Plus System</option>
+									<option value="AB SOLiD 4 System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_4_System>>AB SOLiD 4 System</option>
+									<option value="AB SOLiD 4hq System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_4hq_System>>AB SOLiD 4hq System,</option>
+									<option value="AB SOLiD PI System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_PI_System>>AB SOLiD PI System</option>
+									<option value="AB SOLiD System" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System>>AB SOLiD System</option>
+									<option value="AB SOLiD System 2.0" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System_2.0>>AB SOLiD System 2.0</option>
+									<option value="AB SOLiD System 3.0" <TMPL_VAR NAME=SRA_SEQMODEL_AB_SOLiD_System_3.0>>AB SOLiD System 3.0</option>
+								</optgroup>
+								<optgroup label = "BGISEQ">
+									<option value="BGISEQ-500" <TMPL_VAR NAME=SRA_SEQMODEL_BGISEQ-500>>BGISEQ-500</option>
+									<option value="DNBSEQ-G400" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-G400>>DNBSEQ-G400</option>
+									<option value="DNBSEQ-G50" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-G50>>DNBSEQ-G50</option>
+									<option value="DNBSEQ-T7" <TMPL_VAR NAME=SRA_SEQMODEL_DNBSEQ-T7>>DNBSEQ-T7</option>
+								</optgroup>
+								<optgroup label = "CAPILLARY">
+									<option value="AB 310 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_310_Genetic_Analyzer>>AB 310 Genetic Analyzer</option>
+									<option value="AB 3130 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3130_Genetic_Analyzer>>AB 3130 Genetic Analyzer</option>
+									<option value="AB 3130xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3130xL_Genetic_Analyzer>>AB 3130xL Genetic Analyzer</option>
+									<option value="AB 3500 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3500_Genetic_Analyzer>>AB 3500 Genetic Analyzer</option>
+									<option value="AB 3500xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3500xL_Genetic_Analyzer>>AB 3500xL Genetic Analyzer</option>
+									<option value="AB 3730 Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3730_Genetic_Analyzer>>AB 3730 Genetic Analyzer</option>
+									<option value="AB 3730xL Genetic Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_AB_3730xL_Genetic_Analyzer>>AB 3730xL Genetic Analyzer</option>
+								</optgroup>
+								<optgroup label = "COMPLETE_GENOMICS">
+									<option value="Complete Genomics" <TMPL_VAR NAME=SRA_SEQMODEL_Complete_Genomics>>Complete Genomics</option>
+								</optgroup>
+								<optgroup label = "HELICOS">
+									<option value="Helicos HeliScope" <TMPL_VAR NAME=SRA_SEQMODEL_Helicos_HeliScope>>Helicos HeliScope</option>
+								</optgroup>
+								<optgroup label = "ILLUMINA">
+									<option value="Illumina MiSeq" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_MiSeq>>MiSeq</option>
+									<option value="Illumina NextSeq 500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_500>>NextSeq 500</option>
+									<option value="Illumina NextSeq 550" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_550>>NextSeq 550</option>
+									<option value="Illumina NextSeq 1000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_1000>>NextSeq 1000</option>
+									<option value="Illumina NextSeq 2000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NextSeq_2000>>NextSeq 2000</option>
+									<option value="HiSeq X Five" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_X_Five>>HiSeq X Five</option>
+									<option value="HiSeq X Ten" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_X_Ten>>HiSeq X Ten</option>
+									<option value="Illumina Genome Analyzer" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer>>Genome Analyzer</option>
+									<option value="Illumina Genome Analyzer II" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer_II>>Genome Analyzer II</option>
+									<option value="Illumina Genome Analyzer IIx" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_Genome_Analyzer_IIx>>Genome Analyzer IIx</option>
+									<option value="Illumina HiScanSQ" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiScanSQ>>Illumina HiScanSQ</option>
+									<option value="Illumina HiSeq 1000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_1000>>HiSeq 1000</option>
+									<option value="Illumina HiSeq 1500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_1500>>HiSeq 1500</option>
+									<option value="Illumina HiSeq 2000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_2000>>HiSeq 2000</option>
+									<option value="Illumina HiSeq 2500" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_2500>>HiSeq 2500</option>
+									<option value="Illumina HiSeq 3000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_3000>>HiSeq 3000</option>
+									<option value="Illumina HiSeq 4000" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_HiSeq_4000>>HiSeq 4000</option>
+									<option value="Illumina iSeq 100" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_iSeq_100>>iSeq 100</option>
+									<option value="Illumina NovaSeq 600" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_NovaSeq_600>>NovaSeq 6000</option>
+									<option value="Illumina MiniSeq" <TMPL_VAR NAME=SRA_SEQMODEL_Illumina_MiniSeq>>MiniSeq</option>
+								</optgroup>
+								<optgroup label = "ION_TORRENT">
+									<option value="Ion Torrent PGM" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_PGM>>PGM</option>
+									<option value="Ion Torrent Proton" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_Proton>>Proton</option>
+									<option value="Ion Torrent S5" <TMPL_VAR NAME=SRA_SEQMODEL_Ion-Torrent_S5>>S5</option>
+									<option value="Ion Torrent S5 XL" <TMPL_VAR NAME=SRA_SEQMODEL_Ion_Torrent_S5_XL>>S5 XL</option>
+								</optgroup>
+								<optgroup label = "OXFORD_NANOPORE">
+									<option value="MinION" <TMPL_VAR NAME=SRA_SEQMODEL_MinION>>MinION</option>
+									<option value="GridION" <TMPL_VAR NAME=SRA_SEQMODEL_GridION>>GridION</option>
+									<option value="PromethION" <TMPL_VAR NAME=SRA_SEQMODEL_PromethION>>PromethION</option>
+								</optgroup>
+								<optgroup label = "PACBIO_SMRT">
+									<option value="PacBio RS" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_RS>>PacBio RS</option>
+									<option value="PacBio RS II" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_RS_II>>PacBio RS II</option>
+									<option value="PacBio Sequel" <TMPL_VAR NAME=SRA_SEQMODEL_PacBio_Sequel>>PacBio Sequel</option>
+								</optgroup>
+							</select>
+						</td>
+						<td>
+							<select name="metadata-sra-meta-sequencing-purposes" data-role="none"  data-mini="true" data-native-menu="true">
+								<option value="">Select Reason</option>
+								<option value="Baseline surveillance" <TMPL_VAR NAME=SRA_PS_Baseline_surveillance>>Baseline surveillance</option>
+								<option value="Targeted surveillance" <TMPL_VAR NAME=SRA_PS_Targeted_surveillance>>Targeted surveillance</option>
+								<option value="Cluster or Outbreak investigation" <TMPL_VAR NAME=SRA_PS_Cluster_or_Outbreak_investigation>>Cluster/Outbreak investigation</option>
+								<option value="Research" <TMPL_VAR NAME=SRA_PS_Research>>Research</option>
+								<option value="Missing" <TMPL_VAR NAME=SRA_PS_Missing>>Unknown</option>
+							</select>
+						</td>
+					</tr>
+					</TMPL_LOOP>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<br /><br />
+	<div class="ui-corner-all custom-corners" id="edge-sra-metadata-additional-info">
+		<div class="ui-bar ui-bar-d">
+			<b><em>Additional information</em></b>
+		</div>
+		<div class="ui-body ui-body-a ui-corner-all">
+			<div class="ui-field-contain">
+				<label for="metadata-sra-submitter">Contact Email</label>
+				<input name="metadata-sra-submitter" id="metadata-sra-submitter" type="text"
+						value="<TMPL_VAR NAME=SRA_SUBMITTER DEFAULT=>" class="metadata-input">
+			</div>
+			<div class="ui-field-contain">
+				<label for="metadata-sra-release-date">Release date</label>
+				<input type="text" data-role="date" data-mini="true" data-clear-btn="false"
+						value="<TMPL_VAR NAME=SRA_RELEASE_DATE DEFAULT=>" name="metadata-sra-release-date"
+						id="metadata-sra-release-date"
+						placeholder="Example: 2021-04-20"
+						maxlength="30" class="metadata-input metadata-input-date">
+			</div>
+		</div>
+	</div>
+	<br /><br />
+	
+	<div class="edge-center">
+		<TMPL_UNLESS NAME="SRA_SUBMIT_DISABLE">
+		<input data-mini="true" type="button" id="edge-sra-form-batch-submit" data-inline="true"
+				class="edge-center" value="Submit to NCBI SRA">
+		</TMPL_UNLESS>
+		<input data-mini="true" type="button" id="edge-sra-form-batch-update" data-inline="true"
+				class="edge-center" value="Update">
+		<input data-mini="true" type="button" id="edge-sra-form-batch-download" data-inline="true"
+				class="edge-center" value="Download">
+		<input data-mini="true" type="button" id="edge-sra-form-batch-cancel" data-inline="true"
+				class="edge-center" value="Cancel">
+	</div>
+	<ul data-role="listview" data-inset="true" id="edge-sra-batch-submit-info">
+	<!-- <li data-role="list-divider">Information</li> -->
+	</ul>
+</form>
