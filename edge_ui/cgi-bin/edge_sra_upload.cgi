@@ -557,7 +557,7 @@ sub writeBioSamples{
 	              "host_health_state","host_age","host_sex",
 	              "passage_history", "description", "purpose_of_sampling",
 	              "purpose_of_sequencing","GISAID_accession");
-	if ($opt{'metadata-sra-bioproject-id'}) { push @header, "bioproject_accession"; }
+	if ($opt{'metadata-sra-bioproject-sw'}) { push @header, "bioproject_accession"; }
 	
 	$sample_string[0] = $opt{'metadata-sra-biosample-name'} ;
 	$sample_string[1] = "not collected";
@@ -578,7 +578,7 @@ sub writeBioSamples{
 	$sample_string[16] = ($opt{'metadata-sra-biosample-ps'})? $opt{'metadata-sra-biosample-ps'} : "not collected";
 	$sample_string[17] = ($opt{'metadata-sra-meta-ps'})? $opt{'metadata-sra-meta-ps'} : "not collected";
 	$sample_string[18] = ($opt{'metadata-sra-biosample-gisaid'})? $opt{'metadata-sra-biosample-gisaid'} : "not collected";
-	if ($opt{'metadata-sra-bioproject-id'}) {
+	if ($opt{'metadata-sra-bioproject-sw'}) {
 		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
 	}
 	
