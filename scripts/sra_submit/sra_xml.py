@@ -59,7 +59,17 @@ class SubmitXML():
             v = r.split("\t")
             attr[(v[0]).strip()] = dict(zip(keys[1:], [i.strip() for i in v[1:]]))
         return(attr)
-
+        
+    def GetLibraryAttribute(self, exp):
+        """ sample library metadata; sample name as key, attributes as dictionary """
+        attr = {}
+        lines = self.ReadFile(exp)
+        keys = [k.strip() for k in (lines[0]).split("\t")]
+        for r in lines[1:]:
+            v = r.split("\t")
+            attr[(v[0]).strip()] = dict(zip(keys[1:], [i.strip() for i in v[1:]]))
+        return(attr)
+        
     def GetProject(self, pj):
         """ project information """
         proj = {}
@@ -175,7 +185,14 @@ class SubmitXML():
         # list of FASTQ files
         fq = [self.SetElement("File", "", {"file_path": f}, [
             self.SetElement("DataType", "generic-data")]) for f in fastq]
-
+            
+        if "design_description" in attr and not attr["design_description"]:
+            del attr["design_description"]
+        if "title" in attr and not attr["title"]:
+            del attr["title"]
+        for key in ['library_ID','filetype','filename','filenam2','filename3','filename4','assembly','fasta_file']:
+            attr.pop(key, None)
+       
         # instrument and library attributes
         attr["library_name"] = "%s.%s" % (fastq[0], sid)
         at = [self.SetElement("Attribute", attr[k], {"name": k}) for k in attr.keys()]
@@ -207,21 +224,19 @@ class SubmitXML():
         with open(name, "w") as to_xml:
             to_xml.write((xml.dom.minidom.parseString(ET.tostring(self.root))).toprettyxml(indent = "    ", newl = "\n"))
 
-    def Run(self, lb, datatype, scope, lf = "listfile.txt", pj = "project.txt", sg = "samplegroup.txt"):
+    def Run(self, lb, datatype, scope, lf = "listfile.txt", pj = "project.txt", sg = "samplegroup.txt", exp = "sra_experiments.txt"):
         """ main driver function """
         library = lb
         fastq = self.GetFASTQ(lf)           # list of FASTQ files
         sample = self.GetAttribute(sg)      # sample attributes
         project = self.GetProject(pj)       # project details
         package = self.GetPackage(sg)       # package name
+        if (os.path.exists(exp)):
+            library = self.GetLibraryAttribute(exp)
 
         k = next(iter(sample))
         library["library_construction_protocol"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
         #library["design_description"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
-        if "design_description" in library and not library["design_description"]:
-            del library["design_description"]
-        if "title" in library and not library["title"]:
-            del library["title"]
 
         self.SetDescription(
             project["Email"],               # email address
@@ -260,10 +275,11 @@ class SubmitXML():
         for k, v in fastq.items():
             sid = k
             fqs += [False if f == "null" else True for f in v]
+            exp = library[k] if os.path.exists(exp) else library
             if "bioproject_accession" not in sample[k]:
-                self.SetFASTQ(v, project["ProjectName"], sid, library, date)
+                self.SetFASTQ(v, project["ProjectName"], sid, exp, date)
             else:
-                self.SetFASTQ(v, None, sid, library, date, sample[k]["bioproject_accession"])
+                self.SetFASTQ(v, None, sid, exp, date, sample[k]["bioproject_accession"])
 
         return(not (False in fqs))
 
@@ -323,7 +339,7 @@ def main(argv):
         "instrument_model": argv.instrument,
         "design_description":argv.libdesign,
         "title":argv.libtitle },
-        argv.datatype.lower(), argv.samplescope, argv.listfile, argv.project, argv.samplegroup)
+        argv.datatype.lower(), argv.samplescope, argv.listfile, argv.project, argv.samplegroup, argv.experiments)
 
     if (not r):
         print("{'Passed': 'No', 'Report Text': 'Missing sequencing file(s)'}")
@@ -351,6 +367,8 @@ if __name__ == '__main__':
         help = 'Name of the file describing your project. Default: project.txt.')
     argv.add_argument('-m', '--metadatafile', type = str, dest = 'samplegroup', default = "samplegroup.txt",
         help = 'Name of the mimark metadata file. Default: samplegroup.txt.')
+    argv.add_argument('-e',  '--experimentfile', dest = 'experiments', default = "sra_experiments.txt", 
+        help = 'Name of the sra experments (library and platform). Default: sra_experiments.txt')
 
     # the following command line parameters were added by Conrad Shyu, July 3, 2017
     argv.add_argument('-a', '--platform', dest = 'platform', default = 'Illumina',
@@ -375,5 +393,6 @@ if __name__ == '__main__':
         help = "Short description that will identify the dataset on public pages. {methodology} of {organism}: {sample info}")
     argv.add_argument('-c', '--samplescope', dest = 'samplescope', default = 'eMultiisolate',
         help = "Specify The scope and purity of the biological sample used for the study. Default: eMultiisolate.")
+    
 
     sys.exit(main(argv.parse_args()))
