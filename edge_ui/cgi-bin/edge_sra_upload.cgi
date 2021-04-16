@@ -24,7 +24,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= 1;
+my $debug= 0;
 
 ######################################################################################
 # DATA STRUCTURE:
