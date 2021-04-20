@@ -94,6 +94,7 @@ sub pull_biosamples{
 		}
 		close $fh;
 	}
+	$vars->{VIR_NAME} =~ s/SARS-CoV-2\/Homo sapiens/hCoV-19/i;
 	$vars->{BIOSAMPLE_NAME} ||= $configuration->{projname};		     	
 }
 
@@ -150,7 +151,7 @@ sub pull_sra_additional {
 	}
 	$vars->{SRA_SUBMITTER} ||= $configuration->{projowner};
 	my $today_str = strftime "%Y-%m-%d", localtime;
-	$vars->{SRA_RELEASE_DATE} ||= $today_str;
+	$vars->{SM_RELEASE_DATE} ||= $today_str;
 }
 
 sub pull_consensusInfo{

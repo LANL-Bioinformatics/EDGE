@@ -352,6 +352,7 @@ sub pull_sampleMetadata {
 		}
 		my ($continent, $country, $region)= split("/",$vars->{SM_LOC});
 		$vars->{BIOSAMPLE_LOC} = "$country: $region" if ($country and $region);
+		$vars->{BIOSAMPLE_ISOLATE} =~ s/hCoV-19\//SARS-CoV-2\/Homo sapiens\//i;
 		close CONF;
 	}
 }

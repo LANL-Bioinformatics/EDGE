@@ -38,9 +38,14 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
 	$vars->{ROWINDEX} = $index;
 	$index++;
+	my $confFile = "$proj_dir/config.txt";
+	my $configuration = &pull_EDGEConfig($confFile);
 	eval {
+		&pull_biosamples($proj_dir,$vars,$configuration);
+		&pull_experiments($proj_dir,$vars);
+		&pull_sra_additional($proj_dir,$info,$configuration);
 		&pull_sampleMetadata($proj_dir,$vars);
-		&pull_consensusInfo($proj_dir,$vars);
+		&pull_consensusInfo($proj_dir,$vars,$configuration);
 		&check_submission_status($proj_dir,$vars);
 	};
 	push @{$info->{LOOP_METADATA}}, $vars;
@@ -72,9 +77,118 @@ sub check_submission_status{
 	}
 }
 
+sub pull_biosamples{
+    my $out_dir=shift;
+    my $vars=shift;
+    my $configuration=shift;
+	my $metadata = "$out_dir/UPLOAD/sra_samples.txt";
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+		#my @headers = ("sample_name", "sample_title", "organism", "isolate", "collected_by", "collection_date", 
+		#              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
+		#              "host_health_state","host_age","host_sex",
+		#              "passage_history", "description", "purpose_of_sampling",
+		#              "purpose_of_sequencing","GISAID_accession","bioproject_accession");
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my (@headers, @itmes);
+			my @items = split /\t/,$_ ;
+			if (/^sample_name/){
+				@headers = @items;
+			}else{
+				$vars->{BIOSAMPLE_NAME} =$items[0];
+				$vars->{VIR_NAME} =$items[3];
+				$vars->{BIOSAMPLE_CBY} =$items[4];
+				$vars->{SM_CDATE} =$items[5];
+				$vars->{BIOSAMPLE_LOC} =$items[6];
+				$vars->{BIOSAMPLE_ISOLATESOURCE} =$items[7];
+				$vars->{BIOSAMPLE_LATLON} =$items[8];
+				$vars->{SM_HOST} =$items[9];
+				$vars->{"SM_STATUS_"."$items[11]"} ="selected";
+				$vars->{SM_AGE} =$items[12];
+				my $gender = uc($items[13]);
+				$vars->{"SM_GENDER_"."$gender"} ="selected";
+				$vars->{VIR_PASSAGE} =$items[14];
+				(my $selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
+				$vars->{"BIOSAMPLE_PS_"."$selected_BIOSAMPLE_PS"} ="selected";
+				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
+				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
+				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
+				$vars->{SM_BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
+			}
+		}
+		close $fh;
+	}
+	$vars->{VIR_NAME} =~ s/SARS-CoV-2\/Homo sapiens/hCoV-19/i;
+	$vars->{BIOSAMPLE_NAME} ||= $configuration->{projname};		     	
+}
+
+sub pull_experiments{
+	my $out_dir=shift;
+	my $vars=shift;
+	my $metadata = "$out_dir/UPLOAD/sra_experiments.txt";
+	my ($selected_SRA_LIBSTRATEGY, $selected_SRA_LIBSOURCE, $selected_SRA_LIBSELECT, $selected_SRA_SEQMODEL)=("","","","");
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+	#my @header = ("sample_name","library_ID","title","library_strategy","library_source",
+	#			  "library_selection","library_layout","platform","instrument_model",
+	#			  "design_description","filetype","filename","filename2","filename3",
+	#			  "filename4");
+		
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my (@headers, @itmes);
+			my @items = split /\t/,$_; 
+			if (/^sample_name/){
+				@headers = @items;
+			}else{
+			#  {methodology} of {organism}: {sample info}"
+				$vars->{"SRA_LIBTITLE"} =$items[2];
+				($selected_SRA_LIBSTRATEGY = $items[3]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSTRATEGY_"."$selected_SRA_LIBSTRATEGY"} = "selected";
+				($selected_SRA_LIBSOURCE = $items[4]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSOURCE_"."$selected_SRA_LIBSOURCE"} = "selected";
+				($selected_SRA_LIBSELECT = $items[5]) =~ s/\s/_/g;
+				$vars->{"SRA_LIBSELECT_"."$selected_SRA_LIBSELECT"} = "selected";
+				$vars->{"SRA_LIBLAYOUT_"."$items[6]"} = "selected";
+				$vars->{"SRA_PLATFORM_"."$items[7]"} = "selected";
+				($selected_SRA_SEQMODEL = $items[8]) =~ s/\s/_/g;
+				$vars->{"SRA_SEQMODEL_"."$selected_SRA_SEQMODEL"} = "selected";
+				$vars->{"SRA_LIBDESIGN"} =$items[9];
+				$vars->{SM_SEQUENCING_TECH} = "$items[7] $selected_SRA_SEQMODEL"; 
+			}
+		}
+		close $fh;
+	}	
+}
+sub pull_sra_additional {
+	my $out_dir=shift;
+	my $vars=shift;
+	my $configuration=shift;
+	my $metadata = "$out_dir/UPLOAD/sra_additional_info.txt";
+	if(-e $metadata) {
+		open my $fh, $metadata or die "Can't open $metadata $!";
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			if ( /(.*)=(.*)/ ){
+				$vars->{SRA_SUBMITTER} =$2 if ($1 eq "metadata-sra-submitter");
+				$vars->{SM_RELEASE_DATE} =$2 if ($1 eq "metadata-sra-release-date");
+			}
+		}
+		close $fh
+	}
+	$vars->{SRA_SUBMITTER} ||= $configuration->{projowner};
+	my $today_str = strftime "%Y-%m-%d", localtime;
+	$vars->{SM_RELEASE_DATE} ||= $today_str;
+}
+
 sub pull_consensusInfo{
 	my $out_dir=shift;
 	my $vars = shift;
+	my $configuration=shift;
 	my $consensus_length_recommand=25000;
 	my $consensus_dpcov_recommand=10;
 	my $consensus_Nper_recommand=0.05;
@@ -123,9 +237,6 @@ sub pull_consensusInfo{
 	}
 	close $log_fh;
 	$vars->{ASM_METHOD}="EDGE-covid19: $align_tool $tool_version.";
-
-	my $confFile = "$out_dir/config.txt";
-	my $configuration = &pull_EDGEConfig($confFile);
 
 	my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ};
 	my $con_min_cov = $configuration->{r2g_consensus_min_cov};
@@ -184,6 +295,8 @@ sub pull_sampleMetadata {
              			$vars->{SM_GENDER} = $2 if ($1 eq "gender");
              			$vars->{SM_AGE} =$2 if ($1 eq "age");
              			$vars->{SM_STATUS} =$2 if ($1 eq "status");
+             			$vars->{SM_BIOPROJECT_ID} =$2 if ($1 eq "bioproject");
+             			$vars->{SM_RELEASE_DATE} =$2 if ($1 eq "release");
              			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
 				$vars->{SM_COV} = $2 if ($1 eq "coverage");
               		}
