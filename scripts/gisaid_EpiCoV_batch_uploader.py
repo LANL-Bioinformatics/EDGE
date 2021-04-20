@@ -160,7 +160,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
                 pass
 
         print("Send Excel metadata file...")
-        iframe = iframe=driver.find_elements_by_tag_name('iframe')[0]
+        iframe = driver.find_elements_by_tag_name('iframe')[0]
         driver.switch_to.frame(iframe)
 
         button = wait.until(
@@ -173,7 +173,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
         waiting_sys_timer(wait)
 
         print("Send Sequence fasta file...")
-        iframe2 = iframe=driver.find_elements_by_tag_name('iframe')[1]
+        iframe2 = driver.find_elements_by_tag_name('iframe')[1]
         driver.switch_to.frame(iframe2)
 
         button = wait.until(
