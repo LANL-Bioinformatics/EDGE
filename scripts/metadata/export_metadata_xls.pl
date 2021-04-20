@@ -49,7 +49,7 @@ unlink $seqout;
 
 ## read template
 my $parser   = Spreadsheet::ParseExcel::SaveParser->new();
-my $template = $parser->Parse("$FindBin::Bin/20200717_EpiCoV_BulkUpload_Template.xls");
+my $template = $parser->Parse("$FindBin::Bin/20210222_EpiCoV_BulkUpload_Template.xls");
 
 if ( !defined $template ) {
     die $parser->error(), ".\n";
@@ -92,25 +92,26 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+7, ""); ## Additional location information
 	$in_worksheet1->AddCell( $row, $col+8, $vars->{SM_HOST});  ## Host *
 	$in_worksheet1->AddCell( $row, $col+9, "");  ## Additional host information
-	$in_worksheet1->AddCell( $row, $col+10, $vars->{SM_GENDER});  ## Gender *
-	$in_worksheet1->AddCell( $row, $col+11, $vars->{SM_AGE});  ## Patient Age *
-	$in_worksheet1->AddCell( $row, $col+12, $vars->{SM_STATUS});  ## Patient status *
-	$in_worksheet1->AddCell( $row, $col+13, "");  ## Specimen source, Sputum, Alveolar lavage fluid, Oro-pharyngeal swab, Blood, Tracheal swab, Urine, Stool, Cloakal swab, Organ, Feces, Other
-	$in_worksheet1->AddCell( $row, $col+14, "");  ## Outbreak
-	$in_worksheet1->AddCell( $row, $col+15, "");  ## Last vaccinated
-	$in_worksheet1->AddCell( $row, $col+16, "");  ## Treatment
-	$in_worksheet1->AddCell( $row, $col+17, $vars->{SM_SEQUENCING_TECH});  ## Sequencing technology *
-	$in_worksheet1->AddCell( $row, $col+18, $vars->{ASM_METHOD});  ## Assembly method 
-	$in_worksheet1->AddCell( $row, $col+19, $vars->{SM_COV});  ## Coverage
-	$in_worksheet1->AddCell( $row, $col+20, $vars->{ORIG_LAB});  ## Originating lab *
-	$in_worksheet1->AddCell( $row, $col+21, $vars->{ORIG_ADDRESS});  ## Address *
-	$in_worksheet1->AddCell( $row, $col+22, "");  ## Sample ID given by the sample provider
-	$in_worksheet1->AddCell( $row, $col+23, $vars->{SUB_LAB});  ## Submitting lab *
-	$in_worksheet1->AddCell( $row, $col+24, $vars->{SUB_ADDRESS});  ## Address *
-	$in_worksheet1->AddCell( $row, $col+25, "");  ## Sample ID given by the submitting laboratory
-	$in_worksheet1->AddCell( $row, $col+26, $vars->{AUTHORS} );  ## Authors, a comma separated list of Authors with complete First followed by Last Name
-	$in_worksheet1->AddCell( $row, $col+27, "");  ## Comment
-	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment Icon
+	$in_worksheet1->AddCell( $row, $col+10, "");  ## Sampling Strategy
+	$in_worksheet1->AddCell( $row, $col+11, $vars->{SM_GENDER});  ## Gender *
+	$in_worksheet1->AddCell( $row, $col+12, $vars->{SM_AGE});  ## Patient Age *
+	$in_worksheet1->AddCell( $row, $col+13, $vars->{SM_STATUS});  ## Patient status *
+	$in_worksheet1->AddCell( $row, $col+14, "");  ## Specimen source, Sputum, Alveolar lavage fluid, Oro-pharyngeal swab, Blood, Tracheal swab, Urine, Stool, Cloakal swab, Organ, Feces, Other
+	$in_worksheet1->AddCell( $row, $col+15, "");  ## Outbreak
+	$in_worksheet1->AddCell( $row, $col+16, "");  ## Last vaccinated
+	$in_worksheet1->AddCell( $row, $col+17, "");  ## Treatment
+	$in_worksheet1->AddCell( $row, $col+18, $vars->{SM_SEQUENCING_TECH});  ## Sequencing technology *
+	$in_worksheet1->AddCell( $row, $col+19, $vars->{ASM_METHOD});  ## Assembly method 
+	$in_worksheet1->AddCell( $row, $col+20, $vars->{SM_COV});  ## Coverage
+	$in_worksheet1->AddCell( $row, $col+21, $vars->{ORIG_LAB});  ## Originating lab *
+	$in_worksheet1->AddCell( $row, $col+22, $vars->{ORIG_ADDRESS});  ## Address *
+	$in_worksheet1->AddCell( $row, $col+23, "");  ## Sample ID given by the sample provider
+	$in_worksheet1->AddCell( $row, $col+24, $vars->{SUB_LAB});  ## Submitting lab *
+	$in_worksheet1->AddCell( $row, $col+25, $vars->{SUB_ADDRESS});  ## Address *
+	$in_worksheet1->AddCell( $row, $col+26, "");  ## Sample ID given by the submitting laboratory
+	$in_worksheet1->AddCell( $row, $col+27, $vars->{AUTHORS} );  ## Authors, a comma separated list of Authors with complete First followed by Last Name
+	$in_worksheet1->AddCell( $row, $col+28, "");  ## Comment
+	$in_worksheet1->AddCell( $row, $col+29, "");  ## Comment Icon
 	my ($virus,$country,$identifier,$year) = split /\//, $vars->{VIR_NAME};
 	my $ncbi_virus_name = "SARS-CoV-2/Homo sapiens/$country/$identifier/$year";
 	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB},$vars->{SM_BIOPROJECT_ID});
