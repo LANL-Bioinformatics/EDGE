@@ -217,7 +217,7 @@
 							</div>
 							<div class="ui-field-contain">
 								<label for="metadata-sra-biosample-status">Purpose of sampling</label>
-								<select name="metadata-sra-biosample-ps" id="metadata-sra-biosample-ps" data-mini="true" data-native-menu="false" class="metadata-input">
+								<select name="metadata-sra-biosample-purpose" id="metadata-sra-biosample-purpose" data-mini="true" data-native-menu="false" class="metadata-input">
 									<option value="">Select Reason</option>
 									<option value="Cluster Investigation" <TMPL_VAR NAME=BIOSAMPLE_PS_Cluster_Investigation>>Cluster Investigation</option>
 									<option value="Diagnostic Testing" <TMPL_VAR NAME=BIOSAMPLE_PS_Diagnostic_Testing>>Diagnostic Testing</option>
@@ -248,7 +248,7 @@
 							</div>
 							<div class="ui-field-contain">
 								<label for="metadata-sra-meta-design-description">Design<a title="Brief description of the methods used to create the sequencing library." class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext ui-alt-icon my-tooltip-btn"></a></label>
-								<input type="text" id="metadata-sra-meta-design" name="metadata-sra-meta-design"
+								<input type="text" id="metadata-sra-meta-design-description" name="metadata-sra-meta-design-description"
 									value="<TMPL_VAR NAME=SRA_LIBDESIGN DEFAULT=>" class="metadata-input">
 							</div>
 							<div class="ui-field-contain">
@@ -401,8 +401,8 @@
 								</select>
 							</div>
 							<div class="ui-field-contain">
-									<label for="metadata-sra-meta-ps">Purpose of sequencing</label>
-									<select name="metadata-sra-meta-ps" id="metadata-sra-meta-ps" data-mini="true" data-native-menu="false" class="metadata-input">
+									<label for="metadata-sra-meta-sequencing-purpose">Purpose of sequencing</label>
+									<select name="metadata-sra-meta-sequencing-purpose" id="metadata-sra-meta-sequencing-purpose" data-mini="true" data-native-menu="false" class="metadata-input">
 										<option value="">Select Reason</option>
 										<option value="Baseline surveillance" <TMPL_VAR NAME=SRA_PS_Baseline_surveillance>>Baseline surveillance</option>
 										<option value="Targeted surveillance" <TMPL_VAR NAME=SRA_PS_Targeted_surveillance>>Targeted surveillance</option>

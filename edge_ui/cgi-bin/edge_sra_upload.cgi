@@ -934,7 +934,7 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sra-biosample-gender", "$projname Gender is required.", $index) unless ( $opt{'metadata-sra-biosample-gender'});
 	&addMessage("PARAMS", "metadata-sra-biosample-age", "$projname Age is required.", $index) unless ( $opt{'metadata-sra-biosample-age'});
 	&addMessage("PARAMS", "metadata-sra-biosample-status", "$projname health state is required.", $index) unless ( $opt{'metadata-sra-biosample-status'});
-	&addMessage("PARAMS", "metadata-sra-biosample-ps", "$projname Purpose of sampling is required.", $index) unless ( $opt{'metadata-sra-biosample-ps'});
+	&addMessage("PARAMS", "metadata-sra-biosample-purpose", "$projname Purpose of sampling is required.", $index) unless ( $opt{'metadata-sra-biosample-purpose'});
 	#&addMessage("PARAMS", "metadata-sra-biosample-gisaid", "$projname GISAID accession is required.", $index) unless ( $opt{'metadata-sra-biosample-gisaid'} );
 
 	# SRA experiments
@@ -946,7 +946,7 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sra-meta-libsource", "Library Source is required." , $index) unless ( $opt{'metadata-sra-meta-libsource'});
 	&addMessage("PARAMS", "metadata-sra-meta-platform", "Platform is required." , $index) unless ( $opt{'metadata-sra-meta-platform'});
 	&addMessage("PARAMS", "metadata-sra-meta-libmodel", "Library Model is required." , $index) unless ( $opt{'metadata-sra-meta-libmodel'});
-	&addMessage("PARAMS", "metadata-sra-meta-ps", "Purpose of sequencing is required." , $index) unless ( $opt{'metadata-sra-meta-ps'});
+	&addMessage("PARAMS", "metadata-sra-meta-sequencing-purpose", "Purpose of sequencing is required." , $index) unless ( $opt{'metadata-sra-meta-sequencing-purpose'});
 	
 	if ($action eq 'upload2sra' or $action eq 'batch-upload2sra'){
 		&addMessage("PARAMS", "metadata-sra-submitter", "Submitter is required.") unless ( $opt{'metadata-sra-submitter'});
