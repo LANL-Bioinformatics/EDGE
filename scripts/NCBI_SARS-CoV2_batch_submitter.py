@@ -200,7 +200,8 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         # click on SARS-CoV-2 type
         print("1. Submission Type")
         wait.until(EC.text_to_be_present_in_element((By.XPATH,"//h2"),"Submission Type"))
-        driver.find_elements_by_xpath("//ul[@id='id_subtype-subgroup']/li")[7].click()
+        driver.find_elements_by_xpath("//ul[@id='id_subtype-subgentype']/li")[2].click()
+        driver.find_elements_by_xpath("//div[@id='field_subgroup_viruses-choice']//li")[0].click()
         driver.find_element_by_name('subtitle-title').send_keys(metadata[list(metadata)[0]]['isolate'])
         driver.find_element_by_id('id_sub_continue').click()
         time.sleep(iv)
