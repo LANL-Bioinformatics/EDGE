@@ -162,7 +162,7 @@ if($action eq "create-form") {
 		my $sra_submit_data_dir = "$upload_content_dir/sra_transfer_".$date_str.$pname;
 		my ($input_pe_fastq, $input_se_fastq) = get_input_fastq($projDir,$sra_submit_data_dir);
 		
-		writeBioProject($projDir,$metadata_project);
+		writeBioProject($metadata_project);
 		writeBioSamples($projDir,$metadata_sample);
 		writeExperiment($projDir,$metadata_exp,$metadata_filelist, $input_pe_fastq, $input_se_fastq);
 		wrtieAdditional($projDir,$metadata_other_info);
