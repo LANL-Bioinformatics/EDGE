@@ -24,7 +24,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= 0;
+my $debug= 1;
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -575,8 +575,8 @@ sub writeBioSamples{
 	$sample_string[13] = ($opt{'metadata-sra-biosample-gender'})? $opt{'metadata-sra-biosample-gender'} : "not collected";
 	$sample_string[14] = ($opt{'metadata-sra-biosample-passage'})? $opt{'metadata-sra-biosample-passage'} : "not collected";
 	$sample_string[15] = "not collected";
-	$sample_string[16] = ($opt{'metadata-sra-biosample-ps'})? $opt{'metadata-sra-biosample-ps'} : "not collected";
-	$sample_string[17] = ($opt{'metadata-sra-meta-ps'})? $opt{'metadata-sra-meta-ps'} : "not collected";
+	$sample_string[16] = ($opt{'metadata-sra-biosample-purpose'})? $opt{'metadata-sra-biosample-purpose'} : "not collected";
+	$sample_string[17] = ($opt{'metadata-sra-meta-sequencing-purpose'})? $opt{'metadata-sra-meta-sequencing-purpose'} : "not collected";
 	$sample_string[18] = ($opt{'metadata-sra-biosample-gisaid'})? $opt{'metadata-sra-biosample-gisaid'} : "not collected";
 	if ($opt{'metadata-sra-bioproject-sw'}) {
 		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
@@ -617,7 +617,7 @@ sub writeExperiment{
 	$sample_string[6] = $opt{'metadata-sra-meta-liblayout'};
 	$sample_string[7] = $opt{'metadata-sra-meta-platform'};
 	$sample_string[8] = $opt{'metadata-sra-meta-libmodel'};
-	$sample_string[9] = ($opt{'metadata-sra-meta-design'})? $opt{'metadata-sra-meta-design'} : "not collected";
+	$sample_string[9] = ($opt{'metadata-sra-meta-design-description'})? $opt{'metadata-sra-meta-design-description'} : "not collected";
 	$sample_string[10] = "fastq";
 	foreach my $file(@$input_pe_fastq){
 		push @sample_string, basename($file);
