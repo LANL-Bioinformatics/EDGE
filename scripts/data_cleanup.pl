@@ -6,11 +6,11 @@ use FindBin qw($RealBin);
 use Getopt::Long;
 
 if (!@ARGV){print "$0 [-print] <dirs> ...\n ";exit;}
-
 my $printonly;
-GetOptions{
+GetOptions(
 	"print"	=>\$printonly
-};
+);
+
 # read system params from sys.properties
 my @dirs = (@ARGV);
 
