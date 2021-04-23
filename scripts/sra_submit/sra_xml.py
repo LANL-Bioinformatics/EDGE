@@ -235,7 +235,7 @@ class SubmitXML():
             library = self.GetLibraryAttribute(exp)
 
         k = next(iter(sample))
-        library["library_construction_protocol"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
+        #library["library_construction_protocol"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
         #library["design_description"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
 
         self.SetDescription(

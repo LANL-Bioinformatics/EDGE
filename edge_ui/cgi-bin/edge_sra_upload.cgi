@@ -193,7 +193,7 @@ if($action eq "create-form") {
 		my $ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_xml.py --input-dir $sra_submit_data_dir --listfile $metadata_filelist --projectfile $metadata_project --metadatafile $metadata_sample ";
 		$ncbi_cmd .= "--libselection \'$opt{'metadata-sra-meta-libselection'}\' --libstrategy \'$opt{'metadata-sra-meta-libstrategy'}\' --datatype 'Raw sequence reads' --instrument \'$opt{'metadata-sra-meta-libmodel'}\' ";
 		$ncbi_cmd .= "--libsource \'$opt{'metadata-sra-meta-libsource'}\'  --platform \'$opt{'metadata-sra-meta-platform'}\' --samplescope eMultiisolate --liblayout \'$opt{'metadata-sra-meta-liblayout'}\' ";
-		$ncbi_cmd .= "--libdesign \'$opt{'metadata-sra-meta-design'}\'  --libtitle \'$opt{'metadata-sra-meta-title'}\'  | tee -a $submit_log ";
+		$ncbi_cmd .= "--libdesign \'$opt{'metadata-sra-meta-design-description'}\'  --libtitle \'$opt{'metadata-sra-meta-title'}\'  | tee -a $submit_log ";
 		## file transfer commands;
 		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/" ;
 		$ncbi_cmd .= "\n cd $upload_content_dir \n";
@@ -560,7 +560,7 @@ sub writeBioSamples{
 	if ($opt{'metadata-sra-bioproject-sw'}) { push @header, "bioproject_accession"; }
 	
 	$sample_string[0] = $opt{'metadata-sra-biosample-name'} ;
-	$sample_string[1] = "not collected";
+	$sample_string[1] = "";
 	$sample_string[2] = "Severe acute respiratory syndrome coronavirus 2";
 	$sample_string[3] = $opt{'metadata-sra-biosample-isolate'};
 	$sample_string[4] = ($opt{'metadata-sra-biosample-collect-by'})? $opt{'metadata-sra-biosample-collect-by'} : "not collected";
@@ -939,7 +939,7 @@ sub checkParams {
 
 	# SRA experiments
 	&addMessage("PARAMS", "metadata-sra-meta-title", "Experiment Title is required." , $index) unless ( $opt{'metadata-sra-meta-title'});
-	&addMessage("PARAMS", "metadata-sra-meta-design", "Experiment Design is required." , $index) unless ( $opt{'metadata-sra-meta-design-description'});
+	&addMessage("PARAMS", "metadata-sra-meta-design-description", "Experiment Design is required." , $index) unless ( $opt{'metadata-sra-meta-design-description'});
 	&addMessage("PARAMS", "metadata-sra-meta-libselection", "Library Selection is required." , $index) unless ( $opt{'metadata-sra-meta-libselection'});
 	&addMessage("PARAMS", "metadata-sra-meta-libstrategy", "Library Strategy is required." , $index) unless ( $opt{'metadata-sra-meta-libstrategy'});
 	&addMessage("PARAMS", "metadata-sra-meta-liblayout", "Library Layout is required." , $index) unless ( $opt{'metadata-sra-meta-liblayout'});
