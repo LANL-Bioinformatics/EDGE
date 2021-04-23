@@ -743,10 +743,14 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sub-address", "Submitting address is required.") unless ( $opt{'metadata-sub-address'});
 	&addMessage("PARAMS", "metadata-authors", "Authors is required.") unless ( $opt{'metadata-authors'});
 	if ($action eq 'upload2gisaid' or $action eq 'batch-upload2gisaid'){
+		my $today_str = strftime "%Y-%m-%d", localtime;
 		&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});
 		&addMessage("PARAMS", "metadata-gisaid-id", "GISAID id is required.") unless ( $opt{'metadata-gisaid-id'});
 		&addMessage("PARAMS", "metadata-gisaid-pw", "GISAID password is required.") unless ( $opt{'metadata-gisaid-pw'});
 		&addMessage("PARAMS", "metadata-ncbi-id", "NCBI id is required.") unless ( $opt{'metadata-ncbi-id'});
 		&addMessage("PARAMS", "metadata-ncbi-pw", "NCBI password is required.") unless ( $opt{'metadata-ncbi-pw'});
+		if ($opt{'metadata-sample-release-date'} lt $today_str){
+			&addMessage("PARAMS", "metadata-sample-release-date","Release date cannot be past date");
+		}
 	}
 }

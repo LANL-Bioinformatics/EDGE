@@ -24,7 +24,7 @@ my $prealname = $opt{projname};
 my $action = $opt{'action'};
 my $userDir = $opt{'userDir'};
 my $msg;
-my $debug= 1;
+my $debug= 0;
 
 ######################################################################################
 # DATA STRUCTURE:
@@ -204,6 +204,7 @@ if($action eq "create-form") {
 		
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $sra_done, $ncbi_cmd);
 		my $script_fh;
+		my $pid;
 		my $pid = open ($script_fh, "-|")
 			or exec ("/bin/bash $submit_script > $submit_current_log &");
 		#my $pid = open ($script_fh, "-|", "/bin/bash $submit_script > $submit_current_log &") or die "$!\n";
@@ -516,7 +517,7 @@ OUTMSG
 
 sub writeBioProject{
 	my $outfile = shift;
-
+	
 
 	open my $ofh,  ">$outfile";
 	print $ofh <<"OUTMSG";
@@ -949,7 +950,11 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-sra-meta-sequencing-purpose", "Purpose of sequencing is required." , $index) unless ( $opt{'metadata-sra-meta-sequencing-purpose'});
 	
 	if ($action eq 'upload2sra' or $action eq 'batch-upload2sra'){
+		my $today_str = strftime "%Y-%m-%d", localtime;
 		&addMessage("PARAMS", "metadata-sra-submitter", "Submitter is required.") unless ( $opt{'metadata-sra-submitter'});
 		&addMessage("PARAMS", "metadata-sra-release-date", "Release date is required.") unless ( $opt{'metadata-sra-release-date'});
+		if ($opt{'metadata-sra-release-date'} lt $today_str){
+			&addMessage("PARAMS", "metadata-sra-release-date", "Release date cannot be the past date.");
+		}
 	}
 }
