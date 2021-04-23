@@ -306,7 +306,7 @@ if($action eq "create-form") {
 		$opt{'metadata-sra-biosample-gender'} = $sampleGenders[$i];
 		$opt{'metadata-sra-biosample-status'} = $sampleStatus[$i];
 		$opt{'metadata-sra-biosample-age'} = $sampleAges[$i];
-		$opt{'metadata-sra-biosample-ps'} = $samplePurposes[$i];
+		$opt{'metadata-sra-biosample-purpose'} = $samplePurposes[$i];
 		$opt{'metadata-sra-biosample-gisaid'} = $sampleGISAIDaccs[$i];
 		$opt{'metadata-sra-meta-title'} = $expTitles[$i];
 		$opt{'metadata-sra-meta-design-description'} = $expDesigns[$i];
@@ -316,7 +316,7 @@ if($action eq "create-form") {
 		$opt{'metadata-sra-meta-libsource'} = $expLibSources[$i];
 		$opt{'metadata-sra-meta-platform'} = $expPlatforms[$i];
 		$opt{'metadata-sra-meta-libmodel'} = $expLibModels[$i];
-		$opt{'metadata-sra-meta-ps'} = $expSeqPurposes[$i];
+		$opt{'metadata-sra-meta-sequencing-purpose'} = $expSeqPurposes[$i];
 		
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
 		my $upload_content_dir = "$projDir/UPLOAD";
@@ -582,7 +582,7 @@ sub writeBioSamples{
 		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
 	}
 	
-	if (!$index){
+	if ($index==0){
 		print $ofh "#Pathogen.cl.1.0\n";
 		print $ofh join("\t",@header),"\n";
 	}
@@ -630,7 +630,7 @@ sub writeExperiment{
 	while ( (15 - scalar(@sample_string)) > 0){
 		push @sample_string,"";
 	}
-	if (!$index){
+	if ($index==0){
 		print $ofh join("\t",@header),"\n";
 	}
 	print $ofh join("\t",@sample_string), "\n";
