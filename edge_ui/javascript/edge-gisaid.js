@@ -57,6 +57,7 @@ $( document ).ready(function()
 					var pname = $(this).attr("data-pid");
 					updateReport(pname);
 				});
+				$( '#edge-sra-experiment-project-page-table' ).find('select').selectmenu();
 			},
 			"rowCallback": function( nRow, aData, iDisplayIndex ) {
 			}
@@ -132,6 +133,7 @@ $( document ).ready(function()
 					var pname = $(this).attr("data-pid");
 					updateReport(pname);
 				});
+				$( '#edge-sra-biosample-project-page-table' ).find('select').selectmenu();
 			},
 			"rowCallback": function( nRow, aData, iDisplayIndex ) {
 			}
@@ -185,6 +187,7 @@ $( document ).ready(function()
 					var pname = $(this).attr("data-pid");
 					updateReport(pname);
 				});
+				$( '#edge-gisaid-metadata-project-page-table' ).find('select').selectmenu();
 			},
 			"rowCallback": function( nRow, aData, iDisplayIndex ) {
 			}
