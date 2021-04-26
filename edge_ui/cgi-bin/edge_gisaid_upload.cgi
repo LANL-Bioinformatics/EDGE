@@ -283,9 +283,12 @@ if($action eq "create-form") {
 	if ($action eq "batch-update"){
 		&returnParamsStatus();
 	}
+	my $date_str = strftime "%Y%m%d", localtime;
 	my $download_template_txt = "$metadata_out_dir/metadata_template.tsv";
 	my $download_template_txt_rel = "$relative_outdir/metadata_template.tsv";
 	if ($action eq "batch-template-download"){
+		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_metadata_template.tsv.zip";
+                my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_metadata_template.tsv.zip";
 		mkpath($metadata_out_dir);
 		my @download_template_tsv_header = ("project-name",'virus-name','virus-passage','sample-collection-date','sample-location','sample-host','sample-gender','sample-age','sample-status','sample-sequencing-tech');
 		my @download_template_tsv_content;
@@ -295,11 +298,12 @@ if($action eq "create-form") {
 		}
 
 		&write_tsv($download_template_txt,join("\t",@download_template_tsv_header), join("\n",@download_template_tsv_content));
-		$msg->{PATH} = $download_template_txt_rel;
+		my $cmd = "cd $metadata_out_dir; zip -r $zip_file metadata_template.tsv 2>/dev/null";
+		`$cmd`;
+		$msg->{PATH} = $zip_file_rel;
 		addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata template tsv file") unless  (-r "$download_template_txt" );
 		&returnParamsStatus();
 	}
-	my $date_str = strftime "%Y%m%d", localtime;
 	my $batch_metadata_out = "$metadata_out_dir/GISAID/${date_str}_edge_covid19_metadata.xls";
 	my $all_sequences = "$metadata_out_dir/GISAID/all_sequences.fasta";
 	my $ncbi_all_sequences = "$metadata_out_dir/NCBI/all_sequences_ncbi.fasta";

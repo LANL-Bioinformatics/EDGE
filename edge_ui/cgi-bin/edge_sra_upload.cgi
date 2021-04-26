@@ -350,11 +350,16 @@ if($action eq "create-form") {
 		remove_tree($sra_submit_data_dir);
 		&returnParamsStatus();
 	}
+	my $date_str2 = strftime "%Y%m%d", localtime;
 	my $download_biosample_template_txt = "$metadata_out_dir/metadata_biosample_template.tsv";
 	my $download_biosample_template_txt_rel = "$relative_outdir/metadata_biosample_template.tsv";
 	my $download_bioexperiment_template_txt = "$metadata_out_dir/metadata_sra_experiment_template.tsv";
 	my $download_bioexperiment_template_txt_rel = "$relative_outdir/metadata_sra_experiment_template.tsv";
 	if ($action eq "batch-biosample-template-download" or $action eq "batch-bioexperiment-template-download"){
+		my $zip_file = "$metadata_out_dir/${date_str2}_edge_covid19_sra_biosample_template.tsv.zip";
+		my $zip_file_rel = "$relative_outdir/${date_str2}_edge_covid19_sra_biosample_template.tsv.zip";
+		my $zip_file2 = "$metadata_out_dir/${date_str2}_edge_covid19_sra_experiment_template.tsv.zip";
+		my $zip_file_rel2 = "$relative_outdir/${date_str2}_edge_covid19_sra_experiment_template.tsv.zip";
 		
 		my @download_biosample_template_tsv_header = ("project-name",'sample-name','sample-isolate','sample-isolate-source','sample-location','sample-passage','sample-collection-date','sample-collect-by','sample-latlon','sample-host','sample-gender','sample-age','sample-purpose','sample-gisaid-acc');
 		my @download_biosample_template_tsv_content;
@@ -369,12 +374,16 @@ if($action eq "create-form") {
 		
 		if ($action eq "batch-biosample-template-download" ){
 			&write_tsv($download_biosample_template_txt,join("\t",@download_biosample_template_tsv_header), join("\n",@download_biosample_template_tsv_content));
-			$msg->{PATH} = $download_biosample_template_txt_rel;
+			my $cmd = "zip -j $zip_file $download_biosample_template_txt 2>/dev/null";
+			`$cmd`;
+			$msg->{PATH} = $zip_file_rel;
 			addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata biosample template tsv file") unless  (-r "$download_biosample_template_txt" );
 		}
 		if ($action eq "batch-bioexperiment-template-download" ){
 			&write_tsv($download_bioexperiment_template_txt,join("\t",@download_bioexperiment_template_tsv_header), join("\n",@download_bioexperiment_template_tsv_content));
-			$msg->{PATH} = $download_bioexperiment_template_txt_rel;
+			my $cmd = "zip -j $zip_file2 $download_bioexperiment_template_txt 2>/dev/null";
+			`$cmd`;
+			$msg->{PATH} = $zip_file_rel2;
 			addMessage("BATCH-TEMPLATE-DOWNLOAD","failure","failed to donwload metadata SRA experiment template tsv file") unless  (-r "$download_bioexperiment_template_txt" );
 		}
 		remove_tree($sra_submit_data_dir);
@@ -382,7 +391,6 @@ if($action eq "create-form") {
 	}
 	
 	if ($action eq "batch-download"){
-		my $date_str2 = strftime "%Y%m%d", localtime;
 		my $zip_file = "$metadata_out_dir/${date_str2}_edge_covid19_sra_metadata.zip";
 		my $zip_file_rel = "$relative_outdir/${date_str2}_edge_covid19_sra_metadata.zip";
 	
