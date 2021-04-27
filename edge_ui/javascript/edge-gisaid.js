@@ -164,7 +164,11 @@ $( document ).ready(function()
 						if (type === 'filter' || type === 'sort') {
 							var api = new $.fn.dataTable.Api(meta.settings);
 							var td = api.cell({row: meta.row, column: meta.col}).node();
-							data = $('select, input[type="text"]', td).val();
+							if(meta.col == 11){
+								data = $('select, input[type="text"]', td).text();
+							}else{
+								data = $('select, input[type="text"]', td).val();
+							}
 						}
 						return data;
 					}
@@ -377,6 +381,7 @@ $( document ).ready(function()
 					});
 				}
 			});
+			$(this).val('');
 		}
 	});
 	( navigator.appVersion.indexOf("Mac")>=0)? $("#mac-scroll-bar-note").show():$("#mac-scroll-bar-note").hide();
