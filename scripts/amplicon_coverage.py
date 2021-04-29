@@ -433,7 +433,7 @@ def run(argvs):
         cov_array = parse_cov_file(argvs.cov)
         prefix = Path(argvs.cov).stem
     if (argvs.bam):
-        cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.refID, argvs.outdir)
+        cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.outdir, argvs.refID)
         prefix = Path(argvs.bam).stem 
     if (argvs.bed):
         amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID)

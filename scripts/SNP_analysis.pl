@@ -76,11 +76,11 @@ if ($format =~ /vcf/i){
 open (OUT2, ">$outDir/$basename.Indels_report.txt") or die "$!";
 if ($format =~ /vcf/i)
 {
-   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
+   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\tFrameshift\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
 }
 else
 {
-   print  OUT2 "Chromosome\tINDEL_position\tSequence\tLength\tType\tProduct\tCDS_start\tCDS_end\n";
+   print  OUT2 "Chromosome\tINDEL_position\tSequence\tLength\tType\tProduct\tCDS_start\tCDS_end\tFrameshift\n";
 }
 
 
@@ -130,25 +130,31 @@ foreach my $locus_id (keys %{$result})
   {
       next if ($indel{$pos}->{skip});
       my $seq = ($indel{$pos}->{direction} == -1)?reverse($indel{$pos}->{seq}):$indel{$pos}->{seq};
+      my $length = length($seq);
+      my $product = $indel{$pos}->{prodcut};
       print  OUT2 $indel{$pos}->{Locus},"\t",
                  $pos, "\t";
       if ($format =~ /vcf/i)
       {
          my $ref_seq = $indel{$pos}->{ref_seq};
          my $indel_seq = $indel{$pos}->{indel_seq};
+	 $length = abs (length($indel_seq)-length($ref_seq));
          print OUT2 $ref_seq,"\t",
                    $indel_seq,"\t",
-                   abs (length($indel_seq)-length($ref_seq)),"\t";     
+                   $length,"\t";     
       }
       else
       {
          print OUT2 $seq,"\t",
-                   length($seq),"\t";
+                   $length,"\t";
       }       
+      my $frameshift = ($length % 3 and $product !~ /Intergenic/i)? "Yes":"No";
+	      
       print  OUT2 $indel{$pos}->{type},"\t",
-             $indel{$pos}->{prodcut},"\t",
+             $product,"\t",
              $indel{$pos}->{cds_s},"\t",
-             $indel{$pos}->{cds_e};
+             $indel{$pos}->{cds_e}."\t",
+	     $frameshift;
       if ($format =~ /vcf/i){
            print OUT2 "\t",
                   $indel{$pos}->{dpalt},"\t",
