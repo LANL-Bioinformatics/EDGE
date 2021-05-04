@@ -65,7 +65,7 @@ while (my $seq = $inseq->next_seq){
 	my $contig_seq = $seq->seq();
 	my $contig_len = $seq->length;
 	my ($output_aa, $output_contig, $fig_id, $product, $aa_Seq, 
-		$genome_id, $project, $fig_contig_id, $contig_id);
+		$genome_id, $project, $fig_contig_id, $contig_id, $locus_tag);
 	for my $feat_object ($seq->get_SeqFeatures){
 		my ($fig_id, $product, $aa_Seq);
 		#if ($feat_object->primary_tag eq "CDS" or $feat_object->primary_tag  =~ /RNA/i){
@@ -80,20 +80,23 @@ while (my $seq = $inseq->next_seq){
 			
 			#$nt_Seq = $feat_object->seq()->seq;
 			$nt_Seq = substr($contig_seq,$start-1,$end-$start+1);
-			$product = join('',$feat_object->get_tag_values("product"));
-			eval {$aa_Seq = join('',$feat_object->get_tag_values("translation")) } if ($feat_object->primary_tag eq "CDS");
+			my $seq_obj = Bio::Seq->new(-seq => $nt_Seq, -alphabet => 'dna' );
+			my $cds_nt_seq = ($strand >0)? $seq_obj->seq : $seq_obj->revcom()->seq; 
+			eval { $locus_tag = join('',$feat_object->get_tag_values("locus_tag")); };
+			eval { $product = join('',$feat_object->get_tag_values("product")); } ;
+			eval { $aa_Seq = join('',$feat_object->get_tag_values("translation")) } if ($feat_object->primary_tag eq "CDS");
 			#$protein_accession = join ('',$feat_object->get_tag_values("protein_id"));
 			$protein_accession++;
 			#$output_aa .= ">protein_756067_$n\t$Locus_id\t$product\n$aa_Seq\n";
 			$nt_seq{$protein_accession}=$nt_Seq;
-			print ">${start}_${end}_${strand}\t$product\n$nt_Seq\n" if ($get_gene);
+			my $cds_id = ($locus_tag)? $locus_tag : "${start}_${end}";
+			print ">${cds_id}\t$product\n$cds_nt_seq\n" if ($get_gene);
 			if ($get_translation){
 				if (!$aa_Seq){
 					#my $seq_obj = $feat_object->seq();
-					my $seq_obj = Bio::Seq->new(-seq => $nt_Seq, -alphabet => 'dna' );
 					$aa_Seq = ($strand >0)? $seq_obj->translate()->seq:$seq_obj->revcom()->translate()->seq;
 				}
-				print ">${start}_${end}_${strand}\t$product\n$aa_Seq\n";
+				print ">${cds_id}\t$product\n$aa_Seq\n";
 			}
 		}
     #if ($feat_object->primary_tag eq "source"){
