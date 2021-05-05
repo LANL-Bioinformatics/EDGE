@@ -151,8 +151,11 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
 
         # navigate to  GenBank
         print("Navigating to GenBank Submission Page...")
-        genbank_tab = wait.until(EC.element_to_be_clickable((By.XPATH,"//a[@href='/subs/genbank/']")))
-        genbank_tab.click()
+        genbank_tab = driver.find_elements_by_xpath("//a[@href='/subs/genbank/'][contains(text(),'Submit')]")
+        if (isinstance(genbank_tab, list)):
+            genbank_tab[0].click()
+        else:
+            genbank_tab.click()
         time.sleep(iv)
 
         new_submission = wait.until(EC.element_to_be_clickable((By.ID,'id_sub_new')))

@@ -181,8 +181,11 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
 
         # navigate to  GenBank
         print("Navigating to GenBank Submission Page...")
-        genbank_tab = wait.until(EC.element_to_be_clickable((By.XPATH,"//a[@href='/subs/genbank/']")))
-        genbank_tab.click()
+        genbank_tab = driver.find_elements_by_xpath("//a[@href='/subs/genbank/'][contains(text(),'Submit')]")
+        if (isinstance(genbank_tab, list)):
+            genbank_tab[0].click()
+        else:
+            genbank_tab.click()
         time.sleep(iv)
 
         new_submission = wait.until(EC.element_to_be_clickable((By.ID,'id_sub_new')))
@@ -232,14 +235,15 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         driver.find_elements_by_xpath("//ul[@id='id_seqtech_assembly_state-assembly_state']//label")[1].click()
         i=0
         for key, value in metadata.items(): 
-                asm_method=metadata[key]['Assembly Method'].strip().split(" ")
-                program_field = 'seqtech_assembly_program-' + str(i) + '-name'
-                version_field = 'seqtech_assembly_program-' + str(i) + '-version'
-                driver.find_element_by_name(program_field).send_keys(asm_method[1])
-                driver.find_element_by_name(version_field).send_keys(asm_method[2])
-                driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
-                i += 1
-                time.sleep(0.5)
+            asm_method=metadata[key]['Assembly Method'].strip().split(" ")
+            program_field = 'seqtech_assembly_program-' + str(i) + '-name'
+            version_field = 'seqtech_assembly_program-' + str(i) + '-version'
+            driver.find_element_by_name(program_field).send_keys(asm_method[0])
+            driver.find_element_by_name(version_field).send_keys(asm_method[1])
+            break
+        #driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
+        #i += 1
+        #time.sleep(0.5)
         
         driver.find_element_by_id('id_sub_continue').click()
         time.sleep(iv)

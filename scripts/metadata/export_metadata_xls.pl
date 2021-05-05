@@ -58,7 +58,7 @@ my $in_worksheet1 = $template->worksheet('Submissions');
 my $in_worksheet0 = $template->worksheet('Instructions');
 my $row=2;
 my $col=0;
-my $seqID="seq0";
+my $seqID="seq00";
 
 my @src_tsv_header = ("Sequence_ID","Organism","isolate","collection-date","country","host","Collected-By","BioProject");
 my @src_tsv_content;
@@ -116,7 +116,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	my $ncbi_virus_name = "SARS-CoV-2/Homo sapiens/$country/$identifier/$year";
 	my $src_tsv_string = join("\t",$seqID,"Severe acute respiratory syndrome coronavirus 2",$ncbi_virus_name,$vars->{SM_CDATE},$country,$vars->{SM_HOST},$vars->{ORIG_LAB},$vars->{SM_BIOPROJECT_ID});
 	push @src_tsv_content, $src_tsv_string;
-	my $cmt_tsv_string = join("\t",$seqID,"Assembly-Data",$vars->{ASM_METHOD},$vars->{SM_COV},$vars->{SM_SEQUENCING_TECH},"Assembly-Data");
+	my $cmt_tsv_string = join("\t",$seqID,"Assembly-Data",$vars->{ASM_METHOD_NCBI},$vars->{SM_COV},$vars->{SM_SEQUENCING_TECH},"Assembly-Data");
 	push @cmt_tsv_content, $cmt_tsv_string;
 	$release_date = $vars->{SM_RELEASE_DATE};
 	$row++;
@@ -205,6 +205,7 @@ sub pull_consensusInfo{
         }
         close $log_fh;
         $vars->{ASM_METHOD}="EDGE-covid19: $align_tool $tool_version.";
+	$vars->{ASM_METHOD_NCBI}= "EDGE-covid19:$align_tool $tool_version.";
 
         my $con_min_mapQ = $conf->{r2g_consensus_min_mapQ};
         my $con_min_cov = $conf->{r2g_consensus_min_cov};

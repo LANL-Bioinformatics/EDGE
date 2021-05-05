@@ -159,9 +159,19 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
         except:
                 pass
 
+        time.sleep(5)
+        iframes = driver.find_elements_by_tag_name('iframe')
+        if len(iframes) == 3:
+            ## close the Batch submit instruction overlay
+            driver.switch_to.frame(iframes[2])
+            button = driver.find_element_by_xpath('//button[contains(text(), "OK")]')
+            button.click()
+            time.sleep(iv)
+            driver.switch_to.default_content()
+            waiting_sys_timer(wait)
+            
         print("Send Excel metadata file...")
-        iframe = driver.find_elements_by_tag_name('iframe')[0]
-        driver.switch_to.frame(iframe)
+        driver.switch_to.frame(iframes[0])
 
         button = wait.until(
                                         EC.presence_of_element_located(
@@ -173,8 +183,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
         waiting_sys_timer(wait)
 
         print("Send Sequence fasta file...")
-        iframe2 = driver.find_elements_by_tag_name('iframe')[1]
-        driver.switch_to.frame(iframe2)
+        driver.switch_to.frame(iframes[1])
 
         button = wait.until(
                                         EC.presence_of_element_located(
