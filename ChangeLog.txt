@@ -1,5 +1,13 @@
 # EDGE-COVID19
 
+## build 20210505
+* Batch NCBI SRA submission.
+* fix gisaid/NCBI genome submission corresponding to the GISAID/NCBI GUI udpate
+* fix bug: fix missing primer scheme fasta files
+* add frameshift column for INDELs_report. fix bug on amplicov
+* update gisaid batch upload template
+* update VOC and VOI check
+
 ## build 20210407
 * Lowered default threshold for detecting indels in amplicon-based ONT data to 0.6 (from 0.8)
 * Add swift primer trim option
