@@ -677,7 +677,8 @@ $( document ).ready(function()
 		
 	}
 
-	function getLog(texturl,dom,projname,end) {
+	function getLog(texturl,dom,names,end) {
+		projname = names.split(',').join('<br>');
                 $.ajax({
                         url: texturl,
                         dataType: 'text',
