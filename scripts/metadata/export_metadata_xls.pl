@@ -58,7 +58,7 @@ my $in_worksheet1 = $template->worksheet('Submissions');
 my $in_worksheet0 = $template->worksheet('Instructions');
 my $row=2;
 my $col=0;
-my $seqID="seq00";
+my $seqID_prefix="seq00";
 
 my @src_tsv_header = ("Sequence_ID","Organism","isolate","collection-date","country","host","Collected-By","BioProject");
 my @src_tsv_content;
@@ -68,13 +68,14 @@ my $release_date;
 #write metadata to sheets
 foreach my $proj_dir (split /,/,$project_dir_names){
 	my $vars={};
-	$seqID++;
+	$seqID_prefix++;
 	my $confFile = "$proj_dir/config.txt";
 	my $conf = &getParams($confFile);
 	#my $otherFile = "$proj_dir/metadata_other.txt";
 
 	my $proj_name = $conf->{'projname'};
 	my $owner = $conf->{'projowner'};
+	my $seqID = $seqID_prefix."_".$proj_name;
 	eval {  
 		&pull_sampleMetadata($proj_dir,$vars);
 		&pull_submissionData($proj_dir,$vars);
