@@ -185,7 +185,7 @@ def go(args):
                 primer_position = p2[2]['end']
             
             if args.strand:
-                if s.is_reverse and s.reference_start >=  p2[2]['start'] and s.reference_start <=  p2[2]['end']:
+                if s.is_reverse and s.reference_end <=  p2[2]['start'] and s.reference_end >=  p2[2]['end']:
                     trim(cigar, s, primer_position, 1)
             else:
                 if s.reference_end > primer_position:
