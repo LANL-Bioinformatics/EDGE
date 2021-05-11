@@ -120,7 +120,7 @@ sub pull_biosamples{
 		}
 		close $fh;
 	}
-	$vars->{VIR_NAME} =~ s/SARS-CoV-2\/Homo sapiens/hCoV-19/i;
+	$vars->{VIR_NAME} =~ s/SARS-CoV-2\/Homo sapiens/hCoV-19/i if ($vars->{VIR_NAME});
 	$vars->{BIOSAMPLE_NAME} ||= $configuration->{projname};		     	
 }
 
