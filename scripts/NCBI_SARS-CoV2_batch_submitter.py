@@ -90,21 +90,14 @@ def parseMetadata(metadata):
                 meta[key] = value
         return meta
 
-def parseFasta(fasta):
-        """fasta FileType input"""
-        seq = ""
-        header_found = False
-        for line in fasta:
-                if line.startswith(">"):
-                        if header_found:
-                                print("ERROR: Only allow 1 sequence.")
-                                sys.exit(1)
-                        else:
-                                header_found = True
-                else:
-                        line = line.strip()
-                        seq += line
-        return seq
+def countFasta(fasta):
+    """fasta FileType input"""
+    count = 0 
+    for line in fasta:
+        if line.startswith(">"):
+            count+=1
+                      
+    return count
 
 def waiting_table_to_get_ready(wait, sec=1):
         """wait for the table to be loaded"""
@@ -273,17 +266,28 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
             pass
                 
         retry = 0
-        while retry <= rt and 'Source Modifiers' != driver.find_elements_by_xpath("//h2")[0].text:
-                try:
-                        driver.find_elements_by_xpath("//ul[@id='id_internal_ns-gap_type']//label")[0].click()
-                except:
-                        pass    
-                driver.find_element_by_id('id_sub_continue').click()
-                time.sleep(10)
-                retry += 1
+        while retry <= rt and driver.find_elements_by_xpath("//h2")[0].text not in ['Sequence Processing','Source Modifiers']:
+            try:
+                driver.find_elements_by_xpath("//ul[@id='id_internal_ns-gap_type']//label")[0].click()
+            except:
+                pass    
+            driver.find_element_by_id('id_sub_continue').click()
+            time.sleep(10)
+            retry += 1
+        
+        # Step 5. Sequence processing
+        # Step 5/6: Source Modifiers
 
-        # Step 5: Source Modifiers
-        print("5. Source Modifiers")
+        if countFasta(seqfile) > 1:
+            print("5. Sequence Processing")
+            ## automatically remove failed sequences
+            driver.find_elements_by_xpath("//ul[@id='id_seqproc_auto_remove-remove']//label")[0].click()
+            driver.find_element_by_id('id_sub_continue').click()
+            time.sleep(10)
+            print("6. Source Modifiers")
+        else:    
+            print("5. Source Modifiers")
+            
         ### batch
         try:
             # > 1 sequences
@@ -317,7 +321,7 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
                 retry += 1
 
         # Step 6: References
-        print("6. References")
+        print("6/7. References")
         authors = authorsMetadata['authors'].strip().split(",")
         for i, name in enumerate(authors):
                 firstname_field = 'sequence_author-' + str(i) + '-first_name'
@@ -342,7 +346,7 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
             return
 
         # Step 7
-        print("7. Review and Submit")
+        print("7/8. Review and Submit")
         wait.until(EC.text_to_be_present_in_element((By.XPATH,"//h2"),"Submit"))
         if not headless:
                 # wait until the user to close browser
