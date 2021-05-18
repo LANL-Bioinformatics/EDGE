@@ -2009,6 +2009,9 @@ sub pull_readmapping_ref {
 
 		$vars->{RMREF_UM_NOTE} = "Only top 5 results in terms of \"Mapped Reads\" are listed in the table.";
 	}
+	if ($vars->{r2g_align_trim_bed_file}){
+		$vars->{RMREFALIGNTRIM} = ", AlignTrim By ". basename($vars->{r2g_align_trim_bed_file}, ('.bed','.bedpe','.txt')) ;
+	}
 }
 
 sub parse_INDELs_report{
@@ -2232,6 +2235,9 @@ sub pull_summary {
 		}
 		if (/r2g_consensus_min_cov=(.*)/){
 			$vars->{r2g_consensus_min_cov}=$1;
+		}
+		if (/r2g_align_trim_bed_file=(.*)/){
+			$vars->{r2g_align_trim_bed_file}=$1;
 		}
 		if (/r2g_aligner=(.*)/){
 			$vars->{RMREFALIGNER}=$1;
