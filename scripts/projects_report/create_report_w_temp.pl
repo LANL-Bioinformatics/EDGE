@@ -1091,7 +1091,7 @@ sub pull_reports {
                                                                                 $ref->{PROJNAME} = $proj->{PROJNAME};
                                                                                 $ref->{PROJ} = $proj->{PROJ};
                                                                                 $ref->{PROPROJURL} = $vars->{PROJURL};
-                                                                                if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td>(.*)<\/td><td title=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
+                                                                                if($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td class=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
 											$ref->{LS_REF_LINK} = $1;
                                                                                         $ref->{LS_REF} = $2;
                                                                                         $ref->{LS_CNS_COMP} = $3;
@@ -1105,12 +1105,12 @@ sub pull_reports {
                                                                                         $ref->{LS_CNS_INDEL} = $11;
 											#$ref->{LS_CNS_INDEL} =~ s/(EDGE_output)/$vars->{RUNHOST}\/$1/;
                                                                                         $ref->{LS_CNS_LINEAGE} = $12;
-											$ref->{LS_CNS_LOG} = $vars->{RUNHOST}."/".$13;
+											$ref->{LS_CNS_LOG} = $proj->{RUNHOST}."/".$13;
 											#$13 LS_CNS_FASTA_DOWNLOAD
                                                                                         $ref->{LS_CNS_READY_TO_SUBMIT} = $15;
 											$ref->{LS_CNS_READY_TO_SUBMIT} =~ s/edge-consensus-ok-to-submit//;
 
-										}elsif($str =~ /<td title=.*>(.*)<\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td>(.*)<\/td><td title=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
+										}elsif($str =~ /<td title=.*>(.*)<\/td><td title=(.*)>(.*)<\/td><td.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td title=.*>(.*)<\/td><td class=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td title=.*?>(.*)<\/td><td.*><a href="(.*)">.*<\/a><\/td><td style=.*>(<a.*)<\/td><td>(.*)<\/td>/) {
                                                                                         $ref->{LS_REF_LINK} = '#';
                                                                                         $ref->{LS_REF} = $1;
                                                                                         $ref->{LS_CNS_COMP} = $2;
@@ -1130,7 +1130,8 @@ sub pull_reports {
 											$ref->{LS_CNS_READY_TO_SUBMIT} =~ s/edge-consensus-ok-to-submit//;
 
                                                                                 }
-										$ref->{LS_CNS_INDEL} =~ s/(EDGE_output)/$vars->{RUNHOST}\/$1/;
+										$ref->{LS_CNS_INDEL} =~ s/(EDGE_output)/$proj->{RUNHOST}\/$1/;
+										$ref->{LS_CNS_SNP} =~ s/(EDGE_output)/$proj->{RUNHOST}\/$1/;
 										push @{$proj->{REF_MAPPEDREADS_CNS_LOOP}}, $ref;
                                                                                 push @{$reports_map{$project}{'ref-mappedreads-cns'}}, $ref;
 
@@ -2742,6 +2743,7 @@ sub create_ref_reads_cns_csv {
 			$content .= "\"$celltext\"".",";
 
 			($celltext = $ref->{LS_CNS_SNP}) =~ s/,|\s+|bp//g;
+			$celltext =~ s/<a.*\/a>//;
 			$content .= "\"$celltext\"".",";
 
 			($celltext = $ref->{LS_CNS_INDEL}) =~ s/,|\s+|bp//g;
@@ -2749,7 +2751,8 @@ sub create_ref_reads_cns_csv {
 			$content .= "\"$celltext\"".",";
 
 			($celltext = $ref->{LS_CNS_LINEAGE}) =~ s/,|\s+|bp//g;
-			$celltext =~ s/<a.*>(.*)<\/a><a.*a>/$1/;
+			$celltext =~ s/<a.*>(.*?)<\/a><a.*a>/$1/;
+			$celltext =~ s/<a.*>(.*?)<\/a>/$1/;
 			$content .= "\"$celltext\"".",";
 
 			($celltext = $ref->{LS_CNS_READY_TO_SUBMIT}) =~ s/,|\s+|bp//g;

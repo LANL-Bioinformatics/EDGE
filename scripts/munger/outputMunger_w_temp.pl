@@ -1888,15 +1888,18 @@ sub pull_readmapping_ref {
 			my $consensus_file_compsition = "$consensus_file.comp";
 			my $consensus_ambiguous_file_compsition = "$consensus_ambiguous_file.comp";
 			my $consensus_indels_report =  "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.Indels_report.txt";
+			my $consensus_SNPs_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.SNPs_report.txt";
 			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
 			$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report if ( -r $consensus_indels_report);
+			$refinfo->{"RMCONSNPREPORT"} = $consensus_SNPs_report if ( -r $consensus_SNPs_report);
 			if ( -e $consensus_file ){
 				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
 				my ($consensus_info,$consensus_info2 )= &consensus_fasta_stat($consensus_file,$consensus_log_file);
 				my $lineage_info = &parse_lineage($consensus_lineage);
 				my $indel_frameshift_info = &parse_INDELs_report($consensus_indels_report);
+				my $stop_codon_info = &parse_SNPs_report($consensus_SNPs_report);
 				foreach my $consensus_id (keys %$consensus_info){
 					if ($consensus_id =~ /$temp[0]/i){
 						$refinfo->{"RMCONLEN"} = $consensus_info->{$consensus_id}->{length};
@@ -1921,6 +1924,10 @@ sub pull_readmapping_ref {
 						if ($indel_frameshift_info->{$temp[0]}){
 							$refinfo->{"RMCONFRAMESHIFT"} = 1;
 							$refinfo->{"RMCONFRAMESHIFTINFO"} = "Frameshift Warning: please check $refinfo->{'RMREFFILE'}_consensus.Indels_report.txt for details.";
+						}
+						if ($stop_codon_info->{$temp[0]}){
+							$refinfo->{"RMCONSTOPCODON"} = 1;
+							$refinfo->{"RMCONSTOPCODONINFO"} = "Stop Codon Warning: please check $refinfo->{'RMREFFILE'}_consensus.SNPs_report.txt for details.";
 						}
 					}
 				}
@@ -2014,6 +2021,23 @@ sub pull_readmapping_ref {
 	}
 }
 
+sub parse_SNPs_report{
+	my $file=shift;
+	return if ! -e $file;
+	my %report;
+	open(my $fh, "<", $file);
+	while(<$fh>){
+		chomp;
+		next if(/SNP_position/);
+		my ($id,$pos,$ref_codon,$sub_codon, $aa_ref, $aa_sub, $synoymous, $product,$start,$end ,$strand) = split/\t/,$_; 
+		my $event = "$pos:$aa_ref:$product";
+		if ($aa_sub eq '*'){
+			push @{$report{$id}}, $event;
+		}
+	}
+	close $fh;
+	return \%report;
+}
 sub parse_INDELs_report{
 	my $file=shift;
 	return if ! -e $file;
@@ -2029,6 +2053,7 @@ sub parse_INDELs_report{
 			push @{$report{$id}}, $event;
 		}
 	}
+	close $fh;
 	return \%report;
 }
 
