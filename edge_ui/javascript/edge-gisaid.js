@@ -254,6 +254,14 @@ $( document ).ready(function()
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				gisaid_actions(projs,formDom,action,projNames.join());
                 	});
+
+		}else if ( action == 'batch-upload2gisaid' ){
+                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAI and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
+                        $("#edge_confirm_dialog_content").html(actionContent);
+                        $('#edge_confirm_dialog').enhanceWithin().popup('open');
+                        $("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				gisaid_actions(projs,formDom,action,projNames.join());
+            		});
 		}else{
 			gisaid_actions(projs,formDom,action,projNames.join());
 		}
@@ -437,10 +445,17 @@ $( document ).ready(function()
 		if ( action == 'upload2gisaid' && ! /Ready to Submit/.test(selectedCon) ){
 			var actionContent = selectedCon + ' is NOT Ready to Submit. Do you want to proceed? <p>This action can not be undone.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
-			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				gisaid_actions(proj,formDom,action,projname);
                 	});
+		}else if ( action == 'upload2gisaid' ){
+                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAI and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
+                        $("#edge_confirm_dialog_content").html(actionContent);
+                        $('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
+                        $("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				gisaid_actions(proj,formDom,action,projname);
+                        });
 		}else{
 			gisaid_actions(proj,formDom,action,projname);
 		}
