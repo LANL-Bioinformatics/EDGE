@@ -1,5 +1,12 @@
 # EDGE-COVID19
 
+## build 202106
+* add early stop codon aa substitution warning
+* add ampliseq adapter
+* add aligntrim info on header of result section
+* update NCBI batch submitter: add auto-delete option
+* Align_trim deal with amplicon_size < read length
+
 ## build 20210505
 * Batch NCBI SRA submission.
 * fix gisaid/NCBI genome submission corresponding to the GISAID/NCBI GUI udpate
