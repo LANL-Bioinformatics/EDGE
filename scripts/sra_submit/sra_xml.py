@@ -235,7 +235,7 @@ class SubmitXML():
             library = self.GetLibraryAttribute(exp)
 
         k = next(iter(sample))
-        #library["library_construction_protocol"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
+        library["library_construction_protocol"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
         #library["design_description"] = (sample[k])["lib_const_meth"] if "lib_const_meth" in sample[k] else "missing"
 
         self.SetDescription(
@@ -261,14 +261,20 @@ class SubmitXML():
         for k, v in sample.items():
             sid = k + ":" + date
             name = ""
-
+            sample_title= " "
+            if 'sample_title' in v:
+                if v["sample_title"]:
+                    sample_title = v["sample_title"]
+                else:
+                    del v["sample_title"]
+                
             if "organism" in v:
                 name = v["organism"]
                 del v["organism"]           # not appear as an attribute
             else:
                 name = "not applicable"
 
-            self.SetBioSample(v["sample_title"], v["description"], sid, name, package, v)
+            self.SetBioSample(sample_title, v["description"], sid, name, package, v)
 
         # set fastq file section
         fqs = []
