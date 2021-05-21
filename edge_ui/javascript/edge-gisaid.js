@@ -250,7 +250,7 @@ $( document ).ready(function()
 		if (NotReadyCon.length){
 			var actionContent = "The consensus genoems of projects:<br/>" + NotReadyCon.join("<br/>") + ' <br/>&nbsp;&nbsp;are NOT Ready to Submit. Do you want to proceed? <p>This action can not be undone.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
-			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				gisaid_actions(projs,formDom,action,projNames.join());
                 	});
@@ -258,7 +258,7 @@ $( document ).ready(function()
 		}else if ( action == 'batch-upload2gisaid' ){
                         var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAI and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
                         $("#edge_confirm_dialog_content").html(actionContent);
-                        $('#edge_confirm_dialog').enhanceWithin().popup('open');
+                        $('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
                         $("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				gisaid_actions(projs,formDom,action,projNames.join());
             		});
@@ -298,7 +298,7 @@ $( document ).ready(function()
 		if (action == 'batch-upload2sra'){
 			var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the samples and metadata to the NCBI SRA, and agree to remit the samples and related metadata to the public domain.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
-			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				sra_actions(projs,formDom,action,projNames.join());
 			});
