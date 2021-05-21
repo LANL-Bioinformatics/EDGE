@@ -160,6 +160,9 @@
 					<tr><td>Patient age</td><td><TMPL_VAR NAME=SMD_AGE DEFAULT=-></td></tr>
 					<tr><td>Patient status</td><td><TMPL_VAR NAME=SMD_STATUS DEFAULT=-></td></tr>
 					<tr><td>Sequencing Technology</td><td><TMPL_VAR NAME=SMD_SEQUENCING_TECH DEFAULT=-></td></tr>
+					<TMPL_IF NAME="SMD_GISAID_ACC">
+					<tr><td>GISAID accession</td><td><TMPL_VAR NAME=SMD_GISAID_ACC DEFAULT=-></td></tr>
+					</TMPL_IF>
 				</tbody>
 			</table>
 		</div>

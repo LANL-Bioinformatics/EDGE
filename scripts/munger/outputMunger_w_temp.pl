@@ -749,6 +749,23 @@ sub pull_sampleMetadata {
 	} else {
 		$vars->{OUT_SAMPLE_NO_METADATA}   = 1;
 	}
+	my $sra_metadata = "$out_dir/UPLOAD/sra_samples.txt";
+	if (-e $sra_metadata){
+		open my $fh, $sra_metadata or die "Can't open $sra_metadata $!";
+		while(<$fh>){
+			chomp;
+			next if(/^#/);
+			my (@headers, @itmes);
+			my @items = split /\t/,$_ ;
+			if (/^sample_name/){
+				@headers = @items;
+			}else{
+				$vars->{SMD_GISAID_ACC} =$items[18];
+			}
+		}
+		close $fh;
+	}
+
 }
 
 sub pull_other {
