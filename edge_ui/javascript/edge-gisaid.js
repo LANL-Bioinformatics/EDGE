@@ -601,7 +601,9 @@ $( document ).ready(function()
 			},
 			success: function(data){
 				//console.log("got response");
-				$( "#edge-gisaid-metadata-project-page" ).hide();		
+				$(".edge-main-page").hide();
+				$( "#edge-gisaid-metadata-project-page" ).hide();
+				$( "#edge-sra-metadata-project-page" ).hide();
 				$( "#edge-content-report" ).html(data);
 				$( "#edge-content-report div[data-role='popup']" ).popup();
 				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
@@ -693,7 +695,10 @@ $( document ).ready(function()
 	}
 
 	function getLog(texturl,dom,names,end) {
-		projname = names.split(',').join('<br>');
+		var projname="";
+		if (names){
+		    projname = names.split(',').join('<br>');
+		}
                 $.ajax({
                         url: texturl,
                         dataType: 'text',
@@ -769,7 +774,7 @@ $( document ).ready(function()
 		if ( action == 'upload2sra' ){
 			var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the samples and metadata to the NCBI SRA, and agree to remit the samples and related metadata to the public domain.</p>';
 			$("#edge_confirm_dialog_content").html(actionContent);
-			$('#edge_confirm_dialog').enhanceWithin().popup('open');
+			$('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
 			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
 				sra_actions(proj,formDom,action,projname);
             });

@@ -198,16 +198,17 @@ if($action eq "create-form") {
 		my $ncbi_sra_dir = ($debug)? "submit/Test/": "submit/Production/" ;
 		$ncbi_cmd .= "\n cd $upload_content_dir \n";
 		$ncbi_cmd .= "\n echo 'Transfer files to NCBI' \n";
+		#$ncbi_cmd .= "\n sleep 30 \n";
 		$ncbi_cmd .= "$EDGE_HOME/scripts/sra_submit/sra_ascp.py --ncbi-sra-dir \'$ncbi_sra_dir\' --input-dir \'". basename($sra_submit_data_dir) . "\/\' ";
 		$ncbi_cmd .= " --ncbi-username ". $sys->{'sra_submission_account'} ;
 		$ncbi_cmd .= " --ncbi-private-key ". $sys->{'sra_acsp_keyfile'} .  " | tee -a $submit_log \n";
 		
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $sra_done, $ncbi_cmd);
 		my $script_fh;
+
 		my $pid;
 		my $pid = open ($script_fh, "-|")
-			or exec ("/bin/bash $submit_script > $submit_current_log &");
-		#my $pid = open ($script_fh, "-|", "/bin/bash $submit_script > $submit_current_log &") or die "$!\n";
+			or exec ("/bin/bash $submit_script > $submit_current_log 2>\&1 &");
 		if (not defined $pid ){
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{
@@ -423,7 +424,7 @@ if($action eq "create-form") {
 		SetSubmitScript($submit_script, $submit_log, \@projCompleteReport_cacheFiles, \@SRADoneFiles, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ("/bin/bash $submit_script > $submit_current_log &");
+			or exec ("/bin/bash $submit_script > $submit_current_log 2>\&1 &");
 		if (not defined $pid ){
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{

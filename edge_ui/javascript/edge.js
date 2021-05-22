@@ -2447,6 +2447,12 @@ $( document ).ready(function()
 				if ($('#edge-gisaid-upload-form').length){
 					$('#edge-gisaid-upload-form').remove();
 				}
+				if ($('#edge-sra-upload-form').length){
+					$('#edge-sra-upload-form').remove();
+				}
+				if ($('#edge-sra-batch-upload-form').length){
+					$('#edge-sra-batch-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
@@ -2506,6 +2512,9 @@ $( document ).ready(function()
 				if ($('#edge-gisaid-batch-upload-form').length){
                                         $('#edge-gisaid-batch-upload-form').remove();
                                 }
+				if ($('#edge-gisaid-upload-form').length){
+					$('#edge-gisaid-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
@@ -4351,6 +4360,9 @@ $( document ).ready(function()
 				if ($('#edge-gisaid-batch-upload-form').length){
 					$('#edge-gisaid-batch-upload-form').remove();
 				}
+				if ($('#edge-sra-batch-upload-form').length){
+					$('#edge-sra-batch-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
@@ -4402,6 +4414,12 @@ $( document ).ready(function()
 				if ($('#edge-gisaid-batch-upload-form').length){
 					$('#edge-gisaid-batch-upload-form').remove();
 				}
+				if ($('#edge-sra-upload-form').length){
+					$('#edge-sra-upload-form').remove();
+				}
+				if ($('#edge-sra-batch-upload-form').length){
+					$('#edge-sra-batch-upload-form').remove();
+				}
 				$.mobile.loading( "show", {
 					text: "Load...",
 					textVisible: 1,
@@ -4414,17 +4432,17 @@ $( document ).ready(function()
 			success: function(data){
 				//console.log("got response");
 				allMainPage.hide();
-				$( "#edge-content-report" ).html(data);
-				$( "#edge-content-report div[data-role='popup']" ).popup();
-				$( "#edge-content-report > div[data-role='collapsible'] table " ).table();
-				$( "#edge-content-report > div[data-role='collapsible']" ).collapsible();
-				$( "#edge-content-report fieldset[data-role='controlgroup']" ).controlgroup();
-				$( "#edge-content-report" ).show();
-				$( "#edge-content-report" ).find("img").lazyLoadXT();
-				$( "#edge-content-report" ).find("iframe").lazyLoadXT();
-				$( "#edge-content-report" ).enhanceWithin();
+				$( "#edge-gisaid-metadata-project-page" ).html(data);
+				$( "#edge-gisaid-metadata-project-page div[data-role='popup']" ).popup();
+				$( "#edge-gisaid-metadata-project-page > div[data-role='collapsible'] table " ).table();
+				$( "#edge-gisaid-metadata-project-page > div[data-role='collapsible']" ).collapsible();
+				$( "#edge-gisaid-metadata-project-page fieldset[data-role='controlgroup']" ).controlgroup();
+				$( "#edge-gisaid-metadata-project-page" ).show();
+				$( "#edge-gisaid-metadata-project-page" ).find("img").lazyLoadXT();
+				$( "#edge-gisaid-metadata-project-page" ).find("iframe").lazyLoadXT();
+				$( "#edge-gisaid-metadata-project-page" ).enhanceWithin();
 				if (action_id == "metadata-gisaid-edit"){
-					$( "#edge-content-report" ).find("h2").html(focusProjRealName + " Metadata" );
+					$( "#edge-gisaid-metadata-project-page" ).find("h2").html(focusProjRealName + " Metadata" );
 					$("#edge-gisaid-form-submit").parent().hide();
 					$("#metadata-submitter-info").hide();
 				}
