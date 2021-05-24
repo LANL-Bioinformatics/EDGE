@@ -67,6 +67,7 @@ my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $min_depth=5; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
+my $varaint_qual= "";
 my $disableBAQ;
 my $align_trim_strand;
 
@@ -89,18 +90,19 @@ GetOptions(
             'minimap2_options=s'  => \$minimap2_options,
             'pacbio' => \$pacbio,
             'consensus=i' => \$gen_consensus,
-	    'maq=i'    =>  \$map_quality,
+	        'maq=i'    =>  \$map_quality,
             'min_indel_candidate_depth=i' => \$min_indel_candidate_depth,
             'min_alt_bases=i' => \$min_alt_bases,
-	    'min_alt_ratio=f' => \$min_alt_ratio,
+	        'min_alt_ratio=f' => \$min_alt_ratio,
             'max_depth=i' => \$max_depth,
             'min_depth=i' => \$min_depth,
-	    'max_clip=i' => \$max_clip,
-	    'align_trim_bed_file=s' => \$align_trim_bed_file,
+	        'max_clip=i' => \$max_clip,
+	        'align_trim_bed_file=s' => \$align_trim_bed_file,
             'align_trim_strand' => \$align_trim_strand,
             'snp_gap_filter=i' => \$snp_gap_filter,
-	    'ploidy=s' => \$ploidy,
-	    'disableBAQ' => \$disableBAQ,
+            'variant_qual=i' => \$variant_qual,
+	        'ploidy=s' => \$ploidy,
+	        'disableBAQ' => \$disableBAQ,
             'cpu=i' => \$numCPU,
             'plot_only' => \$plot_only,
             'skip_aln'  => \$skip_aln,
@@ -346,8 +348,10 @@ for my $ref_file_i ( 0..$#ref_files){
 			my $ploidy_o = ($ploidy =~ /haploid/i)? "--ploidy 1" : "";
 			my $indel_o = ($no_indels)? " -I ":""; 
 			my $baq_o = ($disableBAQ)? " -B ":"";
-			`bcftools mpileup $indel_o $baq_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -M -cO b - > $bcf_output 2>/dev/null`;
-			`bcftools view -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth  > $vcf_output`;
+			my $bcf_filter = ($variant_qual)? " -i \'\%QUAL>=$variant_qual\' ":"";
+			`bcftools mpileup $indel_o $baq_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -mv -O b - > $bcf_output 2>/dev/null`;
+			`bcftools view $bcf_filter -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth  > $vcf_output`;
+			#bcftools view -i '%QUAL>=20' calls.bcf
 		}
 
 		## index BAM file 
