@@ -3243,6 +3243,7 @@ sub runReadsToGenome
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
+    my $variant_call_min_qual = (defined $configuration->{r2g_variant_call_min_qual})? $configuration->{r2g_variant_call_min_qual} : 0;
     my $variant_call_ploidy =  (defined $configuration->{r2g_variant_call_ploidy})? $configuration->{r2g_variant_call_ploidy} : "haploid";
     my $correct_bed_file;
     &make_dir($outputDir);
@@ -3287,6 +3288,7 @@ sub runReadsToGenome
     $parameters .= " -no_indels " if $ont_flag;
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
+    $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
     $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
     if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) ){

@@ -1552,11 +1552,15 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</fieldset>
 				</div>
 				<div class="ui-field-contain edge-fastq-options">
+					<label for="edge-r2g-variantcall-min-qual">Variant QUAL<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum QUAL SCORE, QUAL phred-scaled quality score for the assertion made in ALT, to filter varaint call result." ></a></label>
+					<input type="number" name="edge-r2g-variantcall-min-qual" id="edge-r2g-variantcall-min-qual" data-mini="true" data-clear-btn="true" value="60">
+				</div>
+				<div class="ui-field-contain edge-fastq-options">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>Ploidy<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Ploidy for variants call" ></a></legend>
-						<input type="radio" name="edge-r2g-variantcall-ploidy" id="edge-r2g-variantcall-ploidy1" value="haploid" checked="checked">
+						<input type="radio" name="edge-r2g-variantcall-ploidy" id="edge-r2g-variantcall-ploidy1" value="haploid">
 						<label for="edge-r2g-variantcall-ploidy1">Haploid</label>
-						<input type="radio" name="edge-r2g-variantcall-ploidy" id="edge-r2g-variantcall-ploidy2" value="diploid">
+						<input type="radio" name="edge-r2g-variantcall-ploidy" id="edge-r2g-variantcall-ploidy2" value="diploid" checked="checked">
 						<label for="edge-r2g-variantcall-ploidy2">Diploid</label>
 					</fieldset>
 				</div>
