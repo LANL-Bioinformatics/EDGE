@@ -67,7 +67,7 @@ my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
 my $min_depth=5; #minimum read depth
 my $snp_gap_filter=3; #SNP within INT bp around a gap to be filtered
 my $ploidy = "";  # default diploid.  other option: haploid
-my $varaint_qual= "";
+my $variant_qual= "";
 my $disableBAQ;
 my $align_trim_strand;
 
