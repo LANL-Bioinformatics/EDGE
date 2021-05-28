@@ -21,6 +21,7 @@ use POSIX qw(strftime);
 use Digest::MD5 qw(md5_hex);
 use Data::Dumper;
 use File::Copy;
+use File::Path qw(make_path remove_tree);
 use Storable 'dclone';
 require "./edge_user_session.cgi";
 require "../cluster/clusterWrapper.pl";
@@ -262,7 +263,7 @@ sub readBatchInput {
 	
 	my $path_to_script = "$EDGE_HOME/thirdParty/Anaconda2/bin/xlsx2csv";
 	open (my $fh, "-|") 
-	  or exec ("$path_to_script","-d","tab","$excel_file");
+	  or exec ("$path_to_script","-i","-n","Data","-d","tab","$excel_file");
 
 	#create a hash
 	my $list;
@@ -336,7 +337,7 @@ sub createProjDir {
 		my $proj_dir = "$out_dir/$pname";
 		$proj_dir = "$out_dir/" . $projlist->{$pname}->{projCode} if ($username && $password);
 		#init output directory
-		$excode = system("mkdir -m 755 -p $proj_dir");
+		$excode = make_dir("$proj_dir");
 
 		if( $excode || ! -d $proj_dir ){
 			&addMessage("CREATE_OUTPUT","failure","FAILED to create output directory.");
@@ -367,12 +368,13 @@ sub is_folder_empty {
 sub createConfig {
 	for my $i (0..$#pnames){
 		my $pname = $pnames[$i];
-		my $config_out = "$out_dir/$pname/config.txt";
-		my $json_out   = "$out_dir/$pname/config.json";
-		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
-		$json_out   = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.json" if ($username && $password);
+		my $proj_dir = ($username && $password)? "$out_dir/" . $projlist->{$pname}->{projCode} : "$out_dir/$pname";
+		my $config_out = "$proj_dir/config.txt";
+		my $json_out   = "$proj_dir/config.json";
+		my $batch_json_out = "$proj_dir/batch_input.json";
 		
 		if ($opt{"edge-batch-input-excel"}){
+			saveListToJason($projlist->{$pname},$batch_json_out);
 			$opt_orig->{"edge-input-pe1[]"} = $projlist->{$pname}->{"q1"};
 			$opt_orig->{"edge-input-pe2[]"} = $projlist->{$pname}->{"q2"};
 			$opt_orig->{"edge-input-se[]"} = $projlist->{$pname}->{"s"};
@@ -469,6 +471,7 @@ sub createConfig {
 						$opt{"edge-r2g-variantcall-sw"} = 0;
 						$opt{"edge-lrasm-preset"} = "ont";
 						if( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i){
+							$opt{"edge-qc-sw"}=0;
 							$opt{"edge-r2c-aligner-options"} = "-x map-pb";
 							$opt{"edge-r2g-aligner-options"} = "-x map-pb";
 							$opt{"edge-lrasm-preset"} = "pb";
@@ -489,6 +492,8 @@ sub createConfig {
 						$opt{"edge-r2c-aligner-options"} = "";
 						$opt{"edge-r2g-aligner-options"} = "";
 					}
+				}else{
+					$opt{"edge-sra-acc"} = "";
 				}
 			}
 			$opt{"edge-proj-id"} = $pname;
@@ -1531,19 +1536,87 @@ sub createSampleMetadataFile {
 		&loadSRAinfoToOpt($sra_info,$real_names[$i]);
 		if ( $sys->{edge_gisaid_metadata} ){
 			#gisaid sample metadata
-			my $metadata_out = "$out_dir/$pname/metadata_gisaid.txt";
-			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_gisaid.txt" if ($username && $password);
+			my $projdir = ($username && $password)? "$out_dir/" . $projlist->{$pname}->{projCode}: "$out_dir/$pname";
+			my $metadata_out = "$projdir/metadata_gisaid_ncbi.txt";
+			my $virus_name = $opt{'metadata-virus-name'} || $projlist->{$pname}->{"virus-name"} || "";
+			$virus_name =~ s/SARS-CoV-2\/Homo sapiens\//hCoV-19\//i;
+			my $virus_passage = $opt{'metadata-virus-passage'} || $projlist->{$pname}->{"sample-passage"} || "";
+			my $collection_date = $opt{'metadata-sample-collection-date'} || $projlist->{$pname}->{"sample-collection-date"} || "";
+			my $location = $opt{'metadata-sample-location'} || $projlist->{$pname}->{"sample-location"} || "";
+			my ($ncbi_location, $gisaid_location)=("","");
+			if ($location =~ /[:,]/) {
+				$ncbi_location = $location;
+				($gisaid_location = $location) =~ s/[:,]/\//g;
+			}elsif($location =~ /\//){
+				$gisaid_location = $location;
+				my ($continent, $country, $region)= split("/",$location);
+				$ncbi_location = "$country: $region" if ($country and $region);
+			}
+			my $host = $opt{'metadata-sample-host'} || $projlist->{$pname}->{"sample-host"} || "";
+			my $gender = $opt{'metadata-sample-gender'} || $projlist->{$pname}->{"sample-gender"} || "";
+			my $age = $opt{'metadata-sample-age'} || $projlist->{$pname}->{"sample-age"} || "";
+			my $status = $opt{'metadata-sample-status'} || $projlist->{$pname}->{"sample-status"} || "";
+			my $seq_tech = $opt{'metadata-sample-sequencing-tech'} || $projlist->{$pname}->{"sample-sequencing-tech"} || "";
+			my $bioprojectID = $projlist->{$pname}->{"bioporject_accession"} || ""; 
 			open OUT,  ">$metadata_out";
-			print OUT "virus_name=".$opt{'metadata-virus-name'}."\n"; 
-			print OUT "virus_passage=".$opt{'metadata-virus-passage'}."\n"; 
-			print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n";
-			print OUT "location=".$opt{'metadata-sample-location'}."\n";
-			print OUT "host=".$opt{'metadata-sample-host'}."\n";
-			print OUT "gender=".$opt{'metadata-sample-gender'}."\n";
-			print OUT "age=".$opt{'metadata-sample-age'}."\n";
-			print OUT "status=".$opt{'metadata-sample-status'}."\n";
-			print OUT "sequencing_technology=".$opt{'metadata-sample-sequencing-tech'}."\n";
+			print OUT "virus_name=".$virus_name."\n"; 
+			print OUT "virus_passage=".$virus_passage."\n"; 
+			print OUT "collection_date=".$collection_date."\n";
+			print OUT "location=".$gisaid_location."\n";
+			print OUT "host=".$host."\n";
+			print OUT "gender=".$gender."\n";
+			print OUT "age=".$age."\n";
+			print OUT "status=".$status."\n";
+			print OUT "sequencing_technology=".$seq_tech."\n";
+			print OUT "bioproject=".$bioprojectID."\n";
 			close OUT;
+
+			make_dir("$projdir/UPLOAD");
+			my $sra_samples = "$projdir/UPLOAD/sra_samples.txt";
+			(my $isolate = $virus_name) =~ s/hCoV-19\//SARS-CoV-2\/Homo sapiens\//i;
+			my $collect_by =  $projlist->{$pname}->{"sample-collect-by"} || "";
+			my $isolation_source = $projlist->{$pname}->{"sample-isolate-source"} || "";
+			my $latlon = $projlist->{$pname}->{"sample-latlon"} || "";
+			my $sample_purpose = $projlist->{$pname}->{"sample-purpose"} || "";
+			my $seq_purpose = $projlist->{$pname}->{"sequencing-purpose"} || "";
+			my $gisaid_id = $projlist->{$pname}->{"sample-gisaid-acc"} || "";
+			my $organism = "Severe acute respiratory syndrome coronavirus 2";
+			my $disease = "Severe acute respiratory syndrome";
+			open my $ofh, ">", $sra_samples or die "Can't open $sra_samples $!";
+			my @headers = ("sample_name", "sample_title", "organism", "isolate", "collected_by", "collection_date", 
+					"geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
+					"host_health_state","host_age","host_sex",
+					"passage_history", "description", "purpose_of_sampling",
+					"purpose_of_sequencing","GISAID_accession");
+			if ($bioprojectID){push @headers, "bioproject_accession";}
+			my @sra_samples_record = ($real_names[$i],"",$organism,$isolate,$collect_by, $collection_date,
+					$ncbi_location,$isolation_source,$latlon,$host,$disease,
+					$status,$age,$gender,$virus_passage,"not collected",
+					$sample_purpose, $seq_purpose, $gisaid_id);
+			if ($bioprojectID){push @sra_samples_record, $bioprojectID;}
+			print $ofh join("\t",@headers,"\n");
+			print $ofh join("\t",@sra_samples_record,"\n");
+			close $ofh;
+
+			my $sra_experiments = "$projdir/UPLOAD/sra_experiments.txt";
+			my $sra_title = $projlist->{$pname}->{"sra-title"} || "";
+			my $lib_strategy = $projlist->{$pname}->{"library-strategy"} || "";
+			my $lib_selection = $projlist->{$pname}->{"library-selection"} || "";
+			my $lib_layout = $projlist->{$pname}->{"library-layout"} || "";
+			my $lib_source = $projlist->{$pname}->{"library-source"} || "";
+			my $lib_model = $projlist->{$pname}->{"library-model"} || "";
+			my $platform = $projlist->{$pname}->{"platform"} || "";
+			my $design_desc = $projlist->{$pname}->{"design-description"} || "";
+			@headers = ("sample_name","library_ID","title","library_strategy","library_source",
+                                  "library_selection","library_layout","platform","instrument_model",
+                                  "design_description","filetype");
+			open my $ofh, ">", $sra_experiments or die "Can't open $sra_experiments $!";
+			my @sra_experiments_record = ($real_names[$i],$real_names[$i]."_lib",$lib_strategy,$lib_source,
+						$lib_selection, $lib_layout, $platform, $lib_model,$design_desc,"fastq");
+			print $ofh join("\t",@headers,"\n");
+			print $ofh join("\t",@sra_experiments_record,"\n");
+			close $ofh;
+			
 		} 
 		if ( $sys->{edge_sample_metadata} && ($opt{'metadata-study-title'} || $opt{'metadata-sample-name'} || $opt{'metadata-exp-title'})){
 			#travels
@@ -1596,63 +1669,65 @@ sub createSampleMetadataFile {
 			}
 
 			#sample metadata
-			my $metadata_out = "$out_dir/$pname/metadata_sample.txt";
-			$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_sample.txt" if ($username && $password);
-			open OUT,  ">$metadata_out";
-                        print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
+			if ($sra_info->{$real_names[$i]}->{"metadata-sra-run-acc"}){
+				my $metadata_out = "$out_dir/$pname/metadata_sample.txt";
+				$metadata_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/metadata_sample.txt" if ($username && $password);
+				open OUT,  ">$metadata_out";
+							print OUT "sra_run_accession=".$opt{'metadata-sra-run-acc'}."\n" if( $opt{'metadata-sra-run-acc'});
 
-			my $id = $opt{'metadata-study-id'};
-			unless ($id){
-				open (my $read_id_fh, "-|") 
-					or exec("perl","edge_db.cgi","study-title-add","$opt{'metadata-study-title'}");
-				$id=<$read_id_fh>;
-				close $read_id_fh;
-			}
-			print OUT "study_id=$id\n";
-			print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
-			system("perl", "edge_db.cgi", "study-type-add","$opt{'metadata-study-type'}");
-			print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); 
-			if($batch_sra_run) {
-				print OUT "study_type=SRA\n";
-			}
-			print OUT "sample_name=".$opt{'metadata-sample-name'}."\n" if ( $opt{'metadata-sample-name'} ); 
-			print OUT "sample_type=".$opt{'metadata-sample-type'}."\n" if ( $opt{'metadata-sample-type'} ); 
-
-			if( $opt{'metadata-sample-type'} eq "human" || $opt{'metadata-sample-type'} eq "animal") {
-				if($opt{'metadata-sample-type'} eq "human") {
-					if($opt{'metadata-host-gender-cb'}) {
-						print OUT "gender=".$opt{'metadata-host-gender'}."\n";
-					}
-					if($opt{'metadata-host-age-cb'}) {
-						print OUT "age=".$opt{'metadata-host-age'}."\n";
-					}
-					print OUT "host=human\n";
-				} else {
-					system("perl", "edge_db.cgi", "animal-host-add", "$opt{'metadata-host'}");
-					print OUT "host=".$opt{'metadata-host'}."\n";
+				my $id = $opt{'metadata-study-id'};
+				unless ($id){
+					open (my $read_id_fh, "-|") 
+						or exec("perl","edge_db.cgi","study-title-add","$opt{'metadata-study-title'}");
+					$id=<$read_id_fh>;
+					close $read_id_fh;
 				}
-				print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
-				system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}");
-				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
-			} else {
-				system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}","environmental");
-				print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
-			}
+				print OUT "study_id=$id\n";
+				print OUT "study_title=".$opt{'metadata-study-title'}."\n" if ( $opt{'metadata-study-title'} ); 
+				system("perl", "edge_db.cgi", "study-type-add","$opt{'metadata-study-type'}");
+				print OUT "study_type=".$opt{'metadata-study-type'}."\n" if ( $opt{'metadata-study-type'} ); 
+				if($batch_sra_run) {
+					print OUT "study_type=SRA\n";
+				}
+				print OUT "sample_name=".$opt{'metadata-sample-name'}."\n" if ( $opt{'metadata-sample-name'} ); 
+				print OUT "sample_type=".$opt{'metadata-sample-type'}."\n" if ( $opt{'metadata-sample-type'} ); 
+
+				if( $opt{'metadata-sample-type'} eq "human" || $opt{'metadata-sample-type'} eq "animal") {
+					if($opt{'metadata-sample-type'} eq "human") {
+						if($opt{'metadata-host-gender-cb'}) {
+							print OUT "gender=".$opt{'metadata-host-gender'}."\n";
+						}
+						if($opt{'metadata-host-age-cb'}) {
+							print OUT "age=".$opt{'metadata-host-age'}."\n";
+						}
+						print OUT "host=human\n";
+					} else {
+						system("perl", "edge_db.cgi", "animal-host-add", "$opt{'metadata-host'}");
+						print OUT "host=".$opt{'metadata-host'}."\n";
+					}
+					print OUT "host_condition=".$opt{'metadata-host-condition'}."\n";
+					system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}");
+					print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
+				} else {
+					system("perl","edge_db.cgi", "isolation-source-add","$opt{'metadata-isolation-source'}","environmental");
+					print OUT "isolation_source=".$opt{'metadata-isolation-source'}."\n";
+				}
 			
-			print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n" if ( $opt{'metadata-sample-collection-date'} );
-			print OUT "location=".$opt{'metadata-sample-location'}."\n" if ( $opt{'metadata-sample-location'} );
-			print OUT "city=".$cities[$geoLoc_cnt]."\n" if($cities[$geoLoc_cnt]);
-			print OUT "state=".$states[$geoLoc_cnt]."\n" if($states[$geoLoc_cnt]);
-			print OUT "country=".$countries[$geoLoc_cnt]."\n" if($countries[$geoLoc_cnt]);
-			print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
-			print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
-			print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
-			system("perl", "edge_db.cgi", "seq-center-add", "$opt{'metadata-seq-center'}");
-			print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
-			system("perl", "edge_db.cgi", "sequencer-add", "$opt{'metadata-sequencer'}");
-			print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
-			print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
-			close OUT;
+				print OUT "collection_date=".$opt{'metadata-sample-collection-date'}."\n" if ( $opt{'metadata-sample-collection-date'} );
+				print OUT "location=".$opt{'metadata-sample-location'}."\n" if ( $opt{'metadata-sample-location'} );
+				print OUT "city=".$cities[$geoLoc_cnt]."\n" if($cities[$geoLoc_cnt]);
+				print OUT "state=".$states[$geoLoc_cnt]."\n" if($states[$geoLoc_cnt]);
+				print OUT "country=".$countries[$geoLoc_cnt]."\n" if($countries[$geoLoc_cnt]);
+				print OUT "lat=".$lats[$geoLoc_cnt]."\n" if($lats[$geoLoc_cnt]);
+				print OUT "lng=".$lngs[$geoLoc_cnt]."\n" if($lngs[$geoLoc_cnt]);
+				print OUT "experiment_title=".$opt{'metadata-exp-title'}."\n";
+				system("perl", "edge_db.cgi", "seq-center-add", "$opt{'metadata-seq-center'}");
+				print OUT "sequencing_center=".$opt{'metadata-seq-center'}."\n";
+				system("perl", "edge_db.cgi", "sequencer-add", "$opt{'metadata-sequencer'}");
+				print OUT "sequencer=".$opt{'metadata-sequencer'}."\n";
+				print OUT "sequencing_date=".$opt{'metadata-seq-date'}."\n" if ( $opt{'metadata-seq-date'} );
+				close OUT;
+			}
 		} 
 
 		#run metadata
@@ -1840,6 +1915,12 @@ sub getGeocode($){
         $rlat = $lat unless $rlat;
         $rlng = $lng unless $rlng;
 	return ($rlat, $rlng, $city, $state, $country, $location);
+}
+
+sub make_dir{
+        my $dir=shift;
+        make_path($dir,{chmod => 0755,});
+        return 0;
 }
 #################
 
