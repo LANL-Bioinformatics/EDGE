@@ -1935,7 +1935,7 @@ sub pull_readmapping_ref {
 
 						if ($lineage_info){
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage_link};
-							$refinfo->{"RMCONLINEAGEINFO"} = "Prob: $lineage_info->{$consensus_id}->{probability}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
+							$refinfo->{"RMCONLINEAGEINFO"} = "ambiguity_score: $lineage_info->{$consensus_id}->{ambiguity_score}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{pangoLEARN_version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
 							$refinfo->{"RMCONLINEAGEWARN"} = $lineage_info->{$consensus_id}->{warning};
 						}
 						if ($indel_frameshift_info->{$temp[0]}){
@@ -2078,18 +2078,27 @@ sub parse_lineage{
 	my $file = shift;
 
 	return if ! -e $file;
-
+	#taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,version,pangolin_version,pangoLEARN_version,pango_version,status,note
+	#BCSIR-NILMRC-756_consensus_NC_045512_2,B.1.351.3,0.0,1.0,,,,PLEARN-v1.2.6,3.0.2,2021-05-27,v1.2.6,passed_qc,
 	my %lineage;
 	open(my $fh, "<", $file);
 	while(<$fh>){
 		chomp;
 		next if(/^taxon,/);
-		my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
+		#my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
+		my($cid,$lineage_assign,$conflict,$ambiguity_score, $scorpio_call, $scorpio_support, $scorpio_conlfict, $version, $pangolin_version, $pangoLEARN_version, $pango_version,$status,$note)=split/,/,$_;
 		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$lineage_assign&loc=USA'>$lineage_assign</a>";
 		$lineage{$cid}->{lineage} = $lineage_assign;
 		$lineage{$cid}->{lineage_link} = $lineage_assign_link;
-		$lineage{$cid}->{probability} = $prob;
-		$lineage{$cid}->{version} = $pangoLearnVersion;
+		$lineage{$cid}->{conflict} = $conflict;
+		$lineage{$cid}->{ambiguity_score} = $ambiguity_score;
+		$lineage{$cid}->{scorpio_call} = $scorpio_call;
+		$lineage{$cid}->{scorpio_support} = $scorpio_support;
+		$lineage{$cid}->{scorpio_conlfict} = $scorpio_conlfict;
+		$lineage{$cid}->{version} = $version;
+		$lineage{$cid}->{pangolin_version} = $pangolin_version;
+		$lineage{$cid}->{pangoLEARN_version} = $pangoLEARN_version;
+		$lineage{$cid}->{pango_version} = $pango_version;
 		$lineage{$cid}->{status} = $status;
 		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ or $lineage_assign =~ /B.1.617/){
 			$note .= "; VOC"; 
