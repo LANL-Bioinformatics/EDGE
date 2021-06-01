@@ -87,7 +87,13 @@ def parseMetadata(metadata):
         meta = {}
         for line in metadata:
                 (key, value) = line.strip().split("=")
-                meta[key] = value
+                meta[key] = value   
+        if 'authors'in meta:
+            authors = meta['authors'].strip().split(",")
+            for name in authors:
+                fullname = name.strip().split(" ")
+                if len(fullname) < 2:
+                    raise Exception(f'Sorry, the author, {fullname}, is not in format of "First_name Last_name"')
         return meta
 
 def countFasta(fasta):
@@ -322,11 +328,16 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         print("6/7. References")
         authors = authorsMetadata['authors'].strip().split(",")
         for i, name in enumerate(authors):
-                firstname_field = 'sequence_author-' + str(i) + '-first_name'
-                lastname_field = 'sequence_author-' + str(i) + '-last_name'
-                fullname = name.strip().split(" ")
+            firstname_field = 'sequence_author-' + str(i) + '-first_name'
+            lastname_field = 'sequence_author-' + str(i) + '-last_name'
+            fullname = name.strip().split(" ")
+            if len(fullname) == 2:
                 driver.find_element_by_name(firstname_field).send_keys(fullname[0])
                 driver.find_element_by_name(lastname_field).send_keys(fullname[1])
+            if len(fullname) >= 2:
+                lastname = fullname.pop()
+                driver.find_element_by_name(firstname_field).send_keys(' ',join(fullname))
+                driver.find_element_by_name(lastname_field).send_keys(lastname)
                 driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
                 time.sleep(0.5)
 

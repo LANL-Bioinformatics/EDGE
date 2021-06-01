@@ -490,7 +490,7 @@ sub SetSubmitScript {
 	if ( ref($projCompleteReport_cache) eq 'ARRAY'){
 		$cmd .= "rm -f ". join(" ",@$projCompleteReport_cache) . "\n";
 	}else{
-		$cmd .= "unlink $projCompleteReport_cache\n";
+		$cmd .= "rm -f $projCompleteReport_cache\n";
 	}
 	$cmd .= "unlink $submit_script\n" if (! $debug );
 	print $fh "source $EDGE_HOME/thirdParty/Anaconda3/bin/activate base\n";
@@ -746,6 +746,11 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-org-lab", "Submitting lab is required.") unless ( $opt{'metadata-sub-lab'});
 	&addMessage("PARAMS", "metadata-sub-address", "Submitting address is required.") unless ( $opt{'metadata-sub-address'});
 	&addMessage("PARAMS", "metadata-authors", "Authors is required.") unless ( $opt{'metadata-authors'});
+	my @author_names = split/,/, $opt{'metadata-authors'};
+	foreach my $author (@author_names){
+		my ($author_fn, $author_ln) = split/\s+/,$author;
+		&addMessage("PARAMS", "metadata-authors", "Author, $author_fn, last name is missing.") unless ( $author_ln );
+	}
 	if ($action eq 'upload2gisaid' or $action eq 'batch-upload2gisaid'){
 		my $today_str = strftime "%Y-%m-%d", localtime;
 		&addMessage("PARAMS", "metadata-submitter", "Submitter is required.") unless ( $opt{'metadata-submitter'});

@@ -192,6 +192,7 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
             meta_key = entry_keys_mapping[num]
             if meta_key and meta_key in metadata:
                 text_input.send_keys(metadata[meta_key])
+                time.sleep(0.3)
             num += 1
     
     waiting_sys_timer(wait)
