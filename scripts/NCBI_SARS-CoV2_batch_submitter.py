@@ -153,24 +153,22 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
 
         # open NCBI
         print("Opening website NCBI...")
-        driver.get('https://www.ncbi.nlm.nih.gov/account/?back_url=https%3A//submit.ncbi.nlm.nih.gov/sarscov2/')
+        driver.get('https://account.ncbi.nlm.nih.gov/?back_url=https%3A//submit.ncbi.nlm.nih.gov/sarscov2/')
         time.sleep(iv)
         print(driver.title)
         assert 'NCBI' in driver.title
 
         # login
         print("Logining to NCBI...")
-        wait.until(EC.frame_to_be_available_and_switch_to_it((By.ID,'loginframe')))
-        username = driver.find_element_by_name('uname')
+        driver.find_elements_by_css_selector('.federation-provider-button.ncbi')[0].click()
+        username = driver.find_element_by_name('username')
         username.send_keys(uname)
-        password = driver.find_element_by_name('upasswd')
+        password = driver.find_element_by_name('password')
         password.send_keys(upass)
-        singInButton = driver.find_element_by_name('signinBtn')
+        singInButton = driver.find_elements_by_css_selector('.submit-button')[0]
         singInButton.click()
 
-        driver.switch_to.default_content()
         time.sleep(iv)
-
 
         # navigate to  GenBank
         print("Navigating to GenBank Submission Page...")
