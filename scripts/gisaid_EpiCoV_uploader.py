@@ -159,26 +159,27 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
         4  : "", #Additional location information: Example: Cave, Live animal market
         5  : "host", #Host*
         6  : "", #Additional host information: Example: Cruise Ship, Convention, Live animal market
-        7  : "gender", #Gender*
-        8  : "age", #Patient age*
-        9  : "status", #Patient status: Example: Hospitalized, Released, Live, Deceased, unknown
-        10 : "isolation_source", #Specimen source: Example: Nasal
-        11 : "", #Outbreak Detail: Example: Date, Place, Family cluster
-        12 : "", #Last vaccinated
-        13 : "", #Treatment: Example: Include drug name, dosage
-        14 : "sequencing_technology", #Sequencing technology: Nanopore MinION
-        15 : "assembly_method", #Assembly method
-        16 : "coverage", #Coverage
-        17 : "", #Sample ID given by the provider
-        18 : "", #Sample ID given by the Submitting lab
+        7  : "", #Outbreak Detail: Example: Date, Place, Family cluster
+        8  : "", #Sampling strategy: e.g. Sentinel surveillance (ILI), Sentinel surveillance (ARI), Sentinel surveillance (SARI), Non-sentinel-surveillance (hospital), Non-sentinel-surveillance (GP network), Longitudinal sampling on same patient(s), S gene dropout
+        9  : "gender", #Gender*
+        10 : "age", #Patient age*
+        11 : "status", #Patient status: Example: Hospitalized, Released, Live, Deceased, unknown
+        12 : "isolation_source", #Specimen source: Example: Nasal
+        13 : "", #Last vaccinated
+        14 : "", #Treatment: Example: Include drug name, dosage
+        15 : "sequencing_technology", #Sequencing technology: Nanopore MinION
+        16 : "assembly_method", #Assembly method
+        17 : "coverage", #Coverage
+        18 : "", #Sample ID given by the provider
+        19 : "", #Sample ID given by the Submitting lab
         # textarea
-        19 : "originating_lab", #Originating lab*
-        20 : "originating_address", #Originating lab address*
-        21 : "submitting_lab", #Submitting lab*: Los Alamos National Lab
-        22 : "submitting_address", #Submitting lab address*
-        23 : "authors", #Authors*
-        24 : "", #Submitter information: address
-        25 : "sequence" #custom
+        20 : "originating_lab", #Originating lab*
+        21 : "originating_address", #Originating lab address*
+        22 : "submitting_lab", #Submitting lab*: Los Alamos National Lab
+        23 : "submitting_address", #Submitting lab address*
+        24 : "authors", #Authors*
+        25 : "", #Submitter information: address
+        26 : "sequence" #custom
     }
 
     # fill the webform
