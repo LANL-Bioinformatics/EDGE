@@ -732,8 +732,8 @@ sub checkParams {
 	&addMessage("PARAMS", "metadata-virus-name", "$projname Virus name is required." , $index) unless ( $opt{'metadata-virus-name'}); 
 	my @virus_names = split ('/',  $opt{'metadata-virus-name'});
 	&addMessage("PARAMS", "metadata-virus-name", "Virus name should start with hCoV-19." , $index) if ($virus_names[0] ne 'hCoV-19');
-	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'.") if (scalar(@virus_names) != 4 );
-	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'.") if ($virus_names[3] =~ /\D/ or $virus_names[3] < 1979);
+	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'.", $index) if (scalar(@virus_names) != 4 );
+	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'." , $index) if ($virus_names[3] =~ /\D/ or $virus_names[3] < 1979);
 	&addMessage("PARAMS", "metadata-virus-passage", "$projname Passage details/history is required." , $index) unless ( $opt{'metadata-virus-passage'}); 
 	&addMessage("PARAMS", "metadata-sample-collection-date", "$projname Collection date is required." , $index) unless ( $opt{'metadata-sample-collection-date'}); 
 	&addMessage("PARAMS", "metadata-sample-location", "$projname Location is required.", $index) unless ( $opt{'metadata-sample-location'}); 
