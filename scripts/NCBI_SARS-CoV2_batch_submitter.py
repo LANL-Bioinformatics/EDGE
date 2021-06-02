@@ -121,7 +121,23 @@ def set_viewport_size(driver, width, height):
 def quit_driver(driver,outdir):
         screenshot= driver.get_screenshot_as_file(outdir+"/exit_ncbi_screenshot.png")
         driver.quit()
-
+        
+def close_survey_popup(driver,rt, iv):
+    retry = 0
+    popupclose = False
+    while retry <= rt and popupclose == False:
+        try:
+            print("Trying to close popup ...")
+            popup = driver.find_elements_by_css_selector('.QSIPopOver')[0]
+            if popup:
+                print("Popup detected and closing popup ...")
+                popup.find_elements_by_xpath("//img")[1].click()
+                popupclose = True
+        except:
+            pass
+        retry += 1
+    return popupclose
+        
 def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMetadata, to, rt, iv, headless,debug):
 
         seqfile_abs = os.path.abspath(seqfile.name)
@@ -175,8 +191,9 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         singInButton.click()
 
         time.sleep(iv)
-
+        
         # navigate to  GenBank
+        close_survey_popup(driver,rt,iv)
         print("Navigating to GenBank Submission Page...")
         genbank_tab = driver.find_elements_by_xpath("//a[@href='/subs/genbank/'][contains(text(),'Submit')]")
         if (isinstance(genbank_tab, list)):
@@ -188,14 +205,13 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
         new_submission = wait.until(EC.element_to_be_clickable((By.ID,'id_sub_new')))
         new_submission.click()
         time.sleep(iv)
-
-
+        close_survey_popup(driver,rt,iv)
+        
         try:
                 createAnyway = driver.find_element_by_id('create-new-submission-anyway').click()
                 time.sleep(iv)
         except:
                 pass
-
         # Step 1: Submission Type
         # click on SARS-CoV-2 type
         print("1. Submission Type")
@@ -334,12 +350,12 @@ def fill_NCBI_upload(uname, upass, seqfile, source, comment , outdir, authorsMet
             if len(fullname) == 2:
                 driver.find_element_by_name(firstname_field).send_keys(fullname[0])
                 driver.find_element_by_name(lastname_field).send_keys(fullname[1])
-            if len(fullname) >= 2:
+            elif len(fullname) >= 2:
                 lastname = fullname.pop()
                 driver.find_element_by_name(firstname_field).send_keys(' '.join(fullname))
                 driver.find_element_by_name(lastname_field).send_keys(lastname)
-                driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
-                time.sleep(0.5)
+            driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
+            time.sleep(0.5)
 
         driver.find_elements_by_xpath("//ul[@id='id_reference-publication_status']//label")[0].click()
         driver.find_element_by_name('reference-reference_title').send_keys(metadata[list(metadata)[0]]['isolate'])
