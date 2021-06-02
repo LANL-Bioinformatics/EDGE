@@ -293,7 +293,7 @@ def fill_NCBI_upload(uname, upass, seqfile, metadata, outdir, to, rt, iv, headle
                 driver.find_element_by_name(lastname_field).send_keys(fullname[1])
             if len(fullname) >= 2:
                 lastname = fullname.pop()
-                driver.find_element_by_name(firstname_field).send_keys(' ',join(fullname))
+                driver.find_element_by_name(firstname_field).send_keys(' '.join(fullname))
                 driver.find_element_by_name(lastname_field).send_keys(lastname)
                 driver.find_elements_by_xpath( "//p[@class='add-row']/a")[0].click()
                 time.sleep(0.5)
