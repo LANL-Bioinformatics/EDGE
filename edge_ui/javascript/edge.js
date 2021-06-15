@@ -1279,7 +1279,9 @@ $( document ).ready(function()
 			actionContent = "Do you want to <span id='action_type'>UPDATE</span> project "+focusProjRealName+" sample metadata/pathogens in BSVE?";
 		}
 		//END sample metadata
-
+		if(action == "repangolin") {
+			actionContent = "Do you want to <span id='action_type'>RERUN</span> project "+focusProjRealName+" lineage assignment by Pangolin?";
+		}
 		if (action.indexOf("publish") < 0 && action.indexOf("bsve") < 0 ){
 		//if (action.indexOf("publish") < 0){
 			actionContent += "<p>This action can not be undone.</p>";
@@ -1431,7 +1433,7 @@ $( document ).ready(function()
 			complete: function() {
 				//$.mobile.loading( "hide" );
 				//sample metadata
-				if(action == 'metadata-delete') {
+				if(action == 'metadata-delete' || action == 'repangolin') {
 					updateReport(focusProjName);
 				} 
 				//NOTE: this change also affects other actions; need move it to if block?

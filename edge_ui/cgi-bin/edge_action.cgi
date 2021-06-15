@@ -168,6 +168,7 @@ if ( $umSystemStatus )
 		$permission->{getreadsbyref} = 1;
 		$permission->{takenotes} = 1;
 		$permission->{metadata} = 1;
+		$permission->{repangolin} = 1;
 	}
 	if ($userType =~ /admin/){
 		$permission->{updatesysprop} = 1;
@@ -1156,6 +1157,60 @@ elsif($action eq 'define-gap-depth'){
 	close $out;
 	rename("$sysconfig.tmp",$sysconfig);
 	chmod 0400, $sysconfig;
+
+}elsif($action eq 'repangolin'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	$info->{STATUS} = "FAILURE";
+	$info->{INFO}   = "Failed to rerun project $real_name pangolin analysis.";
+	
+  	my @pangolin_results = glob("$proj_dir/ReadsBasedAnalysis/readsMappingToRef/*_consensus_lineage.txt");
+	my @consensus_fasta = glob("$proj_dir/ReadsBasedAnalysis/readsMappingToRef/*_consensus.fasta");
+	if (! @consensus_fasta){
+		$info->{INFO} = "Project $real_name doesn't have consensus fasta.";
+		&returnStatus();
+	}
+	foreach my $pangolin_result (@pangolin_results){
+		my $date_str = strftime ("%Y%m%d", localtime( (stat $pangolin_result)[9] ));
+		copy($pangolin_result, "$pangolin_result.$date_str.bak");
+	}
+	my $pid = $name2pid->{$pname} || $name2pid->{$projCode};
+	my $cmd;
+	my $process_log="$proj_dir/process_current.log";
+	if( ! defined $pid ){
+		#unlink "$proj_dir/HTML_Report/.complete_report_web";
+		open LOG, "$process_log" or die "Can't open process log:$!.";
+		foreach(<LOG>){
+			chomp;
+			if( /pangolin / ){
+				$cmd .= $_;
+			}
+		}
+		close LOG;
+		open (my $fh,">","$proj_dir/repangolin.sh");
+		print $fh $cmd,"\n";
+		print $fh "rm -f $proj_dir/HTML_Report/.complete_report_web\n";
+		close $fh;
+		$cmd = "bash $proj_dir/repangolin.sh ";
+		#$cmd = "bash $proj_dir/repangolin.sh 2>\&1 1>>/dev/null &";
+		my $pid = open PANGO, "-|", $cmd  or die $!;
+		if (not defined $pid ){
+			$info->{INFO}   = "Failed to rerun pangolin analysis.";
+		}else{
+			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
+			$info->{INFO}   = "Rerun pangolin analysis complete.";
+		}
+		
+		#if($cluster) {
+		#}else{
+				
+		#}
+	}else{
+		$info->{INFO} = "Project $real_name can't be restarted because it's still running (PID: $pid).";
+	}
 
 }
 &returnStatus();
