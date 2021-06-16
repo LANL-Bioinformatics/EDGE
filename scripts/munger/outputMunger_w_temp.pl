@@ -2087,7 +2087,8 @@ sub parse_lineage{
 		next if(/^taxon,/);
 		#my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
 		my($cid,$lineage_assign,$conflict,$ambiguity_score, $scorpio_call, $scorpio_support, $scorpio_conlfict, $version, $pangolin_version, $pangoLEARN_version, $pango_version,$status,$note)=split/,/,$_;
-		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$lineage_assign&loc=USA'>$lineage_assign</a>";
+		my ($outbreak_info_search) = ($lineage_assign =~ /\//)?  split "/",$lineage_assign : $lineage_assign;
+		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$outbreak_info_search&loc=USA'>$lineage_assign</a>";
 		$lineage{$cid}->{lineage} = $lineage_assign;
 		$lineage{$cid}->{lineage_link} = $lineage_assign_link;
 		$lineage{$cid}->{conflict} = $conflict;
@@ -2100,14 +2101,15 @@ sub parse_lineage{
 		$lineage{$cid}->{pangoLEARN_version} = $pangoLEARN_version;
 		$lineage{$cid}->{pango_version} = $pango_version;
 		$lineage{$cid}->{status} = $status;
-		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ or $lineage_assign =~ /B.1.617/){
-			$note .= "; VOC"; 
-			$lineage{$cid}->{warning} = "VOC";
-		}
-		if ($lineage_assign =~ /B.1.526/ or $lineage_assign eq 'P.2' or $lineage_assign =~ /B.1.525/){
-			$note .= "; VOI"; 
+		if ($lineage_assign =~ /B.1.526/ or $lineage_assign eq 'P.2' or $lineage_assign =~ /B.1.525/ or $lineage_assign =~ /B.1.617/){
+			$note .= "; VOI";
 			$lineage{$cid}->{warning} = "VOI";
 		}
+		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ or $lineage_assign =~ /B.1.617.2/){
+			$note .= "; VOC";
+			$lineage{$cid}->{warning} = "VOC";
+		}
+
 		$lineage{$cid}->{note} = $note;
 	}
 	close $fh;
