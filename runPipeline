@@ -2930,7 +2930,7 @@ sub open_file
     my ($file) = @_;
     my $fh;
     my $pid;
-    if ( $file=~/\.gz$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
+    if ( $file=~/\.gz\.?\d?$/i ) { $pid=open($fh, "gunzip -c $file |") or die ("gunzip -c $file: $!"); }
     else { $pid=open($fh,'<',$file) or die("$file: $!"); }
     return ($fh,$pid);
 }
