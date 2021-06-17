@@ -256,7 +256,7 @@ $( document ).ready(function()
                 	});
 
 		}else if ( action == 'batch-upload2gisaid' ){
-                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAI and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
+                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAID and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
                         $("#edge_confirm_dialog_content").html(actionContent);
                         $('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
                         $("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
@@ -450,7 +450,7 @@ $( document ).ready(function()
 				gisaid_actions(proj,formDom,action,projname);
                 	});
 		}else if ( action == 'upload2gisaid' ){
-                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAI and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
+                        var actionContent =  'By clicking the "Confirm" button, you hereby authorize EDGE-COVID19 to submit the consensus genomes and metadata to the GISAID and NCBI Genbank, and agree to remit the samples and related metadata to the public domain.</p>';
                         $("#edge_confirm_dialog_content").html(actionContent);
                         $('#edge_confirm_dialog').enhanceWithin().popup('open').css('width','480px');
                         $("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
