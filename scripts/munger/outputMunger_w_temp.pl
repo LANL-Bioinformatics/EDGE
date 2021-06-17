@@ -2092,7 +2092,7 @@ sub parse_lineage{
 		$lineage{$cid}->{lineage} = $lineage_assign;
 		$lineage{$cid}->{lineage_link} = $lineage_assign_link;
 		$lineage{$cid}->{conflict} = $conflict;
-		$lineage{$cid}->{ambiguity_score} = $ambiguity_score;
+		$lineage{$cid}->{ambiguity_score} = ($ambiguity_score)? sprintf("%.2f",$ambiguity_score): "";
 		$lineage{$cid}->{scorpio_call} = $scorpio_call;
 		$lineage{$cid}->{scorpio_support} = $scorpio_support;
 		$lineage{$cid}->{scorpio_conlfict} = $scorpio_conlfict;
