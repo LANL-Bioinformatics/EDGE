@@ -2460,7 +2460,8 @@ sub pull_summary {
 	if ($vars->{LOG_qiime_SW}){
 		open PROC_CUR, "<", "$out_dir/QiimeAnalysis/processLog.txt" or die $!;
 	}else{
-		open PROC_CUR, "<", "$out_dir/process_current.log" or die $!;
+		my $log = ( -e "$out_dir/process_current.log")? "$out_dir/process_current.log": "$out_dir/process.log";
+		open PROC_CUR, "<", $log or die $!;
 	}
 	while(<PROC_CUR>) {
 		chomp;
