@@ -289,7 +289,7 @@ echo "
 }
 
 install_lrasm(){
-local VER=0.2.0
+local VER=0.3.0
 echo "------------------------------------------------------------------------------
                            Installing long_read_assembly $VER
 ------------------------------------------------------------------------------
@@ -2171,13 +2171,13 @@ fi
 #   install_aragorn
 # fi
 
-if ( checkSystemInstallation tbl2asn.orig )
-then
-  echo "tbl2asn is found"
-else
-  echo "tbl2asn is not found"
-  install_tbl2asn
-fi
+#if ( checkSystemInstallation tbl2asn.orig )
+#then
+#  echo "tbl2asn is found"
+#else
+#  echo "tbl2asn is not found"
+#  install_tbl2asn
+#fi
 
 # if ( checkLocalInstallation ShortBRED/shortbred_quantify.py )
 # then
