@@ -58,7 +58,15 @@ my $cluster_job_resource= $sys->{cluster_job_resource};
 my $cluster_job_max_cpu= $sys->{cluster_job_max_cpu};
 my $cluster_job_notify = $sys->{cluster_job_notify};
 my $cluster_job_prefix = $sys->{cluster_job_prefix};
-my $cluster_tmpl = $scheduler eq 'slurm'? "$RealBin/../cluster/clusterSubmit_slurm.tmpl": "$RealBin/../cluster/clusterSubmit.tmpl";
+my $cluster_tmpl = NULL;
+if ($scheduler eq 'slurm') {
+	$cluster_tmpl = "$RealBin/../cluster/clusterSubmit_slurm.tmpl";
+} elsif ($scheduler eq 'sge') {
+	$cluster_tmpl = "$RealBin/../cluster/clusterSubmit.tmpl";
+} elsif ($scheduler eq 'pbs') {
+	$cluster_tmpl = "$RealBin/../cluster/clusterSubmit_pbs.tmpl";
+}
+# my $cluster_tmpl = $scheduler eq 'slurm'? "$RealBin/../cluster/clusterSubmit_slurm.tmpl": "$RealBin/../cluster/clusterSubmit.tmpl";
 &LoadSGEenv($sys) if ($cluster);
 
 $sys->{edgeui_input} = "$sys->{edgeui_input}"."/$webhostname" if ( -d "$sys->{edgeui_input}/$webhostname");
@@ -663,6 +671,10 @@ sub runPipeline_cluster {
 				s/<JOB_NOTIFY>/$cluster_job_notify,$username/;
 			} elsif (/<JOB_LOG>/) {
 				s/<JOB_LOG>/$cluster_job_log/;
+			} elsif (/<EDGE_INPUT>/){
+				s/<EDGE_INPUT>/$sys->{edgeui_input}/;
+			} elsif (/<EDGE_OUTPUT>/){
+				s/<EDGE_OUTPUT>/$sys->{edgeui_output}/;
 			} elsif (/<COMMAND>/) {
 				s/<COMMAND>/$cmd/;
 			}

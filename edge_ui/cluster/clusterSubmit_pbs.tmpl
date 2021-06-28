@@ -1,0 +1,14 @@
+#PBS -S /bin/sh
+#PBS -N <JOB_NAME>
+#PBS -l <JOB_RESOURCE_REQUEST>
+#PBS -m a
+#PBS -M <JOB_NOTIFY>
+#PBS -j y
+#PBS -o <JOB_LOG>
+
+module load singularity-3.6.2-gcc-10.1.0-python3-5ilgcmq
+umask 002
+
+export _JAVA_OPTIONS="-Xmx512M -XX:MaxPermSize=512m"
+
+singularity exec --bind <EDGE_INPUT>:/home/edge/EDGE_input --bind <EDGE_OUTPUT>:/home/edge/EDGE_output <COMMAND>

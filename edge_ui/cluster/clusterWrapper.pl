@@ -12,6 +12,9 @@ sub LoadSGEenv {
 	if ($sys->{slurm_bin}){
 		$ENV{PATH} = "$ENV{PATH}:$sys->{slurm_bin}";
 	}
+	if ($sys->{pbs_bin}){
+		$ENV{PATH} = "$ENV{PATH}:$sys->{pbs_bin}";
+	}
         $ENV{SGE_ROOT} = "$sys->{sge_root}";
         $ENV{SGE_CELL} = "$sys->{sge_cell}";
         $ENV{SGE_CLUSTER_NAME} = "$sys->{sge_cluster_name}";
