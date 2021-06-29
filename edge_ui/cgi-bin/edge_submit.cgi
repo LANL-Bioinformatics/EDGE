@@ -673,7 +673,6 @@ sub runPipeline_cluster {
 				s/<JOB_LOG>/$cluster_job_log/;
 			} elsif (/<EDGE_INPUT>/){
 				s/<EDGE_INPUT>/$sys->{edgeui_input}/;
-			} elsif (/<EDGE_OUTPUT>/){
 				s/<EDGE_OUTPUT>/$sys->{edgeui_output}/;
 			} elsif (/<COMMAND>/) {
 				s/<COMMAND>/$cmd/;
