@@ -151,7 +151,7 @@ def go(args):
 
         p1 = find_primer(bed, s.reference_start, '+', refname)
         p2 = find_primer(bed, s.reference_end, '-',refname)
-        
+        #half-open notation for s.reference_start, s.reference_end
         report = "%s\t%s\t%s\t%s_%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (s.query_name, s.reference_start, s.reference_end, p1[2]['Primer_ID'], p2[2]['Primer_ID'], p1[2]['Primer_ID'], abs(p1[1]), p2[2]['Primer_ID'], abs(p2[1]), s.is_secondary, s.is_supplementary, p1[2]['start'], p2[2]['end'])
 #SRR11085797.8084709	14	165	nCoV-2019_1_LEFT_nCoV-2019_1_RIGHT	nCoV-2019_1_LEFT	16	nCoV-2019_1_RIGHT	245	False	False	30	385
         if args.report:
@@ -170,16 +170,17 @@ def go(args):
             else:
                 primer_position = p1[2]['end']
             
+            
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
-                        if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <=  p1[2]['end']:
+                        if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <  p1[2]['end']:
                             trim(cigar, s, primer_position, 0)
                     else:
-                        if s.reference_start < primer_position:
+                        if s.reference_start < primer_position and s.reference_end >= primer_position:
                             trim(cigar, s, primer_position, 0)
                 else: ## unpaired reads
-                    if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <=  p1[2]['end']:
+                    if not s.is_reverse and s.reference_start >= p1[2]['start'] and s.reference_start <  p1[2]['end']:
                         trim(cigar, s, primer_position, 0)
             else:
                 if s.reference_start < primer_position:
@@ -197,13 +198,13 @@ def go(args):
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
-                        if s.is_reverse and s.reference_end >=  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                        if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  p2[2]['start']:
                             trim(cigar, s, primer_position, 1)
                     else:
-                        if s.reference_end > primer_position:
+                        if s.reference_end > primer_position and s.reference_start < primer_position:
                             trim(cigar, s, primer_position, 1)
                 else: ## unpaired reads
-                    if s.is_reverse and s.reference_end >=  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                    if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
                         trim(cigar, s, primer_position, 1)
             else:
                 if s.reference_end > primer_position:
