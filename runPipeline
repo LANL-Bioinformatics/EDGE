@@ -1754,6 +1754,7 @@ sub variantAnalysis
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.Indels_report.txt > $r2g_outputDir/readsToRef.Indels_report.json";
     &executeCommand($cmd) if ( -s "$r2g_outputDir/readsToRef.Indels_report.txt" );
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.SNPs_report.txt > $r2g_outputDir/readsToRef.SNPs_report.json";
+    &executeCommand($cmd) if ( -s "$r2g_outputDir/readsToRef.SNPs_report.txt" );
     &touchFile("$outputDir/variantAnalysis.finished") if ( -e $outputDir);
     &touchFile("$r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;
