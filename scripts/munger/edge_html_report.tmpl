@@ -778,12 +778,12 @@
 									</TMPL_UNLESS>
 									<td class="edge-with-small-icon"><TMPL_VAR NAME=RMCONSNP DEFAULT=0>
 									<TMPL_IF NAME="RMCONSTOPCODON">
-									<a title="<TMPL_VAR NAME=RMCONSTOPCODONINFO>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon" target="_new" href="<TMPL_VAR NAME=RMCONSNPREPORT>">STOPCODONWARNING</a>
+									<a title="<TMPL_VAR NAME=RMCONSTOPCODONINFO>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon edge-output-datatables" href='#edge-output-datatables-dialog' data-rel='popup' data-position-to="window" data-src="<TMPL_VAR NAME=RMCONSNPREPORT>">STOPCODONWARNING</a>
 									</TMPL_IF>
 									</td>
 									<td title="Bases: <TMPL_VAR NAME=RMCONINDELINFO DEFAULT=->" class="edge-with-small-icon"><TMPL_VAR NAME=RMCONINDEL DEFAULT=0>
 									<TMPL_IF NAME="RMCONFRAMESHIFT">
-									<a title="<TMPL_VAR NAME=RMCONFRAMESHIFTINFO>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon" target="_new" href="<TMPL_VAR NAME=RMCONIDNELREPORT>">FRAMESHIFTWARNING</a>
+									<a title="<TMPL_VAR NAME=RMCONFRAMESHIFTINFO>" class="ui-btn edge-icon-bg-orange ui-shadow ui-corner-all ui-icon-alert ui-btn-icon-notext my-tooltip-btn edge-upright-tooltip-icon edge-output-datatables" href='#edge-output-datatables-dialog' data-rel='popup' data-position-to="window" data-src="<TMPL_VAR NAME=RMCONIDNELREPORT>">FRAMESHIFTWARNING</a>
 									</TMPL_IF>
 									</td>
 									<td title="<TMPL_VAR NAME=RMCONLINEAGEINFO DEFAULT=->" class="edge-with-small-icon"><TMPL_VAR NAME=RMCONLINEAGE DEFAULT=->
@@ -881,10 +881,10 @@
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef_plots.pdf'> All Plots PDF </a>
 
 								<TMPL_IF NAME="RMREFSNPFILE">
-								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNV Report </a>
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.json'> SNV Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFINDELFILE">
-								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt'> INDELs Report </a>
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.json'> INDELs Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFGAPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>

@@ -6,8 +6,10 @@
 * update VOC and VOI
 * update pangolin to 3.1.5 and its dependencies
 * add artic protocol primer scheme v4 for align_trim
+* SNV_report and INDEL_report display in pop up table
 * fix bug: align_trim deal with short amplicon and off by 1 issue
 * fix bug: deletion check condition. at least covTresh on previous delete event
+* fix bug: consensus off by 1 bug when deletion detected after any insertion event. 
 
 ## build 20210607
 * add early stop codon aa substitution warning

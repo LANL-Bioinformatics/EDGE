@@ -1856,6 +1856,10 @@ sub pull_readmapping_ref {
 	my $ref_display_limit = 100;
 	my $ref_display_limit_plot = 4;
 	my $ref;
+	my $SNPs_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
+	my $SNPs_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.json";
+	my $indels_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt";
+	my $indels_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.json";
 	my $proj_realname = $vars->{PROJNAME};
 	my $consensus_length_recommand=25000;
 	my $consensus_dpcov_recommand=10;
@@ -1905,11 +1909,11 @@ sub pull_readmapping_ref {
 			my $consensus_file_compsition = "$consensus_file.comp";
 			my $consensus_ambiguous_file_compsition = "$consensus_ambiguous_file.comp";
 			my $consensus_indels_report =  "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.Indels_report.txt";
+			my $consensus_indels_report_json =  "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.Indels_report.json";
 			my $consensus_SNPs_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.SNPs_report.txt";
+			my $consensus_SNPs_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.SNPs_report.json";
 			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
-			$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report if ( -r $consensus_indels_report);
-			$refinfo->{"RMCONSNPREPORT"} = $consensus_SNPs_report if ( -r $consensus_SNPs_report);
 			if ( -e $consensus_file ){
 				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
@@ -1966,10 +1970,25 @@ sub pull_readmapping_ref {
 			if ( -e $consensus_ambiguous_file_compsition){
 				 $refinfo->{"RMREFAMBCONSENSUSINFO"} = "*With Ambiguous* ". &consensus_composition_info($consensus_ambiguous_file_compsition,$temp[0]);
 			}
+			if ($consensus_indels_report and ! -e $consensus_indels_report_json){
+				system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$consensus_indels_report_json,$consensus_indels_report);
+				$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report_json;
+			}
+			if ($consensus_SNPs_report and ! -e $consensus_SNPs_report_json){
+				system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$consensus_SNPs_report_json,$consensus_SNPs_report);
+				$refinfo->{"RMCONSNPREPORT"} = $consensus_SNPs_report_json;
+			}
+		        	
 			$ref->{$temp[0]}=$refinfo;
 		}
 	}
 	close($reffh);
+	if ($indels_report and ! -e $indels_report_json){
+		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$indels_report_json,$indels_report);
+	}
+	if ($SNPs_report and ! -e $SNPs_report_json){
+		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$SNPs_report_json,$SNPs_report);
+	}
 	#$vars->{RMAVEFOLD} = sprintf "%.2f", $tol_mapped_bases/$tol_ref_len;
 	#$vars->{RMREFCOV} = sprintf "%.2f", $tol_non_gap_bases/$tol_ref_len*100;
 	#$vars->{RMSNPS} = $tol_snps;
@@ -1998,8 +2017,8 @@ sub pull_readmapping_ref {
 	$vars->{RMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{RMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
 	$vars->{RMREFSNPFILE}     = 0;
-	$vars->{RMREFSNPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
-	$vars->{RMREFINDELFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt";
+	$vars->{RMREFSNPFILE}     = 1 if -e $SNPs_report;
+	$vars->{RMREFINDELFILE}     = 1 if -e "$indels_report";
 	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
 	$vars->{RMREFVARCALL}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 	$vars->{RMREFCONSENSUS_SW}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
@@ -2101,11 +2120,11 @@ sub parse_lineage{
 		$lineage{$cid}->{pangoLEARN_version} = $pangoLEARN_version;
 		$lineage{$cid}->{pango_version} = $pango_version;
 		$lineage{$cid}->{status} = $status;
-		if ($lineage_assign =~ /B.1.526/ or $lineage_assign eq 'P.2' or $lineage_assign =~ /B.1.525/ or $lineage_assign =~ /B.1.617/){
+		if ($lineage_assign =~ /B.1.526/ or $lineage_assign eq 'P.2' or $lineage_assign =~ /B.1.525/ or $lineage_assign =~ /B.1.617/  or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/){
 			$note .= "; VOI";
 			$lineage{$cid}->{warning} = "VOI";
 		}
-		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/ or $lineage_assign =~ /B.1.617.2/){
+		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/  or $lineage_assign =~ /B.1.617.2/){
 			$note .= "; VOC";
 			$lineage{$cid}->{warning} = "VOC";
 		}

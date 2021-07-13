@@ -100,7 +100,8 @@ while(<$fh>){
 		$array[0]="<a href='JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA&loc=$array[0]%3A$start..$end' target='_blank'>$array[0]</a>" if ($projname);
 	}
 	shift @array if ($mode eq "feature_count");
-	foreach my $i (0..$#array){
+	foreach my $i (0..$#headers){
+		$array[$i] = "" if (!$array[$i]);
 		$array[$i] =~ s/^\"|\"$//g;
 		$array[$i] = ($array[$i] !~ /\D/ && $array[$i] =~ /\d+\.\d+/)? sprintf("%.4f",$array[$i]):$array[$i];
 		$data->{$headers[$i]}=$array[$i];
