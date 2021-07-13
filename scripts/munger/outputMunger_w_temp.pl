@@ -1972,12 +1972,12 @@ sub pull_readmapping_ref {
 			}
 			if ($consensus_indels_report and ! -e $consensus_indels_report_json){
 				system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$consensus_indels_report_json,$consensus_indels_report);
-				$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report_json;
 			}
 			if ($consensus_SNPs_report and ! -e $consensus_SNPs_report_json){
 				system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$consensus_SNPs_report_json,$consensus_SNPs_report);
-				$refinfo->{"RMCONSNPREPORT"} = $consensus_SNPs_report_json;
 			}
+			$refinfo->{"RMCONIDNELREPORT"} = $consensus_indels_report_json if ( -e $consensus_indels_report_json);
+			$refinfo->{"RMCONSNPREPORT"} = $consensus_SNPs_report_json if ( -e $consensus_SNPs_report_json );
 		        	
 			$ref->{$temp[0]}=$refinfo;
 		}
