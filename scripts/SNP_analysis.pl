@@ -535,8 +535,8 @@ sub process_snp_file
              } 
              $ref_aa= $myCodonTable->translate($ref_codon);
              $snp_aa= $myCodonTable->translate($snp_codon);
-    
-             my $synonymous = ($ref_aa eq $snp_aa)? "Yes":"No";
+             my $codon_index =  int(($ref_pos - $start)/3) + 1;
+             my $synonymous = ($ref_aa eq $snp_aa)? "Yes":"$ref_aa$codon_index$snp_aa";
              
              if (scalar (@snps)>1){
                $snps{$ref_pos}->{snp_aa}.=$snp_aa.",";

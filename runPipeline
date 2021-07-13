@@ -1738,6 +1738,12 @@ sub variantAnalysis
       $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $ambiguous_log $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
+
+      $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.SNPs_report.txt > $r2g_outputDir/${prefix}.SNPs_report.json";
+      &executeCommand($cmd) if ( -s "$r2g_outputDir/${prefix}.SNPs_report.txt" );
+      $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.Indels_report.txt > $r2g_outputDir/${prefix}.Indels_report.json";
+      &executeCommand($cmd) if ( -s "$r2g_outputDir/${prefix}.Indels_report.txt" );
+
       unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
       unlink $ambiguous_log;
     }
@@ -1745,6 +1751,9 @@ sub variantAnalysis
     &printRunTime($time);
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );
+    $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.Indels_report.txt > $r2g_outputDir/readsToRef.Indels_report.json";
+    &executeCommand($cmd) if ( -s "$r2g_outputDir/readsToRef.Indels_report.txt" );
+    $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.SNPs_report.txt > $r2g_outputDir/readsToRef.SNPs_report.json";
     &touchFile("$outputDir/variantAnalysis.finished") if ( -e $outputDir);
     &touchFile("$r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;

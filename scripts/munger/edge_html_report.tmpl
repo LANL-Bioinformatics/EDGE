@@ -615,7 +615,7 @@
 			<TMPL_IF NAME="OUT_R2G_SW">
 				<li id="r2gTag"><span class="li-report-content-title">Reads Mapped to Reference(s)</span><div class="li-report-content">
 					<ol>
-						<li><span class="li-report-content-title">Mapped Reads</span><div class="li-report-content">
+						<li><span class="li-report-content-title">Mapped Reads By <TMPL_VAR NAME=RMREFALIGNER></span><div class="li-report-content">
 							<!--<table data-role='table' class='output-table output-table-twocol ui-responsive'>
 							  <thead>
 								<tr>
@@ -733,7 +733,7 @@
 								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef_plots.pdf'> All Plots PDF </a>
 
 								<TMPL_IF NAME="RMREFSNPFILE">
-								|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt'> SNV Report </a>
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.json'> SNV Report </a>
 								</TMPL_IF>
 								<TMPL_IF NAME="RMREFGAPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>

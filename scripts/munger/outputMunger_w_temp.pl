@@ -727,7 +727,7 @@ sub pull_sampleMetadata {
 		}
         	close CONF;
 		pull_other();
-        	if($vars->{SMD_TYPE} eq "human") {
+        	if($vars->{SMD_TYPE} and $vars->{SMD_TYPE} eq "human") {
 				pull_travels();
 				pull_symptoms();
 		}
@@ -1827,6 +1827,10 @@ sub pull_readmapping_ref {
 	my $ref_display_limit_plot = 4;
 	my $ref;
 	my $proj_realname = $vars->{PROJNAME};
+	my $SNPs_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
+	my $SNPs_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.json";
+	my $indels_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.txt";
+	my $indels_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.json";
 
 	open(my $reffh, "<", "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt") or die $!;
 	while(<$reffh>) {
@@ -1875,6 +1879,12 @@ sub pull_readmapping_ref {
 		}
 	}
 	close($reffh);
+	if ($indels_report and ! -e $indels_report_json){
+		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$indels_report_json,$indels_report);
+	}
+	if ($SNPs_report and ! -e $SNPs_report_json){
+		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$SNPs_report_json,$SNPs_report);
+	}
 	#$vars->{RMAVEFOLD} = sprintf "%.2f", $tol_mapped_bases/$tol_ref_len;
 	#$vars->{RMREFCOV} = sprintf "%.2f", $tol_non_gap_bases/$tol_ref_len*100;
 	#$vars->{RMSNPS} = $tol_snps;
@@ -1903,7 +1913,7 @@ sub pull_readmapping_ref {
 	$vars->{RMREFTOLREFHASHIT} = $tol_ref_hashit;
 	$vars->{RMREFTABLENOTE} = "Only top $ref_display_limit results in terms of \"Base Recovery %\" are listed in the table." if $tol_ref_number > $ref_display_limit;
 	$vars->{RMREFSNPFILE}     = 0;
-	$vars->{RMREFSNPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.txt";
+	$vars->{RMREFSNPFILE}     = 1 if -e "$SNPs_report";
 	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
 	$vars->{RMREFVARCALL}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 	$vars->{RMREFCONSENSUS_SW}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
@@ -2019,6 +2029,9 @@ sub pull_summary {
 		}
 		if (/^assembler=(.*)/){
 			$vars->{ASSEMBLER}=$1;
+		}
+		if (/r2g_aligner=(.*)/){
+			$vars->{RMREFALIGNER}=$1;
 		}
 		if (/^assembledContigs=(.*)/){
 			$vars->{ASSEMBLEDCONTIG}=$1;
@@ -2176,7 +2189,7 @@ sub pull_summary {
 		open PROC_CUR, "<", "$out_dir/QiimeAnalysis/processLog.txt" or die $!;
 	}else{
 		my $log = ( -e "$out_dir/process_current.log")? "$out_dir/process_current.log": "$out_dir/process.log";
-		open PROC_CUR, "<", $log or die $!;
+		open PROC_CUR, "<", "$log" or die $!;
 	}
 	while(<PROC_CUR>) {
 		chomp;
