@@ -735,6 +735,9 @@
 								<TMPL_IF NAME="RMREFSNPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.SNPs_report.json'> SNV Report </a>
 								</TMPL_IF>
+								<TMPL_IF NAME="RMREFINDELFILE">
+								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/readsToRef.Indels_report.json'> INDELs Report </a>
+								</TMPL_IF>
 								<TMPL_IF NAME="RMREFGAPFILE">
 								|<a href='#edge-output-datatables-dialog' class='edge-output-datatables'      data-rel='popup' data-position-to="window" data-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json'> Gap Table </a>
 								</TMPL_IF>
