@@ -154,6 +154,10 @@ $( document ).ready(function()
 			dataType:"json",
 			beforeSend: function(){
 				$('#edge-output-datatable-spinner').addClass("edge-sp edge-sp-circle");;
+				if ($.fn.DataTable.isDataTable("#edge-output-datatable")) {
+                                        $('#edge-output-datatable').DataTable().clear().destroy();
+                                        $('#edge-output-datatable').empty();
+                                }
 			},
 			complete: function(){
 			},
@@ -189,8 +193,8 @@ $( document ).ready(function()
 				}
 				$('#edge-output-datatables-dialog').popup("reposition",{positionTo: 'window'});
     				$('#edge-output-datatables-dialog').on("popupafterclose", function( event, ui ) {
-							datatable.destroy();
-							$('#edge-output-datatable').empty();
+				//			datatable.destroy();
+				//			$('#edge-output-datatable').empty();
 				});
 			},
 			error:function(x,t,m){
