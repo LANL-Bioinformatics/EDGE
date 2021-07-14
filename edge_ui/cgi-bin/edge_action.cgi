@@ -50,6 +50,7 @@ my $domain	= $ENV{'HTTP_HOST'};
 my $EDGE_HOME = $ENV{EDGE_HOME};
 $EDGE_HOME ||= "$RealBin/../..";
 $ENV{PATH} = "$EDGE_HOME/bin:$ENV{PATH}";
+$ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$EDGE_HOME/lib:$EDGE_HOME/lib/perl5:$EDGE_HOME/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$EDGE_HOME/lib:$EDGE_HOME/lib/perl5:$EDGE_HOME/lib/perl5/x86_64-linux-thread-multi";
 
 $pname      ||= $ARGV[0];
 $action     ||= $ARGV[1];
