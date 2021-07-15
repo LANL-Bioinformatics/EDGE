@@ -854,6 +854,12 @@ sub checkParams {
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
 			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
+			if ( $projlist->{$pname}->{"q1"} and ! $projlist->{$pname}->{"q2"}){
+                                &addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
+                        }
+                        if ( ! $projlist->{$pname}->{"q1"} and $projlist->{$pname}->{"q2"}){
+                                &addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
+                        }
 			$projlist->{$pname}->{"reference"} = "$input_dir/$projlist->{$pname}->{'reference'}" if ($projlist->{$pname}->{"reference"} =~ /^\w/ && $projlist->{$pname}->{"reference"} !~ /^http|ftp/i);
 			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
 			foreach my $i (0..$#single_files){
