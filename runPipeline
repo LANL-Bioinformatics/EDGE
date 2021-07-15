@@ -1941,6 +1941,7 @@ sub runAnnotation
     my $outFAA="$outputDir_abs_path/$project_name.faa";
     my $outFNA="$outputDir_abs_path/$project_name.fna";
     my $customHMM = $configuration->{customHMM};
+    my $evalue = $configuration->{annotation_evalue};
     my $log = "$outputDir/Annotation.log"; 
     my $gff_plot_log = "$outputDir/plot_gff3.log"; 
     my $kegg_map_log = "$outputDir/kegg_map.log";
@@ -2001,7 +2002,8 @@ sub runAnnotation
 			&executeCommand($cmd);
 		}
 	}
-        $cmd = "$RealBin/bin/prokka --quiet --force $hmm_file --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
+        my $evalue_option = ($evalue)? "--evalue $evalue":"";
+        $cmd = "$RealBin/bin/prokka --quiet --force $hmm_file $evalue_option --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
     }
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);

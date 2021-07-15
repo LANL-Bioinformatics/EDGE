@@ -480,7 +480,7 @@ sub createConfig {
 						$opt{"edge-r2g-max-clip"}= 50;
 						$opt{"edge-r2g-con-min-baseQ"}= 20;
 						$opt{"edge-r2g-con-altIndel-prop"} = 0.5 ;
-						$opt{"edge-r2g-con-disableBAQ"}= 0 ;
+						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
 						$opt{"edge-r2g-aligner"} = 'bwa' ;
 						$opt{"edge-r2c-aligner"} = 'bwa' ;
 						$opt{"edge-assembler"} = 'idba_ud' if $opt{"edge-assembler"} eq 'lrasm' ; 
@@ -1305,6 +1305,10 @@ sub checkParams {
 			 $opt{"edge-anno-source-file"}  = $input_dir."/".$opt{"edge-anno-source-file"} if ( $opt{"edge-anno-source-file"} =~ /^\w/);
 			&addMessage("PARAMS","edge-anno-source-file","File not found. Please provide the Genbank Source File") if ( ! $opt{"edge-anno-source-file"} );
 			&addMessage("PARAMS","edge-anno-source-file","Invalid input. Genbank format required") if ( -e $opt{"edge-anno-source-file"} && ! is_genbank($opt{"edge-anno-source-file"}) );
+		}
+		$opt{"edge-anno-evalue"} =~ s/\s+//g;
+		if ($opt{"edge-anno-evalue"} =~ /[^0-9e\-\. ]/){
+			&addMessage("PARAMS","edge-anno-evalue","Invalid input. Please use E Notation (ex: 1e-09) or float number");
 		}
 	}
 	if ( $opt{"edge-blast-sw"} ){
