@@ -456,7 +456,7 @@ sub createConfig {
 					$opt{"edge-sra-acc"} = uc $projlist->{$pname}->{"sra"};
 					$opt{"edge-sra-sw"} = 1;
 					&loadSRAinfoToOpt($sra_info,$real_names[$i]);
-					if ( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /nanopore|minion|pacbio/i ){
+					if ( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /nanopore|minion/i ){
 						$opt{"edge-fastq-source"} = "nanopore";
 						$opt{"edge-qc-minl"} = 350;
 						$opt{"edge-qc-q"} = 7;
@@ -464,20 +464,33 @@ sub createConfig {
 						$opt{"edge-r2g-max-clip"}= 150;
 						$opt{"edge-r2g-con-min-baseQ"}= 5;
 						$opt{"edge-r2g-con-altIndel-prop"} = 0.8 ;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.6 if ($opt{"edge-porechop-sw"});
 						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
 						$opt{"edge-r2g-aligner"} = 'minimap2' ;
 						$opt{"edge-r2c-aligner"} = 'minimap2' ;
 						$opt{"edge-assembler"} = 'lrasm' ;
 						$opt{"edge-r2g-variantcall-sw"} = 0;
 						$opt{"edge-lrasm-preset"} = "ont";
-						if( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i){
-							$opt{"edge-qc-sw"}=0;
-							$opt{"edge-r2c-aligner-options"} = "-x map-pb";
-							$opt{"edge-r2g-aligner-options"} = "-x map-pb";
-							$opt{"edge-lrasm-preset"} = "pb";
-						}
+					} elsif ( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i ){
+						$opt{"edge-fastq-source"} = "pacbio";
+						$opt{"edge-qc-sw"}=0;
+						$opt{"edge-qc-minl"} = 350;
+						$opt{"edge-qc-q"} = 7;
+						$opt{"splitrim-minq"}= 7 ;
+						$opt{"edge-r2g-max-clip"}= 150;
+						$opt{"edge-r2g-con-min-baseQ"}= 5;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.8 ;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.6 if ($opt{"edge-porechop-sw"});
+						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
+						$opt{"edge-r2g-aligner"} = 'minimap2' ;
+						$opt{"edge-r2c-aligner"} = 'minimap2' ;
+						$opt{"edge-r2c-aligner-options"} = "-x map-pb";
+						$opt{"edge-r2g-aligner-options"} = "-x map-pb";
+						$opt{"edge-assembler"} = 'lrasm' ;
+						$opt{"edge-r2g-variantcall-sw"} = 0;
+						$opt{"edge-lrasm-preset"} = "pb";
 					}else{ # illumina
-						$opt{"edge-fastq-source"} = "not";
+						$opt{"edge-fastq-source"} = "illumina";
 						$opt{"edge-qc-minl"} = 50;
 						$opt{"edge-qc-q"} = 20;
 						$opt{"splitrim-minq"}= 20 ;
@@ -855,11 +868,11 @@ sub checkParams {
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
 			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
 			if ( $projlist->{$pname}->{"q1"} and ! $projlist->{$pname}->{"q2"}){
-                                &addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
-                        }
-                        if ( ! $projlist->{$pname}->{"q1"} and $projlist->{$pname}->{"q2"}){
-                                &addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
-                        }
+				&addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;	
+			}
+			if ( ! $projlist->{$pname}->{"q1"} and $projlist->{$pname}->{"q2"}){
+				&addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;	
+			}
 			$projlist->{$pname}->{"reference"} = "$input_dir/$projlist->{$pname}->{'reference'}" if ($projlist->{$pname}->{"reference"} =~ /^\w/ && $projlist->{$pname}->{"reference"} !~ /^http|ftp/i);
 			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
 			foreach my $i (0..$#single_files){
@@ -1269,18 +1282,7 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-primer-adj-len-min", "Invalid input. Natural number required.") unless $opt{"edge-primer-adj-len-min"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-primer-adj-len-opt", "Invalid input. Length is not in the range.") if $opt{"edge-primer-adj-len-opt"} > $opt{"edge-primer-adj-len-max"} || $opt{"edge-primer-adj-len-opt"} < $opt{"edge-primer-adj-len-min"};
 	}
-	if ( $opt{"edge-qc-sw"} ){
-		&addMessage("PARAMS", "edge-qc-q",          "Invalid input. Natural number required.")     unless $opt{"edge-qc-q"}    =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-avgq",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-avgq"} =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-minl",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-minl"} =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-n",          "Invalid input. Natural number required.")     unless $opt{"edge-qc-n"}    =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-lc",         "Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qc-lc"} >=0 && $opt{"edge-qc-lc"} <=1 );
-		$opt{"edge-qc-adapter"} = $input_dir."/".$opt{"edge-qc-adapter"} if ($opt{"edge-qc-adapter"} =~ /^\w/);
-		&addMessage("PARAMS", "edge-qc-adapter",    "File not found. Please check the file path.") if ( $opt{"edge-qc-adapter"} && ! -e $opt{"edge-qc-adapter"} );
-		#&addMessage("PARAMS", "edge-qc-phix",       "Invalid input.")                              unless $opt{"edge-qc-phix"} =~ /(0|1)/;
-		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
-		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
+	if ($opt{"edge-pp-sw"}){
 		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
@@ -1296,8 +1298,19 @@ sub checkParams {
 		if ($opt{"edge-porechop-sw"} && !$opt{"edge-r2g-align-trim-sw"}){
 			$opt{"edge-qc-adapter"}="$EDGE_HOME/edge_ui/data/".$opt{"edge-porechop-sw"}. ".fasta";
 		}
-
-
+	}
+	if ( $opt{"edge-qc-sw"} ){
+		&addMessage("PARAMS", "edge-qc-q",          "Invalid input. Natural number required.")     unless $opt{"edge-qc-q"}    =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-avgq",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-avgq"} =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-minl",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-minl"} =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-n",          "Invalid input. Natural number required.")     unless $opt{"edge-qc-n"}    =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-lc",         "Invalid input. Floating number between 0 and 1 required.") unless ( $opt{"edge-qc-lc"} >=0 && $opt{"edge-qc-lc"} <=1 );
+		$opt{"edge-qc-adapter"} = $input_dir."/".$opt{"edge-qc-adapter"} if ($opt{"edge-qc-adapter"} =~ /^\w/);
+		&addMessage("PARAMS", "edge-qc-adapter",    "File not found. Please check the file path.") if ( $opt{"edge-qc-adapter"} && ! -e $opt{"edge-qc-adapter"} );
+		#&addMessage("PARAMS", "edge-qc-phix",       "Invalid input.")                              unless $opt{"edge-qc-phix"} =~ /(0|1)/;
+		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
+		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
 	}
 	if ( $opt{"edge-joinpe-sw"}){
 		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;

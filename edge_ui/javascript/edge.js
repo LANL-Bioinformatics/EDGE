@@ -1048,6 +1048,9 @@ $( document ).ready(function()
 						$('#edge-hostrm-sw1').click().checkboxradio('refresh');
 					}
 					if ( /edge-r2g-align-trim-bed-file/.test(inputFileID)  ){ 
+						if ($(":radio[name='edge-fastq-source']:checked").val() == "nanopore" || $(":radio[name='edge-fastq-source']:checked").val() == "pacbio"){
+							$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
+						}
 						$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					}
 				}
@@ -1805,7 +1808,7 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-qc-sw']").on("change", function(){
-			if ( $(this).val() == 0 ){
+			if ( $(this).val() == 0 && ! $('#edge-fastq-source-sw3').is(':checked') ){
 				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-hostrm-sw']:checked").val()==0 && $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
 					showWarning("At least one function needs to be turned on!");
 					$( "#edge-qc-sw1" ).click().checkboxradio("refresh");
@@ -2106,8 +2109,8 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-porechop-sw']").on("change", function(){
-			if($('#edge-fastq-source-sw1').is(':checked')){
-				if($('#edge-porechop-sw7').is(':checked')){
+			if($('#edge-fastq-source-sw1, #edge-fastq-source-sw3').is(':checked')){
+				if($('#edge-porechop-sw8').is(':checked')){
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
 				}else{
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
@@ -2128,10 +2131,15 @@ $( document ).ready(function()
 				$( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
+				if ($('#edge-r2g-align-trim-bed-file').val().length > 1){
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
+				}
 				if (type != "reconfig"){
+					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-lrasm-preset1").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('350');
 					$('#edge-r2g-max-clip').prop('disabled',false).val('150');
 					$('#edge-qc-q').prop('disabled',false).val('7');
@@ -2151,7 +2159,8 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
-					$( "#edge-porechop-sw7").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-porechop-sw8").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
@@ -2163,9 +2172,36 @@ $( document ).ready(function()
 					//$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).click().checkboxradio("refresh");
 				}
 			}
+			if($('#edge-fastq-source-sw3').is(':checked')){
+				$('#btnAdd-edge-input-pe').hide();
+				$('.edge-input-pe-block').hide();
+				$('#edge-fastq-input-block > .edge-center').hide();
+				$('.edge-notnanopore-options').hide();
+				$('.edge-nanopore-options').show();
+				$( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
+				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
+				$('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
+				if ($('#edge-r2g-align-trim-bed-file').val().length > 1){
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
+				}
+				if (type != "reconfig"){
+					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-qc-sw2").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-lrasm-preset2").prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-qc-minl').prop('disabled',false).val('350');
+					$('#edge-r2g-max-clip').prop('disabled',false).val('150');
+					$('#edge-qc-q').prop('disabled',false).val('7');
+					$('#splitrim-minq').prop('disabled',false).val('7');
+					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
+					//$('#edge-r2g-con-disableBAQ-sw1').prop('disabled',false).click().checkboxradio("refresh");
+				}
+			}
 		});
 		$(":radio[name='edge-porechop-sw']").on("change", function(){
-			if($('#edge-porechop-sw7').is(':checked')){
+			if($('#edge-porechop-sw8').is(':checked')){
 				$("#edge-r2g-con-pcrdedup-sw1").prop('disabled',false).click().checkboxradio("refresh");
 			}else{
 				$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
@@ -2179,8 +2215,10 @@ $( document ).ready(function()
 		});
 		$("label[for=edge-qc-adapter]").parent().hide();
 		$(":radio[name='edge-r2g-align-trim-sw']").on("change", function(){
-			$('#edge-qc-adapter').val('');
-			$('#edge-r2g-align-trim-bed-file').val('');
+			if (type != "reconfig"){
+				$('#edge-qc-adapter').val('');
+				$('#edge-r2g-align-trim-bed-file').val('');
+			}
                         if($('#edge-r2g-align-trim-sw1').is(':checked')){
 				$("label[for=edge-qc-adapter]").parent().hide();
 				$("label[for=edge-r2g-align-trim-bed-file]").parent().show();
@@ -3429,7 +3467,6 @@ $( document ).ready(function()
 					$('#'+key).val(value);
 				}
 			});	
-
 			//clean batch input, reconfig only work on single project
  			$( "#edge-batch-input-excel-1").val('');
 
@@ -4483,12 +4520,12 @@ $( document ).ready(function()
 							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else if(obj.PLATFORM && /pacbio/.test(obj.PLATFORM.toString().toLowerCase())){
-							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
-							$("#edge-pp-sw").val(0).slider("refresh");
+							$('#edge-fastq-source-sw3').click().checkboxradio("refresh");
+							//$("#edge-pp-sw").val(0).slider("refresh");
 							$("#edge-qc-sw2").click().checkboxradio("refresh");
-							$('#edge-r2c-aligner-options').val("-x map-pb")
-							$('#edge-r2g-aligner-options').val("-x map-pb")
-							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Quality Trim and Filter Off.";
+							//$('#edge-r2c-aligner-options').val("-x map-pb")
+							//$('#edge-r2g-aligner-options').val("-x map-pb")
+							var msg = obj.INFO + " EDGE will turn on Pacbio Reads Mode and Quality Trim and Filter Off.";
 							showWarning(msg);
 						}else{
 							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");

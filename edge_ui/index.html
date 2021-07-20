@@ -355,7 +355,7 @@
 	</div><!-- /gisaid-metadata-project-page' -->
 
 	<div role='main' id='edge-sra-metadata-project-page' class='ui-content edge-content edge-output edge-main-page'>
- 	</div><!-- /gisaid-sra-project-page' -->
+	</div><!-- /gisaid-sra-project-page' -->
 
 <form id="edge-run-pipeline-form" autocomplete='off'>
 	<div role="main" id="edge-content-pipeline" class="ui-content edge-content edge-main-page">
@@ -408,11 +408,13 @@
 					<div class="edge-main-pipeline-input">
 						<div class="ui-field-contain edge-fastq-options" id="edge-fastq-source-block">
 							<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-							<legend>Nanopore Reads</legend>
+							<legend>Platform</legend>
 								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw1" value="nanopore">
-								<label for="edge-fastq-source-sw1">Yes</label>
-								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw2" value="not" checked="checked">
-								<label for="edge-fastq-source-sw2">No</label>
+								<label for="edge-fastq-source-sw1">Nanopore</label>
+								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw2" value="illumina" checked="checked">
+								<label for="edge-fastq-source-sw2">Illumina</label>
+								<input type="radio" data-mini="true" name="edge-fastq-source" id="edge-fastq-source-sw3" value="pacbio">
+								<label for="edge-fastq-source-sw3">PacBio</label>
 							</fieldset>
 						</div>
 					</div>
@@ -517,7 +519,7 @@
 				<p class="edge_tool_note">Run EDGE with Multiple projects using a tools set configuration. Click <a href="data/BatchExcelExample.xlsx" download="" target="_blank"> Download [Sample File]</a> to see the example. </p>
 				<div id="edge-batch-input-block1" class="edge-batch-input"> 
 					<div class="ui-field-contain input-type-file">
-						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "S", "SRA","Description"' for="edge-batch-input-block1"></a></label>
+						<label for="edge-batch-input-excel-1">Batch Excel File<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title='Column headers must be labeled: "Project", "Q1", "Q2", "S", "SRA", "Description"' for="edge-batch-input-block1"></a></label>
 						<input type="text" data-mini="true" name="edge-batch-input-excel" id="edge-batch-input-excel-1" placeholder="absolute file path/select file">
 						<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
 					</div>
@@ -690,7 +692,7 @@
 			</div>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Trim Sequencing Primers<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE provides four available primer schemes, ARTIC protocoal primer scheme v1, v2, v3, CDC SC2_200324 and SWIFT"></a></legend>
+					<legend>Trim Sequencing Primers<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE provides four available primer schemes, ARTIC protocoal primer scheme v1, v2, v3, CDC SC2_200324, SWIFT and PacBio Freed"></a></legend>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="artic_ncov2019_primer_schemes_V1">
 					<label for="edge-porechop-sw1" title="ARTIC V1">V1</label>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="artic_ncov2019_primer_schemes_V2">
@@ -699,12 +701,14 @@
 					<label for="edge-porechop-sw3" title="ARTIC V3">V3</label>
 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw4" value="artic_ncov2019_primer_schemes_V4">
 					<label for="edge-porechop-sw4" title="ARTIC V4">V4</label>
- 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw5" value="SC2_200324">
- 					<label for="edge-porechop-sw5" title="SC2_200324">CDC</label>
- 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw6" value="swift_primer_schemes_v2">
- 					<label for="edge-porechop-sw6" title="swift_primer_schemes_v2">SWIFT</label>
- 					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw7" value="0" checked="checked">
- 					<label for="edge-porechop-sw7">Off</label>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw5" value="SC2_200324">
+					<label for="edge-porechop-sw5" title="SC2_200324">CDC</label>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw6" value="swift_primer_schemes_v2">
+					<label for="edge-porechop-sw6" title="swift_primer_schemes_v2">SWIFT</label>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw7" value="Pacbio_sarscov2_freed_primers">
+					<label for="edge-porechop-sw7" title="Pacbio_sarscov2_freed_primers">Freed</label>
+					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw8" value="0" checked="checked">
+					<label for="edge-porechop-sw8">Off</label>
 				</fieldset>
 			</div>
 			<div class="ui-field-contain">

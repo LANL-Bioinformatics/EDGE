@@ -286,7 +286,7 @@
 					<tr><td>Reads</td><td><TMPL_VAR NAME=BEFOREREADS DEFAULT=-></td></tr>
 					<tr><td>Total Bases</td><td><TMPL_VAR NAME=BEFOREBASES DEFAULT=-> bp</td></tr>
 					<tr><td>Mean Read Length</td><td><TMPL_VAR NAME=BEFOREMRL DEFAULT=-> bp</td></tr>
-					<tr><td>Nanopore Reads</td><td><TMPL_VAR NAME=FROMNANOPORE DEFAULT=-></td></tr>
+					<tr><td>Platform</td><td><TMPL_VAR NAME=FROMPLATFORM DEFAULT=-></td></tr>
 				  </tbody>
 				</table>
 			</div></li>
@@ -328,6 +328,7 @@
 					</div>
 				</div>
 				<TMPL_ELSE>
+				<TMPL_UNLESS NAME="PACBIODATA">
 				<div class="ui-grid-c ui-responsive edge-report-plots">
 					<div class="ui-block-a">
 						<span class="iframe_label">Quality Report <a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_quality_report.png'>[full]</a></span>
@@ -348,6 +349,7 @@
 						<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade"><img class="preview_img" data-src="<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/HTML_Report/images/QC_quality_boxplot.png" alt="QC_quality_report"></a>
 					</div>
 				</div>
+				</TMPL_UNLESS>
 				</TMPL_IF>
 				</TMPL_IF>
 			</div>
