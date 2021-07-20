@@ -401,7 +401,7 @@ sub getReadInfo {
 	
 	print STDERR "Retrieving run(s) information from EBI-ENA...\n";
 	
-	$url = "https://www.ebi.ac.uk/ena/data/warehouse/filereport?accession=$acc&result=read_run&fields=run_accession,submission_accession,study_accession,experiment_accession,instrument_platform,library_layout,fastq_ftp,fastq_md5,fastq_bytes";
+	$url = "https://www.ebi.ac.uk/ena/portal/api/filereport?accession=$acc&result=read_run&fields=run_accession,submission_accession,study_accession,experiment_accession,instrument_platform,library_layout,fastq_ftp,fastq_md5,fastq_bytes";
 	print STDERR "Retrieving run acc# from EBI-ENA $url...\n";
 	#$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\" 2>/dev/null": "$curl $http_proxy \"$url\" 2>/dev/null";
 	$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\"": "$curl $http_proxy \"$url\"";
