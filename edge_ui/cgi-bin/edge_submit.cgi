@@ -449,6 +449,13 @@ sub createConfig {
 				$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname  ;
 				$opt{"edge-ref-file"} = $projlist->{$pname}->{"reference"} if ($projlist->{$pname}->{"reference"});
 				$opt{"edge-ref-sw"} = 1 if ($projlist->{$pname}->{"reference"});
+				if ($projlist->{$pname}->{"platform"} =~ /nanopore|minion/i ){
+					$opt{"edge-fastq-source"} = "nanopore";
+				} elsif ($projlist->{$pname}->{"platform"} =~ /pacbio/i){
+					$opt{"edge-fastq-source"} = "pacbio";
+				} elsif ($projlist->{$pname}->{"platform"} =~ /illumina/i) {
+					$opt{"edge-fastq-source"} = "illumina";
+				}
 				if ($projlist->{$pname}->{"sra"}){
 					$opt{"edge-sra-acc"} = uc $projlist->{$pname}->{"sra"};
 					$opt{"edge-sra-sw"} = 1;
