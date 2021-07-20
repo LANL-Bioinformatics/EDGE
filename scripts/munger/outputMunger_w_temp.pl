@@ -1879,10 +1879,10 @@ sub pull_readmapping_ref {
 		}
 	}
 	close($reffh);
-	if ($indels_report and ! -e $indels_report_json){
+	if ( -e $indels_report and ! -e $indels_report_json){
 		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$indels_report_json,$indels_report);
 	}
-	if ($SNPs_report and ! -e $SNPs_report_json){
+	if ( -e $SNPs_report and ! -e $SNPs_report_json){
 		system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-out",$SNPs_report_json,$SNPs_report);
 	}
 	#$vars->{RMAVEFOLD} = sprintf "%.2f", $tol_mapped_bases/$tol_ref_len;
@@ -2030,6 +2030,11 @@ sub pull_summary {
 		}
 		if (/^assembler=(.*)/){
 			$vars->{ASSEMBLER}=$1;
+		}
+		if (/fastq_source=(.*)/){
+			my $fastq_source = $1;
+			$vars->{FROMPLATFORM} = ucfirst($fastq_source);
+			$vars->{PACBIODATA} = 1 if $fastq_source =~ /pacbio/i;
 		}
 		if (/r2g_aligner=(.*)/){
 			$vars->{RMREFALIGNER}=$1;

@@ -848,6 +848,12 @@ sub checkParams {
 		foreach my $pname (keys %{$projlist}){
 			$projlist->{$pname}->{"q1"} = "$input_dir/$projlist->{$pname}->{'q1'}" if ($projlist->{$pname}->{"q1"} =~ /^\w/ && $projlist->{$pname}->{"q1"} !~ /^http|ftp/i);
 			$projlist->{$pname}->{"q2"} = "$input_dir/$projlist->{$pname}->{'q2'}" if ($projlist->{$pname}->{"q2"} =~ /^\w/ && $projlist->{$pname}->{"q2"} !~ /^http|ftp/i);
+			if ( $projlist->{$pname}->{"q1"} and ! $projlist->{$pname}->{"q2"}){
+				&addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
+			}
+			if ( ! $projlist->{$pname}->{"q1"} and $projlist->{$pname}->{"q2"}){
+				&addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
+			}
 			$projlist->{$pname}->{"reference"} = "$input_dir/$projlist->{$pname}->{'reference'}" if ($projlist->{$pname}->{"reference"} =~ /^\w/ && $projlist->{$pname}->{"reference"} !~ /^http|ftp/i);
 			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
 			foreach my $i (0..$#single_files){
@@ -1248,6 +1254,14 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-primer-adj-len-min", "Invalid input. Natural number required.") unless $opt{"edge-primer-adj-len-min"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-primer-adj-len-opt", "Invalid input. Length is not in the range.") if $opt{"edge-primer-adj-len-opt"} > $opt{"edge-primer-adj-len-max"} || $opt{"edge-primer-adj-len-opt"} < $opt{"edge-primer-adj-len-min"};
 	}
+	if ($opt{"edge-pp-sw"}){
+		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
+ 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
+ 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
+ 		if ($opt{"edge-qc-adapter"} && $opt{"edge-r2g-align-trim-bed-file"}){
+ 			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either FASTA file or BED file. Not Both.");
+ 		}
+	}
 	if ( $opt{"edge-qc-sw"} ){
 		&addMessage("PARAMS", "edge-qc-q",          "Invalid input. Natural number required.")     unless $opt{"edge-qc-q"}    =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-avgq",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-avgq"} =~ /^\d+$/;
@@ -1260,12 +1274,6 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-qc-5end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-5end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-3end",       "Invalid input. Natural number required.")     unless $opt{"edge-qc-3end"} =~ /^\d+$/;
 		&addMessage("PARAMS", "edge-qc-adapter",    "Invalid input. Fasta format required") if ( -e $opt{"edge-qc-adapter"} and ! is_fasta($opt{"edge-qc-adapter"}) );
-		$opt{"edge-r2g-align-trim-bed-file"} = $input_dir."/".$opt{"edge-r2g-align-trim-bed-file"} if ($opt{"edge-r2g-align-trim-bed-file"} =~ /^\w/);
- 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",    "File not found. Please check the file path.") if ( $opt{"edge-r2g-align-trim-bed-file"} && ! -e $opt{"edge-r2g-align-trim-bed-file"} );
- 		&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Invalid input. BED6+ format required") if ( -e $opt{"edge-r2g-align-trim-bed-file"} and ! is_bed6_plus($opt{"edge-r2g-align-trim-bed-file"}) );
- 		if ($opt{"edge-qc-adapter"} && $opt{"edge-r2g-align-trim-bed-file"}){
- 			&addMessage("PARAMS", "edge-r2g-align-trim-bed-file",  "Please provide either FASTA file or BED file. Not Both.");
- 		}
 	}
 	if ( $opt{"edge-joinpe-sw"}){
 		&addMessage("PARAMS", "edge-joinpe-maxdiff",     "Invalid input. Natural number required and Less than 100")  unless $opt{"edge-joinpe-maxdiff"} =~ /^\d+$/ && $opt{"edge-joinpe-maxdiff"} <= 100;

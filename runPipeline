@@ -1128,7 +1128,7 @@ sub runUnmappedReadsToRefSeq
     my $outPrefix = "UnmappedReads";
     my $outputDir= "$outDir/ReferenceBasedAnalysis/UnmappedReads";
     my $log= "$outputDir/mapping.log";
-    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d -T $configuration->{min_L} ": ""; 
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d -T $configuration->{min_L} ": ($configuration->{"fastq_source"} =~ /pacbio/i)? "-x pacbio -T $configuration->{min_L} " :"";
     if ( -s "$outputDir/UnmappedReads_coverage.txt" )
     {
        &lprint ("  Done mapping $outPrefix.\n"); 
@@ -1572,6 +1572,7 @@ sub Reads_taxonomyAssignment
     my $outputDir = shift;
     my $config_json = "$outputDir/../../config.json";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+    my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
     my $input = ($outputDir =~ /Unmap/)?"$outputDir/UnmappedReads.fastq":"$outputDir/allReads.fastq";
     my $logFile = "$outputDir/error.log";
     my $log = "$outputDir/taxonomyProfiling.log";
@@ -1607,7 +1608,7 @@ sub Reads_taxonomyAssignment
 		$bwaScoreCut = int($bases/$reads*0.8);
 		close ($qcfh);
 	}
-    if ($ont_flag){
+    if ($ont_flag or $pacbio_flag){
         $bwaScoreCut = ( $configuration->{"min_L"} > 1000 )?  $configuration->{"min_L"}: 1000;
     }
     my $cmd0 ="$RealBin/scripts/microbial_profiling/microbial_profiling_configure.pl -template $RealBin/scripts/microbial_profiling/microbial_profiling.settings.tmpl -tools $configuration->{enabledTools} -bwaScoreCut $bwaScoreCut -configJson $config_json"; 
@@ -1740,9 +1741,9 @@ sub variantAnalysis
       &executeCommand($cmd);
 
       $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.SNPs_report.txt > $r2g_outputDir/${prefix}.SNPs_report.json";
-      &executeCommand($cmd) if ( -s "$r2g_outputDir/${prefix}.SNPs_report.txt" );
+      &executeCommand($cmd) if ( -e "$r2g_outputDir/${prefix}.SNPs_report.txt" );
       $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.Indels_report.txt > $r2g_outputDir/${prefix}.Indels_report.json";
-      &executeCommand($cmd) if ( -s "$r2g_outputDir/${prefix}.Indels_report.txt" );
+      &executeCommand($cmd) if ( -e "$r2g_outputDir/${prefix}.Indels_report.txt" );
 
       unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
       unlink $ambiguous_log;
@@ -1752,9 +1753,9 @@ sub variantAnalysis
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.Indels_report.txt > $r2g_outputDir/readsToRef.Indels_report.json";
-    &executeCommand($cmd) if ( -s "$r2g_outputDir/readsToRef.Indels_report.txt" );
+    &executeCommand($cmd) if ( -e "$r2g_outputDir/readsToRef.Indels_report.txt" );
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/readsToRef.SNPs_report.txt > $r2g_outputDir/readsToRef.SNPs_report.json";
-    &executeCommand($cmd) if ( -s "$r2g_outputDir/readsToRef.SNPs_report.txt" );
+    &executeCommand($cmd) if ( -e "$r2g_outputDir/readsToRef.SNPs_report.txt" );
     &touchFile("$outputDir/variantAnalysis.finished") if ( -e $outputDir);
     &touchFile("$r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;
@@ -2347,6 +2348,7 @@ my $readsMappingToRefPDF="$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRe
 my $primerCheckPDF="$outDir/AssayCheck/pcrValidation.pdf";
 my $contigTaxonomyPDF="$outDir/AssemblyBasedAnalysis/Taxonomy/$project_name.contigsClassification.pdf";
 my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
 my $nanoplot_loglength_Histogram = "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf";
 my $nanoplot_length_Histogram = "$outDir/QcReads/HistogramReadlength.pdf";
 my $nanoplot_length_quality_plot= ( -e "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf")? "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf":"$outDir/QcReads/Log_LengthvsQualityScatterPlot_kde.pdf";
@@ -2487,7 +2489,7 @@ tmp<-dev.off()
 Rscript
 }
 
-if ($ont_flag && -e "$QCstatsTXT" ){
+if (($ont_flag or $pacbio_flag)&& -e "$QCstatsTXT" ){
 print $Rfh <<Rscript;
 def.par <- par(no.readonly = TRUE) 
 pdf(file = \"$QCstatsPDF\",width=10,height=8)
@@ -2765,6 +2767,7 @@ sub runQC
     my $cut_5_end = ($configuration->{"5end"})? $configuration->{"5end"}: 0;
     my $split_size = $configuration->{"split_size"} || 100000;
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0; 
+    my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/)? 1 : 0;
     my $unpairedFile_output = ($configuration->{"porechop"}  && $ont_flag )? "$outputDir/QC.unpaired.porechop.fastq":"$outputDir/QC.unpaired.trimmed.fastq";
     &make_dir($outputDir);
     if ($noColorLog)
@@ -2793,11 +2796,13 @@ sub runQC
     $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
     $parameters .= " --adapter --artifactFile ". $configuration->{"adapter"} if (-e $configuration->{"adapter"} && is_fasta($configuration->{"adapter"}));
     $parameters .= " --polyA " if ($configuration->{"polyA"});
-    $parameters .= " --trim_only " if $ont_flag;
+    $parameters .= " --trim_only " if $ont_flag or $pacbio_flag;
     $parameters .= " --ascii $configuration->{qc_phred_offset} " if ($configuration->{qc_phred_offset});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
-    #my $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
+    if ($pacbio_flag){
+        $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
+    }
     &lprint ("  Running \n  $command \n");
     &executeCommand($command);
     
@@ -3019,7 +3024,7 @@ sub runHostRemoval
     my $host=shift;
     my $time=time();
     my $min_score = $configuration->{"bwaMemOptions"} || "-T 50 ";
-    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d ": ""; 
+    my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? "-x ont2d ": ($configuration->{"fastq_source"} =~ /pacbio/i)? "-x pacbio ": "";  
     $min_score = "-T $configuration->{min_L}" if $ont_flag;
     my $similarity_cutoff = $configuration->{"similarity"} || 90 ;
    # my $stats = "$QCoutDir/hostclean.stats.txt";
@@ -3177,6 +3182,7 @@ sub runReadsToContig
     my $outputDir= "$outDir/AssemblyBasedAnalysis/readsMappingToContig";
     my $r2c_aligner_options = $configuration->{"r2c_aligner_options"} || "";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+    my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
     my $log="$outputDir/mapping.log";
     &make_dir($outputDir);
     if ($noColorLog)
@@ -3207,11 +3213,14 @@ sub runReadsToContig
     	$parameters .= " -aligner bowtie -bowtie_options ". "'" . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /bwa/){
 	$r2c_aligner_options =~ s/-t\s*\d+//;
+	$parameters =~ s/-u /-long / if $ont_flag or $pacbio_flag;
 	$r2c_aligner_options .= " -x ont2d " if $ont_flag;
+	$r2c_aligner_options .= " -x pacbio " if $pacbio_flag;
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2c_aligner_options . "'";
     }elsif($configuration->{r2c_aligner} =~ /minimap/){
-        $parameters =~ s/-u /-long / if $ont_flag;
+        $parameters =~ s/-u /-long / if $ont_flag or $pacbio_flag;
         $r2c_aligner_options =~ s/-t\s*\d+//;
+	$r2c_aligner_options .= " -x map-pb " if $pacbio_flag;
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2c_aligner_options . "'";
     }
 
@@ -3254,6 +3263,7 @@ sub runReadsToGenome
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+    my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
     my $variant_call_min_qual = (defined $configuration->{r2g_variant_call_min_qual})? $configuration->{r2g_variant_call_min_qual} : 0;
     my $variant_call_ploidy =  (defined $configuration->{r2g_variant_call_ploidy})? $configuration->{r2g_variant_call_ploidy} : "haploid";
@@ -3289,15 +3299,17 @@ sub runReadsToGenome
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
+	$r2g_aligner_options .= " -x pacbio " if $pacbio_flag;
 	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
+	$r2g_aligner_options .= " -x map-pb " if $pacbio_flag;
 	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
-    $parameters .= " -no_indels " if $ont_flag;
+    $parameters .= " -no_indels " if $ont_flag; # or $pacbio_flag?
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
@@ -3309,7 +3321,7 @@ sub runReadsToGenome
 	my $alignTrim_parameters = $parameters;
         $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
         $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
-	$alignTrim_parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
+	$alignTrim_parameters=~ s/-u /-long / if ($ont_flag or $pacbio_flag) and $configuration->{r2g_aligner} =~ /minimap/;
 	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
     	($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir,$correct_bed_file);
     }
@@ -3317,7 +3329,7 @@ sub runReadsToGenome
     $parameters .= " -ref $referenceFiles";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
-    $parameters=~ s/-u /-long / if $ont_flag and $configuration->{r2g_aligner} =~ /minimap/;
+    $parameters=~ s/-u /-long / if ($ont_flag or $pacbio_flag) and $configuration->{r2g_aligner} =~ /minimap/;
     my $command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir $parameters 1>>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
@@ -3404,6 +3416,7 @@ sub getAlignTrimReads{
 	my $pairFile;
 	my $unpairFile;
 	my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+	my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/)? 1 : 0;
 	my $AlignTrim_ref = @$ref_r[0];
 	if ($bed_file =~ /artic_ncov|SC2_200324|swift_primer_schemes_v2/){
 		if (my ($NC_044512_ref) = grep $_ =~ /NC_045512|MN908947/, @$ref_r) {
@@ -3424,7 +3437,7 @@ sub getAlignTrimReads{
 		} 
 	}
 	$cmd .= " -align_trim_bed_file $bed_file -ref $AlignTrim_ref -no_snp -no_plot";
-	$cmd .= " -align_trim_strand " if ! $ont_flag;
+	$cmd .= " -align_trim_strand " if ! $ont_flag and ! $pacbio_flag;
 	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
 	&lprint ("  ## Get Align Trimmed Reads \n");
 	$cmd .= " 1>$log 2>\&1";
@@ -4116,6 +4129,7 @@ sub SNPtree
     my $PhaME_tool_dir="$RealBin/scripts/PhaME";
     my $phyloXML_annotation_file = "$outputDir/annotation.txt";
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
+    my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
     my $log = "$outputDir/log.txt";
    
     if ($noColorLog)
@@ -4157,7 +4171,7 @@ sub SNPtree
      $cmd .= "-p $pair_read " if ($pair_read);
      $cmd .= "-c $contig " if ($contig); 
      $cmd .= "-s $single_end_read " if ( $single_end_read && -s $single_end_read); 
-     $cmd .= "-nanopore " if ($ont_flag);
+     $cmd .= "-nanopore " if ($ont_flag or $pacbio_flag);
      $cmd .= "  >> $log"; 
     &lprint (" Prepare SNP phylogeny\n"); 
     &lprint (" Running \n $cmd\n");
@@ -4596,6 +4610,7 @@ sub is_bed6_plus{
     my $is_bed=0;
     for ($count..$check_num){
         my $line=<$fh>;
+	next if !$line;
         next if $line =~ /^#/;
         my @col = split /\t/,$line;
         if (scalar(@col) >= 6 and $col[1] =~ /^\d+$/ and  $col[2] =~ /^\d+$/ and $col[4] =~ /^\d+$/){
