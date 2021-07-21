@@ -3312,8 +3312,8 @@ sub runReadsToGenome
     $parameters .= " -no_indels " if $ont_flag; # or $pacbio_flag?
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
-    $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
-    $parameters .= " -min_alt_bases $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
+    $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual); 
+    $parameters .= " -min_depth $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
     if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) ){
 	$correct_bed_file = "$outputDir/".basename($configuration->{r2g_align_trim_bed_file});
