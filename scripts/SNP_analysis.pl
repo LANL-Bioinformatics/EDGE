@@ -76,11 +76,11 @@ if ($format =~ /vcf/i){
 open (OUT2, ">$outDir/$basename.Indels_report.txt") or die "$!";
 if ($format =~ /vcf/i)
 {
-   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\tFrameshift\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
+   print  OUT2 "Chromosome\tINDEL_position\tRef_Seq\tIndel_seq\tLength\tType\tProduct\tCDS_start\tCDS_end\tCDS_strand\tFrameshift\tCount\tDP\tRatio\tF:R\tRoot-mean-square-mapping_quality\n";
 }
 else
 {
-   print  OUT2 "Chromosome\tINDEL_position\tSequence\tLength\tType\tProduct\tCDS_start\tCDS_end\tFrameshift\n";
+   print  OUT2 "Chromosome\tINDEL_position\tSequence\tLength\tType\tProduct\tCDS_start\tCDS_end\tCDS_strand\tFrameshift\n";
 }
 
 
@@ -154,6 +154,7 @@ foreach my $locus_id (keys %{$result})
              $product,"\t",
              $indel{$pos}->{cds_s},"\t",
              $indel{$pos}->{cds_e}."\t",
+             $indel{$pos}->{strand}."\t",
 	     $frameshift;
       if ($format =~ /vcf/i){
            print OUT2 "\t",
@@ -438,6 +439,7 @@ sub process_snp_file
              $indel{$ref_pos}->{prodcut}=$product;
              $indel{$ref_pos}->{cds_s}=$start;
              $indel{$ref_pos}->{cds_e}=$end;
+             $indel{$ref_pos}->{strand}=$strand;
              $indel{$ref_pos}->{Locus}=$ref_id;
              $indel{$ref_pos}->{depth}=$dp;
              $indel{$ref_pos}->{dpalt}=$dp_alt;
