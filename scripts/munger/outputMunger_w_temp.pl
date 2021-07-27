@@ -2082,7 +2082,7 @@ sub parse_INDELs_report{
 	while(<$fh>){
 		chomp;
 		next if(/INDEL_position/);
-		my ($id,$pos,$nu,$length,$type,$product,$start,$end) = split/\t/,$_;
+		my ($id,$pos,$nu,$length,$type,$product,$start,$end,$strand) = split/\t/,$_;
 		my $event = "$type:$pos:$nu:$product";
 		if ($length % 3 and $product !~ /Intergenic/i){
 			# frameshift INDELs
