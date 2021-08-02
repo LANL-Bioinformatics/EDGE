@@ -29,7 +29,7 @@ def setup_argparse():
 
     inGrp = parser.add_argument_group('Amplicon Input (required, mutually exclusive)')
     inGrp_me = inGrp.add_mutually_exclusive_group(required=True)
-    inGrp_me.add_argument('--bed', metavar='[FILE]', type=str,help='amplicon bed file')
+    inGrp_me.add_argument('--bed', metavar='[FILE]', type=str,help='amplicon bed file (bed6 format)')
     inGrp_me.add_argument('--bedpe', metavar='[FILE]', type=str,help='amplicon bedpe file')
    
     covGrp = parser.add_argument_group('Coverage Input (required, mutually exclusive)')
@@ -44,9 +44,11 @@ def setup_argparse():
     #optGrp = parser.add_argument_group('Options')
     parser.add_argument('--pp', action='store_true', help='process proper paired only reads from bam file (illumina)')
     parser.add_argument('--mincov', metavar='[INT]', type=int, help='minimum coverage to count as ambiguous N site [default:10]', default=10)
-    parser.add_argument('-r', '--refID', metavar='[STR]',type=str , help='reference accession (bed file first field')
+    parser.add_argument('-r', '--refID', metavar='[STR]',type=str , help='reference accession (bed file first field)')
     
-    parser.add_argument('--version', action='version', version='%(prog)s 0.2.0')
+    parser.add_argument('--depth_lines', default=[5,10,20,50], type=int, nargs='+', help='Add option to display lines at these depths (provide depths as a list of integers) [default:5 10 20 50]')
+    parser.add_argument('--gff', metavar='[FILE]', type=str, help='gff file for data hover info annotation')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.0')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -60,7 +62,20 @@ def mkdir_p(directory_name):
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
 
-def covert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
+
+
+def is_bed6(input):
+    with open(input,'r') as f:
+        bedline=[]
+        num=0
+        for line in f:
+            bedline = line.rstrip().split("\t")
+            num += 1
+            if (len(bedline) != 6 or not bedline[1].isnumeric() or not bedline[2].isnumeric()):
+                logging.error(f"The input bed file is not in bed6 format.\nline:{num} {line}")
+                sys.exit(1)
+
+def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
     ## convert bed file to amplicon region dictionary
     input_bed = input
     cov_zero_array = np.zeros_like(cov_array)
@@ -72,9 +87,9 @@ def covert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
     previous_id=''
     outs, errs = proc.communicate()
     if proc.returncode == 0:
-    	outs = outs.splitlines()
+        outs = outs.splitlines()
     else:
-    	logging.error("Failed %d %s %s" % (proc.returncode, outs, errs))
+        logging.error("Failed %d %s %s" % (proc.returncode, outs, errs))
    
     for i in range(len(outs)):
         fstart, fend, id, rstart, rend = outs[i].decode().rstrip().split("\t")
@@ -98,7 +113,7 @@ def covert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
          
     return amplicon
 
-def covert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
+def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
     ## convert bed file to amplicon region dictionary 
     input_bedpe = input
     cov_zero_array = np.zeros_like(cov_array)
@@ -135,6 +150,28 @@ def covert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
                 amplicon[id] = range(0)
 
     return amplicon
+
+def parse_gff_file(input,RefID):
+    gff_file = input
+    anno_dict = defaultdict(dict)
+    f = open(gff_file,'r')
+    for line in f:
+        if line.startswith("#"):
+            continue
+        else:
+            gffline = line.rstrip().split("\t")
+            gff_ref_id = gffline[0].replace(".","_")
+            if gffline[2] == "CDS":
+                if RefID and (RefID != gff_ref_id and RefID != gffline[0]):
+                    continue
+                annotations = dict(x.split("=") for x in gffline[8].split(";"))
+                for i in range(int(gffline[3]),int(gffline[4])+1):
+                    anno_dict[i]['name']= annotations['Name'] if 'Name' in annotations else None
+                    anno_dict[i]['locus_tag']= annotations['locus_tag'] if 'locus_tag' in annotations else None
+                    anno_dict[i]['product']= annotations['product'] if 'product' in annotations else None
+                    anno_dict[i]['protein_id']= annotations['protein_id'] if 'protein_id' in annotations else None
+    f.close()
+    return anno_dict
 
 def parse_cov_file(input):
     ## read the coverage and save in a list
@@ -182,17 +219,27 @@ def parse_bam_file(bam,pp,outdir,RefID):
     cov_array=np.array(cov_list)
     return cov_array
 
-def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d):
-    mean_dict=dict()
+def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d, anno_d):
+    mean_dict=defaultdict(dict)
     for key in amplicon_d:
         if amplicon_d[key]:
             start = amplicon_d[key][0]
             end = amplicon_d[key][-1]
             #print(key,start,end)
-            mean_dict[key] = 0 if start > cov_np_array.size else cov_np_array[start:end].mean()
+            mean_dict[key]['cov'] = 0 if start > cov_np_array.size else cov_np_array[start:end].mean()
+            if anno_d:
+                for i in range(start, end + 1):
+                    if anno_d[i]:
+                        mean_dict[key]['product'] = anno_d[i]['product']
+                        mean_dict[key]['name'] = anno_d[i]['name']
+                        mean_dict[key]['locus_tag'] = anno_d[i]['locus_tag']
+                        mean_dict[key]['protein_id'] = anno_d[i]['protein_id']
         else:
             # not have any range in this key region
-            mean_dict[key] = 0 
+            mean_dict[key]['cov'] = 0 
+            
+    
+        
     return mean_dict
 
 def calculate_N_per_amplicon(cov_np_array,amplicon_d, mincov):
@@ -223,33 +270,68 @@ def write_dict_to_file(mean_d,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,outdir,pr
             f.write("%s\t%.2f\t%.2f\t%.2f\t%.2f\n" %
               (
                 key,
-                mean_d[key],uniq_mean_d[key],
+                mean_d[key]['cov'],uniq_mean_d[key]['cov'],
                 ambiguity_d[key],uniq_ambiguity_d[key]
               )
             )
       
 
-def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall_mean,outdir,prefix,mincov):
+def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall_mean,outdir,prefix,mincov,depth_lines=[5,10,20,50]):
     #plot bar chart
     x_name=Path(input_bed).stem
     x=list(mean_dict.keys())
-    y=list(mean_dict.values())
+    y=[ mean_dict[k]['cov'] for k in x ]
+    anno_list=list(mean_dict.keys())
+    for i in range(0,len(x)):
+        k=x[i]
+        if 'product' in mean_dict[k]:
+            anno_list[i] = "Product: " +  mean_dict[k]['product'] + "<br>"
+        if 'name' in mean_dict[k]:
+            anno_list[i] += "name: " +  mean_dict[k]['name'] + "<br>"
+        if 'protein_id' in mean_dict[k]:
+            anno_list[i] += "protein_id: " +  mean_dict[k]['protein_id'] + "<br>"
+        if 'locus_tag' in mean_dict[k]:
+            anno_list[i] += "locus_tag: " +  mean_dict[k]['locus_tag'] + "<br>"
     uniq_x=list(uniq_mean_d.keys())
-    uniq_y=list(uniq_mean_d.values())
+    uniq_y=[ uniq_mean_d[k]['cov'] for k in uniq_x ]
+    uniq_anno_list=list(uniq_mean_d.keys())
+    for i in range(0,len(uniq_x)):
+        k=uniq_x[i]
+        if 'product' in uniq_mean_d[k]:
+            uniq_anno_list[i] = "Product: " +  uniq_mean_d[k]['product'] + "<br>"
+        if 'name' in uniq_mean_d[k]:
+            uniq_anno_list[i] += "name: " +  uniq_mean_d[k]['name'] + "<br>"
+        if 'protein_id' in uniq_mean_d[k]:
+            uniq_anno_list[i] += "protein_id: " +  uniq_mean_d[k]['protein_id'] + "<br>"
+        if 'locus_tag' in uniq_mean_d[k]:
+            uniq_anno_list[i] += "locus_tag: " +  uniq_mean_d[k]['locus_tag'] + "<br>"
     barcolor1 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in y]
     barcolor2 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in uniq_y]
-    
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     # coverage levels
-    fig.add_trace(
-      go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=True,name="Coverage",showlegend=False),
-      secondary_y=False
-    )
-    fig.add_trace(
-      go.Bar(x=x, y=y, marker_color=barcolor1,visible=False,name="Coverage",showlegend=False),
-      secondary_y=False
-    )
+    if anno_list == x :
+        fig.add_trace(
+          go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=True,name="Coverage",showlegend=False, 
+             hovertemplate="Coverage: %{y:.1f}" + "<extra></extra>"),
+          secondary_y=False
+        )
+        fig.add_trace(
+          go.Bar(x=x, y=y, marker_color=barcolor1,visible=False,name="Coverage",showlegend=False,
+             hovertemplate="Coverage: %{y:.1f}" + "<extra></extra>"),
+          secondary_y=False
+        )
+    else:
+        fig.add_trace(
+          go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=True,name="Coverage",showlegend=False,  text=uniq_anno_list,
+                 hovertemplate="Coverage: %{y:.1f}<br>" + "%{text}" + "<extra></extra>"),
+          secondary_y=False
+        )
+        fig.add_trace(
+          go.Bar(x=x, y=y, marker_color=barcolor1,visible=False,name="Coverage",showlegend=False, text=anno_list,
+                 hovertemplate="Coverage: %{y:.1f}<br>" + "%{text}" + "<extra></extra>"),
+          secondary_y=False
+        )
     #fig = go.Figure(data=[go.Bar(x=x, y=y, marker_color=barcolor1,visible=False)])
 
     #fig.add_trace(go.Bar(x=uniq_x,y=uniq_y,marker_color=barcolor2,visible=True))
@@ -258,11 +340,11 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
     y2=list(ambiguity_d.values())
     uniq_y2=list(uniq_ambiguity_d.values())
     fig.add_trace(
-      go.Scatter(x=uniq_x,y=uniq_y2,marker_color='blueviolet',visible=True,name="Num of Ns (cov<" + str(mincov) +")" ),
+      go.Scatter(x=uniq_x,y=uniq_y2,marker_color='blueviolet',visible=True,name="Num of Ns (cov<" + str(mincov) +")", hovertemplate="Num of Ns: %{y}<extra></extra>" ),
       secondary_y=True
     )
     fig.add_trace(
-      go.Scatter(x=x,y=y2,marker_color='blueviolet',visible=False,name="Num of Ns (cov<" + str(mincov) +")" ),
+      go.Scatter(x=x,y=y2,marker_color='blueviolet',visible=False,name="Num of Ns (cov<" + str(mincov) +")", hovertemplate="Num of Ns: %{y}<extra></extra>" ),
       secondary_y=True
     )
     
@@ -276,34 +358,29 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
                     )
                 )]
 
-    depth5x = [dict(type='line',
-                    xref='paper',x0=0,x1=0.94,
-                    yref='y',y0=5,y1=5,
-                    line=dict(
-                        color="black",
-                        width=1,
-                        dash='dot',
-                    )
-                )]
-    depth10x = [dict(type='line',
-                    xref='paper',x0=0,x1=0.94,
-                    yref='10',y0=10,y1=10,
-                    line=dict(
-                        color="black",
-                        width=1,
-                        dash='dot',
-                    )
-                )]
-    depth20x = [dict(type='line',
-                    xref='paper',x0=0,x1=0.94,
-                    yref='y',y0=20,y1=20,
-                    line=dict(
-                        color="black",
-                        width=1,
-                        dash='dot',
-                    )
-                )]
+    depth_buttons = list([
+        dict(label="Mean(" + str(int(overall_mean)) + 'X)',
+             method="relayout",
+             args=["shapes", depthMean])])
 
+    depth_selectors = depthMean[:]
+    for depth in depth_lines:
+        name = '{}X'.format(depth)
+        depth_selector = [dict(type='line',
+                               xref='paper', x0=0, x1=0.94,
+                               yref='y', y0=depth, y1=depth,
+                               line=dict(
+                                   color="black",
+                                   width=1,
+                                   dash='dot',
+                               ))]
+        depth_selectors.extend(depth_selector)
+        depth_buttons.append(dict(label=name,
+                                  method="relayout",
+                                  args=["shapes", depth_selector]))
+    depth_buttons.append(
+        dict(label="All", method="relayout", args=["shapes", depth_selectors])
+    )
     updatemenus = list([
         dict(
              buttons=list([
@@ -338,28 +415,13 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
              yanchor="top"
         ),
         dict(
-            buttons=list([
-                dict(label="Mean(" + str(int(overall_mean)) + 'X)',
-                 method="relayout",
-                 args=["shapes", depthMean]),
-                dict(label="5X",
-                 method="relayout",
-                 args=["shapes", depth5x]),
-                dict(label="10X",
-                 method="relayout",
-                 args=["shapes", depth10x]),
-                dict(label="20X",
-                 method="relayout",
-                 args=["shapes", depth20x]),
-                dict(label="All",
-                 method="relayout",
-                 args=["shapes", depthMean + depth5x + depth10x + depth20x])
-                ]),
+            buttons=depth_buttons,
              direction="down",
              x=0.30,
              xanchor="left",
              y=1.03,
-             yanchor="top"
+             yanchor="top",
+             showactive=True
         )
     ])
 
@@ -422,13 +484,15 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
             y=1.02,
             xanchor="right",
             x=0.95
-        )
+        ),
+        hovermode="x unified"
     )
 
     output_html = outdir + os.sep + prefix + '_amplicon_coverage.html'
     fig.write_html(output_html)
 
 def run(argvs):
+    
     if (argvs.cov):
         cov_array = parse_cov_file(argvs.cov)
         prefix = Path(argvs.cov).stem
@@ -436,14 +500,16 @@ def run(argvs):
         cov_array = parse_bam_file(argvs.bam,argvs.pp, argvs.outdir, argvs.refID)
         prefix = Path(argvs.bam).stem 
     if (argvs.bed):
-        amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID)
-        uniq_amplicon_dict = covert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID,True)
+        is_bed6(argvs.bed)
+        amplicon_dict = convert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID)
+        uniq_amplicon_dict = convert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID,True)
         bedfile = argvs.bed
     if (argvs.bedpe):
-        amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID)
-        uniq_amplicon_dict = covert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID,True)
+        amplicon_dict = convert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID)
+        uniq_amplicon_dict = convert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID,True)
         bedfile = argvs.bedpe
-   
+    
+    anno_dict = parse_gff_file(argvs.gff,argvs.refID) if (argvs.gff) else None
     
     if not argvs.prefix:
         argvs.prefix = prefix
@@ -453,13 +519,13 @@ def run(argvs):
     uniq_ambiguity_d = calculate_N_per_amplicon(cov_array,uniq_amplicon_dict,argvs.mincov)
 
     # Get the coverage per amplicon
-    amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,amplicon_dict)
-    uniq_amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,uniq_amplicon_dict)
+    amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,amplicon_dict,anno_dict)
+    uniq_amplicon_mean_d = calculate_mean_cov_per_amplicon(cov_array,uniq_amplicon_dict,anno_dict)
 
     # Write results to a tab-delimited file
     write_dict_to_file(amplicon_mean_d,uniq_amplicon_mean_d,ambiguity_d,uniq_ambiguity_d,argvs.outdir,argvs.prefix,argvs.mincov)
 
-    barplot(amplicon_mean_d,uniq_amplicon_mean_d,ambiguity_d,uniq_ambiguity_d,bedfile,cov_array.mean(),argvs.outdir,argvs.prefix,argvs.mincov)
+    barplot(amplicon_mean_d,uniq_amplicon_mean_d,ambiguity_d,uniq_ambiguity_d,bedfile,cov_array.mean(),argvs.outdir,argvs.prefix,argvs.mincov,argvs.depth_lines)
 
 if __name__ == '__main__':
     argvs = setup_argparse()

@@ -3312,7 +3312,7 @@ sub runReadsToGenome
     $parameters .= " -no_indels " if $ont_flag; # or $pacbio_flag?
     $parameters .= " -no_snp " if ($variant_call == 0);
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
-    $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual); 
+    $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
     $parameters .= " -min_depth $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
     if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) ){
@@ -3341,9 +3341,11 @@ sub runReadsToGenome
         # ampilcon coverage plot
 	my $bed_file_flag = ($correct_bed_file =~ /bedpe/ )? "--bedpe $correct_bed_file":"--bed $correct_bed_file";
         my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
-        foreach my $cov_f (@cov_files){
-	       my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": "";
-               $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $refID $bed_file_flag";
+        foreach my $cov_f (@cov_files){ 
+               my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": "";
+               my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
+               $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
+
                &executeCommand($command);
         }
 
