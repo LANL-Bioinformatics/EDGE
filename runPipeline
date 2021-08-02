@@ -3281,7 +3281,8 @@ sub runReadsToGenome
 	my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
 	foreach my $cov_f (@cov_files){
 	       my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": ""; 
- 	       $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $refID $bed_file_flag";
+	       my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
+ 	       $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
 	       &executeCommand($command);
 	}
 
