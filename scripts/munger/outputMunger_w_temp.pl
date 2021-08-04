@@ -2124,7 +2124,7 @@ sub parse_lineage{
 			$note = "; VOI";
 			$lineage{$cid}->{warning} = "VOI";
 		}
-		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/  or $lineage_assign =~ /B.1.617.2/){
+		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/  or $lineage_assign =~ /B.1.617.2/ or $lineage_assign =~ /AY.[123]/ ){
 			$note = "; VOC";
 			$lineage{$cid}->{warning} = "VOC";
 		}
