@@ -4099,7 +4099,7 @@ $( document ).ready(function()
 			showWarning("Please login to create a new report.");
 			return;
 		}
-		updateReportFormPage('user');
+		updateReportFormPage(userType);
 	});
 
 	function updateReportFormPage(view) {
@@ -4131,7 +4131,7 @@ $( document ).ready(function()
 					"columnDefs": [ {"targets": 0, "orderable": false}],
 					"order": [],
 					"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
-					"pageLength": 5,
+					"pageLength": 10,
 					"deferRender": true,
 					"responsive": true,
 				});

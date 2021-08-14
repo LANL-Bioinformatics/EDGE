@@ -63,9 +63,13 @@ if($action eq "form") {
 	if ($username && $password){
 		# My Table
 		$tableHtml .= "<thead><tr>";
-		$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
+		if($viewType eq 'admin'){
+			$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Owner</th>";
+		}else{
+			$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
+		}
 		$tableHtml .= " </tr></thead>";
-		&getProjFromUM("user");
+		&getProjFromUM($viewType);
 
 	} else {
 		# all projects in the EDGE_output
