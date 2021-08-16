@@ -48,7 +48,7 @@ def setup_argparse():
     
     parser.add_argument('--depth_lines', default=[5,10,20,50], type=int, nargs='+', help='Add option to display lines at these depths (provide depths as a list of integers) [default:5 10 20 50]')
     parser.add_argument('--gff', metavar='[FILE]', type=str, help='gff file for data hover info annotation')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.3.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.1')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -95,17 +95,17 @@ def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
         fstart, fend, id, rstart, rend = outs[i].decode().rstrip().split("\t")
         if id in amplicon:
             continue
-        amplicon[id]=range(int(fend),int(rstart)+1)   
-        primers_pos.extend(range(int(fstart),int(fend)+1))
-        primers_pos.extend(range(int(rstart),int(rend)+1))
-        for i in range(int(fend),int(rstart)+1):
+        amplicon[id]=range(int(fend),int(rstart))   
+        primers_pos.extend(range(int(fstart),int(fend)))
+        primers_pos.extend(range(int(rstart),int(rend)))
+        for i in range(int(fend),int(rstart)):
             cov_zero_array[i] += 1
 
     if unique:
         unique_region_set = set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, id, rstart, rend = outs[i].decode().rstrip().split("\t")
-            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)+1))))
+            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
             if unique_region:
                 amplicon[id] = range(list(unique_region)[0],list(unique_region)[-1]+1)
             else:
@@ -133,17 +133,17 @@ def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
         fstart, fend, rstart, rend, id = outs[i].decode().rstrip().split("\t")
         if id in amplicon:
             continue
-        amplicon[id]=range(int(fend),int(rstart)+1)   
-        primers_pos.extend(range(int(fstart),int(fend)+1))
-        primers_pos.extend(range(int(rstart),int(rend)+1))
-        for i in range(int(fend),int(rstart)+1):
+        amplicon[id]=range(int(fend),int(rstart))   
+        primers_pos.extend(range(int(fstart),int(fend)))
+        primers_pos.extend(range(int(rstart),int(rend)))
+        for i in range(int(fend),int(rstart)):
             cov_zero_array[i] += 1
     
     if unique:
         unique_region_set = set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, rstart, rend, id = outs[i].decode().rstrip().split("\t")
-            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)+1))))
+            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
             if unique_region:
                 amplicon[id] = range(list(unique_region)[0],list(unique_region)[-1]+1)
             else:
@@ -161,7 +161,7 @@ def parse_gff_file(input,RefID):
         else:
             gffline = line.rstrip().split("\t")
             gff_ref_id = gffline[0].replace(".","_")
-            if gffline[2] == "CDS":
+            if len(gffline) > 2 and gffline[2] == "CDS":
                 if RefID and (RefID != gff_ref_id and RefID != gffline[0]):
                     continue
                 annotations = dict(x.split("=") for x in gffline[8].split(";"))
@@ -226,7 +226,7 @@ def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d, anno_d):
             start = amplicon_d[key][0]
             end = amplicon_d[key][-1]
             #print(key,start,end)
-            mean_dict[key]['cov'] = 0 if start > cov_np_array.size else cov_np_array[start:end].mean()
+            mean_dict[key]['cov'] = 0 if start > cov_np_array.size else cov_np_array[start:end+1].mean()
             if anno_d:
                 for i in range(start, end + 1):
                     if anno_d[i]:
@@ -251,7 +251,7 @@ def calculate_N_per_amplicon(cov_np_array,amplicon_d, mincov):
             if start > cov_np_array.size:
                 num_low_depth[key] = 0
             else:
-                arr = cov_np_array[start:end]
+                arr = cov_np_array[start:end+1]
                 num_low_depth[key] = np.size(np.where(arr < mincov))
         else:
             # not have any range in this key region
