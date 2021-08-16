@@ -306,8 +306,8 @@ sub pull_piret{
 							my $grid_index = $i % 4 ;
 							my ($file_name, $file_path, $file_suffix)=fileparse("$MD_plots[$i]", qr/\.[^.]*/);
 							(my $sig_file_name = $file_name) =~ s/__MD/__sig/;
-							my $sig_file = "$file_path/$sig_file_name.csv";
-							my $sig_json = "$file_path/$sig_file_name.json";
+							my $sig_file = "$file_path" . "../$sig_file_name.csv";
+							my $sig_json = "$file_path" . "../$sig_file_name.json";
 							if ( -e $sig_file && ! -e $sig_json) {
 								system("perl", "$RealBin/../tab2Json_for_dataTable.pl","-mode","feature_count","-delimit","comma","-out",$sig_json,$sig_file);
 									}
