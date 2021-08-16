@@ -553,6 +553,7 @@ sub prepareExpDesignAndConfig{
         chomp;
         next if (/^\n/);
         next unless (/\S/);
+	$_ =~ s/^\s+|\s+$//g;
         if (/ID/ && /Files/i){
             my @header = split /\t/,$_;
             ( $file_column_index )= grep { $header[$_] =~ /files/i } 0..$#header;
@@ -2922,16 +2923,23 @@ sub countPE_exe{
     my $paired_count=0;
     my $read1_total_len=0;
     my $read2_total_len=0;
+    my $existed_id1=0;
+    my $existed_id2=0;
     my ($fh1,$pid) = open_file($r1);
     open (my $ofh1, ">>$out_r1") or die "Cannot write $out_r1\n";
     open (my $ofh2, ">>$out_r2") or die "Cannot write $out_r2\n";
     open (my $ofhse, ">>$out_se") or die "Cannot write $out_se\n";
     while(<$fh1>){
         chomp;
+        next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
         my $id_line=$_;
         my ($id) = $id_line =~ /^\@(\S+)\s*/;
         my $seq = <$fh1>;
         chomp $seq;
+	if ($seq_hash{$id}){
+            $existed_id1++;
+        }
         my $len = length $seq;
         $read1_total_len += $len;
         my $qual_id = <$fh1>;
@@ -2942,19 +2950,26 @@ sub countPE_exe{
         $read1_count++;
     }
     close $fh1;
+    my %seq_hash2;
     my ($fh2,$pid2) = open_file($r2);
     while(<$fh2>){
         chomp;
+        next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
         my $id_line=$_;
         my ($id2) = $id_line =~ /^\@(\S+)\s*/;
         $read2_count++;
         my $seq2 = <$fh2>;
         chomp $seq2;
+	if ($seq_hash2{$id2}){
+            $existed_id2++;
+        }
         my $len = length $seq2;
         $read2_total_len += $len;
         my $qual_id = <$fh2>;
         my $qual = <$fh2>;
         $seq2 = $seq2."\n".$qual_id.$qual;
+	$seq_hash2{$id2}->{id}=$id_line;
         if ($seq_hash{$id2}){
             $paired_count++;
             print $ofh1 $seq_hash{$id2}->{id},"\n",$seq_hash{$id2}->{seq};
@@ -2973,6 +2988,8 @@ sub countPE_exe{
     printf ("%s\t%d\t%d\t%.2f\n",basename($r2),$read2_count,$read2_total_len,$read2_total_len/$read2_count);
     printf $count_fh ("%s\t%d\t%d\t%.2f\n",basename($r1),$read1_count,$read1_total_len,$read1_total_len/$read1_count);
     printf $count_fh ("%s\t%d\t%d\t%.2f\n",basename($r2),$read2_count,$read2_total_len,$read2_total_len/$read2_count);
+    printf ("%d duplicate id from %s\n", $existed_id1, basename($r1)) if ($existed_id1 > 0);
+    printf ("%d duplicate id from %s\n", $existed_id2, basename($r2)) if ($existed_id2 > 0);
     printf ("There are %d reads from %s don't have corresponding paired read.\n", $se1_count, basename($r1)) if ($se1_count >0);
     printf ("There are %d reads from %s don't have corresponding paired read.\n", $se2_count, basename($r2)) if ($se2_count >0);
     close $fh2;
@@ -2992,6 +3009,7 @@ sub countFastq_exe
     while (<$fh>)
     { 
         next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
         my $id=$_;
         $id = '@'."seq_$seq_count\n" if ($id =~ /No name/);
         my $seq=<$fh>;
