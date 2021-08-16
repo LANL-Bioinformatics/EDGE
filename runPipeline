@@ -2861,6 +2861,8 @@ sub countPE_exe{
     open (my $ofhse, ">>$out_se") or die "Cannot write $out_se\n";
     while(<$fh1>){
         chomp;
+	next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
 	my $id_line=$_;
         my ($id) = $id_line =~ /^\@(\S+)\s*/;
 	my $seq = <$fh1>;
@@ -2882,6 +2884,8 @@ sub countPE_exe{
     my ($fh2,$pid2) = open_file($r2);
     while(<$fh2>){
         chomp;
+	next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
         my $id_line=$_;
 	my ($id2) = $id_line =~ /^\@(\S+)\s*/;
 	$read2_count++;
@@ -2935,6 +2939,7 @@ sub countFastq_exe
     while (<$fh>)
     { 
         next unless $_ =~ /\S/;
+	next if ($_ =~ /length=0/);
         my $id=$_;
         $id = '@'."seq_$seq_count\n" if ($id =~ /No name/);
         my $seq=<$fh>;
