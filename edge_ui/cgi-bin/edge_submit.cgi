@@ -1594,7 +1594,9 @@ sub createSampleMetadataFile {
 			print OUT "age=".$age."\n";
 			print OUT "status=".$status."\n";
 			print OUT "sequencing_technology=".$seq_tech."\n";
+			print OUT "coverage=\n";
 			print OUT "bioproject=".$bioprojectID."\n";
+			print OUT "release=\n";
 			close OUT;
 
 			make_dir("$projdir/UPLOAD");
