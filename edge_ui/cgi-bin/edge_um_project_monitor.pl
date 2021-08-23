@@ -4,8 +4,11 @@ use JSON;
 use POSIX qw(strftime);
 use FindBin qw($RealBin);
 use LWP::UserAgent;
+use Digest::MD5 qw(md5_hex);
 use HTTP::Request::Common;
 use DBI;
+use File::Path qw(make_path remove_tree);
+#use Data::Dumper;
 
 my $in_status= $ARGV[0];
 # read system params from sys.properties
@@ -13,6 +16,8 @@ my $sysconfig    = "$RealBin/../sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
 my $username = $sys->{edgeui_admin};
 my $password = $sys->{edgeui_admin_password};
+my $www_root = $sys->{edgeui_wwwroot};
+my $edge_input= $sys->{edgeui_input};
 my $out_dir = $sys->{edgeui_output};
 my $umURL = $sys->{edge_user_management_url};
 exit if ( $ENV{"REQUEST_METHOD"} );
@@ -31,6 +36,10 @@ my $json = JSON->new;
 my $data = $json->encode(\%data);
 #print "$data\n";
 
+## for guest project clean up
+my $keep_days = 1;
+my $keep_secs = $keep_days * 24 * 60 * 60;
+my $now = time();
 
 # Set the request parameters
 my $url = $umURL.'WS/user/admin/getProjects';
@@ -60,19 +69,23 @@ foreach my $hash_ref ( @projectlist) {
 	my $project_name = $hash_ref->{name};
 	my $status = $hash_ref->{status};
 	my $created_time = $hash_ref->{created};
+	my $owner_fn=$hash_ref->{owner_firstname};
+	my $owner_ln=$hash_ref->{owner_lastname};
 
 	next if (! -r "$out_dir/$id/process.log" && ! -r "$out_dir/$projCode/process.log" );
 	my $proj_dir=(-d "$out_dir/$projCode")?"$out_dir/$projCode":"$out_dir/$id";
-	my $processlog = (-r "$proj_dir/process_current.log")? "$proj_dir/process_current.log" : ( (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt");
+	my $processlog = (-r "$proj_dir/process.log")? "$proj_dir/process.log":"$proj_dir/config.txt";
 #print "$processlog\n";
-		
+	if ($owner_fn eq "Guest" && $owner_ln eq "EDGE"){
+		&guest_proj_cleanup($proj_dir,$processlog,$id,$project_name,$projCode);
+	} 	
 	if ( $status =~ /finished|archived/i && -e "$proj_dir/.AllDone"){
 		$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
 		$status=($status =~ /finished/i)?"Complete":"Archived";
-	#}elsif( $status =~ /unstarted/i){
-		#$list->{$id}->{PROJSUBTIME}=$created_time;
-		#$list->{$id}->{RUNTIME}="";
-		#$status="Unstarted";
+	}elsif( $status =~ /unstarted/i){
+		$list->{$id}->{PROJSUBTIME}=$created_time;
+		$list->{$id}->{RUNTIME}="";
+		$status="Unstarted";
 	}elsif( $status =~ /in process/i){
        		$list->{$id}->{PROJSUBTIME}=$created_time;
       		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
@@ -85,7 +98,7 @@ foreach my $hash_ref ( @projectlist) {
 	$list->{$id}->{PROJNAME} = $id;
 	if (!$list->{$id}->{PROJSTATUS}){
 		$list->{$id}->{PROJSTATUS} = $status;
-		$list->{$id}->{PROJSTATUS} = "running" if ($status =~ /running/i);
+		$list->{$id}->{PROJSTATUS} = "running" if ($status =~ /running/);
 		$list->{$id}->{PROJSTATUS} = "failed" if ($status =~ /fail/);
 	}
 	$list->{$id}->{PROJSUBTIME}=$created_time if (!$list->{$id}->{PROJSUBTIME});
@@ -113,6 +126,26 @@ foreach (keys %$list) {
 }
 
 print "updated projects: $numProj\n";
+
+sub guest_proj_cleanup{
+	my $dir = shift;
+	my $file = shift;
+	my $projID = shift;
+	my $project_name = shift;
+	my $projCode = shift;
+	my $guest_email = "edge_guest\@edgebioinformatics.org";
+	my $user_proj_dir = "$edge_input/". md5_hex(lc($guest_email))."/MyProjects/$project_name"."_".$projID;
+	# aged directory
+	if ( ($now-(stat $file)[9]) > $keep_secs){
+		print "remove aged guest project: $project_name with ID $projID\n";
+		remove_tree($dir);
+		&updateProject($projID, 'delete');
+		unlink $user_proj_dir, "$edge_input/public/projects/${project_name}_$projID", "$edge_input/*/SharedProjects/${project_name}_$projID";
+		unlink "$www_root/JBrowse/data/$projCode";
+                unlink "$www_root/opaver_web/data/$projCode";
+		unlink glob("$www_root/../thirdParty/pangia/pangia-vis/data/$projCode*");
+	}
+}
 ###################
 sub updateProject{
         my $project = shift;
@@ -124,14 +157,20 @@ sub updateProject{
                 password => $password,
                 project_id => $project,
                 new_project_status => $status,
-		run_submitted => $submitted,
         );
+	if($submitted){
+		$data{run_submitted} = $submitted;
+	}
 	if($running_time) {
 		$data{running_time} = $running_time;
 	}
-	my $data = to_json(\%data);
 
         my $url = $umURL ."WS/project/update";
+	if($status eq "delete") {
+                $url = $umURL ."WS/project/delete";
+        }
+	my $data = to_json(\%data);
+
         my $browser = LWP::UserAgent->new;
         my $req = PUT $url;
         $req->header('Content-Type' => 'application/json');
@@ -243,7 +282,7 @@ sub pull_summary {
 		}
 		elsif( / Running/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
-			$list->{$cnt}->{PROJSTATUS} = "running";
+			$list->{$cnt}->{PROJSTATUS} = "Running";
 		}
 		elsif( /failed/ ){
 			$list->{$cnt}->{$step}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";

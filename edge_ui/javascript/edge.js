@@ -359,7 +359,31 @@ $( document ).ready(function()
 			},100);
 		});
 	});
-		
+	
+	$('#signIn-guest').on('click', function(e){
+		$.ajax({
+			type: "POST",
+			url: "./cgi-bin/edge_user_management.cgi",
+			dataType: "json",
+			cache: false,
+			data: $.param({"action": "guestlogin",'protocol': location.protocol, 'sid': localStorage.sid}),
+			beforeSend: function(){
+        			$('#signInForm').popup('close');
+			},
+			success: function(data){
+				if (data.error){
+					showWarning("Failed to use GUEST acoount to login in." + data.error + " Please check server error log for detail.");
+				}else{
+					data.username = data.email;
+					login(data);
+				}
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				showWarning("Failed to use GUEST acoount to login in. Please check server error log for detail.");
+			}
+		});
+	});
+
 	function socialLogin(response){
 		$.ajax({
 			type: "POST",
@@ -451,15 +475,21 @@ $( document ).ready(function()
  						localStorage.background=data.userbackground;
 					}
 					var cleanData = (data.CleanData > 0);
-					if (  LoginMsg && cleanData ){
-						showWarning("The intermediate bam/sam/fastq/gz files in the projects directory will be deleted if they are older than "+ data.CleanData  + " days. <br/><p><input type='checkbox' data-role='none' id='chk-close-warning'>Don't show this again.</p>");
-						$('#chk-close-warning').click(function(){
-							if ($('#chk-close-warning').is(':checked')) {
-								localStorage.LoginMsg = false;
-							}else{
-								localStorage.LoginMsg = true;
-							}
-						});
+					if ( data.firstname === "Guest" && data.lastname === "EDGE"){
+						$('#UpdateProfileBtn').hide();
+						showWarning("The data and projects of Guest account will be delete in 24 hours.");
+					}else{
+						$('#UpdateProfileBtn').show();
+						if (  LoginMsg && cleanData ){
+							showWarning("The intermediate bam/sam/fastq/gz files in the projects directory will be deleted if they are older than "+ data.CleanData  + " days. <br/><p><input type='checkbox' data-role='none' id='chk-close-warning'>Don't show this again.</p>");
+							$('#chk-close-warning').click(function(){
+								if ($('#chk-close-warning').is(':checked')) {
+									localStorage.LoginMsg = false;
+								}else{
+									localStorage.LoginMsg = true;
+								}
+							});
+						}
 					}
 
           			} // if
@@ -2655,8 +2685,10 @@ $( document ).ready(function()
 				unstart_proj	= 0;
 				//force logout
 				if( obj.INFO.SESSION_STATUS === "invalid" && localStorage.sid ){
-					logout("Session expired. Please login again.");
-					return;
+					if ( localStorage.fnname != "Guest" && localStorage.lnname != "EDGE" ){
+						logout("Session expired. Please login again.");
+						return;
+					}
 				}
 
 				//resource usage bar
@@ -2975,7 +3007,7 @@ $( document ).ready(function()
 			  if (! umSystemStatus){
 				return true;
 			  }
-                          var url = "./cgi-bin/plupload_session.cgi?sid="+localStorage.sid;
+			  var url = "./cgi-bin/plupload_session.cgi?sid="+localStorage.sid+";fn="+localStorage.fnname+";ln="+localStorage.lnname ;
                           $.ajax({
                              type: "GET",
                              url: url,
