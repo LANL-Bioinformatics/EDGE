@@ -188,7 +188,6 @@ elsif ($action eq "guestlogin"){
 		$new_data{firstname} = $guest_fn;
 		$new_data{lastname} = $guest_ln;
 		my $new_data = to_json(\%new_data);
-		print STDERR Dumper(%new_data); 
  		&um_service($um_url,$new_data,"WS/user/register");
 		
 		&um_service($um_url,$data,"WS/user/getInfo");
@@ -398,7 +397,7 @@ sub um_service {
 		$info->{error}=$1;
 		return;
     }
-	if ($service =~ /login|getInfo/)
+	if ($service =~ /login|getInfo|register/)
 	{
 		my $tmp_r = from_json($result_json);
 		$info->{$_} = $tmp_r->{$_} foreach (keys %$tmp_r);
