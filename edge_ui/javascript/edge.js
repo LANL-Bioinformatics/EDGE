@@ -47,6 +47,11 @@ $( document ).ready(function()
 		document.write('<style type="text/undefined">');
 	}
 	}
+	$.cookieConsent({
+                message:'This website uses cookies to enhance your experience on our website. By clicking "continue" or by continuing to use our website, you are agreeing to our use of cookies. You can change your cookie settings at any time. <a target="_new_" class="ui-link" href="docs/privacy-policy.html">Privacy Policy</a>',
+                style:"position: fixed; z-index:9999 ;padding:1em; bottom: 0.5em; width: 100%",
+                consentMessage:"Continue",
+        });
 	if (navigator.onLine){
 		// This key is for LANL only. You need to edit the key=
 		var googleMapApiURL = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDhL0G5RZJDOoxgK3gtXmEhnD_aZxy0yxw&libraries=places";

@@ -24,4 +24,6 @@ foreach my $file ( @files )
 
 	`genomeCoverageBed -split -bg -ibam $file -g $tempfile > $file.bedgraph 2>/dev/null`;
 	`wigToBigWig $file.bedgraph $tempfile $file.bw`;
+	unlink $tempfile;
+	unlink "$file.bedgraph"; 
 }
