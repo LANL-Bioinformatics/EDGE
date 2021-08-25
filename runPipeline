@@ -1678,13 +1678,16 @@ sub variantAnalysis
     foreach my $con_log_file(@r2g_consensus_log_files){
       my $prefix = basename($con_log_file,".changelog");
       my $ambiguous_log  = "$r2g_outputDir/${prefix}_w_ambiguous.log";
+      my $ambiguous_fasta  = "$r2g_outputDir/${prefix}_w_ambiguous.fasta";
       symlink($con_log_file,$ambiguous_log);
       $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $con_log_file $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
-      $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $ambiguous_log $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
-      &lprint (" Running \n $cmd\n");
-      &executeCommand($cmd);
+      if ( -e "$ambiguous_fasta"){
+          $cmd="$RealBin/scripts/SNP_analysis.pl -gff $gff3File -SNP $ambiguous_log $fastainput -format changelog -output $r2g_outputDir 2>>$log2";
+          &lprint (" Running \n $cmd\n");
+          &executeCommand($cmd);
+      }
       $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.SNPs_report.txt > $r2g_outputDir/${prefix}.SNPs_report.json";
       &executeCommand($cmd) if ( -e "$r2g_outputDir/${prefix}.SNPs_report.txt" );
       $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -limit 0 $r2g_outputDir/${prefix}.Indels_report.txt > $r2g_outputDir/${prefix}.Indels_report.json";
@@ -2492,20 +2495,20 @@ title("Mapping Contigs to Reference")
 tmp<-dev.off()
 Rscript
     }
-    if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt"){
-    $mergeFiles .= $readsMappingToRefStatsPDF.",".$readsMappingToRefPDF.",";
-print $Rfh <<Rscript;
-pdf(file = "$readsMappingToRefStatsPDF",width = 10, height = 8)
+      if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt"){
+	      #    $mergeFiles .= $readsMappingToRefStatsPDF.",".$readsMappingToRefPDF.",";
+	      #print $Rfh <<Rscript;
+	      #pdf(file = "$readsMappingToRefStatsPDF",width = 10, height = 8)
   
-readsMappingToRefStats<-readLines("$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt",n=11)
-readsMappingToRefStats<-gsub("-?nan","0",readsMappingToRefStats,ignore.case = TRUE)
-plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
-for (i in 1:length(readsMappingToRefStats)){
-     text(0,1-0.07*i,readsMappingToRefStats[i],adj=0,font=2)
-}
-title("Mapping Reads to Reference")
-tmp<-dev.off()
-Rscript
+	      #readsMappingToRefStats<-readLines("$outDir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.alnstats.txt",n=11)
+	      #readsMappingToRefStats<-gsub("-?nan","0",readsMappingToRefStats,ignore.case = TRUE)
+	      #plot(0:1,0:1,type='n',xlab="",ylab="",xaxt='n',yaxt='n')
+	      #for (i in 1:length(readsMappingToRefStats)){
+	      #     text(0,1-0.07*i,readsMappingToRefStats[i],adj=0,font=2)
+	      #}
+	      #title("Mapping Reads to Reference")
+	      #tmp<-dev.off()
+	      #Rscript
     }
 }
 
@@ -3361,11 +3364,14 @@ sub runReadsToGenome
             $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
+	    remove_tree("$outputDir/${file_name}_consensus_html") if ( -d "$outputDir/${file_name}_consensus_html");
 
 	}
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
     }
+    unlink glob("$outputDir/*.bcf");
+    unlink glob("$outputDir/*gap.coords");
     &printRunTime($time);
     return ($outVCF,$outGap);
 }
@@ -3410,6 +3416,11 @@ sub getAlignTrimReads{
 	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
 	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip  -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
 	&executeCommand($extract_reads_cmd);
+	unlink @align_trim_bam_file;
+	unlink glob("$outputDir/AlignTrimMapping/*bai");
+	unlink glob("$outputDir/AlignTrimMapping/*txt");
+	unlink glob("$outputDir/AlignTrimMapping/*coverage");
+	unlink glob("$outputDir/AlignTrimMapping/*coords");
 	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
 		$pairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq $outputDir/AlignTrimMapping/AlignTrimmedReads.2.fastq";
 	}
@@ -4796,6 +4807,7 @@ sub writeJBrowseInfo
     &executeCommand("$cmd"); 
     &executeCommand("ln -sf $abs_outDir $RealBin/edge_ui/JBrowse/data/") if (! -e  "$RealBin/edge_ui/JBrowse/data/$project_name" && -w "$RealBin/edge_ui/JBrowse/data");
     unlink glob("$outputDir/*/*mapped.bam");
+    unlink glob("$outDir/ReadsBasedAnalysis/readsMappingToRef/*sort_sorted.bam*");
     &touchFile("$outputDir/writeJBrowseInfo.finished");
     &printRunTime($time);
     #return \%project;
