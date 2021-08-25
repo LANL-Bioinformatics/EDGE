@@ -489,7 +489,7 @@ $( document ).ready(function()
 					var cleanData = (data.CleanData > 0);
 					if ( data.firstname === "Guest" && data.lastname === "EDGE"){
 						$('#UpdateProfileBtn').hide();
-						showWarning("The data and projects of Guest account will be delete in 24 hours.");
+						showWarning("The data and projects of Guest account will be deleted in 24 hours.");
 					}else{
 						$('#UpdateProfileBtn').show();
 						if (  LoginMsg && cleanData ){
