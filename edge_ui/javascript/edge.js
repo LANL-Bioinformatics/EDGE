@@ -142,7 +142,9 @@ $( document ).ready(function()
 	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
 		allMainPage.hide();
 		var maxFileSize = localStorage.maxFileSize || '100mb';
+		var maxFileTotalSize = localStorage.maxFileTotalSize || '1';
 		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
+		$( "#edge-upload-maxFileTotalSize" ).html(maxFileTotalSize);
 		$( "#edge-content-uploadfile" ).fadeIn("fast", function(){
 			if (umSystemStatus && (localStorage.sid == "" || typeof localStorage.sid === "undefined") ){
 				//destory file upload 
@@ -213,6 +215,7 @@ $( document ).ready(function()
         		// data contains the JSON values returned by the cgi script 
         		success: function(data){
 					localStorage.maxFileSize = data.maxFileSize;
+					localStorage.maxFileTotalSize = data.maxFileTotalSize;
 					if (data.error) { // script returned error
 						console.log(data.error);
 						if (data.error.toLowerCase().indexOf("administrator") >= 0){
@@ -452,6 +455,7 @@ $( document ).ready(function()
         		// data contains the JSON values returned by the cgi script 
         		success: function(data){
 				localStorage.maxFileSize=data.maxFileSize;
+				localStorage.maxFileTotalSize = data.maxFileTotalSize;
 				if (data.status) { // login success
 					allMainPage.hide();
  				        //$( "#edge-apps-home" ).fadeIn();

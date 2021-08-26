@@ -69,6 +69,9 @@ if( $sys->{user_management} ){
 if ($sys->{user_upload_maxFileSize}){
 	$info->{maxFileSize} = $sys->{user_upload_maxFileSize};
 }
+if ($sys->{user_upload_dir_maxsize}){
+        $info->{maxFileTotalSize} = $sys->{user_upload_dir_maxsize};
+}
 if ($sys->{user_social_login}){
 	$info->{socialLogin} = $sys->{user_social_login};
 }
