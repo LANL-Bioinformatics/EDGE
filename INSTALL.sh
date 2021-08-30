@@ -21,7 +21,7 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi pangolin )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium ascp )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium ascp cov_tracker )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
@@ -32,6 +32,25 @@ pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
 
 ### Install functions ###
+install_cov_tracker(){
+local VER=0.1.0
+echo "------------------------------------------------------------------------------
+                           Installing cov_tracker
+------------------------------------------------------------------------------
+"
+tar xzf cov_tracker.tgz
+cd cov_tracker
+$anaconda3bin/pip install -r requirements.txt
+$anaconda3bin/python setup.py install
+cd $rootdir/thirdParty
+echo "
+------------------------------------------------------------------------------
+                           cov_tracker installed
+------------------------------------------------------------------------------
+"
+}
+
+
 install_MaxBin(){
 local VER=2.2.6
 echo "------------------------------------------------------------------------------
@@ -2712,6 +2731,8 @@ fi
 #   install_RAxML
 # fi
 
+if ( )
+
 if ( checkPython3Package selenium )
 then
         selenium_installed_VER=`python -c "import selenium; print(selenium.__version__)" || true`;
@@ -2723,6 +2744,20 @@ then
         fi
 else
         install_selenium
+fi
+
+if [ -x "$rootdir/thirdParty/Anaconda3/bin/ec19_varviz" ]
+then
+  ec19_varviz_installed_VER=`$rootdir/thirdParty/Anaconda3/bin/ec19_varviz --help  2>/dev/null | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  if [ $(versionStr $ec19_varviz_installed_VER) -ge $(versionStr "0.1.0") ]
+  then
+    echo "cov_tracker $ec19_varviz_installed_VER found"
+  else
+    install_cov_tracker
+  fi
+else
+  echo "cov_tracker is not found"
+  install_cov_tracker
 fi
 
 #if [ -f $rootdir/lib/Parallel/ForkManager.pm ]
