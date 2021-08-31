@@ -40,6 +40,7 @@
 
 	<div role='main' id='edge-projects-report-page' class='ui-content edge-content edge-output'>
 		<h2 id="edge-output-reportname" data-pid="<TMPL_VAR NAME=REPORTID>"><TMPL_VAR NAME=REPORTNAME DEFAULT=-></h2>
+		<span id="report-dir" style="display:none;"><TMPL_VAR NAME=REPORTDIR></span>
 		<p>
 			Description: <TMPL_VAR NAME=REPORTDESC DEFAULT=-><br/>
 		</p>	
@@ -135,7 +136,11 @@
 				</p>			
 			</div>
 		</TMPL_IF>
-			
+			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+                                <h4>Report plots</h4>
+                                <span id="wait-report-plots" style="display:none;"><div class='edge-sp edge-sp-circle'></div>Wait for graphic generations</span>
+                                <iframe id="report-plots-iframe" style='height:600px;width:100%;border:none;' src='./lanl_project_list_ec19.html'>Your browser does not support iframes</iframe>
+                        </div>		
 		<TMPL_IF NAME="PREPROCESS">
 			<div data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 				<h4>Pre-processing</h4>

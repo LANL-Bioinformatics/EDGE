@@ -7,6 +7,7 @@ use File::Basename;
 use lib "$RealBin/../../lib";
 use HTML::Template;
 use POSIX qw{strftime};
+use File::Copy;
 use JSON;
 use Cwd;
 
@@ -1959,6 +1960,28 @@ sub pull_readmapping_ref {
 						#$refinfo->{"RMCONVARIANT"} = ($consensus_info2->{$consensus_id}->{variants_num})? $consensus_info2->{$consensus_id}->{variants_num} : "0";
 						$refinfo->{"RMCONSNP"} = ($consensus_info2->{$consensus_id}->{snps_num})? $consensus_info2->{$consensus_id}->{snps_num} : "0";
 						$refinfo->{"RMCONGAPINFO"} = ($consensus_info2->{$consensus_id}->{gaps_num})? $consensus_info2->{$consensus_id}->{gaps_num} : "0";
+						if( scalar @temp < 11){ ## no SNP/INDEL count from variant call, add number into alnstats.txt
+							my @genome_alnstat = glob("$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}*alnstats.txt");
+							copy($genome_alnstat[0],"$genome_alnstat[0].bak");
+							open (my $aln_fh, "<", "$genome_alnstat[0].bak");
+							open (my $aln_fh2, ">", "$genome_alnstat[0]");
+							while(<$aln_fh>){
+								chomp;
+								$_ =~ s/\s+$//;
+								if (/Num_of_SNPs/){ print $aln_fh2 $_,"\n"; my $tmp = <$aln_fh>; print $aln_fh2 $tmp; last;}
+								if (/^Ref/){
+									
+									print $aln_fh2 $_,"\tNum_of_SNPs\tNum_of_INDELs\n";
+								}elsif(/^$temp[0]/){
+									print $aln_fh2 $_,"\t$refinfo->{RMCONSNP}\t$refinfo->{RMCONINDEL}\n";
+								}else{
+									print $aln_fh2 $_,"\n";
+								}
+							}
+							close $aln_fh;
+							close $aln_fh2;
+							unlink "$genome_alnstat[0].bak";
+						}
 					}
 				}
 			}

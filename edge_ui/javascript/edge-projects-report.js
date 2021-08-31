@@ -206,6 +206,24 @@ $( document ).ready(function()
 					.fail(function( jqxhr, settings, exception ) {
 						console.log( jqxhr, settings, exception );
 					});
+				//check report plot
+				var reportURL = "." + $('#report-dir').text() + "/lanl_project_list_ec19.html";
+				if (/EDGE_report/.test(location.pathname.toString()) || ! location.hostname){
+					reportURL = "./lanl_project_list_ec19.html";
+				}
+				$('#report-plots-iframe').hide();
+				$('#wait-report-plots').show();
+				var updatePlotInterval = setInterval(function(){
+				$.get(reportURL)
+					.done(function() { 
+						clearInterval(updatePlotInterval);
+						$('#report-plots-iframe').attr("src",reportURL).show();
+						$('#wait-report-plots').hide();
+					}).fail(function() { 
+						$('#report-plots-iframe').hide();
+						$('#wait-report-plots').show();
+					})
+				}, 5000);
 			},
 			error: function(data){
 				//console.log(data);

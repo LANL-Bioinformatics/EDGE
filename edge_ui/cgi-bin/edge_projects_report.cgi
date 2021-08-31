@@ -19,7 +19,7 @@ my $username    = $opt{'username'}|| $ARGV[0];
 my $password    = $opt{'password'}|| $ARGV[1];
 my $umSystemStatus    = $opt{'umSystem'}|| $ARGV[2];
 my $userType;
-my $viewType    = $opt{'view'}|| $ARGV[4];
+my $viewType    = $opt{'view'}|| $ARGV[4] || 'user';
 my $protocol    = $opt{protocol}||'http:';
 my $sid         = $opt{'sid'}|| $ARGV[5];
 my $action = lc($opt{action});
@@ -40,6 +40,8 @@ my $um_config	= $sys->{user_management};
 my $um_url      = $sys->{edge_user_management_url};
 $um_url ||= "$protocol//$domain/userManagement";
 my $maintenance= ($sys->{"maintenance"})? $sys->{"maintenance"}:"0";
+my $EDGE_HOME = $ENV{EDGE_HOME};
+$EDGE_HOME ||= "$RealBin/../..";
 
 my $cluster     = $sys->{cluster};
 
@@ -69,7 +71,7 @@ if($action eq "form") {
 			$tableHtml .= "<th>$head_checkbox</th><th>Project Name</th><th>Status</th><th>Submission Time</th><th>Total Running Time</th><th>Type</th><th>Owner</th>";
 		}
 		$tableHtml .= " </tr></thead>";
-		&getProjFromUM($viewType);
+		$relt = &getProjFromUM($viewType,$action);
 
 	} else {
 		# all projects in the EDGE_output
@@ -112,7 +114,8 @@ if($action eq "form") {
 		my $report_out_dir = "$report_dir/". $report_name;
 		my $relative_outdir = "$report_rel_dir/". $report_name;
 		system("mkdir -p $report_out_dir");
-
+		$relt = &getProjFromUM($userType,$action);
+		my @selected_projects = split(/[\x0]/,$opt{'edge-reportform-ckb'});
 		my $reportSettings = "$report_out_dir/reportSettings.txt";
 		open OUT,  ">$reportSettings"; 
 
@@ -142,7 +145,7 @@ if($action eq "form") {
 		print OUT "tax-tools=".$opt{'checkbox-report-5-3'}."\n";
 		print OUT "tax-tools-selected=".join(',',split(/[\x0]/,$opt{'tax-tool-list'}))."\n";
 		print OUT "tax-tool-pangia-score=".$opt{'tax-tool-pangia-score'}."\n";
-		print OUT "projects-selected=".join(',',split(/[\x0]/,$opt{'edge-reportform-ckb'}))."\n";
+		print OUT "projects-selected=".join(',',@selected_projects)."\n";
 		close OUT;
 	
 		my $reportTmpl    = "$RealBin/../../scripts/projects_report/edge_projects_report_html.tmpl";
@@ -150,6 +153,17 @@ if($action eq "form") {
 		my $cmd = "cd $edgeui_wwwroot; $edgeui_wwwroot/../scripts/projects_report/create_report_w_temp.pl $report_out_dir $reportHtml $reportSettings";
 		#print STDERR "$cmd\n";
 		`$cmd`;
+		
+		my $cov_tracker_cmd = &run_cov_tracker(\@selected_projects, $report_out_dir, $relt);
+		my $cmd = "/bin/bash $cov_tracker_cmd >$report_out_dir/log.txt 2>\&1 &";
+		my $pid = open (COVTRAKCER, "-|") 
+				or exec("$cmd");
+                close COVTRAKCER;
+		if( $pid ){
+			$info->{PID} = ++$pid;
+			$info->{INFO} = "run cov tracker in the background!";
+			$info->{PATH} = "$relative_outdir/lanl_project_list_ec19.html";
+		}
 
 		my $pr=0;
 		my @htmls;
@@ -166,6 +180,7 @@ if($action eq "form") {
 	}
 	print "Content-Type: text/html\n\n",
 				  $html;
+	
 } elsif ($action eq "list") {
 	my $list;
 	if ($username && $password){
@@ -246,8 +261,34 @@ if($action eq "form") {
 }
 ## END MAIN## 
 
+sub run_cov_tracker{
+	my $projects = shift;
+	my $report_dir = shift;
+	my $relt = shift;
+	my $cmds_file =  "$report_dir/prepare_cmds.txt";
+	open (my $cmds_fh, ">", $cmds_file) or die $!; 
+	foreach my $proj_code (@$projects){
+		my $proj_name = $relt->{$proj_code}->{name};
+		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.SNPs_report.txt | sed 's/NC_045512_2/$proj_name/' >> $report_dir/lanl_project_list.SNP.tsv\n";
+		print $cmds_fh "grep -B 1 NC_045512 $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2.alnstats.txt | sed 's/NC_045512_2/$proj_name/' >>  $report_dir/lanl_project_list.alnstats.tsv\n";
+		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.gaps_report.txt | grep 'surface glycoprotein' | sed 's/NC_045512_2/$proj_name/' >> $report_dir/lanl_project_list.gaps.tsv\n";
+		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.fasta | sed 's/_consensus_NC_045512_2//' >> $report_dir/lanl_project_list.fa\n";
+		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys,$proj_name),\"\\n\"; print join(\"\\t\",\@values,$proj_name),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
+	}
+	close $cmds_fh;
+	my $pangolin_cmd = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate $EDGE_HOME/thirdParty/Anaconda3/envs/pangolin; pangolin -t 4 --tempdir $report_dir --outdir $report_dir --outfile $report_dir/lanl_project_list.lineage_report.csv $report_dir/lanl_project_list.fa > $report_dir/lanl_project_list.pangolin.log 2>&1";
+	my $ec19_varviz_cmds = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate base; cd $report_dir; ec19_varviz report --snps lanl_project_list.SNP.tsv --gaps lanl_project_list.gaps.tsv --alnstats lanl_project_list.alnstats.tsv --pango lanl_project_list.lineage_report.csv --metadata lanl_project_list.metadata.tsv --output lanl_project_list_ec19.html > ec19_report.log 2>&1";
+	my $ec19_varviz_cmds_file =  "$report_dir/ec19_varviz_cmds.sh";
+	open (my $fh, ">", $ec19_varviz_cmds_file) or die $!;
+	print $fh "$EDGE_HOME/bin/parallel < $cmds_file\n";
+	print $fh $pangolin_cmd,"\n";
+	print $fh $ec19_varviz_cmds,"\n";
+	close $fh;
+	return $ec19_varviz_cmds_file;
+}
 sub getProjFromUM {
 	my $request_type = shift;
+	my $action = shift;
 	my @tds_for_list;
 	
         my %data = (
@@ -296,20 +337,25 @@ sub getProjFromUM {
 		$running_time = $hash_ref->{running_time};
 		$type = $hash_ref->{type};
 		$owner = $hash_ref->{owner};
-		
-		my $projname = "<a href='#' class='edge-report-form-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
-		my $checkbox = "<input type='checkbox' class='edge-reportform-ckb' name='edge-reportform-ckb' value='$code'>";
+		if ($action eq 'form'){
+			my $projname = "<a href='#' class='edge-report-form-link ' title='alt-click to open in a new tab' data-pid='$id'>$name</a>";
+			my $checkbox = "<input type='checkbox' class='edge-reportform-ckb' name='edge-reportform-ckb' value='$code'>";
 
-		if($request_type eq "user") {
-			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$type,$owner );
-		} elsif($request_type eq "admin") {
-			@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$owner );
-		} else {
-			@tds_for_list = ( $projname,$status,$submitted,$running_time,$owner );
+			if($request_type eq "user") {
+				@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$type,$owner );
+			} elsif($request_type eq "admin") {
+				@tds_for_list = ( $checkbox,$projname,$status,$submitted,$running_time,$owner );
+			} else {
+				@tds_for_list = ( $projname,$status,$submitted,$running_time,$owner );
+			}
+			push @{$relt->{data}}, [@tds_for_list];
 		}
-		push @{$relt->{data}}, [@tds_for_list];
+		if ($action eq 'create'){
+			$relt->{$code}->{name} = $name;
+		}
 	
 	}
+	return $relt;
 }
 
 sub sortReportList {

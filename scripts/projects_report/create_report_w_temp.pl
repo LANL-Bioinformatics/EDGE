@@ -21,6 +21,7 @@ my $www_root	= $sys->{edgeui_wwwroot};
 
 ## Instantiate the variables
 my $vars;
+$vars->{REPORTDIR} = $report_rel_dir;
 $vars->{REPORTNAME} = $settings->{'report-name'};
 $vars->{REPORTDESC} = $settings->{'report-desc'};
 my $project_out_dir = $sys->{'edgeui_output'};
