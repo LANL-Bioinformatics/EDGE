@@ -1477,6 +1477,7 @@ fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
+$anaconda3bin/pip install --upgrade pip
 $anaconda3bin/pip install CairoSVG pandas pysam
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
@@ -2989,6 +2990,7 @@ fi
 #rm -rf $rootdir/thirdParty/Anaconda3Packages/
 $anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
+$anaconda3bin/pip cache purge
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
