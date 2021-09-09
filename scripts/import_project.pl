@@ -73,7 +73,7 @@ if ($new_projid && $new_projcode){
 	my $new_process_currentLog = "$edge_output/$new_projcode/process_current.log";
 	unlink "$edge_output/$new_projcode/HTML_Report/.complete_report_web";
 	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/; s/projid=[[:graph:]]*/projid=$new_projid/; s/projcode=[[:graph:]]*/projcode=$new_projcode/' $new_config");
-	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g; s/EDGE_output\\\/$projid/EDGE_output\\\/$new_projid/g' $new_processLog");
+	system("sed -i.bak 's/projowner=[[:graph:]]*/projowner=$username/g; s/projid=[[:graph:]]*/projid=$new_projid/g; s/projcode=[[:graph:]]*/projcode=$new_projcode/g; s/EDGE_output\\\/$projid/EDGE_output\\\/$new_projid/g; s/projname=[[:graph:]]*/projname=$projname/g' $new_processLog");
 	system("sed -i.bak 's/$projcode/$new_projcode/g' $new_processLog") if ($projcode);
 	my $pangia_vis_dir = "$edge_output/$new_projcode/ReadsBasedAnalysis/Taxonomy/report/1_allReads/pangia/pangia-vis";
 	if ( -d "$pangia_vis_dir/$projcode"){
