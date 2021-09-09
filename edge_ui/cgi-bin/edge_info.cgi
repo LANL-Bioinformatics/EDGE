@@ -217,7 +217,7 @@ if( scalar @projlist ){
 			$p_status = "unknown" if (!$p_status);
 			(my $tmp,$prog,$proj_start,$numcpu,$proj_desc,$proj_name,$proj_id) = &parseProcessLog($config) if $p_status =~ /unstarted|unknown|interrupted/;
 			$list->{$i}->{CPU} = $numcpu;
-			$list->{$i}->{PROJNAME} = $proj_name;
+			$list->{$i}->{PROJNAME} ||= $proj_name;
 
 			if( defined $name2pid->{$lproj} || defined $name2pid->{$lprojc} ){ #running
 				$list->{$i}->{STATUS} = "running";
