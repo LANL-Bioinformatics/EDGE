@@ -48,8 +48,8 @@ $( document ).ready(function()
 	}
 	}
 	$.cookieConsent({
-                message:'This website uses cookies to enhance your experience on our website. By clicking "continue" or by continuing to use our website, you are agreeing to our use of cookies. You can change your cookie settings at any time. <a target="_new_" class="ui-link" href="docs/privacy-policy.html">Privacy Policy</a>',
-                style:"position: fixed; z-index:9999 ;padding:1em; bottom: 0.5em; width: 100%",
+		message:'This website uses cookies to enhance your experience on our website. By clicking "continue" or by continuing to use our website, you are agreeing to our use of cookies. You can change your cookie settings at any time. <a style="color:white;" target="_new_" class="ui-link" href="docs/privacy-policy.html">Privacy Policy</a>',
+                style:"position:fixed;z-index:9999;padding:1em;bottom:0.5em;width:100%;color:white;background-color:#02497e;",
                 consentMessage:"Continue",
         });
 	if (navigator.onLine){
