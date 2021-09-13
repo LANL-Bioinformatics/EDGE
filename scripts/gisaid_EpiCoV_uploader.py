@@ -195,6 +195,7 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
                 time.sleep(0.3)
             num += 1
     
+    driver.find_element_by_xpath("//div[@class='sys-form-fi-sb']//option[@value='com_frameshift_confirmed']").click()
     waiting_sys_timer(wait)
     
     if debug:
