@@ -9,6 +9,7 @@ use POSIX qw{strftime};
 use Getopt::Long;
 use File::Path;
 use Data::Dumper;
+use JSON;
 
 my $sysconfig    = "$RealBin/../../edge_ui/sys.properties";
 my $sys          = &getSysParamFromConfig($sysconfig);
@@ -103,10 +104,15 @@ sub pull_bioproject{
 			chomp;
 			next if(/^#/);
 			my ($key, $value) = split /\t/,$_;
-			$info->{BIOPROJECT_TITLE} =$value if ($key eq "BIOPROJECT_TITLE");
-			$info->{BIOPROJECT_DESC} =$value if ($key eq "BIOPROJECT_DESC");
-			$info->{BIOPROJECT_LINK_DESC} =$value if ($key eq "BIOPROJECT_LINK_DESC");
-			$info->{BIOPROJECT_LINK_URL} =$value if ($key eq "BIOPROJECT_LINK_URL");
+			$vars->{BIOPROJECT_TITLE} =$value if ($key eq "ProjectTitle");
+			$vars->{BIOPROJECT_DESC} =$value if ($key eq "Description");
+			if ($key eq "Resource"){
+				my $json = decode_json($value);
+				for my $desc (keys %$json){
+					$vars->{BIOPROJECT_LINK_DESC} = $desc;
+					$vars->{BIOPROJECT_LINK_URL} = $json->{$desc};
+				}
+			}
 		}
 		close $fh;
 	}

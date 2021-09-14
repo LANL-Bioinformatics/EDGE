@@ -8,6 +8,7 @@ use HTML::Template;
 use POSIX qw{strftime};
 use File::Path qw(make_path remove_tree);
 use File::Copy;
+use JSON;
 
 my $out_dir       = $ARGV[0];
 my $html_outfile  = $ARGV[1];
@@ -78,10 +79,15 @@ sub pull_bioproject{
 			chomp;
 			next if(/^#/);
 			my ($key, $value) = split /\t/,$_;
-			$vars->{BIOPROJECT_TITLE} =$value if ($key eq "BIOPROJECT_TITLE");
-			$vars->{BIOPROJECT_DESC} =$value if ($key eq "BIOPROJECT_DESC");
-			$vars->{BIOPROJECT_LINK_DESC} =$value if ($key eq "BIOPROJECT_LINK_DESC");
-			$vars->{BIOPROJECT_LINK_URL} =$value if ($key eq "BIOPROJECT_LINK_URL");
+			$vars->{BIOPROJECT_TITLE} =$value if ($key eq "ProjectTitle");
+			$vars->{BIOPROJECT_DESC} =$value if ($key eq "Description");
+			if ($key eq "Resource"){
+				my $json = decode_json($value);
+				for my $desc (keys %$json){
+					$vars->{BIOPROJECT_LINK_DESC} = $desc;
+					$vars->{BIOPROJECT_LINK_URL} = $json->{$desc};
+				}
+			}
 		}
 		close $fh;
 	}
@@ -165,7 +171,7 @@ sub pull_experiments{
 		}
 		close $fh;
 	}	
-	my $amplicon_method;
+	my $amplicon_method="";
 	if( $configuration->{porechop} =~ /artic_ncov2019_primer_schemes_(.*)/){
 		$amplicon_method = "ARTIC $1 amplicon ";
 	}elsif ( $configuration->{porechop} =~ /SC2_200324/){
