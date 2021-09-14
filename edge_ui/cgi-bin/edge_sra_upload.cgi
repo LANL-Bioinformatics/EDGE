@@ -548,7 +548,7 @@ OUTMSG
 		print $ofh "ProjectTitle\t$opt{'metadata-sra-bioproject-title'}\n";
 	}
 	if ($opt{'metadata-sra-bioproject-desc'}){
-		print "Description\t$opt{'metadata-sra-bioproject-desc'}\n";
+		print $ofh "Description\t$opt{'metadata-sra-bioproject-desc'}\n";
 	}
 	close $ofh;
 }
