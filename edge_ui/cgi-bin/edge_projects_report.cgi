@@ -273,7 +273,7 @@ sub run_cov_tracker{
 		print $cmds_fh "grep -B 1 NC_045512 $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2.alnstats.txt | sed 's/NC_045512_2/$proj_name/' >>  $report_dir/lanl_project_list.alnstats.tsv\n";
 		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.gaps_report.txt | grep 'surface glycoprotein' | sed 's/NC_045512_2/$proj_name/' >> $report_dir/lanl_project_list.gaps.tsv\n";
 		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.fasta | sed 's/_consensus_NC_045512_2//' >> $report_dir/lanl_project_list.fa\n";
-		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys,$proj_name),\"\\n\"; print join(\"\\t\",\@values,$proj_name),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
+		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys,\"$proj_name\"),\"\\n\"; print join(\"\\t\",\@values,\"$proj_name\"),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
 	}
 	close $cmds_fh;
 	my $pangolin_cmd = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate $EDGE_HOME/thirdParty/Anaconda3/envs/pangolin; pangolin -t 4 --tempdir $report_dir --outdir $report_dir --outfile $report_dir/lanl_project_list.lineage_report.csv $report_dir/lanl_project_list.fa > $report_dir/lanl_project_list.pangolin.log 2>&1";
