@@ -212,7 +212,7 @@ def fill_EpiCoV_upload(uname, upass, seq, metadatafile, to, rt, iv, headless, de
                                 break
                         time.sleep(1)
         else:
-                button = driver.find_element_by_xpath('//button[contains(text(), "Check and Submit")]')
+                button = driver.find_element_by_xpath('//button[contains(text(), "Verify and Submit")]')
                 button.click()
                 waiting_sys_timer(wait)
 
