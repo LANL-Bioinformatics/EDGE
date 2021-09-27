@@ -191,7 +191,7 @@ if($action eq "create-form") {
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $gisaid_done, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ("/bin/bash $submit_script > $submit_current_log &");
+			or exec ("/bin/bash $submit_script > $submit_current_log  2>\&1 &");
 		if (not defined $pid ){
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{
@@ -199,6 +199,7 @@ if($action eq "create-form") {
 			$msg->{PATH} = "$upload_content_reldir/submit_current.log";
 			addMessage("SUBMIT",'success',"See the log window for status.");
 		}
+		close $script_fh;
 		#or exec ('/bin/bash', "$upload_content_dir/submit.sh");
 		#create .done file after successful submission
 		#while(<$script_fh>){
@@ -263,15 +264,21 @@ if($action eq "create-form") {
 		#print STDERR join("\t",$i, $virusNames[$i], $opt{'metadata-virus-name'}, $projNames[$i], $projCodes[$i],"\n");
 		my $projDir = $edgeui_output . "/". $projCodes[$i];
 		my $upload_content_dir = "$projDir/UPLOAD";
+		my $submit_log = "$upload_content_dir/submit.log";
 		mkpath($upload_content_dir);
-		my $gisaidDone = "$upload_content_dir/gisaid_ncbi_submission.done"; 
+		my $gisaidncbiDone = "$upload_content_dir/gisaid_ncbi_submission.done"; 
 		my $submit_metadata_out= "$upload_content_dir/gisaid_ncbi_submission.txt";
 		my $projCompleteReport_cache = "$projDir/HTML_Report/.complete_report_web";
-		push @gisaidDoneFiles, $gisaidDone;
+		my ($gisaidDone, $ncbiDone)=checkUploadStatus($submit_log);
+		push @gisaidDoneFiles, $gisaidncbiDone;
 		push @projCompleteReport_cacheFiles, $projCompleteReport_cache;
 		my $ownProjectFlag = 1 if ($ownProjlist->{$projCodes[$i]});
-		addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( $action eq "batch-upload2gisaid" && !$ownProjectFlag);
-		addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited") if ( $action eq "batch-upload2gisaid" && -e $gisaidDone);
+		if ( $action eq "batch-upload2gisaid" ) {
+			addMessage("BATCH-SUBMIT","failure","Not the owner of project $projNames[$i]") if ( !$ownProjectFlag);
+			addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited to GISAID and NCBI") if ( -e $gisaidncbiDone);
+			addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited to GISAID but failed on NCBI submission. Please use single project submit.") if ( $gisaidDone and ! $ncbiDone);
+			addMessage("BATCH-SUBMIT","failure","$projNames[$i] had submmited to NCBI but failed on GISAID submission. Please use single project submit.") if ( !$gisaidDone and $ncbiDone);
+		}
 		checkParams($projNames[$i],$i) if $action eq "batch-upload2gisaid";
 		writeMetaData($projDir,$selected_consensus);
 		#gisaid profile
@@ -334,7 +341,7 @@ if($action eq "create-form") {
 		SetSubmitScript($submit_script, $submit_log, \@projCompleteReport_cacheFiles,\@gisaidDoneFiles, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
 		my $pid = open ($script_fh, "-|")
-			or exec ("/bin/bash $submit_script > $submit_current_log &");
+			or exec ("/bin/bash $submit_script > $submit_current_log 2>\&1 &");
 		if (not defined $pid ){
 			$msg->{SUBMISSION_STATUS}="failure";
 		}else{
@@ -342,6 +349,7 @@ if($action eq "create-form") {
 			$msg->{PATH} = "$relative_outdir/submit_current.log";
 			addMessage("BATCH-SUBMIT",'success',"See the log window for status.");
 		}
+		close $script_fh;
 		#if ( ! $upload_success_flag ){
 		#		addMessage("BATCH-SUBMISSION","failure","Please see $relative_outdir/gisaid_submit.log ncbi_submit.log");
 		#}
@@ -357,6 +365,19 @@ if ($action !~ /create.*form/){
 
 ######################################################
 
+sub checkUploadStatus{
+	my $log = shift;
+	my $gisaid_flag = 0;
+	my $ncbi_flag = 0;
+	return ($gisaid_flag, $ncbi_flag) unless -e $log;
+	open (my $fh, "<", $log) or die "Cannot open $log\n";
+	while(<$fh>){
+		$gisaid_flag = 1 if (/GISAID submit Completed/);
+		$ncbi_flag = 1 if (/NCBI submit Completed/);
+	}
+	close $fh;
+	return ($gisaid_flag, $ncbi_flag);
+}
 sub write_tsv{
         my $outfile = shift;
         my $header = shift;
@@ -733,7 +754,7 @@ sub checkParams {
 	my @virus_names = split ('/',  $opt{'metadata-virus-name'});
 	&addMessage("PARAMS", "metadata-virus-name", "Virus name should start with hCoV-19." , $index) if ($virus_names[0] ne 'hCoV-19');
 	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'.", $index) if (scalar(@virus_names) != 4 );
-	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'." , $index) if ($virus_names[3] =~ /\D/ or $virus_names[3] < 1979);
+	&addMessage("PARAMS", "metadata-virus-name", "Virus name format should be 'hCoV-19/Country/Identifier/Year'.", $index) if ($virus_names[3] =~ /\D/ or $virus_names[3] < 1979);
 	&addMessage("PARAMS", "metadata-virus-passage", "$projname Passage details/history is required." , $index) unless ( $opt{'metadata-virus-passage'}); 
 	&addMessage("PARAMS", "metadata-sample-collection-date", "$projname Collection date is required." , $index) unless ( $opt{'metadata-sample-collection-date'}); 
 	&addMessage("PARAMS", "metadata-sample-location", "$projname Location is required.", $index) unless ( $opt{'metadata-sample-location'}); 

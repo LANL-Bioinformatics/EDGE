@@ -5,6 +5,7 @@ $( document ).ready(function()
 	var newWindowFooter = "<div id='newWindowSpinner'  class='edge-sp edge-sp-circle'></div><pre style='background-color: rgba(0,0,0,.8);overflow-y: auto;padding: 1em;'><code id='newWindowMsg' style='white-space: pre-wrap;color: white; font: 300 0.8em 'Bitstream Vera Sans Mono', 'Courier', monospace;'></code></pre></body></html>";
         var newTitle = "EDGE COVID-19";
 	var page = $( this );
+	var projdir = $('#edge-proj-outdir').attr('dir-src');
 	$("table td, table th, .tooltip").tooltipster({
 						multiple:true, maxWidth: '480', interactive: true
 					});
@@ -431,7 +432,7 @@ $( document ).ready(function()
 	});
 
 	var loc = window.location.pathname.replace("//","/");
-    var edge_path = loc.substring(0,loc.lastIndexOf('/'));
+	var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 	//$("#edge-gisaid-form-submit").parent().hide();
 	//$("#edge-gisaid-form-download").parent().hide();
 	//form submit
@@ -638,6 +639,8 @@ $( document ).ready(function()
 	function check_process(data){
 		var spinner_id = data.spinner_id;
 		var w = data.w;
+		var exitScreenshot = projdir + '/UPLOAD/exit_ncbi_screenshot.png';
+		var exitScreenshot2 = projdir + '/UPLOAD/exit_gisaid_screenshot.png';
 		$.ajax({
 			url: "./cgi-bin/edge_action.cgi",
 			type: "POST",
@@ -661,10 +664,17 @@ $( document ).ready(function()
 						spinnerObj.removeClass("edge-sp edge-sp-circle");
 						var msgObj = $(w.document.body).find('#newWindowMsg');
 						var infoObj = $(w.document.body).find('#newWindowInfo');
+						var logPre = $(w.document.body).find('pre');
 						infoObj.text(function(){
 							return $(this).text().replace("Please wait...","");
 						});
 						getLog('./' + data.PATH, msgObj, data.projname, true);
+						$.get('./' + exitScreenshot).done(function() {
+							logPre.after('<div><img src=./' + exitScreenshot +'></div>').fadeIn();
+						});
+						$.get('./' + exitScreenshot2).done(function() {
+							logPre.after('<div><img src=./' + exitScreenshot2 +'></div>').fadeIn();
+						});
 						//updateReport($('#edge-output-projid').attr("data-pid"));
  						//$('#get_download_link').after(data.LINK);
  						//$('#ddownload_link').addClass("ui-btn ui-mini ui-btn-inline ui-btn-active");
