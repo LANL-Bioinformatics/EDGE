@@ -345,6 +345,11 @@ if ( $contigFile && -s $contigFile)
 # generate JBrowse Tracks
 &writeJBrowseInfo($outDir) if ($configuration->{DoJBrowse});
 
+### COV tracker
+if ( $configuration->{DoCovTracker} and $configuration->{metadata_pkl_file} and -e "$configuration->{metadata_pkl_file}"){
+	&run_covTracker();
+}
+
 my $taxonomy_report_dir;
 my $conversion_cmd_array_ref = &MergeReport();
 
@@ -421,6 +426,27 @@ unlink glob("$ENV{HOME}/core.*");
 #}
 ### END MAIN ###
 ### Below are subroutins ###
+sub run_covTracker{
+	my $time=time();
+	if ($noColorLog){
+		&lprint ("[COV tracker]\n");
+	}else{
+		&lprint (colored ("[COV tracker]\n",'yellow'));
+	}
+	my ($file_name, $file_path, $file_suffix)=fileparse($configuration->{metadata_pkl_file}, qr/\.[^.]*/);
+	my $pkl_mutation_file = "$file_path/$file_name" . ".mutation.pkl";
+	my $metadata = "$outDir/metadata_gisaid_ncbi.txt";
+	my $SNP_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.SNPs_report.txt";
+	my $lineage_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus_lineage.txt";
+	my $ec19_varviz_output = "$outDir/HTML_Report/cov_tracker.html";
+	 my $ec19_varviz_log = "$outDir/HTML_Report/cov_tracker.log";
+	if ( -e "$metadata" and -e "$SNP_report_file" and -e "$lineage_report_file"){
+		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; ec19_varviz project --sample $project_name --meta-pkl $configuration->{metadata_pkl_file} --mut-pkl $pkl_mutation_file --snps $SNP_report_file --pango $lineage_report_file --metadata $metadata --geo-type country --country USA --output $ec19_varviz_output 1>$ec19_varviz_log 2>&1";
+		&lprint ("  Running \n  $cmd \n");
+		eval{system($cmd);}
+	}
+	&printRunTime($time);
+}
 sub runPiReT {
     my $kingdom = $configuration->{piret_kingdom};
     my $significant_pvalue = $configuration->{piret_p_value} || 0.001;

@@ -1078,7 +1078,13 @@
 			</ol>
 		</div>
 		</TMPL_IF>
-
+		<TMPL_IF NAME="OUT_COV_TRACKER">
+		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4 id="covTrackerTag">COV Trakcer</h4>
+			<span class="iframe_label"><a data-ajax='false' id="cov-tracker-link" target="_new"  href='./cov_tracker.html'>[new_window]</a></span>
+			<iframe id="cov-tracker-iframe" style='height:600px;width:100%;border:none;' src='./cov_tracker.html'>Your browser does not support iframes</iframe>
+		</div>
+		</TMPL_IF>
 		<TMPL_IF NAME="OUT_CP_SW">
 		<div class='edge-print-page' id='edge-output-community-profiling' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4>Taxonomy Classification</h4>

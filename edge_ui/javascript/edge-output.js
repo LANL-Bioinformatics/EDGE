@@ -883,5 +883,8 @@ $( document ).ready(function()
 			$('html, body').animate({scrollTop: 300})
 		}
 	})
+	var covtrackerURL = projdir + "HTML_Report/cov_tracker.html";
+	$('#cov-tracker-iframe').attr("src",covtrackerURL).show();
+	$('#cov-tracker-link').attr("href",covtrackerURL);
 });
 //# sourceURL=edge-output.js
