@@ -2144,11 +2144,19 @@ sub parse_lineage{
 		$lineage{$cid}->{pangoLEARN_version} = $pangoLEARN_version;
 		$lineage{$cid}->{pango_version} = $pango_version;
 		$lineage{$cid}->{status} = $status;
-		if ($lineage_assign =~ /B.1.526/ or $lineage_assign eq 'P.2' or $lineage_assign =~ /B.1.525/ or $lineage_assign =~ /B.1.617/  or $lineage_assign =~ /B.1.427/ or $lineage_assign =~ /B.1.429/){
+		if ($lineage_assign =~ /C.37/ or $lineage_assign =~ /B.1.621/ ){
 			$note = "; VOI";
 			$lineage{$cid}->{warning} = "VOI";
 		}
-		if ($lineage_assign eq 'B.1.1.7' or $lineage_assign eq 'P.1' or $lineage_assign eq 'P.1.1' or $lineage_assign =~ /B.1.351/  or $lineage_assign =~ /B.1.617.2/ or $lineage_assign =~ /AY.[123]/ ){
+		if ($lineage_assign =~ /C.1.2/ or $lineage_assign =~ /B.1.525/ or $lineage_assign =~ /B.1.526/ or $lineage_assign =~ /B.1.617.[13]/ or $lineage_assign =~ /P.3/ or $lineage_assign =~ /B.1.1.318/ or $lineage_assign =~ /AZ./ or $lineage_assign =~ /C.36.3/){
+			$note = "; VUM";
+			$lineage{$cid}->{warning} = "VUM";
+		}
+		if ($lineage_assign =~ /B.1.1.7/ or $lineage_assign =~ /Q.[12345678]/ or $lineage_assign =~ /B.1.351/ or $lineage_assign =~ /P.1/){
+			$note = "; VOC";
+			$lineage{$cid}->{warning} = "VOC";
+		}
+		if ($lineage_assign =~ /B.1.617.2/ or $lineage_assign =~ /AY./ ){
 			$note = "; VOC";
 			$lineage{$cid}->{warning} = "VOC";
 		}
