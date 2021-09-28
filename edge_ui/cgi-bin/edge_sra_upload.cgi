@@ -271,6 +271,7 @@ if($action eq "create-form") {
 	my @sampleHosts = split /[\x0]/, $opt{'metadata-sra-biosample-hosts'};
 	my @sampleGenders = split /[\x0]/,$opt{'metadata-sra-biosample-genders'};
 	my @sampleAges = split /[\x0]/,$opt{'metadata-sra-biosample-ages'};
+	my @sampleVaccineStatus = split /[\x0]/,$opt{'metadata-sra-biosample-vaccine-receiveds'};
 	my @sampleStatus = split /[\x0]/,$opt{'metadata-sra-biosample-statuss'};
 	my @samplePurposes = split /[\x0]/,$opt{'metadata-sra-biosample-purposes'};
 	my @sampleGISAIDaccs = split /[\x0]/,$opt{'metadata-sra-biosample-gisaid-accs'};
@@ -308,6 +309,7 @@ if($action eq "create-form") {
 		$opt{'metadata-sra-biosample-gender'} = $sampleGenders[$i];
 		$opt{'metadata-sra-biosample-status'} = $sampleStatus[$i];
 		$opt{'metadata-sra-biosample-age'} = $sampleAges[$i];
+		$opt{'metadata-sra-biosample-vaccine-received'} = $sampleAges[$i];
 		$opt{'metadata-sra-biosample-purpose'} = $samplePurposes[$i];
 		$opt{'metadata-sra-biosample-gisaid'} = $sampleGISAIDaccs[$i];
 		$opt{'metadata-sra-meta-title'} = $expTitles[$i];
@@ -362,7 +364,7 @@ if($action eq "create-form") {
 		my $zip_file2 = "$metadata_out_dir/${date_str2}_edge_covid19_sra_experiment_template.tsv.zip";
 		my $zip_file_rel2 = "$relative_outdir/${date_str2}_edge_covid19_sra_experiment_template.tsv.zip";
 		
-		my @download_biosample_template_tsv_header = ("project-name",'sample-name','sample-isolate','sample-isolate-source','sample-location','sample-passage','sample-collection-date','sample-collect-by','sample-latlon','sample-host','sample-gender','sample-age','sample-purpose','sample-gisaid-acc');
+		my @download_biosample_template_tsv_header = ("project-name",'sample-name','sample-isolate','sample-isolate-source','sample-location','sample-passage','sample-collection-date','sample-collect-by','sample-latlon','sample-host','sample-gender','sample-age','sample-purpose','sample-gisaid-acc','sample-vaccine-received');
 		my @download_biosample_template_tsv_content;
 		my @download_bioexperiment_template_tsv_header = ("project-name",'title','design-description','library-selection','library-strategy','library-layout','library-source','platform','library-model','sequencing-purpose');
 		my @download_bioexperiment_template_tsv_content;
@@ -566,7 +568,7 @@ sub writeBioSamples{
 	              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
 	              "host_health_state","host_age","host_sex",
 	              "passage_history", "description", "purpose_of_sampling",
-	              "purpose_of_sequencing","GISAID_accession");
+	              "purpose_of_sequencing","GISAID_accession","vaccine_received");
 	if ($opt{'metadata-sra-bioproject-sw'}) { push @header, "bioproject_accession"; }
 	
 	$sample_string[0] = $opt{'metadata-sra-biosample-name'} ;
@@ -588,8 +590,9 @@ sub writeBioSamples{
 	$sample_string[16] = ($opt{'metadata-sra-biosample-purpose'})? $opt{'metadata-sra-biosample-purpose'} : "not collected";
 	$sample_string[17] = ($opt{'metadata-sra-meta-sequencing-purpose'})? $opt{'metadata-sra-meta-sequencing-purpose'} : "not collected";
 	$sample_string[18] = ($opt{'metadata-sra-biosample-gisaid'})? $opt{'metadata-sra-biosample-gisaid'} : "not collected";
+	$sample_string[19] = ($opt{'metadata-sra-biosample-vaccine-received'})? $opt{'metadata-sra-biosample-vaccine-received'} : "not collected";
 	if ($opt{'metadata-sra-bioproject-sw'}) {
-		$sample_string[19] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
+		$sample_string[20] = ($opt{'metadata-sra-bioproject-id'})? $opt{'metadata-sra-bioproject-id'} : "not collected";
 	}
 	
 	if ($index==0){

@@ -83,6 +83,7 @@
 						<th title="Information regarding health state of the individual sampled at the time of sampling.">Host Health Status</th>
 						<th>Purpose of sampling</th>
 						<th title="ex: EPI_ISL_596447 or not collected">GISAID accession</th>
+						<th title="ex: Pfizer 20210607, or None">Vaccine Received</th>
 						<th>Submitted to SRA</th>
 					</tr>
 				</thead>
@@ -132,6 +133,7 @@
 							</select>
 						</td>
 						<td><input type="text" data-mini="true" name="metadata-sra-biosample-gisaid-accs" placeholder=""  value="<TMPL_VAR NAME=BIOSAMPLE_GISAIDACC DEFAULT=>"></td>
+						<td><input type="text" data-mini="true" name="metadata-sra-biosample-vaccine-receiveds" value="<TMPL_VAR NAME=BIOSAMPLE_VACCINE_RECEIVED DEFAULT=>" placeholder=""></td>
 						<td>
 							<TMPL_IF NAME="SRA_SUBMIT_TIME">
 							<a data-mini="true" class="edge-icon-bg-green ui-btn ui-shadow ui-corner-all ui-icon-check ui-btn-icon-left" style="cursor: default;pointer-events: none;"><TMPL_VAR NAME="SRA_SUBMIT_TIME"></a>

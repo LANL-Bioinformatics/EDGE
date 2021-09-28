@@ -102,7 +102,7 @@ sub pull_biosamples{
 		#              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
 		#              "host_health_state","host_age","host_sex",
 		#              "passage_history", "description", "purpose_of_sampling",
-		#              "purpose_of_sequencing","GISAID_accession","bioproject_accession");
+		#              "purpose_of_sequencing","GISAID_accession","vaccine_received","bioproject_accession");
 		while(<$fh>){
 			chomp;
 			next if(/^#/);
@@ -128,7 +128,8 @@ sub pull_biosamples{
 				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
 				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
 				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
-				$vars->{BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
+				$vars->{BIOSAMPLE_VACCINE_RECEIVED} =$items[19];
+				$vars->{BIOPROJECT_ID} = $items[20] if scalar(@items) == 21;
 			}
 		}
 		close $fh;
@@ -312,6 +313,7 @@ sub pull_sampleMetadata {
 				$vars->{BIOSAMPLE_HOST} =$2 if ($1 eq "host");
 				$vars->{"BIOSAMPLE_GENDER_".$2} = "selected" if ($1 eq "gender");
 				$vars->{BIOSAMPLE_AGE} =$2 if ($1 eq "age");
+				$vars->{BIOSAMPLE_VACCINE_RECEIVED} =$2 if ($1 eq "vaccine_received");
 				$vars->{"BIOSAMPLE_STATUS_".$2} = "selected" if ($1 eq "status");
 				$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
 				$vars->{SM_COV} = $2 if ($1 eq "coverage");
