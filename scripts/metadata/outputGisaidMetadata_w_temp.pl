@@ -269,6 +269,7 @@ sub pull_sampleMetadata {
              			$vars->{SM_GENDER} = $2 if ($1 eq "gender");
              			$vars->{SM_AGE} =$2 if ($1 eq "age");
              			$vars->{SM_STATUS} =$2 if ($1 eq "status");
+             			$vars->{SM_VACCINE_RECEIVED} =$2 if ($1 eq "vaccine_received");
              			$vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
              			$vars->{SM_BIOPROJECT_ID} =$2 if ($1 eq "bioproject");
              			$vars->{SM_RELEASE_DATE} =$2 if ($1 eq "release");

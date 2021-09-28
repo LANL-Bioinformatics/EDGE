@@ -24,6 +24,7 @@
 			<th>Gender</th>
 			<th title="ex: 65, 7 monthis, or unknown">Patient Age</th>
 			<th>Patient Status</th>
+			<th title="ex: Pfizer, 20210607">Vaccine Received</th>
 			<th title="ex: Illumina Miseq, Sanger, Nanopore MinION, Ion Torrent, etc.">Sequencing Technology</th>
 			<th>Consensus Fasta</th>
 			<th>Submitted to GISAID/NCBI</th>
@@ -59,6 +60,7 @@
 					<option value="unknown" <TMPL_VAR NAME=SM_STATUS_Unknown DEFAULT=>>Unknown</option>
 				</select>
 			</td>
+			<td><input type="text" data-mini="true" name="metadata-sample-vaccine-receiveds" placeholder=""  value="<TMPL_VAR NAME=SM_VACCINE_RECEIVED DEFAULT=>"></td>
 			<td><input type="text" data-mini="true" name="metadata-sample-sequencing-techs" placeholder=""  value="<TMPL_VAR NAME=SM_SEQUENCING_TECH DEFAULT=>"></td>
 			<td>
 				<select data-mini="true" name="metadata-sample-consensus" data-role="none" data-native-menu="true">

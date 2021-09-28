@@ -165,7 +165,7 @@ def fill_EpiCoV_upload(uname, upass, outdir, seq, metadata, to, rt, iv, headless
         10 : "age", #Patient age*
         11 : "status", #Patient status: Example: Hospitalized, Released, Live, Deceased, unknown
         12 : "isolation_source", #Specimen source: Example: Nasal
-        13 : "", #Last vaccinated
+        13 : "vaccine_received", #Last vaccinated
         14 : "", #Treatment: Example: Include drug name, dosage
         15 : "sequencing_technology", #Sequencing technology: Nanopore MinION
         16 : "assembly_method", #Assembly method

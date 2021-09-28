@@ -242,6 +242,7 @@ if($action eq "create-form") {
 	my @sampleGenders = split /[\x0]/,$opt{'metadata-sample-genders'};
 	my @sampleAges = split /[\x0]/,$opt{'metadata-sample-ages'};
 	my @sampleStatus = split /[\x0]/,$opt{'metadata-sample-status'};
+	my @sampleVaccineStatus = split /[\x0]/,$opt{'metadata-sample-vaccine-receiveds'};
 	my @sampleSequencingTech = split /[\x0]/,$opt{'metadata-sample-sequencing-techs'};
 	my @sampleConsensus = split /[\x0]/,$opt{'metadata-sample-consensus'};
 	my @gisaidDoneFiles;
@@ -256,6 +257,7 @@ if($action eq "create-form") {
 		$opt{'metadata-sample-gender'} = $sampleGenders[$i];
 		$opt{'metadata-sample-age'} = $sampleAges[$i];
 		$opt{'metadata-sample-status'} = $sampleStatus[$i];
+		$opt{'metadata-sample-vaccine-received'} = $sampleVaccineStatus[$i];
 		$opt{'metadata-sample-sequencing-tech'} = $sampleSequencingTech[$i];
 		my $selected_consensus = $sampleConsensus[$i];
 		$selected_consensus =~ s/::/ /g;
@@ -297,7 +299,7 @@ if($action eq "create-form") {
 		my $zip_file = "$metadata_out_dir/${date_str}_edge_covid19_metadata_template.tsv.zip";
                 my $zip_file_rel = "$relative_outdir/${date_str}_edge_covid19_metadata_template.tsv.zip";
 		mkpath($metadata_out_dir);
-		my @download_template_tsv_header = ("project-name",'virus-name','virus-passage','sample-collection-date','sample-location','sample-host','sample-gender','sample-age','sample-status','sample-sequencing-tech');
+		my @download_template_tsv_header = ("project-name",'virus-name','virus-passage','sample-collection-date','sample-location','sample-host','sample-gender','sample-age','sample-status','sample-vaccine-received','sample-sequencing-tech');
 		my @download_template_tsv_content;
 		foreach my $i (0..$#projCodes){
 			my $download_template_tsv_string = join("\t", $projNames[$i], $virusNames[$i],$virusPassages[$i],$sampleCollectionDates[$i],$sampleLocations[$i],$sampleHosts[$i],$sampleGenders[$i],$sampleAges[$i],$sampleStatus[$i],$sampleSequencingTech[$i]);
@@ -418,6 +420,7 @@ ncbi_id=$opt{'metadata-ncbi-id'}
 coverage=$selected_consensus
 bioproject=$opt{'metadata-sample-bioproject-id'}
 release=$opt{'metadata-sample-release-date'}
+vaccine_received=$opt{'metadata-sample-vaccine-received'}
 OUTMSG
 
 	#print $ofh "gisaid_pw=".$opt{'metadata-gisaid-pw'}."\n";#
@@ -443,6 +446,7 @@ sequencing_technology=$opt{'metadata-sample-sequencing-tech'}
 coverage=$selected_consensus
 bioproject=$opt{'metadata-sample-bioproject-id'}
 release=$opt{'metadata-sample-release-date'}
+vaccine_received=$opt{'metadata-sample-vaccine-received'}
 OUTMSG
 	close $ofh;
 }

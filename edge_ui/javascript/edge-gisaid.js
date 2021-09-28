@@ -10,7 +10,7 @@ $( document ).ready(function()
 						multiple:true, maxWidth: '480', interactive: true
 					});
 	$("#metadata-tab-example").tooltipster(
-            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Nanopore</td></tr></table></span>')
+            'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>virus-name</th><th>virus-passage</th><th>sample-collection-date</th><th>sample-location</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-vaccine-received</th><th>sample-sequencing-tech</th></tr><tr><td>project1</td><td>hCoV-19/USA/NM-LANL-00001/2020</td><td>Original</td><td>2020-09-08</td><td>North America/USA/New Mexico</td><td>Human</td><td>Male</td><td>65</td><td>Live</td><td>Pfizer, 20210607</td><td>illumina</td></tr><tr><td>project2</td><td>hCoV-19/USA/NM-LANL-00002/2020</td><td>Vero</td><td>2020-07-20</td><td>North America/USA/Arizona</td><td>Human</td><td>Female</td><td>50</td><td>unknown</td><td>Moderna</td><td>Nanopore</td></tr></table></span>')
     ).tooltipster('option','maxWidth','700');
 	$("#biosample-tab-example").tooltipster(
             'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>sample-name</th><th>sample-isolate</th><th>sample-isolate-source</th><th>sample-location</th><th>sample-passage</th><th>sample-collection-date</th><th>sample-collection-by</th><th>sample-latlon</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-purpose</th><th>sample-gisaid-acc</th></tr><tr><td>project1</td><td>NM-LANL-00001</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10001/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>65</td><td>Released</td><td>Research</td><td>EPI_ISL_596447</td></tr><tr><td>project2</td><td>NM-LANL-00002</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10002/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>not collected</td><td>unknown</td><td>Research</td><td>not collected</td></tr></table></span>')
@@ -160,7 +160,7 @@ $( document ).ready(function()
 			"pageLength": 25,
 			"columnDefs": [ 
 				{'targets': 0, 'checkboxes': {'selectRow': true} },
-				{'targets':[2,3,4,5,6,7,8,9,10,11], 'type': 'string', 'width': "20%",
+				{'targets':[2,3,4,5,6,7,8,9,10,11,12], 'type': 'string', 'width': "20%",
 					'render': function (data, type, row, meta) {
 						if (type === 'filter' || type === 'sort') {
 							var api = new $.fn.dataTable.Api(meta.settings);

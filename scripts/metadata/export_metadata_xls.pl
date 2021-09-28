@@ -99,7 +99,7 @@ foreach my $proj_dir (split /,/,$project_dir_names){
 	$in_worksheet1->AddCell( $row, $col+13, $vars->{SM_STATUS});  ## Patient status *
 	$in_worksheet1->AddCell( $row, $col+14, "");  ## Specimen source, Sputum, Alveolar lavage fluid, Oro-pharyngeal swab, Blood, Tracheal swab, Urine, Stool, Cloakal swab, Organ, Feces, Other
 	$in_worksheet1->AddCell( $row, $col+15, "");  ## Outbreak
-	$in_worksheet1->AddCell( $row, $col+16, "");  ## Last vaccinated
+	$in_worksheet1->AddCell( $row, $col+16, "$vars->{SM_VACCINE_RECEIVED}");  ## Last vaccinated
 	$in_worksheet1->AddCell( $row, $col+17, "");  ## Treatment
 	$in_worksheet1->AddCell( $row, $col+18, $vars->{SM_SEQUENCING_TECH});  ## Sequencing technology *
 	$in_worksheet1->AddCell( $row, $col+19, $vars->{ASM_METHOD});  ## Assembly method 
@@ -236,6 +236,7 @@ sub pull_sampleMetadata {
                                 $vars->{SM_GENDER} = $2 if ($1 eq "gender");
                                 $vars->{SM_AGE} =$2 if ($1 eq "age");
                                 $vars->{SM_STATUS} =$2 if ($1 eq "status");
+                                $vars->{SM_VACCINE_RECEIVED} =$2 if ($1 eq "vaccine_received");
                                 $vars->{SM_SEQUENCING_TECH} =$2 if ($1 eq "sequencing_technology");
                                 $vars->{SM_COV} = $2 if ($1 eq "coverage");
                                 $vars->{SM_BIOPROJECT_ID} =$2 if ($1 eq "bioproject");
