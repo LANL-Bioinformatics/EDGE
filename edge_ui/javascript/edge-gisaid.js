@@ -7,6 +7,7 @@ $( document ).ready(function()
 	var page = $( this );
 	var projdir = $('#edge-proj-outdir').attr('dir-src');
 	$("table td, table th, .tooltip").tooltipster({
+						theme:'tooltipster-light',
 						multiple:true, maxWidth: '480', interactive: true
 					});
 	$("#metadata-tab-example").tooltipster(
@@ -15,9 +16,12 @@ $( document ).ready(function()
 	$("#biosample-tab-example").tooltipster(
             'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>sample-name</th><th>sample-isolate</th><th>sample-isolate-source</th><th>sample-location</th><th>sample-passage</th><th>sample-collection-date</th><th>sample-collection-by</th><th>sample-latlon</th><th>sample-host</th><th>sample-gender</th><th>sample-age</th><th>sample-status</th><th>sample-purpose</th><th>sample-gisaid-acc</th><th>sample-vaccine-received</th></tr><tr><td>project1</td><td>NM-LANL-00001</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10001/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>65</td><td>Released</td><td>Research</td><td>EPI_ISL_596447</td><td>Pfizer,20210607</td></tr><tr><td>project2</td><td>NM-LANL-00002</td><td>SARS-CoV2/Homo sapiens/USA/NM-LANL-10002/2021</td><td>Clinical</td><td>USA: New Mexico, Los Alamos</td><td>Original</td><td>2021-04-17</td><td>NMDOH</td><td>35.88 N 106.17 W</td><td>Human</td><td>Male</td><td>not collected</td><td>unknown</td><td>Research</td><td>not collected</td><td>None</td></tr></table></span>')
     ).tooltipster('option','maxWidth','980');
-    $("#experiment-tab-example").tooltipster(
+	$("#experiment-tab-example").tooltipster(
             'content', $('<span><table border="1" style="font-size:0.8em"><tr><th>project-name</th><th>title</th><th>design_description</th><th>library-selection</th><th>library-strategy</th><th>library-layout</th><th>library-source</th><th>platform</th><th>library-model</th><th>sequencing-purpose</th></tr><tr><td>project1</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>paired</td><td>Viral RNA</td><td>ILLUMINA</td><td>MiSeq</td><td>Baseline surveillance</td></tr><tr><td>project2</td><td>Artic V3 AMPLCON of SARS-CoV-2: nasal swap</td><td>ARTIC V3 amplicon</td><td>PCR</td><td>AMPLICON</td><td>single</td><td>Viral RNA</td><td>OXFORD_NANOPORE</td><td>MinION</td><td>Research</td></tr></table></span>')
     ).tooltipster('option','maxWidth','700');
+	$("#metadata-submitter-tooltip").tooltipster(
+	    'content',$('<span>You will need to have a registered <a href="https://platform.epicov.org/epi3/frontend#200b39" target="_new">GISAID account</a> and a <a href="https://account.ncbi.nlm.nih.gov/signup/?back_url=https%3A%2F%2Fsubmit.ncbi.nlm.nih.gov%2Fsubs%2Fsra%2F" target="_new">NCBI account</a> for GISAID/NCBI submission.</span>')
+	);
 	//with checkbox
 	//https://www.gyrocode.com/projects/jquery-datatables-checkboxes/
 	var SRA_EXP_ProjDataTable = $('#edge-sra-experiment-project-page-table').DataTable({
