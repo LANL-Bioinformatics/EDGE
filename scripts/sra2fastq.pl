@@ -411,7 +411,7 @@ sub getReadInfo {
 		die "ERROR: Failed to retrieve sequence information for $acc from both SRA and ENA database.\n";
 	}elsif($web_result !~ /^study_accession|^run_accession/ and $sra_num_runs){
 		warn "WARNING: $acc only found in SRA database. The data may be not synchronized among INSDC yet.\n";
-	}else{
+	}elsif($web_result =~ /^study_accession|^run_accession/ and !$sra_num_runs){
 		warn "WARNING: $acc only found in ENA database. The data may be not synchronized among INSDC yet.\n";
 	}
 	#run_accession	fastq_ftp	fastq_bytes	fastq_md5	submitted_ftp	submitted_bytes	submitted_md5	sra_ftp	sra_bytes	sra_md5
