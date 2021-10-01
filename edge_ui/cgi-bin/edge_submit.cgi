@@ -370,6 +370,7 @@ sub createConfig {
 		my $pname = $pnames[$i];
 		my $config_out = "$out_dir/$pname/config.txt";
 		my $json_out   = "$out_dir/$pname/config.json";
+		my $projCode = $projlist->{$pname}->{projCode};
 		$config_out = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.txt" if ($username && $password);
 		$json_out   = "$out_dir/" . $projlist->{$pname}->{projCode} . "/config.json" if ($username && $password);
 		
@@ -411,6 +412,9 @@ sub createConfig {
 					}
 					elsif( $line =~ /^projid=/ ){
 						$line =~ s/^projid=.*/projid=$pname/;
+					}
+					elsif( $line =~ /^projcode=/ ){
+						$line =~ s/^projcode=.*/projcode=$projCode/;
 					}
 					$line =~ s/[`;]//g;
 					&addMessage("GENERATE_CONFIG","failure","Invalid config") if ($line =~ /\.\.\//);
