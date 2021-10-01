@@ -368,6 +368,7 @@ sub is_folder_empty {
 sub createConfig {
 	for my $i (0..$#pnames){
 		my $pname = $pnames[$i];
+		my $projCode = $projlist->{$pname}->{projCode};
 		my $proj_dir = ($username && $password)? "$out_dir/" . $projlist->{$pname}->{projCode} : "$out_dir/$pname";
 		my $config_out = "$proj_dir/config.txt";
 		my $json_out   = "$proj_dir/config.json";
@@ -412,6 +413,9 @@ sub createConfig {
 					}
 					elsif( $line =~ /^projid=/ ){
 						$line =~ s/^projid=.*/projid=$pname/;
+					}
+					elsif( $line =~ /^projcode=/ ){
+						$line =~ s/^projcode=.*/projcode=$projCode/;
 					}
 					$line =~ s/[`;]//g;
 					&addMessage("GENERATE_CONFIG","failure","Invalid config") if ($line =~ /\.\.\//);
