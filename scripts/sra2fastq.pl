@@ -369,7 +369,8 @@ sub getReadInfo {
 	$web_result = `$cmd`;
 	
 	my @lines = split '\n', $web_result;
-	print STDERR "$#lines run(s) found from NCBI-SRA.\n";
+	my $sra_num_runs = $#lines;
+	print STDERR "$sra_num_runs run(s) found from NCBI-SRA.\n";
 
 	foreach my $line (@lines){
 		next if $line =~ /^Run/;
@@ -406,7 +407,13 @@ sub getReadInfo {
 	#$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\" 2>/dev/null": "$curl $http_proxy \"$url\" 2>/dev/null";
 	$cmd = ($Download_tool =~ /wget/)? "$curl -O - \"$url\"": "$curl $http_proxy \"$url\"";
 	$web_result = `$cmd`;
-	die "ERROR: Failed to retrieve sequence information for $acc.\n" if $web_result !~ /^study_accession|^run_accession/;
+	if ($web_result !~ /^study_accession|^run_accession/ and ! $sra_num_runs){
+		die "ERROR: Failed to retrieve sequence information for $acc from both SRA and ENA database.\n";
+	}elsif($web_result !~ /^study_accession|^run_accession/ and $sra_num_runs){
+		warn "WARNING: $acc only found in SRA database. The data may be not synchronized among INSDC yet.\n";
+	}elsif($web_result =~ /^study_accession|^run_accession/ and !$sra_num_runs){
+		warn "WARNING: $acc only found in ENA database. The data may be not synchronized among INSDC yet.\n";
+	}
 	#run_accession	fastq_ftp	fastq_bytes	fastq_md5	submitted_ftp	submitted_bytes	submitted_md5	sra_ftp	sra_bytes	sra_md5
 	my @lines = split '\n', $web_result;
 	print STDERR "$#lines run(s) found from EBI-ENA.\n";
