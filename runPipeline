@@ -2893,7 +2893,7 @@ sub countPE_exe{
         next unless $_ =~ /\S/;
         next if ($_ =~ /length=0/);
         my $id_line=$_;
-        my ($id) = $id_line =~ /^\@(\S+)\s*/;
+        my ($id) = $id_line =~ /^\@(\S+).?\/?1?\s*/;
         my $seq = <$fh1>;
         chomp $seq;
         if ($seq_hash{$id}){
@@ -2915,7 +2915,7 @@ sub countPE_exe{
         next unless $_ =~ /\S/;
         next if ($_ =~ /length=0/);
         my $id_line=$_;
-        my ($id2) = $id_line =~ /^\@(\S+)\s*/;
+        my ($id2) = $id_line =~ /^\@(\S+)\.?\/?2?\s*/;
         $read2_count++;
         my $seq2 = <$fh2>;
         chomp $seq2;
