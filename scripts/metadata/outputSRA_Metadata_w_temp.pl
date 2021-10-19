@@ -103,6 +103,7 @@ sub pull_biosamples{
 		#              "host_health_state","host_age","host_sex",
 		#              "passage_history", "description", "purpose_of_sampling",
 		#              "purpose_of_sequencing","GISAID_accession","vaccine_received","bioproject_accession");
+		my ($selected_BIOSAMPLE_PS,$selected_SRA_PS) = ("","");
 		while(<$fh>){
 			chomp;
 			next if(/^#/);
@@ -123,9 +124,9 @@ sub pull_biosamples{
 				$vars->{BIOSAMPLE_AGE} =$items[12];
 				$vars->{"BIOSAMPLE_GENDER_"."$items[13]"} ="selected";
 				$vars->{BIOSAMPLE_PASSAGE} =$items[14];
-				(my $selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
+				($selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
 				$vars->{"BIOSAMPLE_PS_"."$selected_BIOSAMPLE_PS"} ="selected";
-				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
+				($selected_SRA_PS = $items[17]) =~ s/\s/_/g;
 				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
 				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
 				$vars->{BIOSAMPLE_VACCINE_RECEIVED} =$items[19];
@@ -280,7 +281,7 @@ sub consensus_composition_info{
 			next if ! /\w/;
 			if (/##(\S+)/){
 				$id = $1;
-				$id =~ s/\w+_consensus_(\S+)/$1/;
+				$id =~ s/\S+_consensus_(\S+)/$1/;
 				$comp{$id}->{file} = $file_name;
 				next;
 			}

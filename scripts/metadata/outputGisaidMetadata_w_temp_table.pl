@@ -88,7 +88,8 @@ sub pull_biosamples{
 		#              "geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
 		#              "host_health_state","host_age","host_sex",
 		#              "passage_history", "description", "purpose_of_sampling",
-		#              "purpose_of_sequencing","GISAID_accession","bioproject_accession");
+		#              "purpose_of_sequencing","GISAID_accession","vaccine_received","bioproject_accession");
+		my ($selected_BIOSAMPLE_PS,$selected_SRA_PS)=("","");
 		while(<$fh>){
 			chomp;
 			next if(/^#/);
@@ -110,12 +111,13 @@ sub pull_biosamples{
 				my $gender = uc($items[13]);
 				$vars->{"SM_GENDER_"."$gender"} ="selected";
 				$vars->{VIR_PASSAGE} =$items[14];
-				(my $selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
+				($selected_BIOSAMPLE_PS = $items[16]) =~ s/\s/_/g;
 				$vars->{"BIOSAMPLE_PS_"."$selected_BIOSAMPLE_PS"} ="selected";
-				(my $selected_SRA_PS = $items[17]) =~ s/\s/_/g;
+				($selected_SRA_PS = $items[17]) =~ s/\s/_/g;
 				$vars->{"SRA_PS_"."$selected_SRA_PS"} ="selected";
 				$vars->{BIOSAMPLE_GISAIDACC} =$items[18];
-				$vars->{SM_BIOPROJECT_ID} = $items[19] if scalar(@items) == 20;
+				$vars->{SM_VACCINE_RECEIVED} =$items[19];
+                                $vars->{SM_BIOPROJECT_ID} = $items[20] if scalar(@items) == 21;
 			}
 		}
 		close $fh;
@@ -261,7 +263,7 @@ sub consensus_composition_info{
                         next if ! /\w/;
                         if (/##(\S+)/){
                                 $id = $1;
-                                $id =~ s/\w+_consensus_(\S+)/$1/;
+                                $id =~ s/\S+_consensus_(\S+)/$1/;
                                 $comp{$id}->{file} = $file_name;
                                 next;
                         }

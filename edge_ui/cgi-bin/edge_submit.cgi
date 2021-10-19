@@ -1601,6 +1601,7 @@ sub createSampleMetadataFile {
 			print OUT "coverage=\n";
 			print OUT "bioproject=".$bioprojectID."\n";
 			print OUT "release=\n";
+			print OUT "vaccine_received=\n";
 			close OUT;
 
 			make_dir("$projdir/UPLOAD");
@@ -1619,12 +1620,12 @@ sub createSampleMetadataFile {
 					"geo_loc_name", "isolation_source", "lat_lon", "host", "host_disease", 
 					"host_health_state","host_age","host_sex",
 					"passage_history", "description", "purpose_of_sampling",
-					"purpose_of_sequencing","GISAID_accession");
+					"purpose_of_sequencing","GISAID_accession","vaccine_received");
 			if ($bioprojectID){push @headers, "bioproject_accession";}
 			my @sra_samples_record = ($real_names[$i],"",$organism,$isolate,$collect_by, $collection_date,
 					$ncbi_location,$isolation_source,$latlon,$host,$disease,
 					$status,$age,$gender,$virus_passage,"not collected",
-					$sample_purpose, $seq_purpose, $gisaid_id);
+					$sample_purpose, $seq_purpose, $gisaid_id,"");
 			if ($bioprojectID){push @sra_samples_record, $bioprojectID;}
 			print $ofh join("\t",@headers,"\n");
 			print $ofh join("\t",@sra_samples_record,"\n");

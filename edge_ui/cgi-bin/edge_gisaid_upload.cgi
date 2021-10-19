@@ -716,6 +716,7 @@ sub stringSanitization{
 	my $opt=shift;
 	foreach my $key (keys %opt){
 		my $str = $opt->{$key};
+		$opt->{$key} =~ s/^\s+|\s+$//;
 		if ($key =~ /metadata|edgesite|locality|administrative|country|lat|lng/){
 			$opt->{$key} =~ s/[`";'&|]/ /g;
 			next;
