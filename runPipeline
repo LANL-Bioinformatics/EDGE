@@ -439,7 +439,8 @@ sub run_covTracker{
 	my $SNP_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.SNPs_report.txt";
 	my $lineage_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus_lineage.txt";
 	my $ec19_varviz_output = "$outDir/HTML_Report/cov_tracker.html";
-	 my $ec19_varviz_log = "$outDir/HTML_Report/cov_tracker.log";
+	my $ec19_varviz_log = "$outDir/HTML_Report/cov_tracker.log";
+	&make_dir("$outDir/HTML_Report");
 	if ( -e "$metadata" and -e "$SNP_report_file" and -e "$lineage_report_file"){
 		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; ec19_varviz project --sample $project_name --meta-pkl $configuration->{metadata_pkl_file} --mut-pkl $pkl_mutation_file --snps $SNP_report_file --pango $lineage_report_file --metadata $metadata --geo-type country --country USA --output $ec19_varviz_output 1>$ec19_varviz_log 2>&1";
 		&lprint ("  Running \n  $cmd \n");
@@ -3430,7 +3431,7 @@ sub getAlignTrimReads{
 	my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 	my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/)? 1 : 0;
 	my $AlignTrim_ref = @$ref_r[0];
-	if ($bed_file =~ /artic_ncov|SC2_200324|swift_primer_schemes_v2/){
+	if ($bed_file =~ /artic_ncov|SC2_200324|swift_primer_schemes_v2|freed_primers|VarSkip/){
 		if (my ($NC_044512_ref) = grep $_ =~ /NC_045512|MN908947/, @$ref_r) {
 			$AlignTrim_ref = $NC_044512_ref;
 		}

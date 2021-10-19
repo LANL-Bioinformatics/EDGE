@@ -2147,7 +2147,7 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-porechop-sw']").on("change", function(){
 			if($('#edge-fastq-source-sw1, #edge-fastq-source-sw3').is(':checked')){
-				if($('#edge-porechop-sw8').is(':checked')){
+				if($('#edge-porechop-sw9').is(':checked')){
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
 				}else{
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
@@ -2197,7 +2197,7 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
 					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
-					$( "#edge-porechop-sw8").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-porechop-sw9").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
@@ -2238,7 +2238,7 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-porechop-sw']").on("change", function(){
-			if($('#edge-porechop-sw8').is(':checked')){
+			if($('#edge-porechop-sw9').is(':checked')){
 				$("#edge-r2g-con-pcrdedup-sw1").prop('disabled',false).click().checkboxradio("refresh");
 			}else{
 				$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
