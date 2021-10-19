@@ -2239,13 +2239,15 @@ sub consensus_fasta_stat{
 	while(<$fh2>){
 		chomp;
 		next if /RATIO_OF_REF/;
+		my ($snp,$ambiguous_base)=('','');
 		my @field=split("\t",$_);
+		my $ref_base = $field[2];
 		if ($field[2] =~ /-/){
 			$info2{$field[0]}->{indel_num}++;
 			$info2{$field[0]}->{indel_num_len} += length($field[3]);
 		}elsif($field[3] =~ /-/){
 			$info2{$field[0]}->{indel_num}++;
-			$info2{$field[0]}->{indel_num_len} += length($field[2]);
+			$info2{$field[0]}->{indel_num_len} += length($ref_base);
 		}elsif($field[3] eq 'n'){
 			$info2{$field[0]}->{gaps_num}++;
 		}elsif($field[3] eq 'N'){
@@ -2254,8 +2256,12 @@ sub consensus_fasta_stat{
 			if ($field[5] > 0 or $field[6] < 1){
 				$info2{$field[0]}->{variants_num}++;
 			}
+			if ($field[3] =~ /(\w)\((\w)\)/){
+				$snp=$1; $ambiguous_base=$2;
+			}
 			#}else{
-			$info2{$field[0]}->{snps_num}++;
+			$info2{$field[0]}->{snps_num}++ if ( $ambiguous_base ne $ref_base );
+
 					#	}
 		}
 	}

@@ -1945,9 +1945,9 @@ else
   exit 1
 fi
 
-if $rootdir/bin/python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
+if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
 then
-  $rootdir/bin/python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
+	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
 else
   install_Anaconda2
 fi

@@ -371,13 +371,15 @@ sub process_snp_file
       }
       elsif ($format =~ /changelog/){
 	  my ($RATIO_OF_REF,$HQ_DOC,$HQ_RATIO_OF_REF,$HQ_RATIO_OF_CON);
+          my $amb_base="";
 	  ($ref_id,$ref_pos,$ref_base,$snp,$dp,$RATIO_OF_REF,$dp_alt_ratio,$HQ_DOC,$HQ_RATIO_OF_REF,$HQ_RATIO_OF_CON)=split /\t/,$snps_line;
           if ($ambiguous_mode){
              $snp =~ s/\w\((\w)\)/$1/;
           }else{
-             $snp =~ s/\(\w\)//;
-             next if ($ref_base eq $snp);
+             if ($snp =~ /(\w)\((\w)\)/){ $snp = $1; $amb_base = $2;} 
+             $snp = $amb_base if ($amb_base and $ref_base eq $snp);
           }
+          next if ($ref_base eq $snp);
 	  $ref_base = "." if $ref_base eq '-';
 	  $snp = '.' if $snp eq '-';
       }else
