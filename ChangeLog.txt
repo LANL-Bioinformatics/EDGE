@@ -6,6 +6,11 @@
 * fix bug on vaccined_received metadata parsing
 * fix bug on consensus composition file parsing
 * add Varskip primer scheme option for trimming
+* fix SNP count for consensus
+* update privacy policy
+* use unlimit coverage to consensus
+* align_trim on short amplicon reads length > amplicon size.  check the primer pair  name should be a set for trimming
+* use align_trim bam file for downstream instead of rerun mapping again
 
 ## build 20211001
 * cleanup intermediate files
