@@ -9,7 +9,7 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
+export PATH=$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin:$PATH
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
