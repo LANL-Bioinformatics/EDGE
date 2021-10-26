@@ -3276,12 +3276,12 @@ sub runReadsToGenome
         &lprint ("Reads Mapping to Reference Finished\n");
         return ($outVCF,$outGap);
     }else{
-	    #if ( $configuration->{r2g_get_consensus}){
-	    #if ( -e "$outputDir/getConsensus.finished"){
-	    #   &lprint ("Reads Mapping to Reference Finished\n");
-	    #    return ($outVCF,$outGap);
-	    #}
-	    #}
+        #if ( $configuration->{r2g_get_consensus}){
+        #if ( -e "$outputDir/getConsensus.finished"){
+        #   &lprint ("Reads Mapping to Reference Finished\n");
+        #    return ($outVCF,$outGap);
+        #}
+        #}
     }
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
@@ -3295,18 +3295,18 @@ sub runReadsToGenome
     $parameters .= " -pre $outPrefix -cpu $numCPU -consensus 0 -disableBAQ";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
-	$parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
-    	$parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
+        $parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
+        $parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
-	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
-	$r2g_aligner_options .= " -x pacbio " if $pacbio_flag;
-	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
-    	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
+        $r2g_aligner_options .= " -x ont2d " if $ont_flag;
+        $r2g_aligner_options .= " -x pacbio " if $pacbio_flag;
+        $parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
+        $parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
-	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
-	$r2g_aligner_options .= " -x map-pb " if $pacbio_flag;
+        $parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
+        $r2g_aligner_options .= " -x map-pb " if $pacbio_flag;
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
@@ -3317,21 +3317,21 @@ sub runReadsToGenome
     $parameters .= " -min_depth $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
     $parameters .= " -max_clip $configuration->{r2g_max_clip} " if ($configuration->{r2g_max_clip});
     if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) ){
-	$correct_bed_file = "$outputDir/".basename($configuration->{r2g_align_trim_bed_file});
-	correct_bed_ref($configuration->{r2g_align_trim_bed_file}, $correct_bed_file);
-	my $alignTrim_parameters = $parameters;
+        $correct_bed_file = "$outputDir/".basename($configuration->{r2g_align_trim_bed_file});
+        correct_bed_ref($configuration->{r2g_align_trim_bed_file}, $correct_bed_file);
+        my $alignTrim_parameters = $parameters;
         $alignTrim_parameters .= " -p \'$pairFile\'" if ($pairFile);
         $alignTrim_parameters .= " -u $unpairFile" if ( -s $unpairFile);
         $alignTrim_parameters=~ s/-u /-long / if ($ont_flag or $pacbio_flag) and $configuration->{r2g_aligner} =~ /minimap/;
-	my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
-	($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir,$correct_bed_file );
+        my $mapping_command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir/AlignTrimMapping $alignTrim_parameters";
+        ($pairFile, $unpairFile, my $AlignTrim_ref)=&getAlignTrimReads($mapping_command,$referenceFile_r, $ref_headers, $log, $outputDir,$correct_bed_file );
     }
-	    
+        
     $parameters .= " -ref $referenceFiles";
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters=~ s/-u /-long / if ($ont_flag or $pacbio_flag) and $configuration->{r2g_aligner} =~ /minimap/;
-    my $command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir $parameters 1>>$log 2>\&1 ";
+    my $command = "perl $RealBin/scripts/runReadsToGenome.pl -skip_aln -d $outputDir $parameters 1>>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
       &executeCommand($command);
@@ -3339,15 +3339,15 @@ sub runReadsToGenome
       &executeCommand("cat $outputDir/*.vcf > $outVCF") if ($variant_call == 1);
     }
     if ($configuration->{r2g_align_trim_bed_file}){
-	# ampilcon coverage plot
-	my $bed_file_flag = ($correct_bed_file =~ /bedpe/ )? "--bedpe $correct_bed_file":"--bed $correct_bed_file";
-	my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
-	foreach my $cov_f (@cov_files){
-	       my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": ""; 
-	       my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
- 	       $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
-	       &executeCommand($command);
-	}
+    # ampilcon coverage plot
+      my $bed_file_flag = ($correct_bed_file =~ /bedpe/ )? "--bedpe $correct_bed_file":"--bed $correct_bed_file";
+      my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
+      foreach my $cov_f (@cov_files){
+           my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": ""; 
+           my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
+           $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
+           &executeCommand($command);
+    }
 
     }
     if ($configuration->{r2g_extract_mapped}){
@@ -3367,39 +3367,39 @@ sub runReadsToGenome
     if ($configuration->{r2g_get_consensus}){
         my $consensus_log = "$outputDir/consensus.log";
         my $con_min_mapQ = $configuration->{r2g_consensus_min_mapQ} || 42;
-	my $con_max_cov = (defined $configuration->{r2g_consensus_max_cov})? $configuration->{r2g_consensus_max_cov}: 8000;
+        my $con_max_cov = (defined $configuration->{r2g_consensus_max_cov})? $configuration->{r2g_consensus_max_cov}: 8000;
         my $con_alt_prop = $configuration->{r2g_consensus_alt_prop} || 0.5;
-	my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
+        my $con_altIndel_prop = $configuration->{r2g_consensus_altIndel_prop} || 0.5;
         my $con_min_cov = $configuration->{r2g_consensus_min_cov} || 5;
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
-	my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
-	my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
-	my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
-	#$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
-	foreach my $file (@$referenceFile_r){
+        my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
+        my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
+        my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
+    #$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
+        foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
-	    &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
+            &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
-	    $command .= " --comp " if ($con_comp_opt);
-	    $command .= " --disableBAQ" if ($con_disable_BAQ);
-	    $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
-	    $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop >> $consensus_log";
+            $command .= " --comp " if ($con_comp_opt);
+            $command .= " --disableBAQ" if ($con_disable_BAQ);
+            $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
+            $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam", "$outputDir/");
-	    move("$outputDir/consensus_tmp/$file_name.sort_sorted.bam", "$outputDir/");
+            move("$outputDir/consensus_tmp/$file_name.sort_sorted.bam", "$outputDir/");
             move("$outputDir/consensus_tmp/$file_name.sort_sorted_nodups.bam_metrics.txt", "$outputDir/$file_name.sort_sorted_nodups.bam_pcrdedup.txt");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted_nodups.bam") if ( -e "$outputDir/$file_name.sort_sorted_nodups.bam");
             &executeCommand("samtools index  $outputDir/$file_name.sort_sorted.bam") if ( -e "$outputDir/$file_name.sort_sorted.bam");
-	    &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
-	    &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
-	    if ( -e "$outputDir/${file_name}_consensus_w_ambiguous.fasta"){
+            &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus.fasta");
+            &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus.fasta > ${file_name}_consensus.fasta.comp");
+            if ( -e "$outputDir/${file_name}_consensus_w_ambiguous.fasta"){
                 &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus_w_ambiguous.fasta");
                 &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus_w_ambiguous.fasta > ${file_name}_consensus_w_ambiguous.fasta.comp");
             }
-	    &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
+            &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
 
             my $pangolin_env= "$RealBin/thirdParty/Anaconda3/envs/pangolin";
             my $pangolin_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $pangolin_env";
@@ -3407,9 +3407,8 @@ sub runReadsToGenome
             $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
-	    remove_tree("$outputDir/${file_name}_consensus_html") if ( -d "$outputDir/${file_name}_consensus_html");
-
-	}
+            remove_tree("$outputDir/${file_name}_consensus_html") if ( -d "$outputDir/${file_name}_consensus_html");
+        }
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");
         &touchFile("$outputDir/getConsensus.finished");  
     }
@@ -3450,7 +3449,7 @@ sub getAlignTrimReads{
 		} 
 	}
 	$cmd .= " -align_trim_bed_file $bed_file -ref $AlignTrim_ref -no_snp -no_plot";
-        $cmd .= " -align_trim_strand " if ! $ont_flag and ! $pacbio_flag;
+	$cmd .= " -align_trim_strand " if ! $ont_flag and ! $pacbio_flag;
 	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
 	&lprint ("  ## Get Align Trimmed Reads \n");
 	$cmd .= " 1>$log 2>\&1";
@@ -3459,8 +3458,8 @@ sub getAlignTrimReads{
 	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
 	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip  -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
 	&executeCommand($extract_reads_cmd);
-	unlink @align_trim_bam_file;
-	unlink glob("$outputDir/AlignTrimMapping/*bai");
+	move($_,"$outputDir/") for @align_trim_bam_file;
+	move($_, "$outputDir/") for glob("$outputDir/AlignTrimMapping/*bai");
 	unlink glob("$outputDir/AlignTrimMapping/*txt");
 	unlink glob("$outputDir/AlignTrimMapping/*coverage");
 	unlink glob("$outputDir/AlignTrimMapping/*coords");
@@ -4054,13 +4053,13 @@ sub correct_bed_ref{
     open (my $ofh , ">", $output_bed);
     while (<$fh>){
         chomp;
-	if ($_ =~ /^#/){
+        if ($_ =~ /^#/){
             print $ofh $_,"\n";
-	}else{
-	    my @array = split/\t/,$_;
-	    $array[0] =~ s/\W/_/g;
-	    print $ofh join("\t",@array),"\n";
-	}
+        }else{
+            my @array = split/\t/,$_;
+            $array[0] =~ s/\W/_/g;
+            print $ofh join("\t",@array),"\n";
+        }
     }
     close $fh;
     close $ofh;

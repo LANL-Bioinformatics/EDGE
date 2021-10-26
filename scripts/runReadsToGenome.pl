@@ -166,7 +166,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 	my $bam_index_output = "$outDir/$ref_file_name.sort.bam.bai";
 	push @bam_outputs, $bam_output;
 	unless ($plot_only){  # skip the alignment steps, SNP steps, assume bam and pileup files were generated.
-	unless ($skip_aln){ # skip the alignment steps
+	unless ($skip_aln and -e "$bam_output"){ # skip the alignment steps
 
 	# index reference
 	if ( $aligner =~ /bowtie/i and ! -e "$ref_file.1.bt2"){
