@@ -51,7 +51,7 @@ def trim(cigar, s, start_pos, end):
             if args.verbose:
                 sys.stderr.write("Chomped a %s, %s" % (flag, length))
         except IndexError:
-            sys.stderr.write("Ran out of cigar during soft masking - completely masked read will be ignored")
+            sys.stderr.write(f"{s.query_name} ran out of cigar during soft masking - completely masked read will be ignored\n")
             break
 
         if flag == 0:
@@ -142,16 +142,18 @@ def go(args):
         ## a primer site, trim it off
 
         if s.is_unmapped:
-            sys.stderr.write("%s skipped as unmapped" % (s.query_name))
+            if args.verbose:
+                sys.stderr.write("%s skipped as unmapped\n" % (s.query_name))
             continue
 
         if s.is_supplementary:
-            sys.stderr.write("%s skipped as supplementary" % (s.query_name))
+            if args.verbose:
+                sys.stderr.write("%s skipped as supplementary\n" % (s.query_name))
             continue
 
         p1 = find_primer(bed, s.reference_start, '+', refname)
         p2 = find_primer(bed, s.reference_end, '-',refname)
-        #half-open notation for s.reference_start, s.reference_end
+        
         report = "%s\t%s\t%s\t%s_%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (s.query_name, s.reference_start, s.reference_end, p1[2]['Primer_ID'], p2[2]['Primer_ID'], p1[2]['Primer_ID'], abs(p1[1]), p2[2]['Primer_ID'], abs(p2[1]), s.is_secondary, s.is_supplementary, p1[2]['start'], p2[2]['end'])
 #SRR11085797.8084709	14	165	nCoV-2019_1_LEFT_nCoV-2019_1_RIGHT	nCoV-2019_1_LEFT	16	nCoV-2019_1_RIGHT	245	False	False	30	385
         if args.report:
@@ -161,26 +163,31 @@ def go(args):
             sys.stderr.write(report)
 
         ## if the alignment starts before the end of the primer, trim to that position
-
+        #if 'ERR4969165.9497' in s.query_name:
+        #    print(f'{s.is_reverse} {amplicon_len} {s.reference_start}  {s.reference_end}\n' , file=sys.stderr)
+        #    print(list(p1), file=sys.stderr)
+        #    print(list(p2), file=sys.stderr)
         try:
             ## softmask the alignment if left primer start/end inside alignment
-           
+            
             if args.start:
                 primer_position = p1[2]['start']
             else:
                 primer_position = p1[2]['end']
-            
             
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
                         if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <  p1[2]['end']:
                             trim(cigar, s, primer_position, 0)
-                    else:
-                        if s.reference_start < primer_position and s.reference_end >= primer_position:
+                        ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
+                        if s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_start <= primer_position:
+                            trim(cigar, s, primer_position, 0)
+                    else:  # short amplicon,  reads length > amplicon size.  check the primer pair's name should be a set for trimming
+                        if s.reference_start < primer_position and s.reference_end >= primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
                             trim(cigar, s, primer_position, 0)
                 else: ## unpaired reads
-                    if not s.is_reverse and s.reference_start >= p1[2]['start'] and s.reference_start <  p1[2]['end']:
+                    if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <  p1[2]['end']:
                         trim(cigar, s, primer_position, 0)
             else:
                 if s.reference_start < primer_position:
@@ -198,13 +205,16 @@ def go(args):
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
-                        if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                        if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                            trim(cigar, s, primer_position, 1)
+                        ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
+                        if not s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_end > primer_position:
                             trim(cigar, s, primer_position, 1)
                     else:
-                        if s.reference_end > primer_position and s.reference_start < primer_position:
+                        if s.reference_end > primer_position and s.reference_start < primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
                             trim(cigar, s, primer_position, 1)
                 else: ## unpaired reads
-                    if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                    if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  p2[2]['start']:
                         trim(cigar, s, primer_position, 1)
             else:
                 if s.reference_end > primer_position:
@@ -242,6 +252,43 @@ def go(args):
     if args.report:
         reportfh.close()
 
+def levenshtein_distance(s, t, costs=(1, 1, 1)):
+    """ 
+        iterative_levenshtein(s, t) -> ldist
+        ldist is the Levenshtein distance between the strings 
+        s and t.
+        For all i and j, dist[i,j] will contain the Levenshtein 
+        distance between the first i characters of s and the 
+        first j characters of t
+        
+        costs: a tuple or a list with three integers (d, i, s)
+               where d defines the costs for a deletion
+                     i defines the costs for an insertion and
+                     s defines the costs for a substitution
+    """
+    rows = len(s)+1
+    cols = len(t)+1
+    deletes, inserts, substitutes = costs
+    dist = [[0 for x in range(cols)] for x in range(rows)]
+    # source prefixes can be transformed into empty strings 
+    # by deletions:
+    for row in range(1, rows):
+        dist[row][0] = row * deletes
+    # target prefixes can be created from an empty source string
+    # by inserting the characters
+    for col in range(1, cols):
+        dist[0][col] = col * inserts
+        
+    for col in range(1, cols):
+        for row in range(1, rows):
+            if s[row-1] == t[col-1]:
+                cost = 0
+            else:
+                cost = substitutes
+            dist[row][col] = min(dist[row-1][col] + deletes,
+                                 dist[row][col-1] + inserts,
+                                 dist[row-1][col-1] + cost) # substitution
+    return dist[row][col]
 
 import argparse
 
