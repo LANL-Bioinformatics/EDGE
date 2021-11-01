@@ -1476,6 +1476,7 @@ $anaconda3bin/conda update -n base -y conda
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
+$anaconda3bin/pip install --upgrade pip
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
@@ -1882,9 +1883,9 @@ else
   exit 1
 fi
 
-if $rootdir/bin/python -c 'import Bio; print Bio.__version__' >/dev/null 2>&1
+if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
 then
-  $rootdir/bin/python -c 'import Bio; print "BioPython Version", Bio.__version__, "is found"'
+	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
 else
   install_Anaconda2
 fi
@@ -2616,7 +2617,7 @@ fi
 if ( checkLocalInstallation piret)
 then
   PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
-  if  ( echo $PiReT_VER | awk '{if($1>="0.3") exit 0; else exit 1}' )
+  if [ $(versionStr $PiReT_VER) -ge $(versionStr "0.3") ]
   then
     echo "PyPiReT is found"
   else
@@ -2878,6 +2879,7 @@ fi
 #rm -rf $rootdir/thirdParty/Anaconda3Packages/
 $anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
+$anaconda3bin/pip cache purge
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -
