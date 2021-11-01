@@ -3375,6 +3375,7 @@ sub runReadsToGenome
         my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
         my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
         my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
+        my $con_varlog_opt = ($configuration->{r2g_consensus_varlog_opt})? "1":"0";
     #$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
         foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
@@ -3383,6 +3384,7 @@ sub runReadsToGenome
             &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
             $command .= " --comp " if ($con_comp_opt);
+            $command .= " --varlog " if ($con_varlog_opt);
             $command .= " --disableBAQ" if ($con_disable_BAQ);
             $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop >> $consensus_log";
