@@ -1046,7 +1046,7 @@ sub checkParams {
 		$opt{"edge-primer-valid-sw"} = 0 ;
 		$opt{"edge-primer-adj-sw"} = 0 ;
 		$opt{"edge-anno-sw"} = 0 ;
-		$opt{"edge-jbroswe-sw"} = 0 ;
+		$opt{"edge-jbrowse-sw"} = 0 ;
 		my @chartTypes=split /[\x0]/, $opt{"edge-qiime-taxa-charttype"};
 		$opt{"edge-qiime-taxa-charttype"} = join(",", @chartTypes);
 		@edge_qiime_barcode_input = split /[\x0]/, $opt{"edge-qiime-barcode-fq-file-input[]"} if defined $opt{"edge-qiime-barcode-fq-file-input[]"};
@@ -1096,7 +1096,7 @@ sub checkParams {
 		$opt{"edge-primer-valid-sw"} = 0 ;
 		$opt{"edge-primer-adj-sw"} = 0 ;
 		$opt{"edge-anno-sw"} = 0 ;
-		$opt{"edge-jbroswe-sw"} = 0 ;
+		$opt{"edge-jbrowse-sw"} = 0 ;
 		$opt{"edge-targetedngs-ref-file"} = $input_dir."/".$opt{"edge-targetedngs-ref-file"} if ($opt{"edge-targetedngs-ref-file"} =~ /^\w/);
         
 		&addMessage("PARAMS", "edge-targetedngs-ref-file","File not found. Please check the file path.") if ( $opt{"edge-targetedngs-ref-file"} && ! -e $opt{"edge-targetedngs-ref-file"} );
@@ -1128,7 +1128,7 @@ sub checkParams {
 		$opt{"edge-primer-valid-sw"} = 0 ;
 		$opt{"edge-primer-adj-sw"} = 0 ;
 		$opt{"edge-anno-sw"} = 0 ;
-		$opt{"edge-jbroswe-sw"} = 0 ;
+		$opt{"edge-jbrowse-sw"} = 0 ;
 		$opt{"edge-piret-exp-design-file"} = ($edge_qiime_mapping_files[0] =~ /^\w/)? $input_dir."/".$edge_qiime_mapping_files[0] : $edge_qiime_mapping_files[0];
 		$opt{"edge-piret-prok-fasta-file"} = $input_dir."/".$opt{"edge-piret-prok-fasta-file"} if ($opt{"edge-piret-prok-fasta-file"} =~ /^\w/);
 		$opt{"edge-piret-prok-gff-file"} = $input_dir."/".$opt{"edge-piret-prok-gff-file"} if ($opt{"edge-piret-prok-gff-file"} =~ /^\w/);

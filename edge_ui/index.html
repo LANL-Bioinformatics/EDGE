@@ -382,7 +382,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<ul>
 			<li>EDGE Bioinformatics is built around a collection of publicly available, open-source software packaged or in-house developed tools/algorithms/scripts to process <b>FASTQ data</b> or <b>Contig FASTA data</b> (there is currently limited capability of incorporating PacBio and Oxford Nanopore data into the Assembly module)</li>
 			<li>The EDGE bioinformatics web-based graphic user interface is primarily implemented using the JQuery Mobile javascript framework and HTML5 on the client-side, and implements perl CGI using Apache or Python on the server-side</li>
-			<li>The current version of EDGE pipeline has been extensively tested on Linux platforms with Ubuntu 14.04 and CentOS 6/7 operation system and will only work on 64bit Linux environments</li>
+			<li>The current version of EDGE pipeline has been extensively tested on Linux platforms with Ubuntu 18.04 and CentOS 7 operation system and will only work on 64bit Linux environments</li>
 			<li>Due to the involvement of several memory/time consuming steps, we normally recommend computers with at least 24GB memory and 8 CPUs, though we typically use on servers with a minimum of 256GB memory with 64 CPUs</li>
 			</ul>
 		</p>
@@ -1902,6 +1902,16 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			</div>
 			</div> <!-- edge-primer-design-parameters -->
 		</div>
+		<div id="edge-runEDGE-jbrowse" data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>
+				<div class="ui-field-contain edge-collapsible-options">
+					<select id="edge-jbrowse-sw" name="edge-jbrowse-sw" data-role="slider" data-mini="true">
+						<option value="0">Off</option><option value="1" selected="True">On</option>
+					</select>
+					<label for="edge-jbrowse-sw">JBrowse</label>
+				</div>
+			</h4>
+                </div>
 		</div> <!--Choose Proceses collapsible for edge-main-pipeline-input"-->
 		<div class="edge-qiime-pipeline-input">
 			<div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-collapsed="false">

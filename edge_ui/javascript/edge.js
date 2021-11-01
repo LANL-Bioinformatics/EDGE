@@ -1247,11 +1247,13 @@ $( document ).ready(function()
 		collapsible_select_sync();
 	});
 
+	$( " #edge-runEDGE-jbrowse" ).collapsible("disable");
 	$( ".edge-collapsible-options div.ui-slider-switch" ).on( "mouseover", function() {
 		$(this).parents('div[data-role="collapsible"]').collapsible("disable");
 	});
 	$( ".edge-collapsible-options div.ui-slider-switch" ).on( "mouseout", function() {
 		$(this).parents('div[data-role="collapsible"]').collapsible("enable");
+		$( " #edge-runEDGE-jbrowse" ).collapsible("disable");
 	});
 
 	$( "#edge-view-log-btn" ).on( "mouseover", function() {
