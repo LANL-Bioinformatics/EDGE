@@ -9,7 +9,7 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin:$PATH
+export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
 export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
@@ -144,10 +144,13 @@ echo "--------------------------------------------------------------------------
                            Installing DETEQT $VER
 ------------------------------------------------------------------------------
 "
+Org_PATH=$PATH;
+export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
 tar xvzf DETEQT-$VER.tgz
 cd DETEQT
 ./INSTALL.sh
 ln -sf $rootdir/thirdParty/DETEQT $rootdir/bin/DETEQT
+export PATH=$Org_PATH
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
