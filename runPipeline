@@ -3374,6 +3374,8 @@ sub runReadsToGenome
         my $con_min_baseQ = $configuration->{r2g_consensus_min_baseQ} || 20;
         my $con_disable_BAQ = $configuration->{r2g_consensus_disable_BAQ};
         my $con_pcr_dedup = ($configuration->{r2g_consensus_pcr_dedup})? "1":"0";
+        my $con_homopolymer_filter = ($configuration->{r2g_consensus_homopolymer_filter})? "1":"0";
+        my $con_strandbias_filter = ($configuration->{r2g_consensus_strandbias_filter})? "1":"0";
         my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
         my $con_varlog_opt = ($configuration->{r2g_consensus_varlog_opt})? "1":"0";
     #$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
@@ -3384,6 +3386,8 @@ sub runReadsToGenome
             &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
             $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
             $command .= " --comp " if ($con_comp_opt);
+            $command .= " --filterHomopolymer " if ($con_homopolymer_filter);
+            $command .= " --filterStrandBias " if ($con_strandbias_filter);
             $command .= " --varlog " if ($con_varlog_opt);
             $command .= " --disableBAQ" if ($con_disable_BAQ);
             $command .= " --NOpcrDedup" if (!$con_pcr_dedup);

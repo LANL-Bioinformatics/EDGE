@@ -1025,11 +1025,11 @@
 				<legend>Specify Kingdom<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Please choose the genome type you would like to annotate for Prokka to do genome annotation."></a></legend>
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom1" value="Archaea">
 				<label for="edge-anno-kingdom1">Archaea</label>
-				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom2" value="Bacteria" checked="checked">
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom2" value="Bacteria">
 				<label for="edge-anno-kingdom2">Bacteria</label>
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom3" value="Mitochondria">
 				<label for="edge-anno-kingdom3">Mitochondria</label>
-				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom4" value="Viruses">
+				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom4" value="Viruses" checked="checked">
 				<label for="edge-anno-kingdom4">Viruses</label>
 				<input type="radio" name="edge-anno-kingdom" id="edge-anno-kingdom5" value="Metagenome">
 				<label for="edge-anno-kingdom5">Metagenome</label>
@@ -1038,9 +1038,9 @@
 			<div id="edge-anno-kegg" class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>KEGG Pathway View<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Visualize Prokka annotation in KEGG map. Need Internet Connection"></a></legend>
-					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw1" value="1" checked="checked">
+					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw1" value="1">
 					<label for="edge-anno-kegg-sw1">Yes</label>
-					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw2" value="0">
+					<input type="radio" data-mini="true" name="edge-anno-kegg-sw" id="edge-anno-kegg-sw2" value="0" checked="checked">
 					<label for="edge-anno-kegg-sw2">No</label>
 				</fieldset>
 			</div>
@@ -1052,7 +1052,7 @@
                                 	<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
                         	</div>
                         </div>
-			<div class="ui-field-contain">
+<!--			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Secondary Metabolite Analysis<a  href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE use antiSMASH v4.1.0 for the rapid genome-wide identification, annotation and analysis of secondary metabolite biosynthesis gene clusters in bacterial and fungal genomes."></a></legend>
 					<input type="radio" data-mini="true" name="edge-sma-sw" id="edge-sma-sw1" value="1">
@@ -1061,6 +1061,7 @@
 					<label for="edge-sma-sw2">No</label>
 				</fieldset>
 			</div>
+-->
 			<div class="ui-grid-a edge-tool-parameters" id="edge-sma-parameters">
 			<p class="edge-center edge_tool_note">Secondary Metabolite Analysis Parameters</p>
 				<div class="ui-block-a">
@@ -1327,6 +1328,24 @@
 							<label for="edge-r2g-con-pcrdedup-sw1">Yes</label>
 							<input type="radio" data-mini="true" name="edge-r2g-con-pcrdedup" id="edge-r2g-con-pcrdedup-sw2" value="0">
 							<label for="edge-r2g-con-pcrdedup-sw2">No</label>
+						</fieldset>
+					</div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+							<legend>Homopolymer Filter<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="filter the INDELs variants < 0.8 INDEL Threshold in homopolymer (>= 4bp) region" ></a></legend>
+							<input type="radio" data-mini="true" name="edge-r2g-con-homopolymer-filter" id="edge-r2g-con-homopolymer-filter-sw1" value="1">
+							<label for="edge-r2g-con-homopolymer-filter-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-r2g-con-homopolymer-filter" id="edge-r2g-con-homopolymer-filter-sw2" value="0" checked='checked'>
+							<label for="edge-r2g-con-homopolymer-filter-sw2">No</label>
+						</fieldset>
+					</div>
+					<div class="ui-field-contain">
+						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+							<legend>StrandBias Filter<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="filter the SNP variants if all variants found in one strand only of all mapped PE reads" ></a></legend>
+							<input type="radio" data-mini="true" name="edge-r2g-con-strandbiase-filter" id="edge-r2g-con-strandbiase-filter-sw1" value="1">
+							<label for="edge-r2g-con-strandbiase-filter-sw1">Yes</label>
+							<input type="radio" data-mini="true" name="edge-r2g-con-strandbiase-filter" id="edge-r2g-con-strandbiase-filter-sw2" value="0" checked='checked'>
+							<label for="edge-r2g-con-strandbiase-filter-sw2">No</label>
 						</fieldset>
 					</div>
 				</div>
