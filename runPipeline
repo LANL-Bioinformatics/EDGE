@@ -541,6 +541,22 @@ sub prepareExpDesignAndConfig{
              exit;
 	}
     }
+    if ($prokaryote_fasta and $prokaryote_fasta =~ /\.gz$/){
+	    system("gunzip $prokaryote_fasta");
+	    $prokaryote_fasta =~ s/\.gz$//;
+    }
+    if ($prokaryote_gff and $prokaryote_gff =~ /\.gz$/){
+	    system("gunzip $prokaryote_gff");
+	    $prokaryote_gff =~ s/\.gz$//;
+    }
+    if ($eukarya_fasta and $eukarya_fasta =~ /\.gz$/){
+	    system("gunzip $eukarya_fasta");
+	    $eukarya_fasta =~ s/\.gz$//;
+    }
+    if ($eukarya_gff and $eukarya_gff =~ /\.gz$/){
+	    system("gunzip $eukarya_gff");
+	    $eukarya_gff =~ s/\.gz$//;
+    }
     if ($exp_file =~ /xlsx$/){ 
         open ($fh, "-|")
             or exec("xlsx2csv", "-d", "tab", "$exp_file");
@@ -1944,6 +1960,7 @@ sub runAnnotation
     my $outFNA="$outputDir_abs_path/$project_name.fna";
     my $customHMM = $configuration->{customHMM};
     my $evalue = $configuration->{annotation_evalue};
+    my $gcode = $configuration->{annotation_gcode};
     my $log = "$outputDir/Annotation.log"; 
     my $gff_plot_log = "$outputDir/plot_gff3.log"; 
     my $kegg_map_log = "$outputDir/kegg_map.log";
@@ -2005,8 +2022,9 @@ sub runAnnotation
 		}
 	}
         my $evalue_option = ($evalue)? "--evalue $evalue":"";
-        $cmd = "$RealBin/bin/prokka --quiet --force $hmm_file $evalue_option --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
-    }
+	my $gcode_option = ($gcode)? "--gcode $gcode":"";
+        $cmd = "$RealBin/bin/prokka --quiet --force $hmm_file $evalue_option $gcode_option --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
+    }n
     &lprint (" Running \n $cmd\n");
     &executeCommand($cmd);
     # Annotation stats report
@@ -2932,12 +2950,12 @@ sub countPE_exe{
     while(<$fh1>){
         chomp;
         next unless $_ =~ /\S/;
-	next if ($_ =~ /length=0/);
+        next if ($_ =~ /length=0/);
         my $id_line=$_;
-        my ($id) = $id_line =~ /^\@(\S+)\s*/;
+        my ($id) = $id_line =~ /^\@(\S+).?\/?1?\s*/;
         my $seq = <$fh1>;
         chomp $seq;
-	if ($seq_hash{$id}){
+        if ($seq_hash{$id}){
             $existed_id1++;
         }
         my $len = length $seq;
@@ -2945,8 +2963,7 @@ sub countPE_exe{
         my $qual_id = <$fh1>;
         my $qual = <$fh1>;
         $seq = $seq."\n".$qual_id.$qual;
-        $seq_hash{$id}->{seq}=$seq;
-        $seq_hash{$id}->{id}=$id_line;
+        $seq_hash{$id}++;
         $read1_count++;
     }
     close $fh1;
@@ -2955,13 +2972,13 @@ sub countPE_exe{
     while(<$fh2>){
         chomp;
         next unless $_ =~ /\S/;
-	next if ($_ =~ /length=0/);
+        next if ($_ =~ /length=0/);
         my $id_line=$_;
-        my ($id2) = $id_line =~ /^\@(\S+)\s*/;
+        my ($id2) = $id_line =~ /^\@(\S+)\.?\/?2?\s*/;
         $read2_count++;
         my $seq2 = <$fh2>;
         chomp $seq2;
-	if ($seq_hash2{$id2}){
+        if ($seq_hash2{$id2}){
             $existed_id2++;
         }
         my $len = length $seq2;
@@ -2969,33 +2986,50 @@ sub countPE_exe{
         my $qual_id = <$fh2>;
         my $qual = <$fh2>;
         $seq2 = $seq2."\n".$qual_id.$qual;
-	$seq_hash2{$id2}->{id}=$id_line;
+        $seq_hash2{$id2}++;
         if ($seq_hash{$id2}){
+            $seq_hash{$id2}++;
             $paired_count++;
-            print $ofh1 $seq_hash{$id2}->{id},"\n",$seq_hash{$id2}->{seq};
             print $ofh2 $id_line,"\n",$seq2;
-            delete $seq_hash{$id2};
         }else{
             print $ofhse $id_line,"\n",$seq2;
             $se2_count++;
         }
     }
-    foreach my $id (keys %seq_hash){
-        print $ofhse $seq_hash{$id}->{id},"\n",$seq_hash{$id}->{seq};
-        $se1_count++;
+    close $fh2;
+    ($fh1,$pid) = open_file($r1);
+    while(<$fh1>){
+        chomp;
+        next unless $_ =~ /\S/;
+        next if ($_ =~ /length=0/);
+        my $id_line=$_;
+        my ($id) = $id_line =~ /^\@(\S+)\.?\/?1?\s*/;
+        my $seq = <$fh1>;
+        chomp $seq;
+        my $qual_id = <$fh1>;
+        my $qual = <$fh1>;
+        $seq = $seq."\n".$qual_id.$qual;
+        if ($seq_hash{$id} == 2){
+                print $ofh1 $id_line,"\n",$seq;
+        }
+        if ($seq_hash{$id} == 1){
+                print $ofhse $id_line,"\n",$seq;
+                $se1_count++;
+        }
     }
+    close $fh1;
+    close $ofh1;
+    close $ofh2;
+    close $ofhse;
     printf ("%s\t%d\t%d\t%.2f\n",basename($r1),$read1_count,$read1_total_len,$read1_total_len/$read1_count);
     printf ("%s\t%d\t%d\t%.2f\n",basename($r2),$read2_count,$read2_total_len,$read2_total_len/$read2_count);
     printf $count_fh ("%s\t%d\t%d\t%.2f\n",basename($r1),$read1_count,$read1_total_len,$read1_total_len/$read1_count);
     printf $count_fh ("%s\t%d\t%d\t%.2f\n",basename($r2),$read2_count,$read2_total_len,$read2_total_len/$read2_count);
     printf ("%d duplicate id from %s\n", $existed_id1, basename($r1)) if ($existed_id1 > 0);
     printf ("%d duplicate id from %s\n", $existed_id2, basename($r2)) if ($existed_id2 > 0);
-    printf ("There are %d reads from %s don't have corresponding paired read.\n", $se1_count, basename($r1)) if ($se1_count >0);
+    printf ("There are %d reads from %s don't have corresponding paired read.\n", $se1_count, basename($r1)) if ($se1_count >0); 
     printf ("There are %d reads from %s don't have corresponding paired read.\n", $se2_count, basename($r2)) if ($se2_count >0);
-    close $fh2;
-    close $ofh1;
-    close $ofh2;
-    close $ofhse;
+   
     unlink $out_se if (-z $out_se);
 }
 sub countFastq_exe 

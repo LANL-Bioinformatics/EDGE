@@ -856,6 +856,9 @@ $( document ).ready(function()
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
  		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy. <a href="https://github.com/fenderglass/Flye" target="_blank">Flye</a> is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. metaFlye is a special mode of Flye for metagenome assembly. </span>')
  	);
+	$("#edge-anno-gcode-tooltip").tooltipster(
+                 'content', $('<span>The genetic code will change according to the kingdom selected. Or you can specify it here. Please see <a href="https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi" target="_blank">detailed</a>. </span>')
+        );
 
 	// filter serach callBack function
 	function revealOrSearch ( index, searchValue ) {
@@ -1956,6 +1959,23 @@ $( document ).ready(function()
 				$('#edge-anno-source').show();
 				$('#edge-anno-kingdom').hide();
 				$('#edge-anno-kegg').hide();
+			}
+		});
+		$(":radio[name='edge-anno-kingdom']").on("change", function(){
+			if($('#edge-anno-kingdom1').is(':checked')){
+				$('#edge-anno-gcode').val('11');
+			}
+			if($('#edge-anno-kingdom2').is(':checked')){
+				$('#edge-anno-gcode').val('11');
+			}
+			if($('#edge-anno-kingdom3').is(':checked')){
+				$('#edge-anno-gcode').val('5');
+			}
+			if($('#edge-anno-kingdom4').is(':checked')){
+				$('#edge-anno-gcode').val('1');
+			}
+			if($('#edge-anno-kingdom5').is(':checked')){
+				$('#edge-anno-gcode').val('11');
 			}
 		});
 		$('#edge-r2g-con-options').hide();
