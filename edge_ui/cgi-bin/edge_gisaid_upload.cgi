@@ -185,8 +185,8 @@ if($action eq "create-form") {
 		my $submit_log = "$upload_content_dir/submit.log";
 		my $submit_current_log = "$upload_content_dir/submit_current.log";
 		my $submit_script = "$upload_content_dir/submit.sh";
-		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p " . $opt{'metadata-gisaid-pw'} . " -u ". $opt{'metadata-gisaid-id'} ." -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
-		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p " . $opt{'metadata-ncbi-pw'} . " -u ". $opt{'metadata-ncbi-id'} . " -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
+		my $gisaid_cmd .= "  $EDGE_HOME/scripts/gisaid_EpiCoV_uploader.py -m $submit_metadata_out -p \'" . $opt{'metadata-gisaid-pw'} . "\' -u ". $opt{'metadata-gisaid-id'} ." -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
+		my $ncbi_cmd .= "  $EDGE_HOME/scripts/NCBI_SARS-CoV2_submitter.py -m $submit_metadata_out -p \'" . $opt{'metadata-ncbi-pw'} . "\' -u ". $opt{'metadata-ncbi-id'} . " -f $consensus_ref_file --headless $debug 2>\&1 | tee -a $submit_log";
 
 		SetSubmitScript($submit_script, $submit_log, $projCompleteReport_cache, $gisaid_done, $gisaid_cmd, $ncbi_cmd);
 		my $script_fh;
