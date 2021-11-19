@@ -854,6 +854,9 @@ $( document ).ready(function()
 	$('#edge-variantcall-tooltip').tooltipster(
 		'content', $('<span>EDGE will use samtools/bcftools (version 1.6) to call variants. <a href="http://www.htslib.org/workflow/#mapping_to_variant" target="_blank">Detailed.</a></span>')
 	);
+	$('#edge-pangolinmode-tooltip').tooltipster(
+                'content', $('<span>EDGE will use <a href="https://pangolin.cog-uk.io/" target="_blank">Pangolin</a> for lineage assignment and will try to udpate the version before execution."</span>')
+	);
 	$('#edge-megahit-preset-l').tooltipster(
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr></table></span>')
 	);

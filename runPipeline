@@ -3378,6 +3378,7 @@ sub runReadsToGenome
         my $con_strandbias_filter = ($configuration->{r2g_consensus_strandbias_filter})? "1":"0";
         my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
         my $con_varlog_opt = ($configuration->{r2g_consensus_varlog_opt})? "1":"0";
+	my $con_pangolin_mode = ($configuration->{r2g_consensus_pangolin_mode}) =~ /usher/i)? "--usher" : "";
     #$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
         foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
@@ -3410,7 +3411,7 @@ sub runReadsToGenome
             my $pangolin_env= "$RealBin/thirdParty/Anaconda3/envs/pangolin";
             my $pangolin_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $pangolin_env";
             my $pangolin_log= "$outputDir/pangolin.log";
-            $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
+            $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin $con_pangolin_mode -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
             remove_tree("$outputDir/${file_name}_consensus_html") if ( -d "$outputDir/${file_name}_consensus_html");

@@ -276,7 +276,7 @@ sub run_cov_tracker{
 		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys,\"$proj_name\"),\"\\n\"; print join(\"\\t\",\@values,\"$proj_name\"),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
 	}
 	close $cmds_fh;
-	my $pangolin_cmd = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate $EDGE_HOME/thirdParty/Anaconda3/envs/pangolin; pangolin -t 4 --tempdir $report_dir --outdir $report_dir --outfile $report_dir/lanl_project_list.lineage_report.csv $report_dir/lanl_project_list.fa > $report_dir/lanl_project_list.pangolin.log 2>&1";
+	my $pangolin_cmd = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate $EDGE_HOME/thirdParty/Anaconda3/envs/pangolin; pangolin --usher -t 4 --tempdir $report_dir --outdir $report_dir --outfile $report_dir/lanl_project_list.lineage_report.csv $report_dir/lanl_project_list.fa > $report_dir/lanl_project_list.pangolin.log 2>&1";
 	my $ec19_varviz_cmds = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate base; cd $report_dir; ec19_varviz report --snps lanl_project_list.SNP.tsv --gaps lanl_project_list.gaps.tsv --alnstats lanl_project_list.alnstats.tsv --pango lanl_project_list.lineage_report.csv --metadata lanl_project_list.metadata.tsv --output lanl_project_list_ec19.html > ec19_report.log 2>&1";
 	my $ec19_varviz_cmds_file =  "$report_dir/ec19_varviz_cmds.sh";
 	open (my $fh, ">", $ec19_varviz_cmds_file) or die $!;
