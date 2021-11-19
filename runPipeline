@@ -3382,7 +3382,7 @@ sub runReadsToGenome
     $parameters .= " -p \'$pairFile\'" if ($pairFile);
     $parameters .= " -u $unpairFile" if ( -s $unpairFile);
     $parameters=~ s/-u /-long / if ($ont_flag or $pacbio_flag) and $configuration->{r2g_aligner} =~ /minimap/;
-    my $command = "perl $RealBin/scripts/runReadsToGenome.pl -d $outputDir $parameters 1>>$log 2>\&1 ";
+    my $command = "perl $RealBin/scripts/runReadsToGenome.pl -skip_aln -d $outputDir $parameters 1>>$log 2>\&1 ";
     if ( ! -e "$outputDir/runReadsToGenome.finished" ){
       &lprint ("  Running \n  $command \n");
       &executeCommand($command);
@@ -3499,6 +3499,8 @@ sub getAlignTrimReads{
 	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
 	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
 	&executeCommand($extract_reads_cmd);
+	move($_,"$outputDir/") for @align_trim_bam_file;
+	move($_, "$outputDir/") for glob("$outputDir/AlignTrimMapping/*bai");
 	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
 		$pairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq $outputDir/AlignTrimMapping/AlignTrimmedReads.2.fastq";
 	}
