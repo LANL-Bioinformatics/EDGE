@@ -1662,7 +1662,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
-$anaconda3bin/pip install NanoPlot
+$anaconda3bin/pip install NanoPlot==1.31.0
 ln -fs $anaconda3bin/NanoPlot $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
