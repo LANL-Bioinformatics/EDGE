@@ -2156,7 +2156,7 @@ sub parse_lineage{
 			$note = "; VOC";
 			$lineage{$cid}->{warning} = "VOC";
 		}
-		if ($lineage_assign =~ /B.1.617.2/ or $lineage_assign =~ /AY./ ){
+		if ($lineage_assign =~ /B.1.617.2/ or $lineage_assign =~ /AY./ or $lineage_assign =~ /B.1.1.529/ ){
 			$note = "; VOC";
 			$lineage{$cid}->{warning} = "VOC";
 		}
