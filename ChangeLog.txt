@@ -1,8 +1,10 @@
 # EDGE-COVID19
 
 ## build 2021
+
+## build 20211130
 * update Tomcat 7.0.92 to 7.0.109 for vulnerable patch
-* update pangolin to 3.1.14
+* update pangolin to 3.1.16
 * fix bug on vaccined_received metadata parsing
 * fix bug on consensus composition file parsing
 * add Varskip primer scheme option for trimming
@@ -14,6 +16,7 @@
 * add varlog option for consensus workflow
 * add homopolymer filter and strandBias filter for consensus workflow
 * add option for panglin lineage assingment mode, usher or pangoLearn
+* update VOC for B.1.1.1529 Omicron
 
 ## build 20211001
 * cleanup intermediate files
