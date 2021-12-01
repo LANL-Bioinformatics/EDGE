@@ -1941,7 +1941,7 @@ sub pull_readmapping_ref {
 
 						if ($lineage_info){
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage_link};
-							$refinfo->{"RMCONLINEAGEINFO"} = "$lineage_info->{$consensus_id}->{scorpio_call}; ambiguity_score: $lineage_info->{$consensus_id}->{ambiguity_score}; pangoLEARN_Version: $lineage_info->{$consensus_id}->{pangoLEARN_version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
+							$refinfo->{"RMCONLINEAGEINFO"} = "$lineage_info->{$consensus_id}->{scorpio_call}; ambiguity_score: $lineage_info->{$consensus_id}->{ambiguity_score}; version:$lineage_info->{$consensus_id}->{pangolin_version};$lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
 							$refinfo->{"RMCONLINEAGEWARN"} = $lineage_info->{$consensus_id}->{warning};
 						}
 						if ($indel_frameshift_info->{$temp[0]}){
