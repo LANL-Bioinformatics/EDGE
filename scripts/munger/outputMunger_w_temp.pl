@@ -2235,6 +2235,8 @@ sub consensus_fasta_stat{
 	return \%info if ( ! -e $log ); 
 
 	my %info2;
+	my %del;
+	my %insert;
 	open (my $fh2, "<", $log) or die "Cannot open $log";
 	while(<$fh2>){
 		chomp;
@@ -2242,12 +2244,19 @@ sub consensus_fasta_stat{
 		my ($snp,$ambiguous_base)=('','');
 		my @field=split("\t",$_);
 		my $ref_base = $field[2];
+		my $pos = $field[1];
 		if ($field[2] =~ /-/){
-			$info2{$field[0]}->{indel_num}++;
+			if (!$insert{$pos - 1}){
+				$info2{$field[0]}->{indel_num}++;
+			}
 			$info2{$field[0]}->{indel_num_len} += length($field[3]);
+			$insert{$pos}=1;
 		}elsif($field[3] =~ /-/){
-			$info2{$field[0]}->{indel_num}++;
+			if (!$del{$pos - 1}){
+				$info2{$field[0]}->{indel_num}++;
+			}
 			$info2{$field[0]}->{indel_num_len} += length($ref_base);
+			$del{$pos}=1;
 		}elsif($field[3] eq 'n'){
 			$info2{$field[0]}->{gaps_num}++;
 		}elsif($field[3] eq 'N'){
