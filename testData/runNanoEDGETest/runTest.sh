@@ -17,10 +17,11 @@ test_result(){
 	Expect4=$rootdir/readsToRef.alnstats2.txt
 	Expect5=$rootdir/readsToContigs.alnstats2.txt
 	Expect6=$rootdir/readsToContigs.alnstats3.txt
+	Expect7=$rootdir/NanoStats2.txt
 	testName="EDGE Nanopore data analysis test";
 	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect4"
 	then
-		if ( cmp -s "$Test2" "$Expect2" || cmp -s "$Test2" "$Expect5" || cmp -s "$Test2" "$Expect6" ) && cmp -s "$Test3" "$Expect3"
+		if ( cmp -s "$Test2" "$Expect2" || cmp -s "$Test2" "$Expect5" || cmp -s "$Test2" "$Expect6" ) && (cmp -s "$Test3" "$Expect3"|| cmp -s "$Test3" "$Expect7" )
 		then
 			echo "$testName passed!"
 			touch "$rootdir/TestOutput/test.success"
@@ -43,7 +44,8 @@ then
 	rm -rf $rootdir/TestOutput
 fi
 
-perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -u lambda.fastq.gz || true
+sed -e "s;NC_001416.1;$PWD/NC_001416.1;" $rootdir/config.txt > $rootdir/config_run.txt
+perl $EDGE_HOME/runPipeline -c $rootdir/config_run.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -u $rootdir/lambda.fastq.gz || true
 
 #rm -rf $rootdir/TestOutput/QcReads
 test_result;
