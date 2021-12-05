@@ -2760,7 +2760,7 @@ sub runQC
     $parameters .= " --ascii $configuration->{qc_phred_offset} " if ($configuration->{qc_phred_offset});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
-    if ($pacbio_flag){
+    if ($pacbio_flag or $ont_flag){
         $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
     }
     
@@ -3347,8 +3347,8 @@ sub runReadsToGenome
            my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
            $command = "$RealBin/scripts/amplicon_coverage.py --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
            &executeCommand($command);
-    }
-
+      }
+      unlink glob("$outputDir/AlignTrimMapping/*coverage");
     }
     if ($configuration->{r2g_extract_mapped}){
         # extract mapped reads
@@ -3468,7 +3468,6 @@ sub getAlignTrimReads{
 	move($_,"$outputDir/") for @align_trim_bam_file;
 	move($_, "$outputDir/") for glob("$outputDir/AlignTrimMapping/*bai");
 	unlink glob("$outputDir/AlignTrimMapping/*txt");
-	unlink glob("$outputDir/AlignTrimMapping/*coverage");
 	unlink glob("$outputDir/AlignTrimMapping/*coords");
 	if ( -s "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
 		$pairFile = "$outputDir/AlignTrimMapping/AlignTrimmedReads.1.fastq $outputDir/AlignTrimMapping/AlignTrimmedReads.2.fastq";
