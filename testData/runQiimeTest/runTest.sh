@@ -46,7 +46,8 @@ cd $rootdir
 echo "Working Dir: $rootdir";
 echo "EDGE HOME Dir: $EDGE_HOME";
 
-perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -u $rootdir/forward_reads.fastq.gz || true
+sed -e "s;=barcodes.fastq.gz;=$PWD/barcodes.fastq.gz;" -e "s;=map.txt;=$PWD/map.txt;" $rootdir/config.txt > $rootdir/config_run.txt
+perl $EDGE_HOME/runPipeline -c $rootdir/config_run.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -u $rootdir/forward_reads.fastq.gz || true
 
 rm -rf $rootdir/TestOutput/QcReads
 

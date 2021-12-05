@@ -28,7 +28,8 @@ then
 	rm -rf $rootdir/TestOutput
 fi
 
-perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -p $rootdir/../Ecoli_10x.1.fastq $rootdir/../Ecoli_10x.2.fastq || true
+sed -e "s;../;$PWD/../;" $rootdir/config.txt > $rootdir/config_run.txt
+perl $EDGE_HOME/runPipeline -c $rootdir/config_run.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -p $rootdir/../Ecoli_10x.1.fastq $rootdir/../Ecoli_10x.2.fastq || true
 rm -rf $rootdir/TestOutput/QcReads
 
 test_result;

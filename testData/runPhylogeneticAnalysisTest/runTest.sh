@@ -42,7 +42,8 @@ then
 	rm -rf $rootdir/TestOutput
 fi
 
-perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -p $rootdir/ebola_R1.fastq $rootdir/ebola_R2.fastq || true
+sed -e "s;=ebola_contigs;=$PWD/ebola_contigs;" $rootdir/config.txt > $rootdir/config_run.txt
+perl $EDGE_HOME/runPipeline -c $rootdir/config_run.txt -o $rootdir/TestOutput -cpu 4 -noColorLog  -p $rootdir/ebola_R1.fastq $rootdir/ebola_R2.fastq || true
 rm -rf $rootdir/TestOutput/QcReads
 
 test_result;

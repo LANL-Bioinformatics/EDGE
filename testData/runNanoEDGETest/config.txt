@@ -98,7 +98,7 @@ r2g_extract_unmapped=0
 
 [Reads Taxonomy Classification]
 ## boolean, 1=yes, 0=no
-DoReadsTaxonomy=1
+DoReadsTaxonomy=0
 ## If reference genome exists, only use unmapped reads to do Taxonomy Classification. Turn on AllReads=1 will use all reads instead.
 AllReads=0
 enabledTools=gottcha-genDB-b,gottcha-speDB-b,gottcha-strDB-b,gottcha-genDB-v,gottcha-speDB-v,gottcha-strDB-v

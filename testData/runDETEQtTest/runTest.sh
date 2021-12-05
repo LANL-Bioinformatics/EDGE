@@ -29,7 +29,8 @@ then
 	rm -rf $rootdir/TestOutput
 fi
 
+sed -e "s;=\.;=$PWD/;" -e "s;=sample_test.txt;=$PWD/sample_test.txt;" -e "s;=targeted_reference.fa;=$PWD/targeted_reference.fa;" $rootdir/config.txt > $rootdir/config_run.txt
+perl $EDGE_HOME/runPipeline -c $rootdir/config_run.txt -o $rootdir/TestOutput -cpu 4 -noColorLog || true
 
-perl $EDGE_HOME/runPipeline -c $rootdir/config.txt -o $rootdir/TestOutput -cpu 4 -noColorLog || true
 
 test_result;
