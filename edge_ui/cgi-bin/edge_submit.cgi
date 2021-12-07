@@ -477,6 +477,8 @@ sub createConfig {
 						$opt{"edge-r2g-con-altIndel-prop"} = 0.8 ;
 						$opt{"edge-r2g-con-altIndel-prop"} = 0.6 if ($opt{"edge-porechop-sw"});
 						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
+						$opt{"edge-r2g-con-homopolymer-filter"}= 1;
+						$opt{"edge-r2g-con-strandbias-filter"}= 1;
 						$opt{"edge-r2g-aligner"} = 'minimap2' ;
 						$opt{"edge-r2c-aligner"} = 'minimap2' ;
 						$opt{"edge-assembler"} = 'lrasm' ;
@@ -500,6 +502,8 @@ sub createConfig {
 						$opt{"edge-assembler"} = 'lrasm' ;
 						$opt{"edge-r2g-variantcall-sw"} = 0;
 						$opt{"edge-lrasm-preset"} = "pb";
+						$opt{"edge-r2g-con-strandbias-filter"}= 0;
+						$opt{"edge-r2g-con-homopolymer-filter"}= 1;
 					}else{ # illumina
 						$opt{"edge-fastq-source"} = "illumina";
 						$opt{"edge-qc-minl"} = 50;
