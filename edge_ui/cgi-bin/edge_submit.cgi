@@ -471,20 +471,25 @@ sub createConfig {
 						$opt{"splitrim-minq"}= 7 ;
 						$opt{"edge-r2g-max-clip"}= 150;
 						$opt{"edge-r2g-con-min-baseQ"}= 5;
-						$opt{"edge-r2g-con-altIndel-prop"} = 0.8 ;
+						$opt{"edge-r2g-con-altIndel-prop"} = 0.6 ;
 						$opt{"edge-r2g-con-disableBAQ"}= 1 ;
+						$opt{"edge-r2g-con-homopolymer-filter"}= 1;
+						$opt{"edge-r2g-con-strandbias-filter"}= 1;
 						$opt{"edge-r2g-aligner"} = 'minimap2' ;
 						$opt{"edge-r2c-aligner"} = 'minimap2' ;
 						$opt{"edge-assembler"} = 'lrasm' ;
 						$opt{"edge-r2g-variantcall-sw"} = 0;
 						$opt{"edge-lrasm-preset"} = "ont";
 						if( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i){
+						        $opt{"edge-fastq-source"} = "pacbio";
 							$opt{"edge-r2c-aligner-options"} = "-x map-pb";
 							$opt{"edge-r2g-aligner-options"} = "-x map-pb";
+							$opt{"edge-r2g-con-strandbias-filter"}= 0;
 							$opt{"edge-lrasm-preset"} = "pb";
+							$opt{"edge-qc-sw"} = 0;
 						}
 					}else{ # illumina
-						$opt{"edge-fastq-source"} = "not";
+						$opt{"edge-fastq-source"} = "illumina";
 						$opt{"edge-qc-minl"} = 50;
 						$opt{"edge-qc-q"} = 20;
 						$opt{"splitrim-minq"}= 20 ;
