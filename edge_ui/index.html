@@ -1358,6 +1358,11 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div class="edge-right">|<a href="#" id="edge-anno-toggle" class="edge-additional-options-toggle" > additional options </a>|</div>
 			<div id="edge-anno-options" class="edge-additional-options">
 				<div class="ui-field-contain input-type-file">
+					<label for="edge-anno-protein-file">Protein FASTA/GenBank for Prokka<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Protein FASTA or GBK file to use as 1st priority annoation source"></a></label>
+					<input type="text" data-mini="true" name="edge-anno-protein-file" id="edge-anno-protein-file" placeholder="absolute file path/select file">
+					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>
+				</div>
+				<div class="ui-field-contain input-type-file">
 					<label for="edge-anno-hmm-file">Trusted HMM for Prokka<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Trusted HMM to first annotate from"></a></label>
 					<input type="text" data-mini="true" name="edge-anno-hmm-file" id="edge-anno-hmm-file" placeholder="absolute file path/select file">
 					<div class="edge-file-selector"><a href='#edge_file_dialog' aria-haspopup='true' data-rel='popup' data-position-to='window' data-transition='pop' data-mini="true" class="ui-btn ui-shadow ui-corner-all ui-icon-bullets ui-btn-icon-notext">file</a></div>

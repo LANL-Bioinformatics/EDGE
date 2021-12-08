@@ -481,11 +481,11 @@ sub createConfig {
 						$opt{"edge-r2g-variantcall-sw"} = 0;
 						$opt{"edge-lrasm-preset"} = "ont";
 						if( $sra_info->{$real_names[$i]}->{"metadata-sequencer"} =~ /pacbio/i){
-						        $opt{"edge-fastq-source"} = "pacbio";
+							$opt{"edge-fastq-source"} = "pacbio";
 							$opt{"edge-r2c-aligner-options"} = "-x map-pb";
 							$opt{"edge-r2g-aligner-options"} = "-x map-pb";
-							$opt{"edge-r2g-con-strandbias-filter"}= 0;
 							$opt{"edge-lrasm-preset"} = "pb";
+							$opt{"edge-r2g-con-strandbias-filter"}= 0;
 							$opt{"edge-qc-sw"} = 0;
 						}
 					}else{ # illumina
@@ -1325,6 +1325,7 @@ sub checkParams {
 		&addMessage("PARAMS", "edge-assembly-sw",  "You must turn on assembly function to do annotation.") unless $opt{"edge-assembly-sw"} >= 0; 
 		#&addMessage("PARAMS", "edge-anno-kingdom",  "Invalid input. Natural number required.")     unless $opt{"edge-assembly-mink"} >= 0; 	
 		$opt{"edge-anno-hmm-file"}  = $input_dir."/".$opt{"edge-anno-hmm-file"} if ( $opt{"edge-anno-hmm-file"} =~ /^\w/);
+		$opt{"edge-anno-protein-file"}  = $input_dir."/".$opt{"edge-anno-protein-file"} if ( $opt{"edge-anno-protein-file"} =~ /^\w/);
 		if ($opt{"edge-anno-tool"} =~ /RATT/){
 			 $opt{"edge-anno-source-file"}  = $input_dir."/".$opt{"edge-anno-source-file"} if ( $opt{"edge-anno-source-file"} =~ /^\w/);
 			&addMessage("PARAMS","edge-anno-source-file","File not found. Please provide the Genbank Source File") if ( ! $opt{"edge-anno-source-file"} );
