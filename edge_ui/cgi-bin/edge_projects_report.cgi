@@ -150,13 +150,15 @@ if($action eq "form") {
 	
 		my $reportTmpl    = "$RealBin/../../scripts/projects_report/edge_projects_report_html.tmpl";
 		my $reportHtml =  "$report_out_dir/index.html";
-		my $cmd = "cd $edgeui_wwwroot; $edgeui_wwwroot/../scripts/projects_report/create_report_w_temp.pl $report_out_dir $reportHtml $reportSettings";
+		my $cmd = "cd $edgeui_wwwroot; $edgeui_wwwroot/../scripts/projects_report/create_report_w_temp.pl $report_out_dir $reportHtml $reportSettings > $report_out_dir/log.txt 2>\&1 &";
 		#print STDERR "$cmd\n";
-		`$cmd`;
+		my $pid = open (REPORT, "-|") 
+		                    or exec("$cmd");
+		close REPORT;
 		
 		my $cov_tracker_cmd = &run_cov_tracker(\@selected_projects, $report_out_dir, $relt);
-		my $cmd = "/bin/bash $cov_tracker_cmd >$report_out_dir/log.txt 2>\&1 &";
-		my $pid = open (COVTRAKCER, "-|") 
+		$cmd = "/bin/bash $cov_tracker_cmd >>$report_out_dir/log.txt 2>\&1 &";
+		$pid = open (COVTRAKCER, "-|") 
 				or exec("$cmd");
                 close COVTRAKCER;
 		if( $pid ){
@@ -165,18 +167,10 @@ if($action eq "form") {
 			$info->{PATH} = "$relative_outdir/lanl_project_list_ec19.html";
 		}
 
-		my $pr=0;
-		my @htmls;
-		open REP, "$reportHtml" or die "Can't open $reportHtml: $!";
-		foreach(<REP>){
-			last if /<!-- \/content -->/;
-			push @htmls, $_ if $pr;
-			$pr=1 if /id='edge-projects-report-page'/;
-		}
-
-		close REP;
-
-		$html = join "", @htmls;
+		$html = "<h2 id='edge-output-reportname'>$opt{'edge-report-name'}</h2>\n";
+		$html .= "<span id='report-dir' style='display:none;'>/EDGE_report/$report_name</span>\n";
+		$html .= "<p>Description: $opt{'edge-report-desc'}</p>";
+		$html .= "<span id='wait-report'>Generating report...<div class='edge-sp edge-sp-circle'></div></span>";
 	}
 	print "Content-Type: text/html\n\n",
 				  $html;
@@ -221,7 +215,7 @@ if($action eq "form") {
 		}
 	}
 	my $report_out_dir = "$report_dir/". $report_id;
-	if( -d $report_out_dir ){
+	if( $report_id && -d $report_out_dir ){
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Failed to delete the report $report output directory.";
 		`rm -rf $report_out_dir`;
@@ -273,7 +267,7 @@ sub run_cov_tracker{
 		print $cmds_fh "grep -B 1 NC_045512 $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2.alnstats.txt | sed 's/NC_045512_2/$proj_name/' >>  $report_dir/lanl_project_list.alnstats.tsv\n";
 		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.gaps_report.txt | grep 'surface glycoprotein' | sed 's/NC_045512_2/$proj_name/' >> $report_dir/lanl_project_list.gaps.tsv\n";
 		print $cmds_fh "cat $out_dir/$proj_code/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.fasta | sed 's/_consensus_NC_045512_2//' >> $report_dir/lanl_project_list.fa\n";
-		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys,\"$proj_name\"),\"\\n\"; print join(\"\\t\",\@values,\"$proj_name\"),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
+		print $cmds_fh "perl -ne 'chomp; (\$k,\$v)= split/=/; push \@keys, \$k; push \@values, \$v; END{print join(\"\\t\",\@keys, \"$proj_name\"),\"\\n\"; print join(\"\\t\",\@values, \"$proj_name\"),\"\\n\";}' $out_dir/$proj_code/metadata_gisaid_ncbi.txt >> $report_dir/lanl_project_list.metadata.tsv\n";
 	}
 	close $cmds_fh;
 	my $pangolin_cmd = ". $EDGE_HOME/thirdParty/Anaconda3/bin/activate $EDGE_HOME/thirdParty/Anaconda3/envs/pangolin; pangolin --usher -t 4 --tempdir $report_dir --outdir $report_dir --outfile $report_dir/lanl_project_list.lineage_report.csv $report_dir/lanl_project_list.fa > $report_dir/lanl_project_list.pangolin.log 2>&1";

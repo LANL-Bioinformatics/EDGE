@@ -191,50 +191,46 @@ $( document ).ready(function()
 				$( "#edge-projects-report-page" ).html(data);
 				$( "#edge-projects-report-page" ).show();
 
-				$(".tooltip").tooltipster({
-					theme:'tooltipster-light',
-					maxWidth: '480',
-					interactive: true,
-					multiple:true
-				});
-				$( "#edge-projects-report-page" ).enhanceWithin();
-
-				$.getScript( "./javascript/edge-projects-report.js" )
-					.done(function( script, textStatus ) {
-					//	console.log( "edge-output.js loaded: " + textStatus );
-					})
-					.fail(function( jqxhr, settings, exception ) {
-						console.log( jqxhr, settings, exception );
-					});
-				//check report plot
-				var reportURL = "." + $('#report-dir').text() + "/lanl_project_list_ec19.html";
-				var reportLogURL = "." + $('#report-dir').text() + "/ec19_report.log";
-				if (/EDGE_report/.test(location.pathname.toString()) || ! location.hostname){
-					reportURL = "./lanl_project_list_ec19.html";
-				}
-				$('#report-plots-iframe').hide();
-				$('#report-plots-link').hide();
-				$('#wait-report-plots').show();
-				var updatePlotInterval = setInterval(function(){
-				$.get(reportURL)
-					.done(function() { 
-						clearInterval(updatePlotInterval);
-						$('#report-plots-iframe').attr("src",reportURL).show();
-						$('#report-plots-link').attr("href",reportURL).show();
-						$('#wait-report-plots').hide();
-					}).fail(function() { 
+				var indexURL = "." + $('#report-dir').text() + "/index.html";
+				var waitTime = 0;
+				var updateHtmlInterval = setInterval(function(){
+				$.get(indexURL)
+					.done(function(data) {
+						clearInterval(updateHtmlInterval);
+						var dom = $($.parseHTML(data))
+						var udpateData=dom.find('#edge-projects-report-page').html();
+						$( "#edge-projects-report-page" ).html(udpateData);
+						$(".tooltip").tooltipster({
+							theme:'tooltipster-light',
+							maxWidth: '480',
+							interactive: true,
+							multiple:true
+						});
+						$( "#edge-projects-report-page" ).enhanceWithin();
+						$.getScript( "./javascript/edge-projects-report.js" )
+							.done(function( script, textStatus ) {
+							//	console.log( "edge-output.js loaded: " + textStatus );
+							})
+							.fail(function( jqxhr, settings, exception ) {
+								console.log( jqxhr, settings, exception );
+							});
+						var reportURL = "." + $('#report-dir').text() + "/lanl_project_list_ec19.html";
+						var reportLogURL = "." + $('#report-dir').text() + "/ec19_report.log";
+						if (/EDGE_report/.test(location.pathname.toString()) || ! location.hostname){
+							reportURL = "./lanl_project_list_ec19.html";
+						}
 						$('#report-plots-iframe').hide();
 						$('#report-plots-link').hide();
 						$('#wait-report-plots').show();
-						$.get(reportLogURL).done(function(data){
-								if (/Error/.test(data)){
-										clearInterval(updatePlotInterval);
-										$( "#edge_integrity_dialog_content" ).text("Failed to generate the ec19 variant vis report. Please check the ec19_report.log");
-										$( "#edge_integrity_dialog" ).popup('open');
-								}
-						});
-					})
-				}, 5000);
+						updatePlot(reportURL,reportLogURL);
+					}).fail(function( jqxhr, settings, exception ) {
+						waitTime = waitTime + 2000;
+						if (waitTime > 120000){
+							clearInterval(updateHtmlInterval);
+							$('#wait-report').html("Please open the <a data-ajax='false' href='" +  $('#report-dir').text() + "/index.html"  + "' target='_new'>report page</a> later.");
+						}  
+					});
+				},2000);
 			},
 			error: function(data){
 				//console.log(data);
@@ -250,5 +246,28 @@ $( document ).ready(function()
 		$( "#edge_integrity_dialog" ).popup('open');
 	}
 
-
+	//check report plot
+	function updatePlot(reportURL,reportLogURL){
+		var updatePlotInterval = setInterval(function(){
+		$.get(reportURL)
+			.done(function() { 
+				clearInterval(updatePlotInterval);
+				$('#report-plots-iframe').attr("src",reportURL).show();
+				$('#report-plots-link').attr("href",reportURL).show();
+				$('#wait-report-plots').hide();
+			}).fail(function() { 
+				$('#report-plots-iframe').hide();
+				$('#report-plots-link').hide();
+				$('#wait-report-plots').show();
+				$.get(reportLogURL)
+					.done(function(data){
+						if (/Error/.test(data)){
+							clearInterval(updatePlotInterval);
+							$( "#edge_integrity_dialog_content" ).text("Failed to generate the ec19 variant vis report. Please check the ec19_report.log");
+							$( "#edge_integrity_dialog" ).popup('open');
+						}
+					});
+				})
+			}, 5000);
+	}
 });
