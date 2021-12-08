@@ -226,7 +226,12 @@ if( $action eq 'empty' ){
 		&returnStatus();
 	}
 
-	if( -d $proj_dir ){
+	if( $sys->{user_management} && !$projCode ){
+		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
+		&returnStatus();
+	}
+
+	if( $pname && -d $proj_dir ){
 		my @trash;
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -310,8 +315,12 @@ elsif( $action eq 'delete' ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
-
-	if( -d $proj_dir ){
+	if( $sys->{user_management} && !$projCode ){
+		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
+		&returnStatus();
+	}
+	
+	if( $pname && -d $proj_dir ){
 		#update project list
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Failed to delete the output directory.";
@@ -360,8 +369,8 @@ elsif( $action eq 'delete' ){
 			open STDIN, "</dev/null";
  			open STDOUT, ">/dev/null";
 			open STDERR, ">/dev/null";
-			remove_tree($proj_dir);
-			remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
+			remove_tree($proj_dir) if ($proj_dir ne $out_dir);
+			remove_tree("$out_dir/$pname") if ( $pname && -d "$out_dir/$pname");
 			exit;
 		}
 		unlink "$www_root/JBrowse/data/$pname", "$www_root/JBrowse/data/$projCode";
