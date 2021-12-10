@@ -43,12 +43,13 @@ def setup_argparse():
 
     #optGrp = parser.add_argument_group('Options')
     parser.add_argument('--pp', action='store_true', help='process proper paired only reads from bam file (illumina)')
+    parser.add_argument('--count_primer', action='store_true', help='count overlapped primer region to unqiue coverage')
     parser.add_argument('--mincov', metavar='[INT]', type=int, help='minimum coverage to count as ambiguous N site [default:10]', default=10)
     parser.add_argument('-r', '--refID', metavar='[STR]',type=str , help='reference accession (bed file first field)')
     
     parser.add_argument('--depth_lines', default=[5,10,20,50], type=int, nargs='+', help='Add option to display lines at these depths (provide depths as a list of integers) [default:5 10 20 50]')
     parser.add_argument('--gff', metavar='[FILE]', type=str, help='gff file for data hover info annotation')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.3.1')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.2')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -75,7 +76,7 @@ def is_bed6(input):
                 logging.error(f"The input bed file is not in bed6 format.\nline:{num} {line}")
                 sys.exit(1)
 
-def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
+def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False, count_primer=False):
     ## convert bed file to amplicon region dictionary
     input_bed = input
     cov_zero_array = np.zeros_like(cov_array)
@@ -102,7 +103,7 @@ def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
             cov_zero_array[i] += 1
 
     if unique:
-        unique_region_set = set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
+        unique_region_set = set(np.where(cov_zero_array == 1)[0]) if count_primer else set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, id, rstart, rend = outs[i].decode().rstrip().split("\t")
             unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
@@ -113,7 +114,7 @@ def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False):
          
     return amplicon
 
-def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
+def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False, count_primer=False):
     ## convert bed file to amplicon region dictionary 
     input_bedpe = input
     cov_zero_array = np.zeros_like(cov_array)
@@ -140,7 +141,7 @@ def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False):
             cov_zero_array[i] += 1
     
     if unique:
-        unique_region_set = set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
+        unique_region_set = set(np.where(cov_zero_array == 1)[0]) if count_primer else set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, rstart, rend, id = outs[i].decode().rstrip().split("\t")
             unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
@@ -502,11 +503,11 @@ def run(argvs):
     if (argvs.bed):
         is_bed6(argvs.bed)
         amplicon_dict = convert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID)
-        uniq_amplicon_dict = convert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID,True)
+        uniq_amplicon_dict = convert_bed_to_amplicon_dict(argvs.bed,cov_array,argvs.refID,True,argvs.count_primer)
         bedfile = argvs.bed
     if (argvs.bedpe):
         amplicon_dict = convert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID)
-        uniq_amplicon_dict = convert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID,True)
+        uniq_amplicon_dict = convert_bedpe_to_amplicon_dict(argvs.bedpe,cov_array,argvs.refID,True,argvs.count_primer)
         bedfile = argvs.bedpe
     
     anno_dict = parse_gff_file(argvs.gff,argvs.refID) if (argvs.gff) else None
