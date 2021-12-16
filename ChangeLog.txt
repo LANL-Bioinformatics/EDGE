@@ -1,6 +1,16 @@
 # EDGE-COVID19
 
-## build 2021
+## build 20211217
+* strand bias filter based on Fisher's Exact test score and symmetric odds
+ratio test score
+* update amplicov script to count unique primer region
+* update pangolin to 3.1.17
+* dynamic edge report generation
+* udpate VOC for BA lineage
+* fix potential serious bug which may delete EDGE_output projects
+* fix bug: amplicov been skip
+* fix indel event count on some cases
+* update primer scheme, strand bias, lineage assignment result hover pop info
 
 ## build 20211130
 * update Tomcat 7.0.92 to 7.0.109 for vulnerable patch
