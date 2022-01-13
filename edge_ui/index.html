@@ -31,7 +31,7 @@
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/jquery.dataTables.min.js"></script>
 	<script src="javascript/dataTables.checkboxes.min.js"></script>
-	<script src="javascript/edge.js?v=20211217"></script>
+	<script src="javascript/edge.js?v=20220113"></script>
 	<script src="javascript/spectrum.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -692,27 +692,22 @@
 				<input type="range" name="edge-qc-lc" id="edge-qc-lc" data-mini="true" data-highlight="true" min="0.0" max="1.0" value="0.85" step=".01">
 			</div>
 			<div class="ui-field-contain">
-				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-					<legend>Trim Sequencing Primers<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE provides four available primer schemes, ARTIC protocol primer scheme v1, v2, v3, CDC SC2_200324, SWIFT, Varskip and Freed"></a></legend>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw1" value="artic_ncov2019_primer_schemes_V1">
-					<label for="edge-porechop-sw1" title="ARTIC V1">V1</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw2" value="artic_ncov2019_primer_schemes_V2">
-					<label for="edge-porechop-sw2" title="ARTIC V2">V2</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw3" value="artic_ncov2019_primer_schemes_V3">
-					<label for="edge-porechop-sw3" title="ARTIC V3">V3</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw4" value="artic_ncov2019_primer_schemes_V4">
-					<label for="edge-porechop-sw4" title="ARTIC V4">V4</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw5" value="SC2_200324">
-					<label for="edge-porechop-sw5" title="SC2_200324">CDC</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw6" value="swift_primer_schemes_v2">
-					<label for="edge-porechop-sw6" title="swift_primer_schemes_v2">SWIFT</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw7" value="Pacbio_sarscov2_freed_primers">
-					<label for="edge-porechop-sw7" title="sarscov2_freed_primers">Freed</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw8" value="NEB_VarSkip.scheme">
-					<label for="edge-porechop-sw8" title="Varskip_V1a">Varskip_V1a</label>
-					<input type="radio" data-mini="true" name="edge-porechop-sw" id="edge-porechop-sw9" value="0" checked="checked">
-					<label for="edge-porechop-sw9">Off</label>
-				</fieldset>
+				<label for="edge-porechop-sw">Trim Sequencing Primers<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="EDGE provides several available primer schemes, ARTIC protocol primer scheme v1, v2, v3, v4, v4.1, CDC SC2_200324, SWIFT, Varskip, Freed and HiFiViral"></a></label>
+				<select name="edge-porechop-sw" id="edge-porechop-sw" data-mini="true" data-native-menu="true" class="metadata-input">
+					<option value="">Select Primer Scheme (OFF)</option>
+					<option value="artic_ncov2019_primer_schemes_V1">ARTIC V1</option>
+					<option value="artic_ncov2019_primer_schemes_V2">ARTIC V2</option>
+					<option value="artic_ncov2019_primer_schemes_V3">ARTIC V3</option>
+					<option value="artic_ncov2019_primer_schemes_V4">ARTIC V4</option>
+					<option value="artic_ncov2019_primer_schemes_V4.1">ARTIC V4.1</option>
+					<option value="SC2_200324">CDC SC2_200324</option>
+					<option value="swift_primer_schemes_v2">SWIFT V2</option>
+					<option value="Pacbio_sarscov2_freed_primers">Freed (Midnight)</option>
+					<option value="HiFiViral_SARS-CoV-2.V1.Probe_Arms">HiFiViral</option>
+					<option value="NEB_VarSkip.scheme">Varskip_V1a (NEB_vss1)</option>
+					<option value="NEB_VarSkip_long.scheme">Varskip_V1a_long (NEB_vsl1)</option>
+					<option value="NEB_VarSkip.v2.scheme">Varskip_V2 (NEB_vss2)</option>
+                                </select>
 			</div>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -2308,7 +2303,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20211217</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20210113</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">
