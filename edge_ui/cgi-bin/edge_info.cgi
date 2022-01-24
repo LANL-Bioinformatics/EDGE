@@ -866,6 +866,7 @@ sub loadInitSetup{
 	$info->{INFO}->{MTARGETEDNGS}  = ( $sys->{m_targetedngs} )?"true":"false";
 	$info->{INFO}->{MPIRET}  = ( $sys->{m_piret} )?"true":"false";
 	$info->{INFO}->{MHOST} = ( -e "$EDGE_HOME/database/human_ref_GRCh38_all.fa.gz" )?"true":"false";
+	$info->{INFO}->{MLINEAGEAP} = ( $sys->{lineage_refset_idx} and $sys->{lineage_metadata_tsv} )?"true":"false";
 	#parameters
 	$info->{INFO}->{MAINTENANCE}  = ( $sys->{maintenance} )?"true":"false";
 	$info->{INFO}->{EDGESYSTEMCPU} = ($cluster)? $cluster_job_max_cpu:$sys->{edgeui_tol_cpu};

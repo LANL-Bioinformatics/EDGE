@@ -33,7 +33,7 @@ sub Usage{
 
     Options:
           -project_dir    the project directory
-          -mode           'contig' or 'reference' or 'ref_gap' or 'feature_count'
+          -mode           'contig' or 'reference' or 'ref_gap' or 'feature_count' or 'lineage_abundance'
                           the first column of the tab_delimited_table 
                           is contig ID or Reference ID or other ID
           -delimit        tab (default) or comma 
@@ -67,6 +67,11 @@ if ($projdir){
 open(my $fh, $table) or die "Cannot read $table\n";
 my $header = <$fh>;
 chomp $header;
+if ($mode eq "lineage_abundance"){
+	# start from third line as header
+	$header = <$fh>; $header = <$fh>; chomp $header;
+	$header =~ s/# variant/Lineage/;
+}
 my @headers = split /$sep/,$header;
 splice @headers, 1, 0,  "NCBI BLAST" if ($mode eq 'contig');
 $headers[0]= "CONTIG_ID" if ($mode eq 'contig');
@@ -97,7 +102,10 @@ while(<$fh>){
 	}elsif ($mode eq 'ref_gap'){
 		my $start = ($start_index)? $array[$start_index] : 1;
 		my $end = ($end_index)? $array[$end_index]: $contigsizelimit;
-		$array[0]="<a href='JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA&loc=$array[0]%3A$start..$end' target='_blank'>$array[0]</a>" if ($projname);
+		$array[0]="<a href='aJBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA&loc=$array[0]%3A$start..$end' target='_blank'>$array[0]</a>" if ($projname);
+	}elsif ($mode eq 'lineage_abundance'){
+		$array[0]="<a href='https://outbreak.info/situation-reports?pango=$array[0]&loc=USA' target='_blank'>$array[0]</a>";
+		next if !$array[1]; 
 	}
 	shift @array if ($mode eq "feature_count");
 	foreach my $i (0..$#headers){

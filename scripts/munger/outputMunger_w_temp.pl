@@ -78,6 +78,7 @@ eval {
 	&pull_sra_download();
 	&pull_binning();
 	&pull_targetedNGS();
+	&pull_lineageAP();
 	&pull_piret();
 	&pull_qiime();
 	&prep_jbrowse_link();
@@ -462,6 +463,27 @@ sub fasta_count
     return ($seqCount,$baseCount);
 }
 
+sub pull_lineageAP{
+	my $output_dir = "$out_dir/ReadsBasedAnalysis/LineageAbundance";
+	return unless -e "$output_dir/LineageAbundance.finished";
+	my (@errs,$errs);
+	@errs = `grep ERROR $output_dir/log.txt` if ( -e "$output_dir/log.txt");
+	$errs = join ("<br/>\n",@errs) if (@errs);
+	$vars->{ERROR_lineageAP}   = "$errs" if ($errs);
+	
+	my $prediction = "$output_dir/predicitions.tsv";
+	my $prediction_json = "$output_dir/predicitions.json";
+	if ( -e $prediction and ! -e "$prediction_json"){
+		system("perl $RealBin/../tab2Json_for_dataTable.pl -mode lineage_abundance $prediction > $prediction_json");
+	}
+	if ( ! -e $prediction ){
+		open (my $ofh, ">", $prediction_json);
+		print $ofh "{}\n";
+		close $ofh;
+	}
+	$vars->{LINEAGEAPTABLE} = $prediction_json;
+}
+
 sub pull_targetedNGS {
 	my $output_dir = "$out_dir/DETEQT";
 	return unless -e "$output_dir/runDETEQT.finished";
@@ -647,6 +669,7 @@ sub check_analysis {
 	$vars->{OUT_AB_SW}    = 1 if ( -e "$out_dir/AssemblyBasedAnalysis/Blast/ContigsBlast.finished" and -s "$out_dir/AssemblyBasedAnalysis/Blast/ContigsForBlast");
 	$vars->{OUT_qiime_SW}   = 1 if ( -e "$out_dir/QiimeAnalysis/runQiimeAnalysis.finished");
 	$vars->{OUT_targetedNGS_SW}   = 1 if ( -e "$out_dir/DETEQT/runDETEQT.finished");
+	$vars->{OUT_lineageAP_SW}   = 1 if ( -e "$out_dir/ReadsBasedAnalysis/LineageAbundance//LineageAbundance.finished");
 	$vars->{OUT_piret_SW}   = 1 if ( -d "$out_dir/ReferenceBasedAnalysis/Piret");
 	$vars->{OUT_CONLY_SW} = 1 if $vars->{OUT_piret_SW};
 	$vars->{SHOW_PDF_REPORT} = ( $vars->{OUT_qiime_SW} || $vars->{OUT_targetedNGS_SW} ||  $vars->{OUT_piret_SW} )? "" : 1;
@@ -2449,6 +2472,7 @@ sub pull_summary {
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#phyloTag\">$step</a>" if ($step eq "Phylogenetic Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#gfaTag\">$step</a>" if ($step eq "Gene Family Analysis");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#pdTag\">$step</a>" if ($step eq "Primer Design");
+				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#LapTag\">$step</a>" if ($step eq "Lineage Abundance Prediction");
 				$prog->{$cnt}->{GNLANALYSIS}="<a class=\"anchorlink\" href=\"#covTrackerTag\">$step</a>" if ($step eq "COV tracker");
 				$map{"$step"}=$cnt;
 			}

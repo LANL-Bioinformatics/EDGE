@@ -1078,6 +1078,25 @@
 			</ol>
 		</div>
 		</TMPL_IF>
+		
+		<TMPL_IF NAME="OUT_lineageAP_SW">
+		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
+			<h4 id="LapTag">Lineage Abundance Prediction</h4>
+			<TMPL_IF NAME="ERROR_lineageAP">
+			<p class="error"><TMPL_VAR NAME=ERROR_lineageAP></p>
+			</TMPL_IF>
+			<ul>
+				<li><span class="li-report-content-title">Prediction Result</span><div class="li-report-content">
+					<table data-role="none" id="edge-lineageAP-table" class="display edge-output-direct-datatable" cellspacing="0" data-src='<TMPL_VAR NAME=LINEAGEAPTABLE>'></table>
+				</div></li>
+			</ul>
+			<p class='extra-text-link'>Link to
+				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance/predicitions.tsv'> predicitions.tsv </a>
+				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance'> Directory </a>
+			</p>
+		</div>
+		</TMPL_IF>
+
 		<TMPL_IF NAME="OUT_COV_TRACKER">
 		<div class='edge-print-page' data-role='collapsible' data-collapsed-icon='carat-d' data-expanded-icon='carat-u' data-collapsed='false' data-inset='false'>
 			<h4 id="covTrackerTag">COV Trakcer</h4>

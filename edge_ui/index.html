@@ -31,7 +31,7 @@
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/jquery.dataTables.min.js"></script>
 	<script src="javascript/dataTables.checkboxes.min.js"></script>
-	<script src="javascript/edge.js?v=20220113"></script>
+	<script src="javascript/edge.js?v=20211217"></script>
 	<script src="javascript/spectrum.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -707,7 +707,8 @@
 					<option value="NEB_VarSkip.scheme">Varskip_V1a (NEB_vss1)</option>
 					<option value="NEB_VarSkip_long.scheme">Varskip_V1a_long (NEB_vsl1)</option>
 					<option value="NEB_VarSkip.v2.scheme">Varskip_V2 (NEB_vss2)</option>
-                                </select>
+					
+				</select>
 			</div>
 			<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1298,6 +1299,15 @@
 					<label for="edge-r2g-con-pangolin-mode-sw1">Usher</label>
 					<input type="radio" data-mini="true" name="edge-r2g-con-pangolin-mode" id="edge-r2g-con-pangolin-mode-sw2" value="pangoLearn">
 					<label for="edge-r2g-con-pangolin-mode-sw2">PangoLearn</label>
+				</fieldset>
+			</div>
+			<div id="edge-lineageAP-sw" class="ui-field-contain edge-fastq-options">
+				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+					<legend>Lineage Abundance Prediction<a href="#" id="edge-lineageAP-tooltip" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="" ></a></legend>
+					<input type="radio" data-mini="true" name="edge-lineageAP-sw" id="edge-lineageAP-sw1" value="1">
+					<label for="edge-lineageAP-sw1">Yes</label>
+					<input type="radio" data-mini="true" name="edge-lineageAP-sw" id="edge-lineageAP-sw2" value="pangoLearn" checked="checked">
+					<label for="edge-lineageAP-sw2">No</label>
 				</fieldset>
 			</div>
 			<div class="edge-right">|<a href="#" id="edge-r2g-toggle" class="edge-additional-options-toggle"> additional options </a>|</div>
@@ -2303,7 +2313,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20210113</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20211217</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">

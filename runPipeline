@@ -17,6 +17,7 @@ require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi";
+#$ENV{LD_LIBRARY_PATH} = ($ENV{LD_LIBRARY_PATH})?"/opt/apps/ImageMagick/lib:$RealBin/lib64:$RealBin/lib:$ENV{LD_LIBRARY_PATH}":"/opt/apps/ImageMagick/lib:$RealBin/lib64";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
 $ENV{HOME} ||= $RealBin;
@@ -342,6 +343,17 @@ if ( $contigFile && -s $contigFile)
     }
 }
 
+
+if ($configuration->{DoLineageAbundance} and -e "$sys->{lineage_metadata_tsv}" and -e "$sys->{lineage_refset_idx}"){
+	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
+		$QCpairFile = "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq $outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.2.fastq";
+	}
+	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.se.fastq"){
+		$QCunpairFile = "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.se.fastq";
+	}
+	&runLineageAbundancePrediction($QCpairFile,$QCunpairFile);
+}
+
 # generate JBrowse Tracks
 &writeJBrowseInfo($outDir) if ($configuration->{DoJBrowse});
 
@@ -426,6 +438,41 @@ unlink glob("$ENV{HOME}/core.*");
 #}
 ### END MAIN ###
 ### Below are subroutins ###
+#
+sub runLineageAbundancePrediction{
+	my $time=time();
+	my $pairFile=shift;
+	my $unpairFile=shift;
+	if ($noColorLog){
+		&lprint ("[Lineage Abundance Prediction]\n");
+	}else{
+		&lprint (colored ("[Lineage Abundance Prediction]\n",'yellow'));
+	}
+	my $metadata_tsv = $sys->{lineage_metadata_tsv};
+	my $ref_kallisto_idx = $sys->{lineage_refset_idx};
+	my $outputDir = "$outDir/ReadsBasedAnalysis/LineageAbundance";
+	my $output = "$outputDir/predicitions.tsv";
+	my $log = "$outputDir/log.txt";
+
+	if ( -e "$outputDir/LineageAbundance.finished"){
+		&lprint ("Lineage abundance prediction Finished\n"); 
+		return 0;
+	}
+	remove_tree("$outputDir");
+	&make_dir($outputDir);
+	if ( -e "$metadata_tsv" and -e "$ref_kallisto_idx"){
+		## for single end, use fragement size 400 and sd 10 for temporary now
+		my $reads_file = ($pairFile =~ /\S+/)? $pairFile : "--single $unpairFile -l 400 -s 10";
+		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; kallisto quant -t $numCPU -b 0 -i $ref_kallisto_idx -o $outputDir $reads_file 1>>$log 2>\&1;$RealBin/scripts/wastewater_analysis/pipeline/output_abundances.py --metadata $metadata_tsv -o $output $outputDir/abundance.tsv 1>>$log 2>\&1";
+		&lprint ("  Running \n  $cmd \n");
+		eval{system($cmd);}
+	}
+	if ( -e "$output" ){
+		&executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -mode lineage_abundance $output > $outputDir/predicitions.json");
+	}
+	&touchFile("$outputDir/LineageAbundance.finished");
+	&printRunTime($time);
+}
 sub run_covTracker{
 	my $time=time();
 	if ($noColorLog){
@@ -433,20 +480,27 @@ sub run_covTracker{
 	}else{
 		&lprint (colored ("[COV tracker]\n",'yellow'));
 	}
-	my ($file_name, $file_path, $file_suffix)=fileparse($configuration->{metadata_pkl_file}, qr/\.[^.]*/);
+	my ($file_name, $file_path, $file_suffix)=fileparse($sys->{metadata_pkl_file}, qr/\.[^.]*/);
 	my $pkl_mutation_file = "$file_path/$file_name" . ".mutation.pkl";
 	my $metadata = "$outDir/metadata_gisaid_ncbi.txt";
 	my $SNP_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.SNPs_report.txt";
 	my $lineage_report_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus_lineage.txt";
 	my $ec19_varviz_output = "$outDir/HTML_Report/cov_tracker.html";
 	my $ec19_varviz_log = "$outDir/HTML_Report/cov_tracker.log";
+	if ( -e "$outDir/HTML_Report/COV_tracker.finished" and -e $ec19_varviz_output){
+		&lprint ("COV tracker Finished\n"); 
+		return ($ec19_varviz_output);
+	}
+	unlink $ec19_varviz_output;
 	&make_dir("$outDir/HTML_Report");
 	if ( -e "$metadata" and -e "$SNP_report_file" and -e "$lineage_report_file"){
-		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; ec19_varviz project --sample $project_name --meta-pkl $configuration->{metadata_pkl_file} --mut-pkl $pkl_mutation_file --snps $SNP_report_file --pango $lineage_report_file --metadata $metadata --geo-type country --country USA --output $ec19_varviz_output 1>$ec19_varviz_log 2>&1";
+		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; ec19_varviz project --sample $project_name --meta-pkl $sys->{metadata_pkl_file} --mut-pkl $pkl_mutation_file --snps $SNP_report_file --pango $lineage_report_file --metadata $metadata --geo-type country --country USA --output $ec19_varviz_output 1>$ec19_varviz_log 2>&1";
 		&lprint ("  Running \n  $cmd \n");
 		eval{system($cmd);}
 	}
+	&touchFile("$outDir/HTML_Report/COV_tracker.finished");
 	&printRunTime($time);
+	return ($ec19_varviz_output);
 }
 sub runPiReT {
     my $kingdom = $configuration->{piret_kingdom};

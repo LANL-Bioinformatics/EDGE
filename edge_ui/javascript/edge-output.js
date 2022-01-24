@@ -129,6 +129,9 @@ $( document ).ready(function()
 					//	$('#edge-output-datatable-spinner').removeClass("edge-sp edge-sp-circle");;
 					}
 				});
+				if (dom.id == "edge-lineageAP-table"){
+					datatable.order([1,'desc']).draw();
+				}
 			},
 			error:function(x,t,m){
 				//$('#edge-output-datatables-dialog').popup('close');

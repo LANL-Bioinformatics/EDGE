@@ -340,10 +340,14 @@ piret_index=<TMPL_VAR NAME=edge-piret-hisat2-index-file>
 [BioAI assay design]
 
 </TMPL_IF>
+
+## https://github.com/baymlab/wastewater_analysis
+[Lineage Abundance Prediction]
+DoLineageAbundance=<TMPL_VAR NAME=edge-lineageAP-sw DEFAULT=0>
+
 ## provide GISAID pkl file from cov_tracker will run cov_tracker
 [COV tracker]
 DoCovTracker=0
-metadata_pkl_file=
 
 
 [HTML Report]

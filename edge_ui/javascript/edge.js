@@ -879,6 +879,9 @@ $( document ).ready(function()
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
 		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy. <a href="https://github.com/fenderglass/Flye" target="_blank">Flye</a> is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. metaFlye is a special mode of Flye for metagenome assembly. </span>')
  	);
+	$("#edge-lineageAP-tooltip").tooltipster(
+		'content', $('<span>This is an estimate of the abundance of each lineage based on variants in the metagenomic sample (i.e., wastewater) using RNA-Seq quantification. [<a href="https://www.medrxiv.org/content/10.1101/2021.08.31.21262938v1.full" target="_new">paper</a>][<a target="_new" href="https://github.com/baymlab/wastewater_analysis/">github</a>]. ONT data will produce noisy results because this method uses kmers and expects high quality data as input.</span>')
+	);
 
 	// filter serach callBack function
 	function revealOrSearch ( index, searchValue ) {
@@ -2177,6 +2180,7 @@ $( document ).ready(function()
 				}
 				if (type != "reconfig"){
 					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
+					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-porechop-sw').val('').change();
 					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
@@ -2204,6 +2208,7 @@ $( document ).ready(function()
 				if (type != "reconfig"){
 					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-porechop-sw').val('').change();
+					//$( "#edge-porechop-sw9").prop('disabled',false).click().checkboxradio("refresh");
 					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
@@ -2231,6 +2236,7 @@ $( document ).ready(function()
 				}
 				if (type != "reconfig"){
 					$('#edge-porechop-sw').val('').change();
+					//$( "#edge-porechop-sw3").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-qc-sw2").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
 					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
@@ -2705,6 +2711,11 @@ $( document ).ready(function()
 				}else{
 					$("#edge-hostrm-sw").val(0).slider("refresh");
 					$( "a[data-id=edge-hostrm-parameters]" ).parent().hide();
+				}
+				if( obj.INFO.MLINEAGEAP == "true"){
+					$('#edge-lineageAP-sw').show();
+				}else{
+					$('#edge-lineageAP-sw').hide();
 				}
 				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
 				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();

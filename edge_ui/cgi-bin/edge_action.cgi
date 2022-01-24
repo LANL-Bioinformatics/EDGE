@@ -1822,6 +1822,8 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Primer Design"}                  ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
 	$module_ctl->{"PiReT transcriptomics analysis"} ->{"general"}       = "$proj_dir/ReferenceBasedAnalysis/Piret/runPiret.finished";
 	$module_ctl->{"DETEQT analysis"}                ->{"general"}       = "$proj_dir/DETEQT/runDETEQT.finished";
+	$module_ctl->{"Lineage Abundance Prediction"}   ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/LineageAbundance/LineageAbundance.finished";
+	$module_ctl->{"COV tracker"}                    ->{"general"}       = "$proj_dir/HTML_Report/COV_tracker.finished";
 	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
 	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
 
