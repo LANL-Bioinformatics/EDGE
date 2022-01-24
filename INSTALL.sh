@@ -21,8 +21,8 @@ anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi pangolin )
-utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium ascp cov_tracker )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
+utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium selenium ascp cov_tracker vcftools )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 kallisto )
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
@@ -248,16 +248,15 @@ echo "
 }
 
 install_megahit(){
-local VER=1.1.3
-## --version MEGAHIT v1.1.3
+local VER=1.2.9
+## --version MEGAHIT v1.2.9
 echo "------------------------------------------------------------------------------
                            Installing megahit $VER
 ------------------------------------------------------------------------------
 "
 tar xvzf megahit-$VER.tar.gz 
 cd megahit-$VER
-make
-cp -f megahit* $rootdir/bin/
+cp -f bin/megahit* $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1026,6 +1025,8 @@ echo "--------------------------------------------------------------------------
 tar xvzf minimap2-${VER}_x64-linux.tgz
 cd minimap2-${VER}_x64-linux
 cp minimap2 $rootdir/bin/.
+cp k8 $rootdir/bin/.
+cp paftools.js $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1478,7 +1479,7 @@ ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
-$anaconda3bin/pip install CairoSVG pandas pysam
+$anaconda3bin/pip install CairoSVG pandas pysam PyVCF
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
@@ -1545,6 +1546,36 @@ $anaconda3bin/conda create -y -n pangolin -c bioconda pangolin
 echo "
 ------------------------------------------------------------------------------
                          pangolin Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_vcftools(){
+local VER=0.1.16
+echo "------------------------------------------------------------------------------
+                        Installing vcftools $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -c bioconda vcftoos
+
+echo "
+------------------------------------------------------------------------------
+                         vcftools Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_kallisto(){
+local VER=0.46.1
+echo "------------------------------------------------------------------------------
+                        Installing kallisto $VER
+------------------------------------------------------------------------------
+"
+$anaconda3bin/conda install -y -c bioconda kallisto
+
+echo "
+------------------------------------------------------------------------------
+                         kallisto Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2394,9 +2425,9 @@ fi
 
 if ( checkSystemInstallation megahit  )
 then
-  ## --version MEGAHIT v1.1.3
+  ## --version MEGAHIT v1.2.9
   megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if  ( echo $megahit_VER | awk '{if($1>="1.1.3") exit 0; else exit 1}' )
+  if [ $(versionStr $megahit_VER_VER) -ge $(versionStr "1.2.9") ]
   then
     echo "megahit $megahit_VER found"
   else
@@ -2577,6 +2608,34 @@ then
 else
    echo "Pangolin is not found"
    install_pangolin
+fi
+
+if [ -x "$anaconda3bin/kallisto" ]
+then
+  kallisto_VER=`$anaconda3bin/kallisto version | perl -nle 'print $1 if m{(\d\.\d+\.\d+)}'`;
+  if [ $(versionStr $kallisto_VER) -ge $(versionStr "0.46.0") ]
+  then
+    echo "kallisto $kallisto_VER is found"
+  else
+    install_kallisto
+  fi
+else
+  echo "kallisto is not found"
+  install_kallisto
+fi
+
+if [ -x "$anaconda3bin/vcftools" ]
+then
+  vcftools_VER=`$anaconda3bin/vcftools --version | perl -nle 'print $1 if m{(\d\.\d+\.\d+)}'`;
+  if [ $(versionStr $vcftools_VER) -ge $(versionStr "0.1.16") ]
+  then
+    echo "vcftools $vcftools_VER is found"
+  else
+    install_vcftools
+  fi
+else
+  echo "vcftools is not found"
+  install_vcftools
 fi
 
 if [ -x "$anaconda3bin/ascp" ]
