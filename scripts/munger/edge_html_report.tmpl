@@ -472,6 +472,7 @@
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/contigs_stats.pdf'> Report PDF </a>
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/<TMPL_VAR NAME=PROJNAME DEFAULT=->_contigs.fa'> Contigs Fasta </a>
 						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
+						|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_CTG_ANNO DEFAULT=->'> IGV </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis'> Directory </a></p>
 					</TMPL_UNLESS>
 				</div></li>
@@ -568,7 +569,7 @@
 						</TMPL_IF>
 					</div>
 					
-					<p  class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>
+					<p  class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a> or <a data-ajax='false' class='igv_link' target="_blank" href='<TMPL_VAR NAME=IGV_CTG_ANNO DEFAULT=->'><img style="height:30px;" data-src="images/igv_logo.jpeg"></a></p>
 					
 					</TMPL_IF>
 					
@@ -876,7 +877,7 @@
 
 							<!--<p class="iframe_label jbrowse_iframe">Show reads mapping to the reference using JBrowse in  <a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_CDS_BAM DEFAULT=->'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
 							</p>-->
-							<p class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_REF_CDS_BAM DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>
+							<p class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_REF_CDS_BAM DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a> or <a data-ajax='false' class='igv_link' target="_blank" href='<TMPL_VAR NAME=IGV_REF_CDS_BAM DEFAULT=->'><img style="height:30px;" data-src="images/igv_logo.jpeg"></a></p>
 							</TMPL_IF>
 
 							<p class='extra-text-link'>Link to 
@@ -1027,11 +1028,12 @@
 					</div>
 					</TMPL_IF>
 					</TMPL_IF>
-					<p  class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_REF_CDS_CTG DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>
+					<p  class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_REF_CDS_CTG DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a> or <a data-ajax='false' class='igv_link' target="_blank" href='<TMPL_VAR NAME=IGV_REF_CDS_CTG DEFAULT=->'><img style="height:30px;" data-src="images/igv_logo.jpeg"></a></p>
 					
 					<p class='extra-text-link'>Link to
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/contigMappingToRef/contigsToRef_plot.pdf'> All Plots PDF</a>
 						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_REF_ANNO_CTG DEFAULT=->'> JBrowse </a>
+						|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_REF_ANNO_CTG DEFAULT=->'> IGV </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/contigMappingToRef'> Directory </a></p>
 					<TMPL_IF NAME="CMREF_UM">
 						<br/>
@@ -1091,9 +1093,9 @@
 				</div></li>
 			</ul>
 			<p class='extra-text-link'>Link to
-				|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance/predicitions.tsv'> predicitions.tsv </a>
-				|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance'> Directory </a>
-			</p>
+                                |<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance/predicitions.tsv'> predicitions.tsv </a>
+                                |<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR>/ReadsBasedAnalysis/LineageAbundance'> Directory </a>
+                        </p>
 		</div>
 		</TMPL_IF>
 
@@ -1599,6 +1601,7 @@
 						</TMPL_IF> <!-- SGRVFHIT -->
 						<p class='extra-text-link'>Link to 
 							<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
+							|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_CTG_ANNO DEFAULT=->'> IGV </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/SpecialtyGenes/'> Directory </a>
 						</p>
 					</div></li> <!-- Reads SG Profiling -->
@@ -1733,6 +1736,7 @@
 
 						<p class='extra-text-link'>Link to 
 							<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO DEFAULT=->'> JBrowse </a>
+							|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_CTG_ANNO DEFAULT=->'> IGV </a>
 							|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssemblyBasedAnalysis/SpecialtyGenes/'> Directory </a>
 						</p>
 						
@@ -1788,6 +1792,7 @@
 
 					<p class='extra-text-link'>Link to 
 						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO_PCR DEFAULT=->'> JBrowse </a>
+						|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_CTG_ANNO_PCR DEFAULT=->'> IGV </a>
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssayCheck/pcrValidation.pdf'> Report PDF </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssayCheck/'> Directory </a></p>
 				</div></li>
@@ -1829,6 +1834,7 @@
 
 					<p class='extra-text-link'>Link to 
 						|<a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO_PCR DEFAULT=->'> JBrowse </a>
+						|<a data-ajax='false' class='igv_link' href='<TMPL_VAR NAME=IGV_CTG_ANNO_PCR DEFAULT=->'> IGV </a>
 						|<a data-ajax='false' href='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssayCheck/PCR.design.primers.txt'> Result </a>
 						|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/AssayCheck/'> Directory </a></p>
 				</div></li>
@@ -1838,7 +1844,7 @@
 			<!--<p class="iframe_label jbrowse_iframe">Show primer validation/design result using JBrowse in <a data-ajax='false' class='jb_link' href='<TMPL_VAR NAME=JB_CTG_ANNO_PCR DEFAULT=->'>[fullwindow]</a> or <a data-ajax='false' href='#' class='open-jbrowse-iframe jb_link'>[inline]</a>
 			</p>-->
 			
-			<p class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_CTG_ANNO_PCR DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a></p>
+			<p class='not-print'>Show the results in <a data-ajax='false' class='jb_link' target="_blank" href='<TMPL_VAR NAME=JB_CTG_ANNO_PCR DEFAULT=->'><img data-src="images/JBrowseLogo.png"></a> or <a data-ajax='false' class='igv_link' target="_blank" href='<TMPL_VAR NAME=IGV_CTG_ANNO_PCR DEFAULT=->'><img style="height:30px;" data-src="images/igv_logo.jpeg"></a></p>
 
 		</div>
 		</TMPL_IF>
@@ -2688,9 +2694,9 @@
 
 <script>
 	var jblink = $("a.jb_link");
-	$("a.jb_link").bind('click', function(e){
+	$("a.jb_link,a.igv_link").bind('click', function(e){
         e.preventDefault();
     });
-	$("a.jb_link").attr('title', 'Please use EDGE ui to open JBrowse.');
+	$("a.jb_link,a.igv_link").attr('title', 'Please use EDGE ui to open JBrowse.');
 </script>
 </body></html>

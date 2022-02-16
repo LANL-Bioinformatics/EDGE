@@ -182,8 +182,8 @@ if ( $umSystemStatus )
 		&returnStatus();
 	}
 }
-	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
-	$proj_rel_dir = "$out_rel_dir/$projCode" if ( -d "$out_dir/$projCode");
+	$proj_dir = abs_path("$out_dir/$projCode") if ( $projCode and -d "$out_dir/$projCode");
+	$proj_rel_dir = "$out_rel_dir/$projCode" if ( $projCode and -d "$out_dir/$projCode");
 
 
 if ($action eq 'rename' ){
@@ -226,12 +226,7 @@ if( $action eq 'empty' ){
 		&returnStatus();
 	}
 
-	if( $sys->{user_management} && !$projCode ){
-		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
-		&returnStatus();
-	}
-
-	if( $pname && -d $proj_dir ){
+	if( $pname and -d $proj_dir ){
 		my @trash;
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -301,7 +296,7 @@ elsif( $action eq 'remove' ){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Cannot remove $real_name from project list.";
 
-	if( -s "$proj_dir/process.log" ){
+	if( $pname and -s "$proj_dir/process.log" ){
 		rename("$proj_dir/process.log","$proj_dir/process.log.bak");
 		if( !-e "$proj_dir/process.log" ){
 			$info->{STATUS} = "SUCCESS";
@@ -315,12 +310,8 @@ elsif( $action eq 'delete' ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
-	if( $sys->{user_management} && !$projCode ){
-		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
-		&returnStatus();
-	}
-	
-	if( $pname && -d $proj_dir ){
+
+	if( $pname and -d $proj_dir ){
 		#update project list
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Failed to delete the output directory.";
@@ -369,8 +360,8 @@ elsif( $action eq 'delete' ){
 			open STDIN, "</dev/null";
  			open STDOUT, ">/dev/null";
 			open STDERR, ">/dev/null";
-			remove_tree($proj_dir) if ($proj_dir ne $out_dir);
-			remove_tree("$out_dir/$pname") if ( $pname && -d "$out_dir/$pname");
+			remove_tree($proj_dir);
+			remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
 			exit;
 		}
 		unlink "$www_root/JBrowse/data/$pname", "$www_root/JBrowse/data/$projCode";
@@ -1825,6 +1816,7 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Lineage Abundance Prediction"}   ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/LineageAbundance/LineageAbundance.finished";
 	$module_ctl->{"COV tracker"}                    ->{"general"}       = "$proj_dir/HTML_Report/COV_tracker.finished";
 	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
+	$module_ctl->{"Generate IGV Tracks"}            ->{"general"}       = "$proj_dir/IGV/writeIGVInfo.finished";
 	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
 
 	my $new_config = &getProjParamFromConfig( "$proj_dir/config.txt" );

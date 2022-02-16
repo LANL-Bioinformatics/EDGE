@@ -475,6 +475,7 @@ sub pull_lineageAP{
 	my $prediction_json = "$output_dir/predicitions.json";
 	if ( -e $prediction and ! -e "$prediction_json"){
 		system("perl $RealBin/../tab2Json_for_dataTable.pl -mode lineage_abundance $prediction > $prediction_json");
+	
 	}
 	if ( ! -e $prediction ){
 		open (my $ofh, ">", $prediction_json);
@@ -691,6 +692,16 @@ sub prep_jbrowse_link {
 	$vars->{JB_REF_ANNO_VCF} = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CRRNA%2CTRNA%2CVCF";
 	$vars->{JB_REF_CDS_CTG}  = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CCTG2REF"; 
 	$vars->{JB_REF_CDS_BAM}  = "JBrowse/?data=data%2F$projname%2FJBrowse%2Fref_tracks&tracks=DNA%2CCDS%2CBAM"; 
+	$vars->{IGV_CTG_ANNO}     = "EDGE_output/$projname/IGV/ctg_tracks/igv.html";
+	$vars->{IGV_CTG_ANNO_BAM} = "EDGE_output/$projname/IGV/ctg_tracks/igv.html"; 
+	$vars->{IGV_CTG_ANNO_PCR} = "EDGE_output/$projname/IGV/ctg_tracks/igv.html"; 
+	$vars->{IGV_CTG_ANNO_SG}  = "EDGE_output/$projname/IGV/ctg_tracks/igv.html"; 
+	$vars->{IGV_REF_ANNO}     = "EDGE_output/$projname/IGV/ref_tracks/igv.html"; 
+	$vars->{IGV_REF_ANNO_BAM} = "EDGE_output/$projname/IGV/ref_tracks/igv.html"; 
+	$vars->{IGV_REF_ANNO_CTG} = "EDGE_output/$projname/IGV/ref_tracks/igv.html"; 
+	$vars->{IGV_REF_ANNO_VCF} = "EDGE_output/$projname/IGV/ref_tracks/igv.html";
+	$vars->{IGV_REF_CDS_CTG}  = "EDGE_output/$projname/IGV/ref_tracks/igv.html"; 
+	$vars->{IGV_REF_CDS_BAM}  = "EDGE_output/$projname/IGV/ref_tracks/igv.html"; 
 }
 
 
