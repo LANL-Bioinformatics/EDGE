@@ -345,10 +345,10 @@ if ( $contigFile && -s $contigFile)
 
 
 if ($configuration->{DoLineageAbundance} and -e "$sys->{lineage_metadata_tsv}" and -e "$sys->{lineage_refset_idx}"){
-	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq"){
-		$QCpairFile = "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq $outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.2.fastq";
+	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq" ){
+		$QCpairFile = "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.1.fastq $outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.2.fastq";		
 	}
-	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.se.fastq"){
+	if ( -e "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.se.fastq" ){
 		$QCunpairFile = "$outDir/ReadsBasedAnalysis/readsMappingToRef/AlignTrimMapping/AlignTrimmedReads.se.fastq";
 	}
 	&runLineageAbundancePrediction($QCpairFile,$QCunpairFile);
@@ -356,9 +356,10 @@ if ($configuration->{DoLineageAbundance} and -e "$sys->{lineage_metadata_tsv}" a
 
 # generate JBrowse Tracks
 &writeJBrowseInfo($outDir) if ($configuration->{DoJBrowse});
+&writeIGVInfo($outDir) if ($configuration->{DoIGV});
 
 ### COV tracker
-if ( $configuration->{DoCovTracker} and $configuration->{metadata_pkl_file} and -e "$configuration->{metadata_pkl_file}"){
+if ( $configuration->{DoCovTracker} and $sys->{metadata_pkl_file} and -e "$sys->{metadata_pkl_file}"){
 	&run_covTracker();
 }
 
@@ -439,10 +440,10 @@ unlink glob("$ENV{HOME}/core.*");
 ### END MAIN ###
 ### Below are subroutins ###
 #
-sub runLineageAbundancePrediction{
-	my $time=time();
+sub runLineageAbundancePrediction {
 	my $pairFile=shift;
 	my $unpairFile=shift;
+	my $time=time();
 	if ($noColorLog){
 		&lprint ("[Lineage Abundance Prediction]\n");
 	}else{
@@ -466,13 +467,15 @@ sub runLineageAbundancePrediction{
 		my $cmd = ". $RealBin/thirdParty/Anaconda3/bin/activate base; kallisto quant -t $numCPU -b 0 -i $ref_kallisto_idx -o $outputDir $reads_file 1>>$log 2>\&1;$RealBin/scripts/wastewater_analysis/pipeline/output_abundances.py --metadata $metadata_tsv -o $output $outputDir/abundance.tsv 1>>$log 2>\&1";
 		&lprint ("  Running \n  $cmd \n");
 		eval{system($cmd);}
+	#	}
 	}
 	if ( -e "$output" ){
-		&executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -mode lineage_abundance $output > $outputDir/predicitions.json");
+		&executeCommand("perl $RealBin/scripts/tab2Json_for_dataTable.pl -mode lineage_abundance $output > $outputDir/predicitions.json");	
 	}
 	&touchFile("$outputDir/LineageAbundance.finished");
 	&printRunTime($time);
 }
+
 sub run_covTracker{
 	my $time=time();
 	if ($noColorLog){
@@ -502,6 +505,7 @@ sub run_covTracker{
 	&printRunTime($time);
 	return ($ec19_varviz_output);
 }
+
 sub runPiReT {
     my $kingdom = $configuration->{piret_kingdom};
     my $significant_pvalue = $configuration->{piret_p_value} || 0.001;
@@ -763,6 +767,7 @@ sub runSpecialtyGenesProfiling {
 		return;
 	}
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGvInfo.finished";
     my $wgs_reads = "$pair_read " if ($pair_read);
     $wgs_reads .= "$single_end_read " if ( $single_end_read && -s $single_end_read);
     if ( !-e "$VFDB_ini"){
@@ -1425,6 +1430,7 @@ sub check_reference_genome
         else
         {
             unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+            unlink "$outDir/IGV/writeIGVInfo.finished";
             unlink "$outDir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished" ;
             unlink "$outDir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
             unlink "$outDir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
@@ -1551,6 +1557,7 @@ sub phageFinder
     }
     unlink "$outputDir/phageFinder.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     # prepare input (Assembly.con,id_map.txt, phage_finder_info.txt) for phage finder. 
     $cmd="$RealBin/scripts/phageFinder_prepare.pl -o $outputDirTmp $GFF $FNA";
     &lprint (" Running \n $cmd\n");
@@ -1726,6 +1733,7 @@ sub variantAnalysis
        return 0;
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     unlink "$outputDir/variantAnalysis.finished";
     unlink "$r2g_outputDir/variantAnalysis.finished";
     my $fastainput =  (`grep "##FASTA" $gff3File`)? "": "-fasta $ref_fasta";
@@ -1993,6 +2001,7 @@ sub runAnnotation
       #}  
     }
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     if ( -z $contigFile || ! -e $contigFile){
         &lprint ("failed: No contigs > $contig_size_for_annotation bp for annotation\n");
         `echo "No contigs > $contig_size_for_annotation bp for annotation" >$log`;
@@ -2254,6 +2263,7 @@ sub pcrDesign
        return ("$output");
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     unlink "$outputDir/pcrDesign.finished";
     my $command;
     my $tm_diff=$configuration->{"tm_diff"} || 5;
@@ -2304,6 +2314,7 @@ sub pcrValidation
        return ("$failure");
     }  
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     my $command = "perl $RealBin/scripts/pcrValidation/validate_primers.pl -prefix pcrContigValidation -ref $contigFile -primer $primerFile -mismatch $numOfMismatch -threads $numCPU -output $outputDir ";
     if ( $contigFile && -s $contigFile)
     {
@@ -3248,6 +3259,7 @@ sub runReadsToContig
     }
     unlink "$outputDir/runReadsToContig.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     my $parameters;
     $parameters .= " -c $cov_cut_off";
     $parameters .= " -cpu $numCPU";
@@ -3339,6 +3351,7 @@ sub runReadsToGenome
     }
 
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     unlink $outGap;
     unlink glob("$outputDir/*.vcf");
     unlink glob("$outputDir/*gap.coords");
@@ -3623,6 +3636,7 @@ sub processProvideContigs
        return ($contig_file, $contig_for_annotation);
     }
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     if (is_fasta($providedContigFile))
     {
         my $contig_number = ($providedContigFile=~/\.gz$/i )? `zcat | grep -c \">\" $providedContigFile`:`grep -c \">\" $providedContigFile`;
@@ -3676,6 +3690,7 @@ sub runSpadesAssembly
     unlink "$outputDir/runAPAdesAssembly.finished";
     remove_tree("$SPAdesOutDir");
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     if ($pairFile){
         my ($p1,$p2) = split /\s+/,$pairFile;
         $cmd .= "--pe1-1 $p1 --pe1-2 $p2 ";
@@ -3765,6 +3780,7 @@ sub runAssembly
     }
     unlink "$outputDir/runAssembly.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     &make_dir($outputDir);
     if ($assembler =~ /idba/){
         $AssemblerOutDir = "$outputDir/idba";
@@ -3992,6 +4008,7 @@ sub runIdbaAssembly
     }
     unlink "$outputDir/runIdbaAssembly.finished";
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     # preprocessing input files. 
     if ($pairFile)
     {
@@ -4514,6 +4531,7 @@ sub download_reads
     remove_tree("$outputDir");
     &make_dir($outputDir);
     unlink "$outDir/JBrowse/writeJBrowseInfo.finished";
+    unlink "$outDir/IGV/writeIGVInfo.finished";
     my $curl_proxy = ($proxy)?"--proxy \'$proxy\'":"";  
     chdir $outputDir;
     foreach my $url(@urls)
@@ -4859,6 +4877,53 @@ sub printRunTime {
   int($runTime % 60));
   &lprint ($time_string);
   return $time_string;
+}
+
+sub writeIGVInfo{
+    my $outDir = shift;
+    my $time=time();
+    my $abs_outDir = Cwd::abs_path("$outDir");
+    my $outputDir = "$abs_outDir/IGV";
+    my $log="$outputDir/log.txt";
+    my $contigTax="$outDir/AssemblyBasedAnalysis/Taxonomy/${project_name}.lca_ctg.tsv";
+    my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
+    my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
+    &make_dir($outputDir);
+    if ($noColorLog)
+    {
+        &lprint ("[Generate IGV Tracks]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Generate IGV Tracks]\n",'yellow'));
+    }
+
+    if ( -e "$outputDir/writeIGVInfo.finished")
+    {
+        &lprint ("Generate IGV Tracks Finished\n");
+        return;
+    }
+    unlink "$outputDir/writeIGVInfo.finished";
+    
+    my $project_name=basename($abs_outDir);
+    my $correct_bed_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/".basename($configuration->{r2g_align_trim_bed_file}) if ($configuration->{r2g_align_trim_bed_file});
+    my $cmd="$RealBin/scripts/igv/edge2igv.pl ";
+    $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
+    $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
+    $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
+    $cmd .= "--in-ctg-tax-assign '$contigTax' " if ( -e $contigTax);
+    $cmd .= "--in-ref-gff3 '$gff3File' " if ($gff3File);
+    $cmd .= "--in-orf-ar-gff3 '$ARGenesGFF' " if ( -e "$ARGenesGFF");
+    $cmd .= "--in-orf-vf-gff3 '$VFGenesGFF' " if ( -e "$VFGenesGFF");
+    $cmd .= "--in-primer2ref-bed '$correct_bed_file' " if ($configuration->{r2g_align_trim_bed_file});
+    $cmd .= "--threads $numCPU ";
+    $cmd .= "--projname '$configuration->{projname}' ";
+    $cmd .= "--proj_outdir '$abs_outDir' 2>\&1 1>$log";
+
+    &lprint (" Running \n $cmd\n");
+    &executeCommand("$cmd"); 
+    &touchFile("$outputDir/writeIGVInfo.finished");
+    &printRunTime($time);
 }
 
 sub writeJBrowseInfo
