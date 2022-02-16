@@ -864,6 +864,7 @@ sub fold {
     open (my $out_fh,">$fold_seq_file");
     while(<$in_fh>){
       chomp;
+      $_ =~ s/^>\s+/>/;
       if(/>(\S+)\s*(.*)/)
       {
          if ($seq and length($seq)>$len_cutoff)
