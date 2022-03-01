@@ -2783,7 +2783,7 @@ sub runQC
     my $log = "$outputDir/QC.log";
     #my @unpairedFile= @$unpairedFile;
     #my @pairedFile= @$pairedFile;
-    my $quality_cutoff = $configuration->{"q"} || 5;
+    my $quality_cutoff = ($configuration->{"q"})? $configuration->{"q"}: 5;
     my $min_length = $configuration->{"min_L"} || 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
     my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 10;
@@ -4578,7 +4578,7 @@ sub checkFileAndDir
     {
         if (scalar(@pairedReadsFile) % 2) { Usage("Please check paired data input are even file numbers\n") ;}
 	for my $i (0..$#pairedReadsFile){
-            if ($pairedReadsFile[$i] =~ /^http|ftp/i)
+            if ($pairedReadsFile[$i] =~ /^http|^ftp/i)
             { 
                 push @download_url, $pairedReadsFile[$i];
                 my $filename = &getFilenameFromURLHeader($pairedReadsFile[$i]);
@@ -4589,7 +4589,7 @@ sub checkFileAndDir
     if (@unpairedReadsFile)
     {
 	for my $i (0..$#unpairedReadsFile){
-            if ($unpairedReadsFile[$i] =~ /^http|ftp/i)
+            if ($unpairedReadsFile[$i] =~ /^http|^ftp/i)
             { 
                 push @download_url, $unpairedReadsFile[$i];
                 my $filename = &getFilenameFromURLHeader($unpairedReadsFile[$i]);
@@ -4597,7 +4597,7 @@ sub checkFileAndDir
             }
 	}
     }
-    if ($inputContigs =~ /^http|ftp/i){
+    if ($inputContigs =~ /^http|^ftp/i){
         push @download_url, $inputContigs;
         my $filename = &getFilenameFromURLHeader($inputContigs);
         $inputContigs = "$outDir/DownloadedReads/$filename";
