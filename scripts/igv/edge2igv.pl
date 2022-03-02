@@ -321,6 +321,8 @@ sub main {
 		$ref_dict{reference}->{fastaURL}="./reference.fa";
 		$ref_dict{reference}->{indexURL}="./reference.fa.fai";
 		#$ref_dict{reference}->{wholeGenomeView}="false";
+		my $acc = $refseqs_id[0];
+		$acc =~ s/\W/_/g;
 		$ref_dict{locus}= $refseqs_id[0].":1-1000";
 		print "Done.\n";
 		
