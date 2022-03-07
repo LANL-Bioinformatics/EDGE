@@ -1,6 +1,6 @@
 # EDGE COVID-19
 
-EDGE COVID-19 is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b>
+[EDGE COVID-19](https://edge-covid19.edgebioinformatics.org/) is a tailored bioinformatics platform based on the more flexible and fully open-source <a href="https://edgebioinformatics.org" target="_new">EDGE Bioinformatics</a> software (<a href="https://doi.org/10.1093/nar/gkw1027" target="_new">Li et al. 2017</a>). This mini-version consists of a user-friendly GUI that drives standardized workflows for genome reference-based 'assembly' and preliminary analysis of Illumina or Nanopore data for SARS-CoV-2 genome sequencing projects. <b>The result is a final SARS-CoV-2 genome ready for submission to GISAID and/or GenBank.</b>
 
 The default workflow in EDGE COVID-19 includes:
                 <ol>
