@@ -37,7 +37,7 @@ my $res=GetOptions(\%opt,
     'in-read2ref-dir=s',         #ReadsBasedAnalysis/readsMappingToRef
     'in-primer2ctg-bam=s',       #AssayCheck/pcrContigValidation.bam
     'in-primer2ref-bam=s',       #AssayCheck/pcrRefValidation.bam
-    'in-read2ref-vcf=s',         #ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf
+    'in-read2ref-vcf=s',         #ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.vcf
     'in-primer2ref-bed=s',           
     'outdir=s',                  #IGV
     'ctg-coord-conf=s',          #\$EDGE_HOME/script/edge2jbrowse_converter.ctg_coord_conf
@@ -76,7 +76,7 @@ $opt{'in-orf-ar-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/Sp
 $opt{'in-orf-vf-gff3'}         ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/SpecialtyGenes/VF_genes_ShortBRED.gff";
 $opt{'in-read2ctg-bam'}        ||= "$opt{'proj_outdir'}/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.sort.bam";
 $opt{'in-read2ref-dir'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef";
-$opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
+$opt{'in-read2ref-vcf'}        ||= "$opt{'proj_outdir'}/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.vcf";
 $opt{'in-primer2ctg-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrContigValidation.bam";
 $opt{'in-primer2ref-bam'}      ||= "$opt{'proj_outdir'}/AssayCheck/pcrRefValidation.bam";
 $opt{'outdir'}                 ||= "$opt{'proj_outdir'}/IGV";
@@ -321,9 +321,9 @@ sub main {
 		$ref_dict{reference}->{fastaURL}="./reference.fa";
 		$ref_dict{reference}->{indexURL}="./reference.fa.fai";
 		#$ref_dict{reference}->{wholeGenomeView}="false";
-		my $acc = $refseqs_id[0];
-		$acc =~ s/\W/_/g;
-		$ref_dict{locus}= $refseqs_id[0].":1-1000";
+		my $acc = $refseqs_id[0]; 
+		$acc =~ s/\W/\_/g;
+		$ref_dict{locus}= $acc.":1-1000";
 		print "Done.\n";
 		
 		print "#  - Adding feature tracks...";
@@ -425,7 +425,7 @@ sub main {
 				#$acc =~ s/\W/\_/g;
 				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
 				my $bam_nodup = (-e "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam")?"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam":"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted.bam";
-				my $vcf = "$opt{'in-read2ref-dir'}/$file_prefix.vcf";
+				my $vcf = "$opt{'in-read2ref-dir'}/${file_prefix}_consensus.vcf";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				#my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
 				#chomp $depth_cov;
@@ -962,7 +962,7 @@ $0 [OPTIONS]
                               (.bai is required in the same directory)
     --in-read2ref-dir         ReadsBasedAnalysis/readsMappingToRef/
                               (.bai is required in the same directory)
-    --in-read2ref-vcf         ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf 
+    --in-read2ref-vcf         ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.vcf
     --gff3out                 edge_analysis.gff3
     --outdir                  IGV
    
