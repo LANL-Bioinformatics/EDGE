@@ -158,7 +158,10 @@ if ($configuration->{qiime_input_dir} || $configuration->{targetedNGS_input_dir}
 
 @pairedReadsFile = &checkFileAndDir; 
 
-
+if ($sys->{user_input_size_maxsize}){
+    ## check file size before proecessing ex: -s $filename > 50 *1024 *1024 *1024  (50Gb) 
+    &checkInputSize(\@unpairedReadsFile, \@pairedReadsFile);
+}
 
 my $count_file_list= "$outDir/QcReads/fastqCount.txt";
 my ($QCpairFile,$QCunpairFile);
@@ -2779,7 +2782,7 @@ sub runQC
     my $log = "$outputDir/QC.log";
     #my @unpairedFile= @$unpairedFile;
     #my @pairedFile= @$pairedFile;
-    my $quality_cutoff = $configuration->{"q"} || 5;
+    my $quality_cutoff = ($configuration->{"q"})? $configuration->{"q"} : 5;
     my $min_length = $configuration->{"min_L"} || 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
     my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 10;
@@ -2855,7 +2858,31 @@ sub runQC
         die "failed: No reads remain after QC. Please see $log\n"; 
     }
 }
-
+sub checkInputSize{
+    my $unpairedFile=shift;
+    my $pairedFile=shift;
+    my $time=time();
+    my $outputDir="$outDir/QcReads";
+    my @unpairedFile= @$unpairedFile;
+    my @pairedFile= @$pairedFile;
+    my $input_total_size = 0;
+    foreach my $pair (@pairedFile){
+        my ($R1,$R2) = split /\s+/,$pair;
+        $input_total_size += -s $R1 + -s $R2;
+    }
+    foreach my $file (@unpairedFile){
+        $input_total_size += -s $file;
+    }
+    if ($input_total_size  > $sys->{user_input_size_maxsize} * 1024 * 1024 * 1024){
+        my $msg = "Project Input Size is over $sys->{user_input_size_maxsize} GB";
+        my $log = "$outputDir/QC.log";
+        &lprint("$msg");
+        `echo $msg >> $log`;
+        unlink @pairedReadsFile;
+        unlink @unpairedReadsFile;
+        exit;
+    }
+}
 sub countFastq 
 {
     my $unpairedFile=shift;
@@ -4516,7 +4543,7 @@ sub checkFileAndDir
     {
         if (scalar(@pairedReadsFile) % 2) { Usage("Please check paired data input are even file numbers\n") ;}
 	for my $i (0..$#pairedReadsFile){
-            if ($pairedReadsFile[$i] =~ /^http|ftp/i)
+            if ($pairedReadsFile[$i] =~ /^http|^ftp/i)
             { 
                 push @download_url, $pairedReadsFile[$i];
                 my $filename = &getFilenameFromURLHeader($pairedReadsFile[$i]);
@@ -4527,7 +4554,7 @@ sub checkFileAndDir
     if (@unpairedReadsFile)
     {
 	for my $i (0..$#unpairedReadsFile){
-            if ($unpairedReadsFile[$i] =~ /^http|ftp/i)
+            if ($unpairedReadsFile[$i] =~ /^http|^ftp/i)
             { 
                 push @download_url, $unpairedReadsFile[$i];
                 my $filename = &getFilenameFromURLHeader($unpairedReadsFile[$i]);
@@ -4535,7 +4562,7 @@ sub checkFileAndDir
             }
 	}
     }
-    if ($inputContigs =~ /^http|ftp/i){
+    if ($inputContigs =~ /^http|^ftp/i){
         push @download_url, $inputContigs;
         my $filename = &getFilenameFromURLHeader($inputContigs);
         $inputContigs = "$outDir/DownloadedReads/$filename";
