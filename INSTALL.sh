@@ -174,6 +174,7 @@ then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
 fi 
 ./installer.sh piret
+ln -sf $rootdir/thirdParty/PyPiReT piret
 ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
 export PATH=$Org_PATH
 cd $rootdir/thirdParty
@@ -232,16 +233,15 @@ echo "
 }
 
 install_megahit(){
-local VER=1.1.3
-## --version MEGAHIT v1.1.3
+local VER=1.2.9
+## --version MEGAHIT v1.2.9
 echo "------------------------------------------------------------------------------
                            Installing megahit $VER
 ------------------------------------------------------------------------------
 "
 tar xvzf megahit-$VER.tar.gz 
 cd megahit-$VER
-make
-cp -f megahit* $rootdir/bin/
+cp -f bin/megahit* $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -2336,9 +2336,9 @@ fi
 
 if ( checkSystemInstallation megahit  )
 then
-  ## --version MEGAHIT v1.1.3
+  ## --version MEGAHIT v1.2.9
   megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if  ( echo $megahit_VER | awk '{if($1>="1.1.3") exit 0; else exit 1}' )
+  if [ $(versionStr $megahit_VER_VER) -ge $(versionStr "1.2.9") ]
   then
     echo "megahit $megahit_VER found"
   else
