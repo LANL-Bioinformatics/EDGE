@@ -52,6 +52,7 @@ my $res=GetOptions(\%opt,
     'out-ref-coord-dir=s',       #[outdir]/jb_ref_tracks/
     'bam-file-depth=i'  ,         # default 300x
     'bam-file-maq=i'    ,        # default 42    ideal => # 60 for bwa and minimap2, 42 for bowtie   
+    'deltacron',                 ## special for delta unique and omicron unique vcf track
     'threads=i'    ,             # default 4 for samtools
     'debug',
     'help|h|?'
@@ -150,8 +151,9 @@ sub main {
 			   'height'=> 300, 
 			   'type'=> 'annotation',
 			   'url' =>'./edge_analysis_merged.gff3',
-			   'indexed'=> 'false',
+			   'indexed'=> \0,
 			   'visibilityWindow' => 1000000);
+		## JSON true false use \1 and \0
 		if (-s "$opt{'out-ctg-coord-dir'}/edge_analysis_merged.gff3"){
 			push @{$contig_dict{tracks}}, \%track;
 		}
@@ -167,7 +169,7 @@ sub main {
 		executeCommand("samtools faidx $opt{'out-ctg-coord-dir'}/contigs.fa");
 		$contig_dict{reference}->{fastaURL}="./contigs.fa";
 		$contig_dict{reference}->{indexURL}="./contigs.fa.fai";
-		$contig_dict{reference}->{wholeGenomeView}="false";
+		$contig_dict{reference}->{wholeGenomeView}= \0;
 		#$contig_dict{locus}="contig_1:1-1000";
 		
 		print "Done.\n";
@@ -181,7 +183,7 @@ sub main {
 			  	 'height'=> 100, 
 				 'type'=> 'annotation',
 			  	 'url' =>'./edge_ar_annotation.gff3',
-			  	 'indexed'=> 'false',
+			  	 'indexed'=> \0,
 			  	 'visibilityWindow' => 1000000);
 			push @{$contig_dict{tracks}}, \%track;
 		}
@@ -195,7 +197,7 @@ sub main {
 			  	 'height'=> 100, 
 				 'type'=> 'annotation',
 			  	 'url' =>'./edge_vf_annotation.gff3',
-			  	 'indexed'=> 'false',
+			  	 'indexed'=> \0,
 			  	 'visibilityWindow' => 1000000);
 			push @{$contig_dict{tracks}}, \%track;
 		}
@@ -208,7 +210,7 @@ sub main {
 			  	 'height'=> 100, 
 				 'type'=> 'annotation',
 			  	 'url' =>'./contigs_repeats.gff3',
-			  	 'indexed'=> 'false',
+			  	 'indexed'=> \0,
 			  	 'visibilityWindow' => 1000000);
 			if ( -s "$opt{'out-ctg-coord-dir'}/contigs_repeats.txt"){
 				push @{$contig_dict{tracks}}, \%track;
@@ -304,7 +306,7 @@ sub main {
 			   'height'=> 300, 
 			   'type'=> 'annotation',
 			   'url' =>'./ref_annotation.gff3',
-			   'indexed'=> 'false',
+			   'indexed'=> \0,
 			   'visibilityWindow' => 1000000);
 		if (-s "$opt{'out-ref-coord-dir'}/ref_annotation.gff3"){
 			push @{$ref_dict{tracks}}, \%track;
@@ -345,7 +347,7 @@ sub main {
 			  	 'height'=> 100, 
 				 'type'=> 'annotation',
 			  	 'url' =>'./ref_repeats.gff3',
-			  	 'indexed'=> 'false',
+			  	 'indexed'=> \0,
 			  	 'visibilityWindow' => 1000000);
 			if ( -s "$opt{'out-ref-coord-dir'}/ref_repeats.txt"){
 				push @{$ref_dict{tracks}}, \%track;
@@ -384,7 +386,7 @@ sub main {
 			  	 'height'=> 120, 
 				 'type'=> 'annotation',
 			  	 'url' =>'./edge_analysis_merged.gff3',
-			  	 'indexed'=> 'false',
+			  	 'indexed'=> \0,
 			  	 'visibilityWindow' => 1000000);
 			push @{$ref_dict{tracks}}, \%track;
 		}
@@ -411,7 +413,7 @@ sub main {
 				 'type'=> 'annotation',
 			  	 'url' =>'./primer_scheme.bed',
 				 'color'=> 'rgb(255,150,150)',
-			  	 'indexed'=> 'false');
+			  	 'indexed'=> \0);
 			push @{$ref_dict{tracks}}, \%track;
 			
 		}
@@ -480,7 +482,7 @@ sub main {
 					executeCommand("bgzip -c $vcf > $opt{'out-ref-coord-dir'}/$file_prefix.vcf.gz");
 	   				executeCommand("bcftools index $opt{'out-ref-coord-dir'}/$file_prefix.vcf.gz");
 					#executeCommand("sed -e 's/%%VCFFILENAME%%/$acc.vcf.gz/'  -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-vcf-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
-					my %track=('name'=>"$file_prefix Variants",
+					my %track=('name'=>"EC-19 Consensus Variants",
 				  		   'type'=>'variant',
 				  		   'format'=>'vcf', 
 			  			   'url' =>"./$file_prefix.vcf.gz",
@@ -490,7 +492,14 @@ sub main {
 				}
 			}
 		}
-		
+		if ($opt{'deltacron'}){
+			copy("$Bin/../../edge_ui/data/omicron.vcf", "$opt{outdir}/ref_tracks/");
+			copy("$Bin/../../edge_ui/data/delta.vcf", "$opt{outdir}/ref_tracks/");	
+			my %delta_track = ('format'=>'vcf','type'=>'variant', 'url' =>"./delta.vcf", "name" => "Delta_unique_variants", "height"=> 50, "color"=> "red", "showGenotypes"=> \0);
+			my %omicron_track = ('format'=>'vcf','type'=>'variant', 'url' =>"./omicron.vcf", "name" => "Omicron_unique_variants", "height"=> 50, "color"=> "blue", "showGenotypes"=> \0);
+			push @{$ref_dict{tracks}}, \%delta_track;
+			push @{$ref_dict{tracks}}, \%omicron_track;
+		}
 		my $ref_jgv_options = encode_json \%ref_dict;
 		executeCommand("sed -e 's;%OPTIONS%;$ref_jgv_options;' $opt{'igv-template'} > $opt{'out-ref-coord-dir'}/igv.html");
 		#print "#  - Indexing features...";
