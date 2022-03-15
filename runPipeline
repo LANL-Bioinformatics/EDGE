@@ -461,7 +461,7 @@ sub runPiReT {
     my $cmd="$RealBin/thirdParty/piret/bin/piret -e $exp_design -d $outputDir --config $luigi_config 2>$log";
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
-    my $piret_env_path1 = "$RealBin/thirdParty/piret/thirdParty/miniconda/envs/piret";
+    my $piret_env_path1 = "$RealBin/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret";
     my $piret_env_path2 = "$RealBin/thirdParty/Anaconda3/envs/piret";
     my $piret_env = (-e $piret_env_path1)? $piret_env_path1 : ( -e $piret_env_path2)? $piret_env_path2 : "piret";
     print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $piret_env 1>/dev/null\n";
@@ -2824,7 +2824,7 @@ sub runQC
     $parameters .= " --ascii $configuration->{qc_phred_offset} " if ($configuration->{qc_phred_offset});
      #$parameters .= " -phiX "  if ($configuration->{"phiX"});
     my $command = "$RealBin/bin/FaQCs $parameters 1>$log 2>\&1";
-    if ($pacbio_flag){
+    if ($pacbio_flag or $ont_flag){
         $command = "perl $RealBin/scripts/illumina_fastq_QC.pl $parameters 1>$log 2>\&1";
     }
     &lprint ("  Running \n  $command \n");
@@ -3392,6 +3392,7 @@ sub runReadsToGenome
 
     $parameters .= " -no_indels " if $ont_flag; # or $pacbio_flag?
     $parameters .= " -no_snp " if ($variant_call == 0);
+    $parameters .= " -maq  $configuration->{r2g_min_mapq} " if $configuration->{r2g_min_mapq};
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
     $parameters .= " -min_depth $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
@@ -4875,8 +4876,7 @@ sub writeJBrowseInfo
     my $correct_bed_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/".basename($configuration->{r2g_align_trim_bed_file}) if ($configuration->{r2g_align_trim_bed_file});
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl ";
     $cmd .= "--bam-file-depth $configuration->{JBrowse_bam_min_depth} " if ($configuration->{JBrowse_bam_min_depth});
-    $cmd .= "--bam-file-maq 42 " if ($configuration->{r2g_aligner} =~ /bowtie/);
-    $cmd .= "--bam-file-maq 60 " if ($configuration->{r2g_aligner} =~ /bwa|minimap/);
+    $cmd .= "--bam-file-maq $configuration->{r2g_min_mapq} " if ($configuration->{r2g_min_mapq});
     $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
     $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
     $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);

@@ -183,6 +183,18 @@
 		<div class="ui-grid-b ui-responsive app-showcase">
 			<div class="ui-block-a">
 				<div class="app-artwork">
+					<img alt="COVID19" src="images/EDGE-COVID19.png" >
+				</div>
+				<div data="edgeCOVID19" class="app-info">
+					<div class="app-name-version">
+						<div class="app-version"></div>
+						<div class="app-name">COVID-19 Genome Analytics</div>
+					</div>
+					<div class="app-summary">A platform for COVID-19 analytics</div>
+				</div>
+			</div>
+			<div class="ui-block-b">
+				<div class="app-artwork">
 					<img alt="New to EDGE" src="images/NewToEDGE.png" >
 				</div>
 				<div data="newToEDGE" class="app-info">
@@ -192,7 +204,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="ui-block-b">
+			<div class="ui-block-c">
 				<div class="app-artwork">
 					<img alt="edge main workflow" src="images/edge_logo_app.png">
 				</div>
@@ -204,7 +216,9 @@
 					<div class="app-summary">EDGE bioinformatics</div>
 				</div>
 			</div>
-			<div class="ui-block-c">
+		</div>
+		<div class="ui-grid-b ui-responsive app-showcase">
+			<div class="ui-block-a">
 				<div class="app-artwork">
 					<img alt="edge qiime workflow" src="images/Qiime.png">
 				</div>
@@ -214,20 +228,6 @@
 						<div class="app-name">Run QIIME2</div>
 					</div>
 					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and Fungal ITS</div>
-				</div>
-			</div>
-		</div>
-		<div class="ui-grid-b ui-responsive app-showcase">
-			<div class="ui-block-a">
-				<div class="app-artwork">
-					<img alt="edge qiime workflow" src="images/deteqt.png">
-				</div>
-				<div data="runDETEQT" class="app-info">
-					<div class="app-name-version">
-						<div class="app-version">0.3.0</div>
-						<div class="app-name">Run DETEQT</div>
-					</div>
-					<div class="app-summary">Diagnostic targeted sequencing adjudication pipeline</div>
 				</div>
 			</div>
 			<div class="ui-block-b">
@@ -1536,6 +1536,10 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain edge-fastq-options">
 					<label for="edge-r2g-aligner-options">Aligner Options<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn edge-aligner-options"></a></label>
 					<input type="text" data-mini="true" data-clear-btn="false" name="edge-r2g-aligner-options" id="edge-r2g-aligner-options" placeholder="(optional)">
+				</div>
+				 <div class="ui-field-contain edge-fastq-options">
+					<label for="edge-r2g-min-mapQ">Map Quality<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="For coverage calculation and variants call, BWA MEM/minimap2 uses MAPQ=60 for uniquely mapped and bowtie2 uses MAPQ=42." ></a></label>
+					<input type="number" name="edge-r2g-min-mapQ" id="edge-r2g-min-mapQ" data-mini="true" data-clear-btn="true" value="42">
 				</div>
 				<div class="ui-field-contain edge-fastq-options">
  					<label for="edge-r2g-max-clip">MaxClip<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Use samclip to filter alignment result. Maximum clip length to allow." ></a></label>

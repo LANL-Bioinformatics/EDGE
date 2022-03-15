@@ -2210,9 +2210,11 @@ $( document ).ready(function()
 		});
 		$("#edge-r2g-aligner2,#edge-r2g-aligner3").on('click',function(){
 			$("#edge-r2g-con-min-mapQ").val('60');
+			$("#edge-r2g-min-mapQ").val('60');
 		});
 		$("#edge-r2g-aligner1").on('click',function(){
 			$("#edge-r2g-con-min-mapQ").val('42');
+			$("#edge-r2g-min-mapQ").val('42');
 		});
 		$("label[for=edge-qc-adapter]").parent().hide();
 		$(":radio[name='edge-r2g-align-trim-sw']").on("change", function(){
