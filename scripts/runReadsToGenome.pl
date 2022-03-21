@@ -203,11 +203,11 @@ for my $ref_file_i ( 0..$#ref_files ){
   		{
      			if ($pacbio){
 				# `bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem -x pacbio $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
+				`bwa mem -K 10000000 -x pacbio $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
      			}
 			else{
 				#`bwa bwasw -M -H -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam`;
-				`bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
+				`bwa mem -K 10000000 $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam`;
 			}
 		#my $mapped_Long_reads=`awk '\$3 !~/*/ && \$1 !~/\@SQ/ {print \$1}' $tmp/LongReads$$.sam | uniq - | wc -l`;
   		#`echo -e "Mapped_reads_number:\t$mapped_Long_reads" >>$outDir/LongReads_aln_stats.txt`;
@@ -236,7 +236,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa sampe -a 100000 $ref_file $tmp/reads_1_$$.sai $tmp/reads_2_$$.sai $file1 $file2 > $outDir/paired$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam `;
+			`bwa mem -K 10000000 $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam `;
 		}
 		elsif ($aligner =~ /snap/i){
 			`snap-aligner paired $ref_file.snap $file1 $file2 -o $outDir/paired$$.sam $snap_options`;
@@ -263,7 +263,7 @@ for my $ref_file_i ( 0..$#ref_files ){
 			`bwa samse -n 50 $ref_file $tmp/singleton$$.sai $singleton > $outDir/singleton$$.sam`;
 		}
 		elsif ($aligner =~ /bwa/i){
-			`bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam `;
+			`bwa mem -K 10000000 $bwa_options $ref_file $singleton > $outDir/singleton$$.sam `;
 		}
 		elsif($aligner =~ /snap/i){
 			`snap-aligner single $ref_file.snap $singleton -o $outDir/singleton$$.sam $snap_options`;

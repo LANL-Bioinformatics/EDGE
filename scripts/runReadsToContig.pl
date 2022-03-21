@@ -170,7 +170,7 @@ if ($file_long)
    {
      $bwa_options .= ' -x pacbio ' if ($pacbio);
      #&executeCommand("bwa bwasw -M -H $pacbio_bwa_option -t $bwa_threads $ref_file $file_long -f $outDir/LongReads$$.sam");
-     &executeCommand("bwa mem $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam ");
+     &executeCommand("bwa mem -K 10000000 $bwa_options $ref_file $file_long > $outDir/LongReads$$.sam ");
    }elsif ($aligner =~ /minimap2/i){
      `minimap2 --MD -La $minimap2_options  $tmp/$ref_file_name.mmi $file_long > $outDir/LongReads$$.sam`;
    }
@@ -194,7 +194,7 @@ if ($paired_files){
    }
    elsif($aligner =~ /bwa/i)
    {
-     &executeCommand("bwa mem $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam ");
+     &executeCommand("bwa mem -K 10000000 $bwa_options $ref_file $file1 $file2 > $outDir/paired$$.sam ");
    }elsif ($aligner =~ /minimap2/i){
      `minimap2  $minimap2_options -ax sr $tmp/$ref_file_name.mmi $file1 $file2 > $outDir/paired$$.sam`;
    }
@@ -219,7 +219,7 @@ if ($singleton)
     }
     elsif($aligner =~ /bwa/i)
     {
-      &executeCommand("bwa mem $bwa_options $ref_file $singleton > $outDir/singleton$$.sam ");
+      &executeCommand("bwa mem -K 10000000 $bwa_options $ref_file $singleton > $outDir/singleton$$.sam ");
     } elsif ($aligner =~ /minimap2/i){
       my $minimap2_sr_options =  ($minimap2_options =~ /-x /)? "":"-x sr ";
       `minimap2 --MD $minimap2_options -a $minimap2_sr_options $tmp/$ref_file_name.mmi $singleton> $outDir/singleton$$.sam`;
