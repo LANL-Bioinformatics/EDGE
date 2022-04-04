@@ -1536,7 +1536,7 @@ echo "
 }
 
 install_pangolin(){
-local VER=3.1.11
+local VER=4.0.1
 echo "------------------------------------------------------------------------------
                         Installing pangolin $VER
 ------------------------------------------------------------------------------
@@ -2599,7 +2599,7 @@ fi
 if [ -x "$anaconda3bin/../envs/pangolin/bin/pangolin" ]
 then
     Pangolin_VER=`$anaconda3bin/../envs/pangolin/bin/pangolin  -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-    if [ $(versionStr $Pangolin_VER) -ge $(versionStr "2.3.2") ]
+    if [ $(versionStr $Pangolin_VER) -ge $(versionStr "4.0.0") ]
     then
       echo "Pangolin $Pangolin_VER is found"
     else
