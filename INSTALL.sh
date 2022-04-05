@@ -2791,8 +2791,6 @@ fi
 #   install_RAxML
 # fi
 
-if ( )
-
 if ( checkPython3Package selenium )
 then
         selenium_installed_VER=`python -c "import selenium; print(selenium.__version__)" || true`;
