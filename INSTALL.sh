@@ -172,7 +172,8 @@ export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
 if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
 then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
-fi 
+fi
+sed -i -e "s/itables==0.2.1/itables==0.2.1\ntomli==1.0.0\npytest==3.6.3\ncppy/" requirements.txt
 ./installer.sh piret
 ln -sf $rootdir/thirdParty/PyPiReT piret
 ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
@@ -1886,20 +1887,6 @@ else
   exit 1
 fi
 
-if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
-then
-	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
-else
-  install_Anaconda2
-fi
-
-if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
-then
-  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
-else
-  install_Anaconda3
-fi
-
 if ( checkSystemInstallation cmake )
 then
   echo "cmake is found"
@@ -1951,6 +1938,20 @@ else
 fi
 
 install_Rpackages
+
+if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
+then
+	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
+else
+  install_Anaconda2
+fi
+
+if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
+then
+  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
+else
+  install_Anaconda3
+fi
 
 if ( checkSystemInstallation bedtools )
 then
