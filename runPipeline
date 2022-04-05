@@ -3445,7 +3445,7 @@ sub runReadsToGenome
         my $con_strandbias_filter = ($configuration->{r2g_consensus_strandbias_filter})? "1":"0";
         my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
         my $con_varlog_opt = ($configuration->{r2g_consensus_varlog_opt})? "1":"0";
-	my $con_pangolin_mode = ($configuration->{r2g_consensus_pangolin_mode} =~ /usher/i)? "--usher" : "";
+	my $con_pangolin_mode = ($configuration->{r2g_consensus_pangolin_mode} =~ /usher/i)? "--analysis-mode usher" : "--analysis-mode pangolearn";
     #$con_min_mapQ = 60 if $configuration->{r2g_aligner} =~ /bwa|minimap/;
         foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");

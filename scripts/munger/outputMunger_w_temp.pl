@@ -1975,7 +1975,7 @@ sub pull_readmapping_ref {
 
 						if ($lineage_info){
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage_link};
-							$refinfo->{"RMCONLINEAGEINFO"} = "$lineage_info->{$consensus_id}->{scorpio_call}; ambiguity_score: $lineage_info->{$consensus_id}->{ambiguity_score}; version:$lineage_info->{$consensus_id}->{pangolin_version};$lineage_info->{$consensus_id}->{version}; $lineage_info->{$consensus_id}->{status}; $lineage_info->{$consensus_id}->{note};";
+							$refinfo->{"RMCONLINEAGEINFO"} = "$lineage_info->{$consensus_id}->{scorpio_call}; version:$lineage_info->{$consensus_id}->{pangolin_version};$lineage_info->{$consensus_id}->{version}; scorpio_version:$lineage_info->{$consensus_id}->{scorpio_version}; constellation_version:$lineage_info->{$consensus_id}->{constellation_version}; $lineage_info->{$consensus_id}->{qc_status}; $lineage_info->{$consensus_id}->{note};";
 							$refinfo->{"RMCONLINEAGEWARN"} = $lineage_info->{$consensus_id}->{warning};
 						}
 						if ($indel_frameshift_info->{$temp[0]}){
@@ -2155,15 +2155,15 @@ sub parse_lineage{
 	my $file = shift;
 
 	return if ! -e $file;
-	#taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,version,pangolin_version,pangoLEARN_version,pango_version,status,note
-	#BCSIR-NILMRC-756_consensus_NC_045512_2,B.1.351.3,0.0,1.0,,,,PLEARN-v1.2.6,3.0.2,2021-05-27,v1.2.6,passed_qc,
+	#taxon,lineage,conflict,ambiguity_score,scorpio_call,scorpio_support,scorpio_conflict,scorpio_notes,version,pangolin_version,scorpio_version,constellation_version,is_designated,qc_status,qc_notes,note
+	#SRR11241255_consensus_NC_045512_2,A.1,0.0,,,,,,PANGO-v1.2.133,4.0.1,0.3.16,v0.1.4,True,pass,Ambiguous_content:0.02,Assigned from designation hash.
 	my %lineage;
 	open(my $fh, "<", $file);
 	while(<$fh>){
 		chomp;
 		next if(/^taxon,/);
 		#my($cid,$lineage_assign,$prob,$pangoLearnVersion,$status,$note)=split/,/,$_;
-		my($cid,$lineage_assign,$conflict,$ambiguity_score, $scorpio_call, $scorpio_support, $scorpio_conlfict, $version, $pangolin_version, $pangoLEARN_version, $pango_version,$status,$note)=split/,/,$_;
+		my($cid,$lineage_assign,$conflict,$ambiguity_score, $scorpio_call, $scorpio_support, $scorpio_conlfict, $scorpio_notes, $version, $pangolin_version, $scorpio_version, $constellation_version, $is_designated, $qc_status,$qc_notes, $note)=split/,/,$_;
 		my ($outbreak_info_search) = ($lineage_assign =~ /\//)?  split "/",$lineage_assign : $lineage_assign;
 		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$outbreak_info_search&loc=USA'>$lineage_assign</a>";
 		$lineage{$cid}->{lineage} = $lineage_assign;
@@ -2173,11 +2173,13 @@ sub parse_lineage{
 		$lineage{$cid}->{scorpio_call} = $scorpio_call;
 		$lineage{$cid}->{scorpio_support} = $scorpio_support;
 		$lineage{$cid}->{scorpio_conlfict} = $scorpio_conlfict;
+		$lineage{$cid}->{scorpio_note} = $scorpio_notes;
 		$lineage{$cid}->{version} = $version;
 		$lineage{$cid}->{pangolin_version} = $pangolin_version;
-		$lineage{$cid}->{pangoLEARN_version} = $pangoLEARN_version;
-		$lineage{$cid}->{pango_version} = $pango_version;
-		$lineage{$cid}->{status} = $status;
+		$lineage{$cid}->{scorpio_version} = $scorpio_version;
+		$lineage{$cid}->{constellation_version} = $constellation_version;
+		$lineage{$cid}->{is_designated} = $is_designated;
+		$lineage{$cid}->{qc_status} = $qc_status;
 		if ($lineage_assign =~ /C.37/ or $lineage_assign =~ /B.1.621/ ){
 			$note = "; VOI";
 			$lineage{$cid}->{warning} = "VOI";
@@ -2195,7 +2197,7 @@ sub parse_lineage{
 			$lineage{$cid}->{warning} = "VOC";
 		}
 
-		$lineage{$cid}->{note} = $note;
+		$lineage{$cid}->{note} = "$qc_notes;"."$note";
 	}
 	close $fh;
 	return \%lineage;
