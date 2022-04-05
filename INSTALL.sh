@@ -1976,20 +1976,6 @@ else
   exit 1
 fi
 
-if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
-then
-	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
-else
-  install_Anaconda2
-fi
-
-if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
-then
-  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
-else
-  install_Anaconda3
-fi
-
 if ( checkSystemInstallation cmake )
 then
   echo "cmake is found"
@@ -2040,6 +2026,20 @@ else
 fi
 
 install_Rpackages
+
+if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
+then
+	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
+else
+  install_Anaconda2
+fi
+
+if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
+then
+  $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
+else
+  install_Anaconda3
+fi
 
 if ( checkSystemInstallation bedtools )
 then
