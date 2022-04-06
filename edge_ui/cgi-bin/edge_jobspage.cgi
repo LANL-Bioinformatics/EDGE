@@ -54,7 +54,7 @@ my $cluster     = $sys->{cluster};
 #print Dumper ($list);
 my $relt;
 print $cgi->header('application/json');
-my $html = "<h2>Job List</h2>";
+my $html = "<h2>Job Queue</h2>";
 
 $html .= "<table id='edge-job-page-table' class='output-table ui-responsive ui-table ui-table-reflow'>";
 
