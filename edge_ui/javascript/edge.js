@@ -125,6 +125,9 @@ $( document ).ready(function()
 		pipeline="piret";
 		setRunPipeline(pipeline,true);
 	});
+	$( "a[href=#edge-job-queue]" ).on( "click", function(){
+		updateJobsPage();
+	});
 
 	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
 		allMainPage.hide();
@@ -2460,6 +2463,61 @@ $( document ).ready(function()
 			error: function(data){
 				$.mobile.loading( "hide" );
 				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the report. Please REFRESH the page and try again.");
+				$( "#edge_integrity_dialog" ).popup('open');
+			}
+		});
+	};
+
+	function updateJobsPage() {
+		$.ajax({
+			url: "./cgi-bin/edge_jobspage.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: {'umSystem':umSystemStatus,'view':'admin','protocol': location.protocol, 'sid':localStorage.sid, 'forceupdate':true},
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load Jobs List...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				allMainPage.hide();
+				$( "#edge-job-page" ).html(data.html);
+				$( "#edge-job-page" ).show();
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+
+				$( "#edge-job-page" ).enhanceWithin();
+
+				var jobTableData = data.data;
+				var jobDataTable = $('#edge-job-page-table').DataTable({
+					"data" : jobTableData,
+					"order": [],
+					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"pageLength": 25,
+					"deferRender": true,
+					"responsive": true,
+					"initComplete": function() {
+						$(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete','off').css('overflow','hidden').css('margin','auto');
+					},
+					"drawCallback" : function(settings){
+					},
+					"rowCallback": function( nRow, aData, iDisplayIndex ) {
+					}
+				});
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the jobs. Please REFRESH the page and try again.");
 				$( "#edge_integrity_dialog" ).popup('open');
 			}
 		});
