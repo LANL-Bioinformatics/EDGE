@@ -1784,7 +1784,11 @@ sub variantAnalysis
       unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
       unlink $ambiguous_log;
     }
-
+    if (@r2g_consensus_log_files){
+        $cmd = "$RealBin/scripts/recombinant_analysis/recombinant_analysis.py -eo $outDir 2>\&1 >>$log2";
+        &lprint (" Running \n $cmd\n");
+        &executeCommand($cmd);
+    }
     &printRunTime($time);
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );

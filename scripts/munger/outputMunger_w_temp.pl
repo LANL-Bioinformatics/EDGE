@@ -2080,6 +2080,9 @@ sub pull_readmapping_ref {
 	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
 	$vars->{RMREFVARCALL}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 	$vars->{RMREFCONSENSUS_SW}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
+	$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png";
+	$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html";
+
 	## display unmapped reads mapping to RefSeq
 	my $tol_um_org=0;
 

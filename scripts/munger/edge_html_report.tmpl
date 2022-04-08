@@ -814,6 +814,18 @@
 								</TMPL_LOOP>
 							  </tbody>
 							</table>
+							<TMPL_IF NAME="OUT_IMAGE_READY">
+							<TMPL_IF NAME="RMREFCONAFPNG">
+							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<div class="ui-block-a">
+									<span class="iframe_label">AF <a data-ajax='false' href='<TMPL_VAR NAME=RMREFCONAFHTML DEFAULT=->'>[full]</a></span>
+									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
+									<img class="preview_img" data-src="<TMPL_VAR NAME=RMREFCONAFPNG DEFAULT=->" alt="AF">
+									</a>
+								</div>
+							</div>
+							</TMPL_IF>
+							</TMPL_IF>
 							<p class='extra-text-link'>Link to 
 								|<a href='#edge-outputfile-dialog' class='edge-outputfile-tree' data-rel='popup' dir-src='<TMPL_VAR NAME=OUTPUTDIR DEFAULT=->/ReadsBasedAnalysis/readsMappingToRef'> Directory </a></p>
 							</TMPL_IF>
