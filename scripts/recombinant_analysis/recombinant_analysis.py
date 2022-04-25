@@ -13,7 +13,11 @@ cwd = os.getcwd()
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description='''Script to do recombinant analysis''')
-    parser.add_argument('-m', '--minAF',metavar='[FLOAT]',required=False, type=float, default=0.3, help="minimum average alleic frequency per strain")
+    parser.add_argument('-m', '--minAF',metavar='[FLOAT]',required=False, type=float, default=0.1, help="plot threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.1]")
+    parser.add_argument('--minRecAF',metavar='[FLOAT]',required=False, type=float, default=0.3, help="recobminant threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.3]")
+    parser.add_argument('-x', '--mixRatio',metavar='[FLOAT]',required=False, type=float, default=0.5, help="ratio of alleic frequency sites between 0.2 ((minMixAF)) and 0.8 (maxMixAF) to determine the mixed population")
+    parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutation [default:0.2]")
+    parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutation [default:0.8]")
     parser.add_argument('-u', '--uniqVar',metavar='[FILE]',required=False, type=str, help="unique variants json file")
     parser.add_argument('-eo', '--ec19_projdir',metavar='[PATH]',required=True, type=str,  help="ec-19 project directory")
     parser.add_argument('--igv', metavar='[PATH]',required=False, type=str,  help="igv.html relative path")
@@ -28,28 +32,43 @@ def setup_argparse():
         argvs.igv = os.path.join('..', '..','IGV','ref_tracks','igv.html')
     return argvs
 
-def parse_variants(vcf,comp,delta_uniq_nt,omicron_uniq_nt):
+def parse_variants(vcf,comp,delta_uniq_nt,omicron_uniq_nt,argvs):
     variant_af=dict()
     variant_dp=dict()
     pos_list = [u.split(':')[1] for u in (delta_uniq_nt +  omicron_uniq_nt)]
     comp_pos=dict()
+    vcf_comp=dict()
     with open(comp,'r') as c:
         previous_content=[]
         for line in c:
             if line.startswith("#"):
                 continue
             content = line.strip().split('\t')
-            if content[1] in pos_list:
-                comp_pos[content[1]] = content
-                comp_pos[int(content[1])-1] = previous_content
-            previous_content = content
+            comp_pos[content[1]] = content
 
     vcf_content = []
+    mix_count=0
     with open(vcf,'r') as f:
         for line in f:
             if line.startswith("#"):
                 continue
-            vcf_content.append(line)    
+            vcf_content.append(line)
+            content = line.strip().split('\t')
+            content2 = content[-1].split(':')
+            AFreq = float(content2[-1])
+            ref_bases = content[3]
+            alt_bases = content[4]
+            if ',' in alt_bases or (AFreq > argvs.minMixAF and AFreq < argvs.maxMixAF):
+                mix_count += 1
+            if len(content[3]) - len(content[4]) != 0 and ',' not in alt_bases:
+                comp_content = comp_pos[str(int(content[1]) + 1)]
+                ref_bases = 'del' if len(content[3]) - len(content[4]) > 0 else 'ins'
+                alt_bases = abs(len(content[3]) - len(content[4])) if ref_bases == 'del' else content[4][1:] 
+                vcf_comp[ref_bases + ":" + str(int(content[1]) + 1) + ":" + str(alt_bases)] = ':'.join([ comp_content[x].split(' ')[0] for x in range(4,9) ])
+            else:
+                comp_content = comp_pos[content[1]]
+                vcf_comp[ref_bases + ":" + content[1] + ":" + alt_bases] = ':'.join([ comp_content[x].split(' ')[0] for x in range(4,9) ])
+
     for u in (delta_uniq_nt + omicron_uniq_nt):
         exist = 0
         ref_nt,pos,alt_nt = u.split(':')
@@ -102,9 +121,9 @@ def parse_variants(vcf,comp,delta_uniq_nt,omicron_uniq_nt):
             variant_af[u]=percentage.replace('(','').replace(')','')
 
    
-    return variant_af, variant_dp
+    return variant_af, variant_dp, vcf_comp, mix_count
 
-def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,minAF):
+def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs):
     ## need to set criteria to plot.  default to False.
     check=False
     probably_delta = 0
@@ -122,10 +141,12 @@ def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,minAF):
     avg_delta_AF = total_delta_af/len(delta_uniq_nt)
     avg_omicron_AF = total_omicron_af/len(omicron_uniq_nt)
     #if probably_delta > float(minAF) * len(delta_uniq_nt) or probably_omicron > float(minAF) * len(omicron_uniq_nt):
-    if avg_delta_AF > minAF or avg_omicron_AF > minAF:
+    if avg_delta_AF > argvs.minAF or avg_omicron_AF > argvs.minAF:
         check=True
     sys.stderr.write(f'Average Delta Unique Variants AF: {avg_delta_AF}\n')
     sys.stderr.write(f'Average Omicron Unique Variants AF: {avg_omicron_AF}\n')
+    if avg_delta_AF > argvs.minRecAF and avg_omicron_AF > argvs.minRecAF:
+        sys.stderr.write(f'Probable Delta and Omicron recombinant. [minimum average delta and omicron unqiue variants AF: {argvs.minRecAF}]\n')
     return check
 
 def load_uniq_var(file):
@@ -205,14 +226,14 @@ def genome_af_plot(variants,variants_aa,delta_uniq_nt,omicron_uniq_nt,variants_a
             
     ## update x tick val to amino acid change
     #fig.update_layout(xaxis=dict(tickvals=vendor_names,ticktext=[ '%s (n=%d)'% (vendor_names[m], vendor_count[m]) for m in range(len(vendor_count))] ),font=dict(size=16))
-    fig.update_yaxes(range=[-0.1, 1.1],title='AF',row=2,col=1)
-    fig.update_yaxes(title='DP',row=1,col=1)
+    fig.update_yaxes(range=[-0.1, 1.1],title='Alternative Frequency',row=2,col=1)
+    fig.update_yaxes(title='Depth Coverage',row=1,col=1)
     #fig.update_layout(barmode='stack',row=1,col=1)
     #fig.update_xaxes(tickvals = list(range(len(variants))), ticktext=variants_aa, tickfont=dict(size=8),tickangle=45)
     fig.update_layout(
         title=sample + ' (' + lineage + ')',
         #height=1800, width=1200,
-        width=1400,
+        #width=1400,
         legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -319,6 +340,57 @@ def genome_af_plot_by_sample_id(variants_nt,variants_aa,delta_uniq_nt,omicron_un
     barplot_lists = bar_plot_list3(variants_nt,delta_uniq_nt,omicron_uniq_nt, variants_dp)
     genome_af_plot(variants_nt,variants_aa,delta_uniq_nt,omicron_uniq_nt,variants_af, barplot_lists, lineage, sample, igv_url,out_html)
 
+def comp_stack_bar_plot(vcf_comp, mix_count, delta_uniq_nt,omicron_uniq_nt,  argvs):
+    barplot_html_output = os.path.join(os.path.dirname(argvs.html),'variants_bar_plot.html')
+    count_dict=dict()
+    vcf_list = list(vcf_comp.keys())
+    aclist, cclist, gclist, tclist, nclist = list(), list(),list(),list(),list()
+    aplist, cplist, gplist, tplist, nplist = list(), list(),list(),list(),list()
+    mutations_count = len(vcf_comp)
+    mix_ratio = mix_count/mutations_count * 100 if mutations_count > 0 else 0
+    for i in vcf_comp:
+        ac,cc,gc,tc,nc = vcf_comp[i].split(':')
+        total = int(ac) + int(cc) + int(gc) + int(tc) + int(nc)
+        aclist.append(int(ac))
+        aplist.append(int(ac)/total)
+        cclist.append(int(cc))
+        cplist.append(int(cc)/total)
+        gclist.append(int(gc))
+        gplist.append(int(gc)/total)
+        tclist.append(int(tc))
+        tplist.append(int(tc)/total)
+        nclist.append(int(nc))
+        nplist.append(int(nc)/total)
+    fig = make_subplots(rows=3,cols=1, shared_xaxes=True, vertical_spacing=0.01, row_heights=[200,500,15])
+    fig.add_trace(go.Bar(name='A', x=vcf_list, y=aclist,marker_color='green',opacity=.7),row=1,col=1)
+    fig.add_trace(go.Bar(name='C', x=vcf_list, y=cclist,marker_color='blue',opacity=.7),row=1,col=1)
+    fig.add_trace(go.Bar(name='G', x=vcf_list, y=gclist,marker_color='orange',opacity=.7),row=1,col=1)
+    fig.add_trace(go.Bar(name='T', x=vcf_list, y=tclist,marker_color='red',opacity=.7),row=1,col=1)
+    fig.add_trace(go.Bar(name='INDELs/N', x=vcf_list, y=nclist,marker_color='grey',opacity=.7),row=1,col=1)
+
+    fig.add_trace(go.Bar(name='A', x=vcf_list, y=aplist,marker_color='green',showlegend=False,opacity=.7),row=2,col=1)
+    fig.add_trace(go.Bar(name='C', x=vcf_list, y=cplist,marker_color='blue', showlegend=False,opacity=.7),row=2,col=1)
+    fig.add_trace(go.Bar(name='G', x=vcf_list, y=gplist,marker_color='orange', showlegend=False,opacity=.7),row=2,col=1)
+    fig.add_trace(go.Bar(name='T', x=vcf_list, y=tplist,marker_color='red', showlegend=False,opacity=.7),row=2,col=1)
+    fig.add_trace(go.Bar(name='INDELs/N', x=vcf_list, y=nplist,marker_color='grey', showlegend=False,opacity=.7),row=2,col=1)
+
+    omicron_list = [ 1 if i in omicron_uniq_nt else None for i in vcf_comp ]
+    delta_list = [ 1 if i in delta_uniq_nt else None for i in vcf_comp ]
+    fig.add_trace(go.Bar(name='Omicron', x=vcf_list, y=omicron_list,marker_color='blue', hovertemplate="Omicron", showlegend=False,opacity=.3),row=3,col=1)
+    fig.add_trace(go.Bar(name='Delta', x=vcf_list, y=delta_list,marker_color='red', hovertemplate="Delta", showlegend=False,opacity=.3),row=3,col=1)
+
+    fig.update_layout(barmode='stack', title_text='Nucleotide Composition of Mutations')
+    fig.update_xaxes(tickfont=dict(size=8),tickangle=-60)
+    fig.update_yaxes(title="Count",row=1,col=1)
+    fig.update_yaxes(title="Percentage",row=2,col=1)
+    fig.update_yaxes(visible=False,row=3,col=1)
+    if mix_count > 0:
+        fig.add_annotation(text=f"{mix_ratio:.2f}% ({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.",
+                  xref="x domain", yref="y domain", showarrow=False, font=dict(size=10),
+                  x=0, y=1.12,row=1,col=1)
+    fig.write_html(barplot_html_output)
+    fig.write_image(barplot_html_output+'.png')      
+
 def parse_lineage(txt):
     with open(txt,'r') as f:
         content = f.readlines()
@@ -363,11 +435,14 @@ def main():
 
     ec19_lineage = parse_lineage(ec19_lineage_file[0]) if ec19_lineage_file else 'Unknown'
     ec19_config = parse_ec19_config(ec19_config_file[0])
-    variants_af, variants_dp = parse_variants(ec19_vcf[0],ec19_compositionlog[0],delta_uniq_nt,omicron_uniq_nt)
-
-    plot_bool = check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs.minAF)
+    variants_af, variants_dp, vcf_comp, mix_count = parse_variants(ec19_vcf[0],ec19_compositionlog[0],delta_uniq_nt,omicron_uniq_nt,argvs)
+    comp_stack_bar_plot(vcf_comp,mix_count,delta_uniq_nt,omicron_uniq_nt, argvs)
+    plot_bool = check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs)
     if plot_bool:
         genome_af_plot_by_sample_id(variants_nt,variants_aa,delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], variants_af, variants_dp, ec19_lineage, igv_relative_url, argvs.html)
-
+    if len(vcf_comp) > 0 and mix_count/len(vcf_comp) > argvs.mixRatio:
+        mix_ratio = mix_count/len(vcf_comp) * 100
+        mutations_count = len(vcf_comp)
+        sys.stderr.write(f"Probable Mixed Infection. {mix_ratio:.2f}% ({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}. \n")
 if __name__ == '__main__':
 	main()

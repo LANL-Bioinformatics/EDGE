@@ -367,7 +367,11 @@ sub process_snp_file
 	  my @SNPs_events = split/,/, $snp;
 	  map { if (length($_) > 1) {$indel_flag = 1;} } @SNPs_events;
 	  $indel_flag = 1 if length($ref_base) > 1 or $vcf_info =~ /INDEL/;
-          $mean_quality = $1 if ($vcf_info =~ /MQ=(\d+)/);
+          if ($vcf_info =~ /MQ=(\d+)/){
+		  $mean_quality = $1
+	  }else{
+		  $mean_quality = 'NA'
+	  }
       }
       elsif ($format =~ /changelog/){
 	  my ($RATIO_OF_REF,$HQ_DOC,$HQ_RATIO_OF_REF,$HQ_RATIO_OF_CON);
