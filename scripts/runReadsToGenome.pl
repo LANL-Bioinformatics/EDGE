@@ -60,7 +60,7 @@ my $max_clip=50;
 my $align_trim_bed_file='';
 my $map_quality=42; #default 42, bwa or minimap2 may need use 60
 my $min_indel_candidate_depth=3;  #minimum number gapped reads for indel candidates
-my $max_depth=1000; # maximum read depth
+my $max_depth=10000; # maximum read depth
 # varinat filter
 my $min_alt_bases=3;  # minimum number of alternate bases
 my $min_alt_ratio=0.3; #  minimum ratio of alternate bases
@@ -349,7 +349,7 @@ for my $ref_file_i ( 0..$#ref_files){
 			my $indel_o = ($no_indels)? " -I ":""; 
 			my $baq_o = ($disableBAQ)? " -B ":"";
 			my $bcf_filter = ($variant_qual)? " -i \'\%QUAL>=$variant_qual\' ":"";
-			`bcftools mpileup $indel_o $baq_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -mv -O b - > $bcf_output 2>/dev/null`;
+			`bcftools mpileup $indel_o $baq_o -A -q $map_quality -d $max_depth -L $max_depth -m $min_indel_candidate_depth -Ov -f $ref_file $bam_output | bcftools call $ploidy_o -A -mv -O b - > $bcf_output 2>/dev/null`;
 			`bcftools view $bcf_filter -v snps,indels,mnps,ref,bnd,other -Ov $bcf_output | vcfutils.pl varFilter -a$min_alt_bases -d$min_depth  > $vcf_output`;
 			#bcftools view -i '%QUAL>=20' calls.bcf
 		}
