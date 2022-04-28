@@ -1786,7 +1786,7 @@ sub variantAnalysis
       unlink $ambiguous_log;
     }
     if (@r2g_consensus_log_files){
-        $cmd = "$RealBin/scripts/recombinant_analysis/recombinant_analysis.py -eo $outDir 2>\&1 >>$log2";
+        $cmd = "$RealBin/scripts/recombinant_analysis/recombinant_analysis.py -eo $outDir 2>>$log2";
         &lprint (" Running \n $cmd\n");
         &executeCommand($cmd);
     }
@@ -2649,7 +2649,7 @@ Rscript
 
 $mergeFiles =~ s/\,$//g;
 &executeCommand("R --vanilla --slave --silent < $Rscript 2>/dev/null");
-&executeCommand("perl $RealBin/scripts/pdfcat.pl -i $mergeFiles -o $final_pdf -f $project_name");
+#&executeCommand("perl $RealBin/scripts/pdfcat.pl -i $mergeFiles -o $final_pdf -f $project_name");
 close $Rfh;
 unlink "$Rscript";
 unlink $InputLogPDF;

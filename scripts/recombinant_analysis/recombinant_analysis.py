@@ -123,7 +123,7 @@ def parse_variants(vcf,comp,delta_uniq_nt,omicron_uniq_nt,argvs):
    
     return variant_af, variant_dp, vcf_comp, mix_count
 
-def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs):
+def check_variants(variants_af,variants_dp, delta_uniq_nt,omicron_uniq_nt,argvs):
     ## need to set criteria to plot.  default to False.
     check=False
     probably_delta = 0
@@ -131,13 +131,19 @@ def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs):
     total_delta_af = 0
     total_omicron_af = 0
     for u in delta_uniq_nt:
+        ac,cc,gc,tc,nc = variants_dp[u].split(':')
         total_delta_af = total_delta_af + float(variants_af[u])
-        if float(variants_af[u]) >= 0.5:
+        if float(variants_af[u]) >= argvs.maxMixAF:
             probably_delta += 1
-    for u in omicron_uniq_nt:
-        total_omicron_af = total_omicron_af + float(variants_af[u])
-        if float(variants_af[u]) >= 0.5:
+        if float(variants_af[u]) <= argvs.minMixAF and (int(ac) + int(cc) + int(gc) + int(tc) + int(nc)) > 0:
             probably_omicron += 1
+    for u in omicron_uniq_nt:
+        ac,cc,gc,tc,nc = variants_dp[u].split(':')
+        total_omicron_af = total_omicron_af + float(variants_af[u])
+        if float(variants_af[u]) >= argvs.maxMixAF:
+            probably_omicron += 1
+        if float(variants_af[u]) <= argvs.minMixAF and (int(ac) + int(cc) + int(gc) + int(tc) + int(nc)) > 0:
+            probably_delta += 1
     avg_delta_AF = total_delta_af/len(delta_uniq_nt)
     avg_omicron_AF = total_omicron_af/len(omicron_uniq_nt)
     #if probably_delta > float(minAF) * len(delta_uniq_nt) or probably_omicron > float(minAF) * len(omicron_uniq_nt):
@@ -145,7 +151,9 @@ def check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs):
         check=True
     sys.stderr.write(f'Average Delta Unique Variants AF: {avg_delta_AF}\n')
     sys.stderr.write(f'Average Omicron Unique Variants AF: {avg_omicron_AF}\n')
-    if avg_delta_AF > argvs.minRecAF and avg_omicron_AF > argvs.minRecAF:
+    sys.stderr.write(f'Probably Delta Unique Variants Count (>={argvs.maxMixAF}): {probably_delta}\n')
+    sys.stderr.write(f'Probably Omicron Unique Variants Count (>={argvs.maxMixAF}): {probably_omicron}\n')
+    if avg_delta_AF > argvs.minRecAF and avg_omicron_AF > argvs.minRecAF and int(len(delta_uniq_nt) * argvs.minRecAF) < probably_delta  and int(len(omicron_uniq_nt) * argvs.minRecAF) < probably_omicron :
         sys.stderr.write(f'Probable Delta and Omicron recombinant. [minimum average delta and omicron unqiue variants AF: {argvs.minRecAF}]\n')
     return check
 
@@ -437,12 +445,15 @@ def main():
     ec19_config = parse_ec19_config(ec19_config_file[0])
     variants_af, variants_dp, vcf_comp, mix_count = parse_variants(ec19_vcf[0],ec19_compositionlog[0],delta_uniq_nt,omicron_uniq_nt,argvs)
     comp_stack_bar_plot(vcf_comp,mix_count,delta_uniq_nt,omicron_uniq_nt, argvs)
-    plot_bool = check_variants(variants_af,delta_uniq_nt,omicron_uniq_nt,argvs)
+    plot_bool = check_variants(variants_af,variants_dp, delta_uniq_nt,omicron_uniq_nt,argvs)
     if plot_bool:
         genome_af_plot_by_sample_id(variants_nt,variants_aa,delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], variants_af, variants_dp, ec19_lineage, igv_relative_url, argvs.html)
+        
+    mix_ratio = mix_count/len(vcf_comp) * 100 if len(vcf_comp) > 0 else 0
+    mutations_count = len(vcf_comp)
+    sys.stderr.write(f"({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}. \n")
     if len(vcf_comp) > 0 and mix_count/len(vcf_comp) > argvs.mixRatio:
-        mix_ratio = mix_count/len(vcf_comp) * 100
-        mutations_count = len(vcf_comp)
         sys.stderr.write(f"Probable Mixed Infection. {mix_ratio:.2f}% ({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}. \n")
+    
 if __name__ == '__main__':
 	main()
