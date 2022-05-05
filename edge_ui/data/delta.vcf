@@ -1,0 +1,36 @@
+##fileformat=VCFv4.2
+##source=reference-based_assembly_v5.8.0
+##command=--procs=10 -b /panfs/biopan04/edge_covid19/edge_ui/EDGE_output/f84e8f837832f392a7678d143408f607/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2.sort.bam -r /panfs/biopan04/edge_covid19/edge_ui/EDGE_output/f84e8f837832f392a7678d143408f607/ReadsBasedAnalysis/readsMappingToRef/consensus_tmp/NC_045512.2.fa -o NC_045512.2_consensus --temp=consensus_tmp --disableBAQ --useAnomPairs --mapQ=60 --maxCov=0 --propThresh=0.5 --covThresh=5 --baseQual=20 --INDELpropThresh=0.5
+##reference=/panfs/biopan04/edge_covid19/edge_ui/EDGE_output/f84e8f837832f392a7678d143408f607/ReadsBasedAnalysis/readsMappingToRef/consensus_tmp/NC_045512.2.fa
+##contig=<ID=NC_045512_2,length=29870>
+##ALT=<ID=*,Description="Represents allele(s) other than observed.">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Depth for Forward Ref Counts, Reverse Ref Counts, Forward Alt Counts, Reverse Alt Counts">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##FILTER=<ID=PASS,Description="All filters passed">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=REF_DP,Number=1,Type=Integer,Description="Depth of reference base">
+##FORMAT=<ID=ALT_DP,Number=1,Type=Integer,Description="Depth of alternate base">
+##FORMAT=<ID=ALT_FREQ,Number=1,Type=String,Description="Frequency of alternate base">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NC_045512.2.sort.pile
+NC_045512_2	4181	.	G	T	.	.	DP=162;DP4=18,27,49,67	GT:REF_DP:ALT_DP:ALT_FREQ	1:45:116:0.7160
+NC_045512_2	6402	.	C	T	.	.	DP=129;DP4=15,12,46,56	GT:REF_DP:ALT_DP:ALT_FREQ	1:27:102:0.7907
+NC_045512_2	7124	.	C	T	.	.	DP=117;DP4=14,13,51,39	GT:REF_DP:ALT_DP:ALT_FREQ	1:27:90:0.7692
+NC_045512_2	9053	.	G	T	.	.	DP=125;DP4=17,22,46,40	GT:REF_DP:ALT_DP:ALT_FREQ	1:39:86:0.6880
+NC_045512_2	11201	.	A	G	.	.	DP=134;DP4=25,27,41,41	GT:REF_DP:ALT_DP:ALT_FREQ	1:52:82:0.6119
+NC_045512_2	15451	.	G	A	.	.	DP=131;DP4=23,12,43,53	GT:REF_DP:ALT_DP:ALT_FREQ	1:35:96:0.7328
+NC_045512_2	16466	.	C	T	.	.	DP=126;DP4=15,14,49,48	GT:REF_DP:ALT_DP:ALT_FREQ	1:29:97:0.7698
+NC_045512_2	19220	.	C	T	.	.	DP=122;DP4=25,25,33,39	GT:REF_DP:ALT_DP:ALT_FREQ	1:50:72:0.5902
+NC_045512_2	21618	.	C	G	.	.	DP=121;DP4=24,20,36,41	GT:REF_DP:ALT_DP:ALT_FREQ	1:44:77:0.6364
+NC_045512_2	22917	.	T	G	.	.	DP=85;DP4=10,12,39,24	GT:REF_DP:ALT_DP:ALT_FREQ	1:22:63:0.7412
+NC_045512_2	23604	.	C	G	.	.	DP=119;DP4=0,0,38,37	GT:REF_DP:ALT_DP:ALT_FREQ	1:0:118:0.9916
+NC_045512_2	24410	.	G	A	.	.	DP=106;DP4=22,30,27,27	GT:REF_DP:ALT_DP:ALT_FREQ	1:52:54:0.5094
+NC_045512_2	25469	.	C	T	.	.	DP=120;DP4=16,15,43,45	GT:REF_DP:ALT_DP:ALT_FREQ	1:31:88:0.7333
+NC_045512_2	26767	.	T	C	.	.	DP=152;DP4=30,40,48,34	GT:REF_DP:ALT_DP:ALT_FREQ	1:70:82:0.5395
+NC_045512_2	27638	.	T	C	.	.	DP=112;DP4=27,22,31,32	GT:REF_DP:ALT_DP:ALT_FREQ	1:49:63:0.5625
+NC_045512_2	27752	.	C	T	.	.	DP=123;DP4=28,19,32,44	GT:REF_DP:ALT_DP:ALT_FREQ	1:47:76:0.6179
+NC_045512_2	27874	.	C	T	.	.	DP=120;DP4=1,3,63,53	GT:REF_DP:ALT_DP:ALT_FREQ	1:4:116:0.9667
+NC_045512_2	28461	.	A	G	.	.	DP=129;DP4=19,28,47,35	GT:REF_DP:ALT_DP:ALT_FREQ	1:47:82:0.6357
+NC_045512_2	28881	.	G	T	.	.	DP=124;DP4=0,0,51,51	GT:REF_DP:ALT_DP:ALT_FREQ	1:0:102:0.8226
+NC_045512_2	28916	.	G	T	.	.	DP=138;DP4=24,22,45,47	GT:REF_DP:ALT_DP:ALT_FREQ	1:46:92:0.6667
+NC_045512_2	29402	.	G	T	.	.	DP=127;DP4=31,20,34,42	GT:REF_DP:ALT_DP:ALT_FREQ	1:51:76:0.5984
