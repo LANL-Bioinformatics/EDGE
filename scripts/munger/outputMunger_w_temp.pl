@@ -2156,7 +2156,7 @@ sub pull_summary {
 			$prog->{$ord}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-orange'>Running</span>";
 		}
-		elsif( /failed/ ){
+		elsif( /failed|ERROR/i ){
 			$prog->{$ord}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure. The process has failed unexpectedly. Please contact system administrator. Or try to rerun the job</span>" if (/Unexpected exit/);
@@ -2223,6 +2223,9 @@ sub pull_summary {
 			$prog->{$ord}->{GNLSTATUS}   = "<span class='edge-fg-red'>Error</span>";
 			$vars->{ERROR_qiime} = $_ if (/ERROR/i and $step ne "Checking Mapping File");
 		}
+		elsif(/ERROR|failed/ and $vars->{OUT_piret_SW}){
+                        $vars->{ERROR_piret} = $_ if (/ERROR/i);
+                }
 		elsif( /^Qiime Running time: (.*)/){
 			$prog->{$ord}->{GNLSTATUS}   = "Complete";
 			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;

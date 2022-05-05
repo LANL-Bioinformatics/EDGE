@@ -510,37 +510,37 @@ sub prepareExpDesignAndConfig{
     if ($kingdom eq 'prokarya')
     {
         if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
-            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            die ("ERROR: Please provide prokaryote fasta and gff files");
             exit;
         }
 	if (! is_gff($prokaryote_gff)){
-             &lprint("ERROR:prokaryote_gff is not in GFF3 format");
+             die("ERROR:prokaryote_gff is not in GFF3 format");
              exit;
 	}
     }
     elsif ($kingdom eq 'eukarya')
     {
         if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
-            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            die("ERROR: Please provide eukaryote fasta and gff files");
             exit;
         }
 	if (! is_gff($eukarya_gff)){
-             &lprint("ERROR:eukarya_gff is not in GFF3 format");
+             die("ERROR:eukarya_gff is not in GFF3 format");
              exit;
 	}
     }   
     elsif ($kingdom eq 'both')
     {
         if ( !-e $prokaryote_fasta || ! -e $prokaryote_gff){
-            &lprint("ERROR: Please provide prokaryote fasta and gff files");
+            die("ERROR: Please provide prokaryote fasta and gff files");
             exit;
         }
         if ( ! -e $eukarya_fasta  || ! -e $eukarya_gff){
-            &lprint("ERROR: Please provide eukaryote fasta and gff files");
+            die("ERROR: Please provide eukaryote fasta and gff files");
             exit;
         }
 	if (! is_gff($prokaryote_gff) || ! is_gff($eukarya_gff)){
-             &lprint("ERROR:prokaryote_gff or eukarya_gff is not in GFF3 format");
+             die("ERROR:prokaryote_gff or eukarya_gff is not in GFF3 format");
              exit;
 	}
     }
