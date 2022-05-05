@@ -62,7 +62,7 @@
               username="yourDBUsername"
               password="yourDBPassword"
               driverClassName="com.mysql.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/userManagement"
+              url="jdbc:mysql://localhost:3306/userManagement?useSSL=false&amp;allowPublicKeyRetrieval=true"
     />
 
 </Context>
