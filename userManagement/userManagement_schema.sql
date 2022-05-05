@@ -26,7 +26,7 @@ CREATE TABLE projects (
     code VARCHAR(255) NOT NULL,
 	full_name VARCHAR(255),
 	run_submitted DATETIME,
-	running_time TIME,
+	running_time varchar(25),
     created DATETIME,
     updated DATETIME
 );
