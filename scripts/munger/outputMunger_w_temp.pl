@@ -106,6 +106,7 @@ sub pull_qiime{
 		open(my $fh, "<", $log);
 		while(<$fh>){
 			if ($_ =~ /error|failed/i){
+				next if $_ =~ /error-correction/;
 				my $line = $_;
                                 $line =~ s/'$//;
                                 $line =~ s/\\n\\n/<br>/g;
