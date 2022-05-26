@@ -822,6 +822,8 @@ def main():
         process_cmd(cmd,"Running per read analysis", read_analysis_log)
         if 'Omicron' in parents_v and 'Delta' in parents_v:
             deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, argvs)
-        
+    else:
+        logging.info(f'No read based recombinant analysis performed since mixed count {mix_count} less than {argvs.minMixed_n} or no parents variants detected.')
+         
 if __name__ == '__main__':
 	main()
