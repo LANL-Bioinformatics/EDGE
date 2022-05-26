@@ -35,6 +35,7 @@ class NT_AA_POSITION_INTERCHANGE():
         m = re.match(r'(\S+):(\d+):(\S+)', mut)
         (ref, pos, alt) = m.groups()
         codon_num = ''
+        return_str = ''
         for g in self.refdict['genes']:
             start =int(self.refdict['genes'][g]['coordinates']['from'])
             end = int(self.refdict['genes'][g]['coordinates']['to'])
@@ -42,7 +43,6 @@ class NT_AA_POSITION_INTERCHANGE():
             if int(pos) >= start and int(pos) <= end :
                 codon_num = int((int(pos) - start) / 3) + 1
                 codon_start = int(pos) - ((int(pos) - start)) % 3 - 1
-                
                 alt_codon = ''
                 if ref == 'del':
                     if ((int(pos) - start + 1)) % 3 == 0:
