@@ -758,10 +758,8 @@ def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False):
     
     if stdout_log:
         f=open (stdout_log, "a") 
-    while True:
+    while proc.poll() is None:  ## not finished the proc.
         output = proc.stdout.readline()
-        if output == '' and proc.poll() is not None:
-            break
         if output:
             stdout_msg=output.decode()
             sys.stdout.write(stdout_msg)
@@ -769,7 +767,7 @@ def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False):
                 f.write(stdout_msg)
 
     f.close()
-    rc = proc.poll()
+    rc = proc.returncode
     if rc != 0: 
         logging.error("Failed %d %s" % (rc, " ".join(cmd)))
     
@@ -824,6 +822,6 @@ def main():
             deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, argvs)
     else:
         logging.info(f'No read based recombinant analysis performed since mixed count {mix_count} less than {argvs.minMixed_n} or no parents variants detected.')
-         
+
 if __name__ == '__main__':
 	main()

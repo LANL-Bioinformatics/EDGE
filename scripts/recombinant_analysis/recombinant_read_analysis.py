@@ -402,7 +402,7 @@ def update_igv_html(argvs):
     igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
     logging.info(f"Writting recombinant reads as track in IGV view to {update_igv_html_file}")
-    w = open(update_igv_html_file,'w')
+    of = open(update_igv_html_file,'w')
     with open(igv_html_file, 'r') as f:
         for line in f:
             if 'options = {"tr' in line:
@@ -427,9 +427,9 @@ def update_igv_html(argvs):
                         if 'showGenotypes' not in i:
                             new_tracks.append(i)
                 options_dict['tracks'] = new_tracks
-                w.write("var options = " + json.dumps(options_dict) + ";")
+                of.write("var options = " + json.dumps(options_dict) + ";")
             elif 'EC-19 Alignment' in line or 'NC_045512.2 Alignment' in line or "'Alignment'," in line:
-                w.write("""
+                of.write("""
                     name: 'Recombinant', 
                     type:'alignment', 
                     format: 'bam', 
@@ -442,10 +442,10 @@ def update_igv_html(argvs):
                     },
                     {
                     """ )
-                w.write(line)
+                of.write(line)
             else:
-                w.write(line)
-    w.close() 
+                of.write(line)
+    of.close() 
 
 def main():
     argvs = setup_argparse()
