@@ -758,15 +758,15 @@ def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False):
     
     if stdout_log:
         f=open (stdout_log, "a") 
-    while proc.poll() is None:  ## not finished the proc.
+    while proc.poll() is None:  ## not finished the proc., if it finished will be not None.
         output = proc.stdout.readline()
         if output:
             stdout_msg=output.decode()
             sys.stdout.write(stdout_msg)
             if stdout_log:
                 f.write(stdout_msg)
-
-    f.close()
+    if stdout_log:
+        f.close()
     rc = proc.returncode
     if rc != 0: 
         logging.error("Failed %d %s" % (rc, " ".join(cmd)))
