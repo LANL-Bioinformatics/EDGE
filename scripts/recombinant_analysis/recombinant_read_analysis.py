@@ -3,6 +3,7 @@ import argparse as ap
 import json
 import os
 import sys
+import shutil
 from collections import defaultdict
 
 import pandas as pd
@@ -344,7 +345,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
         mutaions_list.append(tmp)
     
     if argvs.ec19_projdir:
-        rel_link = argvs.igv.replace("igv.html","igv.recombreads.html")
+        rel_link = argvs.igv
         igv_list = [f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant</a>' for i in recomb_reads]
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
@@ -400,11 +401,18 @@ def write_stats(stats, argvs):
 
 def update_igv_html(argvs):
     igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
+    if not os.path.exists(argvs.igv):
+        return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
     logging.info(f"Writting recombinant reads as track in IGV view to {update_igv_html_file}")
     of = open(update_igv_html_file,'w')
     with open(igv_html_file, 'r') as f:
         for line in f:
+            if 'recombinant_reads.bam' in line:
+                of.close()
+                if os.path.exists(update_igv_html_file):
+                    os.remove(update_igv_html_file)
+                return
             if 'options = {"tr' in line:
                 options = [i.strip().replace(";","") for i in line.split("=")]
                 options_dict = json.loads(options[1])
@@ -445,7 +453,8 @@ def update_igv_html(argvs):
                 of.write(line)
             else:
                 of.write(line)
-    of.close() 
+    of.close()
+    shutil.move(update_igv_html_file,argvs.igv)
 
 def main():
     argvs = setup_argparse()

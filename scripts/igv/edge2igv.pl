@@ -428,11 +428,30 @@ sub main {
 				my $bam = "$opt{'in-read2ref-dir'}/$file_prefix.sort.bam";
 				my $bam_nodup = (-e "$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam")?"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted_nodups.bam":"$opt{'in-read2ref-dir'}/$file_prefix.sort_sorted.bam";
 				my $vcf = "$opt{'in-read2ref-dir'}/${file_prefix}_consensus.vcf";
+				my $recomb_bam = "$opt{'in-read2ref-dir'}/recombinant_reads.bam";
 				my $mapped_num = `samtools idxstats $bam | awk -F\\\\t '\$1 !~ /^\\*/ { sum+=\$3} END {print sum}'`;
 				#my $depth_cov = `grep $file_prefix $opt{'in-read2ref-dir'}/$file_prefix.alnstats.txt | awk '{print \$6}'`;
 				#chomp $depth_cov;
 				#my $subsample_ratio = ($depth_cov>300)? "-s 0.".sprintf("%03d",$opt{'bam-file-depth'}/$depth_cov*1000):"";
 				chomp $mapped_num;
+				
+				if( -e $recomb_bam){
+					print "#  - Adding read2ref $file_prefix recombinant BAM track...";
+					$recomb_bam =~ s/$opt{'proj_outdir'}/..\/../;
+					executeCommand("ln -s $recomb_bam $opt{'out-ref-coord-dir'}/$file_prefix.recombinant_reads.bam");
+					executeCommand("samtools index $opt{'out-ref-coord-dir'}/$file_prefix.recombinant_reads.bam");
+					my %track=('name'=>"Recombinant",
+				  		'type'=>'alignment',
+				 		'format'=>'bam', 
+				 		'colorBy'=>'strand',
+					  	'displayMode' => 'squished', 
+			  			'height'=> 300,
+						'squishedRowHeight'=>10, 
+			  	 		'url' =>"./$file_prefix.recombinant_reads.bam",
+						'indexURL' => "./$file_prefix.recombinant_reads.bam.bai");
+					push @{$ref_dict{tracks}}, \%track;
+					print "Done.\n";
+				} 
 				if( $mapped_num ){
 					print "#  - Adding read2ref $file_prefix BAM track...";
 					#	print "samtools view $subsample_ratio --threads $opt{'threads'} -F4 -q $opt{'bam-file-maq'} -uh $bam $acc 2>/dev/null | samtools sort --threads $opt{'threads'} -T $opt{outdir} -O BAM -o $opt{'out-ref-coord-dir'}/$acc.mapped.sort.bam -  2>/dev/null \n";
@@ -470,7 +489,7 @@ sub main {
 					#print("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
 					#executeCommand("convert_bam2bigwig.pl $bam; mv $bam.bw $opt{'out-ref-coord-dir'}/$acc.sort.bam.bw");
 					#executeCommand("sed -e 's/%%BWFILENAME%%/$acc.sort.bam.bw/' -e 's/%%REFID%%/$acc/g' $opt{'ref-coord-bw-conf'} | add-track-json.pl $opt{'out-ref-coord-dir'}/trackList.json");
-					print "Done.\n";
+					#print "Done.\n";
 	
 				}
 				else{
