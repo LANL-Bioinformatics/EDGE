@@ -36,9 +36,9 @@ def setup_argparse():
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutations on vcf [default:0.8]")
     parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threadhold of mixed mutations count.")
     parser.add_argument(
-        '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: {bin_dir}/variant_mutation.json]")
+        '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: variant_mutation.json]")
     parser.add_argument(
-        '--variantMutation', metavar='[FILE]', required=False, type=str, help=f"variant mutation json file [default: {bin_dir}/lineage_mutation.json]")
+        '--variantMutation', metavar='[FILE]', required=False, type=str, help=f"variant mutation json file [default: lineage_mutation.json]")
     parser.add_argument('-eo', '--ec19_projdir',
                         metavar='[PATH]', required=False, type=str,  help="ec-19 project directory")
     parser.add_argument(
@@ -61,9 +61,9 @@ def setup_argparse():
     argvs = parser.parse_args()
 
     if not argvs.lineageMutation:
-        argvs.lineageMutation = os.path.join(bin_dir, 'lineage_mutation.json')
+        argvs.lineageMutation = os.path.join(os.path.dirname(bin_dir),"data", 'lineage_mutation.json')
     if not argvs.variantMutation:
-        argvs.variantMutation = os.path.join(bin_dir, 'variant_mutation.json')
+        argvs.variantMutation = os.path.join(os.path.dirname(bin_dir),"data", 'variant_mutation.json')
     if not argvs.tsv:
         tsv_filename = "recombinant_reads.tsv"
         if argvs.ec19_projdir:

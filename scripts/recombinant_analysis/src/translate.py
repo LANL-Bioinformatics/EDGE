@@ -5,8 +5,10 @@ import re
 import json
 import os, sys
 
+bin_dir = os.path.abspath(os.path.dirname(__file__))
+
 class NT_AA_POSITION_INTERCHANGE():
-    def __init__(self, ref_json="SARS-CoV-2.json"):
+    def __init__(self, ref_json=os.path.join(os.path.dirname(bin_dir),"data","SARS-CoV-2.json")):
         """ read the SARS-COV-2 json file"""
         if not os.path.exists(ref_json):
             print(f"Cannot find {ref_json}",file=sys.stderr)

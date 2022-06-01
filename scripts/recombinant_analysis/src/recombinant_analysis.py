@@ -40,9 +40,9 @@ def setup_argparse():
     argvs = parser.parse_args()
 
     if not argvs.lineageMutation:
-        argvs.lineageMutation = os.path.join(bin_dir, 'lineage_mutation.json')
+        argvs.lineageMutation = os.path.join(os.path.dirname(bin_dir),"data", 'lineage_mutation.json')
     if not argvs.variantMutation:
-        argvs.variantMutation = os.path.join(bin_dir, 'variant_mutation.json')
+        argvs.variantMutation = os.path.join(os.path.dirname(bin_dir),"data", 'variant_mutation.json')
     if not argvs.html:
         argvs.html = os.path.join(argvs.ec19_projdir, 'ReadsBasedAnalysis','readsMappingToRef','recombinant_analysis_result.html')
     if not argvs.igv:
@@ -797,7 +797,7 @@ def main():
     format='[%(asctime)s' '] %(levelname)s: %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M')
     (delta_uniq_nt, omicron_uniq_nt, nt_to_variant, nt_to_aa) = load_var_mutation(argvs.variantMutation)
     nt_to_lineage = load_lineage_mutation(argvs.lineageMutation)
-    nt_to_aa_class = translate.NT_AA_POSITION_INTERCHANGE(os.path.join(bin_dir, 'SARS-CoV-2.json'))
+    nt_to_aa_class = translate.NT_AA_POSITION_INTERCHANGE(os.path.join(os.path.dirname(bin_dir),"data", 'SARS-CoV-2.json'))
 
     ec19_consensus = glob.glob(argvs.ec19_projdir+f"/ReadsBasedAnalysis/readsMappingToRef/NC_045512.2_consensus.fasta",recursive = False)
     ec19_log = glob.glob(argvs.ec19_projdir+f"/process.log",recursive = False)
@@ -831,7 +831,7 @@ def main():
         mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
         ## reads based analysis
         read_analysis_log = os.path.join(os.path.dirname(argvs.html),'recombinant_reads.log')
-        cmd=[os.path.join(bin_dir,'recombinant_read_analysis.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--igv', argvs.igv]
+        cmd=[os.path.join(bin_dir,'ramifi'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--igv', argvs.igv]
         if argvs.verbose:
             cmd.append('--verbose')
         process_cmd(cmd,"Running per read analysis", read_analysis_log)

@@ -18,7 +18,7 @@ def setup_argparse():
                         help="output variants mutaions in gff file [default: variants_mutation.gff]")
     argvs = parser.parse_args()
     if not argvs.variantMutation:
-        argvs.variantMutation = os.path.join(bin_dir, 'variant_mutation.json')
+        argvs.variantMutation = os.path.join(os.path.dirname(bin_dir),"data", 'variant_mutation.json')
     return argvs
 
 def main():
