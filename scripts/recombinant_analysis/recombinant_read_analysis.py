@@ -382,14 +382,28 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
 
 def write_recombinant_bam(recomb_reads, argvs):
     samfile = pysam.AlignmentFile(argvs.bam, "rb")
-    outbam = pysam.AlignmentFile(argvs.outbam, "wb", template=samfile)
-    for read in samfile.fetch():
-        if read.query_name in recomb_reads:
-            outbam.write(read)
-
+    logging.info("Index input Sam/BAM-file by query name. The index is kept in memory and can be substantial.")
+    name_indexed = pysam.IndexedReads(samfile)
+    name_indexed.build()
+    tmp_bam = os.path.splitext(argvs.outbam)[0] +'.tmp.bam'
+    if os.path.exists(tmp_bam):
+        os.remove(tmp_bam)
+    logging.info(f"Writting recombinant reads to {argvs.outbam}")
+    outbam = pysam.AlignmentFile(tmp_bam, "wb", template=samfile)
+    for name in recomb_reads['read_name']:
+        try:
+            name_indexed.find(name)
+        except KeyError:
+            pass
+        else:
+            iterator = name_indexed.find(name)
+            for x in iterator:
+                outbam.write(x)
     outbam.close()
-    pysam.index(argvs.outbam)
     samfile.close()
+    pysam.sort("-o", argvs.outbam, tmp_bam)
+    pysam.index(argvs.outbam)
+    os.remove(tmp_bam)
 
 def write_stats(stats, argvs):
     outstats = os.path.splitext(argvs.tsv)[0] + ".stats"
@@ -479,8 +493,7 @@ def main():
     
     write_stats(reads_stats,argvs)
 
-    logging.info(f"Writting recombinant reads to {argvs.outbam}")
-    write_recombinant_bam(list(recomb_reads_df['read_name']), argvs)
+    write_recombinant_bam(recomb_reads_df, argvs)
     if argvs.igv:
         update_igv_html(argvs)
 

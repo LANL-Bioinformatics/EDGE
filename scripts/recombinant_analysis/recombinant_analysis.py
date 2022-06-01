@@ -8,6 +8,7 @@ import re
 import shlex
 import subprocess
 import sys
+import time
 from collections import defaultdict
 
 import plotly.graph_objects as go
@@ -749,10 +750,11 @@ def parse_ec19_config(config):
                 ec19_config[k]=v
     return(ec19_config)
 
-def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False):
+def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False, timeout = 60):
     if msg:
         logging.info(msg)
 
+    time_out = time.time() + 60 * timeout   # 60 minutes in default
     logging.debug("CMD: %s" %(" ".join(cmd)) )
     proc = subprocess.Popen(shlex.split(" ".join(cmd)), shell=shell_bool, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
@@ -765,8 +767,23 @@ def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False):
             sys.stdout.write(stdout_msg)
             if stdout_log:
                 f.write(stdout_msg)
+        # Wait a little before looping
+        time.sleep(0.01)
+        if time.time() > time_out:
+            try:
+                output = proc.communicate(timeout=5)[0]  # try 5 sec if still not end..., kill the proc and capture the final stream
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                output = proc.communicate()[0]
+            if output:
+                stdout_msg=output.decode()
+                sys.stdout.write(stdout_msg)
+                if stdout_log:
+                    f.write(stdout_msg)
+            break
     if stdout_log:
         f.close()
+    proc.stdout.close()
     rc = proc.returncode
     if rc != 0: 
         logging.error("Failed %d %s" % (rc, " ".join(cmd)))
