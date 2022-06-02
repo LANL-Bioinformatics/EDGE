@@ -75,8 +75,16 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
                 continue
             vcf_content.append(line)
             content = line.strip().split('\t')
-            content2 = content[-1].split(':')
-            AFreq = float(content2[-1])
+            AFreq = 0
+            if "ALT_FREQ" in line:
+                content2 = content[-1].split(':')
+                AFreq = float(content2[-1])
+            if 'DP=' in line and 'DP4=' in line:
+                m = re.search(r'DP=(\d+)', line)
+                depth=m[1]
+                m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', line)
+                (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
+                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
             comp_content = comp_pos[content[1]]
             ref_bases = content[3]
             alt_bases = content[4]
@@ -153,8 +161,16 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
    
         for v in vcf_content:
             content = v.strip().split('\t')
-            content2 = content[-1].split(':')
-            AFreq = content2[-1]
+            AFreq = 0
+            if "ALT_FREQ" in v:
+                content2 = content[-1].split(':')
+                AFreq = float(content2[-1])
+            if 'DP=' in v and 'DP4=' in v:
+                m = re.search(r'DP=(\d+)', v)
+                depth=m[1]
+                m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', v)
+                (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
+                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
             #total_dp = int(content2[1]) + int(content2[2])
             if ref_nt == 'del' and str(int(pos) - 1) == content[1] and str(len(content[3]) - len(content[4])) == alt_nt:
                 #logging.info( "\t".join(content) +  str(len(content[3]) - len(content[4])) + "\t" + alt_nt + "\n" )               

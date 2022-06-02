@@ -3,6 +3,7 @@ import argparse as ap
 import json
 import os
 import sys
+import re
 import shutil
 from collections import defaultdict
 
@@ -24,25 +25,23 @@ class SmartFormatter(ap.HelpFormatter):
 
 
 def setup_argparse():
-    parser = ap.ArgumentParser(prog='recombinant_read_analysis',
+    parser = ap.ArgumentParser(prog='ramifi',
                                 description='''Script to do recombinant read analysis''',
                                 formatter_class=SmartFormatter )
 
-    parser.add_argument('--recombinant_variants', metavar='[list]', required=False, nargs=2, default=[
-                        'Omicron', 'Delta'], help="list of two parents variants for recombinant checking [default: Omicron Delta]")
+    #parser.add_argument('--recombinant_variants', metavar='[list]', required=False, nargs=2, default=[
+    #                    'Omicron', 'Delta'], help="list of two parents variants for recombinant checking [default: Omicron Delta]")
     parser.add_argument('--refacc', metavar='[STR]', required=False, type=str, default="NC_045512.2",
                         help='reference accession used in bam [default: NC_045512.2]')
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutations on vcf [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutations on vcf [default:0.8]")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threadhold of mixed mutations count.")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threadhold of mixed mutations count for vcf.")
+    parser.add_argument('--minReadCount',metavar='[INT]',required=False, type=int, default=10, help="threadhold of read with variant count when no vcf provided.")
     parser.add_argument(
         '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: variant_mutation.json]")
     parser.add_argument(
         '--variantMutation', metavar='[FILE]', required=False, type=str, help=f"variant mutation json file [default: lineage_mutation.json]")
-    parser.add_argument('-eo', '--ec19_projdir',
-                        metavar='[PATH]', required=False, type=str,  help="ec-19 project directory")
-    parser.add_argument(
-        '--igv', metavar='[PATH]', required=False, type=str,  help="igv.html relative path")
+    
     parser.add_argument('--verbose', action='store_true', 
                         help='Show more infomration in log')
 
@@ -57,6 +56,12 @@ def setup_argparse():
                         help='output file name [default: recombinant_reads.tsv]')
     outGrp.add_argument('--outbam', metavar='[File]', required=False, type=str,
                         help="output recombinant reads in bam file [default: recombinant_reads.bam]")
+
+    EC19Grp = parser.add_argument_group('EDGE COVID-19 Options','options specific used for EDGE COVID-19')
+    EC19Grp.add_argument('-eo', '--ec19_projdir',
+                        metavar='[PATH]', required=False, type=str,  help="ec-19 project directory")
+    EC19Grp.add_argument(
+        '--igv', metavar='[PATH]', required=False, type=str,  help="igv.html relative path")
 
     argvs = parser.parse_args()
 
@@ -127,8 +132,16 @@ def parse_vcf(argvs,nt_to_variants):
             if line.startswith("#"):
                 continue
             content = line.strip().split('\t')
-            content2 = content[-1].split(':')
-            AFreq = float(content2[-1])
+            AFreq = 0
+            if "ALT_FREQ" in line:
+                content2 = content[-1].split(':')
+                AFreq = float(content2[-1])
+            if 'DP=' in line and 'DP4=' in line:
+                m = re.search(r'DP=(\d+)', line)
+                depth=m[1]
+                m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', line)
+                (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
+                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
             ref_bases = content[3]
             alt_bases = content[4]
             mutations_count += 1
@@ -300,6 +313,31 @@ def find_read_with_variants(nt_to_variant, argvs):
     samfile.close()
     return mutation_reads, reads_coords, stats
 
+def find_parents_by_mutation_reads(mutation_reads, argvs):
+    parents_v=defaultdict(dict)
+    for name in mutation_reads:
+        for pos in mutation_reads[name]:
+            if 'ref' not in mutation_reads[name][pos] and 'other' not in mutation_reads[name][pos] and len(mutation_reads[name][pos]) == 1:
+                if ''.join(mutation_reads[name][pos]) in parents_v:
+                    parents_v[''.join(mutation_reads[name][pos])]['uniq'] += 1
+                
+                else:
+                    parents_v[''.join(mutation_reads[name][pos])]['uniq'] = 0
+                    parents_v[''.join(mutation_reads[name][pos])]['all'] = 0
+                
+    for v in parents_v:
+        for name in mutation_reads:
+            for pos in mutation_reads[name]:
+                if 'ref' not in mutation_reads[name][pos] and v in mutation_reads[name][pos]:
+                    parents_v[v]['all'] += 1
+
+    parents_v = dict(sorted(parents_v.items(), key=lambda item: item[1]['all'], reverse=True))
+    if (parents_v[list(parents_v.keys())[0]]['all'] < argvs.minReadCount or parents_v[list(parents_v.keys())[1]]['all'] < argvs.minReadCount):
+        logging.error(f'Not have enough reads ({argvs.minReadCount}) to support both parents variants: {parents_v}')
+        sys.exit(1)
+
+    two_parents_list = list(parents_v.keys())[0:2]
+    return two_parents_list
 
 def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, argvs):
     logging.info("Finding recombinant reads")
@@ -487,7 +525,8 @@ def main():
     else:
         mutation_reads, reads_coords, reads_stats = find_read_with_variants(
         nt_to_variant, argvs)
-        two_parents_list = argvs.recombinant_variants
+        two_parents_list = find_parents_by_mutation_reads(mutation_reads,argvs)
+        #two_parents_list = argvs.recombinant_variants
 
     recomb_reads_df,  reads_stats = find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, argvs)
     
