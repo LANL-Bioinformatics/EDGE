@@ -1786,7 +1786,7 @@ sub variantAnalysis
       unlink $ambiguous_log;
     }
     if (@r2g_consensus_log_files){
-        $cmd = "$RealBin/scripts/recombinant_analysis/src/recombinant_analysis.py -eo $outDir 1>>$log2 2>\&1";
+        $cmd = "$RealBin/scripts/recombinant_analysis/ramifi/recombinant_analysis.py -eo $outDir 1>>$log2 2>\&1";
         &lprint (" Running \n $cmd\n");
         &executeCommand($cmd);
     }
