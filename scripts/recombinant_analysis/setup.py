@@ -17,7 +17,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type="text/markdown",
     install_requires=[
-        "plotly >=5.5.0",
+        "plotly >=5.7.0",
         "pandas >= 1.2.4",
         "pysam >= 0.16.0.1",
         "kaleido >= 0.2.1",

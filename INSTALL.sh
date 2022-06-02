@@ -1479,7 +1479,7 @@ ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
-$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido
+$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importlib-resources plotly
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
