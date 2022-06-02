@@ -7,11 +7,13 @@ import re
 import shutil
 from collections import defaultdict
 
+import importlib_resources
 import pandas as pd
 import pysam
 # standardize the logging output
 import logging
 
+toolname = os.path.basename(__file__)
 bin_dir = os.path.abspath(os.path.dirname(__file__))
 cwd = os.getcwd()
 
@@ -25,7 +27,7 @@ class SmartFormatter(ap.HelpFormatter):
 
 
 def setup_argparse():
-    parser = ap.ArgumentParser(prog='ramifi',
+    parser = ap.ArgumentParser(prog=toolname,
                                 description='''Script to do recombinant read analysis''',
                                 formatter_class=SmartFormatter )
 
@@ -66,9 +68,15 @@ def setup_argparse():
     argvs = parser.parse_args()
 
     if not argvs.lineageMutation:
-        argvs.lineageMutation = os.path.join(os.path.dirname(bin_dir),"data", 'lineage_mutation.json')
+        try:
+            argvs.lineageMutation = importlib_resources.files(toolname).joinpath('data/lineage_mutation.json')
+        except:
+            argvs.lineageMutation = os.path.join(bin_dir,"data", 'lineage_mutation.json')
     if not argvs.variantMutation:
-        argvs.variantMutation = os.path.join(os.path.dirname(bin_dir),"data", 'variant_mutation.json')
+        try:
+            argvs.variantMutation = importlib_resources.files(toolname).joinpath('data/variant_mutation.json')
+        except:
+            argvs.variantMutation = os.path.join(bin_dir,"data", 'variant_mutation.json')
     if not argvs.tsv:
         tsv_filename = "recombinant_reads.tsv"
         if argvs.ec19_projdir:
@@ -245,8 +253,9 @@ def find_read_with_variants(nt_to_variant, argvs):
                         if ref == 'del' or ref == 'ins':
                             continue
                         if alt == pileupread.alignment.query_sequence[pileupread.query_position]:
-                            mutation_reads[pileupread.alignment.query_name][pos].extend(
-                                nt_to_variant[i])
+                            for mut in nt_to_variant[i]:
+                                if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                    mutation_reads[pileupread.alignment.query_name][pos].extend([mut])
                         elif ref == pileupread.alignment.query_sequence[pileupread.query_position]:
                             if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
                                 mutation_reads[pileupread.alignment.query_name][pos].extend(
@@ -262,24 +271,20 @@ def find_read_with_variants(nt_to_variant, argvs):
                                         mutation_reads[pileupread.alignment.query_name][pos].extend([
                                                                                                     mut])
                             elif 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
                     if pileupread.is_del and ref == 'del':
                         if pileupread.indel < 0:
                             if (int(alt) + int(pileupread.indel)) == 0:
                                 mutation_reads[pileupread.alignment.query_name][pos].extend(
                                     nt_to_variant[i])
                             else:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
                         elif pileupread.indel == 0:
                             if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'ref'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'])
                         else:
                             if 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
 
                     if pileupread.is_refskip and ref == 'ins':
                         if pileupread.indel > 0:
@@ -287,16 +292,13 @@ def find_read_with_variants(nt_to_variant, argvs):
                                 mutation_reads[pileupread.alignment.query_name][pos].extend(
                                     nt_to_variant[i])
                             else:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
                         elif pileupread.indel == 0:
                             if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'ref'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'])
                         else:
                             if 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                            'unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
 
                     if pileupread.alignment.query_name in mutation_reads:
                         if 'start' in reads_coords[pileupread.alignment.query_name]:
@@ -317,7 +319,7 @@ def find_parents_by_mutation_reads(mutation_reads, argvs):
     parents_v=defaultdict(dict)
     for name in mutation_reads:
         for pos in mutation_reads[name]:
-            if 'ref' not in mutation_reads[name][pos] and 'other' not in mutation_reads[name][pos] and len(mutation_reads[name][pos]) == 1:
+            if 'ref' not in mutation_reads[name][pos] and 'unknown' not in mutation_reads[name][pos] and len(mutation_reads[name][pos]) == 1:
                 if ''.join(mutation_reads[name][pos]) in parents_v:
                     parents_v[''.join(mutation_reads[name][pos])]['uniq'] += 1
                 
