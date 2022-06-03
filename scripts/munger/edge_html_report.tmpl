@@ -816,12 +816,14 @@
 							</table>
 							<TMPL_IF NAME="OUT_IMAGE_READY">
 							<div class="ui-grid-c ui-responsive edge-report-plots">
+								<TMPL_IF NAME="RMREFCONVCFBARPNG">
 								<div class="ui-block-a">
 									<span class="iframe_label">Mutations Comp <a data-ajax='false' href='<TMPL_VAR NAME=RMREFCONVCFBARHTML DEFAULT=->'>[full]</a></span>
 									<a href="#popup-general" data-rel="popup" data-position-to="window" data-transition="fade">
 									<img class="preview_img" data-src="<TMPL_VAR NAME=RMREFCONVCFBARPNG DEFAULT=->" alt="AF">
 									</a>
 								</div>
+								</TMPL_IF>
 								<TMPL_IF NAME="RMREFCONAFPNG">
 								<div class="ui-block-b">
 									<span class="iframe_label">Recombinant <a data-ajax='false' href='<TMPL_VAR NAME=RMREFCONAFHTML DEFAULT=->'>[full]</a></span>
