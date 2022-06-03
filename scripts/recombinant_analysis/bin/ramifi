@@ -1,0 +1,24 @@
+#!/usr/bin/env python3 
+"""
+This file is a convenience wrapper for running runbioai directly from the source tree. By
+executing `bin/ramifi`, users can run ramifi without installing it. (but all requirements are fulfilled.)
+"""
+import sys
+import os
+  
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+  
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+  
+# adding the parent directory to 
+# the sys.path.
+sys.path.append(parent)
+
+from ramifi.ramifi import main
+
+if __name__ == '__main__':
+    main()

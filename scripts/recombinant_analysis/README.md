@@ -1,6 +1,6 @@
 # ramifi
 
-<ins>R</ins>ecombinant <ins>A</ins>nd <ins>M</ins>ix-<ins>I</ins>nfection <ins>FI</ins>nder
+<ins>R</ins>ecombinant <ins>A</ins>nd <ins>M</ins>ix-<ins>I</ins>nfection <ins>Fi</ins>nder
 
 ## Dependencies
 
