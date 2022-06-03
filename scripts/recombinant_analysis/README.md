@@ -1,6 +1,6 @@
-# ramifi
+# RAMIFI
 
-<ins>R</ins>ecombinant <ins>A</ins>nd <ins>M</ins>ix-<ins>I</ins>nfection <ins>Fi</ins>nder
+<ins>R</ins>ecombinant <ins>A</ins>nd <ins>M</ins>ix-<ins>I</ins>nfection <ins>Fi</ins>nder for SARS-CoV-2 sample. It takes input from aligned bam file  (aligned to [NC_045512](https://github.com/chienchi/ramifi/blob/main/ramifi/data/NC_045512.fasta)) and output recombinant and parents reads in .bam and .tsv file with associated stats file. 
 
 ## Dependencies
 
@@ -11,6 +11,7 @@
 ### Python packages
 - [pandas >=1.2.4](https://pandas.pydata.org/) 
 - [pysam >= 0.16.0.1](https://github.com/pysam-developers/pysam)
+- [importlib-resources>=5.7.1](https://pypi.org/project/importlib-resources/)
 
 #### Optional packages
 - [plotly >=4.7.1](https://plotly.com/python/)
@@ -54,8 +55,8 @@ optional arguments:
   --refacc [STR]        reference accession used in bam [default: NC_045512.2]
   --minMixAF [FLOAT]    minimum alleic frequency for checking mixed mutations on vcf [default:0.2]
   --maxMixAF [FLOAT]    maximum alleic frequency for checking mixed mutations on vcf [default:0.8]
-  --minMixed_n [INT]    threadhold of mixed mutations count for vcf.
-  --minReadCount [INT]  threadhold of read with variant count when no vcf provided.
+  --minMixed_n [INT]    threshold of mixed mutations count for vcf.
+  --minReadCount [INT]  threshold of read with variant count when no vcf provided.
   --lineageMutation [FILE]
                         lineage mutation json file [default: variant_mutation.json]
   --variantMutation [FILE]
@@ -100,8 +101,8 @@ cd tests
 |HMVN7DRXY:2:2153:21802:16078 |  21566|21859| {21575: ['ref of  Iota'], 21600: ['ref of  Epsilon'], 21614: ['ref of  Gamma'], 21618: ['Delta'], 21621: ['ref of  Gamma'], 21786: ['ref of  Lambda'], 21789: ['ref of  Lambda'], 21801: ['ref of  Beta'], 21846: ['Iota', 'Mu', 'Omicron']}  |  recombinant     |
 |HMVN7DRXY:2:2166:28574:36229 |  21732|21883| {21762: ['Eta', 'Omicron'], 21786: ['ref of  Lambda'], 21789: ['ref of  Lambda'], 21801: ['ref of  Beta'], 21846: ['Iota', 'Mu', 'Omicron']}                                                                                                  |  parent Omicron  |
 |HMVN7DRXY:2:2108:19795:22373 |  22605|22717| {22679: ['ref of  Omicron'], 22686: ['ref of  Omicron']}                                                                                                                                                                                      |  parent Delta    |
-|
-|etc ...
+|                             |
+|etc ...                      |
 
 -- recombinant_reads.bam
 
@@ -109,10 +110,21 @@ cd tests
 
 ## Data visualization
 
-The `recombinant_reads.bam`, `ramifi/data/variants_mutation.gff` and `ramifi/data/NC_045512.fasta` can be loaded into IGV.
+The `recombinant_reads.bam`, `ramifi/data/variants_mutation.gff` and `ramifi/data/NC_045512.fasta` can be loaded into [IGV](https://software.broadinstitute.org/software/igv/).
+
+Example:
+![Screen Shot 2022-06-02 at 2 43 36 PM](https://user-images.githubusercontent.com/737589/171769383-d4ca6cb8-8be8-4270-8dd9-b4cd33e5807e.png)
 
 ## Remove package:
 
 ```
 pip uninstall ramifi
 ```
+
+## Citing RAMIFI
+
+This work is currently unpublished. If you are making use of this package, we would appreciate if you gave credit to our repository.
+
+## License
+
+See the [LICENSE](https://github.com/chienchi/ramifi/blob/main/LICENSE) file included in the RAMIFI distribution.

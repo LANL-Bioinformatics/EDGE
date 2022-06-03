@@ -28,7 +28,7 @@ def setup_argparse():
     parser.add_argument('-m', '--minAF',metavar='[FLOAT]',required=False, type=float, default=0.1, help="plot threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.1]")
     parser.add_argument('--minRecAF',metavar='[FLOAT]',required=False, type=float, default=0.3, help="recobminant threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.3]")
     parser.add_argument('-x', '--mixRatio',metavar='[FLOAT]',required=False, type=float, default=0.5, help="ratio of alleic frequency sites between 0.2 ((minMixAF)) and 0.8 (maxMixAF) to determine the mixed population")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threadhold of mixed mutations count.")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threshold of mixed mutations count.")
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutation [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutation [default:0.8]")
     parser.add_argument('--lineageMutation',metavar='[FILE]',required=False, type=str, help="lineage mutation json file")

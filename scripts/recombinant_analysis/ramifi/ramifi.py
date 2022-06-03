@@ -37,8 +37,8 @@ def setup_argparse():
                         help='reference accession used in bam [default: NC_045512.2]')
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutations on vcf [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutations on vcf [default:0.8]")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threadhold of mixed mutations count for vcf.")
-    parser.add_argument('--minReadCount',metavar='[INT]',required=False, type=int, default=10, help="threadhold of read with variant count when no vcf provided.")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threshold of mixed mutations count for vcf.")
+    parser.add_argument('--minReadCount',metavar='[INT]',required=False, type=int, default=10, help="threshold of read with variant count when no vcf provided.")
     parser.add_argument(
         '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: variant_mutation.json]")
     parser.add_argument(
