@@ -2776,6 +2776,9 @@ $( document ).ready(function()
 						return;
 					}
 				}
+				if ( localStorage.fnname != "Guest" && localStorage.lnname != "EDGE" ){
+                                        $('#UpdateProfileBtn').hide();
+                                }
 
 				//resource usage bar
 				$("#cpu-usage-bar").val(obj.INFO.CPUU).slider("refresh");
