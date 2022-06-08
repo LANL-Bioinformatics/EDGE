@@ -7,6 +7,7 @@ import re
 import shutil
 from collections import defaultdict
 
+import importlib_resources
 import pandas as pd
 import pysam
 # standardize the logging output
@@ -456,10 +457,10 @@ def write_stats(stats, argvs):
 
 def update_igv_html(argvs):
     igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
-    if not os.path.exists(argvs.igv):
+    if not os.path.exists(igv_html_file):
         return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
-    logging.info(f"Writting recombinant reads as track in IGV view to {update_igv_html_file}")
+    logging.info(f"Adding recombinant reads as track in IGV view to {igv_html_file}")
     of = open(update_igv_html_file,'w')
     with open(igv_html_file, 'r') as f:
         for line in f:
@@ -509,7 +510,7 @@ def update_igv_html(argvs):
             else:
                 of.write(line)
     of.close()
-    shutil.move(update_igv_html_file,argvs.igv)
+    shutil.move(update_igv_html_file,igv_html_file)
 
 def main():
     argvs = setup_argparse()
