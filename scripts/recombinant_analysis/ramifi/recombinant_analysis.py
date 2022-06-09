@@ -84,7 +84,7 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
                 depth=m[1]
                 m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', line)
                 (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
-                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
+                AFreq = float((int(alt_forward) + int(alt_reverse))/int(depth))
             comp_content = comp_pos[content[1]]
             ref_bases = content[3]
             alt_bases = content[4]
@@ -170,7 +170,7 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
                 depth=m[1]
                 m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', v)
                 (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
-                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
+                AFreq = float((int(alt_forward) + int(alt_reverse))/int(depth))
             #total_dp = int(content2[1]) + int(content2[2])
             if ref_nt == 'del' and str(int(pos) - 1) == content[1] and str(len(content[3]) - len(content[4])) == alt_nt:
                 #logging.info( "\t".join(content) +  str(len(content[3]) - len(content[4])) + "\t" + alt_nt + "\n" )               
