@@ -151,7 +151,7 @@ def parse_vcf(argvs,nt_to_variants):
                 depth=m[1]
                 m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', line)
                 (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
-                AFreq = float((int(alt_forward) + int(alt_reverse)/int(depth)))
+                AFreq = float((int(alt_forward) + int(alt_reverse))/int(depth))
             ref_bases = content[3]
             alt_bases = content[4]
             mutations_count += 1
