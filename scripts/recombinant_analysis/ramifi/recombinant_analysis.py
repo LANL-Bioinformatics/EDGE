@@ -848,7 +848,7 @@ def main():
         mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
         ## reads based analysis
         read_analysis_log = os.path.join(os.path.dirname(argvs.html),'recombinant_reads.log')
-        cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--minMixed_n', argvs.minMixed_n, '--minMixAF', argvs.minMixAF, '--maxMixAF',argvs.maxMixAF,'--igv', argvs.igv,'--igv_variants']
+        cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--minMixed_n', str(argvs.minMixed_n), '--minMixAF', str(argvs.minMixAF), '--maxMixAF',str(argvs.maxMixAF),'--igv', argvs.igv,'--igv_variants']
         if argvs.verbose:
             cmd.append('--verbose')
         process_cmd(cmd,"Running per read analysis", read_analysis_log)
