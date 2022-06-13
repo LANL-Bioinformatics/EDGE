@@ -66,6 +66,8 @@ def setup_argparse():
                         metavar='[PATH]', required=False, type=str,  help="ec-19 project directory")
     EC19Grp.add_argument(
         '--igv', metavar='[PATH]', required=False, type=str,  help="igv.html relative path")
+    EC19Grp.add_argument(
+        '--igv_variants', action='store_true',  help="add variants igv track")
 
     argvs = parser.parse_args()
 
@@ -131,9 +133,8 @@ def load_lineage_mutation(file):
 def parse_vcf(argvs,nt_to_variants):
     filtered_nt_to_variants=dict()
     filtered_nt_to_variants_af=dict()
-    parents_v_uniq=dict()
-    parents_v_all=dict()
-    parents_v_in_af_range=dict()
+    parents_v=defaultdict(dict)
+
     mix_count=0
     mix_count_in_known_variants=dict()
     mutations_count=0
@@ -195,35 +196,35 @@ def parse_vcf(argvs,nt_to_variants):
                         mix_count_in_known_variants[nt_v] = 1
                     ## scan first time find unique mutations variants
                     if len(nt_to_variants[nt_v]) == 1:
-                        if ''.join(nt_to_variants[nt_v]) in parents_v_uniq:
-                            parents_v_uniq[''.join(nt_to_variants[nt_v])] += 1 
+                        if ''.join(nt_to_variants[nt_v]) in parents_v:
+                            parents_v[''.join(nt_to_variants[nt_v])]['uniq'] += 1 
                         else:
-                            parents_v_uniq[''.join(nt_to_variants[nt_v])] = 1
-                            parents_v_all[''.join(nt_to_variants[nt_v])] = 0
-                            parents_v_in_af_range[''.join(nt_to_variants[nt_v])] = 0
+                            parents_v[''.join(nt_to_variants[nt_v])]['uniq'] = 1
+                            parents_v[''.join(nt_to_variants[nt_v])]['all'] = 0
+                            parents_v[''.join(nt_to_variants[nt_v])]['filtered'] = 0
                     filtered_nt_to_variants[nt_v]=nt_to_variants[nt_v]
                     filtered_nt_to_variants_af[nt_v]=AFreq
     # use the first scan, uniq list to count all mutataions with the variants and variants between AF range
-    for v in parents_v_uniq:
+    for v in parents_v:
         for nt_v in filtered_nt_to_variants:
             if v in filtered_nt_to_variants[nt_v]:
-                parents_v_all[v] += 1
+                parents_v[v]['all'] += 1
                 if filtered_nt_to_variants_af[nt_v] > argvs.minMixAF and filtered_nt_to_variants_af[nt_v] < argvs.maxMixAF:
-                    parents_v_in_af_range[v] += 1
+                    parents_v[v]['filtered'] += 1
 
     logging.debug(f"{mix_count}/{mutations_count} mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.")
     logging.debug(f"{len(mix_count_in_known_variants)}/{mix_count} mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF} and known variants.")
     ## sort by observerd variants counts
-    parents_v_all = dict(sorted(parents_v_all.items(), key=lambda item: item[1], reverse=True))
-    logging.debug(f"All probable parents, mutation count: {parents_v_all}")
-    logging.debug(f"All probable parents, mutation count with AF {argvs.minMixAF}-{argvs.maxMixAF}: {parents_v_in_af_range}")
-    if len(parents_v_all.keys())<2:
-        logging.error(f'no parents variants detected. {parents_v_all}')
+    parents_v = dict(sorted(parents_v.items(), key=lambda item: item[1]['all'], reverse=True))
+    logging.debug(f"All probable parents, mutation count: {parents_v}")
+    logging.debug(f"All probable parents, mutation count with AF {argvs.minMixAF}-{argvs.maxMixAF}: {parents_v}")
+    if len(parents_v.keys())<2:
+        logging.error(f'no parents variants detected. {parents_v}')
         sys.exit(1)
     if mix_count <= argvs.minMixed_n:
         logging.error(f'count of mixed mutations with AF between {argvs.minMixAF} and {argvs.maxMixAF} is less than {argvs.minMixed_n}.')
         sys.exit(1)
-    return parents_v_all, filtered_nt_to_variants
+    return parents_v, filtered_nt_to_variants
 
 def find_read_with_variants(nt_to_variant, argvs):
     if not os.path.exists(argvs.bam + ".bai"):
@@ -340,17 +341,24 @@ def find_parents_by_mutation_reads(mutation_reads, argvs):
         logging.error(f'Not have enough reads ({argvs.minReadCount}) to support both parents variants: {parents_v}')
         sys.exit(1)
 
-    two_parents_list = list(parents_v.keys())[0:2]
-    return two_parents_list
+    if len(parents_v.keys())<2:
+        logging.error(f'no parents variants detected. {parents_v}')
+        sys.exit(1)
+
+    
+    return parents_v
 
 def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, argvs):
     logging.info("Finding recombinant reads")
     logging.info(f"Parents: {','.join(two_parents_list)} ")
     ## Can expand the list to check other recombinant???
-    recomb_reads = []
+    recomb1_reads = []
+    recomb2_reads = []
+    recomb3_reads = []  # recombinant happend 2x more in a read
     parent1_reads = []
     parent2_reads = []
     for read in mutation_reads:
+        list_for_check_recomb=[]
         var1_count = 0
         var2_count = 0
         for k, v in sorted(mutation_reads[read].items()):
@@ -359,25 +367,36 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
             if 'ref' in v:
                 if var1 in v and var2 not in v:
                     var2_count += 1
+                    list_for_check_recomb.append("P2")
                 if var2 in v and var1 not in v:
                     var1_count += 1
+                    list_for_check_recomb.append("P1")
             else:
                 if var1 in v and var2 not in v:
                     var1_count += 1
+                    list_for_check_recomb.append("P1")
                 if var2 in v and var1 not in v:
                     var2_count += 1
-        if var1_count > 0 and var2_count > 0 and read not in recomb_reads:
-            #child
-            recomb_reads.append(read)
-        if var1_count == 0 and var2_count > 1 and read not in recomb_reads:
-            parent2_reads.append(read)
-        if var1_count > 1 and var2_count == 0 and read not in recomb_reads:
-            parent1_reads.append(read)
+                    list_for_check_recomb.append("P2")
+        if len(list_for_check_recomb) > 1:
+            if 'P1' not in list_for_check_recomb:
+                parent2_reads.append(read)
+            if 'P2' not in list_for_check_recomb:
+                parent1_reads.append(read)
+            if 'P1' in list_for_check_recomb and 'P2' in list_for_check_recomb:
+                if 'P1' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb) ):
+                    recomb1_reads.append(read)
+                elif 'P1' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb) ):
+                    recomb3_reads.append(read)
+                if 'P2' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb, reverse=True) ):
+                    recomb2_reads.append(read)
+                elif 'P2' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb, reverse=True) ):
+                    recomb3_reads.append(read)
 
-    start_list = [reads_coords[i]['start'] for i in (recomb_reads + parent1_reads + parent2_reads)]
-    end_list = [reads_coords[i]['end'] for i in (recomb_reads + parent1_reads + parent2_reads)]
+    start_list = [reads_coords[i]['start'] for i in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads)]
+    end_list = [reads_coords[i]['end'] for i in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads)]
     mutaions_list = []
-    for read in (recomb_reads + parent1_reads + parent2_reads):
+    for read in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads):
         tmp = dict()
         for k, v in sorted(mutation_reads[read].items()):
             if 'ref' in v:
@@ -389,18 +408,22 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     if argvs.ec19_projdir:
         rel_link = argvs.igv
         igv_list = [f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
-                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant</a>' for i in recomb_reads]
+                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant 1</a>' for i in recomb1_reads]
+        igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
+                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant 2</a>' for i in recomb2_reads])
+        igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
+                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant x</a>' for i in recomb3_reads])
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + f'">parent {two_parents_list[0]}</a>' for i in parent1_reads])
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + f'">parent {two_parents_list[1]}</a>' for i in parent2_reads])
-        df = pd.DataFrame(list(zip((recomb_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, igv_list)), columns=[
+        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, igv_list)), columns=[
             'read_name', 'start', 'end', 'mutaions_json', 'note'])
     else:
-        note_list = [ 'recombinant' for i in recomb_reads]
+        note_list = [ 'recombinant' for i in recomb1_reads + recomb2_reads ]
         note_list.extend( [  'parent ' + two_parents_list[0]  for i in parent1_reads] )
         note_list.extend( [  'parent ' + two_parents_list[1]  for i in parent2_reads] )
-        df = pd.DataFrame(list(zip((recomb_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, note_list)), columns=[
+        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, note_list)), columns=[
             'read_name', 'start', 'end', 'mutaions_json','note'])
     df.sort_values(by=['start'], inplace=True)
     df.to_csv(argvs.tsv, sep="\t",index=False)
@@ -410,19 +433,25 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
 
     reads_stats['mutation_reads'] = len(mutation_reads)
     reads_stats['parents'] = ','.join(two_parents_list)
-    reads_stats['recomb_reads'] = len(recomb_reads)
+    reads_stats['recomb1_reads'] = len(recomb1_reads)
+    reads_stats['recomb2_reads'] = len(recomb2_reads)
+    reads_stats['recomb3_reads'] = len(recomb3_reads)
     reads_stats['parent1_reads'] = len(parent1_reads)
     reads_stats['parent2_reads'] = len(parent2_reads)
-    total_recomb_paraents_reads = len(parent1_reads) + len(parent2_reads) + len(recomb_reads)
-    reads_stats['recomb_perc'] = len(recomb_reads) /total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
+    total_recomb_paraents_reads = len(parent1_reads) + len(parent2_reads) + len(recomb1_reads) + len(recomb2_reads) + len(recomb3_reads)
+    reads_stats['recomb1_perc'] = len(recomb1_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
+    reads_stats['recomb2_perc'] = len(recomb2_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
+    reads_stats['recomb3_perc'] = len(recomb3_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     logging.info(f"Reads with Variants Mutations: {reads_stats['mutation_reads']}")
-    logging.info(f"Recombinant Reads: {reads_stats['recomb_reads']} ({reads_stats['recomb_perc']:.2f}%)")
+    logging.info(f"Recombinant 1 Reads: {reads_stats['recomb1_reads']} ({reads_stats['recomb1_perc']:.2f}%)")
+    logging.info(f"Recombinant 2 Reads: {reads_stats['recomb2_reads']} ({reads_stats['recomb2_perc']:.2f}%)")
+    logging.info(f"Recombinant x Reads: {reads_stats['recomb3_reads']} ({reads_stats['recomb3_perc']:.2f}%)")
     logging.info(f"Parent 1 ({two_parents_list[0]}) Reads: {reads_stats['parent1_reads']}")
     logging.info(f"Parent 2 ({two_parents_list[1]}) Reads: {reads_stats['parent2_reads']}")
 
     return df, reads_stats
 
-def write_recombinant_bam(recomb_reads, argvs):
+def write_recombinant_bam(recomb_reads, two_parents_list, argvs):
     samfile = pysam.AlignmentFile(argvs.bam, "rb")
     logging.info("Index input Sam/BAM-file by query name. The index is kept in memory and can be substantial.")
     name_indexed = pysam.IndexedReads(samfile)
@@ -430,22 +459,33 @@ def write_recombinant_bam(recomb_reads, argvs):
     tmp_bam = os.path.splitext(argvs.outbam)[0] +'.tmp.bam'
     if os.path.exists(tmp_bam):
         os.remove(tmp_bam)
-    logging.info(f"Writting recombinant reads to {argvs.outbam}")
-    outbam = pysam.AlignmentFile(tmp_bam, "wb", template=samfile)
-    for name in recomb_reads['read_name']:
-        try:
-            name_indexed.find(name)
-        except KeyError:
-            pass
-        else:
-            iterator = name_indexed.find(name)
-            for x in iterator:
-                outbam.write(x)
-    outbam.close()
+    
+    reads_dict=dict()
+    reads_dict['recomb1'] = recomb_reads[recomb_reads['note'].str.contains('recombinant 1')]
+    reads_dict['recomb2'] = recomb_reads[recomb_reads['note'].str.contains('recombinant 2')]
+    reads_dict['recomb3'] = recomb_reads[recomb_reads['note'].str.contains('recombinant x')]
+    reads_dict['parent1'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
+    reads_dict['parent2'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
+
+    for key in reads_dict:
+        outbam_name = os.path.splitext(argvs.outbam)[0] + '.' + key + '.bam'
+        logging.info(f"Writting {key} reads to {outbam_name}")
+        outbam = pysam.AlignmentFile(tmp_bam, "wb", template=samfile)
+        df = reads_dict[key]
+        for name in df['read_name']:
+            try:
+                name_indexed.find(name)
+            except KeyError:
+                pass
+            else:
+                iterator = name_indexed.find(name)
+                for x in iterator:
+                    outbam.write(x)
+        outbam.close()
+        pysam.sort("-o", outbam_name, tmp_bam)
+        pysam.index(outbam_name)
+        os.remove(tmp_bam)
     samfile.close()
-    pysam.sort("-o", argvs.outbam, tmp_bam)
-    pysam.index(argvs.outbam)
-    os.remove(tmp_bam)
 
 def write_stats(stats, argvs):
     outstats = os.path.splitext(argvs.tsv)[0] + ".stats"
@@ -455,58 +495,102 @@ def write_stats(stats, argvs):
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
 
-def update_igv_html(argvs):
+def update_igv_html(two_parents_list,argvs):
     igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
     if not os.path.exists(igv_html_file):
         return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
     logging.info(f"Adding recombinant reads as track in IGV view to {igv_html_file}")
+    variants_track = {'name':"Variants Mutations", 'format':"gff3", 'displayMode':"expanded", 'height': 300, 'url': "./variants_mutation.gff", 'indexed': False, 'visibilityWindow':32000, 'colorBy':"Variant"}
+    recomb1_track = {
+        'name': 'Recombinant 1', 
+        'type':'alignment', 
+        'format': 'bam', 
+        'colorBy': 'strand', 
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb1.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb1.bam.bai',
+        'squishedRowHeight': 10,
+        'height': 250,
+        'displayMode': 'SQUISHED' }
+    recomb2_track = {
+        'name': 'Recombinant 2', 
+        'type':'alignment', 
+        'format': 'bam', 
+        'colorBy': 'strand', 
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb2.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb2.bam.bai',
+        'squishedRowHeight': 10,
+        'height': 250,
+        'displayMode': 'SQUISHED' }
+    recomb3_track = {
+        'name': 'Recombinant x', 
+        'type':'alignment', 
+        'format': 'bam', 
+        'colorBy': 'strand', 
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb3.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb3.bam.bai',
+        'squishedRowHeight': 10,
+        'height': 250,
+        'displayMode': 'SQUISHED' }
+    parent1_track = {
+        'name': f'Parent {two_parents_list[0]}', 
+        'type':'alignment', 
+        'format': 'bam', 
+        'colorBy': 'strand', 
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent1.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent1.bam.bai',
+        'squishedRowHeight': 10,
+        'height': 250,
+        'displayMode': 'SQUISHED' }
+    parent2_track = {
+        'name': f'Parent {two_parents_list[1]}', 
+        'type':'alignment', 
+        'format': 'bam', 
+        'colorBy': 'strand', 
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent2.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent2.bam.bai',
+        'squishedRowHeight': 10,
+        'height': 250,
+        'displayMode': 'SQUISHED' }
     of = open(update_igv_html_file,'w')
     with open(igv_html_file, 'r') as f:
         for line in f:
-            if 'recombinant_reads.bam' in line:
-                of.close()
-                if os.path.exists(update_igv_html_file):
-                    os.remove(update_igv_html_file)
-                return
-            if 'options = {"tr' in line:
-                options = [i.strip().replace(";","") for i in line.split("=")]
-                options_dict = json.loads(options[1])
+            if 'options =' in line:
+                if 'options = {"tr' in line or 'options = {"re' in line:
+                    options = [i.strip().replace(";","") for i in line.split("=")]
+                    options_dict = json.loads(options[1])
+                    createBrowser=""
+                elif 'options = {' in line:
+                    nextline = f.readline()
+                    options = "{"
+                    while 'igv.createBrowser' not in nextline:
+                        nextline = re.sub(r'(\w+):', r'"\1":', nextline)
+                        options = options + nextline
+                        nextline = f.readline()
+                        if 'body' in nextline or 'html' in nextline:
+                            break
+                    createBrowser=nextline
+                    options=options.replace(";","").replace('""NC_045512_2"','"NC_045512_2').replace("'",'"')
+                    options_dict = json.loads(options)
+                    
                 new_tracks=[]
-                recomb_track = {
-                    'name': 'Recombinant', 
-                    'type':'alignment', 
-                    'format': 'bam', 
-                    'colorBy': 'strand', 
-                    'url': '../../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.bam', 
-                    'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.bam.bai',
-                    'squishedRowHeight': 10,
-                    'height': 300,
-                    'displayMode': 'SQUISHED' }
                 for i in options_dict['tracks']:
-                    if 'name' in i and i['name'] == "NC_045512.2 Alignment":
-                        new_tracks.append(recomb_track)
+                    if 'name' in i and ('Recombinant' in i['name'] or 'Parent' in i['name']):
+                        pass
+                    elif 'name' in i and (i['name'] == "NC_045512.2 Alignment" or i['name'] == "EC-19 Alignment"):
+                        if argvs.igv_variants:
+                            new_tracks.append(variants_track)
+                        new_tracks.append(recomb1_track)
+                        new_tracks.append(recomb2_track)
+                        new_tracks.append(recomb3_track)
+                        new_tracks.append(parent1_track)
+                        new_tracks.append(parent2_track)
                         new_tracks.append(i)
                     else:
                         if 'showGenotypes' not in i:
                             new_tracks.append(i)
                 options_dict['tracks'] = new_tracks
-                of.write("var options = " + json.dumps(options_dict) + ";")
-            elif 'EC-19 Alignment' in line or 'NC_045512.2 Alignment' in line or "'Alignment'," in line:
-                of.write("""
-                    name: 'Recombinant', 
-                    type:'alignment', 
-                    format: 'bam', 
-                    colorBy: 'strand', 
-                    url: '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.bam', 
-                    indexURL: '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.bam.bai',
-                    squishedRowHeight: 10,
-                    height: 300,
-                    displayMode: 'SQUISHED' 
-                    },
-                    {
-                    """ )
-                of.write(line)
+                of.write("var options = " + json.dumps(options_dict) + ";\n" + createBrowser + "\n")
             else:
                 of.write(line)
     of.close()
@@ -529,17 +613,21 @@ def main():
     else:
         mutation_reads, reads_coords, reads_stats = find_read_with_variants(
         nt_to_variant, argvs)
-        two_parents_list = find_parents_by_mutation_reads(mutation_reads,argvs)
+        parents_variant = find_parents_by_mutation_reads(mutation_reads,argvs)
+        two_parents_list = list(parents_variant.keys())[0:2]
         #two_parents_list = argvs.recombinant_variants
 
+    # if list(parents_v.keys())[0]['uniq'] > 2 and list(parents_v.keys())[1]['uniq'] > 2: #both parents need at least have two muations. recombinant?
+    
     recomb_reads_df,  reads_stats = find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, argvs)
     
     write_stats(reads_stats,argvs)
 
-    write_recombinant_bam(recomb_reads_df, argvs)
+    write_recombinant_bam(recomb_reads_df, two_parents_list, argvs)
     if argvs.igv:
-        update_igv_html(argvs)
-
+        update_igv_html(two_parents_list,argvs)
+    # else:
+        #logging.error(f"both parents need at least have two muations {parents_variant}.")
     
 
 if __name__ == '__main__':

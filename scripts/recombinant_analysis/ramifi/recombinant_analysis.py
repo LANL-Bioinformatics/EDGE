@@ -844,15 +844,18 @@ def main():
     #plot_bool = check_mutations(mutations_af, mutations_dp, delta_uniq_nt,omicron_uniq_nt,argvs)
 
     if mix_count > argvs.minMixed_n and len(parents_v.keys()) > 1:
+        # if list(parents_v.keys())[0]['all'] > 2 and list(parents_v.keys())[1]['all'] > 2: #both parents need at least have two muations.
         mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
         ## reads based analysis
         read_analysis_log = os.path.join(os.path.dirname(argvs.html),'recombinant_reads.log')
-        cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--igv', argvs.igv]
+        cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--igv', argvs.igv,'--igv_variants']
         if argvs.verbose:
             cmd.append('--verbose')
         process_cmd(cmd,"Running per read analysis", read_analysis_log)
         if 'Omicron' in parents_v and 'Delta' in parents_v:
             deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, argvs)
+        # else:
+        # logging.error("both parents need at least have two muations for read based recombinant analysis.")
     else:
         logging.info(f'No read based recombinant analysis performed since mixed count {mix_count} less than {argvs.minMixed_n} or no parents variants detected.')
 
