@@ -247,62 +247,55 @@ def find_read_with_variants(nt_to_variant, argvs):
         if (ref == 'del' or ref == 'ins'):
             check_pos = pos - 2
         # pos is 1-index and substract 1 to get zero index for pileup
-        for pileupcolumn in samfile.pileup(contig=argvs.refacc, start=pos-1, stop=pos):
+        for pileupcolumn in samfile.pileup(contig="NC_045512_2", start=pos-1, stop=pos):              
             if pileupcolumn.pos == check_pos:
                 #print("\ncoverage at base %s = %s" % (pileupcolumn.pos, pileupcolumn.n))
                 for pileupread in pileupcolumn.pileups:
-                    if not pileupread.is_del and not pileupread.is_refskip:
-                        # query position is None if is_del or is_refskip is set.
-                        if ref == 'del' or ref == 'ins':
-                            continue
-                        if alt == pileupread.alignment.query_sequence[pileupread.query_position]:
-                            for mut in nt_to_variant[i]:
-                                if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                    mutation_reads[pileupread.alignment.query_name][pos].extend([mut])
-                        elif ref == pileupread.alignment.query_sequence[pileupread.query_position]:
-                            if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(
-                                    ['ref'] + nt_to_variant[i])
-                        else:
-                            other_mut = ref + ":" + \
-                                str(pos) + ":" + \
-                                pileupread.alignment.query_sequence[pileupread.query_position]
-
-                            if other_mut in nt_to_variant:
-                                for mut in nt_to_variant[other_mut]:
-                                    if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                        mutation_reads[pileupread.alignment.query_name][pos].extend([
-                                                                                                    mut])
-                            elif 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
-                    if pileupread.is_del and ref == 'del':
-                        if pileupread.indel < 0:
+                    if ref == 'del' or ref == 'ins':
+                        if pileupread.indel < 0 and ref == 'del':
+                            #print('\tpos %s %s indel base in read %s = %s %s' % (pos,pileupcolumn.pos, pileupread.alignment.query_name, pileupread.indel , pileupread.query_position))
                             if (int(alt) + int(pileupread.indel)) == 0:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(
-                                    nt_to_variant[i])
+                                for mut in nt_to_variant[i]:
+                                    if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                        mutation_reads[pileupread.alignment.query_name][pos].extend(
+                                            nt_to_variant[i])
                             else:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
-                        elif pileupread.indel == 0:
-                            if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'])
-                        else:
-                            if 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
-
-                    if pileupread.is_refskip and ref == 'ins':
-                        if pileupread.indel > 0:
+                                if 'other' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                    mutation_reads[pileupread.alignment.query_name][pos].extend(['other'])
+                        if pileupread.indel > 0 and ref == 'ins':
                             if (len(alt) - int(pileupread.indel)) == 0:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(
-                                    nt_to_variant[i])
+                                for mut in nt_to_variant[i]:
+                                    if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                        mutation_reads[pileupread.alignment.query_name][pos].extend(
+                                            nt_to_variant[i])
                             else:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
-                        elif pileupread.indel == 0:
+                                if 'other' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                    mutation_reads[pileupread.alignment.query_name][pos].extend(['other'])
+                        if pileupread.indel == 0:
                             if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'])
-                        else:
-                            if 'unknown' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['unknown'])
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'] + nt_to_variant[i])
+                    else:
+                        if not pileupread.is_del and not pileupread.is_refskip:
+                            if alt == pileupread.alignment.query_sequence[pileupread.query_position]:
+                                for mut in nt_to_variant[i]:
+                                    if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                        mutation_reads[pileupread.alignment.query_name][pos].extend([mut])
+                            elif ref == pileupread.alignment.query_sequence[pileupread.query_position]:
+                                if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                    mutation_reads[pileupread.alignment.query_name][pos].extend(
+                                        ['ref'] + nt_to_variant[i])
+                            else:
+                                other_mut = ref + ":" + \
+                                    str(pos) + ":" + \
+                                    pileupread.alignment.query_sequence[pileupread.query_position]
 
+                                if other_mut in nt_to_variant:
+                                    for mut in nt_to_variant[other_mut]:
+                                        if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                            #print(nt_to_variant[other_mut])
+                                            mutation_reads[pileupread.alignment.query_name][pos].extend([mut])
+                                elif 'other' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                    mutation_reads[pileupread.alignment.query_name][pos].extend(['other'])
                     if pileupread.alignment.query_name in mutation_reads:
                         if 'start' in reads_coords[pileupread.alignment.query_name]:
                             if pileupread.alignment.reference_start < reads_coords[pileupread.alignment.query_name]['start']:
@@ -314,7 +307,6 @@ def find_read_with_variants(nt_to_variant, argvs):
                                 reads_coords[pileupread.alignment.query_name]['end'] = pileupread.alignment.reference_end
                         else:
                             reads_coords[pileupread.alignment.query_name]['end'] = pileupread.alignment.reference_end
-
     samfile.close()
     return mutation_reads, reads_coords, stats
 
@@ -354,7 +346,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     ## Can expand the list to check other recombinant???
     recomb1_reads = []
     recomb2_reads = []
-    recomb3_reads = []  # recombinant happend 2x more in a read
+    recombx_reads = []  # recombinant happend 2x more in a read
     parent1_reads = []
     parent2_reads = []
     for read in mutation_reads:
@@ -387,16 +379,16 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                 if 'P1' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb) ):
                     recomb1_reads.append(read)
                 elif 'P1' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb) ):
-                    recomb3_reads.append(read)
+                    recombx_reads.append(read)
                 if 'P2' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb, reverse=True) ):
                     recomb2_reads.append(read)
                 elif 'P2' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb, reverse=True) ):
-                    recomb3_reads.append(read)
+                    recombx_reads.append(read)
 
-    start_list = [reads_coords[i]['start'] for i in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads)]
-    end_list = [reads_coords[i]['end'] for i in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads)]
+    start_list = [reads_coords[i]['start'] for i in (recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads)]
+    end_list = [reads_coords[i]['end'] for i in (recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads)]
     mutaions_list = []
-    for read in (recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads):
+    for read in (recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads):
         tmp = dict()
         for k, v in sorted(mutation_reads[read].items()):
             if 'ref' in v:
@@ -412,18 +404,18 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant 2</a>' for i in recomb2_reads])
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
-                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant x</a>' for i in recomb3_reads])
+                    str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + '">recombinant x</a>' for i in recombx_reads])
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + f'">parent {two_parents_list[0]}</a>' for i in parent1_reads])
         igv_list.extend([f'<a target="_new" href="{rel_link}?locus=NC_045512_2:' +
                     str(reads_coords[i]['start']) + "-" + str(reads_coords[i]['end']) + f'">parent {two_parents_list[1]}</a>' for i in parent2_reads])
-        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, igv_list)), columns=[
+        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, igv_list)), columns=[
             'read_name', 'start', 'end', 'mutaions_json', 'note'])
     else:
         note_list = [ 'recombinant' for i in recomb1_reads + recomb2_reads ]
         note_list.extend( [  'parent ' + two_parents_list[0]  for i in parent1_reads] )
         note_list.extend( [  'parent ' + two_parents_list[1]  for i in parent2_reads] )
-        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recomb3_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, note_list)), columns=[
+        df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, note_list)), columns=[
             'read_name', 'start', 'end', 'mutaions_json','note'])
     df.sort_values(by=['start'], inplace=True)
     df.to_csv(argvs.tsv, sep="\t",index=False)
@@ -435,17 +427,17 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     reads_stats['parents'] = ','.join(two_parents_list)
     reads_stats['recomb1_reads'] = len(recomb1_reads)
     reads_stats['recomb2_reads'] = len(recomb2_reads)
-    reads_stats['recomb3_reads'] = len(recomb3_reads)
+    reads_stats['recombx_reads'] = len(recombx_reads)
     reads_stats['parent1_reads'] = len(parent1_reads)
     reads_stats['parent2_reads'] = len(parent2_reads)
-    total_recomb_paraents_reads = len(parent1_reads) + len(parent2_reads) + len(recomb1_reads) + len(recomb2_reads) + len(recomb3_reads)
+    total_recomb_paraents_reads = len(parent1_reads) + len(parent2_reads) + len(recomb1_reads) + len(recomb2_reads) + len(recombx_reads)
     reads_stats['recomb1_perc'] = len(recomb1_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recomb2_perc'] = len(recomb2_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
-    reads_stats['recomb3_perc'] = len(recomb3_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
+    reads_stats['recombx_perc'] = len(recombx_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     logging.info(f"Reads with Variants Mutations: {reads_stats['mutation_reads']}")
     logging.info(f"Recombinant 1 Reads: {reads_stats['recomb1_reads']} ({reads_stats['recomb1_perc']:.2f}%)")
     logging.info(f"Recombinant 2 Reads: {reads_stats['recomb2_reads']} ({reads_stats['recomb2_perc']:.2f}%)")
-    logging.info(f"Recombinant x Reads: {reads_stats['recomb3_reads']} ({reads_stats['recomb3_perc']:.2f}%)")
+    logging.info(f"Recombinant x Reads: {reads_stats['recombx_reads']} ({reads_stats['recombx_perc']:.2f}%)")
     logging.info(f"Parent 1 ({two_parents_list[0]}) Reads: {reads_stats['parent1_reads']}")
     logging.info(f"Parent 2 ({two_parents_list[1]}) Reads: {reads_stats['parent2_reads']}")
 
@@ -463,7 +455,7 @@ def write_recombinant_bam(recomb_reads, two_parents_list, argvs):
     reads_dict=dict()
     reads_dict['recomb1'] = recomb_reads[recomb_reads['note'].str.contains('recombinant 1')]
     reads_dict['recomb2'] = recomb_reads[recomb_reads['note'].str.contains('recombinant 2')]
-    reads_dict['recomb3'] = recomb_reads[recomb_reads['note'].str.contains('recombinant x')]
+    reads_dict['recombx'] = recomb_reads[recomb_reads['note'].str.contains('recombinant x')]
     reads_dict['parent1'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
     reads_dict['parent2'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
 
@@ -522,13 +514,13 @@ def update_igv_html(two_parents_list,argvs):
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
-    recomb3_track = {
+    recombx_track = {
         'name': 'Recombinant x', 
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb3.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb3.bam.bai',
+        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recombx.bam', 
+        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recombx.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -582,7 +574,7 @@ def update_igv_html(two_parents_list,argvs):
                             new_tracks.append(variants_track)
                         new_tracks.append(recomb1_track)
                         new_tracks.append(recomb2_track)
-                        new_tracks.append(recomb3_track)
+                        new_tracks.append(recombx_track)
                         new_tracks.append(parent1_track)
                         new_tracks.append(parent2_track)
                         new_tracks.append(i)
