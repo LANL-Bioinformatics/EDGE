@@ -457,7 +457,7 @@ def write_recombinant_bam(recomb_reads, two_parents_list, argvs):
     reads_dict['recomb2'] = recomb_reads[recomb_reads['note'].str.contains('recombinant 2')]
     reads_dict['recombx'] = recomb_reads[recomb_reads['note'].str.contains('recombinant x')]
     reads_dict['parent1'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
-    reads_dict['parent2'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[0]}' )]
+    reads_dict['parent2'] = recomb_reads[recomb_reads['note'].str.contains(f'parent {two_parents_list[1]}' )]
 
     for key in reads_dict:
         outbam_name = os.path.splitext(argvs.outbam)[0] + '.' + key + '.bam'
