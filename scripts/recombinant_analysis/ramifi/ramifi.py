@@ -567,7 +567,7 @@ def update_igv_html(two_parents_list,argvs):
                     
                 new_tracks=[]
                 for i in options_dict['tracks']:
-                    if 'name' in i and ('Recombinant' in i['name'] or 'Parent' in i['name']):
+                    if 'name' in i and ('Recombinant' in i['name'] or 'Parent' in i['name'] or 'Variants Mutations' in i['name']):
                         pass
                     elif 'name' in i and (i['name'] == "NC_045512.2 Alignment" or i['name'] == "EC-19 Alignment"):
                         if argvs.igv_variants:
