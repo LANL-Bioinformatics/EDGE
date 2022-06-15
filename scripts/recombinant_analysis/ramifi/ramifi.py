@@ -247,7 +247,7 @@ def find_read_with_variants(nt_to_variant, argvs):
         if (ref == 'del' or ref == 'ins'):
             check_pos = pos - 2
         # pos is 1-index and substract 1 to get zero index for pileup
-        for pileupcolumn in samfile.pileup(contig="NC_045512_2", start=pos-1, stop=pos):              
+        for pileupcolumn in samfile.pileup(contig=argvs.refacc, start=pos-1, stop=pos):              
             if pileupcolumn.pos == check_pos:
                 #print("\ncoverage at base %s = %s" % (pileupcolumn.pos, pileupcolumn.n))
                 for pileupread in pileupcolumn.pileups:
