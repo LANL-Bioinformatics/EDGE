@@ -447,15 +447,19 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     df.sort_values(by=['start'], inplace=True)
     df.to_csv(argvs.tsv, sep="\t",index=False)
 
-    cr_df = pd.DataFrame(((region, dict(reads)) for region, reads in cross_region.items()), columns=['Cross_region', 'Reads'])
+
+    cr_df = pd.DataFrame(((region, json.dumps(dict(sorted(reads.items())))) for region, reads in cross_region.items()), columns=['Cross_region', 'Reads'])
     cr_df.sort_values(by=['Cross_region'],inplace=True)
     cr_df.to_csv(os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv", sep="\t",index=False)
     if argvs.ec19_projdir:
+        old_width = pd.get_option('display.max_colwidth')
+        pd.set_option('display.max_colwidth', None)
         html_file = os.path.splitext(argvs.tsv)[0] + ".html"
         df.to_html(html_file, index=False, escape=False)
         cr_df['Cross_region'] = cr_df['Cross_region'].apply(lambda x: '<a target="_blank" href="{0}?locus=NC_045512_2:{1}">{1}</a>'.format(rel_link,x))
         html_file = os.path.splitext(argvs.tsv)[0] + "_by_cross_region.html"
         cr_df.to_html(html_file, index=False, escape=False)
+        pd.set_option('display.max_colwidth', old_width)
 
     reads_stats['mutation_reads'] = reads_has_two_and_more_mutations_count
     reads_stats['parents'] = ','.join(two_parents_list)
