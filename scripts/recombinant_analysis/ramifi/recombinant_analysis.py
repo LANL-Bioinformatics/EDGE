@@ -28,7 +28,7 @@ def setup_argparse():
     parser.add_argument('-m', '--minAF',metavar='[FLOAT]',required=False, type=float, default=0.1, help="plot threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.1]")
     parser.add_argument('--minRecAF',metavar='[FLOAT]',required=False, type=float, default=0.3, help="recobminant threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.3]")
     parser.add_argument('-x', '--mixRatio',metavar='[FLOAT]',required=False, type=float, default=0.5, help="ratio of alleic frequency sites between 0.2 ((minMixAF)) and 0.8 (maxMixAF) to determine the mixed population")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threshold of mixed mutations count.")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=-1, help="threshold of mixed mutations count. [default: -1]")
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutation [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutation [default:0.8]")
     parser.add_argument('--lineageMutation',metavar='[FILE]',required=False, type=str, help="lineage mutation json file")
@@ -843,9 +843,10 @@ def main():
 
     #plot_bool = check_mutations(mutations_af, mutations_dp, delta_uniq_nt,omicron_uniq_nt,argvs)
 
-    if mix_count > argvs.minMixed_n and len(parents_v.keys()) > 1:
+    if mix_count > argvs.minMixed_n and len(parents_v.keys()) >= 1:
         # if list(parents_v.keys())[0]['all'] > 2 and list(parents_v.keys())[1]['all'] > 2: #both parents need at least have two muations.
-        mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
+        if len(parents_v.keys()) > 1:
+            mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
         ## reads based analysis
         read_analysis_log = os.path.join(os.path.dirname(argvs.html),'recombinant_reads.log')
         cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--minMixed_n', str(argvs.minMixed_n), '--minMixAF', str(argvs.minMixAF), '--maxMixAF',str(argvs.maxMixAF),'--igv', argvs.igv,'--igv_variants']

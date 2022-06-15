@@ -219,8 +219,8 @@ def parse_vcf(argvs,nt_to_variants):
     logging.debug(f"All probable parents, mutation count: {parents_v}")
     logging.debug(f"All probable parents, mutation count with AF {argvs.minMixAF}-{argvs.maxMixAF}: {parents_v}")
     if len(parents_v.keys())<2:
-        logging.error(f'no parents variants detected. {parents_v}')
-        sys.exit(1)
+        logging.error(f'no two parents variants detected. {parents_v}')
+        #sys.exit(1)
     if mix_count <= argvs.minMixed_n:
         logging.error(f'count of mixed mutations with AF between {argvs.minMixAF} and {argvs.maxMixAF} is less than {argvs.minMixed_n}.')
         sys.exit(1)
@@ -334,8 +334,8 @@ def find_parents_by_mutation_reads(mutation_reads, argvs):
         sys.exit(1)
 
     if len(parents_v.keys())<2:
-        logging.error(f'no parents variants detected. {parents_v}')
-        sys.exit(1)
+        logging.error(f'no two parents variants detected. {parents_v}')
+        #sys.exit(1)
 
     
     return parents_v
@@ -349,10 +349,15 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     recombx_reads = []  # recombinant happend 2x more in a read
     parent1_reads = []
     parent2_reads = []
+    reads_has_two_and_more_mutations_count = 0
+    cross_region=defaultdict(lambda: defaultdict(list))
     for read in mutation_reads:
         list_for_check_recomb=[]
+        list_for_check_recomb_pos=[]
         var1_count = 0
         var2_count = 0
+        if len(mutation_reads[read]) > 1:
+            reads_has_two_and_more_mutations_count += 1
         for k, v in sorted(mutation_reads[read].items()):
             var1 = two_parents_list[0]
             var2 = two_parents_list[1]
@@ -360,16 +365,20 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                 if var1 in v and var2 not in v:
                     var2_count += 1
                     list_for_check_recomb.append("P2")
+                    list_for_check_recomb_pos.append(k)
                 if var2 in v and var1 not in v:
                     var1_count += 1
                     list_for_check_recomb.append("P1")
+                    list_for_check_recomb_pos.append(k)
             else:
                 if var1 in v and var2 not in v:
                     var1_count += 1
                     list_for_check_recomb.append("P1")
+                    list_for_check_recomb_pos.append(k)
                 if var2 in v and var1 not in v:
                     var2_count += 1
                     list_for_check_recomb.append("P2")
+                    list_for_check_recomb_pos.append(k)
         if len(list_for_check_recomb) > 1:
             if 'P1' not in list_for_check_recomb:
                 parent2_reads.append(read)
@@ -378,10 +387,28 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
             if 'P1' in list_for_check_recomb and 'P2' in list_for_check_recomb:
                 if 'P1' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb) ):
                     recomb1_reads.append(read)
+                    recomb1_start=list_for_check_recomb_pos[0]
+                    recomb1_end=reads_coords[read]['end'] 
+                    for r in range(1,len(list_for_check_recomb)):
+                        if list_for_check_recomb[r] == 'P1':
+                            recomb1_start = list_for_check_recomb_pos[r]
+                        else:
+                            recomb1_end = list_for_check_recomb_pos[r]
+                            break
+                    cross_region[f"{recomb1_start}-{recomb1_end}"]['recomb1'].append(read)
                 elif 'P1' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb) ):
                     recombx_reads.append(read)
                 if 'P2' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb, reverse=True) ):
                     recomb2_reads.append(read)
+                    recomb2_start=list_for_check_recomb_pos[0]
+                    recomb2_end=reads_coords[read]['end'] 
+                    for r in range(1,len(list_for_check_recomb)):
+                        if list_for_check_recomb[r] == 'P1':
+                            recomb2_start = list_for_check_recomb_pos[r]
+                        else:
+                            recomb2_end = list_for_check_recomb_pos[r]
+                            break
+                    cross_region[f"{recomb2_start}-{recomb2_end}"]['recomb2'].append(read)
                 elif 'P2' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb, reverse=True) ):
                     recombx_reads.append(read)
 
@@ -419,11 +446,18 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
             'read_name', 'start', 'end', 'mutaions_json','note'])
     df.sort_values(by=['start'], inplace=True)
     df.to_csv(argvs.tsv, sep="\t",index=False)
+
+    cr_df = pd.DataFrame(((region, dict(reads)) for region, reads in cross_region.items()), columns=['Cross_region', 'Reads'])
+    cr_df.sort_values(by=['Cross_region'],inplace=True)
+    cr_df.to_csv(os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv", sep="\t",index=False)
     if argvs.ec19_projdir:
         html_file = os.path.splitext(argvs.tsv)[0] + ".html"
         df.to_html(html_file, index=False, escape=False)
+        cr_df['Cross_region'] = cr_df['Cross_region'].apply(lambda x: '<a target="_blank" href="{0}?locus=NC_045512_2:{1}">{1}</a>'.format(rel_link,x))
+        html_file = os.path.splitext(argvs.tsv)[0] + "_by_cross_region.html"
+        cr_df.to_html(html_file, index=False, escape=False)
 
-    reads_stats['mutation_reads'] = len(mutation_reads)
+    reads_stats['mutation_reads'] = reads_has_two_and_more_mutations_count
     reads_stats['parents'] = ','.join(two_parents_list)
     reads_stats['recomb1_reads'] = len(recomb1_reads)
     reads_stats['recomb2_reads'] = len(recomb2_reads)
@@ -434,7 +468,8 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     reads_stats['recomb1_perc'] = len(recomb1_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recomb2_perc'] = len(recomb2_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recombx_perc'] = len(recombx_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
-    logging.info(f"Reads with Variants Mutations: {reads_stats['mutation_reads']}")
+    logging.info(f"Reads with Variants Mutations(2 and more) : {reads_stats['mutation_reads']}")
+    logging.info(f"Recombinants and Parents Reads count : {total_recomb_paraents_reads}")
     logging.info(f"Recombinant 1 Reads: {reads_stats['recomb1_reads']} ({reads_stats['recomb1_perc']:.2f}%)")
     logging.info(f"Recombinant 2 Reads: {reads_stats['recomb2_reads']} ({reads_stats['recomb2_perc']:.2f}%)")
     logging.info(f"Recombinant x Reads: {reads_stats['recombx_reads']} ({reads_stats['recombx_perc']:.2f}%)")
@@ -609,6 +644,11 @@ def main():
         two_parents_list = list(parents_variant.keys())[0:2]
         #two_parents_list = argvs.recombinant_variants
 
+    if (len(two_parents_list) == 1):
+        two_parents_list.append("None")
+    if (len(two_parents_list) == 0):
+        logging.error("No parents detected.")
+        sys.exit(1)
     # if list(parents_v.keys())[0]['uniq'] > 2 and list(parents_v.keys())[1]['uniq'] > 2: #both parents need at least have two muations. recombinant?
     
     recomb_reads_df,  reads_stats = find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, argvs)
