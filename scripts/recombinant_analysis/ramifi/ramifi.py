@@ -645,7 +645,7 @@ def main():
         #two_parents_list = argvs.recombinant_variants
 
     if (len(two_parents_list) == 1):
-        two_parents_list.append("None")
+        two_parents_list.append("Wuhan-Hu-1")
     if (len(two_parents_list) == 0):
         logging.error("No parents detected.")
         sys.exit(1)
