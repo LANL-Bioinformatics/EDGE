@@ -173,7 +173,6 @@ if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
 then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
 fi
-sed -i -e "s/itables==0.2.1/itables==0.2.1\ntomli==1.0.0\npytest==3.6.3\ncppy/" requirements.txt
 ./installer.sh piret
 ln -sf $rootdir/thirdParty/PyPiReT piret
 ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
@@ -1621,7 +1620,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
-$anaconda3bin/pip install NanoPlot==1.31.0
+$anaconda3bin/pip install NanoPlot==1.40.0
 ln -fs $anaconda3bin/NanoPlot $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
@@ -1958,7 +1957,7 @@ fi
 if ( checkSystemInstallation bedtools )
 then
   bedtoolsVER=`bedtools --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if  ( echo  $bedtoolsVER | awk '{if($1>="2.27") exit 0; else exit 1}' )
+  if [ $(versionStr $bedtoolsVER) -ge $(versionStr "2.27") ]
   then 
      echo "bedtools $bedtoolsVER is found"
   else
@@ -2340,8 +2339,8 @@ fi
 if ( checkSystemInstallation megahit  )
 then
   ## --version MEGAHIT v1.2.9
-  megahit_VER=`megahit --version | perl -nle 'print $& if m{\d\.\d.\d}'`;
-  if [ $(versionStr $megahit_VER_VER) -ge $(versionStr "1.2.9") ]
+  megahit_VER=`megahit --version 2>&1 | perl -nle 'print $& if m{\d\.\d.\d}'`;
+  if [ $(versionStr $megahit_VER) -ge $(versionStr "1.2.9") ]
   then
     echo "megahit $megahit_VER found"
   else
@@ -2521,7 +2520,7 @@ fi
 if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
 then
   RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
+  if [ $(versionStr $RGI_VER) -ge $(versionStr "5.1.0") ]
   then
     echo "RGI $RGI_VER is found"
   else
@@ -2605,7 +2604,7 @@ else
   install_bokeh
 fi
 
-if ( checkLocalInstallation DETEQT )
+if [ -x $rootdir/bin/DETEQT/DETEQT ]
 then
   DETEQT_VER=`$rootdir/bin/DETEQT/DETEQT -V | perl -nle 'print $& if m{Version \d+\.\d+\.\d+}'`;
   if  ( echo $DETEQT_VER | awk '{if($2>="0.3.1") exit 0; else exit 1}' )
@@ -2620,9 +2619,11 @@ else
 fi
 
 
-if ( checkLocalInstallation piret)
+if [ -x $rootdir/bin/n/bin/piret ]
 then
-  PiReT_VER=`grep "version=" $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  source $rootdir/thirdParty/Anaconda3/bin/activate $rootdir/thirdParty/Anaconda3/envs/piret
+  PiReT_VER=`$rootdir/thirdParty/Anaconda3/envs/piret/bin/python $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  source $rootdir/thirdParty/Anaconda3/bin/deactivate 
   if [ $(versionStr $PiReT_VER) -ge $(versionStr "0.3") ]
   then
     echo "PyPiReT is found"

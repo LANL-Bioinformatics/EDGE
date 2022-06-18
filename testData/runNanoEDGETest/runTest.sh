@@ -21,7 +21,7 @@ test_result(){
 	testName="EDGE Nanopore data analysis test";
 	if cmp -s "$Test" "$Expect" || cmp -s "$Test" "$Expect4"
 	then
-		if ( cmp -s "$Test2" "$Expect2" || cmp -s "$Test2" "$Expect5" || cmp -s "$Test2" "$Expect6" ) && (cmp -s "$Test3" "$Expect3"|| cmp -s "$Test3" "$Expect7" )
+		if ( cmp -s <(head "$Test2") <(head "$Expect2") || cmp -s <(head "$Test2") <(head "$Expect5") || cmp -s <(head "$Test2") <(head "$Expect6") ) && (cmp -s "$Test3" "$Expect3"|| cmp -s "$Test3" "$Expect7" )
 		then
 			echo "$testName passed!"
 			touch "$rootdir/TestOutput/test.success"

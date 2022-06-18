@@ -12,6 +12,7 @@ use FindBin qw($RealBin);
 use File::Path qw(make_path remove_tree);
 use File::Copy;
 use lib "$RealBin/lib";
+#use open qw( :std :encoding(UTF-8) );  # when you have "Wide character in print at..." error. uncomment this line
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
@@ -2025,7 +2026,7 @@ sub runAnnotation
 			&executeCommand($cmd);
 		}
 	}
-	my $customProtein_option = (-f $customProtein)?"--protein $customProtein":"";
+	my $customProtein_option = ($customProtein and -f $customProtein)?"--protein $customProtein":"";
         my $evalue_option = ($evalue)? "--evalue $evalue":"";
 	my $gcode_option = ($gcode)? "--gcode $gcode":"";
         $cmd = "$RealBin/bin/prokka --quiet --force $customProtein_option $hmm_file $evalue_option $gcode_option --locustag $project_name --prefix $project_name --cpus $numCPU --outdir $outputDir --kingdom $tax_kingdom $contigFile 2>>$log"; 
@@ -2373,8 +2374,8 @@ my $primerCheckPDF="$outDir/AssayCheck/pcrValidation.pdf";
 my $contigTaxonomyPDF="$outDir/AssemblyBasedAnalysis/Taxonomy/$project_name.contigsClassification.pdf";
 my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
 my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
-my $nanoplot_loglength_Histogram = "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf";
-my $nanoplot_length_Histogram = "$outDir/QcReads/HistogramReadlength.pdf";
+my $nanoplot_loglength_Histogram = ( -e "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf")? "$outDir/QcReads/LogTransformed_HistogramReadlength.pdf": "$outDir/QcReads/Non_weightedLogTransformed_HistogramReadlength.pdf";
+my $nanoplot_length_Histogram = (-e "$outDir/QcReads/HistogramReadlength.pdf")? "$outDir/QcReads/HistogramReadlength.pdf": "$outDir/QcReads/Non_weightedHistogramReadlength.pdf";
 my $nanoplot_length_quality_plot= ( -e "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf")? "$outDir/QcReads/LengthvsQualityScatterPlot_loglength_kde.pdf":"$outDir/QcReads/Log_LengthvsQualityScatterPlot_kde.pdf";
 my $nanoplot_yield_by_length = "$outDir/QcReads/Yield_By_Length";
 my $mergeFiles="$InputLogPDF,";
