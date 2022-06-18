@@ -206,11 +206,15 @@ def parse_vcf(argvs,nt_to_variants):
                     filtered_nt_to_variants_af[nt_v]=AFreq
     # use the first scan, uniq list to count all mutataions with the variants and variants between AF range
     for v in parents_v:
+        AFavg = 0 
         for nt_v in filtered_nt_to_variants:
             if v in filtered_nt_to_variants[nt_v]:
+                AFavg += filtered_nt_to_variants_af[nt_v]
                 parents_v[v]['all'] += 1
                 if filtered_nt_to_variants_af[nt_v] > argvs.minMixAF and filtered_nt_to_variants_af[nt_v] < argvs.maxMixAF:
                     parents_v[v]['filtered'] += 1
+        AFavg = AFavg / parents_v[v]['all']
+        parents_v[v]['avgAF'] = AFavg
 
     logging.debug(f"{mix_count}/{mutations_count} mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.")
     logging.debug(f"{len(mix_count_in_known_variants)}/{mix_count} mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF} and known variants.")
@@ -224,6 +228,13 @@ def parse_vcf(argvs,nt_to_variants):
     if mix_count <= argvs.minMixed_n:
         logging.error(f'count of mixed mutations with AF between {argvs.minMixAF} and {argvs.maxMixAF} is less than {argvs.minMixed_n}.')
         sys.exit(1)
+    if len(parents_v.keys()) > 0:
+        parent1 = list(parents_v.keys())[0]
+        logging.info(f"Parent 1 ({parent1}) mean AF: {parents_v[parent1]['avgAF']}")
+        if len(parents_v.keys()) > 1:
+            parent2 = list(parents_v.keys())[1]
+            logging.info(f"Parent 2 ({parent2}) mean AF: {parents_v[parent2]['avgAF']}")
+
     return parents_v, filtered_nt_to_variants
 
 def find_read_with_variants(nt_to_variant, argvs):
