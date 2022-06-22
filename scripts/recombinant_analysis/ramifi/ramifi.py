@@ -5,11 +5,15 @@ import os
 import sys
 import re
 import shutil
+import csv
 from collections import defaultdict
 
 import importlib_resources
 import pandas as pd
 import pysam
+
+import plotly.graph_objects as go
+from plotly.offline import plot
 # standardize the logging output
 import logging
 
@@ -17,7 +21,14 @@ toolname = os.path.basename(__file__)
 bin_dir = os.path.abspath(os.path.dirname(__file__))
 cwd = os.getcwd()
 sys.path.append(bin_dir)
-from __init__ import __version__
+
+try:
+    from  __init__ import __version__
+except:
+    from  .__init__ import __version__
+
+import translate
+
 
 class SmartFormatter(ap.HelpFormatter):
     def _split_lines(self, text, width):
@@ -44,7 +55,9 @@ def setup_argparse():
         '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: variant_mutation.json]")
     parser.add_argument(
         '--variantMutation', metavar='[FILE]', required=False, type=str, help=f"variant mutation json file [default: lineage_mutation.json]")
-    
+    parser.add_argument(
+        '--mutations_af_plot', action='store_true',  help="generate mutations_af_plot")
+
     parser.add_argument('--verbose', action='store_true', 
                         help='Show more infomration in log')
     parser.add_argument('--version', action='version', version='%(prog)s v{version}'.format(version=__version__))
@@ -133,6 +146,7 @@ def load_lineage_mutation(file):
 def parse_vcf(argvs,nt_to_variants):
     filtered_nt_to_variants=dict()
     filtered_nt_to_variants_af=dict()
+    filtered_nt_to_variants_dp=dict()
     parents_v=defaultdict(dict)
 
     mix_count=0
@@ -204,6 +218,7 @@ def parse_vcf(argvs,nt_to_variants):
                             parents_v[''.join(nt_to_variants[nt_v])]['filtered'] = 0
                     filtered_nt_to_variants[nt_v]=nt_to_variants[nt_v]
                     filtered_nt_to_variants_af[nt_v]=AFreq
+                    filtered_nt_to_variants_dp[nt_v]=depth
     # use the first scan, uniq list to count all mutataions with the variants and variants between AF range
     for v in parents_v:
         AFavg = 0 
@@ -235,7 +250,7 @@ def parse_vcf(argvs,nt_to_variants):
             parent2 = list(parents_v.keys())[1]
             logging.info(f"Parent 2 ({parent2}) mean AF: {parents_v[parent2]['avgAF']}")
 
-    return parents_v, filtered_nt_to_variants
+    return parents_v, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp
 
 def find_read_with_variants(nt_to_variant, argvs):
     if not os.path.exists(argvs.bam + ".bai"):
@@ -460,8 +475,9 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
 
 
     cr_df = pd.DataFrame(((region, json.dumps(dict(sorted(reads.items())))) for region, reads in cross_region.items()), columns=['Cross_region', 'Reads'])
-    cr_df.sort_values(by=['Cross_region'],inplace=True)
-    cr_df.to_csv(os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv", sep="\t",index=False)
+    cr_df['Reads'] = cr_df['Reads']
+    cr_df.sort_values(by=['Cross_region'],inplace=True, key = lambda col: [ int(x.split("-")[0]) for x in col] )
+    cr_df.to_csv(os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv", sep="\t",index=False, quoting=csv.QUOTE_NONE)
     if argvs.ec19_projdir:
         old_width = pd.get_option('display.max_colwidth')
         pd.set_option('display.max_colwidth', None)
@@ -483,7 +499,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     reads_stats['recomb1_perc'] = len(recomb1_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recomb2_perc'] = len(recomb2_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recombx_perc'] = len(recombx_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
-    logging.info(f"Reads with Variants Mutations(2 and more) : {reads_stats['mutation_reads']}")
+    logging.info(f"Reads with Variants Mutations (2+) : {reads_stats['mutation_reads']}")
     logging.info(f"Recombinants and Parents Reads count : {total_recomb_paraents_reads}")
     logging.info(f"Recombinant 1 Reads: {reads_stats['recomb1_reads']} ({reads_stats['recomb1_perc']:.2f}%)")
     logging.info(f"Recombinant 2 Reads: {reads_stats['recomb2_reads']} ({reads_stats['recomb2_perc']:.2f}%)")
@@ -536,6 +552,152 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp,nt_to_aa_class, cr_coords, argvs):
+    output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
+    logging.info(f"Generating mutations AF plots and save to {output}")
+    all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
+    igv_url = argvs.igv if argvs.igv else "igv.html" 
+
+    fig = go.Figure()
+    color1='blue'
+    color2='red'
+    if parents[0] == 'Omicron' or parents[1] == 'Delta':
+        color1='blue'
+        color1o='Pink'
+        color2='red'
+        color2o='SkyBlue'
+    if parents[1] == 'Omicron' or parents[0] == 'Delta':
+        color1='red'
+        color1o='SkyBlue'
+        color2='blue'
+        color2o='Pink'
+    fig.add_trace(go.Scatter(
+                x=all_mut_nt, 
+                y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                mode='markers',
+                marker=dict(color=color1,size=10),
+                name=parents[0],
+                hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                showlegend=True,
+                ))
+    fig.add_trace(go.Scatter(
+                x=all_mut_nt, 
+                y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                mode='markers',
+                marker=dict(color=color2,size=10),
+                name=parents[1],
+                hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                showlegend=True,
+                ))
+    fig.add_trace(go.Scatter(
+                x=all_mut_nt, 
+                y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants], 
+                mode='markers',
+                marker=dict(color='purple',size=10),
+                name=parents[0] + ', ' + parents[1],
+                hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
+                showlegend=True,
+                ))
+    fig.add_trace(go.Scatter(
+                x=all_mut_nt, 
+                y=[ float(nt_to_variants_af[x])  if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                mode='markers',
+                marker=dict(color='green',size=10),
+                name='Not ' + parents[0] + ', Not ' + parents[1],
+                hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_variants[x]) if nt_to_variants[x] and  parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                showlegend=True,
+                ))
+    fig.add_trace(go.Scatter(
+                x=all_mut_nt, 
+                y=[ float(nt_to_variants_af[x])  if not nt_to_variants[x] else None for x in nt_to_variants], 
+                mode='markers',
+                marker=dict(color='grey',size=10),
+                name='Undefined Mutations',
+                hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not nt_to_variants[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
+                showlegend=True,
+                ))
+    # recombinant track
+    if len(cr_coords)>0:
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
+                    mode='markers',
+                    marker=dict(color=color1,size=10,line=dict(color=color1o,width=2)),
+                    name=parents[0],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                    showlegend=False,
+                    ))
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
+                    mode='markers',
+                    marker=dict(color=color2,size=10,line=dict(color=color2o,width=2)),
+                    name=parents[1],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                    showlegend=False,
+                    ))
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
+                    mode='markers',
+                    marker=dict(color='purple',size=10,line=dict(color="Yellow",width=2)),
+                    name=parents[0] + ', ' + parents[1],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
+                    showlegend=False,
+                    ))
+    fig.update_xaxes(tickfont=dict(size=10),tickangle=-60)
+    fig.update_yaxes(range=[-0.1, 1.1],title='Alternative Frequency')
+    # Get HTML representation of plotly.js and this figure
+    plot_div = plot(fig, output_type='div', include_plotlyjs=True)
+
+    # Get id of html div element that looks like
+    # <div id="301d22ab-bfba-4621-8f5d-dc4fd855bb33" ... >
+    res = re.search('<div id="([^"]*)"', plot_div)
+    div_id = res.groups()[0]
+
+    # Build JavaScript callback for handling clicks
+    # and opening the URL in the trace's customdata 
+    js_callback = """
+    <script>
+    var plot_element = document.getElementById("{div_id}");
+    plot_element.on('plotly_click', function(data){{
+        var point = data.points[0];
+        if (point) {{
+            window.open(point.customdata);
+        }}
+    }})
+    </script>
+    """.format(div_id=div_id)
+
+    # Build HTML string
+    html_str = """
+    <html>
+    <body>
+    {plot_div}
+    {js_callback}
+    </body>
+    </html>
+    """.format(plot_div=plot_div, js_callback=js_callback)
+    with open(output, 'w') as f:
+        f.write(html_str)
+    #fig.write_image(output+'.png')
+    return output
 
 def update_igv_html(two_parents_list,argvs):
     igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
@@ -647,8 +809,9 @@ def main():
     (delta_uniq_nt, omicron_uniq_nt, nt_to_variant,
      nt_to_aa) = load_var_mutation(argvs.variantMutation)
     nt_to_lineage = load_lineage_mutation(argvs.lineageMutation)
+       
     if argvs.vcf:
-        parents_variant, filtered_nt_to_variants=parse_vcf(argvs,nt_to_variant)
+        parents_variant, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp=parse_vcf(argvs,nt_to_variant)
         mutation_reads, reads_coords, reads_stats = find_read_with_variants(
         filtered_nt_to_variants, argvs)
         two_parents_list = list(parents_variant.keys())[0:2]
@@ -671,6 +834,20 @@ def main():
     write_stats(reads_stats,argvs)
 
     write_recombinant_bam(recomb_reads_df, two_parents_list, argvs)
+
+    if argvs.vcf and argvs.mutations_af_plot and  (len(two_parents_list) == 2):
+        try:
+            nt_to_aa_class = translate.NT_AA_POSITION_INTERCHANGE(importlib_resources.files(toolname).joinpath('data/SARS-CoV-2.json'))
+        except:
+            nt_to_aa_class = translate.NT_AA_POSITION_INTERCHANGE(os.path.join(bin_dir,"data", 'SARS-CoV-2.json'))
+        cr_file  = os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv"
+        cr_coords=dict()
+        if os.path.exists(cr_file):
+            df_cr= pd.read_table(cr_file,sep="\t")
+            df_cr = df_cr.sort_values(by="Cross_region",key = lambda col: [ int(x.split("-")[0]) for x in col] )
+            cr_coords = { i:x  for x in df_cr.Cross_region for i in x.split('-') }
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, cr_coords, argvs)
+
     if argvs.igv:
         update_igv_html(two_parents_list,argvs)
     # else:

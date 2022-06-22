@@ -9,18 +9,19 @@ import shlex
 import subprocess
 import sys
 import time
+import pandas as pd
 from collections import defaultdict
 
 import plotly.graph_objects as go
 from plotly.offline import plot
 from plotly.subplots import make_subplots
 
-import translate
-
 logging.basicConfig(
     format='[%(asctime)s' '] %(levelname)s: %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M')
 
 bin_dir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(bin_dir)
+import translate
 cwd = os.getcwd()
 
 def setup_argparse():
@@ -291,7 +292,7 @@ def load_lineage_mutation(file):
                 nt_to_lineage[nt].append(k)
     return nt_to_lineage
 
-def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplot_lists, lineage , sample, url , output):
+def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplot_lists, lineage , sample, url , output, cr_coords):
     new_d = { i: int(i.split(':')[1]) for i in delta_uniq_nt + omicron_uniq_nt }
     deltacron_variants_nt = list(dict(sorted(new_d.items(), key=lambda item: item[1])).keys())
     deltacron_variants_aa = [ nt_to_aa[x] for x in deltacron_variants_nt]
@@ -301,7 +302,7 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         x= deltacron_variants_nt,
         y=[ float(mutation_af[i]) if i in delta_uniq_nt else None for i in deltacron_variants_nt ],
         mode="markers",
-        marker=dict(color='red',size=8),
+        marker=dict(color='red',size=10),
         name="Delta unique variants",
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ f'{i}' for i in deltacron_variants_aa ],
@@ -313,12 +314,37 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         x=deltacron_variants_nt,
         y=[ float(mutation_af[i]) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
         mode="markers",
-        marker=dict(color='blue',size=8),
+        marker=dict(color='blue',size=10),
         name="Omicron unique variants",
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ f'{i}' for i in deltacron_variants_aa ],
         customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
         showlegend=True,
+        legendgroup=1
+    ),row=2,col=1)
+    ## recombinant track with pick outline circle
+    fig.add_trace(go.Scatter(
+        x= deltacron_variants_nt,
+        y=[ float(mutation_af[i]) if i in delta_uniq_nt and i.split(':')[1] in cr_coords else None for i in deltacron_variants_nt ],
+        mode="markers",
+        marker=dict(color='red',size=10,line=dict(color='SkyBlue',width=2)),
+        name="Delta unique variants with recombinant",
+        hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
+        text=[ nt_to_aa[x] + "<br>CR:" + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else nt_to_aa[x] for x in deltacron_variants_nt ],
+        customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in delta_uniq_nt else None for i in deltacron_variants_nt ],
+        showlegend=False,
+        legendgroup=1
+    ),row=2,col=1)
+    fig.add_trace(go.Scatter(
+        x=deltacron_variants_nt,
+        y=[ float(mutation_af[i]) if i in omicron_uniq_nt and i.split(':')[1] in cr_coords else None for i in deltacron_variants_nt ],
+        mode="markers",
+        marker=dict(color='blue',size=10,line=dict(color='Pink',width=2)),
+        hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
+        text=[ nt_to_aa[x] + "<br>CR:" + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else nt_to_aa[x] for x in deltacron_variants_nt ],
+        name="Omicron unique variants with recombinant",
+        customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
+        showlegend=False,
         legendgroup=1
     ),row=2,col=1)
     fig.add_trace(go.Bar(
@@ -469,12 +495,12 @@ def bar_plot_list3(delta_uniq_nt,omicron_uniq_nt,mutation_dp):
         other_count_list.append(other_count)
     return [delta_count_list,omicron_count_list,other_count_list]
 
-def deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, sample, mutation_af, mutation_dp, lineage, argvs):
+def deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, sample, mutation_af, mutation_dp, lineage, cr_coords ,argvs):
     igv_url= argvs.igv
     out_html = os.path.splitext(argvs.html)[0] + '.deltacron.html'
     logging.info(f"Generating deltacron unique mutations AF plot and save to {out_html}")
     barplot_lists = bar_plot_list3(delta_uniq_nt,omicron_uniq_nt, mutation_dp)
-    deltacron_af_plot(nt_to_aa,delta_uniq_nt,omicron_uniq_nt,mutation_af, barplot_lists, lineage, sample, igv_url,out_html)
+    deltacron_af_plot(nt_to_aa,delta_uniq_nt,omicron_uniq_nt,mutation_af, barplot_lists, lineage, sample, igv_url,out_html , cr_coords)
 
 def comp_stack_bar_plot(vcf_comp, mix_count, nt_to_lineage, projname, lineage, argvs):
     barplot_html_output = os.path.join(os.path.dirname(argvs.html),'variants_bar_plot.html')
@@ -640,7 +666,7 @@ def comp_stack_bar_plot(vcf_comp, mix_count, nt_to_lineage, projname, lineage, a
     with open(barplot_html_output, 'w') as f:
         f.write(html_str)   
 
-def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, argvs):
+def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname, lineage, cr_coords, argvs):
     output = argvs.html
     logging.info(f"Generating mutations AF plots and save to {output}")
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(vcf_sep_comma.keys())]
@@ -648,18 +674,22 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, a
     parents = list(parents_v.keys())[0:2]
     fig = go.Figure()
     color1='blue'
-    color2='red' 
+    color2='red'
     if parents[0] == 'Omicron' or parents[1] == 'Delta':
         color1='blue'
+        color1o='Pink'
         color2='red'
+        color2o='SkyBlue'
     if parents[1] == 'Omicron' or parents[0] == 'Delta':
         color1='red'
+        color1o='SkyBlue'
         color2='blue'
+        color2o='Pink'
     fig.add_trace(go.Scatter(
                 x=all_mut_nt, 
                 y=[ float(vcf_sep_comma[x]['AF'])  if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma], 
                 mode='markers',
-                marker=dict(color=color1,size=8),
+                marker=dict(color=color1,size=10),
                 name=parents[0],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
                 text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
@@ -670,7 +700,7 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, a
                 x=all_mut_nt, 
                 y=[ float(vcf_sep_comma[x]['AF'])  if parents[1] in vcf_sep_comma[x]['variants'] and parents[0] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma], 
                 mode='markers',
-                marker=dict(color=color2,size=8),
+                marker=dict(color=color2,size=10),
                 name=parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
                 text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in vcf_sep_comma[x]['variants'] and parents[0] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
@@ -681,7 +711,7 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, a
                 x=all_mut_nt, 
                 y=[ float(vcf_sep_comma[x]['AF'])  if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma], 
                 mode='markers',
-                marker=dict(color='purple',size=8),
+                marker=dict(color='purple',size=10),
                 name=parents[0] + ', ' + parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
                 text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
@@ -692,7 +722,7 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, a
                 x=all_mut_nt, 
                 y=[ float(vcf_sep_comma[x]['AF'])  if vcf_sep_comma[x]['variants'] and parents[0] not in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma], 
                 mode='markers',
-                marker=dict(color='green',size=8),
+                marker=dict(color='green',size=10),
                 name='Not ' + parents[0] + ', Not ' + parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
                 text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(vcf_sep_comma[x]['variants']) if vcf_sep_comma[x]['variants'] and  parents[0] not in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
@@ -703,14 +733,49 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname,lineage, a
                 x=all_mut_nt, 
                 y=[ float(vcf_sep_comma[x]['AF'])  if not vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma], 
                 mode='markers',
-                marker=dict(color='grey',size=8),
+                marker=dict(color='grey',size=10),
                 name='Undefined Mutations',
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
                 text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
                 customdata=[ argvs.igv + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma ],
                 showlegend=True,
                 ))
-    fig.update_xaxes(tickfont=dict(size=8),tickangle=-60)
+    # recombinant track
+    if len(cr_coords)>0:
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(vcf_sep_comma[x]['AF'])  if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] and x.split(':')[1] in cr_coords else None for x in vcf_sep_comma], 
+                    mode='markers',
+                    marker=dict(color=color1,size=10,line=dict(color=color1o,width=2)),
+                    name=parents[0],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
+                    customdata=[ argvs.igv + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma ],
+                    showlegend=False,
+                    ))
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(vcf_sep_comma[x]['AF'])  if parents[1] in vcf_sep_comma[x]['variants'] and parents[0] not in vcf_sep_comma[x]['variants'] and x.split(':')[1] in cr_coords else None for x in vcf_sep_comma], 
+                    mode='markers',
+                    marker=dict(color=color2,size=10,line=dict(color=color2o,width=2)),
+                    name=parents[1],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
+                    customdata=[ argvs.igv + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in vcf_sep_comma[x]['variants'] and parents[0] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma ],
+                    showlegend=False,
+                    ))
+        fig.add_trace(go.Scatter(
+                    x=all_mut_nt, 
+                    y=[ float(vcf_sep_comma[x]['AF'])  if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] in vcf_sep_comma[x]['variants'] and x.split(':')[1] in cr_coords else None for x in vcf_sep_comma], 
+                    mode='markers',
+                    marker=dict(color='purple',size=10,line=dict(color="Yellow",width=2)),
+                    name=parents[0] + ', ' + parents[1],
+                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+                    text=[ 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ vcf_sep_comma[x]['DP'] + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma],
+                    customdata=[ argvs.igv + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] in vcf_sep_comma[x]['variants'] else None for x in vcf_sep_comma ],
+                    showlegend=False,
+                    ))
+    fig.update_xaxes(tickfont=dict(size=10),tickangle=-60)
     fig.update_yaxes(range=[-0.1, 1.1],title='Alternative Frequency')
     fig.update_layout(title="Positions with mutations" + '<br><sup>' + projname + ' (' + lineage + ')</sup>')
     # Get HTML representation of plotly.js and this figure
@@ -845,16 +910,24 @@ def main():
 
     if mix_count > argvs.minMixed_n and len(parents_v.keys()) >= 1:
         # if list(parents_v.keys())[0]['all'] > 2 and list(parents_v.keys())[1]['all'] > 2: #both parents need at least have two muations.
-        if len(parents_v.keys()) > 1:
-            mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, argvs)
+        
         ## reads based analysis
         read_analysis_log = os.path.join(os.path.dirname(argvs.html),'recombinant_reads.log')
         cmd=[os.path.join(bin_dir,'ramifi.py'), '--refacc', 'NC_045512_2','--bam', ec19_bam[0], '-eo', argvs.ec19_projdir, '--vcf', ec19_vcf[0] ,'--minMixed_n', str(argvs.minMixed_n), '--minMixAF', str(argvs.minMixAF), '--maxMixAF',str(argvs.maxMixAF),'--igv', argvs.igv,'--igv_variants']
         if argvs.verbose:
             cmd.append('--verbose')
         process_cmd(cmd,"Running per read analysis", read_analysis_log)
+        cr_file  = os.path.join(os.path.dirname(argvs.html),'recombinant_reads_by_cross_region.tsv')
+        cr_coords=dict()
+        if os.path.exists(cr_file):
+            df_cr= pd.read_table(cr_file,sep="\t")
+            df_cr = df_cr.sort_values(by="Cross_region",key = lambda col: [ int(x.split("-")[0]) for x in col] )
+            cr_coords = { i:x  for x in df_cr.Cross_region for i in x.split('-') }
+
+        if len(parents_v.keys()) > 1:
+            mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, cr_coords, argvs)
         if 'Omicron' in parents_v and 'Delta' in parents_v:
-            deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, argvs)
+            deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, cr_coords, argvs)
         # else:
         # logging.error("both parents need at least have two muations for read based recombinant analysis.")
     else:
