@@ -465,7 +465,9 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
         df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, igv_list)), columns=[
             'read_name', 'start', 'end', 'mutaions_json', 'note'])
     else:
-        note_list = [ 'recombinant' for i in recomb1_reads + recomb2_reads ]
+        note_list = [ 'recombinant 1' for i in recomb1_reads ]
+        note_list.extend( [ 'recombinant 2' for i in recomb2_reads ] )
+        note_list.extend( [ 'recombinant x' for i in recombx_reads ] )
         note_list.extend( [  'parent ' + two_parents_list[0]  for i in parent1_reads] )
         note_list.extend( [  'parent ' + two_parents_list[1]  for i in parent2_reads] )
         df = pd.DataFrame(list(zip((recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads), start_list, end_list, mutaions_list, note_list)), columns=[
