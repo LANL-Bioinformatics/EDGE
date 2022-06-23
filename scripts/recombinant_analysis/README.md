@@ -61,6 +61,7 @@ optional arguments:
                         lineage mutation json file [default: variant_mutation.json]
   --variantMutation [FILE]
                         variant mutation json file [default: lineage_mutation.json]
+  --mutations_af_plot   generate mutations_af_plot (when --vcf provided)
   --verbose             Show more infomration in log
 
 Input:
@@ -90,30 +91,60 @@ cd tests
 
 -- recombinant_reads.stats:  counts
 
-| total  | mapped | unmapped | mutation_reads | parents     | recomb_reads | parent1_reads | parent2_reads | recomb_perc |
-|--------|--------|----------|----------------|-------------|--------------|---------------|---------------|-------------|
-| 64355  | 64355  |   0      |  12075         |Delta,Omicron|   249        |  617          |     376       | 20.048309178|
+| total  | mapped | unmapped | mutation_reads | parents     | recomb1_reads | recomb2_reads | recombx_reads | parent1_reads | parent2_reads | recomb1_perc| recomb2_perc | recombx_perc |
+|--------|--------|----------|----------------|-------------|---------------|---------------|---------------|---------------|---------------|-------------|--------------|--------------|
+| 64355  | 64355  |   0      |  5203          |Omicron,Delta|   162         | 175           |     18        |  489          |     730       | 10.29       | 11.11        | 1.14         |
 
 
 -- recombinant_reads.tsv
 |    read_name                | start | end | mutaions_json                                                                                                                                                                                                                                 |  note            |
 |-----------------------------|-------|-----|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|
-|HMVN7DRXY:2:2153:21802:16078 |  21566|21859| {21575: ['ref of  Iota'], 21600: ['ref of  Epsilon'], 21614: ['ref of  Gamma'], 21618: ['Delta'], 21621: ['ref of  Gamma'], 21786: ['ref of  Lambda'], 21789: ['ref of  Lambda'], 21801: ['ref of  Beta'], 21846: ['Iota', 'Mu', 'Omicron']}  |  recombinant     |
-|HMVN7DRXY:2:2166:28574:36229 |  21732|21883| {21762: ['Eta', 'Omicron'], 21786: ['ref of  Lambda'], 21789: ['ref of  Lambda'], 21801: ['ref of  Beta'], 21846: ['Iota', 'Mu', 'Omicron']}                                                                                                  |  parent Omicron  |
-|HMVN7DRXY:2:2108:19795:22373 |  22605|22717| {22679: ['ref of  Omicron'], 22686: ['ref of  Omicron']}                                                                                                                                                                                      |  parent Delta    |
-|                             |
-|etc ...                      |
+|HMVN7DRXY:2:2153:21802:16078 |  21566|21859| {21618: ['Delta'], 21846: ['Iota', 'Mu', 'Omicron']}                                                                                                                                                                                          |  recombinant 2   |
+|HMVN7DRXY:2:2166:28574:36229 |  21732|21883| {21762: ['Eta', 'Omicron'], 21846: ['Iota', 'Mu', 'Omicron']}                                                                                                                                                                                 |  parent Omicron  |
+|HMVN7DRXY:2:2215:29749:15217 |  22867|22994| {22917: ['Delta', 'Epsilon', 'Kappa'], 22992: ['rev of Omicron']}                                                                                                                                                                             |  parent Delta    |
+|HMVN7DRXY:2:2105:30572:25160 |  22865|23023| {22917: ['rev of Delta Epsilon Kappa'], 22992: ['rev of Omicron'], 22995: ['Delta', 'Omicron'], 23013: ['rev of Omicron']}                                                                                                                    |  recombinant 1   | 
+|HMVN7DRXY:2:2127:18304:18850 |  24058|24518| {24130: ['Omicron'], 24469: ['rev of Omicron'], 24503: ['Omicron']}                                                                                                                                                                           |  recombinant x   |
+|etc ...                      |       |     |
 
--- recombinant_reads.bam
+-- recombinant_reads_by_cross_region.tsv
 
--- recombinant_reads.bam.bai
+| Cross_region  | Reads                                                                                                       |
+|---------------|-------------------------------------------------------------------------------------------------------------|
+|11201-11283    |{'recomb1': ['HMVN7DRXY:2:2150:13015:23750', 'HMVN7DRXY:2:2124:23746:28776', 'HMVN7DRXY:2:2232:6216:33395']} |
+|11283-11314    |{'recomb2': ['HMVN7DRXY:2:2122:27624:23062']}                                                                |
+|11537-11544    |{'recomb2': ['HMVN7DRXY:2:2126:12825:30154', 'HMVN7DRXY:2:2126:15302:29121']}                                |
+|etc ...        |
+
+-- recombinant_reads.parent1.bam
+
+-- recombinant_reads.parent1.bam.bai
+
+-- recombinant_reads.parent2.bam
+
+-- recombinant_reads.parent2.bam.bai
+
+-- recombinant_reads.recomb1.bam
+
+-- recombinant_reads.recomb1.bam.bai
+
+-- recombinant_reads.recomb2.bam
+
+-- recombinant_reads.recomb2.bam.bai
+
+-- recombinant_reads.recombx.bam
+
+-- recombinant_reads.recombx.bam.bai
+
+-- [recombinant_reads.mutations_af_plot.html](https://chienchi.github.io/ramifi/recombinant_reads.mutations_af_plot.html)
 
 ## Data visualization
 
 The `recombinant_reads.bam`, `ramifi/data/variants_mutation.gff` and `ramifi/data/NC_045512.fasta` can be loaded into [IGV](https://software.broadinstitute.org/software/igv/).
 
 Example:
-![Screen Shot 2022-06-02 at 2 43 36 PM](https://user-images.githubusercontent.com/737589/171769383-d4ca6cb8-8be8-4270-8dd9-b4cd33e5807e.png)
+IGV Link: [https://chienchi.github.io/ramifi/igv-webapp](https://chienchi.github.io/ramifi/igv-webapp)
+
+![Screen Shot 2022-06-13 at 9 51 08 PM](https://user-images.githubusercontent.com/737589/173489713-18150a0d-176b-4526-a751-5a03d2047096.png)
 
 ## Remove package:
 
