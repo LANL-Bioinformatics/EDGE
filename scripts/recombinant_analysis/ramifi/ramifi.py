@@ -298,8 +298,8 @@ def find_read_with_variants(nt_to_variant, argvs):
                                 if 'other' not in mutation_reads[pileupread.alignment.query_name][pos]:
                                     mutation_reads[pileupread.alignment.query_name][pos].extend(['other'])
                         if pileupread.indel == 0:
-                            if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
-                                mutation_reads[pileupread.alignment.query_name][pos].extend(['ref'] + nt_to_variant[i])
+                            if 'rev' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                mutation_reads[pileupread.alignment.query_name][pos].extend(['rev'] + nt_to_variant[i])
                     else:
                         if not pileupread.is_del and not pileupread.is_refskip:
                             if alt == pileupread.alignment.query_sequence[pileupread.query_position]:
@@ -307,9 +307,9 @@ def find_read_with_variants(nt_to_variant, argvs):
                                     if mut not in mutation_reads[pileupread.alignment.query_name][pos]:
                                         mutation_reads[pileupread.alignment.query_name][pos].extend([mut])
                             elif ref == pileupread.alignment.query_sequence[pileupread.query_position]:
-                                if 'ref' not in mutation_reads[pileupread.alignment.query_name][pos]:
+                                if 'rev' not in mutation_reads[pileupread.alignment.query_name][pos]:
                                     mutation_reads[pileupread.alignment.query_name][pos].extend(
-                                        ['ref'] + nt_to_variant[i])
+                                        ['rev'] + nt_to_variant[i])
                             else:
                                 other_mut = ref + ":" + \
                                     str(pos) + ":" + \
@@ -340,7 +340,7 @@ def find_parents_by_mutation_reads(mutation_reads, argvs):
     parents_v=defaultdict(dict)
     for name in mutation_reads:
         for pos in mutation_reads[name]:
-            if 'ref' not in mutation_reads[name][pos] and 'unknown' not in mutation_reads[name][pos] and len(mutation_reads[name][pos]) == 1:
+            if 'rev' not in mutation_reads[name][pos] and 'unknown' not in mutation_reads[name][pos] and len(mutation_reads[name][pos]) == 1:
                 if ''.join(mutation_reads[name][pos]) in parents_v:
                     parents_v[''.join(mutation_reads[name][pos])]['uniq'] += 1
                 
@@ -351,7 +351,7 @@ def find_parents_by_mutation_reads(mutation_reads, argvs):
     for v in parents_v:
         for name in mutation_reads:
             for pos in mutation_reads[name]:
-                if 'ref' not in mutation_reads[name][pos] and v in mutation_reads[name][pos]:
+                if 'rev' not in mutation_reads[name][pos] and v in mutation_reads[name][pos]:
                     parents_v[v]['all'] += 1
 
     parents_v = dict(sorted(parents_v.items(), key=lambda item: item[1]['all'], reverse=True))
@@ -387,7 +387,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
         for k, v in sorted(mutation_reads[read].items()):
             var1 = two_parents_list[0]
             var2 = two_parents_list[1]
-            if 'ref' in v:
+            if 'rev' in v:
                 if var1 in v and var2 not in v:
                     var2_count += 1
                     list_for_check_recomb.append("P2")
@@ -444,8 +444,8 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     for read in (recomb1_reads + recomb2_reads + recombx_reads + parent1_reads + parent2_reads):
         tmp = dict()
         for k, v in sorted(mutation_reads[read].items()):
-            if 'ref' in v:
-                v = [" ".join(v).replace("ref", "ref of ")]
+            if 'rev' in v:
+                v = [" ".join(v).replace("rev", "rev of ")]
 
             tmp[k] = v
         mutaions_list.append(tmp)
