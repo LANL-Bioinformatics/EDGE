@@ -174,9 +174,9 @@ def go(args):
             ## softmask the alignment if left primer start/end inside alignment
             
             if args.start:
-                primer_position = p1[2]['start']
+                primer_position = p1[2]['start'] - args.offset
             else:
-                primer_position = p1[2]['end']
+                primer_position = p1[2]['end'] - args.offset
             
             if args.strand:
                 if s.is_paired:
@@ -205,9 +205,9 @@ def go(args):
            
             ## softmask the alignment if right primer start/end inside alignment
             if args.start:
-                primer_position = p2[2]['start']
+                primer_position = p2[2]['start'] + args.offset
             else:
-                primer_position = p2[2]['end']
+                primer_position = p2[2]['end'] + args.offset
             
             if args.strand:
                 if s.is_paired:
@@ -305,6 +305,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Trim alignments from an amplicon scheme.')
 parser.add_argument('bedfile', help='BED file containing the amplicon scheme')
 parser.add_argument('--normalise', type=int, help='Subsample to n coverage')
+parser.add_argument('--offset', type=int, default=1, help='extend 5 end primer bases [default: 1]')
 parser.add_argument('--report', type=str, help='Output report to file')
 parser.add_argument('--start', action='store_true', help='Trim to start of primers instead of ends')
 parser.add_argument('--strand', action='store_true', help='The strand is taken into account while doing the trimming ')
