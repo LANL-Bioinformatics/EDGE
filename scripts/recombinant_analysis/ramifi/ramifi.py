@@ -14,6 +14,7 @@ import pysam
 
 import plotly.graph_objects as go
 from plotly.offline import plot
+from plotly.subplots import make_subplots
 # standardize the logging output
 import logging
 
@@ -56,7 +57,7 @@ def setup_argparse():
     parser.add_argument(
         '--variantMutation', metavar='[FILE]', required=False, type=str, help=f"variant mutation json file [default: lineage_mutation.json]")
     parser.add_argument(
-        '--mutations_af_plot', action='store_true',  help="generate mutations_af_plot")
+        '--mutations_af_plot', action='store_true',  help="generate mutations_af_plot (when --vcf provided)")
 
     parser.add_argument('--verbose', action='store_true', 
                         help='Show more infomration in log')
@@ -414,7 +415,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                 if 'P1' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb) ):
                     recomb1_reads.append(read)
                     recomb1_start=list_for_check_recomb_pos[0]
-                    recomb1_end=reads_coords[read]['end'] 
+                    recomb1_end=list_for_check_recomb_pos[1]
                     for r in range(1,len(list_for_check_recomb)):
                         if list_for_check_recomb[r] == 'P1':
                             recomb1_start = list_for_check_recomb_pos[r]
@@ -427,9 +428,9 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                 if 'P2' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb, reverse=True) ):
                     recomb2_reads.append(read)
                     recomb2_start=list_for_check_recomb_pos[0]
-                    recomb2_end=reads_coords[read]['end'] 
+                    recomb2_end=list_for_check_recomb_pos[1]
                     for r in range(1,len(list_for_check_recomb)):
-                        if list_for_check_recomb[r] == 'P1':
+                        if list_for_check_recomb[r] == 'P2':
                             recomb2_start = list_for_check_recomb_pos[r]
                         else:
                             recomb2_end = list_for_check_recomb_pos[r]
@@ -554,27 +555,52 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
-def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp,nt_to_aa_class, cr_coords, argvs):
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp,nt_to_aa_class, recomb_rate_by_index, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
     logging.info(f"Generating mutations AF plots and save to {output}")
+    all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
     igv_url = argvs.igv if argvs.igv else "igv.html" 
-
-    fig = go.Figure()
     color1='blue'
     color2='red'
     if parents[0] == 'Omicron' or parents[1] == 'Delta':
         color1='blue'
-        color1o='Pink'
         color2='red'
-        color2o='SkyBlue'
     if parents[1] == 'Omicron' or parents[0] == 'Delta':
         color1='red'
-        color1o='SkyBlue'
         color2='blue'
-        color2o='Pink'
+    recombinant_rate = list(recomb_rate_by_index.values())
+    if recombinant_rate: 
+        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
+        main_row=2
+        ## recombinate rate track
+        fig.update_yaxes(range=[-0.01, max(recombinant_rate)+0.01],title='Recombinate Rate', row=1, col=1 )
+        fig.add_trace(go.Bar(
+            x=list(recomb_rate_by_index.keys()), 
+            y=[ i if i > 0 else None for i in recombinant_rate], 
+            #mode='lines',
+            #line=dict(color='black'),
+            marker_color= 'black',marker_line_color='black',
+            name='Recombinant Rate',
+            width=[0.3 if i > 0.01 else 1 for i in recombinant_rate],
+            hovertemplate = 'Rate: %{y:.6f}<br>'+'%{hovertext}<extra></extra>',
+            hovertext=[ 'CR: '+ all_mut_nt[x] + "-" + all_mut_nt[x+1] for x in range(len(all_mut_nt)-1)],
+            #customdata=[ url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants_af ],
+            showlegend=False,
+            ),row=1,col=1)
+        for i in range(len(all_mut_nt_pos)-1):
+            if (i + 0.5) in recomb_rate_by_index:
+                fig.add_vrect(
+                    x0=i, x1=i+1,
+                    layer="below", line_width=0, fillcolor="grey", opacity=0.2,
+                    row=1,col=1
+                )
+    else:
+        fig = make_subplots(rows=1,cols=1)
+        main_row=1
+    ## mutation scatter plot
     fig.add_trace(go.Scatter(
-                x=all_mut_nt, 
+                x=list(range(len(all_mut_nt))), 
                 y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color=color1,size=10),
@@ -583,9 +609,9 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
-                ))
+                ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
-                x=all_mut_nt, 
+                x=list(range(len(all_mut_nt))), 
                 y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color=color2,size=10),
@@ -594,9 +620,9 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants],
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
-                ))
+                ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
-                x=all_mut_nt, 
+                x=list(range(len(all_mut_nt))), 
                 y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='purple',size=10),
@@ -605,9 +631,9 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants],
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
-                ))
+                ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
-                x=all_mut_nt, 
+                x=list(range(len(all_mut_nt))), 
                 y=[ float(nt_to_variants_af[x])  if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='green',size=10),
@@ -616,9 +642,9 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_variants[x]) if nt_to_variants[x] and  parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
-                ))
+                ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
-                x=all_mut_nt, 
+                x=list(range(len(all_mut_nt))), 
                 y=[ float(nt_to_variants_af[x])  if not nt_to_variants[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='grey',size=10),
@@ -627,44 +653,329 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not nt_to_variants[x] else None for x in nt_to_variants],
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
-                ))
-    # recombinant track
-    if len(cr_coords)>0:
-        fig.add_trace(go.Scatter(
-                    x=all_mut_nt, 
-                    y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
-                    mode='markers',
-                    marker=dict(color=color1,size=10,line=dict(color=color1o,width=2)),
-                    name=parents[0],
-                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
-                    showlegend=False,
-                    ))
-        fig.add_trace(go.Scatter(
-                    x=all_mut_nt, 
-                    y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
-                    mode='markers',
-                    marker=dict(color=color2,size=10,line=dict(color=color2o,width=2)),
-                    name=parents[1],
-                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
-                    showlegend=False,
-                    ))
-        fig.add_trace(go.Scatter(
-                    x=all_mut_nt, 
-                    y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] and x.split(':')[1] in cr_coords else None for x in nt_to_variants], 
-                    mode='markers',
-                    marker=dict(color='purple',size=10,line=dict(color="Yellow",width=2)),
-                    name=parents[0] + ', ' + parents[1],
-                    hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                    text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>CR: ' + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-                    customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
-                    showlegend=False,
-                    ))
-    fig.update_xaxes(tickfont=dict(size=10),tickangle=-60)
-    fig.update_yaxes(range=[-0.1, 1.1],title='Alternative Frequency')
+                ),row=main_row,col=1)
+   
+    fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
+    fig.update_xaxes(tickvals = list(range(len(all_mut_nt))), ticktext=all_mut_nt, tickfont=dict(size=10),tickangle=-60)
+    # Get HTML representation of plotly.js and this figure
+    plot_div = plot(fig, output_type='div', include_plotlyjs=True)
+
+    # Get id of html div element that looks like
+    # <div id="301d22ab-bfba-4621-8f5d-dc4fd855bb33" ... >
+    res = re.search('<div id="([^"]*)"', plot_div)
+    div_id = res.groups()[0]
+
+    # Build JavaScript callback for handling clicks
+    # and opening the URL in the trace's customdata 
+    js_callback = """
+    <script>
+    var plot_element = document.getElementById("{div_id}");
+    plot_element.on('plotly_click', function(data){{
+        var point = data.points[0];
+        if (point) {{
+            window.open(point.customdata);
+        }}
+    }})
+    </script>
+    """.format(div_id=div_id)
+
+    # Build HTML string
+    html_str = """
+    <html>
+    <body>
+    {plot_div}
+    {js_callback}
+    </body>
+    </html>
+    """.format(plot_div=plot_div, js_callback=js_callback)
+    with open(output, 'w') as f:
+        f.write(html_str)
+    #fig.write_image(output+'.png')
+    return output
+
+def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_pos, argvs):
+    output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot_genomeview.html"
+    logging.info(f"Generating mutations AF plots Genome View and save to {output}")
+    all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
+    all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
+    igv_url = argvs.igv if argvs.igv else "igv.html" 
+    color1='blue'
+    color2='red'
+    if parents[0] == 'Omicron' or parents[1] == 'Delta':
+        color1='blue'
+        color2='red'
+    if parents[1] == 'Omicron' or parents[0] == 'Delta':
+        color1='red'
+        color2='blue'
+    recombinant_rate = list(recomb_rate_by_pos.values())
+    if recombinant_rate: 
+        fig = make_subplots(rows=3,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[150,600,200])
+        main_row=2
+        ## recombinate rate track
+        fig.update_yaxes(range=[0,max(recombinant_rate)+0.01],title='Recombinate Rate', row=3,col=1)
+        fig.add_trace(go.Bar(
+            x=[ int(x) for x in recomb_rate_by_pos], 
+            y=recombinant_rate, 
+            marker_color= 'black',marker_line_color='black',
+            name='Recombinant Rate',
+            width=1,
+            hovertemplate = 'Rate: %{y:.6f}<br>'+'<extra></extra>',
+            showlegend=False), 
+            row=3,col=1)
+    else:
+        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[150,600])
+        main_row=2
+
+    ## mutation scatter plot
+    fig.add_trace(go.Scatter(
+            x=[ int(x) for x in all_mut_nt_pos], 
+            y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            mode='markers',
+            marker=dict(color=color1,size=10),
+            #marker=dict(color=color1,size=10,line_color='pink',line_width=0.8, symbol=[ 'circle-x' if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
+            name=parents[0],
+            hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+            text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            showlegend=True,
+            ),row=main_row,col=1)
+    fig.add_trace(go.Scatter(
+            x=[ int(x) for x in all_mut_nt_pos], 
+            y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            mode='markers',
+            marker=dict(color=color2,size=10),
+            #marker=dict(color=color2,size=10,line_color='Skyblue',line_width=0.8, symbol=[ 'circle-x' if  parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
+            name=parents[1],
+            hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+            text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            showlegend=True,
+            ),row=main_row,col=1)
+    fig.add_trace(go.Scatter(
+            x=[ int(x) for x in all_mut_nt_pos], 
+            y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants], 
+            mode='markers',
+            marker=dict(color='purple',size=10),
+            #marker=dict(color='purple',size=10,line_color='Yellow',line_width=0.8, symbol=[ 'circle-x' if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
+            name=parents[0] + ', ' + parents[1],
+            hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+            text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
+            showlegend=True,
+            ),row=main_row,col=1)
+    fig.add_trace(go.Scatter(
+            x=[ int(x) for x in all_mut_nt_pos], 
+            y=[ float(nt_to_variants_af[x])  if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            mode='markers',
+            marker=dict(color='green',size=10),
+            name='Not ' + parents[0] + ', Not ' + parents[1],
+            hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+            text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_variants[x]) if nt_to_variants[x] and  parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            showlegend=True,
+            ),row=main_row,col=1)
+    fig.add_trace(go.Scatter(
+            x=[ int(x) for x in all_mut_nt_pos], 
+            y=[ float(nt_to_variants_af[x])  if not nt_to_variants[x] else None for x in nt_to_variants], 
+            mode='markers',
+            marker=dict(color='grey',size=10),
+            name='Undefined Mutations',
+            hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
+            text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not nt_to_variants[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
+            showlegend=True,
+            ),row=main_row,col=1)
+    ### Genome annotation
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=266, y0=.20, x1=13468, y1=.25,
+        line=dict(color="Red"), fillcolor="Red",
+        row=1,col=1
+    )
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=13468, y0=.18, x1=21555, y1=.23,
+        line=dict(color="White",width=0.8), fillcolor="Red",
+        row=1,col=1
+    )
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=21563, y0=.13, x1=25384, y1=.18,
+        line=dict(color="Yellow"), fillcolor="Yellow",
+        row=1,col=1
+    )
+    # Orf3a
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=25393, y0=.08, x1=26220, y1=.13,
+        line=dict(color="Orange"), fillcolor="Orange",
+        row=1,col=1
+    )
+    # E
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=26245, y0=.12, x1=26472, y1=.17,
+        line=dict(color="White",width=0.8), fillcolor="Yellow",
+        row=1,col=1
+    )
+    # M
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=26523, y0=.13, x1=27191, y1=.18,
+        line=dict(color="Yellow"), fillcolor="Yellow",
+        row=1,col=1
+    )
+    # Orf6
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=27202, y0=.09, x1=27387, y1=.14,
+        line=dict(color="White",width=0.8), fillcolor="Orange",
+        row=1,col=1
+    )
+    # Orf7a
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=27394, y0=.08, x1=27759, y1=.13,
+        line=dict(color="Orange"), fillcolor="Orange",
+        row=1,col=1
+    )
+    # Orf7b
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=27756, y0=.08, x1=27887, y1=.13,
+        line=dict(color="Orange"), fillcolor="Orange",
+        row=1,col=1
+    )
+    # Orf8
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=27894, y0=.09, x1=28259, y1=.14,
+        line=dict(color="White",width=0.8), fillcolor="Orange",
+        row=1,col=1
+    )
+    # N
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=28274, y0=.13, x1=29533, y1=.18,
+        line=dict(color="Yellow"), fillcolor="Yellow",
+        row=1,col=1
+    )
+    # Orf10
+    fig.add_shape(type="rect",
+        xref='x', yref='paper',
+        x0=29558, y0=.08, x1=29674, y1=.13,
+        line=dict(color="Orange"), fillcolor="Orange",
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=6000,
+        y=.23,
+        text="ORF1a",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=17500,
+        y=.21,
+        text="ORF1b",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=23500,
+        y=.16,
+        text="spike",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=25800,
+        y=.11,
+        text="ORF3a",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=26350,
+        y=.16,
+        text="E",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=26800,
+        y=.16,
+        text="M",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=27300,
+        y=.11,
+        text="6",
+        showarrow=True,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=27700,
+        y=.11,
+        text="7ab",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=28100,
+        y=.11,
+        text="8",
+        showarrow=True,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=29000,
+        y=.16,
+        text="N",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    fig.add_annotation(
+        xref='x', yref='paper',
+        x=29600,
+        y=.11,
+        text="10",
+        showarrow=False,
+        font_size=12,
+        row=1,col=1
+    )
+    # Set axes properties
+    fig.update_xaxes(range=[1, 29903], showgrid=False)
+    fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
+    fig.update_yaxes(range=[0.08,0.28],visible=False, showticklabels=False, row=1,col=1)
+    fig.add_vrect(
+            x0=1, x1=29903,
+            layer="below",
+            line_width=0, fillcolor="White",
+            row=1,col=1
+        )
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -802,6 +1113,39 @@ def update_igv_html(two_parents_list,argvs):
     of.close()
     shutil.move(update_igv_html_file,igv_html_file)
 
+def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,argvs):
+    recomb_rate=list()
+    df_cr= pd.read_table(cr_file,sep="\t")
+    df_cr = df_cr.sort_values(by="Cross_region",key = lambda col: [ int(x.split("-")[0]) for x in col] )
+    mut_nt_pos = [ i.split(":")[1] for i in list(filtered_nt_to_variants.keys())]
+    recomb_read_count=dict()
+    recomb_read_count_pos=dict()
+    recomb_rate_by_pos=dict()
+    recomb_rate_by_index=dict()
+    for index, row in df_cr.iterrows():
+        region=row['Cross_region']
+        reads= json.loads(row['Reads'])
+        read_count = 0
+        for type, read in reads.items():
+            read_count = read_count + len(read)
+        index1 = mut_nt_pos.index(region.split('-')[0])
+        index2 = mut_nt_pos.index(region.split('-')[1])
+        for i in range(int(region.split('-')[0])+1,int(region.split('-')[1])+1):
+            recomb_read_count_pos[i] = recomb_read_count_pos[i] + read_count if i in recomb_read_count_pos else read_count
+        for i in range(index2 - index1):
+            recomb_read_count[index1 + i + 0.5] = recomb_read_count[index1 + i + 0.5] + read_count if (index1 + i + 0.5) in recomb_read_count else read_count
+
+    total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads'] 
+    recomb_rate_by_index = { i+0.5 : recomb_read_count[i+0.5]/total_recomb_paraents_reads if (i + 0.5) in recomb_read_count else 0 for i in range(len(mut_nt_pos)-1)}
+    recomb_rate_by_pos = { i:recomb_read_count_pos[i]/total_recomb_paraents_reads for i in recomb_read_count_pos}
+    #cr_coord = list({ i  for x in df_cr.Cross_region for i in x.split('-') })
+    tmp_output = os.path.splitext(argvs.tsv)[0] + ".recombinant_rate_pos.tsv"
+    with open(tmp_output, "w") as f:
+        for key, value in recomb_read_count_pos.items():
+            f.write(f"{key}\t{value}\n")
+
+    return recomb_rate_by_index, recomb_rate_by_pos
+
 def main():
     argvs = setup_argparse()
     log_level = logging.DEBUG if argvs.verbose else logging.INFO
@@ -843,13 +1187,12 @@ def main():
         except:
             nt_to_aa_class = translate.NT_AA_POSITION_INTERCHANGE(os.path.join(bin_dir,"data", 'SARS-CoV-2.json'))
         cr_file  = os.path.splitext(argvs.tsv)[0] + "_by_cross_region.tsv"
-        cr_coords=dict()
+        recomb_rate_by_index=dict()
+        recomb_rate_by_pos=dict()
         if os.path.exists(cr_file):
-            df_cr= pd.read_table(cr_file,sep="\t")
-            df_cr = df_cr.sort_values(by="Cross_region",key = lambda col: [ int(x.split("-")[0]) for x in col] )
-            cr_coords = { i:x  for x in df_cr.Cross_region for i in x.split('-') }
-        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, cr_coords, argvs)
-
+            recomb_rate_by_index,  recomb_rate_by_pos = calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,argvs)
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_index, argvs)
+        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_pos, argvs)
     if argvs.igv:
         update_igv_html(two_parents_list,argvs)
     # else:

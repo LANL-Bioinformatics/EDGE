@@ -44,9 +44,9 @@ ramifi -h
 
 ## Usage
 ```
-usage: ramifi [-h] [--refacc [STR]] [--minMixAF [FLOAT]] [--maxMixAF [FLOAT]] [--minMixed_n [INT]] [--minReadCount [INT]]
-              [--lineageMutation [FILE]] [--variantMutation [FILE]] [--verbose] --bam [FILE] [--vcf [File]] [--tsv [FILE]]
-              [--outbam [File]] [-eo [PATH]] [--igv [PATH]]
+usage: ramifi.py [-h] [--refacc [STR]] [--minMixAF [FLOAT]] [--maxMixAF [FLOAT]] [--minMixed_n [INT]] [--minReadCount [INT]]
+                 [--lineageMutation [FILE]] [--variantMutation [FILE]] [--mutations_af_plot] [--verbose] [--version] --bam [FILE]
+                 [--vcf [File]] [--tsv [FILE]] [--outbam [File]] [-eo [PATH]] [--igv [PATH]] [--igv_variants]
 
 Script to do recombinant read analysis
 
@@ -63,6 +63,7 @@ optional arguments:
                         variant mutation json file [default: lineage_mutation.json]
   --mutations_af_plot   generate mutations_af_plot (when --vcf provided)
   --verbose             Show more infomration in log
+  --version             show program's version number and exit
 
 Input:
   --bam [FILE]          <Required> bam file
@@ -78,6 +79,7 @@ EDGE COVID-19 Options:
   -eo [PATH], --ec19_projdir [PATH]
                         ec-19 project directory
   --igv [PATH]          igv.html relative path
+  --igv_variants        add variants igv track
 ```
 
 ## Test

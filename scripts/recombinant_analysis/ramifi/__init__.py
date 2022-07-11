@@ -1,4 +1,4 @@
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__    = "Chienchi Lo, Bioscience Division, Los Alamos National Laboratory"
 __date__      = "2022/06/02"
 __license__ = "GPLv3"
