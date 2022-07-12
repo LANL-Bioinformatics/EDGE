@@ -217,9 +217,10 @@ def parse_vcf(argvs,nt_to_variants):
                             parents_v[''.join(nt_to_variants[nt_v])]['uniq'] = 1
                             parents_v[''.join(nt_to_variants[nt_v])]['all'] = 0
                             parents_v[''.join(nt_to_variants[nt_v])]['filtered'] = 0
-                    filtered_nt_to_variants[nt_v]=nt_to_variants[nt_v]
-                    filtered_nt_to_variants_af[nt_v]=AFreq
-                    filtered_nt_to_variants_dp[nt_v]=depth
+                    if nt_v == mut_list[0]:
+                        filtered_nt_to_variants[nt_v]=nt_to_variants[nt_v]
+                        filtered_nt_to_variants_af[nt_v]=AFreq
+                        filtered_nt_to_variants_dp[nt_v]=depth
     # use the first scan, uniq list to count all mutataions with the variants and variants between AF range
     for v in parents_v:
         AFavg = 0 
@@ -555,7 +556,7 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
-def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp,nt_to_aa_class, recomb_rate_by_index, argvs):
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp,nt_to_aa_class, reads_stats, recomb_read_count_by_index, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
     logging.info(f"Generating mutations AF plots and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
@@ -569,8 +570,11 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     if parents[1] == 'Omicron' or parents[0] == 'Delta':
         color1='red'
         color2='blue'
-    recombinant_rate = list(recomb_rate_by_index.values())
-    if recombinant_rate: 
+    if recomb_read_count_by_index:
+        total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads']
+        recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/total_recomb_paraents_reads if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)} 
+        recomb_count_by_index = [ recomb_read_count_by_index[i+0.5] if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)]
+        recombinant_rate = list(recomb_rate_by_index.values())
         fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
         main_row=2
         ## recombinate rate track
@@ -584,7 +588,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
             name='Recombinant Rate',
             width=[0.3 if i > 0.01 else 1 for i in recombinant_rate],
             hovertemplate = 'Rate: %{y:.6f}<br>'+'%{hovertext}<extra></extra>',
-            hovertext=[ 'CR: '+ all_mut_nt[x] + "-" + all_mut_nt[x+1] for x in range(len(all_mut_nt)-1)],
+            hovertext=[ 'Count: ' + str(recomb_count_by_index[x]) + '<br>CR: '+ all_mut_nt[x] + "-" + all_mut_nt[x+1] for x in range(len(all_mut_nt)-1)],
             #customdata=[ url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants_af ],
             showlegend=False,
             ),row=1,col=1)
@@ -693,7 +697,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     #fig.write_image(output+'.png')
     return output
 
-def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_pos, argvs):
+def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot_genomeview.html"
     logging.info(f"Generating mutations AF plots Genome View and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
@@ -707,9 +711,11 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     if parents[1] == 'Omicron' or parents[0] == 'Delta':
         color1='red'
         color2='blue'
-    recombinant_rate = list(recomb_rate_by_pos.values())
-    if recombinant_rate: 
-        fig = make_subplots(rows=3,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[150,600,200])
+    if recomb_read_count_by_pos: 
+        total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads'] 
+        recomb_rate_by_pos = { i:recomb_read_count_by_pos[i]/total_recomb_paraents_reads for i in recomb_read_count_by_pos}
+        recombinant_rate = list(recomb_rate_by_pos.values())
+        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
         main_row=2
         ## recombinate rate track
         fig.update_yaxes(range=[0,max(recombinant_rate)+0.01],title='Recombinate Rate', row=3,col=1)
@@ -719,12 +725,31 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
             marker_color= 'black',marker_line_color='black',
             name='Recombinant Rate',
             width=1,
-            hovertemplate = 'Rate: %{y:.6f}<br>'+'<extra></extra>',
+            hovertemplate = 'Rate: %{y:.6f}<br>'+'Count: %{hovertext}<extra></extra>',
+            hovertext=list(recomb_read_count_by_pos.values()),
             showlegend=False), 
-            row=3,col=1)
+            row=1,col=1)
+
+        recomb_read_count_pos_list = list(recomb_rate_by_pos.keys())
+        shade_start = recomb_read_count_pos_list[0]
+        for i in range(1,len(recomb_read_count_pos_list)-1):
+        
+            if recomb_read_count_pos_list[i] + 1 != recomb_read_count_pos_list[i+1]:
+                fig.add_vrect(
+                    x0=shade_start, x1=recomb_read_count_pos_list[i],
+                    layer="below", line_width=0, fillcolor="grey", opacity=0.2,
+                    row=1,col=1
+                )
+                shade_start = recomb_read_count_pos_list[i+1]
+
+        fig.add_vrect(
+                x0=shade_start, x1=recomb_read_count_pos_list[-1],
+                layer="below", line_width=0, fillcolor="grey", opacity=0.2,
+                row=1,col=1
+            )
     else:
-        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[150,600])
-        main_row=2
+        fig = make_subplots(rows=1,cols=1)
+        main_row=1
 
     ## mutation scatter plot
     fig.add_trace(go.Scatter(
@@ -786,196 +811,254 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
             showlegend=True,
             ),row=main_row,col=1)
     ### Genome annotation
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=266, y0=.20, x1=13468, y1=.25,
-        line=dict(color="Red"), fillcolor="Red",
-        row=1,col=1
+        axref='x', 
+        x=266,
+        y=1.02,
+        ax=13468,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=13468, y0=.18, x1=21555, y1=.23,
-        line=dict(color="White",width=0.8), fillcolor="Red",
-        row=1,col=1
+        axref='x', 
+        x=13468,
+        y=1.02,
+        ax=21555,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=21563, y0=.13, x1=25384, y1=.18,
-        line=dict(color="Yellow"), fillcolor="Yellow",
-        row=1,col=1
+        axref='x', 
+        x=21563,
+        y=1.02,
+        ax=25384,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf3a
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=25393, y0=.08, x1=26220, y1=.13,
-        line=dict(color="Orange"), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=25393,
+        y=1.02,
+        ax=26220,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # E
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=26245, y0=.12, x1=26472, y1=.17,
-        line=dict(color="White",width=0.8), fillcolor="Yellow",
-        row=1,col=1
+        axref='x', 
+        x=26245,
+        y=1.02,
+        ax=26472,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # M
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=26523, y0=.13, x1=27191, y1=.18,
-        line=dict(color="Yellow"), fillcolor="Yellow",
-        row=1,col=1
+        axref='x', 
+        x=26523,
+        y=1.02,
+        ax=27191,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf6
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=27202, y0=.09, x1=27387, y1=.14,
-        line=dict(color="White",width=0.8), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=27202,
+        y=1.02,
+        ax=27387,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf7a
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=27394, y0=.08, x1=27759, y1=.13,
-        line=dict(color="Orange"), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=27394,
+        y=1.02,
+        ax=27759,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf7b
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=27756, y0=.08, x1=27887, y1=.13,
-        line=dict(color="Orange"), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=27756,
+        y=1.02,
+        ax=27887,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf8
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=27894, y0=.09, x1=28259, y1=.14,
-        line=dict(color="White",width=0.8), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=27894,
+        y=1.02,
+        ax=28259,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # N
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=28274, y0=.13, x1=29533, y1=.18,
-        line=dict(color="Yellow"), fillcolor="Yellow",
-        row=1,col=1
+        axref='x', 
+        x=28274,
+        y=1.02,
+        ax=29533,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
-    # Orf10
-    fig.add_shape(type="rect",
+    fig.add_annotation(
         xref='x', yref='paper',
-        x0=29558, y0=.08, x1=29674, y1=.13,
-        line=dict(color="Orange"), fillcolor="Orange",
-        row=1,col=1
+        axref='x', 
+        x=29558,
+        y=1.02,
+        ax=29674,
+        ay=1.02,
+        showarrow=True,
+        arrowhead=2,
+        arrowside='start',
+        arrowsize=1,
+        arrowwidth=1.5
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=6000,
-        y=.23,
+        y=1.06,
         text="ORF1a",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=17500,
-        y=.21,
+        y=1.06,
         text="ORF1b",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=23500,
-        y=.16,
-        text="spike",
+        y=1.06,
+        text="Spike",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=25800,
-        y=.11,
-        text="ORF3a",
+        y=1.06,
+        text="3a",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=26350,
-        y=.16,
+        y=1.06,
         text="E",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=26800,
-        y=.16,
+        y=1.06,
         text="M",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=27300,
-        y=.11,
+        y=1.06,
         text="6",
-        showarrow=True,
+        showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=27700,
-        y=.11,
+        y=1.06,
         text="7ab",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=28100,
-        y=.11,
+        y=1.06,
         text="8",
-        showarrow=True,
+        showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=29000,
-        y=.16,
+        y=1.06,
         text="N",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     fig.add_annotation(
         xref='x', yref='paper',
         x=29600,
-        y=.11,
+        y=1.06,
         text="10",
         showarrow=False,
         font_size=12,
-        row=1,col=1
     )
     # Set axes properties
     fig.update_xaxes(range=[1, 29903], showgrid=False)
     fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
-    fig.update_yaxes(range=[0.08,0.28],visible=False, showticklabels=False, row=1,col=1)
-    fig.add_vrect(
-            x0=1, x1=29903,
-            layer="below",
-            line_width=0, fillcolor="White",
-            row=1,col=1
-        )
+
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -1118,8 +1201,8 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,argvs
     df_cr= pd.read_table(cr_file,sep="\t")
     df_cr = df_cr.sort_values(by="Cross_region",key = lambda col: [ int(x.split("-")[0]) for x in col] )
     mut_nt_pos = [ i.split(":")[1] for i in list(filtered_nt_to_variants.keys())]
-    recomb_read_count=dict()
-    recomb_read_count_pos=dict()
+    recomb_read_count_by_index=dict()
+    recomb_read_count_by_pos=dict()
     recomb_rate_by_pos=dict()
     recomb_rate_by_index=dict()
     for index, row in df_cr.iterrows():
@@ -1131,20 +1214,20 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,argvs
         index1 = mut_nt_pos.index(region.split('-')[0])
         index2 = mut_nt_pos.index(region.split('-')[1])
         for i in range(int(region.split('-')[0])+1,int(region.split('-')[1])+1):
-            recomb_read_count_pos[i] = recomb_read_count_pos[i] + read_count if i in recomb_read_count_pos else read_count
+            recomb_read_count_by_pos[i] = recomb_read_count_by_pos[i] + read_count if i in recomb_read_count_by_pos else read_count
         for i in range(index2 - index1):
-            recomb_read_count[index1 + i + 0.5] = recomb_read_count[index1 + i + 0.5] + read_count if (index1 + i + 0.5) in recomb_read_count else read_count
+            recomb_read_count_by_index[index1 + i + 0.5] = recomb_read_count_by_index[index1 + i + 0.5] + read_count if (index1 + i + 0.5) in recomb_read_count_by_index else read_count
 
     total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads'] 
-    recomb_rate_by_index = { i+0.5 : recomb_read_count[i+0.5]/total_recomb_paraents_reads if (i + 0.5) in recomb_read_count else 0 for i in range(len(mut_nt_pos)-1)}
-    recomb_rate_by_pos = { i:recomb_read_count_pos[i]/total_recomb_paraents_reads for i in recomb_read_count_pos}
+    recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/total_recomb_paraents_reads if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(mut_nt_pos)-1)}
+    recomb_rate_by_pos = { i:recomb_read_count_by_pos[i]/total_recomb_paraents_reads for i in recomb_read_count_by_pos}
     #cr_coord = list({ i  for x in df_cr.Cross_region for i in x.split('-') })
     tmp_output = os.path.splitext(argvs.tsv)[0] + ".recombinant_rate_pos.tsv"
     with open(tmp_output, "w") as f:
-        for key, value in recomb_read_count_pos.items():
+        for key, value in recomb_read_count_by_pos.items():
             f.write(f"{key}\t{value}\n")
 
-    return recomb_rate_by_index, recomb_rate_by_pos
+    return recomb_read_count_by_index, recomb_read_count_by_pos
 
 def main():
     argvs = setup_argparse()
@@ -1191,8 +1274,8 @@ def main():
         recomb_rate_by_pos=dict()
         if os.path.exists(cr_file):
             recomb_rate_by_index,  recomb_rate_by_pos = calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,argvs)
-        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_index, argvs)
-        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, recomb_rate_by_pos, argvs)
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, argvs)
+        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, argvs)
     if argvs.igv:
         update_igv_html(two_parents_list,argvs)
     # else:
