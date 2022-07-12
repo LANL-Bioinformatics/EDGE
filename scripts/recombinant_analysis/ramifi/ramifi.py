@@ -582,7 +582,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
         color2='blue'
     if recomb_read_count_by_index:
         total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads']
-        recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/parent_read_count_by_index[i+0.5] if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)} 
+        recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/(recomb_read_count_by_index[i+0.5] + parent_read_count_by_index[i+0.5]) if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)} 
         recomb_count_by_index = [ recomb_read_count_by_index[i+0.5] if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)]
         recombinant_rate = list(recomb_rate_by_index.values())
         fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
