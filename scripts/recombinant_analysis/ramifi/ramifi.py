@@ -725,6 +725,9 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
         color2='blue'
     if recomb_read_count_by_pos: 
         total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads'] 
+        for i in recomb_read_count_by_pos:
+            if i not in parent_pos_count:
+                parent_pos_count[i]=0
         recomb_rate_by_pos = { i:recomb_read_count_by_pos[i]/ (recomb_read_count_by_pos[i] + parent_pos_count[i]) for i in recomb_read_count_by_pos}
         recombinant_rate = list(recomb_rate_by_pos.values())
         fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
