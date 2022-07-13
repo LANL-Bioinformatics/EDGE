@@ -15,7 +15,9 @@ def read_bed_file(fn):
         # ref start end primername
             bedrow = {}
             bedrow['Reference'] = row[0]
-            bedrow['Primer_ID'] = row[3]
+            primerID = row[3].replace('_ext','_R').replace('_lig','_L')
+            bedrow['Primer_ID'] = re.sub('_alt\w+','_alt',primerID)
+            #print(bedrow['Primer_ID'],file=sys.stderr)
             bedrow['direction'] = row[5]
             if bedrow['direction'] == '+':
                 bedrow['end'] = int(row[2])
@@ -162,8 +164,9 @@ def go(args):
         if args.verbose:
             sys.stderr.write(report)
 
+        
         ## if the alignment starts before the end of the primer, trim to that position
-        #if 'ERR4969165.9497' in s.query_name:
+        #if 'ERR4969323.18090' in s.query_name:
         #    print(f'{s.is_reverse} {amplicon_len} {s.reference_start}  {s.reference_end}\n' , file=sys.stderr)
         #    print(list(p1), file=sys.stderr)
         #    print(list(p2), file=sys.stderr)
@@ -171,14 +174,14 @@ def go(args):
             ## softmask the alignment if left primer start/end inside alignment
             
             if args.start:
-                primer_position = p1[2]['start'] - args.offset
+                primer_position = p1[2]['start'] 
             else:
-                primer_position = p1[2]['end'] - args.offset
+                primer_position = p1[2]['end'] 
             
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
-                        if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <  p1[2]['end']:
+                        if not s.is_reverse and s.reference_start >=  (p1[2]['start'] - args.offset) and s.reference_start <  p1[2]['end']:
                             trim(cigar, s, primer_position, 0)
                         ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
                         if s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_start <= primer_position:
@@ -187,10 +190,14 @@ def go(args):
                         if s.reference_start < primer_position and s.reference_end >= primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
                             trim(cigar, s, primer_position, 0)
                 else: ## unpaired reads
-                    if not s.is_reverse and s.reference_start >=  p1[2]['start'] and s.reference_start <  p1[2]['end']:
+                    if not s.is_reverse and s.reference_start >=  (p1[2]['start'] - args.offset)  and s.reference_start <  p1[2]['end']:
                         trim(cigar, s, primer_position, 0)
             else:
-                if s.reference_start < primer_position:
+                # not the correct primer pair ex primer_A_RIGHT  primer_A_LEFT, filter the read
+                if levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) >   1:
+                    if s.reference_start >=  (p1[2]['start'] - args.offset) and s.reference_start <  p1[2]['end']:
+                        trim(cigar, s, primer_position, 0)
+                elif s.reference_start < primer_position:
                     trim(cigar, s, primer_position, 0)
                 else:
                     if args.verbose:
@@ -198,14 +205,14 @@ def go(args):
            
             ## softmask the alignment if right primer start/end inside alignment
             if args.start:
-                primer_position = p2[2]['start'] + args.offset
+                primer_position = p2[2]['start'] 
             else:
-                primer_position = p2[2]['end'] + args.offset
+                primer_position = p2[2]['end'] 
             
             if args.strand:
                 if s.is_paired:
                     if amplicon_len > qlen:
-                        if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                        if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
                             trim(cigar, s, primer_position, 1)
                         ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
                         if not s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_end > primer_position:
@@ -214,10 +221,13 @@ def go(args):
                         if s.reference_end > primer_position and s.reference_start < primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
                             trim(cigar, s, primer_position, 1)
                 else: ## unpaired reads
-                    if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  p2[2]['start']:
+                    if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
                         trim(cigar, s, primer_position, 1)
             else:
-                if s.reference_end > primer_position:
+                if levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) > 1 :
+                    if s.reference_end > p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
+                        trim(cigar, s, primer_position, 1)
+                elif s.reference_end > primer_position:
                     trim(cigar, s, primer_position, 1)
                 else:
                     if args.verbose:
