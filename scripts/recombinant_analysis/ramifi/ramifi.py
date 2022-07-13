@@ -159,12 +159,14 @@ def parse_vcf(argvs,nt_to_variants):
                 continue
             content = line.strip().split('\t')
             AFreq = 0
+            depth = 0
             if "ALT_FREQ" in line:
                 content2 = content[-1].split(':')
                 AFreq = float(content2[-1])
-            if 'DP=' in line and 'DP4=' in line:
+            if 'DP=' in line:
                 m = re.search(r'DP=(\d+)', line)
                 depth=m[1]
+            if 'DP4=' in line:
                 m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', line)
                 (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
                 AFreq = float((int(alt_forward) + int(alt_reverse))/int(depth))

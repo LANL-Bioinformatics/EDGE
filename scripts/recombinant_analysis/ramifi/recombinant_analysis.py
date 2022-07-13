@@ -166,9 +166,10 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
             if "ALT_FREQ" in v:
                 content2 = content[-1].split(':')
                 AFreq = float(content2[-1])
-            if 'DP=' in v and 'DP4=' in v:
+            if 'DP=' in v:
                 m = re.search(r'DP=(\d+)', v)
                 depth=m[1]
+            if 'DP4=' in v:
                 m = re.search(r'DP4=(\d+),(\d+),(\d+),(\d+)', v)
                 (ref_foward,ref_reverse,alt_forward,alt_reverse) = m.groups()
                 AFreq = float((int(alt_forward) + int(alt_reverse))/int(depth))
