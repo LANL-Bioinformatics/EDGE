@@ -2082,6 +2082,7 @@ sub pull_readmapping_ref {
 	$vars->{RMREFCONSENSUS_SW}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
 	$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html.png";
 	$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html";
+	$vars->{RMREFCONAFHTML2}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot.html";
 	#$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png";
 	#$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html";
 	$vars->{RMREFCONVCFBARPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html.png";
