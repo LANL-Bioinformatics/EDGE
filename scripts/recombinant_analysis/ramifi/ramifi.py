@@ -706,7 +706,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     """.format(plot_div=plot_div, js_callback=js_callback)
     with open(output, 'w') as f:
         f.write(html_str)
-    #fig.write_image(output+'.png')
+    fig.write_image(output+'.png')
     return output
 
 def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, argvs):
@@ -1118,7 +1118,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     """.format(plot_div=plot_div, js_callback=js_callback)
     with open(output, 'w') as f:
         f.write(html_str)
-    #fig.write_image(output+'.png')
+    fig.write_image(output+'.png')
     return output
 
 def update_igv_html(two_parents_list,argvs):
