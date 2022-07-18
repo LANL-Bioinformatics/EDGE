@@ -568,7 +568,7 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
-def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index, argvs):
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index, ec19_lineage, ec19_config, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
     logging.info(f"Generating mutations AF plots and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
@@ -673,6 +673,8 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
    
     fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
     fig.update_xaxes(tickvals = list(range(len(all_mut_nt))), ticktext=all_mut_nt, tickfont=dict(size=10),tickangle=-60)
+    if 'projname' in ec19_config:
+        fig.update_layout(title=ec19_config['projname'] + ' (' + ec19_lineage + ')')
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -709,7 +711,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     fig.write_image(output+'.png')
     return output
 
-def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, argvs):
+def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot_genomeview.html"
     logging.info(f"Generating mutations AF plots Genome View and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
@@ -1084,7 +1086,8 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     # Set axes properties
     fig.update_xaxes(range=[1, 29903], showgrid=False)
     fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
-
+    if 'projname' in ec19_config:
+        fig.update_layout(title=ec19_config['projname'] + ' (' + ec19_lineage + ')')
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -1262,6 +1265,23 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,paren
 
     return recomb_read_count_by_index, recomb_read_count_by_pos, parent_read_count_by_index
 
+def parse_lineage(txt):
+    with open(txt,'r') as f:
+        content = f.readlines()
+    result = content[1].split(',')
+    return(result[1])
+
+def parse_ec19_config(config):
+    ec19_config=dict()
+    with open(config,'r') as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            if line.__contains__('='):
+                k,v =line.strip().split('=')
+                ec19_config[k]=v
+    return(ec19_config)
+
 def main():
     argvs = setup_argparse()
     log_level = logging.DEBUG if argvs.verbose else logging.INFO
@@ -1271,7 +1291,13 @@ def main():
     (delta_uniq_nt, omicron_uniq_nt, nt_to_variant,
      nt_to_aa) = load_var_mutation(argvs.variantMutation)
     nt_to_lineage = load_lineage_mutation(argvs.lineageMutation)
-       
+    
+    if argvs.ec19_projdir:
+        ec19_config_file = os.path.join(argvs.ec19_projdir, "config.txt")
+        ec19_lineage_file = os.path.join(argvs.ec19_projdir, "ReadsBasedAnalysis","readsMappingToRef","NC_045512.2_consensus_lineage.txt")
+        ec19_lineage = parse_lineage(ec19_lineage_file) if ec19_lineage_file else 'Unknown'
+        ec19_config =  parse_ec19_config(ec19_config_file)
+
     if argvs.vcf:
         parents_variant, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp=parse_vcf(argvs,nt_to_variant)
         mutation_reads, reads_coords, reads_stats = find_read_with_variants(
@@ -1307,8 +1333,8 @@ def main():
         recomb_rate_by_pos=dict()
         if os.path.exists(cr_file):
             recomb_rate_by_index,  recomb_rate_by_pos, parent_read_count_by_index = calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,parent_pos_count, argvs)
-        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, argvs)
-        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, argvs)
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, ec19_lineage, ec19_config, argvs)
+        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs)
     if argvs.igv:
         update_igv_html(two_parents_list,argvs)
     # else:
