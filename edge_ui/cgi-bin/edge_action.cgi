@@ -1053,7 +1053,19 @@ elsif($action eq 'define-gap-depth'){
 	my $sra_num=0;
 	foreach my $acc (@accs){
 		$acc =~ s/ //g;
-		my $url = "https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=$acc";
+		my $url0 = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=sra&term=$acc&usehistory=y";
+		my $cmd0 = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url0\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url0\" 2>/dev/null";
+		my $webenv;
+		my $key;
+		my $SRA_fh0;
+		my $pid = open ($SRA_fh0, "-|")
+			or exec($cmd0);
+		while(my $line=<$SRA_fh0>){
+			$webenv = $1 if ( $line =~ /<WebEnv>(\S+)<\/WebEnv>/);
+			$key = $1 if ($line =~ /<QueryKey>(\S+)<\/QueryKey>/);
+		}
+		my $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&rettype=runinfo&query_key=$key&WebEnv=$webenv&retmode=text";
+
 		my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
 		my $SRA_fh;
 		my $pid = open ($SRA_fh, "-|")
