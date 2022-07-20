@@ -742,7 +742,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
             marker_color= 'black',marker_line_color='black',
             name='Recombinant Rate',
             width=1,
-            hovertemplate = 'Rate: %{y:.6f}<br>'+'Count: %{hovertext}<extra></extra>',
+            hovertemplate = 'Pos: %{x}<br>'+'Rate: %{y:.6f}<br>'+'Count: %{hovertext}<extra></extra>',
             hovertext=list(recomb_read_count_by_pos.values()),
             showlegend=False), 
             row=1,col=1)

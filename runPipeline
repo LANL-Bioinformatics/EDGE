@@ -3483,6 +3483,7 @@ sub runReadsToGenome
             my $pangolin_env= "$RealBin/thirdParty/Anaconda3/envs/pangolin";
             my $pangolin_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $pangolin_env";
             my $pangolin_log= "$outputDir/pangolin.log";
+	    # --expanded-lineage ?
             $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin $con_pangolin_mode -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
