@@ -742,7 +742,7 @@ def mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class,projname, lineage, 
                 showlegend=True,
                 ))
     # recombinant track
-    if len(cr_coords)>0:
+    if len(cr_coords)<0:
         fig.add_trace(go.Scatter(
                     x=all_mut_nt, 
                     y=[ float(vcf_sep_comma[x]['AF'])  if parents[0] in vcf_sep_comma[x]['variants'] and parents[1] not in vcf_sep_comma[x]['variants'] and x.split(':')[1] in cr_coords else None for x in vcf_sep_comma], 

@@ -422,7 +422,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                 parent2_reads.append(read)
             if 'P2' not in list_for_check_recomb:
                 for i in range(reads_coords[read]['start']+1,reads_coords[read]['end']+1):
-                    parent_pos_count[i] = parent_pos_count[i] + 1 if i in parent_pos_count else 1 
+                    parent_pos_count[i] = parent_pos_count[i] + 1 if i in parent_pos_count else 1
                 parent1_reads.append(read)
             if 'P1' in list_for_check_recomb and 'P2' in list_for_check_recomb:
                 if 'P1' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb) ):
@@ -568,7 +568,7 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
-def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index, ec19_lineage, ec19_config, argvs):
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index,parent_pos_count,ec19_lineage, ec19_config, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
     logging.info(f"Generating mutations AF plots and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
@@ -605,7 +605,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
             showlegend=False,
             ),row=1,col=1)
         for i in range(len(all_mut_nt_pos)-1):
-            if (i + 0.5) in recomb_rate_by_index and recomb_rate_by_index[i+0.5] > 0:
+            if ((i + 0.5) in recomb_rate_by_index and recomb_rate_by_index[i+0.5] > 0) or (int(all_mut_nt_pos[i]) in parent_pos_count and int(all_mut_nt_pos[i+1]) in parent_pos_count) :
                 fig.add_vrect(
                     x0=i, x1=i+1,
                     layer="below", line_width=0, fillcolor="grey", opacity=0.2,
@@ -735,7 +735,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
         fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
         main_row=2
         ## recombinate rate track
-        fig.update_yaxes(range=[0,max(recombinant_rate)+0.01],title='Recombinate Rate', row=3,col=1)
+        fig.update_yaxes(range=[0,max(recombinant_rate)+0.01],title='Recombinate Rate', row=1,col=1)
         fig.add_trace(go.Bar(
             x=[ int(x) for x in recomb_rate_by_pos], 
             y=recombinant_rate, 
@@ -746,8 +746,8 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
             hovertext=list(recomb_read_count_by_pos.values()),
             showlegend=False), 
             row=1,col=1)
-
-        recomb_read_count_pos_list = list(recomb_rate_by_pos.keys())
+        
+        recomb_read_count_pos_list = list(set(list(recomb_rate_by_pos.keys()) + list(parent_pos_count.keys())))
         shade_start = recomb_read_count_pos_list[0]
         for i in range(1,len(recomb_read_count_pos_list)-1):
         
@@ -1238,22 +1238,21 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,paren
     for index, row in df_cr.iterrows():
         region=row['Cross_region']
         reads= json.loads(row['Reads'])
-        read_count = 0
+        recomb_read_count = 0
         for type, read in reads.items():
-            read_count = read_count + len(read)
+                recomb_read_count = recomb_read_count + len(read)
         index1 = mut_nt_pos.index(region.split('-')[0])
         index2 = mut_nt_pos.index(region.split('-')[1])
         parent_read_count_in_cr=0
         region_size =0
         for i in range(int(region.split('-')[0])+1,int(region.split('-')[1])+1):
-            recomb_read_count_by_pos[i] = recomb_read_count_by_pos[i] + read_count if i in recomb_read_count_by_pos else read_count
+            recomb_read_count_by_pos[i] = recomb_read_count_by_pos[i] + recomb_read_count if i in recomb_read_count_by_pos else recomb_read_count
             parent_read_count_in_cr = parent_pos_count[i] + parent_read_count_in_cr if i in parent_pos_count else parent_read_count_in_cr + 0
             region_size += 1
         avg_parent_read_count_in_cr = int(parent_read_count_in_cr/region_size)
         for i in range(index2 - index1):
-            recomb_read_count_by_index[index1 + i + 0.5] = recomb_read_count_by_index[index1 + i + 0.5] + read_count if (index1 + i + 0.5) in recomb_read_count_by_index else read_count
+            recomb_read_count_by_index[index1 + i + 0.5] = recomb_read_count_by_index[index1 + i + 0.5] + recomb_read_count if (index1 + i + 0.5) in recomb_read_count_by_index else recomb_read_count
             parent_read_count_by_index[index1 + i + 0.5] = parent_read_count_by_index[index1 + i + 0.5] + avg_parent_read_count_in_cr if (index1 + i + 0.5) in parent_read_count_by_index else avg_parent_read_count_in_cr
-
     total_recomb_paraents_reads= reads_stats['parent1_reads'] + reads_stats['parent2_reads'] + reads_stats['recomb1_reads'] + reads_stats['recomb2_reads'] + reads_stats['recombx_reads'] 
     recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/total_recomb_paraents_reads if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(mut_nt_pos)-1)}
     recomb_rate_by_pos = { i:recomb_read_count_by_pos[i]/total_recomb_paraents_reads for i in recomb_read_count_by_pos}
@@ -1261,7 +1260,8 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,paren
     tmp_output = os.path.splitext(argvs.tsv)[0] + ".recombinant_rate_pos.tsv"
     with open(tmp_output, "w") as f:
         for key, value in recomb_read_count_by_pos.items():
-            f.write(f"{key}\t{value}\n")
+            rate = value/parent_pos_count[key] if key in parent_pos_count else 1
+            f.write(f"{key}\t{value}\t{rate}\n")
 
     return recomb_read_count_by_index, recomb_read_count_by_pos, parent_read_count_by_index
 
@@ -1292,6 +1292,7 @@ def main():
      nt_to_aa) = load_var_mutation(argvs.variantMutation)
     nt_to_lineage = load_lineage_mutation(argvs.lineageMutation)
     
+    ec19_lineage =  'Unknown'
     if argvs.ec19_projdir:
         ec19_config_file = os.path.join(argvs.ec19_projdir, "config.txt")
         ec19_lineage_file = os.path.join(argvs.ec19_projdir, "ReadsBasedAnalysis","readsMappingToRef","NC_045512.2_consensus_lineage.txt")
@@ -1333,7 +1334,7 @@ def main():
         recomb_rate_by_pos=dict()
         if os.path.exists(cr_file):
             recomb_rate_by_index,  recomb_rate_by_pos, parent_read_count_by_index = calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,parent_pos_count, argvs)
-        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, ec19_lineage, ec19_config, argvs)
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, parent_pos_count,ec19_lineage, ec19_config, argvs)
         mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs)
     if argvs.igv:
         update_igv_html(two_parents_list,argvs)
