@@ -1639,15 +1639,15 @@ sub pull_taxa {
 			### calculate classified reads
 			my $toolname = $row->{CPTOOL};
 			my $creads = 0; #classified reads
-			my $cur_level ="";
+			my $cur_level =$row->{CPRANK};
 			my $abu_list = "$vars->{CPDIR}/1_$reads_type/$row->{CPTOOL}/$reads_type-$row->{CPTOOL}.list.txt"; 
 			if ( -e $abu_list){
 				open LIST, $abu_list or die $!;
 				while(<LIST>){
 					next if /^LEVEL/;
 					my @temp = split /\t/, $_;
-					$cur_level ||= $temp[0];
-					last if $cur_level ne $temp[0];
+					#$cur_level ||= $temp[0];
+					next if $cur_level ne $temp[0];
 
 					my $mapped_reads = $temp[2];
 					if( $toolname =~ /gottcha-/i ){

@@ -8,9 +8,15 @@ EDGE 2.4.1
 * add homopolymer filter and strandBias filter for consensus workflow
 * update megahit from 1.1.3 to 1.2.9
 * update google chrome from 75.0.3767.0 to 95.0.4615.0
+* update sratoolkit from 2.9.6 to 3.0.
+* update sra download to url since NCBI retired trace database
+* add offset extenstion for primer trim
+* add -K 10000000 for bwa mem reproducibility
+
 
 EDGE GUI 2.4.1
 * Extract mapped Diamond reads 
+* Add job queue
 
 
 -- Version 20201130
