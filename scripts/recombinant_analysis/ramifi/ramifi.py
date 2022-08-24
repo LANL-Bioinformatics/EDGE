@@ -113,9 +113,9 @@ def load_var_mutation(file):
     with open(file, 'r') as f:
         v_data = json.load(f)
     delta_uniq_nt = list(
-        set(v_data['Delta'].keys()) - set(v_data['Omicron'].keys()))
+        set(v_data['Delta'].keys()) - set(v_data['Omicron'].keys())) if 'Delta' in v_data and 'Omicron' in v_data else list()
     omicron_uniq_nt = list(
-        set(v_data['Omicron'].keys()) - set(v_data['Delta'].keys()))
+        set(v_data['Omicron'].keys()) - set(v_data['Delta'].keys())) if 'Delta' in v_data and 'Omicron' in v_data else list()
 
     nt_to_aa = dict()
     nt_to_variant = dict()
@@ -1260,7 +1260,7 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,paren
     tmp_output = os.path.splitext(argvs.tsv)[0] + ".recombinant_rate_pos.tsv"
     with open(tmp_output, "w") as f:
         for key, value in recomb_read_count_by_pos.items():
-            rate = value/parent_pos_count[key] if key in parent_pos_count else 1
+            rate = value/(parent_pos_count[key] + value) if key in parent_pos_count else 1.0
             f.write(f"{key}\t{value}\t{rate}\n")
 
     return recomb_read_count_by_index, recomb_read_count_by_pos, parent_read_count_by_index
@@ -1293,6 +1293,7 @@ def main():
     nt_to_lineage = load_lineage_mutation(argvs.lineageMutation)
     
     ec19_lineage =  'Unknown'
+    ec19_config = dict()
     if argvs.ec19_projdir:
         ec19_config_file = os.path.join(argvs.ec19_projdir, "config.txt")
         ec19_lineage_file = os.path.join(argvs.ec19_projdir, "ReadsBasedAnalysis","readsMappingToRef","NC_045512.2_consensus_lineage.txt")
