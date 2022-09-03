@@ -31,7 +31,7 @@
 	<script src="javascript/jquery.mobile-1.4.3.min.js"></script>
 	<script src="javascript/jquery.dataTables.min.js"></script>
 	<script src="javascript/dataTables.checkboxes.min.js"></script>
-	<script src="javascript/edge.js?v=20220718"></script>
+	<script src="javascript/edge.js?v=20220902"></script>
 	<script src="javascript/spectrum.js"></script>
 	<script src="javascript/jqueryFileTree.js"></script>
 	<script src="javascript/raphael-min.js" ></script>
@@ -1423,6 +1423,10 @@
 						<label for="edge-r2g-variantcall-ploidy2">Diploid</label>
 					</fieldset>
 				</div>
+				<div class="ui-field-contain edge-fastq-options">
+ 					<label for="edge-r2g-recombinant-min-mixed">Minimum Mixed Mutations <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum Mixed Mutations Count (AF between 20 and 80) to run mixed infection reads analysis (RAMIFI).." ></a></label>
+					<input type="number" name="edge-r2g-recombinant-min-mixed" id="edge-r2g-recombinant-min-mixed" data-mini="true" data-clear-btn="true" value="6">
+				</div>
 			</div>
 		</div>
 		
@@ -2313,7 +2317,7 @@
 		<center style="color:#777;font-size:0.9em">Questions? Please contact us at  <a href="mailto:edge-covid19@lanl.gov">edge-covid19@lanl.gov</a>.</center>
 	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="edge-footer ui-footer ui-bar-inherit ui-footer-fixed slideup" role="contentinfo">
 		<p>EDGE-UI v2.4.0
-			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20220718</span>
+			<span style="font-size: 0.5em; display: block; clear: both; margin-top: 3px;">build 20220902</span>
 		</p>	
 		<a id="scroll-up-btn" href="#" class="ui-btn ui-icon-carat-u ui-btn-icon-notext ui-corner-all">No text</a>
 		<div class="edge-footer-logo-left">

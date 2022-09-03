@@ -29,7 +29,7 @@ def setup_argparse():
     parser.add_argument('-m', '--minAF',metavar='[FLOAT]',required=False, type=float, default=0.1, help="plot threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.1]")
     parser.add_argument('--minRecAF',metavar='[FLOAT]',required=False, type=float, default=0.3, help="recobminant threshold. minimum average alleic frequency of strains' unqiue mutations [default:0.3]")
     parser.add_argument('-x', '--mixRatio',metavar='[FLOAT]',required=False, type=float, default=0.5, help="ratio of alleic frequency sites between 0.2 ((minMixAF)) and 0.8 (maxMixAF) to determine the mixed population")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=-1, help="threshold of mixed mutations count. [default: -1]")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=6, help="threshold of mixed mutations count. [default: 6]")
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutation [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutation [default:0.8]")
     parser.add_argument('--lineageMutation',metavar='[FILE]',required=False, type=str, help="lineage mutation json file")
@@ -45,9 +45,9 @@ def setup_argparse():
     if not argvs.variantMutation:
         argvs.variantMutation = os.path.join(bin_dir,"data", 'variant_mutation.json')
     if not argvs.html:
-        argvs.html = os.path.join(argvs.ec19_projdir, 'ReadsBasedAnalysis','readsMappingToRef','recombinant_analysis_result.html')
+        argvs.html = os.path.join(argvs.ec19_projdir, 'ReadsBasedAnalysis','readsMappingToRef','MixedInfectionAnalysis', 'recombinant_analysis_result.html')
     if not argvs.igv:
-        argvs.igv = os.path.join('..', '..','IGV','ref_tracks','igv.html')
+        argvs.igv = os.path.join('..', '..','..','IGV','ref_tracks','igv.html')
     return argvs
 
 def parse_variants(vcf,comp,nt_to_variant,argvs):
@@ -253,10 +253,10 @@ def check_mutations(mutation_af,mutation_dp, delta_uniq_nt,omicron_uniq_nt,argvs
     #if probably_delta > float(minAF) * len(delta_uniq_nt) or probably_omicron > float(minAF) * len(omicron_uniq_nt):
     if avg_delta_AF > argvs.minAF or avg_omicron_AF > argvs.minAF:
         check=True
-    logging.info(f'Average Delta Unique Mutations AF: {avg_delta_AF}')
-    logging.info(f'Average Omicron Unique Mutations AF: {avg_omicron_AF}')
-    logging.info(f'Probably Delta Unique Mutations Count (>={argvs.maxMixAF}): {probably_delta}')
-    logging.info(f'Probably Omicron Unique Mutations Count (>={argvs.maxMixAF}): {probably_omicron}')
+    logging.info(f'Average Delta Specific Mutations AF: {avg_delta_AF}')
+    logging.info(f'Average Omicron Specific Mutations AF: {avg_omicron_AF}')
+    logging.info(f'Probably Delta Specific Mutations Count (>={argvs.maxMixAF}): {probably_delta}')
+    logging.info(f'Probably Omicron Specific Mutations Count (>={argvs.maxMixAF}): {probably_omicron}')
     if avg_delta_AF > argvs.minRecAF and avg_omicron_AF > argvs.minRecAF and int(len(delta_uniq_nt) * argvs.minRecAF) < probably_delta  and int(len(omicron_uniq_nt) * argvs.minRecAF) < probably_omicron :
         logging.info(f'Probable Delta and Omicron recombinant. [minimum average delta and omicron unqiue variants AF: {argvs.minRecAF}]')
     return check
@@ -304,7 +304,7 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         y=[ float(mutation_af[i]) if i in delta_uniq_nt else None for i in deltacron_variants_nt ],
         mode="markers",
         marker=dict(color='red',size=10),
-        name="Delta unique variants",
+        name="Delta Specific mutations",
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ f'{i}' for i in deltacron_variants_aa ],
         customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in delta_uniq_nt else None for i in deltacron_variants_nt ],
@@ -316,7 +316,7 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         y=[ float(mutation_af[i]) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
         mode="markers",
         marker=dict(color='blue',size=10),
-        name="Omicron unique variants",
+        name="Omicron Specific mutations",
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ f'{i}' for i in deltacron_variants_aa ],
         customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
@@ -329,7 +329,7 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         y=[ float(mutation_af[i]) if i in delta_uniq_nt and i.split(':')[1] in cr_coords else None for i in deltacron_variants_nt ],
         mode="markers",
         marker=dict(color='red',size=10,line=dict(color='SkyBlue',width=2)),
-        name="Delta unique variants with recombinant",
+        name="Delta specific mutations with recombinant",
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ nt_to_aa[x] + "<br>CR:" + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else nt_to_aa[x] for x in deltacron_variants_nt ],
         customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in delta_uniq_nt else None for i in deltacron_variants_nt ],
@@ -343,7 +343,7 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
         marker=dict(color='blue',size=10,line=dict(color='Pink',width=2)),
         hovertemplate = 'AF: %{y:.2f}<br>'+'<b>%{text}</b>',
         text=[ nt_to_aa[x] + "<br>CR:" + cr_coords[x.split(':')[1]] if x.split(':')[1] in cr_coords else nt_to_aa[x] for x in deltacron_variants_nt ],
-        name="Omicron unique variants with recombinant",
+        name="Omicron specific mutations with recombinant",
         customdata=[ url + '?locus=NC_045512_2:' + str(int(i.split(':')[1]) - 100) + '-' +  str(int(i.split(':')[1]) + 100) if i in omicron_uniq_nt else None for i in deltacron_variants_nt ],
         showlegend=False,
         legendgroup=1
@@ -499,7 +499,7 @@ def bar_plot_list3(delta_uniq_nt,omicron_uniq_nt,mutation_dp):
 def deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, sample, mutation_af, mutation_dp, lineage, cr_coords ,argvs):
     igv_url= argvs.igv
     out_html = os.path.splitext(argvs.html)[0] + '.deltacron.html'
-    logging.info(f"Generating deltacron unique mutations AF plot and save to {out_html}")
+    logging.info(f"Generating deltacron specific mutations AF plot and save to {out_html}")
     barplot_lists = bar_plot_list3(delta_uniq_nt,omicron_uniq_nt, mutation_dp)
     deltacron_af_plot(nt_to_aa,delta_uniq_nt,omicron_uniq_nt,mutation_af, barplot_lists, lineage, sample, igv_url,out_html , cr_coords)
 
@@ -909,7 +909,7 @@ def main():
 
     #plot_bool = check_mutations(mutations_af, mutations_dp, delta_uniq_nt,omicron_uniq_nt,argvs)
 
-    if mix_count > argvs.minMixed_n and len(parents_v.keys()) >= 1:
+    if mix_count >= argvs.minMixed_n and len(parents_v.keys()) >= 1:
         # if list(parents_v.keys())[0]['all'] > 2 and list(parents_v.keys())[1]['all'] > 2: #both parents need at least have two muations.
         
         ## reads based analysis

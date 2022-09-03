@@ -1805,6 +1805,7 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Reads Mapping To Contigs"}       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/readsMappingToContig/runReadsToContig.finished";
 	$module_ctl->{"Reads Mapping To Reference"}     ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
         $module_ctl->{"Reads Mapping To Reference"}     ->{"UnmappedReads"} = "$proj_dir/ReferenceBasedAnalysis/UnmappedReads/retrieveUnmappedReads.finished";
+	$module_ctl->{"Mixed Infection Analysis"}       ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/mixedInfectionAnalysis.finished";
 	$module_ctl->{"Reads Taxonomy Classification"}  ->{"AllReads"}      = "$proj_dir/ReadsBasedAnalysis/Taxonomy/taxonomyAssignment.finished";
 	$module_ctl->{"Reads Taxonomy Classification"}  ->{"UnmappedReads"} = "$proj_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
 	$module_ctl->{"Contigs Mapping To Reference"}   ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";

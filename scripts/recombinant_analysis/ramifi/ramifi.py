@@ -50,7 +50,7 @@ def setup_argparse():
                         help='reference accession used in bam [default: NC_045512.2]')
     parser.add_argument('--minMixAF',metavar='[FLOAT]',required=False, type=float, default=0.2, help="minimum alleic frequency for checking mixed mutations on vcf [default:0.2]")
     parser.add_argument('--maxMixAF',metavar='[FLOAT]',required=False, type=float, default=0.8, help="maximum alleic frequency for checking mixed mutations on vcf [default:0.8]")
-    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=3, help="threshold of mixed mutations count for vcf.")
+    parser.add_argument('--minMixed_n',metavar='[INT]',required=False, type=int, default=6, help="threshold of mixed mutations count for vcf.")
     parser.add_argument('--minReadCount',metavar='[INT]',required=False, type=int, default=10, help="threshold of read with variant count when no vcf provided.")
     parser.add_argument(
         '--lineageMutation', metavar='[FILE]', required=False, type=str, help=f"lineage mutation json file [default: variant_mutation.json]")
@@ -99,11 +99,11 @@ def setup_argparse():
         tsv_filename = "recombinant_reads.tsv"
         if argvs.ec19_projdir:
             argvs.tsv = os.path.join(argvs.ec19_projdir, 'ReadsBasedAnalysis',
-                                     'readsMappingToRef', tsv_filename)
+                                     'readsMappingToRef', 'MixedInfectionAnalysis', tsv_filename)
         else:
             argvs.tsv = tsv_filename
     if argvs.ec19_projdir and not argvs.igv:
-        argvs.igv = os.path.join('..', '..', 'IGV', 'ref_tracks', 'igv.html')
+        argvs.igv = os.path.join('..', '..', '..','IGV', 'ref_tracks', 'igv.html')
     if not argvs.outbam:
         argvs.outbam = os.path.splitext(argvs.tsv)[0] + ".bam"
     return argvs
@@ -248,7 +248,7 @@ def parse_vcf(argvs,nt_to_variants):
     if len(parents_v.keys())<2:
         logging.error(f'no two parents variants detected. {parents_v}')
         #sys.exit(1)
-    if mix_count <= argvs.minMixed_n:
+    if mix_count < argvs.minMixed_n:
         logging.error(f'count of mixed mutations with AF between {argvs.minMixAF} and {argvs.maxMixAF} is less than {argvs.minMixed_n}.')
         sys.exit(1)
     if len(parents_v.keys()) > 0:
@@ -587,7 +587,8 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
         recomb_rate_by_index = { i+0.5 : recomb_read_count_by_index[i+0.5]/(recomb_read_count_by_index[i+0.5] + parent_read_count_by_index[i+0.5]) if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)} 
         recomb_count_by_index = [ recomb_read_count_by_index[i+0.5] if (i + 0.5) in recomb_read_count_by_index else 0 for i in range(len(all_mut_nt_pos)-1)]
         recombinant_rate = list(recomb_rate_by_index.values())
-        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
+        fig = make_subplots(rows=2,cols=2, shared_xaxes=True, vertical_spacing=0.02, horizontal_spacing=0.01 ,specs=[[{"type": "xy"}, {"type": "pie"}],[{"type": "xy"}, {"type": "pie"}]], row_heights=[200,600],column_widths=[0.9,0.2])
+        #fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
         main_row=2
         ## recombinate rate track
         fig.update_yaxes(range=[-0.01, max(recombinant_rate)+0.01],title='Recombinate Rate', row=1, col=1 )
@@ -612,7 +613,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                     row=1,col=1
                 )
     else:
-        fig = make_subplots(rows=1,cols=1)
+        fig = make_subplots(rows=1,cols=2)
         main_row=1
     ## mutation scatter plot
     fig.add_trace(go.Scatter(
@@ -670,11 +671,38 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
-   
+    # pie chart
+    pie_content=defaultdict(lambda:0)
+    for x in nt_to_variants:
+        if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+            pie_content[parents[0]] += 1
+        if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x]:
+            pie_content[parents[1]] += 1
+        if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x]:
+            pie_content[parents[0] + ', ' + parents[1]] += 1
+        if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+            pie_content['Not ' + parents[0] + ', Not ' + parents[1]] += 1
+        if not nt_to_variants[x]:
+            pie_content['Undefined_Mutations'] += 1
+    fig.add_trace(go.Pie(labels=list(pie_content.keys()),
+                        values=list(pie_content.values()),
+                        textinfo='value+percent',
+                        marker=dict(colors=[color1,color2,'purple','green','grey'] ),
+                        showlegend=False,
+                        hovertemplate = 'count: %{value}<br>' + 'percent: %{percent:.1%}<br>'+'<extra></extra>',
+                        ), row=main_row, col=2
+        )
     fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
     fig.update_xaxes(tickvals = list(range(len(all_mut_nt))), ticktext=all_mut_nt, tickfont=dict(size=10),tickangle=-60)
     if 'projname' in ec19_config:
         fig.update_layout(title=ec19_config['projname'] + ' (' + ec19_lineage + ')')
+    fig.update_layout(legend=dict(
+        yanchor="top",
+        y=1.05,
+        xanchor="right",
+        x=0.95,
+        bgcolor="rgba(255,255,255,0.1)",
+    ))
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -708,7 +736,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     """.format(plot_div=plot_div, js_callback=js_callback)
     with open(output, 'w') as f:
         f.write(html_str)
-    fig.write_image(output+'.png')
+    fig.write_image(output+'.png', width=1980, height=1080)
     return output
 
 def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs):
@@ -732,7 +760,9 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
                 parent_pos_count[i]=0
         recomb_rate_by_pos = { i:recomb_read_count_by_pos[i]/ (recomb_read_count_by_pos[i] + parent_pos_count[i]) for i in recomb_read_count_by_pos}
         recombinant_rate = list(recomb_rate_by_pos.values())
-        fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
+        #fig = make_subplots(rows=2,cols=1, shared_xaxes=True, vertical_spacing=0.02, row_heights=[200,600])
+        fig = make_subplots(rows=2,cols=2, shared_xaxes=True, vertical_spacing=0.02, horizontal_spacing=0.01 ,specs=[[{"type": "xy"}, {"type": "pie"}],[{"type": "xy"}, {"type": "pie"}]], row_heights=[200,600],column_widths=[0.9,0.2])
+
         main_row=2
         ## recombinate rate track
         fig.update_yaxes(range=[0,max(recombinant_rate)+0.01],title='Recombinate Rate', row=1,col=1)
@@ -765,7 +795,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
                 row=1,col=1
             )
     else:
-        fig = make_subplots(rows=1,cols=1)
+        fig = make_subplots(rows=1,cols=2, horizontal_spacing=0.01 ,specs=[[{"type": "xy"}, {"type": "pie"}]],column_widths=[0.9,0.2])
         main_row=1
 
     ## mutation scatter plot
@@ -1072,22 +1102,50 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
         showarrow=False,
         font_size=12,
     )
-    fig.add_vline(x=13468, line_width=1, line_color="white")
-    fig.add_vline(x=21556, line_width=1, line_color="white")
-    fig.add_vline(x=25385, line_width=1, line_color="white")
-    fig.add_vline(x=26221, line_width=1, line_color="white")
-    fig.add_vline(x=26473, line_width=1, line_color="white")
-    fig.add_vline(x=27192, line_width=1, line_color="white")
-    fig.add_vline(x=27388, line_width=1, line_color="white")
-    fig.add_vline(x=27888, line_width=1, line_color="white")
-    fig.add_vline(x=28260, line_width=1, line_color="white")
-    fig.add_vline(x=29554, line_width=1, line_color="white")
-    fig.add_vline(x=29675, line_width=1, line_color="white")
+    fig.add_vline(x=13468, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=21556, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=25385, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=26221, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=26473, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=27192, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=27388, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=27888, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=28260, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=29554, line_width=1, line_color="white",col=1)
+    fig.add_vline(x=29675, line_width=1, line_color="white",col=1)
+    # pie chart
+    pie_content=defaultdict(lambda:0)
+    for x in nt_to_variants:
+        if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+            pie_content[parents[0]] += 1
+        if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x]:
+            pie_content[parents[1]] += 1
+        if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x]:
+            pie_content[parents[0] + ', ' + parents[1]] += 1
+        if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+            pie_content['Not ' + parents[0] + ', Not ' + parents[1]] += 1
+        if not nt_to_variants[x]:
+            pie_content['Undefined_Mutations'] += 1
+    fig.add_trace(go.Pie(labels=list(pie_content.keys()),
+                        values=list(pie_content.values()),
+                        textinfo='value+percent',
+                        marker=dict(colors=[color1,color2,'purple','green','grey'] ),
+                        showlegend=False,
+                        hovertemplate = 'count: %{value}<br>' + 'percent: %{percent:.1%}<br>'+'<extra></extra>',
+                        ), row=main_row, col=2
+        )
     # Set axes properties
     fig.update_xaxes(range=[1, 29903], showgrid=False)
     fig.update_yaxes(range=[0, 1.1],title='Alternative Frequency', row=main_row, col=1)
     if 'projname' in ec19_config:
         fig.update_layout(title=ec19_config['projname'] + ' (' + ec19_lineage + ')')
+    fig.update_layout(legend=dict(
+        yanchor="top",
+        y=1.05,
+        xanchor="right",
+        x=0.95,
+        bgcolor="rgba(255,255,255,0.1)",
+    ))
     # Get HTML representation of plotly.js and this figure
     plot_div = plot(fig, output_type='div', include_plotlyjs=True)
 
@@ -1121,11 +1179,11 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     """.format(plot_div=plot_div, js_callback=js_callback)
     with open(output, 'w') as f:
         f.write(html_str)
-    fig.write_image(output+'.png')
+    fig.write_image(output+'.png', width=1980, height=1080)
     return output
 
-def update_igv_html(two_parents_list,argvs):
-    igv_html_file = os.path.join(os.path.dirname(argvs.bam), argvs.igv)
+def update_igv_html(two_parents_list,reads_stats, argvs):
+    igv_html_file = os.path.join(os.path.dirname(argvs.tsv), argvs.igv)
     if not os.path.exists(igv_html_file):
         return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
@@ -1136,8 +1194,8 @@ def update_igv_html(two_parents_list,argvs):
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb1.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb1.bam.bai',
+        'url': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recomb1.bam', 
+        'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recomb1.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -1146,8 +1204,8 @@ def update_igv_html(two_parents_list,argvs):
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb2.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recomb2.bam.bai',
+        'url': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recomb2.bam', 
+        'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recomb2.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -1156,8 +1214,8 @@ def update_igv_html(two_parents_list,argvs):
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recombx.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.recombx.bam.bai',
+        'url': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recombx.bam', 
+        'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.recombx.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -1166,8 +1224,8 @@ def update_igv_html(two_parents_list,argvs):
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent1.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent1.bam.bai',
+        'url': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.parent1.bam', 
+        'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.parent1.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -1176,8 +1234,8 @@ def update_igv_html(two_parents_list,argvs):
         'type':'alignment', 
         'format': 'bam', 
         'colorBy': 'strand', 
-        'url': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent2.bam', 
-        'indexURL': '../ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.parent2.bam.bai',
+        'url': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.parent2.bam', 
+        'indexURL': '../../ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.parent2.bam.bai',
         'squishedRowHeight': 10,
         'height': 250,
         'displayMode': 'SQUISHED' }
@@ -1207,14 +1265,19 @@ def update_igv_html(two_parents_list,argvs):
                     if 'name' in i and ('Recombinant' in i['name'] or 'Parent' in i['name'] or 'Variants Mutations' in i['name']):
                         pass
                     elif 'name' in i and (i['name'] == "NC_045512.2 Alignment" or i['name'] == "EC-19 Alignment" or i['name'] == "Alignment" ):
+                        new_tracks.append(i)
                         if argvs.igv_variants:
                             new_tracks.append(variants_track)
-                        new_tracks.append(recomb1_track)
-                        new_tracks.append(recomb2_track)
-                        new_tracks.append(recombx_track)
-                        new_tracks.append(parent1_track)
-                        new_tracks.append(parent2_track)
-                        new_tracks.append(i)
+                        if reads_stats['recomb1_reads'] > 0:
+                            new_tracks.append(recomb1_track)
+                        if reads_stats['recomb2_reads'] > 0:
+                            new_tracks.append(recomb2_track)
+                        if reads_stats['recombx_reads'] > 0:
+                            new_tracks.append(recombx_track)
+                        if reads_stats['parent1_reads'] > 0:
+                            new_tracks.append(parent1_track)
+                        if reads_stats['parent2_reads'] > 0:
+                            new_tracks.append(parent2_track)
                     else:
                         if 'showGenotypes' not in i:
                             new_tracks.append(i)
@@ -1338,7 +1401,7 @@ def main():
         mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, parent_pos_count,ec19_lineage, ec19_config, argvs)
         mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs)
     if argvs.igv:
-        update_igv_html(two_parents_list,argvs)
+        update_igv_html(two_parents_list,reads_stats,argvs)
     # else:
         #logging.error(f"both parents need at least have two muations {parents_variant}.")
     

@@ -79,6 +79,7 @@ eval {
 	&pull_binning();
 	&pull_targetedNGS();
 	&pull_lineageAP();
+	&pull_mixedInfection();
 	&pull_piret();
 	&pull_qiime();
 	&prep_jbrowse_link();
@@ -461,6 +462,26 @@ sub fasta_count
     }
     close $fh;
     return ($seqCount,$baseCount);
+}
+
+sub pull_mixedInfection{
+	my $log = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.log";
+	my $log2 = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/mixedInfectionAnalysis.log";
+	return unless -e "$log2";
+	my @tmp;
+	open (my $fh, "$log2") or die "Cannot open recombinant_reads.log";
+	while(my $line=<$fh>){
+		if ($line =~ /INFO: Parents: (\S+)/){ $vars->{MIAPARENTS} = $1;}
+		if ($line =~ /INFO: Recombinants and Parents Reads count : (\S+)/){ $vars->{MIAREADSCOUNT} = $1;}
+		if ($line =~ /have allelic frequency between/) { push @tmp, $line;}
+	}
+	if ($tmp[0] =~ /INFO: (\S+) mutations/){
+		$vars->{MIAAF20AF80COUNT} = $1;
+	}
+	if ( -e $log){
+		$vars->{MIAINFO} = "The sample has $vars->{MIAAF20AF80COUNT} mutations (positions) allelic frequency between 0.2 and 0.8. EC-19 detected \"$vars->{MIAPARENTS}\" specific mutations. Please see figures below.";
+	}
+	close $fh;
 }
 
 sub pull_lineageAP{
@@ -1949,12 +1970,14 @@ sub pull_readmapping_ref {
 			my $consensus_SNPs_report = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.SNPs_report.txt";
 			my $consensus_SNPs_report_json = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus.SNPs_report.json";
 			my $consensus_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_lineage.txt";
+			my $consensus_w_amb_lineage = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/$refinfo->{'RMREFFILE'}_consensus_w_ambiguous_lineage.txt";
 			$refinfo->{"RMREFAMBCONSENSUS"}=$consensus_ambiguous_file if ( -r $consensus_ambiguous_file);
 			if ( -e $consensus_file ){
 				$refinfo->{"RMREFCONSENSUS"}= "$consensus_file" if (-e $consensus_file);
 				$refinfo->{"RMREFCONSENSUSLOG"}= "$consensus_log_file" if (-e $consensus_log_file);
 				my ($consensus_info,$consensus_info2 )= &consensus_fasta_stat($consensus_file,$consensus_log_file);
 				my $lineage_info = &parse_lineage($consensus_lineage);
+				my $amb_lineage_info = &parse_lineage($consensus_w_amb_lineage);
 				my $indel_frameshift_info = &parse_INDELs_report($consensus_indels_report);
 				my $stop_codon_info = &parse_SNPs_report($consensus_SNPs_report);
 				foreach my $consensus_id (keys %$consensus_info){
@@ -1977,6 +2000,11 @@ sub pull_readmapping_ref {
 							$refinfo->{"RMCONLINEAGE"} =  $lineage_info->{$consensus_id}->{lineage_link};
 							$refinfo->{"RMCONLINEAGEINFO"} = "$lineage_info->{$consensus_id}->{scorpio_call}; version:$lineage_info->{$consensus_id}->{pangolin_version};$lineage_info->{$consensus_id}->{version}; scorpio_version:$lineage_info->{$consensus_id}->{scorpio_version}; constellation_version:$lineage_info->{$consensus_id}->{constellation_version}; $lineage_info->{$consensus_id}->{qc_status}; $lineage_info->{$consensus_id}->{note};";
 							$refinfo->{"RMCONLINEAGEWARN"} = $lineage_info->{$consensus_id}->{warning};
+						}
+						if ($amb_lineage_info){
+							$refinfo->{"RMCONLINEAGE"} =  $amb_lineage_info->{$consensus_id}->{lineage_link};
+							$refinfo->{"RMCONLINEAGEINFO"} = "*With Ambiguous* $amb_lineage_info->{$consensus_id}->{scorpio_call}; version:$amb_lineage_info->{$consensus_id}->{pangolin_version};$amb_lineage_info->{$consensus_id}->{version}; scorpio_version:$amb_lineage_info->{$consensus_id}->{scorpio_version}; constellation_version:$amb_lineage_info->{$consensus_id}->{constellation_version}; $amb_lineage_info->{$consensus_id}->{qc_status}; $amb_lineage_info->{$consensus_id}->{note};";
+							$refinfo->{"RMCONLINEAGEWARN"} = $amb_lineage_info->{$consensus_id}->{warning};
 						}
 						if ($indel_frameshift_info->{$temp[0]}){
 							$refinfo->{"RMCONFRAMESHIFT"} = 1;
@@ -2080,14 +2108,13 @@ sub pull_readmapping_ref {
 	$vars->{RMREFGAPFILE}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/GapVSReference.report.json";
 	$vars->{RMREFVARCALL}     = 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/readsToRef.vcf";
 	$vars->{RMREFCONSENSUS_SW}= 1 if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/consensus.log";
-	$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html.png";
-	$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot_genomeview.html";
-	$vars->{RMREFCONAFHTML2}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_reads.mutations_af_plot.html";
-	#$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html.png";
-	#$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/recombinant_analysis_result.html";
-	$vars->{RMREFCONVCFBARPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html.png";
-        $vars->{RMREFCONVCFBARHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/variants_bar_plot.html";
-
+	$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot_genomeview.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot_genomeview.html.png";
+	$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot_genomeview.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot_genomeview.html";
+	$vars->{RMREFCONAFHTML2}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_reads.mutations_af_plot.html";
+	#$vars->{RMREFCONAFPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_analysis_result.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_analysis_result.html.png";
+	#$vars->{RMREFCONAFHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_analysis_result.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/recombinant_analysis_result.html";
+	$vars->{RMREFCONVCFBARPNG}    = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/variants_bar_plot.html.png" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/variants_bar_plot.html.png";
+	$vars->{RMREFCONVCFBARHTML}   = "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/variants_bar_plot.html" if -e "$out_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/variants_bar_plot.html";
 	## display unmapped reads mapping to RefSeq
 	my $tol_um_org=0;
 
@@ -2174,6 +2201,7 @@ sub parse_lineage{
 		my($cid,$lineage_assign,$conflict,$ambiguity_score, $scorpio_call, $scorpio_support, $scorpio_conlfict, $scorpio_notes, $version, $pangolin_version, $scorpio_version, $constellation_version, $is_designated, $qc_status,$qc_notes, $note)=split/,/,$_;
 		my ($outbreak_info_search) = ($lineage_assign =~ /\//)?  split "/",$lineage_assign : $lineage_assign;
 		my $lineage_assign_link = ($lineage_assign eq "None")?"None":"<a target='_new'  href='https://outbreak.info/situation-reports?pango=$outbreak_info_search&loc=USA'>$lineage_assign</a>";
+		$cid =~ s/w_amb_consensus/consensus/;
 		$lineage{$cid}->{lineage} = $lineage_assign;
 		$lineage{$cid}->{lineage_link} = $lineage_assign_link;
 		$lineage{$cid}->{conflict} = $conflict;

@@ -357,6 +357,8 @@ if ($configuration->{DoLineageAbundance} and -e "$sys->{lineage_metadata_tsv}" a
 # generate JBrowse Tracks
 &writeJBrowseInfo($outDir) if ($configuration->{DoJBrowse});
 &writeIGVInfo($outDir) if ($configuration->{DoIGV});
+&recombinant_analysis($outDir) if ($configuration->{DoMixedInfection});
+
 
 ### COV tracker
 if ( $configuration->{DoCovTracker} and $sys->{metadata_pkl_file} and -e "$sys->{metadata_pkl_file}"){
@@ -1785,11 +1787,6 @@ sub variantAnalysis
       unlink "$r2g_outputDir/${prefix}_w_ambiguous.Indels_report.txt";
       unlink $ambiguous_log;
     }
-    if (@r2g_consensus_log_files and -e "$r2g_outputDir/NC_045512.2_consensus.vcf"){
-        $cmd = "$RealBin/scripts/recombinant_analysis/ramifi/recombinant_analysis.py -eo $outDir 1>>$log2 2>\&1";
-        &lprint (" Running \n $cmd\n");
-        &executeCommand($cmd);
-    }
     &printRunTime($time);
     $cmd="$RealBin/scripts/tab2Json_for_dataTable.pl -project_dir $abs_outDir -limit 0 -mode ref_gap $r2g_gapAnalysisOutput > $r2g_gapJSONanalysisOutput";
     &executeCommand($cmd) if ( -s $r2g_gapAnalysisOutput );
@@ -1799,6 +1796,45 @@ sub variantAnalysis
     &executeCommand($cmd) if ( -e "$r2g_outputDir/readsToRef.SNPs_report.txt" );
     &touchFile("$outputDir/variantAnalysis.finished") if ( -e $outputDir);
     &touchFile("$r2g_outputDir/variantAnalysis.finished") if ( -e $r2g_outputDir);
+    return 0;
+}
+
+sub recombinant_analysis{
+    my $outDir = shift;
+    my $time=time();
+    my $r2g_outputDir="$outDir/ReadsBasedAnalysis/readsMappingToRef/";
+    my $log = "$r2g_outputDir/MixedInfectionAnalysis/mixedInfectionAnalysis.log";
+    my @r2g_consensus_log_files = glob("$r2g_outputDir/*consensus.changelog");
+    my $vcf = "$r2g_outputDir/NC_045512.2_consensus.vcf";
+    my $cmd;
+    &make_dir("$r2g_outputDir/MixedInfectionAnalysis");
+    if ($noColorLog)
+    {
+        &lprint ("[Mixed Infection Analysis]\n");
+    }
+    else
+    {
+        &lprint (colored ("[Mixed Infection Analysis]\n",'yellow'));
+    }
+    if ( ! -e "$vcf")
+    {
+       &lprint ("consensus vcf file not exists. Skip Mixed Infection Analysis\n");
+       return 0;
+    }
+    if ( -e "$r2g_outputDir/MixedInfectionAnalysis/mixedInfectionAnalysis.finished")
+    {
+       &lprint ("Mixed Infection Aalysis Finished\n");
+       return 0;
+    }
+
+    if (@r2g_consensus_log_files  and -e "$r2g_outputDir/NC_045512.2_consensus.vcf" ){
+      my $min_mixed_n = $configuration->{r2g_recombinant_min_mixed} || 5;
+      $cmd = "$RealBin/scripts/recombinant_analysis/ramifi/recombinant_analysis.py -eo $outDir --minMixed_n $min_mixed_n 1>>$log 2>\&1";
+      &lprint (" Running \n $cmd\n");
+      &executeCommand($cmd);
+    }
+    &printRunTime($time);
+    &touchFile("$r2g_outputDir/MixedInfectionAnalysis/mixedInfectionAnalysis.finished") if ( -e $r2g_outputDir);
     return 0;
 }
 
@@ -2545,6 +2581,8 @@ Rscript
 
 #system("convert","$nanoplot_yield_by_length.png","$nanoplot_yield_by_length.pdf") if ( -e "$nanoplot_yield_by_length.png");
 $mergeFiles.= "$QCstatsPDF,$nanoplot_loglength_Histogram,$nanoplot_length_Histogram,$nanoplot_length_quality_plot,";
+$mergeFiles.= "$QCstatsPDF,$nanoplot_loglength_Histogram,$nanoplot_length_Histogram,$nanoplot_length_quality_plot," if (-e $nanoplot_length_quality_plot);
+
 
 }
 
@@ -2662,7 +2700,7 @@ unlink $InputLogPDF;
      if ($ont_flag){
        push @conversions, "convert -strip -density 120 -flatten $nanoplot_length_Histogram $imagesDir/QC_read_length.png";
        push @conversions, "convert -strip -density 120 -flatten $nanoplot_loglength_Histogram $imagesDir/QC_read_loglength.png";
-       push @conversions, "convert -strip -density 120 -flatten $nanoplot_length_quality_plot $imagesDir/QC_length_quality.png";
+       push @conversions, "convert -strip -density 120 -flatten $nanoplot_length_quality_plot $imagesDir/QC_length_quality.png" if ( -e $nanoplot_length_quality_plot);
      }else{
        my $page_count = `perl $RealBin/scripts/pdfPageCount.pl $QCstatsPDF`;
        chomp $page_count;
