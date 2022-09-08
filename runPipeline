@@ -3525,6 +3525,11 @@ sub runReadsToGenome
             $command = "$pangolin_env_activate; pangolin --update 1>> $pangolin_log 2>&1 | true ;pangolin $con_pangolin_mode -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_lineage.txt $outputDir/${file_name}_consensus.fasta 1>> $pangolin_log 2>&1";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
+	    if ( -e "$outputDir/${file_name}_consensus_w_ambiguous.fasta"){
+                $command = "$pangolin_env_activate;pangolin $con_pangolin_mode -t $numCPU --tempdir $outputDir --outdir $outputDir --outfile ${file_name}_consensus_w_ambiguous_lineage.txt $outputDir/${file_name}_consensus_w_ambiguous.fasta 1>> $pangolin_log 2>&1";
+                &lprint ("  Running \n  $command \n");
+                &executeCommand($command);
+            }
             remove_tree("$outputDir/${file_name}_consensus_html") if ( -d "$outputDir/${file_name}_consensus_html");
         }
         remove_tree("$outputDir/consensus_tmp") if ( -d "$outputDir/consensus_tmp");

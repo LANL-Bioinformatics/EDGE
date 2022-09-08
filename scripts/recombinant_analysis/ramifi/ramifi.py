@@ -386,7 +386,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     reads_has_two_and_more_mutations_count = 0
     cross_region=defaultdict(lambda: defaultdict(list))
     parent_pos_count = dict()
-
+    total_dist = 0
     for read in mutation_reads:
         list_for_check_recomb=[]
         list_for_check_recomb_pos=[]
@@ -436,6 +436,8 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                             recomb1_end = list_for_check_recomb_pos[r]
                             break
                     cross_region[f"{recomb1_start}-{recomb1_end}"]['recomb1'].append(read)
+                    dist = int(recomb1_end) - int(recomb1_start) + 1
+                    total_dist = dist + total_dist
                 elif 'P1' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb) ):
                     recombx_reads.append(read)
                 if 'P2' == list_for_check_recomb[0] and (list_for_check_recomb == sorted(list_for_check_recomb, reverse=True) ):
@@ -449,6 +451,8 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
                             recomb2_end = list_for_check_recomb_pos[r]
                             break
                     cross_region[f"{recomb2_start}-{recomb2_end}"]['recomb2'].append(read)
+                    dist = int(recomb2_end) - int(recomb2_start) + 1
+                    total_dist = dist + total_dist
                 elif 'P2' == list_for_check_recomb[0] and (list_for_check_recomb != sorted(list_for_check_recomb, reverse=True) ):
                     recombx_reads.append(read)
 
@@ -515,6 +519,7 @@ def find_recomb(mutation_reads, reads_coords, two_parents_list, reads_stats, arg
     reads_stats['recomb1_perc'] = len(recomb1_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recomb2_perc'] = len(recomb2_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
     reads_stats['recombx_perc'] = len(recombx_reads)/total_recomb_paraents_reads * 100 if total_recomb_paraents_reads > 0 else 0
+    reads_stats['mean_dist'] = total_dist/(recomb1_reads + recomb2_reads) if (recomb1_reads + recomb2_reads) > 0 else 0
     logging.info(f"Reads with Variants Mutations (2+) : {reads_stats['mutation_reads']}")
     logging.info(f"Recombinants and Parents Reads count : {total_recomb_paraents_reads}")
     logging.info(f"Recombinant 1 Reads: {reads_stats['recomb1_reads']} ({reads_stats['recomb1_perc']:.2f}%)")
@@ -1303,7 +1308,7 @@ def calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,paren
         reads= json.loads(row['Reads'])
         recomb_read_count = 0
         for type, read in reads.items():
-                recomb_read_count = recomb_read_count + len(read)
+            recomb_read_count = recomb_read_count + len(read)
         index1 = mut_nt_pos.index(region.split('-')[0])
         index2 = mut_nt_pos.index(region.split('-')[1])
         parent_read_count_in_cr=0
