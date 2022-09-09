@@ -252,10 +252,10 @@ def get_fastq_manifest(mappingFile,in_dir,out_dir):
     f_index = 0
     for line in f:
         if not line.strip():continue
-        temp = line.split('\t')
+        temp = line.strip().split('\t')
         if line.lower().startswith('#'):
             if 'files' in line.lower():
-                header = line.lower().split('\t')
+                header = line.lower().strip().split('\t')
                 f_index = header.index('files')
         else:
             if (f_index > 0):
@@ -268,11 +268,11 @@ def get_fastq_manifest(mappingFile,in_dir,out_dir):
             else:
                 sys.exit("[ERROR] 'Files' column not found in meta data mapping file.")
    
-            f_fq = f_fq.replace('"', '')
+            f_fq = f_fq.replace('"', '').strip()
             mf.write('%s,%s/%s,%s\n' % (temp[0],abs_inDir,f_fq,'forward'))
             symlink_force(abs_inDir+'/'+ f_fq,out_dir + '/input/' + os.path.basename(f_fq))
             if (type == 'pe'):
-                r_fq = r_fq.replace('"', '')
+                r_fq = r_fq.replace('"', '').strip()
                 mf.write('%s,%s/%s,%s\n' % (temp[0],abs_inDir,r_fq,'reverse'))
                 symlink_force(abs_inDir+'/'+ r_fq,out_dir + '/input/' + os.path.basename(r_fq))
 
