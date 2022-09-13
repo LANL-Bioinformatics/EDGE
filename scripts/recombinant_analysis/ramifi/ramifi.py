@@ -1265,7 +1265,6 @@ def update_igv_html(two_parents_list,reads_stats, argvs):
                             break
                     createBrowser=nextline
                     options=options.replace(";","").replace('""NC_045512_2"','"NC_045512_2').replace("'",'"')
-                    logging.info(options)
                     options_dict = json.loads(options)
                     
                 new_tracks=[]
