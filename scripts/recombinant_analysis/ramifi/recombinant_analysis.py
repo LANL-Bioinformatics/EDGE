@@ -156,6 +156,9 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
                     parents_v[v]['filtered'] += 1
     parents_v = dict(sorted(parents_v.items(), key=lambda item: item[1]['all'], reverse=True))
 
+    omicron_primer76_mutation_af=dict()
+    omicron_mutation_af=dict()
+    primer76_dropout = 0
     for u in mutations_list:
         exist = 0
         ref_nt,pos,alt_nt = u.split(':')
@@ -217,6 +220,38 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
         if u in vcf_sep_comma:
             vcf_sep_comma[u]['AF'] = mutation_af[u]
 
+        if 'Omicron' in nt_to_variant[u] and 'Delta' not in nt_to_variant[u]:
+            if ref_nt == 'del' or ref_nt == 'ins':
+                count, percentage=comp_content[8].split(' ')
+            else:
+                if alt_nt == 'A':
+                    count, percentage=comp_content[4].split(' ')
+                if alt_nt == 'C':
+                    count, percentage=comp_content[5].split(' ')
+                if alt_nt == 'G':
+                    count, percentage=comp_content[6].split(' ')
+                if alt_nt == 'T':
+                    count, percentage=comp_content[7].split(' ')
+                if not alt_nt:
+                    ref_base = comp_content[2]
+                    if ref_base == 'A':
+                        count, percentage=comp_content[4].split(' ')
+                    if ref_base == 'C':
+                        count, percentage=comp_content[5].split(' ')
+                    if ref_base == 'G':
+                        count, percentage=comp_content[6].split(' ')
+                    if ref_base == 'T':
+                        count, percentage=comp_content[7].split(' ')
+                    percentage = "{:.4f}".format( 1 - (int(count)/int(total_dp))) if int(total_dp) > 0 else '0.000'
+            AFreq = float(percentage.replace('(','').replace(')',''))
+            # artic v4 primer 76 amplicon
+            if int(pos) >= 22648 and int(pos) <= 23057:
+                omicron_primer76_mutation_af[u]=AFreq
+                if omicron_primer76_mutation_af[u] >0 and omicron_primer76_mutation_af[u] <=0.5:
+                    primer76_dropout = primer76_dropout + 1
+            omicron_mutation_af[u]=AFreq
+   
+
     mutations_count = len(vcf_comp)
     mix_ratio = mix_count/len(vcf_comp) * 100 if len(vcf_comp) > 0 else 0
     logging.info(f"{mix_count}/{mutations_count} mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.")
@@ -224,6 +259,11 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
     logging.info(f"All probable parents, mutation count: {parents_v}")
     if len(vcf_comp) > 0 and mix_count/len(vcf_comp) > argvs.mixRatio:
         logging.info(f"Probable Mixed Infection. {mix_ratio:.2f}% ({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.")
+
+    ## dropout check
+    if primer76_dropout >= (len(omicron_primer76_mutation_af) - 1):
+        # there are six omicron_primer76_mutation in these region 
+        logging.info("Sample counld have primer drop issue")
 
     return mutation_af, mutation_dp, vcf_comp, mix_count, vcf_sep_comma, parents_v
 
