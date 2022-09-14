@@ -157,8 +157,10 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
     parents_v = dict(sorted(parents_v.items(), key=lambda item: item[1]['all'], reverse=True))
 
     omicron_primer76_mutation_af=dict()
+    omicron_v3_primer76_mutation_af=dict()
     omicron_mutation_af=dict()
     primer76_dropout = 0
+    v3_primer76_dropout = 0
     for u in mutations_list:
         exist = 0
         ref_nt,pos,alt_nt = u.split(':')
@@ -244,11 +246,16 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
                         count, percentage=comp_content[7].split(' ')
                     percentage = "{:.4f}".format( 1 - (int(count)/int(total_dp))) if int(total_dp) > 0 else '0.000'
             AFreq = float(percentage.replace('(','').replace(')',''))
-            # artic v4 primer 76 amplicon
+            # artic v4 primer 76 amplicon 22648 23057
+            # artic v3 primer 76 amplicon 22797 23212
             if int(pos) >= 22648 and int(pos) <= 23057:
                 omicron_primer76_mutation_af[u]=AFreq
-                if omicron_primer76_mutation_af[u] >0 and omicron_primer76_mutation_af[u] <=0.5:
+                if omicron_primer76_mutation_af[u] >0 and omicron_primer76_mutation_af[u] <=0.3:
                     primer76_dropout = primer76_dropout + 1
+            if int(pos) >= 22797 and int(pos) <= 23212:
+                omicron_v3_primer76_mutation_af[u]=AFreq
+                if omicron_v3_primer76_mutation_af[u] >0 and omicron_v3_primer76_mutation_af[u] <=0.3:
+                    v3_primer76_dropout = v3_primer76_dropout + 1
             omicron_mutation_af[u]=AFreq
    
 
@@ -261,11 +268,17 @@ def parse_variants(vcf,comp,nt_to_variant,argvs):
         logging.info(f"Probable Mixed Infection. {mix_ratio:.2f}% ({mix_count}/{mutations_count}) mutations (positions) have allelic frequency between {argvs.minMixAF} and {argvs.maxMixAF}.")
 
     ## dropout check
+    primer76_dropout_bool = False
     if primer76_dropout >= (len(omicron_primer76_mutation_af) - 1):
         # there are six omicron_primer76_mutation in these region 
         logging.info("Sample counld have primer drop issue")
+        primer76_dropout_bool=True
+    elif v3_primer76_dropout >= (len(omicron_v3_primer76_mutation_af) - 2):
+        # there are six omicron_primer76_mutation in these region 
+        logging.info("Sample counld have primer drop issue")
+        primer76_dropout_bool=True
 
-    return mutation_af, mutation_dp, vcf_comp, mix_count, vcf_sep_comma, parents_v
+    return mutation_af, mutation_dp, vcf_comp, mix_count, vcf_sep_comma, parents_v, primer76_dropout_bool
 
 def check_mutations(mutation_af,mutation_dp, delta_uniq_nt,omicron_uniq_nt,argvs):
     ## need to set criteria to plot.  default to False.
@@ -333,7 +346,7 @@ def load_lineage_mutation(file):
                 nt_to_lineage[nt].append(k)
     return nt_to_lineage
 
-def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplot_lists, lineage , sample, url , output, cr_coords):
+def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplot_lists, lineage , sample, url , output, cr_coords, primer76_dropout_bool):
     new_d = { i: int(i.split(':')[1]) for i in delta_uniq_nt + omicron_uniq_nt }
     deltacron_variants_nt = list(dict(sorted(new_d.items(), key=lambda item: item[1])).keys())
     deltacron_variants_aa = [ nt_to_aa[x] for x in deltacron_variants_nt]
@@ -422,7 +435,49 @@ def deltacron_af_plot(nt_to_aa, delta_uniq_nt,omicron_uniq_nt,mutation_af,barplo
     fig.add_vline(x=48.5, line_width=1, line_dash="dash", line_color="grey")
     fig.add_vline(x=50.5, line_width=1, line_dash="dash", line_color="grey")
     fig.add_vline(x=51.5, line_width=1, line_dash="dash", line_color="grey")
-            
+    if primer76_dropout_bool:
+        fig.add_annotation(
+            xref='x', yref='paper',
+            axref='x', 
+            x=21.5,
+            y=1.02,
+            ax=28.5,
+            ay=1.02,
+            showarrow=True,
+            arrowhead=2,
+            arrowside='end+start',
+            arrowsize=1,
+            arrowwidth=1.5
+        )
+        fig.add_annotation(
+            xref='x', yref='paper',
+            x=25,
+            y=1.06,
+            text="Artic V4 Primer 76 Amplicon",
+            showarrow=False,
+            font_size=9,
+        )
+        fig.add_annotation(
+            xref='x', yref='paper',
+            axref='x', 
+            x=23.5,
+            y=1.08,
+            ax=31.5,
+            ay=1.08,
+            showarrow=True,
+            arrowhead=2,
+            arrowside='end+start',
+            arrowsize=1,
+            arrowwidth=1.5
+        )
+        fig.add_annotation(
+            xref='x', yref='paper',
+            x=27,
+            y=1.12,
+            text="Artic V3 Primer 76 Amplicon",
+            showarrow=False,
+            font_size=9,
+        )
     ## update x tick val to amino acid change
     #fig.update_layout(xaxis=dict(tickvals=vendor_names,ticktext=[ '%s (n=%d)'% (vendor_names[m], vendor_count[m]) for m in range(len(vendor_count))] ),font=dict(size=16))
     fig.update_yaxes(range=[-0.1, 1.1],title='Alternative Frequency',row=2,col=1)
@@ -536,12 +591,12 @@ def bar_plot_list3(delta_uniq_nt,omicron_uniq_nt,mutation_dp):
         other_count_list.append(other_count)
     return [delta_count_list,omicron_count_list,other_count_list]
 
-def deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, sample, mutation_af, mutation_dp, lineage, cr_coords ,argvs):
+def deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, sample, mutation_af, mutation_dp, lineage, cr_coords , primer76_dropout_bool, argvs):
     igv_url= argvs.igv
     out_html = os.path.splitext(argvs.html)[0] + '.deltacron.html'
     logging.info(f"Generating deltacron specific mutations AF plot and save to {out_html}")
     barplot_lists = bar_plot_list3(delta_uniq_nt,omicron_uniq_nt, mutation_dp)
-    deltacron_af_plot(nt_to_aa,delta_uniq_nt,omicron_uniq_nt,mutation_af, barplot_lists, lineage, sample, igv_url,out_html , cr_coords)
+    deltacron_af_plot(nt_to_aa,delta_uniq_nt,omicron_uniq_nt,mutation_af, barplot_lists, lineage, sample, igv_url,out_html , cr_coords, primer76_dropout_bool)
 
 def comp_stack_bar_plot(vcf_comp, mix_count, nt_to_lineage, projname, lineage, argvs):
     barplot_html_output = os.path.join(os.path.dirname(argvs.html),'variants_bar_plot.html')
@@ -943,7 +998,7 @@ def main():
 
     ec19_lineage = parse_lineage(ec19_lineage_file[0]) if ec19_lineage_file else 'Unknown'
     ec19_config = parse_ec19_config(ec19_config_file[0])
-    mutations_af, mutations_dp, vcf_comp, mix_count,vcf_sep_comma, parents_v = parse_variants(ec19_vcf[0],ec19_compositionlog[0],nt_to_variant,argvs)
+    mutations_af, mutations_dp, vcf_comp, mix_count,vcf_sep_comma, parents_v, primer76_dropout_bool = parse_variants(ec19_vcf[0],ec19_compositionlog[0],nt_to_variant,argvs)
 
     comp_stack_bar_plot(vcf_comp,mix_count,nt_to_lineage, ec19_config['projname'], ec19_lineage, argvs)
 
@@ -968,7 +1023,7 @@ def main():
         if len(parents_v.keys()) > 1:
             mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, cr_coords, argvs)
         if 'Omicron' in parents_v and 'Delta' in parents_v:
-            deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, cr_coords, argvs)
+            deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, cr_coords, primer76_dropout_bool, argvs)
         # else:
         # logging.error("both parents need at least have two muations for read based recombinant analysis.")
     else:
