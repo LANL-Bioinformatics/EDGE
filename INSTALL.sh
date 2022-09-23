@@ -9,15 +9,13 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin:$PATH
-export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
+export PATH=$rootdir/bin/:$rootdir/thirdParty/Anaconda3/bin:$PATH
+export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda3/include/:$CPLUS_INCLUDE_PATH
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
 
 gcc_version=$(gcc -dumpversion)
 anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
-anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
-
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi pangolin )
@@ -26,7 +24,7 @@ alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
-python_packages=( Anaconda2 Anaconda3 )
+python_packages=( Anaconda3 )
 metagenome_tools=( MaxBin checkM )
 pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
@@ -447,7 +445,7 @@ if [[ -n ${http_proxy} ]]; then
         ./bin/vdb-config --proxy $proxy_without_protocol
 fi
 
-echo 'Aexyo' | ./bin/vdb-config -i
+echo 'Aexyo' | ./bin/vdb-config -i | true
 
 ln -sf $HOME/.ncbi $rootdir/.ncbi
 
@@ -1437,36 +1435,6 @@ echo "
 "
 }
 
-install_Anaconda2()
-{
-local VER=2019.10
-echo "------------------------------------------------------------------------------
-                 Installing Python Anaconda2 $VER
-------------------------------------------------------------------------------
-"
-if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
-    bash Anaconda2-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
-fi
-ln -fs $anaconda2bin/python $rootdir/bin
-$anaconda2bin/conda config --add channels defaults
-$anaconda2bin/conda config --add channels bioconda
-$anaconda2bin/conda config --add channels conda-forge
-$anaconda2bin/pip install biopython==1.76 xlsx2csv
-$anaconda2bin/conda install -y mysql-connector-python
-#$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
-
-$anaconda2bin/pip install matplotlib==2.2.5
-
-matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
-perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-echo "
-------------------------------------------------------------------------------
-                         Python Anaconda2 $VER Installed
-------------------------------------------------------------------------------
-"
-}
-
-
 install_Anaconda3()
 {
 local VER=2020.02
@@ -1481,11 +1449,11 @@ ln -fs $anaconda3bin/python3 $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
-$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importlib-resources plotly
+$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importlib-resources plotly xlsx2csv mysql-connector-python
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda create -y -n py36
+$anaconda3bin/conda create -y -n py36 python=3.6
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
@@ -1500,7 +1468,7 @@ echo "--------------------------------------------------------------------------
                         Installing cmake
 ------------------------------------------------------------------------------
 "
-$anaconda2bin/conda install -y libgcc cmake
+$anaconda3bin/conda install -y libgcc cmake
 echo "
 ------------------------------------------------------------------------------
                          cmake Installed
@@ -1513,8 +1481,8 @@ echo "--------------------------------------------------------------------------
                         Installing rapsearch2 binary
 ------------------------------------------------------------------------------
 "
-$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
-ln -s $anaconda2bin/rapsearch $rootdir/bin/rapsearch2
+$anaconda3bin/conda install -y rapsearch-2.24-1.tar.bz2
+ln -s $anaconda3bin/rapsearch $rootdir/bin/rapsearch2
 echo "
 ------------------------------------------------------------------------------
                          Rapsearch2  Installed
@@ -1655,16 +1623,16 @@ echo "
 
 install_antismash()
 {
-local VER=4.2.0
+local VER=6.1.1
 echo "------------------------------------------------------------------------------
                         Installing antiSMASH $VER
 ------------------------------------------------------------------------------
 "
-if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
+if [ -e "$rootdir/thirdParty/Anaconda3/envs/antismash" ]
 then
-  rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/antismash
 fi
-$anaconda3bin/conda create -y -n antismash antismash=4.2.0
+$anaconda3bin/conda create -y -n antismash antismash=6.1.1
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
@@ -2028,13 +1996,6 @@ else
 fi
 
 install_Rpackages
-
-if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
-then
-	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
-else
-  install_Anaconda2
-fi
 
 if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
 then
@@ -2699,20 +2660,6 @@ fi
 # fi
 
 
-# if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
-# then
-#   antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-#   if ( echo $antismash_VER | awk '{if($1 >="4.1.0") exit 0; else exit 1}' )
-#   then
-#     echo "antiSMASH $antismash_VER is found"
-#   else
-#     install_antismash
-#   fi
-# else
-#   echo "antiSMASH is not found"
-#   install_antismash
-# fi
-
 # if [ -x "$anaconda3bin/checkm" ]
 # then
 #   checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
@@ -3047,7 +2994,6 @@ fi
 
 ## Cleanup
 #rm -rf $rootdir/thirdParty/Anaconda3Packages/
-$anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
 $anaconda3bin/pip cache purge
 
