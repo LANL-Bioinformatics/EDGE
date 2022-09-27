@@ -210,7 +210,7 @@ sed -i.bak 's/kMaxShortSequence = 128/kMaxShortSequence = 351/' src/sequence/sho
 sed -i.bak 's/kNumUint64 = 4/kNumUint64 = 6/' src/basic/kmer.h
 #src/sequence/short_sequence.h:    static const uint32_t kMaxShortSequence = 128
 ./configure --prefix=$rootdir CXXFLAGS='-g -O2 -std=c++03'
-make 
+make >/dev/null || make 
 make install
 cp bin/idba_ud $rootdir/bin/.
 cp bin/fq2fa $rootdir/bin/.
@@ -331,7 +331,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf tRNAscan-SE-1.3.1.tar.gz
 cd tRNAscan-SE-1.3.1
 sed -i.bak 's,home,'"$rootdir"',' Makefile
-make
+make >/dev/null || make
 make install
 make clean
 cd $rootdir/thirdParty
@@ -393,7 +393,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf seqtk-$VER.tgz
 cd seqtk-$VER
-make 
+make >/dev/null || make
 cp -fR seqtk $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
@@ -412,7 +412,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf bedtools-$VER.tar.gz
 cd bedtools2
-make 
+make >/dev/null || make
 cp -fR bin/* $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
@@ -498,7 +498,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf R-$VER.tar.gz
 cd R-$VER
 ./configure --prefix=$rootdir
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -542,7 +542,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf parallel-$VER.tar.gz
 cd parallel-$VER
 ./configure --prefix=$rootdir 
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -632,7 +632,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf centrifuge-$VER-beta.tgz
 cd centrifuge-$VER-beta
-make 
+make >/dev/null || make
 cp centrifuge $rootdir/bin/
 cp centrifuge-* $rootdir/bin/
 
@@ -707,7 +707,9 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf hmmer-3.1b1.tar.gz
 cd hmmer-3.1b1/
-./configure --prefix=$rootdir && make && make install
+./configure --prefix=$rootdir
+make >/dev/null || make 
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -724,7 +726,9 @@ echo "--------------------------------------------------------------------------
 "
 tar xzvf infernal-1.1rc4.tar.gz
 cd infernal-1.1rc4/
-./configure --prefix=$rootdir && make && make install
+./configure --prefix=$rootdir
+make >/dev/null || make
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1005,7 +1009,8 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf bwa-0.7.12.tar.gz
 cd bwa-0.7.12
-make clean && make
+make clean
+make >/dev/null || make
 cp bwa $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
@@ -1114,7 +1119,7 @@ tar xvzf samtools-$VER.tar.gz
 cd samtools-$VER
 #make CFLAGS='-g -fPIC -Wall -O2'
 ./configure --prefix=$rootdir
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -1134,7 +1139,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf bcftools-$VER.tar.gz
 cd bcftools-$VER
 ./configure --prefix=$rootdir
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -1437,7 +1442,7 @@ echo "
 
 install_Anaconda3()
 {
-local VER=2020.02
+local VER=2022.05
 echo "------------------------------------------------------------------------------
                  Installing Python Anaconda3 $VER
 ------------------------------------------------------------------------------
@@ -1446,14 +1451,21 @@ if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
     bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
 fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
+ln -fs $anaconda3bin/python $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
-$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importlib-resources plotly xlsx2csv mysql-connector-python
+$anaconda3bin/pip install setuptools==58 
+$anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importlib-resources plotly xlsx2csv mysql-connector-python matplotlib
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda create -y -n py36 python=3.6
+
+matplotlibrc=`$anaconda3bin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
+perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; s/^#backend\s+:\s+Agg/backend : Agg/; print;' $matplotlibrc
+
+
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "
@@ -1506,12 +1518,13 @@ echo "
 }
 
 install_pangolin(){
-local VER=4.0.1
+local VER=4.1.2
 echo "------------------------------------------------------------------------------
                         Installing pangolin $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda create -y -n pangolin -c bioconda pangolin
+$anaconda3bin/conda env create -f pangolin412_environment.yml
+#$anaconda3bin/conda create -y -n pangolin -c bioconda -c conda-forge -c defaults pangolin
 
 echo "
 ------------------------------------------------------------------------------
@@ -1541,7 +1554,9 @@ echo "--------------------------------------------------------------------------
                         Installing kallisto $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install -y -c bioconda kallisto
+tar xvzf kallisto_linux-v$VER.tar.gz
+cp kallisto/kallisto $rootdir/bin/
+#$anaconda3bin/conda install -y -c bioconda kallisto
 
 echo "
 ------------------------------------------------------------------------------
