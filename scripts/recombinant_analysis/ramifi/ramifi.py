@@ -679,7 +679,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
                 showlegend=True,
                 ),row=main_row,col=1)
     # pie chart
-    pie_content=defaultdict(lambda:0)
+    pie_content={parents[0]:0, parents[1]:0, parents[0] + ', ' + parents[1]:0, 'Not ' + parents[0] + ', Not ' + parents[1]:0,'Undefined_Mutations':0}
     for x in nt_to_variants:
         if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
             pie_content[parents[0]] += 1
@@ -1121,7 +1121,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     fig.add_vline(x=29554, line_width=1, line_color="white",col=1)
     fig.add_vline(x=29675, line_width=1, line_color="white",col=1)
     # pie chart
-    pie_content=defaultdict(lambda:0)
+    pie_content={parents[0]:0, parents[1]:0, parents[0] + ', ' + parents[1]:0, 'Not ' + parents[0] + ', Not ' + parents[1]:0,'Undefined_Mutations':0}
     for x in nt_to_variants:
         if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
             pie_content[parents[0]] += 1

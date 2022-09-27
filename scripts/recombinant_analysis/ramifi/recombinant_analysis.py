@@ -317,8 +317,11 @@ def check_mutations(mutation_af,mutation_dp, delta_uniq_nt,omicron_uniq_nt,argvs
 def load_var_mutation(file):
     with open( file, 'r') as f:
         v_data = json.load(f)
-    delta_uniq_nt=list(set(v_data['Delta'].keys()) - set(v_data['Omicron'].keys()))
-    omicron_uniq_nt=list(set(v_data['Omicron'].keys()) - set(v_data['Delta'].keys()))
+    delta_uniq_nt=[]
+    omicron_uniq_nt=[]
+    if 'Delta' in v_data and 'Omicron' in v_data:
+        delta_uniq_nt=list(set(v_data['Delta'].keys()) - set(v_data['Omicron'].keys()))
+        omicron_uniq_nt=list(set(v_data['Omicron'].keys()) - set(v_data['Delta'].keys()))
     
     nt_to_aa=dict()
     nt_to_variant=dict()
@@ -1022,7 +1025,7 @@ def main():
 
         if len(parents_v.keys()) > 1:
             mutations_af_plot(parents_v,vcf_sep_comma,nt_to_aa_class, ec19_config['projname'], ec19_lineage, cr_coords, argvs)
-        if 'Omicron' in parents_v and 'Delta' in parents_v:
+        if 'Omicron' in parents_v and 'Delta' in parents_v and len(delta_uniq_nt) > 0 and len(omicron_uniq_nt) > 0 :
             deltacron_af_plot_by_sample_id(nt_to_variant, nt_to_aa, delta_uniq_nt,omicron_uniq_nt, ec19_config['projname'], mutations_af, mutations_dp, ec19_lineage, cr_coords, primer76_dropout_bool, argvs)
         # else:
         # logging.error("both parents need at least have two muations for read based recombinant analysis.")
