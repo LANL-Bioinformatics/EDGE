@@ -3518,7 +3518,7 @@ sub runReadsToGenome
                 &executeCommand("cd $outputDir && sed -i -e 's/$file_name/$project_name/' ${file_name}_consensus_w_ambiguous.fasta");
                 &executeCommand("cd $outputDir && fastacomposition.pl ${file_name}_consensus_w_ambiguous.fasta > ${file_name}_consensus_w_ambiguous.fasta.comp");
             }
-            &get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
+	    #&get_consensus_gap("$outputDir/${file_name}_consensus.fasta");
 
             my $pangolin_env= "$RealBin/thirdParty/Anaconda3/envs/pangolin";
             my $pangolin_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $pangolin_env";
