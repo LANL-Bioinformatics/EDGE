@@ -7,6 +7,13 @@ from copy import copy
 from collections import defaultdict
 import re
 
+# consumesReference lookup for if a CIGAR operation consumes the reference sequence
+# match, insertion, deletion, ref_skip, soft_clip, hard_clip, pad, equal
+consumesReference = [True, False, True, True, False, False, False, True]
+
+# consumesQuery lookup for if a CIGAR operation consumes the query sequence
+consumesQuery = [True, True, False, False, True, False, False, True]
+
 def read_bed_file(fn):
     bedfile = []
     with open(fn) as csvfile:
@@ -35,8 +42,18 @@ def check_still_matching_bases(s):
             return True
     return False
 
-def trim(cigar, s, start_pos, end):
-    
+def trim(s, start_pos, end):
+    """Soft mask an alignment to fit within primer start/end sites.
+    Parameters
+    ----------
+    s : pysam.AlignedSegment
+        The aligned segment to mask
+    start_pos : int
+        The position in the reference to soft mask up to (equates to the start/end position of the primer in the reference)
+    end : bool
+        If True, the segment is being masked from the end (i.e. for the reverse primer)
+    """
+    cigar = copy(s.cigartuples)
     if not end:
         pos = s.pos
     else:
@@ -55,58 +72,69 @@ def trim(cigar, s, start_pos, end):
         except IndexError:
             sys.stderr.write(f"{s.query_name} ran out of cigar during soft masking - completely masked read will be ignored\n")
             break
-
-        if flag == 0:
-            ## match
-            #to_trim -= length
-            eaten += length
+ 
+        # if the CIGAR operation consumes the reference sequence, increment/decrement the position by the CIGAR operation length
+        if (consumesReference[flag]):
             if not end:
                  pos += length
             else:
                  pos -= length
-        if flag == 1:
-            ## insertion to the ref
-            #to_trim -= length
+                 
+        # if the CIGAR operation consumes the query sequence, increment the number of CIGAR operations eaten by the CIGAR operation length
+        if (consumesQuery[flag]):
             eaten += length
-        if flag == 2:
-            ## deletion to the ref
-            #eaten += length
-            if not end:
-                pos += length
-            else:
-                pos -= length
-            pass
-        if flag == 4:
-            eaten += length
-        if not end and pos >= start_pos and flag == 0:
+
+        # stop processing the CIGAR if we've gone far enough to mask the primer
+        if not end and pos >= start_pos:
             break
-        if end and pos <= start_pos and flag == 0:
+        if end and pos <= start_pos:
             break
         #print >>sys.stderr, "pos:%s %s" % (pos, start_pos)
-
+   
+    ## primer start_pos in the deletion, it may have amplicon dropout and use other primer in the pool to amplified.
+    if flag == 2 and length > 1:
+        return 
+    
+    # calculate how many extra matches are needed in the CIGAR
     extra = abs(pos - start_pos)
+   
+   
     if args.verbose:
         sys.stderr.write("extra %s" % (extra))
     if extra:
         if flag == 0:
             if args.verbose:
                 sys.stderr.write("Inserted a %s, %s" % (0, extra))
-
             if end:
                 cigar.append((0, extra))
             else:
                 cigar.insert(0, (0, extra))
             eaten -= extra
+    # softmask the left primer
     if not end:
+        # update the position of the leftmost mappinng base
         s.pos = pos - extra
+        if flag == 2:
+            s.pos = pos
+        # if proposed softmask leads straight into a deletion, shuffle leftmost mapping base along and ignore the deletion
+        if cigar[0][0] == 2:
+            while 1:
+                if cigar[0][0] != 2:
+                    break
+                _, length = cigar.pop(0)
+                s.pos += length
 
     if args.verbose:
         sys.stderr.write("New pos: %s" % (s.pos))
-
-    if end:
-        cigar.append((4, eaten))
-    else:
-        cigar.insert(0, (4, eaten))
+        
+    if eaten:
+        if end:
+            cigar.append((4, eaten))
+        else:
+            cigar.insert(0, (4, eaten))
+    # check the new CIGAR and replace the old one
+    if args.verbose and (cigar[0][1] <= 0 or cigar[-1][1] <= 0):
+        sys.stderr.write("invalid cigar operation created - possibly due to INDEL in primer\n")
     oldcigarstring = s.cigarstring
     s.cigartuples = cigar
 
@@ -118,8 +146,10 @@ def find_primer(bed, pos, direction, refID):
 
    ref_alt_ID = re.sub(r'[^\w]','_',refID)
    search_term = re.compile (r'%s|%s' % (refID,ref_alt_ID) )
-   
-   closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
+   if direction == '+':
+       closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
+   else:
+       closest = min([(abs(p['end'] - pos), p['end'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
    return closest
 
 
@@ -134,7 +164,6 @@ def go(args):
     infile = pysam.AlignmentFile("-")
     outfile = pysam.AlignmentFile("-", "wh", template=infile)
     for s in infile:
-        cigar = copy(s.cigartuples)
         refname = s.reference_name
         #qname = s.query_name
         qlen = s.infer_read_length()
@@ -166,8 +195,8 @@ def go(args):
 
         
         ## if the alignment starts before the end of the primer, trim to that position
-        #if 'ERR4969323.18090' in s.query_name:
-        #    print(f'{s.is_reverse} {amplicon_len} {s.reference_start}  {s.reference_end}\n' , file=sys.stderr)
+        #if 'A01000:190:H2VYMDRX2:1:2256:28185:3615' in s.query_name:
+        #   print(f'{s.query_name} {s.cigarstring} {s.is_reverse} {amplicon_len} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
         #    print(list(p1), file=sys.stderr)
         #    print(list(p2), file=sys.stderr)
         try:
@@ -182,23 +211,26 @@ def go(args):
                 if s.is_paired:
                     if amplicon_len > qlen:
                         if not s.is_reverse and s.reference_start >=  (p1[2]['start'] - args.offset) and s.reference_start <  p1[2]['end']:
-                            trim(cigar, s, primer_position, 0)
+                            trim(s, primer_position, 0)
                         ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
-                        if s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_start <= primer_position:
-                            trim(cigar, s, primer_position, 0)
+                        if s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_start <= primer_position and s.reference_end > primer_position:
+                            trim(s, primer_position, 0)
                     else:  # short amplicon,  reads length > amplicon size.  check the primer pair's name should be a set for trimming
                         if s.reference_start < primer_position and s.reference_end >= primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
-                            trim(cigar, s, primer_position, 0)
+                            trim(s, primer_position, 0)
                 else: ## unpaired reads
                     if not s.is_reverse and s.reference_start >=  (p1[2]['start'] - args.offset)  and s.reference_start <  p1[2]['end']:
-                        trim(cigar, s, primer_position, 0)
+                        trim(s, primer_position, 0)
+                    ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
+                    if s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_start <= primer_position and s.reference_end > primer_position:
+                        trim(s, primer_position, 0)
             else:
                 # not the correct primer pair ex primer_A_RIGHT  primer_A_LEFT, filter the read
                 if levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) >   1:
                     if s.reference_start >=  (p1[2]['start'] - args.offset) and s.reference_start <  p1[2]['end']:
-                        trim(cigar, s, primer_position, 0)
+                        trim(s, primer_position, 0)
                 elif s.reference_start < primer_position:
-                    trim(cigar, s, primer_position, 0)
+                    trim(s, primer_position, 0)
                 else:
                     if args.verbose:
                         sys.stderr.write("ref start %s >= primer_position %s" % (s.reference_start, primer_position))
@@ -213,29 +245,33 @@ def go(args):
                 if s.is_paired:
                     if amplicon_len > qlen:
                         if s.is_reverse and s.reference_end >  p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
-                            trim(cigar, s, primer_position, 1)
+                            trim(s, primer_position, 1)
                         ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
-                        if not s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_end > primer_position:
-                            trim(cigar, s, primer_position, 1)
+                        if not s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_end > primer_position and s.reference_start < primer_position :
+                            trim(s, primer_position, 1)
                     else:
                         if s.reference_end > primer_position and s.reference_start < primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
-                            trim(cigar, s, primer_position, 1)
+                            trim(s, primer_position, 1)
+                            
                 else: ## unpaired reads
                     if s.is_reverse and s.reference_end > p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
-                        trim(cigar, s, primer_position, 1)
+                        trim(s, primer_position, 1)
+                    ### The reads near to an amplified primers set.  ex primer_A_F  primer_A_R, try to trim both primers
+                    if not s.is_reverse and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1 and s.reference_end >= primer_position and s.reference_start < primer_position :
+                        trim(s, primer_position, 1)
             else:
                 if levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) > 1 :
                     if s.reference_end > p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
-                        trim(cigar, s, primer_position, 1)
+                        trim(s, primer_position, 1)
                 elif s.reference_end > primer_position:
-                    trim(cigar, s, primer_position, 1)
+                    trim(s, primer_position, 1)
                 else:
                     if args.verbose:
                         sys.stderr.write("ref end %s >= primer_position %s" % (s.reference_end, primer_position))
         except Exception as e:
             sys.stderr.write("problem %s" % (e,))
             pass
-
+      
         if args.normalise:
             pair = "%s-%s-%d" % (p1[2]['Primer_ID'], p2[2]['Primer_ID'], s.is_reverse)
             counter[pair] += 1
