@@ -575,11 +575,14 @@ def write_stats(stats, argvs):
         of.write("\t".join(stats.keys()) + "\n")
         of.write(str("\t".join(str(x) for x in stats.values())) + "\n")
 
-def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index,parent_pos_count,ec19_lineage, ec19_config, argvs):
+def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_index, parent_read_count_by_index,parent_pos_count,ec19_lineage, ec19_config, nt_to_lineage, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot.html"
     logging.info(f"Generating mutations AF plots and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
+    for i in nt_to_variants:
+        if i not in nt_to_lineage:
+            nt_to_lineage[i] = nt_to_variants[i]
     igv_url = argvs.igv if argvs.igv else "igv.html" 
     color1='blue'
     color2='red'
@@ -625,71 +628,71 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     ## mutation scatter plot
     fig.add_trace(go.Scatter(
                 x=list(range(len(all_mut_nt))), 
-                y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color=color1,size=10),
                 name=parents[0],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
                 x=list(range(len(all_mut_nt))), 
-                y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color=color2,size=10),
                 name=parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants],
-                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
                 x=list(range(len(all_mut_nt))), 
-                y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants], 
+                y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='purple',size=10),
                 name=parents[0] + ', ' + parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants],
-                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
                 x=list(range(len(all_mut_nt))), 
-                y=[ float(nt_to_variants_af[x])  if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+                y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='green',size=10),
                 name='Not ' + parents[0] + ', Not ' + parents[1],
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_variants[x]) if nt_to_variants[x] and  parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_lineage[x]) if x in nt_to_lineage and nt_to_lineage[x] and  parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
                 x=list(range(len(all_mut_nt))), 
-                y=[ float(nt_to_variants_af[x])  if not nt_to_variants[x] else None for x in nt_to_variants], 
+                y=[ float(nt_to_variants_af[x])  if x not in nt_to_lineage else None for x in nt_to_variants], 
                 mode='markers',
                 marker=dict(color='grey',size=10),
                 name='Undefined Mutations',
                 hovertemplate = 'Mut: %{x}<br>' + 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not nt_to_variants[x] else None for x in nt_to_variants],
-                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
+                text=[ 'DP: '+ str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x not in nt_to_lineage else None for x in nt_to_variants],
+                customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x not in nt_to_lineage else None for x in nt_to_variants ],
                 showlegend=True,
                 ),row=main_row,col=1)
     # pie chart
     pie_content={parents[0]:0, parents[1]:0, parents[0] + ', ' + parents[1]:0, 'Not ' + parents[0] + ', Not ' + parents[1]:0,'Undefined_Mutations':0}
     for x in nt_to_variants:
-        if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x]:
             pie_content[parents[0]] += 1
-        if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x]:
             pie_content[parents[1]] += 1
-        if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x]:
             pie_content[parents[0] + ', ' + parents[1]] += 1
-        if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x]:
             pie_content['Not ' + parents[0] + ', Not ' + parents[1]] += 1
-        if not nt_to_variants[x]:
+        if x not in nt_to_lineage:
             pie_content['Undefined_Mutations'] += 1
     fig.add_trace(go.Pie(labels=list(pie_content.keys()),
                         values=list(pie_content.values()),
@@ -746,11 +749,14 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     fig.write_image(output+'.png', width=1980, height=1080)
     return output
 
-def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs):
+def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_read_count_by_pos, parent_pos_count, ec19_lineage, ec19_config, nt_to_lineage, argvs):
     output = os.path.splitext(argvs.tsv)[0] + ".mutations_af_plot_genomeview.html"
     logging.info(f"Generating mutations AF plots Genome View and save to {output}")
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
+    for i in nt_to_variants:
+        if i not in nt_to_lineage:
+            nt_to_lineage[i] = nt_to_variants[i]
     igv_url = argvs.igv if argvs.igv else "igv.html" 
     color1='blue'
     color2='red'
@@ -808,60 +814,60 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     ## mutation scatter plot
     fig.add_trace(go.Scatter(
             x=[ int(x) for x in all_mut_nt_pos], 
-            y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants], 
             mode='markers',
             marker=dict(color=color1,size=10),
             #marker=dict(color=color1,size=10,line_color='pink',line_width=0.8, symbol=[ 'circle-x' if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
             name=parents[0],
             hovertemplate = 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants ],
             showlegend=True,
             ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
             x=[ int(x) for x in all_mut_nt_pos], 
-            y=[ float(nt_to_variants_af[x])  if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants], 
             mode='markers',
             marker=dict(color=color2,size=10),
             #marker=dict(color=color2,size=10,line_color='Skyblue',line_width=0.8, symbol=[ 'circle-x' if  parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
             name=parents[1],
             hovertemplate = 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants],
-            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] else None for x in nt_to_variants ],
             showlegend=True,
             ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
             x=[ int(x) for x in all_mut_nt_pos], 
-            y=[ float(nt_to_variants_af[x])  if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants], 
+            y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants], 
             mode='markers',
             marker=dict(color='purple',size=10),
             #marker=dict(color='purple',size=10,line_color='Yellow',line_width=0.8, symbol=[ 'circle-x' if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] and x.split(':')[1] in cr_coord else 'circle' for x in nt_to_variants]), 
             name=parents[0] + ', ' + parents[1],
             hovertemplate = 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants],
-            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x] else None for x in nt_to_variants ],
+            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x] else None for x in nt_to_variants ],
             showlegend=True,
             ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
             x=[ int(x) for x in all_mut_nt_pos], 
-            y=[ float(nt_to_variants_af[x])  if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants], 
+            y=[ float(nt_to_variants_af[x])  if x in nt_to_lineage and nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants], 
             mode='markers',
             marker=dict(color='green',size=10),
             name='Not ' + parents[0] + ', Not ' + parents[1],
             hovertemplate = 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_variants[x]) if nt_to_variants[x] and  parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants],
-            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x] else None for x in nt_to_variants ],
+            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>' + 'AA: ' + nt_to_aa_class.convert_nt_prot(x) + '<br>Var: ' + ','.join(nt_to_lineage[x]) if x in nt_to_lineage and nt_to_lineage[x] and  parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x in nt_to_lineage and nt_to_lineage[x] and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x] else None for x in nt_to_variants ],
             showlegend=True,
             ),row=main_row,col=1)
     fig.add_trace(go.Scatter(
             x=[ int(x) for x in all_mut_nt_pos], 
-            y=[ float(nt_to_variants_af[x])  if not nt_to_variants[x] else None for x in nt_to_variants],  
+            y=[ float(nt_to_variants_af[x])  if x not in nt_to_lineage else None for x in nt_to_variants],  
             mode='markers',
             marker=dict(color='grey',size=10),
             name='Undefined Mutations',
             hovertemplate = 'AF: %{y:.2f}<br>'+'%{text}<extra></extra>',
-            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if not nt_to_variants[x] else None for x in nt_to_variants],
-            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if not nt_to_variants[x] else None for x in nt_to_variants ],
+            text=[ 'Mut: '  + x + '<br>DP: ' + str(nt_to_variants_dp[x]) + '<br>AA: ' + nt_to_aa_class.convert_nt_prot(x) if x not in nt_to_lineage else None for x in nt_to_variants],
+            customdata=[ igv_url + '?locus=NC_045512_2:' + str(int(x.split(':')[1]) - 100) + '-' +  str(int(x.split(':')[1]) + 100) if x not in nt_to_lineage else None for x in nt_to_variants ],
             showlegend=True,
             ),row=main_row,col=1)
     ### Genome annotation
@@ -1123,15 +1129,15 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     # pie chart
     pie_content={parents[0]:0, parents[1]:0, parents[0] + ', ' + parents[1]:0, 'Not ' + parents[0] + ', Not ' + parents[1]:0,'Undefined_Mutations':0}
     for x in nt_to_variants:
-        if parents[0] in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x]:
             pie_content[parents[0]] += 1
-        if parents[1] in nt_to_variants[x] and parents[0] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[1] in nt_to_lineage[x] and parents[0] not in nt_to_lineage[x]:
             pie_content[parents[1]] += 1
-        if parents[0] in nt_to_variants[x] and parents[1] in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] in nt_to_lineage[x] and parents[1] in nt_to_lineage[x]:
             pie_content[parents[0] + ', ' + parents[1]] += 1
-        if nt_to_variants[x] and parents[0] not in nt_to_variants[x] and parents[1] not in nt_to_variants[x]:
+        if x in nt_to_lineage and parents[0] not in nt_to_lineage[x] and parents[1] not in nt_to_lineage[x]:
             pie_content['Not ' + parents[0] + ', Not ' + parents[1]] += 1
-        if not nt_to_variants[x]:
+        if x not in nt_to_lineage:
             pie_content['Undefined_Mutations'] += 1
     fig.add_trace(go.Pie(labels=list(pie_content.keys()),
                         values=list(pie_content.values()),
@@ -1412,8 +1418,8 @@ def main():
         recomb_rate_by_pos=dict()
         if os.path.exists(cr_file):
             recomb_rate_by_index,  recomb_rate_by_pos, parent_read_count_by_index = calculate_recombinant_rate(cr_file,reads_stats,filtered_nt_to_variants,parent_pos_count, argvs)
-        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, parent_pos_count,ec19_lineage, ec19_config, argvs)
-        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, ec19_lineage, ec19_config, argvs)
+        mutations_af_plot(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_index, parent_read_count_by_index, parent_pos_count,ec19_lineage, ec19_config, nt_to_lineage, argvs)
+        mutations_af_plot_genome(two_parents_list, filtered_nt_to_variants, filtered_nt_to_variants_af, filtered_nt_to_variants_dp, nt_to_aa_class, reads_stats, recomb_rate_by_pos, parent_pos_count, ec19_lineage, ec19_config, nt_to_lineage, argvs)
     if argvs.igv:
         update_igv_html(two_parents_list,reads_stats,argvs)
     # else:
