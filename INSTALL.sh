@@ -432,7 +432,7 @@ if [[ -n ${http_proxy} ]]; then
         ./bin/vdb-config --proxy $proxy_without_protocol
 fi
 
-echo 'Aexyo' | ./bin/vdb-config -i
+echo 'Aexyo' | ./bin/vdb-config -i | true
 
 ln -sf $HOME/.ncbi $rootdir/.ncbi
 
