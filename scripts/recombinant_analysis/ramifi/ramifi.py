@@ -581,7 +581,7 @@ def mutations_af_plot(parents,nt_to_variants,nt_to_variants_af,nt_to_variants_dp
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
     for i in nt_to_variants:
-        if i not in nt_to_lineage:
+        if i not in nt_to_lineage and len(nt_to_variants[i])>1:
             nt_to_lineage[i] = nt_to_variants[i]
     igv_url = argvs.igv if argvs.igv else "igv.html" 
     color1='blue'
@@ -755,7 +755,7 @@ def mutations_af_plot_genome(parents,nt_to_variants,nt_to_variants_af,nt_to_vari
     all_mut_nt_pos = [ i.split(":")[1] for i in list(nt_to_variants.keys())]
     all_mut_nt = [ i.split(":")[0] + ":<b>" + i.split(":")[1] + "</b>:" + i.split(":")[2] for i in list(nt_to_variants.keys())]
     for i in nt_to_variants:
-        if i not in nt_to_lineage:
+        if i not in nt_to_lineage and len(nt_to_variants[i])>1:
             nt_to_lineage[i] = nt_to_variants[i]
     igv_url = argvs.igv if argvs.igv else "igv.html" 
     color1='blue'
