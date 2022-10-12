@@ -1427,6 +1427,15 @@
  					<label for="edge-r2g-recombinant-min-mixed">Minimum Mixed Mutations <a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Minimum Mixed Mutations Count (AF between 20 and 80) to run mixed infection reads analysis (RAMIFI).." ></a></label>
 					<input type="number" name="edge-r2g-recombinant-min-mixed" id="edge-r2g-recombinant-min-mixed" data-mini="true" data-clear-btn="true" value="6">
 				</div>
+				<div class="ui-field-contain edge-fastq-options">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Variant Mutation List<a href="#" id="edge-r2g-recombinant-variant-mutation-tooltip" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="variant mutation list" ></a></legend>
+						<input type="radio" name="edge-r2g-recombinant-variant-mutation" id="edge-r2g-recombinant-variant-mutation1" value="who">
+						<label for="edge-r2g-recombinant-variant-mutation1">WHO</label>
+						<input type="radio" name="edge-r2g-recombinant-variant-mutation" id="edge-r2g-recombinant-variant-mutation2" value="omicron" checked="checked">
+						<label for="edge-r2g-recombinant-variant-mutation2">Omicron_lineage_vs_allOthersInOmicron</label>
+					</fieldset>
+				</div>
 			</div>
 		</div>
 		
