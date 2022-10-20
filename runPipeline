@@ -216,7 +216,7 @@ if ($configuration->{DoAssembly} && ($QCpairFile or $QCunpairFile))
 {
 	my $assembler = $configuration->{assembler};
 	($contigFile,$contig_for_annotation_file)=&runAssembly($QCpairFile,$QCunpairFile,$assembler) if (!$configuration->{assembledContigs});
-	&runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and $configuration->{DoReadsMappingContigs});
+	&runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and -s $configFile and $configuration->{DoReadsMappingContigs});
 }
 
 my $tax_kingdom=$configuration->{kingdom};
@@ -286,7 +286,7 @@ else # reference unknown
 }
 
 
-if ($configuration->{DoContigsTaxonomy} and $contigFile)
+if ($configuration->{DoContigsTaxonomy} and $contigFile and -s $contigFile)
 {
     &Contigs_taxonomyAssignment($contigFile);
 }
