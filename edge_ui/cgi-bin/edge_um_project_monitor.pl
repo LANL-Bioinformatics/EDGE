@@ -79,18 +79,26 @@ foreach my $hash_ref ( @projectlist) {
 	if ($owner_fn eq "Guest" && $owner_ln eq "EDGE"){
 		&guest_proj_cleanup($proj_dir,$processlog,$id,$project_name,$projCode);
 	} 	
-	if ( $status =~ /finished|archived|unstarted|in process/i && -e "$proj_dir/.AllDone"){
+	if ( $status =~ /complete|finished|archived|unstarted|in process/i && -e "$proj_dir/.AllDone"){
 		$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
-		$status=($status =~ /finished/i)?"Complete":"Archived";
+		#$status=($status =~ /finished/i)?"Complete":"Archived";
+		$status="Complete";
 	}elsif( $status =~ /unstarted/i){
 		$list->{$id}->{PROJSUBTIME}=$created_time;
 		$list->{$id}->{RUNTIME}="";
-		$status="Unstarted";
+		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
+                $status="Unstarted";
+                $status = 'failed' if ($list->{$id}->{PROJSTATUS} =~ /failed/i);
+                $status = 'finished' if ($list->{$id}->{PROJSTATUS} =~ /finsihed|complete/i);
+                $status = 'running' if ($list->{$id}->{PROJSTATUS} =~ /running/i);
 	}elsif( $status =~ /in process/i){
        		$list->{$id}->{PROJSUBTIME}=$created_time;
       		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
                         #$list->{$id}->{RUNTIME}="";
              	$status="In process";
+		$status = 'failed' if ($list->{$id}->{PROJSTATUS} =~ /failed/);
+                $status = 'finished' if ($list->{$id}->{PROJSTATUS} =~ /finsihed|complete/i);
+                $status = 'running' if ($list->{$id}->{PROJSTATUS} =~ /running/i);
 	}else{
 		$list=&pull_summary($processlog,$id,$list,$proj_dir) if (  -e $processlog);
 	}
@@ -116,12 +124,13 @@ foreach (keys %$list) {
 	my $projStatus = $list->{$_}->{PROJSTATUS};
 	my $projID = $list->{$_}->{PROJNAME};
 	my $projTime = $list->{$_}->{TIME};
+	my $projSubTime = $list->{$_}->{PROJSUBTIME};
 	my $projRunTime = $list->{$_}->{RUNTIME};
 
 	if($projStatus eq "Complete") {
 		&updateProject($projID, $projStatus, $projTime, $projRunTime);
 	} else {
-		&updateProject($projID, $projStatus, $projTime);
+		&updateProject($projID, $projStatus, $projSubTime);
 	}
 }
 
