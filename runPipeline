@@ -2547,7 +2547,7 @@ if ($configuration->{DoHostRemoval}){
     $mergeFiles .= $hostReomvalPDF.",";
 }
 
-if ($contigFile and $configuration->{DoReadsMappingContigs}){
+if ($contigFile and -s $contigFile and $configuration->{DoReadsMappingContigs}){
 	$mergeFiles .= $contigStatsPDF.",";
 }
 if ( -e "$outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs.alnstats.txt"){
@@ -2572,7 +2572,7 @@ $mergeFiles .= $annotationStatsPDF."," if ( -e $annotationStatsPDF);
 
 if ($referenceGenome)
 {
-    if ($contigFile)
+    if ($contigFile and -s $contigFile)
     {
         $mergeFiles .= $contigMappingToRefStatsPDF.",".$contigMappingToRefPDF.",";
 print $Rfh <<Rscript;
@@ -3344,6 +3344,7 @@ sub runReadsToGenome
     my $outVCF = "$outputDir/$outPrefix.vcf";
     my $outGap = "$outputDir/$outPrefix.gaps";
     my $r2g_aligner_options = $configuration->{"r2g_aligner_options"} || "";
+    my $r2g_mapq = (defined $configuration->{"r2g_min_mapq"})? $configuration->{"r2g_min_mapq"} : 42;
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0;
     my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/i)? 1 : 0;
     my $variant_call = (defined $configuration->{r2g_variant_call})? (($configuration->{r2g_variant_call})? 1 : 0) : 1;
@@ -3376,24 +3377,21 @@ sub runReadsToGenome
     $parameters .= " -pre $outPrefix -cpu $numCPU -consensus 0 -disableBAQ";
     if ($configuration->{r2g_aligner} =~ /bowtie/){
         $r2g_aligner_options =~ s/-p\s*\d+//;
-	$parameters .= " -maq 42 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bowtie -bowtie_options ". "'".  $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /bwa/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x ont2d " if $ont_flag;
 	$r2g_aligner_options .= " -x pacbio " if $pacbio_flag;
-	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
     	$parameters .= " -aligner bwa -bwa_options ". "'" . $r2g_aligner_options . "'";
     }elsif($configuration->{r2g_aligner} =~ /minimap/){
         $r2g_aligner_options =~ s/-t\s*\d+//;
 	$r2g_aligner_options .= " -x map-pb " if $pacbio_flag;
-	$parameters .= " -maq 60 " if ! $configuration->{r2g_min_mapq};
         $parameters .= " -aligner minimap2 -minimap2_options ". "'" . $r2g_aligner_options . "'";
     }
 
     $parameters .= " -no_indels " if $ont_flag; # or $pacbio_flag?
     $parameters .= " -no_snp " if ($variant_call == 0);
-    $parameters .= " -maq  $configuration->{r2g_min_mapq} " if $configuration->{r2g_min_mapq};
+    $parameters .= " -maq  $r2g_mapq ";
     $parameters .= " -ploidy $variant_call_ploidy " if ($variant_call_ploidy);
     $parameters .= " -variant_qual $variant_call_min_qual " if ($variant_call_min_qual);
     $parameters .= " -min_depth $configuration->{r2g_consensus_min_cov} " if ($configuration->{r2g_consensus_min_cov}); 
@@ -4865,6 +4863,7 @@ sub writeJBrowseInfo
     my $contigTax="$outDir/AssemblyBasedAnalysis/Taxonomy/${project_name}.lca_ctg.tsv";
     my $ARGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_AR_genes_rgi.gff";
     my $VFGenesGFF="$outDir/AssemblyBasedAnalysis/SpecialtyGenes/${project_name}_VF_genes_ShortBRED.gff";
+    my $r2g_mapq = (defined $configuration->{"r2g_min_mapq"})? $configuration->{"r2g_min_mapq"} : 42;
     &make_dir($outputDir);
     if ($noColorLog)
     {
@@ -4886,7 +4885,7 @@ sub writeJBrowseInfo
     my $correct_bed_file = "$outDir/ReadsBasedAnalysis/readsMappingToRef/".basename($configuration->{r2g_align_trim_bed_file}) if ($configuration->{r2g_align_trim_bed_file});
     my $cmd="$RealBin/scripts/edge2jbrowse_converter.pl ";
     $cmd .= "--bam-file-depth $configuration->{JBrowse_bam_min_depth} " if ($configuration->{JBrowse_bam_min_depth});
-    $cmd .= "--bam-file-maq $configuration->{r2g_min_mapq} " if ($configuration->{r2g_min_mapq});
+    $cmd .= "--bam-file-maq $r2g_mapq ";
     $cmd .= "--in-ref-fa '$referenceGenome' " if ($referenceGenome);
     $cmd .= "--in-ctg-fa $contig_for_annotation_file " if ($contig_for_annotation_file);
     $cmd .= "--in-ctg-anno-gff3 '$annotationGFF' " if ($annotationGFF);
