@@ -1242,7 +1242,7 @@ def update_igv_html(two_parents_list,reads_stats, argvs):
     if not os.path.exists(igv_html_file):
         return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
-    variants_gff = os.path.join(os.path.dirname(igv_html_file) + 'variant_mutation.gff')
+    variants_gff = os.path.join(os.path.dirname(igv_html_file), 'variant_mutation.gff')
     if argvs.igv_variants:
         cmd=[ os.path.join(bin_dir,'varJSonToGFF.py'), '--refacc', argvs.refacc, '--variantMutation', argvs.variantMutation, '--out', variants_gff ]
         process_cmd(cmd)
