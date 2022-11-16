@@ -5,6 +5,9 @@ import os
 import sys
 import re
 import shutil
+import shlex
+import subprocess
+import time
 import csv
 from collections import defaultdict
 
@@ -131,6 +134,45 @@ def load_var_mutation(file):
 
     return(delta_uniq_nt, omicron_uniq_nt, nt_to_variant, nt_to_aa)
 
+def process_cmd(cmd, msg=None, stdout_log=None,  shell_bool=False, timeout = 60):
+    if msg:
+        logging.info(msg)
+
+    time_out = time.time() + 60 * timeout   # 60 minutes in default
+    logging.debug("CMD: %s" %(" ".join(cmd)) )
+    proc = subprocess.Popen(shlex.split(" ".join(cmd)), shell=shell_bool, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    
+    if stdout_log:
+        f=open (stdout_log, "a") 
+    while proc.poll() is None:  ## not finished the proc., if it finished will be not None.
+        output = proc.stdout.readline()
+        if output:
+            stdout_msg=output.decode()
+            sys.stdout.write(stdout_msg)
+            if stdout_log:
+                f.write(stdout_msg)
+        # Wait a little before looping
+        time.sleep(0.01)
+        if time.time() > time_out:
+            try:
+                output = proc.communicate(timeout=5)[0]  # try 5 sec if still not end..., kill the proc and capture the final stream
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                output = proc.communicate()[0]
+            if output:
+                stdout_msg=output.decode()
+                sys.stdout.write(stdout_msg)
+                if stdout_log:
+                    f.write(stdout_msg)
+            break
+    if stdout_log:
+        f.close()
+    proc.stdout.close()
+    rc = proc.returncode
+    if rc != 0: 
+        logging.error("Failed %d %s" % (rc, " ".join(cmd)))
+    
+    return 0
 
 def load_lineage_mutation(file):
     with open(file, 'r') as f:
@@ -1200,8 +1242,12 @@ def update_igv_html(two_parents_list,reads_stats, argvs):
     if not os.path.exists(igv_html_file):
         return
     update_igv_html_file = os.path.splitext(igv_html_file)[0] + '.recombreads.html'
+    variants_gff = os.path.join(os.path.dirname(igv_html_file) + 'variant_mutation.gff')
+    if argvs.igv_variants:
+        cmd=[ os.path.join(bin_dir,'varJSonToGFF.py'), '--refacc', argvs.refacc, '--variantMutation', argvs.variantMutation, '--out', variants_gff ]
+        process_cmd(cmd)
     logging.info(f"Adding recombinant reads as track in IGV view to {igv_html_file}")
-    variants_track = {'name':"Variants Mutations", 'format':"gff3", 'displayMode':"expanded", 'height': 300, 'url': "./variants_mutation.gff", 'indexed': False, 'visibilityWindow':32000, 'colorBy':"Variant"}
+    variants_track = {'name':"Variants Mutations", 'format':"gff3", 'displayMode':"expanded", 'height': 150, 'url': "./variant_mutation.gff", 'indexed': False, 'visibilityWindow':32000, 'colorBy':"Variant"}
     recomb1_track = {
         'name': 'Recombinant 1', 
         'type':'alignment', 

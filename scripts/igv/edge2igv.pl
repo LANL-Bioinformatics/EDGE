@@ -514,7 +514,7 @@ sub main {
 		if ($opt{'deltacron'}){
 			copy("$Bin/../../edge_ui/data/omicron.vcf", "$opt{outdir}/ref_tracks/");
 			copy("$Bin/../../edge_ui/data/delta.vcf", "$opt{outdir}/ref_tracks/");	
-			copy("$Bin/../../edge_ui/data/variants_mutation.gff", "$opt{outdir}/ref_tracks/");	
+			copy("$Bin/../../edge_ui/data/variant_mutation.gff", "$opt{outdir}/ref_tracks/");	
 			my %delta_track = ('format'=>'vcf','type'=>'variant', 'url' =>"./delta.vcf", "name" => "Delta_unique_variants", "height"=> 50, "color"=> "red", "showGenotypes"=> \0);
 			my %omicron_track = ('format'=>'vcf','type'=>'variant', 'url' =>"./omicron.vcf", "name" => "Omicron_unique_variants", "height"=> 50, "color"=> "blue", "showGenotypes"=> \0);
 			my %variants_check = ("name"=>"Variants Mutations","format"=>"gff3","url"=>"./variants_mutation.gff","displayMode"=>"expanded","height"=>300,"indexed"=> \0, "visibilityWindow"=>32000, "colorBy"=>"Variant");
