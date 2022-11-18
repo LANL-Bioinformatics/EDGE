@@ -3503,6 +3503,7 @@ sub runReadsToGenome
             $command .= " --varlog " if ($con_varlog_opt);
             $command .= " --disableBAQ" if ($con_disable_BAQ);
             $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
+	    $command .= " --bed $correct_bed_file " if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) );
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);

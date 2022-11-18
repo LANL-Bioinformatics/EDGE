@@ -195,8 +195,8 @@ def go(args):
 
         
         ## if the alignment starts before the end of the primer, trim to that position
-        #if 'A01000:190:H2VYMDRX2:1:2256:28185:3615' in s.query_name:
-        #   print(f'{s.query_name} {s.cigarstring} {s.is_reverse} {amplicon_len} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
+        #if 'A01000:190:H2VYMDRX2:2:2244:3106:36746' in s.query_name:
+        #    print(f'{s.query_name} {s.cigarstring} {s.is_paired} {s.is_reverse} {amplicon_len} {qlen} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
         #    print(list(p1), file=sys.stderr)
         #    print(list(p2), file=sys.stderr)
         try:
@@ -218,6 +218,7 @@ def go(args):
                     else:  # short amplicon,  reads length > amplicon size.  check the primer pair's name should be a set for trimming
                         if s.reference_start < primer_position and s.reference_end >= primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
                             trim(s, primer_position, 0)
+                            
                 else: ## unpaired reads
                     if not s.is_reverse and s.reference_start >=  (p1[2]['start'] - args.offset)  and s.reference_start <  p1[2]['end']:
                         trim(s, primer_position, 0)
