@@ -79,7 +79,7 @@ foreach my $hash_ref ( @projectlist) {
 	if ($owner_fn eq "Guest" && $owner_ln eq "EDGE"){
 		&guest_proj_cleanup($proj_dir,$processlog,$id,$project_name,$projCode);
 	} 	
-	if ( $status =~ /complete|finished|archived|unstarted|in process/i && -e "$proj_dir/.AllDone"){
+	if ( $status =~ /complete|finished|archived/i && -e "$proj_dir/.AllDone"){
 		$list=&get_start_run_time("$proj_dir/.AllDone",$id,$list);
 		#$status=($status =~ /finished/i)?"Complete":"Archived";
 		$status="Complete";
@@ -130,7 +130,7 @@ foreach (keys %$list) {
 	if($projStatus eq "Complete") {
 		&updateProject($projID, $projStatus, $projTime, $projRunTime);
 	} else {
-		&updateProject($projID, $projStatus, $projSubTime);
+		&updateProject($projID, $projStatus);
 	}
 }
 
