@@ -216,7 +216,7 @@ if ($configuration->{DoAssembly} && ($QCpairFile or $QCunpairFile))
 {
 	my $assembler = $configuration->{assembler};
 	($contigFile,$contig_for_annotation_file)=&runAssembly($QCpairFile,$QCunpairFile,$assembler) if (!$configuration->{assembledContigs});
-	&runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and -s $configFile and $configuration->{DoReadsMappingContigs});
+	&runReadsToContig($QCpairFile,$QCunpairFile,$contigFile) if ($contigFile and -s $contigFile and $configuration->{DoReadsMappingContigs});
 }
 
 my $tax_kingdom=$configuration->{kingdom};
@@ -3460,7 +3460,7 @@ sub runReadsToGenome
         my $con_strandbias_filter = ($configuration->{r2g_consensus_strandbias_filter})? "1":"0";
 	my $con_varlog_opt = ($configuration->{r2g_consensus_varlog_opt})? "1":"0";
 	my $con_comp_opt = ($configuration->{r2g_consensus_comp_opt})? "1":"0";
-	    foreach my $file (@$referenceFile_r){
+	foreach my $file (@$referenceFile_r){
             &make_dir("$outputDir/consensus_tmp");
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
@@ -3472,6 +3472,7 @@ sub runReadsToGenome
             $command .= " --varlog " if ($con_varlog_opt);
             $command .= " --disableBAQ" if ($con_disable_BAQ);
             $command .= " --NOpcrDedup" if (!$con_pcr_dedup);
+	    $command .= " --bed $correct_bed_file " if ( $configuration->{r2g_align_trim_bed_file} and &is_bed6_plus($configuration->{r2g_align_trim_bed_file}) );
             $command .= " --useAnomPairs --mapQ=$con_min_mapQ --maxCov=$con_max_cov --propThresh=$con_alt_prop --covThresh=$con_min_cov --baseQual=$con_min_baseQ --INDELpropThresh=$con_altIndel_prop  >> $consensus_log";
             &lprint ("  Running \n  $command \n");
             &executeCommand($command);
