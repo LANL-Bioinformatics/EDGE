@@ -273,7 +273,9 @@ sub readBatchInput {
 	my @header = split /\t/,$head;
 	if ($head !~ /project/i){
 		&addMessage("PARAMS","edge-batch-input-excel","Incorrect batch file");
+		&returnStatus();
 	}else{
+		my %dup;
 		while (my $test=<$fh>){
 			chomp $test; 
 			next if ($test =~ /None/);
@@ -286,6 +288,13 @@ sub readBatchInput {
 				$data[$i] =~ s/\.\.\///g;
 				my $key = lc($header[$i]);
 				$list->{$data[0]}->{"$key"}=$data[$i];
+				if ($dup{$data[0]}){
+					&addMessage("PARAMS","edge-batch-input-excel","Duplicate project name found, $data[0]");
+					&returnStatus();
+				}
+				else{
+					$dup{$data[0]} = 1
+				}
 			}
 		}
 	}
