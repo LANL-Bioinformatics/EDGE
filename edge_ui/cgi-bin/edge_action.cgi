@@ -126,8 +126,9 @@ my $real_name = $pname;
 my $projCode;
 my $projStatus;
 my $projOwnerEmail;
-my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export');
+my @projCodes = split /,/,$opt{proj} if ($action eq 'compare' || $action eq 'metadata-export' || $action eq 'tree');
 my $user_proj_dir = "$input_dir/tmp";
+my $userdir;
 if ( $umSystemStatus )
 {
 	my $valid = verifySession($sid);
@@ -142,9 +143,10 @@ if ( $umSystemStatus )
 	$list = &getUserProjFromDB("owner");
 	my $user_info=&getUserInfo();
 	$userType=$user_info->{type};
-	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus,$projOwnerEmail)= &getProjNameFromDB($pname) if ($pname && $action ne 'compare' && $action ne 'metadata-export' && $action ne 'tree');
 	
 	$user_proj_dir = "$input_dir/". md5_hex(lc($username))."/MyProjects/$real_name"."_".$pname;
+	$userdir = "$input_dir/". md5_hex(lc($username));
 	#separate permission for future uses. A permission module can be added potentially..
 	if( defined $list->{$pname} || $userType =~ /admin/){
 		$permission->{empty} = 1;
@@ -167,20 +169,21 @@ if ( $umSystemStatus )
 		$permission->{getreadsbyref} = 1;
 		$permission->{takenotes} = 1;
 		$permission->{metadata} = 1;
+		$permission->{repangolin} = 1;
 	}
 	if ($userType =~ /admin/){
 		$permission->{updatesysprop} = 1;
 	}
 	#print STDERR "User: $username; Sid: $sid; Valid: $valid; Pname: $pname; Realname: $real_name; List:",Dumper($list),"\n";
 }else{
-	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export');
+	($real_name,$projCode,$projStatus)= &scanProjToList($out_dir,$pname) if ($action ne 'compare' && $action ne 'metadata-export' && $action ne 'tree' );
 	if (!$real_name){
 		$info->{INFO} = "ERROR: No project with ID $pname.";
 		&returnStatus();
 	}
 }
-	$proj_dir = abs_path("$out_dir/$projCode") if ( -d "$out_dir/$projCode");
-	$proj_rel_dir = "$out_rel_dir/$projCode" if ( -d "$out_dir/$projCode");
+	$proj_dir = abs_path("$out_dir/$projCode") if ( $projCode and -d "$out_dir/$projCode");
+	$proj_rel_dir = "$out_rel_dir/$projCode" if ( $projCode and -d "$out_dir/$projCode");
 
 
 if ($action eq 'rename' ){
@@ -222,11 +225,8 @@ if( $action eq 'empty' ){
 		$info->{INFO} = "ERROR: Project $real_name is running.";
 		&returnStatus();
 	}
-	if( $sys->{user_management} && !$projCode ){
-		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
-		&returnStatus();
-	}
-	if( $pname && -d $proj_dir ){
+
+	if( $pname and -d $proj_dir ){
 		my @trash;
 		opendir(BIN, $proj_dir) or die "Can't open $proj_dir: $!";
 		while( defined (my $file = readdir BIN) ) {
@@ -296,7 +296,7 @@ elsif( $action eq 'remove' ){
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Cannot remove $real_name from project list.";
 
-	if( -s "$proj_dir/process.log" ){
+	if( $pname and -s "$proj_dir/process.log" ){
 		rename("$proj_dir/process.log","$proj_dir/process.log.bak");
 		if( !-e "$proj_dir/process.log" ){
 			$info->{STATUS} = "SUCCESS";
@@ -310,12 +310,8 @@ elsif( $action eq 'delete' ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
 	}
-	if( $sys->{user_management} && !$projCode ){
-		$info->{INFO} = "ERROR: Project code cannot be found fron $pname";
-		&returnStatus();
-	}
 
-	if( $pname && -d $proj_dir ){
+	if( $pname and -d $proj_dir ){
 		#update project list
 		$info->{STATUS} = "FAILURE";
 		$info->{INFO}   = "Failed to delete the output directory.";
@@ -364,8 +360,8 @@ elsif( $action eq 'delete' ){
 			open STDIN, "</dev/null";
  			open STDOUT, ">/dev/null";
 			open STDERR, ">/dev/null";
-			remove_tree($proj_dir) if ($proj_dir ne $out_dir);
-			remove_tree("$out_dir/$pname") if ( $pname && -d "$out_dir/$pname");
+			remove_tree($proj_dir);
+			remove_tree("$out_dir/$pname") if ( -d "$out_dir/$pname");
 			exit;
 		}
 		unlink "$www_root/JBrowse/data/$pname", "$www_root/JBrowse/data/$projCode";
@@ -762,18 +758,13 @@ elsif( $action eq 'getreadsbytaxa'){
 		$pangia_db_path = dirname($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"}) if ($config->{"Reads Taxonomy Classification"}->{"custom-pangia-db"});
 		$cmd = "export HOME=$EDGE_HOME; $EDGE_HOME/thirdParty/pangia/pangia.py -t2 -dp $pangia_db_path -s $readstaxa_outdir/*.sam -m extract -x $taxa_for_contig_extract -c > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq";
 	}
-	my $tax_result;
 	if( $cptool_for_reads_extract =~ /centrifuge/i ){
-                $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
-                $cmd = "awk '{print \$1\"\t\"\$3}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+                my $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
+                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$1}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
         }
         if( $cptool_for_reads_extract =~ /kraken/i ){
-                $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
-                $cmd = "awk '{print \$2\"\t\"\$3}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
-        }
-        if( $cptool_for_reads_extract =~ /diamond/i ){
-                $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.raw.txt";
-		$cmd = "awk '{print \$1\"\t\"\$2}' $tax_result | $EDGE_HOME/scripts/microbial_profiling/script/get_reads_by_taxa.pl - $reads_fastq $taxa_for_contig_extract > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
+                my $tax_result = "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.classification.csv";
+                $cmd = "awk '\$3==\"$taxa_for_contig_extract\" {print \$2}' $tax_result | $EDGE_HOME/scripts/get_seqs.pl - $reads_fastq > $readstaxa_outdir/$out_fasta_name.fastq; cd $readstaxa_outdir; zip $out_fasta_name.fastq.zip $out_fasta_name.fastq; rm $out_fasta_name.fastq" ;
         }
 
 	# bring process to background and return to ajax
@@ -788,7 +779,7 @@ elsif( $action eq 'getreadsbytaxa'){
 	if (  -s  "$readstaxa_outdir/$out_fasta_name.fastq.zip"){
 		$info->{STATUS} = "SUCCESS";
 		$info->{PATH} = "$relative_taxa_outdir/$out_fasta_name.fastq.zip";
-	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") && ! -e "$tax_result" ){
+	}elsif ( ! -e "$readstaxa_outdir/${read_type}-$cptool_for_reads_extract.bam" && ! glob("$readstaxa_outdir/*.sam") && ! glob("$readstaxa_outdir/*.classification.csv") ){
 		$info->{INFO}   = "The result bam/csv does not exist.";
 		$info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
 	}else
@@ -861,7 +852,41 @@ elsif( $action eq 'compare'){
 			$info->{PID} = ++$pid;
 		}
 	}
-}elsif($action eq 'contigblast'){
+}
+elsif( $action eq 'tree'){
+	my $compare_out_dir = "$out_dir/UShER/". md5_hex(join ('',@projCodes));
+	my $relative_outdir = "$out_rel_dir/UShER/". md5_hex(join ('',@projCodes));
+	my $consensus_fasta_files = join(" ",map { "$out_dir/$_/ReadsBasedAnalysis/readsMappingToRef/*consensus.fasta" } @projCodes);
+	make_path("$compare_out_dir",{chmod => 0755,});
+	my $relative_result_html = "$relative_outdir/index.html";
+	my $result_html = "$compare_out_dir/index.html";
+	$info->{PATH} = $relative_result_html;
+	$info->{INFO} = "The UShER result is available <a target='_blank' href=\'$runhost/$relative_result_html\'>here</a>";
+	#if ( -s $result_html ){
+	#		$info->{STATUS} = "SUCCESS";
+	#}else{
+		my $cmd = "cat $consensus_fasta_files > $compare_out_dir/input.fasta\n";
+		$cmd .= "$EDGE_HOME/scripts/run_remote_UShER.py -f $compare_out_dir/input.fasta -o $result_html\n";
+		#$cmd .= "cp -r $EDGE_HOME/edge_ui/css/hgPhyloPlace $compare_out_dir/style\n";
+		$cmd .= "cp -r $EDGE_HOME/edge_ui/javascript/hgPhyloPlace $compare_out_dir/js\n";
+		open (my $fh,">","$compare_out_dir/run.sh");
+		print $fh $cmd,"\n";
+		close $fh;
+		chdir $compare_out_dir;
+		$cmd = "bash $compare_out_dir/run.sh 2>\&1 1>>$compare_out_dir/UShER.log &";
+
+		my $pid = open TREE, "-|", $cmd or die $!;
+		close TREE;
+		if (not defined $pid ){
+			$info->{STATUS} = "FAILURE";
+			$info->{INFO}   = "Failed to run UShER";
+		}else{
+			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
+		}
+		#}
+}
+elsif($action eq 'contigblast'){
 	if( $sys->{user_management} && !$permission->{$action} ){
 		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
 		&returnStatus();
@@ -958,16 +983,15 @@ elsif( $action eq 'metadata-export'){
 	my $metadata_out_dir = "$out_dir/sample_metadata_export/". md5_hex(join ('',@projCodes));
 	my $relative_outdir = "$out_rel_dir/sample_metadata_export/". md5_hex(join ('',@projCodes));
 	unlink $metadata_out_dir;
-	my $metadata_out = "$metadata_out_dir/edge_sample_metadata.xlsx";
-
+	my $date_str = strftime "%Y%m%d", localtime;
+	my $metadata_out = "$metadata_out_dir/${date_str}_edge_covid19_metadata.xls";
 	my $projects = join(",",map { "$out_dir/$_" } @projCodes);
 	$info->{PATH} = $metadata_out;
-	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/edge_sample_metadata.xlsx\'>here</a> to download it.<br><br>";
-
-	system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-um", "$umSystemStatus", "-out", "$metadata_out", "-projects", "$projects");
+	$info->{INFO} = "The sample metadata is available. Please click <a target='_blank' href=\'$runhost/$relative_outdir/${date_str}_edge_covid19_metadata.xls\'>here</a> to download it.<br><br>";
+	system("$EDGE_HOME/scripts/metadata/export_metadata_xlsx.pl", "-out", "$metadata_out", "-projects", "$projects", "-udir",$userdir);
 
 	if( !-e "$metadata_out" ){
-		$info->{INFO} = "Error: failed to export sample metadata to .xlsx file";
+		$info->{INFO} = "Error: failed to export sample metadata to .xls file";
 	}else{
 		$info->{STATUS} = "SUCCESS";
 	}
@@ -1069,7 +1093,7 @@ elsif($action eq 'define-gap-depth'){
 
 		my $cmd = ($sys->{'download_interface'} =~ /curl/i)?"curl -A \"Mozilla/5.0\" -L $proxy \"$url\" 2>/dev/null":"wget -v -U \"Mozilla/5.0\" -O - \"$url\" 2>/dev/null";
 		my $SRA_fh;
-		my $pid = open ($SRA_fh, "-|")
+		$pid = open ($SRA_fh, "-|")
 				or exec($cmd);
 		my $line_num=0;
 		my $platform;
@@ -1147,6 +1171,60 @@ elsif($action eq 'define-gap-depth'){
 	close $out;
 	rename("$sysconfig.tmp",$sysconfig);
 	chmod 0400, $sysconfig;
+
+}elsif($action eq 'repangolin'){
+	if( $sys->{user_management} && !$permission->{$action} ){
+		$info->{INFO} = "ERROR: Permission denied. Only project owner can perform this action.";
+		&returnStatus();
+	}
+	$info->{STATUS} = "FAILURE";
+	$info->{INFO}   = "Failed to rerun project $real_name pangolin analysis.";
+	
+  	my @pangolin_results = glob("$proj_dir/ReadsBasedAnalysis/readsMappingToRef/*_consensus_lineage.txt");
+	my @consensus_fasta = glob("$proj_dir/ReadsBasedAnalysis/readsMappingToRef/*_consensus.fasta");
+	if (! @consensus_fasta){
+		$info->{INFO} = "Project $real_name doesn't have consensus fasta.";
+		&returnStatus();
+	}
+	foreach my $pangolin_result (@pangolin_results){
+		my $date_str = strftime ("%Y%m%d", localtime( (stat $pangolin_result)[9] ));
+		copy($pangolin_result, "$pangolin_result.$date_str.bak");
+	}
+	my $pid = $name2pid->{$pname} || $name2pid->{$projCode};
+	my $cmd;
+	my $process_log="$proj_dir/process_current.log";
+	if( ! defined $pid ){
+		#unlink "$proj_dir/HTML_Report/.complete_report_web";
+		open LOG, "$process_log" or die "Can't open process log:$!.";
+		foreach(<LOG>){
+			chomp;
+			if( /pangolin / ){
+				$cmd .= $_;
+			}
+		}
+		close LOG;
+		open (my $fh,">","$proj_dir/repangolin.sh");
+		print $fh $cmd,"\n";
+		print $fh "rm -f $proj_dir/HTML_Report/.complete_report_web\n";
+		close $fh;
+		$cmd = "bash $proj_dir/repangolin.sh ";
+		#$cmd = "bash $proj_dir/repangolin.sh 2>\&1 1>>/dev/null &";
+		my $pid = open PANGO, "-|", $cmd  or die $!;
+		if (not defined $pid ){
+			$info->{INFO}   = "Failed to rerun pangolin analysis.";
+		}else{
+			$info->{STATUS} = "SUCCESS";
+			$info->{PID} = ++$pid;
+			$info->{INFO}   = "Rerun pangolin analysis complete.";
+		}
+		
+		#if($cluster) {
+		#}else{
+				
+		#}
+	}else{
+		$info->{INFO} = "Project $real_name can't be restarted because it's still running (PID: $pid).";
+	}
 
 }
 &returnStatus();
@@ -1728,6 +1806,7 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Reads Mapping To Contigs"}       ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/readsMappingToContig/runReadsToContig.finished";
 	$module_ctl->{"Reads Mapping To Reference"}     ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/runReadsToGenome.finished";
         $module_ctl->{"Reads Mapping To Reference"}     ->{"UnmappedReads"} = "$proj_dir/ReferenceBasedAnalysis/UnmappedReads/retrieveUnmappedReads.finished";
+	$module_ctl->{"Mixed Infection Analysis"}       ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/readsMappingToRef/MixedInfectionAnalysis/mixedInfectionAnalysis.finished";
 	$module_ctl->{"Reads Taxonomy Classification"}  ->{"AllReads"}      = "$proj_dir/ReadsBasedAnalysis/Taxonomy/taxonomyAssignment.finished";
 	$module_ctl->{"Reads Taxonomy Classification"}  ->{"UnmappedReads"} = "$proj_dir/ReadsBasedAnalysis/UnmappedReads/Taxonomy/taxonomyAssignment.finished";
 	$module_ctl->{"Contigs Mapping To Reference"}   ->{"general"}       = "$proj_dir/AssemblyBasedAnalysis/contigMappingToRef/runContigToGenome.finished";
@@ -1748,7 +1827,10 @@ sub cleanProjectForNewConfig {
 	$module_ctl->{"Primer Design"}                  ->{"general"}       = "$proj_dir/AssayCheck/pcrDesign.finished";
 	$module_ctl->{"PiReT transcriptomics analysis"} ->{"general"}       = "$proj_dir/ReferenceBasedAnalysis/Piret/runPiret.finished";
 	$module_ctl->{"DETEQT analysis"}                ->{"general"}       = "$proj_dir/DETEQT/runDETEQT.finished";
+	$module_ctl->{"Lineage Abundance Prediction"}   ->{"general"}       = "$proj_dir/ReadsBasedAnalysis/LineageAbundance/LineageAbundance.finished";
+	$module_ctl->{"COV tracker"}                    ->{"general"}       = "$proj_dir/HTML_Report/COV_tracker.finished";
 	$module_ctl->{"Generate JBrowse Tracks"}        ->{"general"}       = "$proj_dir/JBrowse/writeJBrowseInfo.finished";
+	$module_ctl->{"Generate IGV Tracks"}            ->{"general"}       = "$proj_dir/IGV/writeIGVInfo.finished";
 	$module_ctl->{"HTML Report"}                    ->{"general"}       = "$proj_dir/HTML_Report/writeHTMLReport.finished";
 
 	my $new_config = &getProjParamFromConfig( "$proj_dir/config.txt" );
