@@ -656,8 +656,9 @@ elsif( $action eq 'getreadsbyref'){
 	my $relative_mapping_outdir= "$proj_rel_dir/ReferenceBasedAnalysis/readsMappingToRef" ;
 	(my $out_fastq_name = $reference_id) =~ s/[ .']/_/g;
 	(my $correct_ref_id = $reference_id) =~ s/\W/\_/g;
-	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped.fastq.zip";
-	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $reference_id.mapped $reference_file_prefix.sort.bam ; zip $out_fastq_name $reference_id.mapped.*fastq; rm $reference_id.mapped.*fastq ";
+	$out_fastq_name = "$real_name"."_"."$out_fastq_name.mapped";
+	my $out_fastq_zip_file = "$out_fastq_name.fastq.zip";
+	my $cmd = "cd $mapping_outdir;$EDGE_HOME/scripts/bam_to_fastq.pl -mapped -id $correct_ref_id -prefix $out_fastq_name $reference_file_prefix.sort.bam ; zip $out_fastq_zip_file $out_fastq_name.*fastq; rm $out_fastq_name.*fastq ";
 	$info->{STATUS} = "FAILURE";
 	$info->{INFO}   = "Failed to extract mapping to $reference_id reads fastq";
 
@@ -668,9 +669,9 @@ elsif( $action eq 'getreadsbyref'){
 	chdir $mapping_outdir;
 	$cmd = "bash $mapping_outdir/getseq.sh 2>\&1 1>>/dev/null &";
 	
-	if (  -s  "$mapping_outdir/$out_fastq_name"){
+	if (  -s  "$mapping_outdir/$out_fastq_zip_file"){
 		$info->{STATUS} = "SUCCESS";
-		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
+		$info->{PATH} = "$relative_mapping_outdir/$out_fastq_zip_file";
 	}elsif( ! -e "$mapping_outdir/$reference_file_prefix.sort.bam"){
                 $info->{INFO}   = "The result bam does not exist.";
                 $info->{INFO}   .= "If the project is older than $keep_days days, it has been deleted." if ($keep_days);
@@ -681,7 +682,7 @@ elsif( $action eq 'getreadsbyref'){
 		if( $pid ){
 			$info->{PID} = ++$pid;
 			$info->{STATUS} = "SUCCESS";
-			$info->{PATH} = "$relative_mapping_outdir/$out_fastq_name";
+			$info->{PATH} = "$relative_mapping_outdir/$out_fastq_zip_file";
 		}
 	}
 }
