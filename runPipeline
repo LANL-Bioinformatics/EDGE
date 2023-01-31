@@ -1830,7 +1830,7 @@ sub recombinant_analysis{
 
     if (@r2g_consensus_log_files  and -e "$r2g_outputDir/NC_045512.2_consensus.vcf" ){
       my $min_mixed_n = $configuration->{r2g_recombinant_min_mixed} || 5;
-      my $variant_mutation_option = ($variant_mutation_json =~ /omicron/)? "--variantMutation $RealBin/scripts/recombinant_analysis/ramifi/data/Omicron_lineage_vs_allOthersInOmicron.json" : "--variantMutation $RealBin/scripts/recombinant_analysis/ramifi/data/variant_mutation.json";
+      my $variant_mutation_json_option = ($variant_mutation_json =~ /omicron/)? "--variantMutation $RealBin/scripts/recombinant_analysis/ramifi/data/Omicron_lineage_vs_allOthersInOmicron.json" : "--variantMutation $RealBin/scripts/recombinant_analysis/ramifi/data/variant_mutation.json";
       $cmd = "$RealBin/scripts/recombinant_analysis/ramifi/recombinant_analysis.py -eo $outDir --minMixed_n $min_mixed_n $variant_mutation_json_option 1>>$log 2>\&1";
       &lprint (" Running \n $cmd\n");
       &executeCommand($cmd);
