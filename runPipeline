@@ -2183,20 +2183,25 @@ sub runAntiSmash {
     my $outputDir = "$outDir/AssemblyBasedAnalysis/AntiSmash";
     my $log = "$outputDir/log.txt";
     my $run_script = "$outputDir/runAntiSmash.sh";
+    my $title=$configuration->{projname};
     my $taxon = $configuration->{'antismash-taxon'} || 'bacteria';
     my $clusterblast = $configuration->{'antismash-clusterblast'}  || '0';
     my $subclusterblast = $configuration->{'antismash-subclusterblast'}  || '1';
     my $knownclusterblast = $configuration->{'antismash-knownclusterblast'} || "1";
+    my $mibig = $configuration->{'antismash-mibig'} || "0";
     my $smcogs = $configuration->{'antismash-smcogs'} || '0';
+    my $pfam2go = $configuration->{'antismash-pfam2go'} || '0';
     my $asf = $configuration->{'antismash-asf'} || "1";
+    my $rre = $configuration->{'antismash-rre'} || "1";
     my $fullhmm = $configuration->{'antismash-fullhmm'} || '0';
+    my $tigrfam = $configuration->{'antismash-tigrfam'} || '0';
     my $cassis = $configuration->{'antismash-cassis'} || '0'; ## fungi only
-    my $tta = $configuration->{'antismash-tta'} || '0'; ## bacteria only
-    my $borderpredict = $configuration->{'antismash-borderpredict'} || '0';
-    my $inclusive = $configuration->{'antismash-inclusive'} || '0';
-    my $inclusive_cdsnr = $configuration->{'antismash-inclusive-cdsnr'} || '5';
-    my $inclusive_threshold  = $configuration->{'antismash-inclusive-threshold'} || '0.6';
-    my $inclusive_npfams = $configuration->{'antismash-inclusive-npfams'} || '5' ;
+    #my $tta = $configuration->{'antismash-tta'} || '0'; ## bacteria only
+    #my $borderpredict = $configuration->{'antismash-borderpredict'} || '0';
+    #my $inclusive = $configuration->{'antismash-inclusive'} || '0';
+    #my $inclusive_cdsnr = $configuration->{'antismash-inclusive-cdsnr'} || '5';
+    #my $inclusive_threshold  = $configuration->{'antismash-inclusive-threshold'} || '0.6';
+    #my $inclusive_npfams = $configuration->{'antismash-inclusive-npfams'} || '5' ;
    
     &make_dir($outputDir);
     if ($noColorLog)
@@ -2212,25 +2217,32 @@ sub runAntiSmash {
        &lprint ("Secondary Metabolite Analysis Finished\n");
        return;
     }
-    my $cmd = "antismash -c $numCPU --taxon $taxon --logfile $log --outputfolder $outputDir ";
-    $cmd .= " --clusterblast" if ($clusterblast);
-    $cmd .= " --subclusterblast" if ($subclusterblast);
-    $cmd .= " --knownclusterblast" if ($knownclusterblast);
-    $cmd .= " --smcogs" if ($smcogs);
+    my $cmd = "antismash -c $numCPU --taxon $taxon --logfile $log --outputfolder $outputDir/output ";
+    $cmd .= " --html-title $title";
+    $cmd .= " --database $RealBin/database/antiSMASH";
+    $cmd .= " --cb-general" if ($clusterblast);
+    $cmd .= " --cb-subclusters" if ($subclusterblast);
+    $cmd .= " --cb-knownclusters" if ($knownclusterblast);
+    $cmd .= " --cc-mibig" if ($mibig);
+    $cmd .= " --smcogs-trees" if ($smcogs);
     $cmd .= " --asf" if ($asf);
-    $cmd .= " --full-hmmer" if ($fullhmm);
+    $cmd .= " --rre" if ($rre);
+    $cmd .= " --fullhmmer" if ($fullhmm);
+    $cmd .= " --tigrfam" if ($tigrfam);
+    $cmd .= " --pfam2go" if ($pfam2go);
     $cmd .= " --cassis" if ($cassis && $taxon =~ /fungi/i);
-    $cmd .= " --tta" if ($tta && $taxon=~/bacteria/i);
-    $cmd .= " --borderpredict" if ($borderpredict);
-    $cmd .= " --inclusive" if ($inclusive);
-    $cmd .= " --cf_cdsnr $inclusive_cdsnr" if ($inclusive_cdsnr != 5 );
-    $cmd .= " --cf_threshold $inclusive_threshold" if ($inclusive_threshold != 0.6);
-    $cmd .= " --cf_npfams $inclusive_npfams" if ($inclusive_npfams != 5); 
+    #$cmd .= " --tta" if ($tta && $taxon=~/bacteria/i);
+    #$cmd .= " --borderpredict" if ($borderpredict);
+    #$cmd .= " --inclusive" if ($inclusive);
+    #$cmd .= " --cf_cdsnr $inclusive_cdsnr" if ($inclusive_cdsnr != 5 );
+    #$cmd .= " --cf_threshold $inclusive_threshold" if ($inclusive_threshold != 0.6);
+    #$cmd .= " --cf_npfams $inclusive_npfams" if ($inclusive_npfams != 5); 
     $cmd .= " $input_file";
     &lprint ("  Running \n  $cmd \n");
-    my $antismash_env = "$RealBin/thirdParty/Anaconda2/envs/antismash";
+    my $antismash_env = "$RealBin/thirdParty/Anaconda3/envs/antismash";
     open (my $fh, ">", $run_script);
-    print $fh  "source $RealBin/thirdParty/Anaconda2/bin/activate $antismash_env 1>/dev/null\n";
+    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $antismash_env 1>/dev/null\n";
+    print $fh "unset _JAVA_OPTIONS\n";
     print $fh $cmd," 2>/dev/null\n";
     close $fh;
     &executeCommand2("/bin/bash $run_script");

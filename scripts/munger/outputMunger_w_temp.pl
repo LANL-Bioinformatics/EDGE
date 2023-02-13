@@ -90,8 +90,8 @@ output_html();
 
 sub pull_antismash{
 	my $output_dir = "$out_dir/AssemblyBasedAnalysis/AntiSmash";
-	if(-e "$output_dir/index.html"){
-		 $vars->{AntiSmash_OUT_INDEX} = "$output_dir/index.html";
+	if(-e "$output_dir/output/index.html"){
+		 $vars->{AntiSmash_OUT_INDEX} = "$output_dir/output/index.html";
 	}
 }
 

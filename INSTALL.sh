@@ -1580,16 +1580,16 @@ echo "
 
 install_antismash()
 {
-local VER=4.2.0
+local VER=6.1.1
 echo "------------------------------------------------------------------------------
                         Installing antiSMASH $VER
 ------------------------------------------------------------------------------
 "
-if [ -e "$rootdir/thirdParty/Anaconda2/envs/antismash" ]
+if [ -e "$rootdir/thirdParty/Anaconda3/envs/antismash" ]
 then
-  rm -rf $rootdir/thirdParty/Anaconda2/envs/antismash
+  rm -rf $rootdir/thirdParty/Anaconda3/envs/antismash
 fi
-$anaconda2bin/conda create -y -n antismash antismash=4.2.0
+$anaconda3bin/conda create -y -n antismash antismash
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
@@ -2562,10 +2562,10 @@ else
 fi
 
 
-if [ -x "$anaconda2bin/../envs/antismash/bin/antismash" ]
+if [ -x "$anaconda3bin/../envs/antismash/bin/antismash" ]
 then
-  antismash_VER=`$anaconda2bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-  if [ $(versionStr $antismash_VER) -ge $(versionStr "4.2.0") ]
+  antismash_VER=`$anaconda3bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  if [ $(versionStr $antismash_VER) -ge $(versionStr "6.1.1") ]
   then
     echo "antiSMASH $antismash_VER is found"
   else

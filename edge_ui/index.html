@@ -1293,13 +1293,22 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				</div>
 				</div>
 				<div class="ui-block-a">
-				<div class="ui-field-contain">
+				<!--<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 						<legend>smCoG analysis<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Look for sec. met. clusters of orthologous groups."></a></legend>
 						<input type="radio" data-mini="true" name="antismash-smcogs" id="edge-sma-smcogs-sw1" value="1" checked="checked">
 						<label for="edge-sma-smcogs-sw1">On</label>
 						<input type="radio" data-mini="true" name="antismash-smcogs" id="edge-sma-smcogs-sw2" value="0">
 						<label for="edge-sma-smcogs-sw2">Off</label>
+					</fieldset>
+				</div>-->
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>MIBiG cluster comparison<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run a comparison against the MIBiG dataset."></a></legend>
+						<input type="radio" data-mini="true" name="antismash-mibig" id="edge-sma-mibig-sw1" value="1">
+						<label for="edge-sma-mibig-sw1">On</label>
+						<input type="radio" data-mini="true" name="antismash-mibig" id="edge-sma-mibig-sw2" value="0" checked="checked">
+						<label for="edge-sma-mibig-sw2">Off</label>
 					</fieldset>
 				</div>
 				</div>
@@ -1328,7 +1337,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-block-b">
 				<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Whole-genome PFAM analysis<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run a whole-genome HMMer analysis."></a></legend>
+						<legend>Cluster Pfam analysis<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run a whole-genome HMMer analysis."></a></legend>
 						<input type="radio" data-mini="true" name="antismash-fullhmm" id="edge-sma-wgpa-sw1" value="1">
 						<label for="edge-sma-wgpa-sw1">On</label>
 						<input type="radio" data-mini="true" name="antismash-fullhmm" id="edge-sma-wgpa-sw2" value="0" checked="checked">
@@ -1336,17 +1345,39 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					</fieldset>
 				</div>
 				</div>
-				<div class="ui-block-a antismash-bacteria-only-option">
+				<div class="ui-block-a">
 				<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Detect TTA codons<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run TTA codon detection module."></a></legend>
-						<input type="radio" data-mini="true" name="antismash-tta" id="edge-sma-tta-sw1" value="1">
-						<label for="edge-sma-tta-sw1">On</label>
-						<input type="radio" data-mini="true" name="antismash-tta" id="edge-sma-tta-sw2" value="0" checked="checked">
-						<label for="edge-sma-tta-sw2">Off</label>
+						<legend>RREFinder<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run RREFinder precision mode on all RiPP gene clusters."></a></legend>
+						<input type="radio" data-mini="true" name="antismash-tta" id="edge-sma-rre-sw1" value="1" checked="checked">
+						<label for="edge-sma-rre-sw1">On</label>
+						<input type="radio" data-mini="true" name="antismash-tta" id="edge-sma-rre-sw2" value="0">
+						<label for="edge-sma-rre-sw2">Off</label>
 					</fieldset>
 				</div>
 				</div>
+				<div class="ui-block-b">
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>Pfam-based GO term annotation<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run Pfam to Gene Ontology mapping module."></a></legend>
+						<input type="radio" data-mini="true" name="antismash-pfam2go" id="edge-sma-pfam2go-sw1" value="1">
+						<label for="edge-sma-pfam2go-sw1">On</label>
+						<input type="radio" data-mini="true" name="antismash-pfam2go" id="edge-sma-pfam2go-sw2" value="0" checked="checked">
+						<label for="edge-sma-pfam2go-sw2">Off</label>
+					</fieldset>
+				</div>
+				</div>
+				<!--<div class="ui-block-a antismash-bacteria-only-option">
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>TFBS analysis<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Run TFBS detection module."></a></legend>
+						<input type="radio" data-mini="true" name="antismash-tfbs" id="edge-sma-tfbs-sw1" value="1" checked="checked">
+						<label for="edge-sma-tfbs-sw1">On</label>
+						<input type="radio" data-mini="true" name="antismash-tfbs" id="edge-sma-tfbs-sw2" value="0">
+						<label for="edge-sma-tfbs-sw2">Off</label>
+					</fieldset>
+				</div>
+				</div>-->
 				<div class="ui-block-a antismash-fungi-only-option">
 				<div class="ui-field-contain">
 					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -1355,6 +1386,17 @@ A complete version of EDGE is available as a variety of packages that can fit in
 						<label for="edge-sma-cassis-sw1">On</label>
 						<input type="radio" data-mini="true" name="antismash-cassis" id="edge-sma-cassis-sw2" value="0" checked="checked">
 						<label for="edge-sma-cassis-sw2">Off</label>
+					</fieldset>
+				</div>
+				</div>
+				<div class="ui-block-b">
+				<div class="ui-field-contain">
+					<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+						<legend>TIGRFam analysis<a href="#" class="tooltip ui-btn  ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Annotate clusters using TIGRFam profiles."></a></legend>
+						<input type="radio" data-mini="true" name="antismash-tigrfam" id="edge-sma-tigrfam-sw1" value="1">
+						<label for="edge-sma-tigrfam-sw1">On</label>
+						<input type="radio" data-mini="true" name="antismash-tigrfam" id="edge-sma-tigrfam-sw2" value="0" checked="checked">
+						<label for="edge-sma-tigrfam-sw2">Off</label>
 					</fieldset>
 				</div>
 				</div>
@@ -2513,7 +2555,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 		</div>
 		<div class="edge-footer-logo">
 			<a target="_new" href="https://www.dtra.mil"><img src="images/logo_DTRA.png"/></a>
-			<a target="_new" href="https://www.energy.gov/"><img src="images/logo_DOE.png"/></a>
+			<a target="_new" href="https://www.energy.gov"><img src="images/logo_DOE.png"/></a>
 			<a target="_new" href="https://nnsa.energy.gov/"><img src="images/logo_NNSA.png"/></a>
 			<a target="_new" href="https://access-ci.org/"><img src="images/logo_access.png"/></a>
 		</div>

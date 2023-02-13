@@ -76,9 +76,10 @@ foreach my $i (0..$#headers){
 	my $hash;
 	$headers[$i] =~ s/^\"|\"$//g;
 	if ($mode eq "feature_count"){
-		my @fc_header = split(/\./, $headers[$i]);
+		my @fc_header = split(/[\.\/]/, $headers[$i]);
 		if (scalar(@fc_header)>=3){
-			$headers[$i]="$fc_header[-3]"."_"."$fc_header[-2]";
+			#$headers[$i]="$fc_header[-3]"."_"."$fc_header[-2]";
+			$headers[$i]="$fc_header[-2]";
 		}
 	}
 	$hash->{title}= $headers[$i];
