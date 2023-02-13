@@ -10,13 +10,21 @@ EDGE 2.4.1
 * update google chrome from 75.0.3767.0 to 95.0.4615.0
 * update sratoolkit from 2.9.6 to 3.0.
 * update sra download to url since NCBI retired trace database
+* update tbl2asn to 25.8
+* update antismash to v6.1.1
+* update SPAdes to v3.15.5
 * add offset extenstion for primer trim
 * add -K 10000000 for bwa mem reproducibility
+* fix taxonomy classification tool summary reads count bug
+* fix qiime2 mapping files parsing. only two columns for file_manifest.txt
+* check duplicate id in ref fasta
 
 
 EDGE GUI 2.4.1
 * Extract mapped Diamond reads 
 * Add job queue
+* Add SPAdes new algorithm for Biosynthetic, coronavirus, metaviral,
+metaplasmid and RNAviral
 
 
 -- Version 20201130

@@ -1130,13 +1130,18 @@ A complete version of EDGE is available as a variety of packages that can fit in
 			<div id="edge-spades-parameters">
 				<p class="edge_tool_note"><a href="https://github.com/ablab/spades" target="_blank">SPAdes</a> performs well on isolates as well as single cell data but it may not work on larger genomes, and it takes more computational resource. PacBio CLR and Oxford Nanopore reads are used for gap closure and repeat resolution.</p>
 				<div class="ui-field-contain">
-					<label for="edge-spades-algorithm">Algorithm</label>
+					<label for="edge-spades-algorithm">Algorithm<a href="#" class="tooltip ui-btn ui-corner-all ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-spades-algorithm-l"></a></label>
 					<select id="edge-spades-algorithm" data-mini="true" name="edge-spades-algorithm" data-native-menu="false">
 						<option value="default">Default</option>
 						<option value="singlecell">Single-cell (MDA)</option>
 						<option value="metagenome">Metagenome (metaSPAdes)</option>
 						<option value="plasmid">Plasmids (plasmidSPAdes)</option>
-						<option value="rna">RNA (rnaSPAdes)</option>
+						<option value="rna">RNAseq (rnaSPAdes)</option>
+						<option value="bio">Biosynthetic (biosyntheticSPAdes)</option>
+						<option value="corona">Corona (coronaSPAdes)</option>
+						<option value="metaviral">Metaviral (metaviralSPAdes)</option>
+						<option value="metaplasmid">Metaplasmid (metaplasmidSPAdes)</option>
+						<option value="rnaviral">RNA viral (rnaviralSPAdes)</option>
 					</select>
 				</div>
 				<div class="ui-field-contain input-type-file">

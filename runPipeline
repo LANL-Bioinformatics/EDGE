@@ -3821,6 +3821,11 @@ sub runAssembly
             $cmd .= "--sc " if ($configuration->{SpadesAlgorithm} =~/singlecell/);
             $cmd .= "--rna " if ($configuration->{SpadesAlgorithm} =~ /rna/);
             $cmd .= "--plasmid " if ($configuration->{SpadesAlgorithm} =~ /plasmid/);
+            $cmd .= "--bio " if ($configuration->{SpadesAlgorithm} =~ /bio/);
+            $cmd .= "--corona " if ($configuration->{SpadesAlgorithm} =~ /corona/);
+            $cmd .= "--metaviral " if ($configuration->{SpadesAlgorithm} =~ /metaviral/);
+            $cmd .= "--metaplasmid " if ($configuration->{SpadesAlgorithm} =~ /metaplasmid/);
+            $cmd .= "--rnaviral " if ($configuration->{SpadesAlgorithm} =~ /rnaviral/);
             $cmd .= "--s1 $unpairFile " if (-s $unpairFile);
             $cmd .= "--pacbio $pacbio_file " if ( -s $pacbio_file && (is_fasta($pacbio_file) || is_fastq($pacbio_file)));
             $cmd .= "--nanopore $nanopore_file " if ( -s $nanopore_file && (is_fasta($nanopore_file) || is_fastq($nanopore_file)));
