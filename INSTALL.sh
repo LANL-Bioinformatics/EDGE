@@ -41,13 +41,13 @@ echo "--------------------------------------------------------------------------
 tar xzf FragGeneScan1.31.tar.gz 
 cd FragGeneScan1.31
 make clean
-make fgs
+make fgs >/dev/null || make fgs
 cd $rootdir/thirdParty
 
 tar xzf MaxBin-$VER.tar.gz 
 cd MaxBin-$VER
 cd src
-make
+make >/dev/null || make
 cd ..
 cat << _EOM > setting
 [FragGeneScan] $rootdir/thirdParty/FragGeneScan1.31
@@ -111,7 +111,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf FaQCs-$VER.tar.gz
 cd FaQCs
-make
+make >/dev/null || make
 cp -f FaQCs $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
@@ -197,7 +197,7 @@ sed -i.bak 's/kMaxShortSequence = 128/kMaxShortSequence = 351/' src/sequence/sho
 sed -i.bak 's/kNumUint64 = 4/kNumUint64 = 6/' src/basic/kmer.h
 #src/sequence/short_sequence.h:    static const uint32_t kMaxShortSequence = 128
 ./configure --prefix=$rootdir CXXFLAGS='-g -O2 -std=c++03'
-make 
+make >/dev/null || make
 make install
 cp bin/idba_ud $rootdir/bin/.
 cp bin/fq2fa $rootdir/bin/.
@@ -251,7 +251,7 @@ echo "
 }
 
 install_unicycler(){
-local VER=0.4.8
+local VER=0.5.0
 echo "------------------------------------------------------------------------------
                            Installing Unicycler $VER
 ------------------------------------------------------------------------------"
@@ -281,7 +281,7 @@ cd racon-v$VER
 mkdir -p build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release -Dracon_build_wrapper=ON -Dspoa_optimize_for_portability=ON ..
-make
+make >/dev/null || make
 cp -f bin/racon* $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
@@ -318,7 +318,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf tRNAscan-SE-1.3.1.tar.gz
 cd tRNAscan-SE-1.3.1
 sed -i.bak 's,home,'"$rootdir"',' Makefile
-make
+make >/dev/null || make
 make install
 make clean
 cd $rootdir/thirdParty
@@ -380,7 +380,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf seqtk-$VER.tgz
 cd seqtk-$VER
-make 
+make  >/dev/null || make
 cp -fR seqtk $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
@@ -399,7 +399,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf bedtools-$VER.tar.gz
 cd bedtools2
-make 
+make >/dev/null || make
 cp -fR bin/* $rootdir/bin/. 
 cd $rootdir/thirdParty
 echo "
@@ -485,7 +485,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf R-$VER.tar.gz
 cd R-$VER
 ./configure --prefix=$rootdir
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -529,7 +529,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf parallel-$VER.tar.gz
 cd parallel-$VER
 ./configure --prefix=$rootdir 
-make
+make  >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -619,7 +619,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf centrifuge-$VER-beta.tgz
 cd centrifuge-$VER-beta
-make 
+make  >/dev/null || make
 cp centrifuge $rootdir/bin/
 cp centrifuge-* $rootdir/bin/
 
@@ -675,7 +675,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf tabix.tgz
 cd tabix
-make
+make  >/dev/null || make
 cp tabix $rootdir/bin/.
 cp bgzip $rootdir/bin/.
 cd $rootdir/thirdParty
@@ -694,7 +694,9 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf hmmer-3.1b1.tar.gz
 cd hmmer-3.1b1/
-./configure --prefix=$rootdir && make && make install
+./configure --prefix=$rootdir 
+make  >/dev/null || make 
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -711,7 +713,9 @@ echo "--------------------------------------------------------------------------
 "
 tar xzvf infernal-1.1rc4.tar.gz
 cd infernal-1.1rc4/
-./configure --prefix=$rootdir && make && make install
+./configure --prefix=$rootdir
+make  >/dev/null || make
+make install
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -888,7 +892,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf glimmer302b.tar.gz
 cd glimmer3.02/SimpleMake
-make
+make  >/dev/null || make
 cp ../bin/* $rootdir/bin/.
 cp ../scripts/* $rootdir/bin/.
 for i in $rootdir/bin/*.csh
@@ -930,7 +934,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf prodigal.v2_60.tar.gz
 cd prodigal.v2_60/
-make
+make  >/dev/null || make
 cp -fR prodigal $rootdir/bin
 cd $rootdir/thirdParty
 echo "
@@ -992,7 +996,8 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf bwa-0.7.12.tar.gz
 cd bwa-0.7.12
-make clean && make
+make clean 
+make  >/dev/null || make
 cp bwa $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
@@ -1029,7 +1034,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf MUMmer3.23.tar.gz
 cd MUMmer3.23
 #for 64bit MUMmer complie
-make CPPFLAGS="-O3 -DSIXTYFOURBITS"
+make CPPFLAGS="-O3 -DSIXTYFOURBITS"  >/dev/null || make CPPFLAGS="-O3 -DSIXTYFOURBITS"
 cp nucmer $rootdir/bin/.
 cp show-coords $rootdir/bin/.
 cp show-snps $rootdir/bin/.
@@ -1099,7 +1104,7 @@ tar xvzf samtools-$VER.tar.gz
 cd samtools-$VER
 #make CFLAGS='-g -fPIC -Wall -O2'
 ./configure --prefix=$rootdir
-make
+make  >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -1119,7 +1124,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf bcftools-$VER.tar.gz
 cd bcftools-$VER
 ./configure --prefix=$rootdir
-make
+make >/dev/null || make
 make install
 cd $rootdir/thirdParty
 echo "
@@ -1152,7 +1157,7 @@ echo "--------------------------------------------------------------------------
 "
 tar xvzf RAxML-8.0.26.tar.gz
 cd RAxML-8.0.26
-make -f Makefile.PTHREADS.gcc
+make -f Makefile.PTHREADS.gcc  >/dev/null || make -f Makefile.PTHREADS.gcc
 cp -f raxmlHPC-PTHREADS $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
@@ -1173,7 +1178,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf Parallel-ForkManager-$VER.tar.gz
 cd Parallel-ForkManager-$VER
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/
 cd $rootdir/thirdParty
 echo "
@@ -1192,7 +1197,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf Excel-Writer-XLSX-0.71.tar.gz
 cd Excel-Writer-XLSX-0.71
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cp blib/script/extract_vba $rootdir/bin/.
 cd $rootdir/thirdParty
@@ -1212,7 +1217,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf Archive-Zip-1.37.tar.gz
 cd Archive-Zip-1.37
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1232,7 +1237,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf String-Approx-3.27.tar.gz
 cd String-Approx-3.27
 perl Makefile.PL 
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/
 mkdir -p $rootdir/lib/auto
 mkdir -p $rootdir/lib/auto/String
@@ -1255,7 +1260,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf PDF-API2-2.020.tar.gz
 cd PDF-API2-2.020
 perl Makefile.PL 
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1274,7 +1279,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf JSON-2.90.tar.gz
 cd JSON-2.90
 perl Makefile.PL 
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1293,7 +1298,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf HTML-Parser-3.71.tar.gz
 cd HTML-Parser-3.71
 perl Makefile.PL 
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cp -fR blib/arch/auto/* $rootdir/lib/auto/.
 cd $rootdir/thirdParty
@@ -1313,7 +1318,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf HTML-Template-2.6.tar.gz
 cd HTML-Template-2.6
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1332,7 +1337,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf Bio-Phylo-0.58.tar.gz
 cd Bio-Phylo-0.58
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1351,7 +1356,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf XML-Twig-3.48.tar.gz
 cd XML-Twig-3.48
 perl Makefile.PL -y
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cp -fR blib/script/* $rootdir/bin/.
 cd $rootdir/thirdParty
@@ -1372,7 +1377,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf CGI-Session-4.48.tar.gz
 cd CGI-Session-4.48
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1391,7 +1396,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf Email-Valid-$VER.tar.gz
 cd Email-Valid-$VER
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1410,7 +1415,7 @@ echo "--------------------------------------------------------------------------
 tar xvzf MailTools-$VER.tar.gz
 cd MailTools-$VER
 perl Makefile.PL
-make
+make >/dev/null || make
 cp -fR blib/lib/* $rootdir/lib/.
 cd $rootdir/thirdParty
 echo "
@@ -1449,7 +1454,7 @@ ln -fs $anaconda2bin/python $rootdir/bin
 $anaconda2bin/conda config --add channels defaults
 $anaconda2bin/conda config --add channels bioconda
 $anaconda2bin/conda config --add channels conda-forge
-$anaconda2bin/pip install biopython==1.76 xlsx2csv
+$anaconda2bin/pip install biopython==1.76
 $anaconda2bin/conda install -y mysql-connector-python
 #$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
 #$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
@@ -1486,7 +1491,7 @@ $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda create -y -n py36
-$anaconda3bin/pip install CairoSVG pandas pysam
+$anaconda3bin/pip install CairoSVG pandas pysam xlsx2csv
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
 
 echo "

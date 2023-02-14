@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/python
+#!/usr/bin/env python
 import csv
 import mysql.connector
 import sys, getopt
@@ -36,21 +36,21 @@ def main(argv):
      diseases_list = []
      not_in_db = []
      not_in_db_filename = 'species_not_in_pathogen_DB.txt'
-     print "running identify_pathogens.py...."
+     print("running identify_pathogens.py....")
      try:
           opts, args = getopt.getopt(sys.argv[1:],"h:b:v:o:d:n:u:p:",["bifile=", "vifile=", "ofile=", "dbhost=", "dbname=", "dbuser=", "passwd="])
           #print "opts = ", opts
      except getopt.GetoptError:
-          print "error getting args: usage: "
-          print 'identify_pathogens2.py -b <input bact file> -v <input virus file>  -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>'
+          print("error getting args: usage: ")
+          print('identify_pathogens2.py -b <input bact file> -v <input virus file>  -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>')
           sys.exit()
      if len(sys.argv) == 1:
-          print "usage: "
-          print 'identify_pathogens2.py -b <input bact file> -v <input virus file> -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>'
+          print("usage: ")
+          print('identify_pathogens2.py -b <input bact file> -v <input virus file> -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>')
           sys.exit()
      for opt, arg in opts:
           if opt in ("-h", "--help") :
-               print 'identify_pathogens2.py -b <input bact file> -v <input virus file> -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>'
+               print('identify_pathogens2.py -b <input bact file> -v <input virus file> -o <output file> -d <db host> -n <db name> -u <db user> -p <db passwd>')
                sys.exit()
           elif opt in ("-b", "--bifile"):
                bact_infile_name = arg
@@ -67,7 +67,7 @@ def main(argv):
           elif opt in ("-p", "--passwd"):
                passwd = arg
           else:
-               print "Bad argument: ", opt, arg
+               print("Bad argument: %s %s" % (opt, arg))
                sys.exit()
      #print 'bact input file is ', bact_infile_name
      #print 'virus input file is ', virus_infile_name
@@ -276,6 +276,6 @@ def main(argv):
                db.close()
      nidb.close()
      outfile.close()
-     print "all done!\n"
+     print("all done!\n")
 if __name__ == "__main__":
    main(sys.argv[1:])

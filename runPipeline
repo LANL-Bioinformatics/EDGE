@@ -3861,7 +3861,7 @@ sub runAssembly
         }
 	
         $cmd = "export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm'; $RealBin/thirdParty/Anaconda3/bin/unicycler -t $numCPU -o $AssemblerOutDir ";
-	$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar ";
+	#$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar ";
         if ($pairFile){
             my ($p1,$p2) = split /\s+/,$pairFile;
             $cmd .= "-1 $p1 -2 $p2 ";
