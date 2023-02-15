@@ -1527,7 +1527,7 @@ echo "
 
 install_qiime2()
 {
-local VER=2019.10
+local VER=2022.2
 echo "------------------------------------------------------------------------------
                         Installing QIIME2 $VER
 ------------------------------------------------------------------------------
@@ -1537,7 +1537,7 @@ then
   rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
 fi
 
-$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.10-py36-linux-conda.yml
+$anaconda3bin/conda env create -n qiime2 --file qiime2-2022.2-py38-linux-conda.yml
 echo "
 ------------------------------------------------------------------------------
                          QIIME2 $VER Installed
@@ -2511,7 +2511,7 @@ fi
 if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
 then
   qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
+  if [ $(versionStr $qiime2_VER) -ge $(versionStr "2021.8") ]
   then
     echo "QIIME2 $qiime2_VER is found"
   else

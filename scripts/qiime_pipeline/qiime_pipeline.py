@@ -743,9 +743,9 @@ if __name__ == '__main__':
             elif argvs.qcMethod.lower() == 'otus':
                 reference_seqs = target_path + '/gg-13-8-99.qza'
                 if (argvs.target.lower() == 'silva'):
-                    reference_seqs = target_path + '/silva-132-99.qza'
+                    reference_seqs = target_path + '/silva-138-99.qza'
                 elif (argvs.target.lower() == 'silva-v3-v4'):
-                    reference_seqs = target_path + '/silva_132_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_forTaxClassTraining.qza'
+                    reference_seqs = target_path + '/silva_138_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_forTaxClassTraining.qza'
                 elif (argvs.target.lower() == 'its'):
                     reference_seqs = target_path + '/ITS.qza'
 
@@ -832,7 +832,7 @@ if __name__ == '__main__':
             shutil.rmtree('DiversityAnalysis',ignore_errors=True)
         diversity_cmd = ("qiime diversity core-metrics-phylogenetic --i-phylogeny PhyloAnalysis/rooted-tree.qza --i-table QCandFT/table.qza "
                          "--p-sampling-depth %d --m-metadata-file %s --output-dir DiversityAnalysis " 
-                         "--p-n-jobs %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
+                         "--p-n-jobs-or-threads %d " ) % (samplingDepth,mappingFile, int(argvs.cpus/2) if argvs.cpus > 1 else 1 )
         process_cmd(diversity_cmd, 'Alpha and Beta diversity analyses')
         beta_analysis_results = ['unweighted_unifrac','jaccard','bray_curtis','weighted_unifrac']
         for x in beta_analysis_results:
@@ -881,9 +881,9 @@ if __name__ == '__main__':
     # Taxonomic analysis
     nb_classifier = target_path + '/gg-13-8-99-nb-classifier.qza'
     if (argvs.target.lower() == 'silva'):
-        nb_classifier = target_path + '/silva-132-99-nb-classifier.qza'
+        nb_classifier = target_path + '/silva-138-99-nb-classifier.qza'
     elif (argvs.target.lower() == 'silva-v3-v4'):
-        nb_classifier = target_path + '/silva_132_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_7LevelTaxonomy_naiveBayesClassifier.qza'
+        nb_classifier = target_path + '/silva_138_99PercClust_16SOnly_unaligned_F341Mod_R806Mod_primerMatchPortionOnly_7LevelTaxonomy_naiveBayesClassifier.qza'
     elif (argvs.target.lower() == 'its'):
         nb_classifier = target_path + '/ITS.classifier.qza'
 
