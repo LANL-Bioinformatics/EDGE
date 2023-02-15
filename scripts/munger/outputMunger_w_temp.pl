@@ -195,6 +195,7 @@ sub pull_piret{
 	my $qc_summary = "$output_dir/processes/qc/QCsummary.csv";
 	if ( -e $qc_summary){
 		my @QC_result;
+		my $undefind_sample_idx = $sample_idx;
 		open( my $fh2, "<", $qc_summary );
 		while(<$fh2>){
 			chomp;
@@ -210,7 +211,8 @@ sub pull_piret{
 				#$qcinfo->{"PIRETQCRAW"}=$temp[2];
 				#$qcinfo->{"PIRETQCQC"}=$temp[3];
 				my $array_index=$samples{$temp[0]}->{index};
-				$QC_result[$array_index]=$qcinfo;
+				$QC_result[$array_index]=$qcinfo if defined $array_index;
+				$QC_result[$undefind_sample_idx++]=$qcinfo if ! defined $array_index;
 			}
 		
 		}
@@ -221,6 +223,7 @@ sub pull_piret{
 	my $map_summary =  "$output_dir/processes/mapping/MapSummary.csv";
 	if ( -e $map_summary){
 		my @mapping_result;
+		my $undefind_sample_idx = $sample_idx;
 		open (my $mfh,"<",$map_summary );
 		while(<$mfh>){
 			chomp;
@@ -232,7 +235,8 @@ sub pull_piret{
 					$msinfo->{"PIRETMAP$i"}=$temp[$i];
 				}
 				my $array_index=$samples{$temp[0]}->{index};
-				$mapping_result[$array_index]=$msinfo;
+				$mapping_result[$array_index]=$msinfo if defined $array_index;
+				$mapping_result[$undefind_sample_idx++]=$msinfo if ! defined $array_index;
 			}
 		}
 		close $mfh;
@@ -452,7 +456,7 @@ sub tab2json{
 	close $cfh;
 	my $json = to_json($info);
 	if ($json){
-		open (my $ofh, ">", $json_output);
+		open (my $ofh, ">", $json_output) or die "Cannot open $json_output\n";
 		print $ofh $json;
 		close $ofh;
 	}	
@@ -2157,7 +2161,7 @@ sub pull_summary {
 			$prog->{$ord}->{GNLSTATUS} = "<span class='edge-fg-orange'>Running</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-orange'>Running</span>";
 		}
-		elsif( /failed|ERROR/i ){
+		elsif( /failed|error/i ){
 			$prog->{$ord}->{GNLSTATUS} = "<span class='edge-fg-red'>Failed</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure</span>";
 			$vars->{PROJSTATUS} = "<span class='edge-fg-red'>Failure. The process has failed unexpectedly. Please contact system administrator. Or try to rerun the job</span>" if (/Unexpected exit/);
@@ -2225,8 +2229,8 @@ sub pull_summary {
 			$vars->{ERROR_qiime} = $_ if (/ERROR/i and $step ne "Checking Mapping File");
 		}
 		elsif(/ERROR|failed/ and $vars->{OUT_piret_SW}){
-                        $vars->{ERROR_piret} = $_ if (/ERROR/i);
-                }
+			$vars->{ERROR_piret} = $_ if (/ERROR/i);
+		}
 		elsif( /^Qiime Running time: (.*)/){
 			$prog->{$ord}->{GNLSTATUS}   = "Complete";
 			my ($h,$m,$s) = $1 =~ /(\d+):(\d+):(\d+)/;
