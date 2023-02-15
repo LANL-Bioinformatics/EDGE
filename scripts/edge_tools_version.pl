@@ -8,7 +8,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/lib";
 my $workingDir = Cwd::getcwd();
 
-$ENV{PATH} = "$RealBin:$RealBin/../bin/:$RealBin/../thirdParty/Anaconda2/bin/:$ENV{PATH}";
+$ENV{PATH} = "$RealBin:$RealBin/../bin/:$RealBin/../thirdParty/Anaconda3/bin/:$ENV{PATH}";
 $ENV{EDGE_HOME} = $RealBin;
 
 my $version="0.1";
@@ -309,13 +309,6 @@ sub check_tools{
 			CITATION => "Erik Aronesty (2011) ea-utils : “Command-line tools for processing biological sequencing data”",
 			LICENSE => "MIT",
 			VERSION => "1.1.2-537"
-		},
-		'Anaconda2' => {
-			GETVER => "",
-			REGEXP => "",
-			CITATION => "",
-			LICENSE => "3-clause BSD",
-			VERSION => "4.1.1"
 		},
 		'Anaconda3' => {
 			GETVER => "",

@@ -9,14 +9,13 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda2/bin
-export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda2/include/:$CPLUS_INCLUDE_PATH
+export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda3/bin
+export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda3/include/:$CPLUS_INCLUDE_PATH
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
 
 gcc_version=$(gcc -dumpversion)
 anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
-anaconda2bin=$rootdir/thirdParty/Anaconda2/bin
 
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
@@ -26,7 +25,7 @@ alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
-python_packages=( Anaconda2 Anaconda3 )
+python_packages=( Anaconda3 )
 metagenome_tools=( MaxBin checkM )
 pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
@@ -1425,54 +1424,10 @@ echo "
 "
 }
 
-install_Anaconda2()
-{
-local VER=2019.10
-echo "------------------------------------------------------------------------------
-                 Installing Python Anaconda2 $VER
-------------------------------------------------------------------------------
-"
-if [ ! -f $rootdir/thirdParty/Anaconda2/bin/python ]; then
-    bash Anaconda2-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda2/
-fi
-ln -fs $anaconda2bin/python $rootdir/bin
-#ln -fs $anaconda2bin/pip $rootdir/bin
-#ln -fs $anaconda2bin/conda $rootdir/bin
-
-#tar -xvzf Anaconda2Packages.tgz
-#$anaconda2bin/conda install Anaconda2Packages/conda-4.6.3-py27_0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/biopython-1.68-np111py27_0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/blast-2.5.0-boost1.60_1.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/icu-58.1-0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/libgcc-5.2.0-0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/mysql-connector-python-2.0.4-py27_0.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/prodigal-2.60-1.tar.bz2 
-#$anaconda2bin/conda install Anaconda2Packages/rgi-3.1.1-py27_1.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/subprocess32-3.2.7-py27_0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/cmake-3.6.3-0.tar.bz2
-#$anaconda2bin/conda install Anaconda2Packages/matplotlib-2.0.0-np111py27_0.tar.bz2
-$anaconda2bin/conda config --add channels defaults
-$anaconda2bin/conda config --add channels bioconda
-$anaconda2bin/conda config --add channels conda-forge
-$anaconda2bin/pip install biopython==1.76
-$anaconda2bin/conda install -y mysql-connector-python
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages qiime
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages xlsx2csv
-#$anaconda2bin/pip install --no-index --find-links=./Anaconda2Packages h5py
-$anaconda2bin/pip install matplotlib==2.2.5
-matplotlibrc=`$anaconda2bin/python -c 'import matplotlib as m; print m.matplotlib_fname()' 2>&1`
-perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; print;' $matplotlibrc
-#rm -r Anaconda2Packages/
-echo "
-------------------------------------------------------------------------------
-                         Python Anaconda2 $VER Installed
-------------------------------------------------------------------------------
-"
-}
 
 install_Anaconda3()
 {
-local VER=2020.02
+local VER=2022.05
 echo "------------------------------------------------------------------------------
                  Installing Python Anaconda3 $VER
 ------------------------------------------------------------------------------
@@ -1481,18 +1436,25 @@ if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
     bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
 fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
+ln -fs $anaconda3bin/python $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
+$anaconda3bin/conda install -n base conda-libmamba-solver
 #tar -xvzf Anaconda3Packages.tgz
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
 #$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
 $anaconda3bin/pip install --upgrade pip
+$anaconda3bin/pip install setuptools==58
+$anaconda3bin/pip install CairoSVG pandas pysam xlsx2csv mysql-connector-python biopython importlib-resources plotly matplotlib
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda create -y -n py36
-$anaconda3bin/pip install CairoSVG pandas pysam xlsx2csv
+$anaconda3bin/conda config --set solver libmamba
+$anaconda3bin/conda create -y -n py38 python=3.8
 ln -fs $anaconda3bin/cairosvg $rootdir/bin
+
+matplotlibrc=`$anaconda3bin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
+perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; s/^#backend\s+:\s+Agg/backend : Agg/; print;' $matplotlibrc
 
 echo "
 ------------------------------------------------------------------------------
@@ -1506,7 +1468,7 @@ echo "--------------------------------------------------------------------------
                         Installing cmake
 ------------------------------------------------------------------------------
 "
-$anaconda2bin/conda install -y libgcc cmake
+$anaconda3bin/conda install -y libgcc cmake
 echo "
 ------------------------------------------------------------------------------
                          cmake Installed
@@ -1519,8 +1481,8 @@ echo "--------------------------------------------------------------------------
                         Installing rapsearch2 binary
 ------------------------------------------------------------------------------
 "
-$anaconda2bin/conda install -y rapsearch-2.24-1.tar.bz2
-ln -s $anaconda2bin/rapsearch $rootdir/bin/rapsearch2
+$anaconda3bin/conda install -y rapsearch-2.24-1.tar.bz2
+ln -s $anaconda3bin/rapsearch $rootdir/bin/rapsearch2
 echo "
 ------------------------------------------------------------------------------
                          Rapsearch2  Installed
@@ -1529,12 +1491,12 @@ echo "
 }
 
 install_rgi(){
-local VER=5.1.0
+local VER=5.2.1
 echo "------------------------------------------------------------------------------
                         Installing RGI $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install -y -n py36 -c bioconda rgi=5.1.0
+$anaconda3bin/conda install -y -n py38 -c bioconda rgi=$VER
 
 echo "
 ------------------------------------------------------------------------------
@@ -1545,7 +1507,7 @@ echo "
 
 install_checkM()
 {
-local VER=1.1.2
+local VER=1.2.2
 echo "------------------------------------------------------------------------------
                         Installing checkM $VER
 ------------------------------------------------------------------------------
@@ -1640,8 +1602,8 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 #$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
-$anaconda3bin/conda install -n py36 -y porechop
-ln -fs $anaconda3bin/../envs/py36/bin/porechop $rootdir/bin
+$anaconda3bin/conda install -n py38 -y porechop
+ln -fs $anaconda3bin/../envs/py38/bin/porechop $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
                          Porechop Installed
@@ -1945,12 +1907,6 @@ fi
 
 install_Rpackages
 
-if $rootdir/bin/python -c 'import Bio; print(Bio.__version__)' >/dev/null 2>&1
-then
-	$rootdir/bin/python -c 'import Bio; print("BioPython Version", Bio.__version__, "is found")'
-else
-  install_Anaconda2
-fi
 
 if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sys.version_info < ( 3, 0) else ""' >/dev/null 2>&1
 then
@@ -2522,9 +2478,9 @@ else
     install_rapsearch2
 fi
 
-if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
+if [ -x "$anaconda3bin/../envs/py38/bin/rgi" ]
 then
-  RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  RGI_VER=`$anaconda3bin/../envs/py38/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if [ $(versionStr $RGI_VER) -ge $(versionStr "5.1.0") ]
   then
     echo "RGI $RGI_VER is found"
@@ -2889,7 +2845,6 @@ fi
 
 ## Cleanup
 #rm -rf $rootdir/thirdParty/Anaconda3Packages/
-$anaconda2bin/conda clean -y -a
 $anaconda3bin/conda clean -y -a
 $anaconda3bin/pip cache purge
 
