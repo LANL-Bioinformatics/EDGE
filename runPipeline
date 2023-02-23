@@ -2891,9 +2891,11 @@ sub runQC
             &executeCommand($cmd);
 	    &executeCommand($deactivate_cmd);
         }
-        $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
-	&lprint ("  Running \n  $cmd \n");
-        &executeCommand($cmd);
+	if ( -s "$outputDir/QC.unpaired.porechop.fastq"){
+            $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
+	    &lprint ("  Running \n  $cmd \n");
+            &executeCommand($cmd);
+        }
     }
     
     &printRunTime($time);
@@ -3916,6 +3918,11 @@ sub runAssembly
             $cmd .= "--sc " if ($configuration->{SpadesAlgorithm} =~/singlecell/);
             $cmd .= "--rna " if ($configuration->{SpadesAlgorithm} =~ /rna/);
             $cmd .= "--plasmid " if ($configuration->{SpadesAlgorithm} =~ /plasmid/);
+	    $cmd .= "--bio " if ($configuration->{SpadesAlgorithm} =~ /bio/);
+            $cmd .= "--corona " if ($configuration->{SpadesAlgorithm} =~ /corona/);
+            $cmd .= "--metaviral " if ($configuration->{SpadesAlgorithm} =~ /metaviral/);
+            $cmd .= "--metaplasmid " if ($configuration->{SpadesAlgorithm} =~ /metaplasmid/);
+            $cmd .= "--rnaviral " if ($configuration->{SpadesAlgorithm} =~ /rnaviral/);
             $cmd .= "--s1 $unpairFile " if (-s $unpairFile);
             $cmd .= "--pacbio $pacbio_file " if ( -s $pacbio_file && (is_fasta($pacbio_file) || is_fastq($pacbio_file)));
             $cmd .= "--nanopore $nanopore_file " if ( -s $nanopore_file && (is_fasta($nanopore_file) || is_fastq($nanopore_file)));
@@ -3943,6 +3950,7 @@ sub runAssembly
         my $long_reads_file = $configuration->{unicycler_lreads_file};
         my $unicycler_min_lreads = $configuration->{unicycler_min_lreads} || "2000";
         my $filtered_long_reads = "$AssemblerOutDir/long_reads.fasta";
+	my $bridging_mode = $configuration->{unicycler_mode} || "normal";
         ## filter long reads 
         if ( -s $long_reads_file){
             &lprint("Filter long reads with $unicycler_min_lreads (bp) cutoff \n");
@@ -3951,13 +3959,14 @@ sub runAssembly
         }
 	
         $cmd = "export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm'; $RealBin/thirdParty/Anaconda3/bin/unicycler -t $numCPU -o $AssemblerOutDir ";
-	$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar --no_rotate ";
+	#$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar --no_rotate ";
         if ($pairFile){
             my ($p1,$p2) = split /\s+/,$pairFile;
             $cmd .= "-1 $p1 -2 $p2 ";
         }
         $cmd .= "-s $unpairFile " if (-s $unpairFile);
         $cmd .= "-l $filtered_long_reads " if (-s $filtered_long_reads);
+	$cmd .= "--mode $bridging_mode ";
         $cmd .= " 2>&1 1>/dev/null";
     }
     if ($assembler =~ /lrasm/){
