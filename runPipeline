@@ -15,7 +15,7 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
-$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda2/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
+$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda3/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi";
 #$ENV{LD_LIBRARY_PATH} = ($ENV{LD_LIBRARY_PATH})?"/opt/apps/ImageMagick/lib:$RealBin/lib64:$RealBin/lib:$ENV{LD_LIBRARY_PATH}":"/opt/apps/ImageMagick/lib:$RealBin/lib64";
 $ENV{PERL5SHELL} = "bash";
@@ -819,7 +819,7 @@ sub runSpecialtyGenesProfiling {
 		
 		
 	# AR
-		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py36";
+		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py38";
 		my $rgi_env_activate_cmd=". $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
 		my $deactivate_cmd=". $RealBin/thirdParty/Anaconda3/bin/deactivate || true";
 		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ";
@@ -2883,7 +2883,7 @@ sub runQC
 	# if adapte trim run Porechop
         my $cmd;
         if ($configuration->{"porechop"}){
-            my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py36";
+            my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py38";
             my $porechop_env_activate = ". $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env";
             my $deactivate_cmd = ". $RealBin/thirdParty/Anaconda3/bin/deactivate 2>/dev/null || true ";
             $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log ";

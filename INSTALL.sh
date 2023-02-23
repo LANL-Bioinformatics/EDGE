@@ -1453,6 +1453,7 @@ fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
 ln -fs $anaconda3bin/python $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
+$anaconda3bin/conda install -n base conda-libmamba-solver
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
 $anaconda3bin/pip install setuptools==58 
@@ -1460,7 +1461,8 @@ $anaconda3bin/pip install CairoSVG pandas pysam PyVCF kaleido biopython importli
 $anaconda3bin/conda config --add channels defaults
 $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda create -y -n py36 python=3.6
+$anaconda3bin/conda config --set solver libmamba
+$anaconda3bin/conda create -y -n py38 python=3.8
 
 matplotlibrc=`$anaconda3bin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; s/^#backend\s+:\s+Agg/backend : Agg/; print;' $matplotlibrc
@@ -1502,20 +1504,6 @@ echo "
 "
 }
 
-install_rgi(){
-local VER=5.1.0
-echo "------------------------------------------------------------------------------
-                        Installing RGI $VER
-------------------------------------------------------------------------------
-"
-$anaconda3bin/conda install -y -n py36 -c bioconda rgi=5.1.0
-
-echo "
-------------------------------------------------------------------------------
-                         RGI $VER Installed
-------------------------------------------------------------------------------
-"
-}
 
 install_pangolin(){
 local VER=4.1.2
@@ -1616,25 +1604,6 @@ echo "
 "
 }
 
-install_qiime2()
-{
-local VER=2019.10
-echo "------------------------------------------------------------------------------
-                        Installing QIIME2 $VER
-------------------------------------------------------------------------------
-"
-if [ -e "$rootdir/thirdParty/Anaconda3/envs/qiime2" ]
-then
-  rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
-fi
-
-$anaconda3bin/conda env create -n qiime2 --file qiime2-2019.10-py36-linux-conda.yml
-echo "
-------------------------------------------------------------------------------
-                         QIIME2 $VER Installed
-------------------------------------------------------------------------------
-"
-}
 
 install_antismash()
 {
@@ -1692,9 +1661,8 @@ echo "--------------------------------------------------------------------------
                  	Installing Porechop
 ------------------------------------------------------------------------------
 "
-#$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
-$anaconda3bin/conda install -n py36 -y porechop
-ln -fs $anaconda3bin/../envs/py36/bin/porechop $rootdir/bin
+$anaconda3bin/conda install -n py38 -y porechop
+ln -fs $anaconda3bin/../envs/py38/bin/porechop $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
                          Porechop Installed
@@ -2630,19 +2598,6 @@ else
   install_ascp
 fi
 
-# if [ -x "$anaconda3bin/../envs/py36/bin/rgi" ]
-# then
-#   RGI_VER=`$anaconda3bin/../envs/py36/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
-#   if ( echo $RGI_VER | awk '{if($1 >="5.1.0") exit 0; else exit 1}' )
-#   then
-#     echo "RGI $RGI_VER is found"
-#   else
-#     install_rgi
-#   fi
-# else
-#   echo "RGI is not found"
-#   install_rgi
-# fi
 
 if ( checkLocalInstallation porechop )
 then
@@ -2659,20 +2614,6 @@ else
     echo "NanoPlot is not found"
     install_NanoPlot
 fi
-
-# if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
-# then
-#   qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-#   if ( echo $qiime2_VER | awk '{if($1 >="2019.10") exit 0; else exit 1}' )
-#   then
-#     echo "QIIME2 $qiime2_VER is found"
-#   else
-#     install_qiime2
-#   fi
-# else
-#   echo "QIIME2 is not found"
-#   install_qiime2
-# fi
 
 
 # if [ -x "$anaconda3bin/checkm" ]
