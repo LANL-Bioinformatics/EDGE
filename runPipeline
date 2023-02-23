@@ -165,15 +165,15 @@ if ($sys->{user_input_size_maxsize}){
 }
 
 my $count_file_list= "$outDir/QcReads/fastqCount.txt";
-my ($QCpairFile,$QCunpairFile);
+my ($QCpairFile,$QCunpairFile, $avg_read_length);
 if(@unpairedReadsFile or @pairedReadsFile)
 {
-    ($QCpairFile,$QCunpairFile)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
+    ($QCpairFile,$QCunpairFile,$avg_read_length)=&countFastq(\@unpairedReadsFile, \@pairedReadsFile);   
 }
 
 if ($configuration->{DoQC})
 {
-    ($QCpairFile,$QCunpairFile)=&runQC($QCpairFile,$QCunpairFile);
+    ($QCpairFile,$QCunpairFile)=&runQC($QCpairFile,$QCunpairFile,$avg_read_length);
 }
 
 if ($configuration->{DoJoinPE}){
@@ -2790,13 +2790,14 @@ sub runQC
 {
     my $pairedFile=shift;
     my $unpairedFile=shift;
+    my $avg_read_length=shift;
     my $time=time();
     my $outputDir="$outDir/QcReads";
     my $log = "$outputDir/QC.log";
     #my @unpairedFile= @$unpairedFile;
     #my @pairedFile= @$pairedFile;
     my $quality_cutoff = ($configuration->{"q"})? $configuration->{"q"} : 5;
-    my $min_length = $configuration->{"min_L"} || 50;
+    my $min_length = ($configuration->{"min_L"})? $configuration->{"min_L"} : 50;
     my $avg_quality = ($configuration->{"avg_q"})? $configuration->{"avg_q"}:0;
     my $num_N = ($configuration->{"n"})? $configuration->{"n"} : 10;
     my $low_complexity = $configuration->{"lc"} || 0.85;
@@ -2806,6 +2807,7 @@ sub runQC
     my $ont_flag = ($configuration->{"fastq_source"} =~ /nanopore/)? 1 : 0; 
     my $pacbio_flag = ($configuration->{"fastq_source"} =~ /pacbio/)? 1 : 0;
     my $unpairedFile_output = ($configuration->{"porechop"}  && $ont_flag )? "$outputDir/QC.unpaired.porechop.fastq":"$outputDir/QC.unpaired.trimmed.fastq";
+    $min_length = ($min_length >=1)? $min_length : int($min_length * $avg_read_length);
     &make_dir($outputDir);
     if ($noColorLog)
     {
@@ -2910,6 +2912,11 @@ sub countFastq
     my $all_R2_fastq = "$outputDir/all.2.fastq";
     my $all_SE_fastq = "$outputDir/all.se.fastq";
     my $count_file_list= "$outputDir/fastqCount.txt";
+    my $avg_read_len= 0 ;
+    my $PE_count = 0 ;
+    my $PE_total_len = 0;
+    my $SE_count= 0 ;
+    my $SE_total_len = 0 ;
     &make_dir($outputDir);
     if ($noColorLog)
     {
@@ -2921,20 +2928,21 @@ sub countFastq
     }
     if (-e "$outputDir/countFastq.finished")
     {
+	$avg_read_len=&get_avg_read_length($count_file_list);
         if ( -s $all_R1_fastq && -e $all_SE_fastq)
         {
             &lprint ("Count Fastq Finished\n");
-            return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq");
+            return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq",$avg_read_len);
         }
         elsif ( -s $all_R1_fastq )
         {
             &lprint ("Count Fastq Finished\n");
-            return ("$all_R1_fastq $all_R2_fastq","");
+            return ("$all_R1_fastq $all_R2_fastq","",$avg_read_len);
         }
         elsif ( -s $all_SE_fastq )
         {
             &lprint ("Count Fastq Finished\n");
-            return("","$all_SE_fastq");
+            return("","$all_SE_fastq",$avg_read_len);
         }
     }
     
@@ -2942,32 +2950,46 @@ sub countFastq
     foreach my $pair (@pairedFile)
     {
         my ($R1,$R2) = split /\s+/,$pair;
-        &countPE_exe($R1,$R2,$all_R1_fastq,$all_R2_fastq,$all_SE_fastq,$fh);
+        ($PE_count, $PE_total_len) = &countPE_exe($R1,$R2,$all_R1_fastq,$all_R2_fastq,$all_SE_fastq,$fh);
     }
     foreach my $file (@unpairedFile)
     {
-        my ($SE_count,$SE_total_len)=&countFastq_exe($file,$all_SE_fastq);
+        ($SE_count,$SE_total_len)=&countFastq_exe($file,$all_SE_fastq);
         printf $fh ("%s\t%d\t%d\t%.2f\n",basename($file),$SE_count,$SE_total_len,$SE_total_len/$SE_count);
         printf ("%s\t%d\t%d\t%.2f\n",basename($file),$SE_count,$SE_total_len,$SE_total_len/$SE_count);
     }
     close $fh;
-
+    $avg_read_len = ($PE_count + $SE_count) > 0 ? ($PE_total_len + $SE_total_len) / ($PE_count + $SE_count) : 0 ;
     &printRunTime($time);
     &touchFile("$outputDir/countFastq.finished");
     if ( -s $all_R1_fastq && -e $all_SE_fastq)
     {
-        return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq");
+        return ("$all_R1_fastq $all_R2_fastq","$all_SE_fastq", $avg_read_len );
     }
     elsif ( -s $all_R1_fastq )
     {
-        return ("$all_R1_fastq $all_R2_fastq","");
+        return ("$all_R1_fastq $all_R2_fastq","",$avg_read_len );
     }
     else
     {
-        return("","$all_SE_fastq");
+        return("","$all_SE_fastq",$avg_read_len );
     }
 }
-
+sub get_avg_read_length{
+    my $fastq_count_file = shift;
+    my $total_count = 0;
+    my $total_len = 0;
+    open (my $fh, "<", $fastq_count_file) or die "Cannot open $fastq_count_file\n";
+    while(<$fh>){
+        chomp;
+        my ($name,$count,$len,$avg) = split /\t/,$_;
+        $total_count += $count;
+        $total_len += $len;
+    }
+    close $fh;
+    my $avg_len = ($total_count > 0)? $total_len/$total_count : 0;
+    return $avg_len;
+}
 sub countPE_exe{
     my $r1=shift;
     my $r2=shift;
@@ -3075,6 +3097,7 @@ sub countPE_exe{
     printf ("There are %d reads from %s don't have corresponding paired read.\n", $se2_count, basename($r2)) if ($se2_count >0);
    
     unlink $out_se if (-z $out_se);
+    return ($read1_count + $read2_count, $read1_total_len + $read2_total_len);
 }
 sub countFastq_exe 
 {
