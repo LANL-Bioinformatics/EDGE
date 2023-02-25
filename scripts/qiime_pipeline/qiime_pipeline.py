@@ -698,7 +698,7 @@ if __name__ == '__main__':
 
                 file_for_check_truncate_len = 'demux-joined/quality-plot.html'
 
-                qf_cmd = ('qiime quality-filter q-score-joined --i-demux demux/demux-joined.qza --o-filtered-sequences QCandFT/filtered.qza '
+                qf_cmd = ('qiime quality-filter q-score --i-demux demux/demux-joined.qza --o-filtered-sequences QCandFT/filtered.qza '
                         '--p-min-quality %s '
                         '--p-min-length-fraction %s '
                         '--p-max-ambiguous %s '
