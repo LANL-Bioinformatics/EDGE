@@ -1453,6 +1453,8 @@ fi
 ln -fs $anaconda3bin/python3 $rootdir/bin
 ln -fs $anaconda3bin/python $rootdir/bin
 $anaconda3bin/conda update -n base -y conda
+$anaconda3bin/conda install -n base -y conda=23.1
+$anaconda3bin/conda update -n base --all
 $anaconda3bin/conda install -n base conda-libmamba-solver
 #tar -xvzf Anaconda3Packages.tgz
 $anaconda3bin/pip install --upgrade pip
