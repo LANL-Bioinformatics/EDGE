@@ -333,7 +333,7 @@ foreach my $idx ( sort {$a<=>$b} keys %$file_info ){
 	chomp $pwd;
 
 	print $post_fh "
-      export PATH=$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{EDGE_HOME}/thirdParty/Anaconda3/bin:\$PATH;
+      export PATH=$Bin:$Bin/../:$Bin/script/:$Bin/bin/:$ENV{EDGE_HOME}/thirdParty/Mambaforge/bin:\$PATH;
 	  cd $pwd;
 
       echo \"[Post-processing #$idx $fnb]\";

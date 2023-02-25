@@ -16,7 +16,7 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
-$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Anaconda3/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
+$ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Mambaforge/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi";
 $ENV{PERL5SHELL} = "bash";
 $ENV{EDGE_HOME} = $RealBin;
@@ -463,12 +463,12 @@ sub runPiReT {
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
     my $piret_env_path1 = "$RealBin/thirdParty/PyPiReT/thirdParty/miniconda/envs/piret";
-    my $piret_env_path2 = "$RealBin/thirdParty/Anaconda3/envs/piret";
+    my $piret_env_path2 = "$RealBin/thirdParty/Mambaforge/envs/piret";
     my $piret_env = (-e $piret_env_path1)? $piret_env_path1 : ( -e $piret_env_path2)? $piret_env_path2 : "piret";
-    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $piret_env 1>/dev/null\n";
+    print $fh  "source $RealBin/thirdParty/Mambaforge/bin/activate $piret_env 1>/dev/null\n";
     print $fh  "LUIGI_CONFIG_PATH=$luigi_config  ";
     print $fh $cmd,"\n";
-    #print $fh "source $RealBin/thirdParty/Anaconda3/bin/deactivate piret 1>/dev/null\n";
+    #print $fh "source $RealBin/thirdParty/Mambaforge/bin/deactivate piret 1>/dev/null\n";
     close $fh;
     &executeCommand2("/bin/bash $run_script");
     #unlink "$outputDir/$piret_indir_basename";
@@ -719,7 +719,7 @@ sub runSpecialtyGenesProfiling {
     my $annotationGFF = shift;
     my $search_tool = $configuration->{SpecialtyGenesSearchTool} || "rapsearch2";
     my $ShortBRED_PATH = "$RealBin/bin/ShortBRED";
-    #my $rgi_PATH = "$RealBin/thirdParty/Anaconda3/bin";
+    #my $rgi_PATH = "$RealBin/thirdParty/Mambaforge/bin";
     my $cov_table="$abs_outDir/AssemblyBasedAnalysis/readsMappingToContig/readsToContigs_coverage.table";
     my $identity = $configuration->{ShortBREDMinPercIdentity} || "0.95";
     my $pctlength = $configuration->{ShortBREDMinPercLength} || "0.95"; 
@@ -808,8 +808,8 @@ sub runSpecialtyGenesProfiling {
 		
 		
 	# AR
-		my $rgi_env = "$RealBin/thirdParty/Anaconda3/envs/py38";
-		my $rgi_env_activate_cmd="source $RealBin/thirdParty/Anaconda3/bin/activate $rgi_env 1>/dev/null";
+		my $rgi_env = "$RealBin/thirdParty/Mambaforge/envs/py38";
+		my $rgi_env_activate_cmd="source $RealBin/thirdParty/Mambaforge/bin/activate $rgi_env 1>/dev/null";
 		my $deactivate_cmd="source deactivate 2>/dev/null || true";
 		$cmd = "cd $outputDir; $rgi_env_activate_cmd; rgi load -i $CARD_json --local 1>>$log 2>&1 ; $deactivate_cmd";
         &executeCommand($cmd);
@@ -1096,8 +1096,8 @@ sub runQiimeAnalysis{
     $cmd .= " > $log ";
     &lprint ("  Running \n  $cmd \n");
     open (my $fh, ">", $run_script);
-    my $qiime2_env_path = "$RealBin/thirdParty/Anaconda3/envs/qiime2";
-    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $qiime2_env_path 1>/dev/null\n";
+    my $qiime2_env_path = "$RealBin/thirdParty/Mambaforge/envs/qiime2";
+    print $fh  "source $RealBin/thirdParty/Mambaforge/bin/activate $qiime2_env_path 1>/dev/null\n";
     print $fh "export PYTHONUNBUFFERED=on\n";
     print $fh $cmd,"\n";
     close $fh;
@@ -2137,7 +2137,7 @@ sub runCheckM{
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
     my $CheckM_summary = "$outputDir/CheckM.txt";
-    my $checkm_PATH="$RealBin/thirdParty/Anaconda3/bin";
+    my $checkm_PATH="$RealBin/thirdParty/Mambaforge/envs/py38/bin/checkm";
     my $evalue = '1e-10';  # -e
     my $overlap_length_perc = 0.7;  # -l 
     my $multi = 10;  # -m
@@ -2239,9 +2239,9 @@ sub runAntiSmash {
     #$cmd .= " --cf_npfams $inclusive_npfams" if ($inclusive_npfams != 5); 
     $cmd .= " $input_file";
     &lprint ("  Running \n  $cmd \n");
-    my $antismash_env = "$RealBin/thirdParty/Anaconda3/envs/antismash";
+    my $antismash_env = "$RealBin/thirdParty/Mambaforge/envs/antismash";
     open (my $fh, ">", $run_script);
-    print $fh  "source $RealBin/thirdParty/Anaconda3/bin/activate $antismash_env 1>/dev/null\n";
+    print $fh  "source $RealBin/thirdParty/Mambaforge/bin/activate $antismash_env 1>/dev/null\n";
     print $fh "unset _JAVA_OPTIONS\n";
     print $fh $cmd," 2>/dev/null\n";
     close $fh;
@@ -2849,8 +2849,8 @@ sub runQC
 	# if adapte trim run Porechop
         my $cmd;
         if ($configuration->{"porechop"}){
-            my $porechop_env= "$RealBin/thirdParty/Anaconda3/envs/py38";
-            my $porechop_env_activate = "source $RealBin/thirdParty/Anaconda3/bin/activate $porechop_env 1>/dev/null"; 
+            my $porechop_env= "$RealBin/thirdParty/Mambaforge/envs/py38";
+            my $porechop_env_activate = "source $RealBin/thirdParty/Mambaforge/bin/activate $porechop_env 1>/dev/null"; 
             my $deactivate_cmd = "source deactivate 2>/dev/null || true";
             $cmd = "$porechop_env_activate; porechop -i $outputDir/QC.unpaired.trimmed.fastq -o $outputDir/QC.unpaired.porechop.fastq -t $numCPU > $log; $deactivate_cmd ";
             &lprint ("  Running \n  $cmd \n");
@@ -3502,7 +3502,7 @@ sub runReadsToGenome
             my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
             my $bamFile = "$outputDir/$file_name.sort.bam";
             &correct_fasta_header("$file","$outputDir/consensus_tmp/${file_name}.fa");
-            $command = "export PATH=$RealBin/thirdParty/Anaconda3/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
+            $command = "export PATH=$RealBin/thirdParty/Mambaforge/bin:\$PATH; cd $outputDir && $RealBin/bin/reference-based_assembly/consensus_fasta.py --procs=$numCPU -b $bamFile -r $outputDir/consensus_tmp/$file_name.fa -o ${file_name}_consensus --temp=consensus_tmp ";
 	    $command .= " --comp " if ($con_comp_opt);
 	    $command .= " --filterHomopolymer " if ($con_homopolymer_filter);
             $command .= " --filterStrandBias " if ($con_strandbias_filter);
@@ -3878,6 +3878,7 @@ sub runAssembly
         my $long_reads_file = $configuration->{unicycler_lreads_file};
         my $unicycler_min_lreads = $configuration->{unicycler_min_lreads} || "2000";
         my $filtered_long_reads = "$AssemblerOutDir/long_reads.fasta";
+	my $bridging_mode = $configuration->{unicycler_mode} || "normal";
         ## filter long reads 
         if ( -s $long_reads_file){
             &lprint("Filter long reads with $unicycler_min_lreads (bp) cutoff \n");
@@ -3885,7 +3886,7 @@ sub runAssembly
             &executeCommand("seqtk seq -A -L $unicycler_min_lreads  $long_reads_file > $filtered_long_reads");
         }
 	
-        $cmd = "export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm'; $RealBin/thirdParty/Anaconda3/bin/unicycler -t $numCPU -o $AssemblerOutDir ";
+        $cmd = "export _JAVA_OPTIONS='-Xmx20G'; export TERM='xterm'; $RealBin/thirdParty/Mambaforge/bin/unicycler -t $numCPU -o $AssemblerOutDir ";
 	#$cmd .= "--pilon_path $RealBin/thirdParty/pilon-1.23.jar ";
         if ($pairFile){
             my ($p1,$p2) = split /\s+/,$pairFile;
@@ -3893,6 +3894,7 @@ sub runAssembly
         }
         $cmd .= "-s $unpairFile " if (-s $unpairFile);
         $cmd .= "-l $filtered_long_reads " if (-s $filtered_long_reads);
+	$cmd .= "--mode $bridging_mode ";
         $cmd .= " 2>&1 1>/dev/null";
     }
     if ($assembler =~ /lrasm/){

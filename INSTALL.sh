@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+ulimit -n 4096
 rootdir=$( cd $(dirname $0) ; pwd -P )
 exec >  >(tee install.log)
 exec 2>&1
@@ -9,13 +10,13 @@ cd thirdParty
 
 mkdir -p $rootdir/bin
 
-export PATH=$PATH:$rootdir/bin/:$rootdir/thirdParty/Anaconda3/bin
-export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Anaconda3/include/:$CPLUS_INCLUDE_PATH
+export PATH=$rootdir/bin/:$PATH:$rootdir/thirdParty/Mambaforge/bin
+export CPLUS_INCLUDE_PATH=$rootdir/thirdParty/Mambaforge/include/:$CPLUS_INCLUDE_PATH
 
 if [ ! -d $HOME ]; then export HOME=$rootdir; fi	
 
 gcc_version=$(gcc -dumpversion)
-anaconda3bin=$rootdir/thirdParty/Anaconda3/bin
+mambaforgebin=$rootdir/thirdParty/Mambaforge/bin
 
 
 assembly_tools=( idba spades megahit lrasm racon unicycler )
@@ -25,7 +26,7 @@ alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2
 taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
-python_packages=( Anaconda3 )
+python_packages=( Mambaforge )
 metagenome_tools=( MaxBin checkM )
 pipeline_tools=( DETEQT reference-based_assembly PyPiReT qiime2 )
 all_tools=( "${pipeline_tools[@]}" "${python_packages[@]}" "${assembly_tools[@]}" "${annotation_tools[@]}" "${utility_tools[@]}" "${alignments_tools[@]}" "${taxonomy_tools[@]}" "${phylogeny_tools[@]}" "${metagenome_tools[@]}" "${perl_modules[@]}")
@@ -88,7 +89,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 Org_PATH=$PATH;
-export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
+export PATH=$rootdir/thirdParty/Mambaforge/bin:$rootdir/bin:$PATH;
 tar xvzf reference-based_assembly.tgz
 cd reference-based_assembly
 ./INSTALL.sh
@@ -144,7 +145,7 @@ echo "--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 "
 Org_PATH=$PATH;
-export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
+export PATH=$rootdir/thirdParty/Mambaforge/bin:$rootdir/bin:$PATH;
 tar xvzf DETEQT-$VER.tgz
 cd DETEQT
 ./INSTALL.sh
@@ -167,14 +168,13 @@ echo "--------------------------------------------------------------------------
 tar xvzf PyPiReT-$VER.tgz
 cd PyPiReT
 Org_PATH=$PATH;
-export PATH=$rootdir/thirdParty/Anaconda3/bin:$rootdir/bin:$PATH;
-if [ -e $rootdir/thirdParty/Anaconda3/envs/piret ]
+export PATH=$rootdir/thirdParty/Mambaforge/bin:$rootdir/bin:$PATH;
+if [ -e $rootdir/thirdParty/Mambaforge/envs/piret ]
 then
-  rm -rf $rootdir/thirdParty/Anaconda3/envs/piret
+  rm -rf $rootdir/thirdParty/Mambaforge/envs/piret
 fi
 ./installer.sh piret
-ln -sf $rootdir/thirdParty/PyPiReT piret
-ln -sf $rootdir/thirdParty/piret $rootdir/bin/piret
+ln -sf $rootdir/thirdParty/PyPiReT $rootdir/bin/piret
 export PATH=$Org_PATH
 cd $rootdir/thirdParty
 echo "
@@ -258,9 +258,9 @@ if  ( echo ${gcc_version%.*} | awk '{if($1>="4.9") exit 0; else exit 1}' )
 then
 	tar xvzf Unicycler-$VER.tar.gz
 	sed -i.bak 's,min(8,min(4,g' Unicycler-$VER/setup.py
-	$anaconda3bin/pip install Unicycler-$VER/
+	$mambaforgebin/pip install Unicycler-$VER/
 else
-	$anaconda3bin/conda install -y -c bioconda unicycler
+	$mambaforgebin/mamba install -y -c bioconda unicycler
 fi
 
 echo "
@@ -459,17 +459,14 @@ echo "
 
 install_ea-utils(){
 echo "------------------------------------------------------------------------------
-                           Installing ea-utils.1.1.2-537
+                           Installing ea-utils.1.1.2
 ------------------------------------------------------------------------------
 "
-tar xvzf ea-utils.1.1.2-537.tar.gz
-cd ea-utils.1.1.2-537
-PREFIX=$rootdir make install
+$mambaforgebin/mamba install -y -c bioconda ea-utils
 
-cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
-                           ea-utils.1.1.2-537 installed
+                           ea-utils.1.1.2 installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1099,7 +1096,7 @@ echo "--------------------------------------------------------------------------
                            Compiling samtools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf samtools-$VER.tar.gz
+tar xvzf samtools-$VER.tgz
 cd samtools-$VER
 #make CFLAGS='-g -fPIC -Wall -O2'
 ./configure --prefix=$rootdir
@@ -1120,7 +1117,7 @@ echo "--------------------------------------------------------------------------
                            Compiling bcftools-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf bcftools-$VER.tar.gz
+tar xvzf bcftools-$VER.tgz
 cd bcftools-$VER
 ./configure --prefix=$rootdir
 make >/dev/null || make
@@ -1425,40 +1422,37 @@ echo "
 }
 
 
-install_Anaconda3()
+install_Mambaforge()
 {
-local VER=2022.05
+local VER=22.11.1-4
 echo "------------------------------------------------------------------------------
-                 Installing Python Anaconda3 $VER
+                 Installing Python Mambaforge $VER
 ------------------------------------------------------------------------------
 "
-if [ ! -f $rootdir/thirdParty/Anaconda3/bin/python3 ]; then
-    bash Anaconda3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Anaconda3/
+if [ ! -f $rootdir/thirdParty/Mambaforge/bin/python3 ]; then
+    bash Mambaforge-pypy3-$VER-Linux-x86_64.sh -b -p $rootdir/thirdParty/Mambaforge/
 fi
-ln -fs $anaconda3bin/python3 $rootdir/bin
-ln -fs $anaconda3bin/python $rootdir/bin
-$anaconda3bin/conda update -n base -y conda
-$anaconda3bin/conda install -n base conda-libmamba-solver
-#tar -xvzf Anaconda3Packages.tgz
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages CairoSVG 
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages pymc3
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages lzstring
-$anaconda3bin/pip install --upgrade pip
-$anaconda3bin/pip install setuptools==58
-$anaconda3bin/pip install CairoSVG pandas pysam xlsx2csv mysql-connector-python biopython importlib-resources plotly matplotlib
-$anaconda3bin/conda config --add channels defaults
-$anaconda3bin/conda config --add channels bioconda
-$anaconda3bin/conda config --add channels conda-forge
-$anaconda3bin/conda config --set solver libmamba
-$anaconda3bin/conda create -y -n py38 python=3.8
-ln -fs $anaconda3bin/cairosvg $rootdir/bin
+ln -fs $mambaforgebin/python3 $rootdir/bin
+ln -fs $mambaforgebin/python $rootdir/bin
+$mambaforgebin/mamba update -n base -y --all || true
+$mambaforgebin/conda config --add channels defaults
+$mambaforgebin/conda config --add channels bioconda
+#$mambaforgebin/conda config --add channels anaconda
+$mambaforgebin/conda config --add channels conda-forge
+$mambaforgebin/mamba install -y cython ncurses
+$mambaforgebin/mamba install -y CairoSVG pandas mysql-connector-python biopython importlib-resources plotly matplotlib 
+#$mambaforgebin/pip install setuptools==58.0.4
+$mambaforgebin/pip install xlsx2csv pysam
+$mambaforgebin/mamba create -y -n py38 python=3.8
 
-matplotlibrc=`$anaconda3bin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
+ln -fs $mambaforgebin/cairosvg $rootdir/bin
+
+matplotlibrc=`$mambaforgebin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; s/^#backend\s+:\s+Agg/backend : Agg/; print;' $matplotlibrc
 
 echo "
 ------------------------------------------------------------------------------
-                         Python Anaconda3 $VER Installed
+                         Python Mambaforge $VER Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -1468,7 +1462,7 @@ echo "--------------------------------------------------------------------------
                         Installing cmake
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install -y libgcc cmake
+$mambaforgebin/mamba install -y libgcc cmake
 echo "
 ------------------------------------------------------------------------------
                          cmake Installed
@@ -1481,8 +1475,8 @@ echo "--------------------------------------------------------------------------
                         Installing rapsearch2 binary
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install -y rapsearch-2.24-1.tar.bz2
-ln -s $anaconda3bin/rapsearch $rootdir/bin/rapsearch2
+$mambaforgebin/mamba install -y rapsearch-2.24-1.tar.bz2
+ln -fs $mambaforgebin/rapsearch $rootdir/bin/rapsearch2
 echo "
 ------------------------------------------------------------------------------
                          Rapsearch2  Installed
@@ -1496,7 +1490,7 @@ echo "--------------------------------------------------------------------------
                         Installing RGI $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/conda install -y -n py38 -c bioconda rgi=$VER
+$mambaforgebin/mamba install -y -n py38 -c bioconda rgi=$VER || true
 
 echo "
 ------------------------------------------------------------------------------
@@ -1512,8 +1506,8 @@ echo "--------------------------------------------------------------------------
                         Installing checkM $VER
 ------------------------------------------------------------------------------
 "
-$anaconda3bin/pip install checkm-genome
-echo -e "$rootdir/database/checkM\n" | $anaconda3bin/checkm data setRoot
+$mambaforgebin/mamba install -n py38 -y checkm-genome
+$mambaforgebin/../envs/py38/bin/checkm data setRoot "$rootdir/database/checkM"
 tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
 cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
 cp  pplacer-Linux-v1.1.alpha19/guppy $rootdir/bin
@@ -1532,12 +1526,12 @@ echo "--------------------------------------------------------------------------
                         Installing QIIME2 $VER
 ------------------------------------------------------------------------------
 "
-if [ -e "$rootdir/thirdParty/Anaconda3/envs/qiime2" ]
+if [ -e "$rootdir/thirdParty/Mambaforge/envs/qiime2" ]
 then
-  rm -rf $rootdir/thirdParty/Anaconda3/envs/qiime2
+  rm -rf $rootdir/thirdParty/Mambaforge/envs/qiime2
 fi
 
-$anaconda3bin/conda env create -n qiime2 --file qiime2-2022.2-py38-linux-conda.yml
+$mambaforgebin/conda env create -n qiime2 --file qiime2-2022.2-py38-linux-conda.yml
 echo "
 ------------------------------------------------------------------------------
                          QIIME2 $VER Installed
@@ -1552,11 +1546,11 @@ echo "--------------------------------------------------------------------------
                         Installing antiSMASH $VER
 ------------------------------------------------------------------------------
 "
-if [ -e "$rootdir/thirdParty/Anaconda3/envs/antismash" ]
+if [ -e "$rootdir/thirdParty/Mambaforge/envs/antismash" ]
 then
-  rm -rf $rootdir/thirdParty/Anaconda3/envs/antismash
+  rm -rf $rootdir/thirdParty/Mambaforge/envs/antismash
 fi
-$anaconda3bin/conda create -y -n antismash antismash
+$mambaforgebin/mamba create -y -n antismash antismash
 echo "
 ------------------------------------------------------------------------------
                          antiSMASH $VER Installed
@@ -1571,8 +1565,8 @@ echo "--------------------------------------------------------------------------
                         Installing bokeh $VER
 ------------------------------------------------------------------------------
 "
-#$anaconda3bin/pip install  --no-index --find-links=./Anaconda3Packages bokeh==$VER
-$anaconda3bin/pip install bokeh==$VER
+#$mambaforgebin/pip install  --no-index --find-links=./MambaforgePackages bokeh==$VER
+$mambaforgebin/pip install jinja2==3.0 bokeh==$VER
 echo "
 ------------------------------------------------------------------------------
                          bokeh $VER Installed
@@ -1586,9 +1580,9 @@ echo "--------------------------------------------------------------------------
                  	Installing NanoPlot
 ------------------------------------------------------------------------------
 "
-#$anaconda3bin/pip install --no-index --find-links=./Anaconda3Packages NanoPlot
-$anaconda3bin/pip install NanoPlot==1.40.0
-ln -fs $anaconda3bin/NanoPlot $rootdir/bin
+#$mambaforgebin/pip install --no-index --find-links=./MambaforgePackages NanoPlot
+$mambaforgebin/mamba install -n py38 -y nanoplot=1.40
+ln -fs $mambaforgebin/../envs/py38/bin/NanoPlot $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
                          NanoPlot Installed
@@ -1601,9 +1595,9 @@ echo "--------------------------------------------------------------------------
                  	Installing Porechop
 ------------------------------------------------------------------------------
 "
-#$anaconda3bin/conda install Anaconda3Packages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
-$anaconda3bin/conda install -n py38 -y porechop
-ln -fs $anaconda3bin/../envs/py38/bin/porechop $rootdir/bin
+#$mambaforgebin/mamba install MambaforgePackages/porechop-0.2.3_seqan2.1.1-py36_2.tar.bz2
+$mambaforgebin/mamba install -n py38 -y porechop
+ln -fs $mambaforgebin/../envs/py38/bin/porechop $rootdir/bin
 echo "
 ------------------------------------------------------------------------------
                          Porechop Installed
@@ -1623,7 +1617,7 @@ checkSystemInstallation()
 checkLocalInstallation()
 {
     IFS=:
-    for d in $rootdir/bin; do
+    for d in $rootdir/bin $mambaforgebin; do
       if test -x "$d/$1"; then return 0; fi
     done
     return 1
@@ -1912,7 +1906,7 @@ if $rootdir/bin/python3 -c 'import sys; sys.exit("Python > 3.0 required.") if sy
 then
   $rootdir/bin/python3 -c 'import sys; print( "Python3 version %s.%s found." % (sys.version_info[0],sys.version_info[1]))'
 else
-  install_Anaconda3
+  install_Mambaforge
 fi
 
 if ( checkSystemInstallation bedtools )
@@ -1957,7 +1951,7 @@ else
   install_sratoolkit
 fi
 
-if ( checkSystemInstallation fastq-join )
+if ( checkLocalInstallation fastq-join )
 then
   echo "fastq-join is found"
 else
@@ -2312,9 +2306,9 @@ else
   install_megahit
 fi
 
-if [ -x "$rootdir/thirdParty/Anaconda3/bin/unicycler" ]
+if [ -x "$rootdir/thirdParty/Mambaforge/bin/unicycler" ]
 then
-  unicycler_installed_VER=`$rootdir/thirdParty/Anaconda3/bin/unicycler --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
+  unicycler_installed_VER=`$rootdir/thirdParty/Mambaforge/bin/unicycler --version | perl -nle 'print $1 if m{v(\d+\.\d+\.*\d*)}'`;
   if ( echo $unicycler_installed_VER | awk '{if($1>="0.4.7") exit 0; else exit 1}' )
   then
     echo "Unicycler $unicycler_installed_VER found"
@@ -2478,9 +2472,9 @@ else
     install_rapsearch2
 fi
 
-if [ -x "$anaconda3bin/../envs/py38/bin/rgi" ]
+if [ -x "$mambaforgebin/../envs/py38/bin/rgi" ]
 then
-  RGI_VER=`$anaconda3bin/../envs/py38/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  RGI_VER=`$mambaforgebin/../envs/py38/bin/rgi main -v| perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if [ $(versionStr $RGI_VER) -ge $(versionStr "5.1.0") ]
   then
     echo "RGI $RGI_VER is found"
@@ -2508,9 +2502,9 @@ else
     install_NanoPlot
 fi
 
-if [ -x "$anaconda3bin/../envs/qiime2/bin/qiime" ]
+if [ -x "$mambaforgebin/../envs/qiime2/bin/qiime" ]
 then
-  qiime2_VER=`$anaconda3bin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
+  qiime2_VER=`$mambaforgebin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
   if [ $(versionStr $qiime2_VER) -ge $(versionStr "2021.8") ]
   then
     echo "QIIME2 $qiime2_VER is found"
@@ -2523,9 +2517,9 @@ else
 fi
 
 
-if [ -x "$anaconda3bin/../envs/antismash/bin/antismash" ]
+if [ -x "$mambaforgebin/../envs/antismash/bin/antismash" ]
 then
-  antismash_VER=`$anaconda3bin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  antismash_VER=`$mambaforgebin/../envs/antismash/bin/antismash -V | perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if [ $(versionStr $antismash_VER) -ge $(versionStr "6.1.1") ]
   then
     echo "antiSMASH $antismash_VER is found"
@@ -2537,9 +2531,9 @@ else
   install_antismash
 fi
 
-if [ -x "$anaconda3bin/checkm" ]
+if [ -x "$mambaforgebin/../envs/py38/bin/checkm" ]
 then
-  checkM_VER=`$anaconda3bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  checkM_VER=`$mambaforgebin/../envs/py38/bin/checkm | grep "CheckM v" |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if ( echo $checkM_VER | awk '{if($1 >="1.1.0") exit 0; else exit 1}' )
   then
     echo "checkM $checkM_VER is found"
@@ -2551,9 +2545,9 @@ else
   install_checkM
 fi
 
-if [ -x "$anaconda3bin/bokeh" ]
+if [ -x "$mambaforgebin/bokeh" ]
 then
-  bokeh_VER=`$anaconda3bin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
+  bokeh_VER=`$mambaforgebin/bokeh --version |perl -nle 'print $& if m{\d\.\d+\.\d+}'`;
   if ( echo $bokeh_VER | awk '{if($1=="1.1.0") exit 0; else exit 1}' )
   then
     echo "bokeh $bokeh_VER is found"
@@ -2580,11 +2574,11 @@ else
 fi
 
 
-if [ -x $rootdir/bin/n/bin/piret ]
+if [ -x $mambaforgebin/../envs/piret/bin/piret ]
 then
-  source $rootdir/thirdParty/Anaconda3/bin/activate $rootdir/thirdParty/Anaconda3/envs/piret
-  PiReT_VER=`$rootdir/thirdParty/Anaconda3/envs/piret/bin/python $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
-  source $rootdir/thirdParty/Anaconda3/bin/deactivate 
+  source $mambaforgebin/activate $mambaforgebin/../envs/piret
+  PiReT_VER=`$mambaforgebin/../envs/piret/bin/python $rootdir/bin/piret/bin/piret -v | perl -nle 'print $& if m{\d+\.\d+\.*\d*}'`;
+  source $mambaforgebin/deactivate || true
   if [ $(versionStr $PiReT_VER) -ge $(versionStr "0.3") ]
   then
     echo "PyPiReT is found"
@@ -2844,9 +2838,9 @@ fi
 
 
 ## Cleanup
-#rm -rf $rootdir/thirdParty/Anaconda3Packages/
-$anaconda3bin/conda clean -y -a
-$anaconda3bin/pip cache purge
+#rm -rf $rootdir/thirdParty/MambaforgePackages/
+$mambaforgebin/conda clean -y -a
+$mambaforgebin/pip cache purge
 
 # set up a cronjob for project old files clena up
 echo "01 00 * * * perl $rootdir/edge_ui/cgi-bin/edge_data_cleanup.pl" | crontab -

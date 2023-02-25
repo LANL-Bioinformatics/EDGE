@@ -8,7 +8,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin/lib";
 my $workingDir = Cwd::getcwd();
 
-$ENV{PATH} = "$RealBin:$RealBin/../bin/:$RealBin/../thirdParty/Anaconda3/bin/:$ENV{PATH}";
+$ENV{PATH} = "$RealBin:$RealBin/../bin/:$RealBin/../thirdParty/Mambaforge/bin/:$ENV{PATH}";
 $ENV{EDGE_HOME} = $RealBin;
 
 my $version="0.1";
@@ -310,12 +310,12 @@ sub check_tools{
 			LICENSE => "MIT",
 			VERSION => "1.1.2-537"
 		},
-		'Anaconda3' => {
+		'Mambaforge' => {
 			GETVER => "",
 			REGEXP => "",
 			CITATION => "",
 			LICENSE => "3-clause BSD",
-			VERSION => "4.1.1"
+			VERSION => "22.11.1-4"
 		},
 		'QIIME' => {
 			GETVER => "split_libraries_fastq.py --version",

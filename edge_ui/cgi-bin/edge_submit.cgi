@@ -261,7 +261,7 @@ sub readBatchInput {
 		&returnStatus();
 	}
 	
-	my $path_to_script = "$EDGE_HOME/thirdParty/Anaconda3/bin/xlsx2csv";
+	my $path_to_script = "$EDGE_HOME/thirdParty/Mambaforge/bin/xlsx2csv";
 	open (my $fh, "-|") 
 	  or exec ("$path_to_script","-d","tab","$excel_file");
 
@@ -1402,7 +1402,7 @@ sub parse_qiime_mapping_files{
 		$f =~ s/[`';"]//g;
 		if ($f =~ /xlsx$/){
 			open ($fh, "-|")
-				or exec("$EDGE_HOME/thirdParty/Anaconda3/bin/xlsx2csv", "-d", "tab", "$f");
+				or exec("$EDGE_HOME/thirdParty/Mambaforge/bin/xlsx2csv", "-d", "tab", "$f");
 		}else{
 			open ($fh,"<", "$f") or die "Cannot read $f\n";
 		}

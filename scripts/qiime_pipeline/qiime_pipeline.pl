@@ -28,7 +28,7 @@ my $debug=0;
 my $working_dir = getcwd;
 my $EDGE_HOME =($ENV{EDGE_HOME})? $ENV{EDGE_HOME}: abs_path("$RealBin/../../");
 # set up environments
-$ENV{PATH}= "$EDGE_HOME/thirdParty/Anaconda3/bin:/scratch-218819/apps/anaconda3/bin:$RealBin/scripts/:$ENV{PATH}";
+$ENV{PATH}= "$EDGE_HOME/thirdParty/Mambaforge/bin:/scratch-218819/apps/anaconda3/bin:$RealBin/scripts/:$ENV{PATH}";
 
 sub Usage {
 	my $msg=shift;
