@@ -195,10 +195,10 @@ def go(args):
 
         
         ## if the alignment starts before the end of the primer, trim to that position
-        #if 'A01000:190:H2VYMDRX2:2:2244:3106:36746' in s.query_name:
-        #    print(f'{s.query_name} {s.cigarstring} {s.is_paired} {s.is_reverse} {amplicon_len} {qlen} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
-        #    print(list(p1), file=sys.stderr)
-        #    print(list(p2), file=sys.stderr)
+        #if 'A00284:333:H755FDSX3:1:1147:28890:22842' in s.query_name:
+            #print(f'{s.query_name} {s.cigarstring} {s.is_paired} {s.is_reverse} {amplicon_len} {qlen} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
+            #print(list(p1), file=sys.stderr)
+            #print(list(p2), file=sys.stderr)
         try:
             ## softmask the alignment if left primer start/end inside alignment
             
@@ -217,6 +217,9 @@ def go(args):
                             trim(s, primer_position, 0)
                     else:  # short amplicon,  reads length > amplicon size.  check the primer pair's name should be a set for trimming
                         if s.reference_start < primer_position and s.reference_end >= primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
+                            trim(s, primer_position, 0)
+                            # not proper pair, trim close primer ?
+                        if not s.is_reverse and not s.is_proper_pair and s.reference_start >=  (p1[2]['start'] - args.offset) and s.reference_start <  p1[2]['end']:
                             trim(s, primer_position, 0)
                             
                 else: ## unpaired reads
@@ -252,6 +255,8 @@ def go(args):
                             trim(s, primer_position, 1)
                     else:
                         if s.reference_end > primer_position and s.reference_start < primer_position and levenshtein_distance(p1[2]['Primer_ID'].replace('LEFT','L'), p2[2]['Primer_ID'].replace('RIGHT','R')) <= 1:
+                            trim(s, primer_position, 1)
+                        if s.is_reverse and not s.is_proper_pair and s.reference_end >  p2[2]['end'] and s.reference_end <=  (p2[2]['start'] + args.offset):
                             trim(s, primer_position, 1)
                             
                 else: ## unpaired reads
