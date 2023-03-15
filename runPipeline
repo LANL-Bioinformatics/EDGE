@@ -582,6 +582,7 @@ sub prepareExpDesignAndConfig{
             my @array = split /\t/,$_;
             $array[$file_column_index] =~ tr/"//d;
             $array[$file_column_index] =~ s/^\s+|\s+$//g;
+            $array[$file_column_index] =~ s/,/:/g;
             $array[$file_column_index] =~ s/:/:$dir\//;
             $array[$file_column_index] = "$dir/$array[$file_column_index]";
             $array[0] =~ s/[^\w-]/_/g;

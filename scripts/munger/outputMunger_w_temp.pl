@@ -128,6 +128,26 @@ sub pull_qiime{
 
 sub pull_piret{
 	my  $output_dir = "$out_dir/ReferenceBasedAnalysis/Piret";
+	my $log = "$output_dir/piret_log.txt";
+	if (-e "$log"){
+		$vars->{PIRET_OUT_PROCESSLOG} = "$log";
+		open(my $fh, "<", $log);
+		while(<$fh>){
+			if ($_ =~ /error|failed|not exist/i){
+				next if $_ =~ /error-correction/;
+				my $line = $_;
+                                $line =~ s/'$//;
+                                $line =~ s/\\n\\n/<br>/g;
+                                $line =~ s/\\n/<br>/g;
+                                $line =~ s/$www_root\///;
+				$line =~ s/$out_dir\///;
+                                $line =~ s/b''?//g;
+				$vars->{ERROR_piret} .= $line;
+				last;
+			}
+		}
+	}
+	close $fh;
 #	return unless -e "$output_dir/runPiret.finished";
 	my $edgeR=0;
 	my $ballgown=0;
@@ -2229,7 +2249,7 @@ sub pull_summary {
 			$vars->{ERROR_qiime} = $_ if (/ERROR/i and $step ne "Checking Mapping File");
 		}
 		elsif(/ERROR|failed/ and $vars->{OUT_piret_SW}){
-			$vars->{ERROR_piret} = $_ if (/ERROR/i);
+			$vars->{ERROR_piret} .= $_ if (/ERROR/i);
 		}
 		elsif( /^Qiime Running time: (.*)/){
 			$prog->{$ord}->{GNLSTATUS}   = "Complete";
