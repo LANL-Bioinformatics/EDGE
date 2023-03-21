@@ -87,14 +87,14 @@ def processRGITable(inRGITableFileName):
 	inRGITableFile.close()
 	# If no results exit quietly
 	if len(rgiTableList) == 0:
-		print "No AR Results"
+		print("No AR Results")
 		exit(0)
 	return rgiTableList
 
 
 def printListToFile (outList, prefix):
 	try:
-		print "Writing to file:"+prefix
+		print("Writing to file:"+prefix)
 		outFile = open(prefix, 'w')
 	except IOError as e:
 		exit("ERROR: Could not locate " + e.filename + ". Please make sure it exists.")
@@ -104,7 +104,7 @@ def printListToFile (outList, prefix):
 	outFile.close()
 
 def printJsonToFile (jsonDict, prefix):
-	print "Writing to File"+prefix
+	print("Writing to File"+prefix)
 	try:
 		outFile = open(prefix, 'w')
 	except IOError as e:
@@ -129,7 +129,7 @@ def main(args):
 	prefix = args.prefix
 	categoryDict = {}
 
-	print "Processing RGI results"
+	print("Processing RGI results")
 
 	for rgiHitList in rgiTableList:
 		# print rgiHitList[0]
@@ -154,12 +154,12 @@ def main(args):
 			else:
 				categoryDict[category] = [arData]
 
-	print "Done processing RGI results"
+	print("Done processing RGI results")
 
 	printListToFile(outGFFList, prefix + ".gff")
 	printListToFile(outCoordsList, prefix + "_coords.txt")
 	printJsonToFile(categoryDict, prefix + "_table.json")
-	print "Done"
+	print("Done")
 
 
 def run():

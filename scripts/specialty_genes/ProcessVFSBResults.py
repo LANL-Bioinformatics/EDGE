@@ -75,7 +75,7 @@ def processResultFile (inSBResultsFileName):
 		else:
 			noSBResultCount += 1
 	if len(sbResultDict) == 0:
-		print "No Virulence Results"
+		print("No Virulence Results")
 		sys.exit(0)
 
 	inSBResultFile.close()
@@ -195,7 +195,7 @@ def generateKronaPlot(outResultList, prefix):
 
 	doKrona = True
 	if doKrona:
-		print "Generating Krona Plot"
+		print("Generating Krona Plot")
 		runKronaString = "ktImportTaxonomy -o " + prefix + ".krona.html " + outKronaListFile.name
 		subprocess.call(runKronaString.split(' '))
 
@@ -245,7 +245,7 @@ def getGFFInfo (resultList, gffGeneListDict, outGFFList, outCoordsList, idList):
 
 def printListToFile (outList, prefix):
 	try:
-		print "Writing to file:"+prefix
+		print("Writing to file:"+prefix)
 		outFile = open(prefix, 'w')
 	except IOError as e:
 		exit("ERROR: Could not locate " + e.filename + ". Please make sure it exists.")
@@ -256,7 +256,7 @@ def printListToFile (outList, prefix):
 
 
 def printJsonToFile (jsonDict, prefix):
-	print "Writing to File"+prefix
+	print("Writing to File"+prefix)
 	try:
 		outFile = open(prefix, 'w')
 	except IOError as e:
@@ -316,17 +316,17 @@ def main (args):
                             "order by vftable.VFGenus, vftable.VFClass, vftable.VFGene; ")
 	giTuple = tuple(sbResultDict.keys())
 
-	print "Executing MySQL command to get VF results:"
-	print getResultsFromDB
-	print "Using the following GI's:"
-	print giTuple
+	print("Executing MySQL command to get VF results:")
+	print(getResultsFromDB)
+	print("Using the following GI's:")
+	print(giTuple)
 	mysqlResult = getMysqlResults(mysqlCursor, getResultsFromDB, giTuple)
-	print "Done executing MySQL command"
-	print "Preprocessing results"
+	print("Done executing MySQL command")
+	print("Preprocessing results")
 	knownClassDict = generateKnownClassDict(mysqlResult)
-	print "Done preprocessing results"
+	print("Done preprocessing results")
 
-	print "Processing results"
+	print{"Processing results")
 	for resultList in mysqlResult:
 		# Appending score to the result
 		resultGI = str(resultList[5])
@@ -375,14 +375,14 @@ def main (args):
 
 			outResultList.append(resultString.split("\t"))
 
-	print "Done processing results"
+	print("Done processing results")
 	if processingType == 'orf':
 		printListToFile (outGFFList, prefix+".gff")
 		printListToFile (outCoordsList, prefix+"_coords.txt")
 	printListToFile (outResultList, prefix+"_table.txt")
 	printJsonToFile(jsonDict, prefix+"_table.json")
 	generateKronaPlot(outResultList, prefix)
-	print "Done"
+	print("Done")
 
 
 def run():

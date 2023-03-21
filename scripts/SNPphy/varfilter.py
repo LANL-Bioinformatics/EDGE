@@ -32,7 +32,7 @@ import sys
 import getopt
 
 def usage():
-	print '''usage: varfilter.py [options] [cns-pileup]
+	print('''usage: varfilter.py [options] [cns-pileup]
 
 Options: -Q INT	minimum RMS mapping quality for SNPs
 		 -q INT	minimum RMS mapping quality for gaps
@@ -50,7 +50,7 @@ Options: -Q INT	minimum RMS mapping quality for SNPs
 
 		 -l INT	window size for filtering adjacent gaps
 
-		 -p print filtered variants'''
+		 -p print filtered variants''')
 
 def varFilter_aux(first, is_print):
 	try:

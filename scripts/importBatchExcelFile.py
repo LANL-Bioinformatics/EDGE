@@ -16,7 +16,7 @@ def find_file():
         ws = wb.active
         return ws
     else:
-        print "Path to file incorrect. Check path"
+        print("Path to file incorrect. Check path")
 
 #make active worksheet global so all methods have access without having to redo file IO operation
 ws = find_file()
@@ -82,7 +82,7 @@ def get_col_data(good_cols):
             temp = [dataColName, dataColQ1, dataColQ2, dataColDes]
             good_data.append(temp)
 
-            print str(dataColName) + "," + str(dataColQ1) + "," + str(dataColQ2) + "," + str(dataColDes)
+            print(str(dataColName) + "," + str(dataColQ1) + "," + str(dataColQ2) + "," + str(dataColDes))
 
     return good_data
 
@@ -100,7 +100,7 @@ def main():
 
     starttime = datetime.now()
     get_col_data(get_headers())
-    #print datetime.now() - starttime
+    #print(datetime.now() - starttime)
 
 if __name__ == '__main__':
     main()

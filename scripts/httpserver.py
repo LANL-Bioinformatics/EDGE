@@ -58,12 +58,12 @@ def main ():
     port = int(options.port)    #use http://localhost:8080/
 
     if options.local_js:
-        print "LOCAL CanvasXpress Javascript IN USE"
+        print("LOCAL CanvasXpress Javascript IN USE")
         os.environ['LOCAL_JS'] = 'TRUE'
     #else:
       #  print "Pulling CanvasXpress Javascript over http"
     
-    print 'webdir: "%s", port %s' % (webdir, port)
+    print('webdir: "%s", port %s' % (webdir, port))
     os.chdir(webdir)                              #run in HTML root dir
 
     srvraddr = ("localhost", port)                         #my hostname, port number
