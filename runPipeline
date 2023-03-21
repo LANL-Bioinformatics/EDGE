@@ -2204,7 +2204,6 @@ sub runAntiSmash {
     #my $inclusive_threshold  = $configuration->{'antismash-inclusive-threshold'} || '0.6';
     #my $inclusive_npfams = $configuration->{'antismash-inclusive-npfams'} || '5' ;
    
-    &make_dir($outputDir);
     if ($noColorLog)
     {
         &lprint ("[Secondary Metabolite Analysis]\n");
@@ -2218,7 +2217,9 @@ sub runAntiSmash {
        &lprint ("Secondary Metabolite Analysis Finished\n");
        return;
     }
-    my $cmd = "antismash -c $numCPU --taxon $taxon --logfile $log --outputfolder $outputDir/output ";
+    remove_tree($outputDir);
+    &make_dir($outputDir);
+    my $cmd = "antismash -c $numCPU --taxon $taxon --logfile $log --output-dir $outputDir/output ";
     $cmd .= " --html-title $title";
     $cmd .= " --database $RealBin/database/antiSMASH";
     $cmd .= " --cb-general" if ($clusterblast);
@@ -2232,6 +2233,7 @@ sub runAntiSmash {
     $cmd .= " --tigrfam" if ($tigrfam);
     $cmd .= " --pfam2go" if ($pfam2go);
     $cmd .= " --cassis" if ($cassis && $taxon =~ /fungi/i);
+    $cmd .= " --genefinding-tool prodigal-m ";
     #$cmd .= " --tta" if ($tta && $taxon=~/bacteria/i);
     #$cmd .= " --borderpredict" if ($borderpredict);
     #$cmd .= " --inclusive" if ($inclusive);
