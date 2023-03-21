@@ -146,8 +146,8 @@ sub pull_piret{
 				last;
 			}
 		}
+	        close $fh;
 	}
-	close $fh;
 #	return unless -e "$output_dir/runPiret.finished";
 	my $edgeR=0;
 	my $ballgown=0;
