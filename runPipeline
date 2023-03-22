@@ -2138,7 +2138,7 @@ sub runCheckM{
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
     my $CheckM_summary = "$outputDir/CheckM.txt";
-    my $checkm_PATH="$RealBin/thirdParty/Mambaforge/envs/py38/bin/checkm";
+    my $checkm_PATH="$RealBin/thirdParty/Mambaforge/envs/py38/bin";
     my $evalue = '1e-10';  # -e
     my $overlap_length_perc = 0.7;  # -l 
     my $multi = 10;  # -m
