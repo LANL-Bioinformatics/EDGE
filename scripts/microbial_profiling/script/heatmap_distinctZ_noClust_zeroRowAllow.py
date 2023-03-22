@@ -208,11 +208,14 @@ def features_dend_panel( fig, Z, Z2, width, lw ):
 
 def add_cmap( cmapdict, name ):
     #my_cmap = matplotlib.colors.LinearSegmentedColormap(name,cmapdict,256)
- 	#pylab.register_cmap(name=name,cmap=my_cmap)
-	newjet = matplotlib.cm.get_cmap('jet')
-	newjet.set_under('b')
-	matplotlib.cm.register_cmap(name='newjet',cmap=newjet)
-	pylab.register_cmap(name='newjet',cmap=newjet)
+    #pylab.register_cmap(name=name,cmap=my_cmap)
+    newjet = matplotlib.cm.get_cmap('jet').copy()
+    newjet.set_under('b')
+    try:
+        matplotlib.cm.register_cmap(name=name,cmap=newjet)
+        #pylab.register_cmap(name=name,cmap=newjet)
+    except:
+        pass
 
 def init_fig(xsize,ysize,ncol):
     fig = pylab.figure(figsize=(xsize,ysize))
@@ -220,7 +223,7 @@ def init_fig(xsize,ysize,ncol):
     return fig
 
 def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, label_font_size, cb_offset, cb_l, flabelson, slabelson, cm_ticks, gridon, bar_offset ):
-    cm = pylab.get_cmap(cm_name)
+    cm = pylab.get_cmap(cm_name).copy()
     cm.set_under('#DDDDDD')
 
     cm.set_bad('#DDDDDD')
@@ -238,9 +241,10 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
 
     norm_f = matplotlib.colors.LogNorm if scale == 'log' else matplotlib.colors.Normalize
 
-    im = axmatrix.matshow(  D, norm = norm_f(   vmin=minv if minv > 0.0 else None,
+    im = axmatrix.matshow(  D, norm = norm_f(   vmin=None if scale == 'log' else minv if  minv > 0.0 else 0.000000001,
                                                 vmax=maxv),
-                            aspect='auto', origin='lower', cmap=cm, vmax=maxv, vmin=None if scale == 'log' else 0.000000001)
+                            aspect='auto', origin='lower', cmap=cm)
+                            #aspect='auto', origin='lower', cmap=cm, vmax=maxv, vmin=None if scale == 'log' else 0.000000001)
     axmatrix.invert_yaxis()
     axmatrix2 = axmatrix.twinx()
     axmatrix3 = axmatrix.twiny()
@@ -274,7 +278,7 @@ def heatmap_panel( fig, D, minv, maxv, idx1, idx2, cm_name, scale, cols, rows, l
         axmatrix2.set_yticklabels([rows[r] for r in reversed(idx1)],size=label_font_size,va='center')
     if slabelson:
         axmatrix.set_xticks(np.arange(len(cols)))
-    	axmatrix.xaxis.tick_top()
+        axmatrix.xaxis.tick_top()
         axmatrix.set_xticklabels([cols[r] for r in idx2],size=label_font_size,rotation=90,va='bottom',ha='center')
     axmatrix.tick_params(length=0)
     axmatrix2.tick_params(length=0)
@@ -400,7 +404,7 @@ def hclust(  fin, fout, title,
 
     size_cx, size_cy = xcw, ycw
 
-	#xsize, ysize = max(xlen*size_cx,2.0), max(ylen*size_cy,2.0)
+    #xsize, ysize = max(xlen*size_cx,2.0), max(ylen*size_cy,2.0)
     xsize, ysize = xlen*size_cx, ylen*size_cy
 
     ydend_offset = 0.025*8.0/ysize if s2l else 0.0
@@ -444,7 +448,7 @@ def hclust(  fin, fout, title,
     fig.savefig(    fout, bbox_inches='tight',
                     pad_inches = pad_inches,
                     facecolor='none',
-					dpi=200) if fout else pylab.show()
+                    dpi=200) if fout else pylab.show()
 
 if __name__ == '__main__':
     pars = read_params( sys.argv )

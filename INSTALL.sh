@@ -1440,7 +1440,7 @@ $mambaforgebin/conda config --add channels bioconda
 #$mambaforgebin/conda config --add channels anaconda
 $mambaforgebin/conda config --add channels conda-forge
 $mambaforgebin/mamba install -y cython ncurses
-$mambaforgebin/mamba install -y CairoSVG pandas mysql-connector-python biopython importlib-resources plotly matplotlib 
+$mambaforgebin/mamba install -y CairoSVG pandas mysql-connector-python biopython importlib-resources plotly matplotlib=3.5 scipy
 #$mambaforgebin/pip install setuptools==58.0.4
 $mambaforgebin/pip install xlsx2csv pysam
 $mambaforgebin/mamba create -y -n py38 python=3.8

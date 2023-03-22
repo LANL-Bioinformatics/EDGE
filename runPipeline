@@ -2137,6 +2137,7 @@ sub runCheckM{
     my $MaxBin_summary = "$MaxBin_dir/${project_name}_bin.summary";
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
+    my $log = "$outputDir/AssemblyBasedAnalysis/Binning/CheckM_log.txt";
     my $CheckM_summary = "$outputDir/CheckM.txt";
     my $checkm_PATH="$RealBin/thirdParty/Mambaforge/envs/py38/bin";
     my $evalue = '1e-10';  # -e
@@ -2164,7 +2165,7 @@ sub runCheckM{
        return;
     }
     # -r, --reduced_tree    use reduced tree (requires <16GB of memory)
-    my $cmd = "cd $outputDir/.. ; $checkm_PATH/checkm lineage_wf --tmpdir . -q --tab_table -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir";
+    my $cmd = "cd $outputDir/.. ; $checkm_PATH/checkm lineage_wf --tmpdir . -q --tab_table -e $evalue -l $overlap_length_perc -f $CheckM_summary -t $numCPU -x fasta $MaxBin_dir $outputDir 1>$log 2>\&1";
 
     &lprint (" Running \n $cmd\n");
     &executeCommand("$cmd");
@@ -2708,7 +2709,7 @@ unlink $InputLogPDF;
      next if ($file eq $contigTaxonomyPDF);
      my ($file_name, $file_path, $file_suffix)=fileparse("$file", qr/\.[^.]*/);
      my $size_opt = ($file_name =~ /tree/)? "-resize 240":"-density 120";
-     push @conversions, "convert $size_opt -flatten $file $imagesDir/$file_name.png" if (-e $file);
+     push @conversions, "convert $size_opt -colorspace RGB -flatten $file $imagesDir/$file_name.png" if (-e $file);
  }
  #push @conversions, "convert -strip -density 120 -flatten $primerCheckPDF $imagesDir/pcrValidation.png" if (-e $primerCheckPDF);
  
