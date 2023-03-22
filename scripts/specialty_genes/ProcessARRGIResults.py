@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import re
-import ConfigParser
+import configparser
 import json
 from Bio import SeqIO
 import argparse

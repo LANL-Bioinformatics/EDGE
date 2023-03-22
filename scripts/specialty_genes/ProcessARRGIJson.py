@@ -3,7 +3,7 @@ import sys
 import os
 import csv
 import re
-import ConfigParser
+import configparser
 import json
 from Bio import SeqIO
 import argparse
@@ -78,7 +78,7 @@ def convert(input):
 		return dict((convert(key), convert(value)) for key, value in input.iteritems())
 	elif isinstance(input, list):
 		return [convert(element) for element in input]
-	elif isinstance(input, unicode):
+	elif isinstance(input, str):
 		return input.encode('utf-8')
 	else:
 		return input
@@ -101,7 +101,7 @@ def processJson(resultfile, orf):
 			data = json.load(f)
 
 	except ValueError:
-		print(file=sys.stderr, "convertJsonToTSV expects a file contains a VALID JSON string.")
+		print("convertJsonToTSV expects a file contains a VALID JSON string.",file=sys.stderr)
 		exit()
 
 	rgiTable = []
@@ -199,7 +199,7 @@ def processJson(resultfile, orf):
 		if set(snpList) == set(['n/a']):
 			snpList = 'n/a'
 		else:
-			snpList = ', '.join(snpList)
+			snpList = b', '.join(snpList)
 
 		from itertools import chain
 		AROcatList = list(chain.from_iterable(AROcatList))
@@ -210,24 +210,24 @@ def processJson(resultfile, orf):
 			if orf == "1":
 				# for protein RGI runs where there's no | or seq_start/stop/strand
 				if findnthbar(item, 4) == "":
-					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
-					                 max(identityList), ', '.join(map(lambda x: "ARO:" + x, AROlist)),
-					                 ', '.join(list(arocatset)), ', '.join(list(tl)), snpList,
+					rgiTable.append([item, "", "", "", "", ', b'.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
+					                 max(identityList), b', '.join(map(lambda x: b"ARO:" + x, AROlist)),
+					                 b', '.join(list(arocatset)), b', '.join(list(tl)), snpList,
 					                 ', '.join(AROsortedList), ', '.join(map(str, bitScoreList)), predictedProtein,
 					                 SequenceFromBroadStreet, geneID, hitID])
 				else:
 					rgiTable.append([findnthbar(item, 0), findORFfrom(item), int(findnthbar(item, 4)) - 1,
-					                 int(findnthbar(item, 5)) - 1, findnthbar(item, 3), ', '.join(list(clist)),
+					                 int(findnthbar(item, 5)) - 1, findnthbar(item, 3), b', '.join(list(clist)),
 					                 pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
-					                 ', '.join(map(lambda x: "ARO:" + x, AROlist)), ', '.join(list(arocatset)),
-					                 ', '.join(list(tl)), snpList, ', '.join(AROsortedList),
+					                 b', '.join(map(lambda x: b"ARO:" + x, AROlist)), b', '.join(list(arocatset)),
+					                 b', '.join(list(tl)), snpList, ', '.join(AROsortedList),
 					                 ', '.join(map(str, bitScoreList)), predictedProtein, SequenceFromBroadStreet,
 					                 geneID, hitID])
 			else:
 				if findnthbar2(item, 1) == "":
-					rgiTable.append([item, "", "", "", "", ', '.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
-					                 max(identityList), ', '.join(map(lambda x: "ARO:" + x, AROlist)),
-					                 ', '.join(list(arocatset)), ', '.join(list(tl)), snpList,
+					rgiTable.append([item, "", "", "", "", b', '.join(list(clist)), pass_bitscore, maxBitScore, bestevalue, bestAROName, bestARO, ','.join(bestAROCat),
+					                 max(identityList), b', '.join(map(lambda x: b"ARO:" + x, AROlist)),
+					                 b', '.join(list(arocatset)), b', '.join(list(tl)), snpList,
 					                 ', '.join(AROsortedList), ', '.join(map(str, bitScoreList)), predictedProtein,
 					                 SequenceFromBroadStreet, geneID, hitID])
 				else:
@@ -236,9 +236,9 @@ def processJson(resultfile, orf):
 					                 int(findnthbar2(item, 1)) - 1,
 					                 int(findnthbar2(item, 2)) - 1,
 					                 findnthbar2(item, 3),
-					                 ', '.join(list(clist)), pass_evalue, maxBitScore, pass_bitscore, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
-					                 ', '.join(map(lambda x: "ARO:" + x, AROlist)), ', '.join(list(arocatset)),
-					                 ', '.join(list(tl)), snpList, ', '.join(AROsortedList),
+					                 b', '.join(list(clist)), pass_evalue, maxBitScore, pass_bitscore, bestAROName, bestARO, ','.join(bestAROCat), max(identityList),
+					                 b', '.join(map(lambda x: b"ARO:" + x, AROlist)), b', '.join(list(arocatset)),
+					                 b', '.join(list(tl)), snpList, ', '.join(AROsortedList),
 					                 ', '.join(map(str, bitScoreList)), predictedProtein, SequenceFromBroadStreet,
 					                 geneID, hitID])
 

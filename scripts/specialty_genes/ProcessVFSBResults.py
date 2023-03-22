@@ -4,7 +4,7 @@ import argparse
 import re
 import mysql.connector as mysql
 from mysql.connector import errorcode
-import ConfigParser
+import configparser
 import json
 import subprocess
 from Bio import SeqIO
@@ -12,7 +12,7 @@ from Bio import SeqIO
 #-------------------------- Functions -----------------------------------
 
 def connectMysql(mysqlConfigName):
-	mysqlConfig = ConfigParser.ConfigParser()
+	mysqlConfig = configparser.ConfigParser()
 	try:
 		mysqlConfig.read(mysqlConfigName)
 	except IOError as e:
@@ -162,7 +162,7 @@ def generateGeneList (sbGeneSetDict, gffTableList):
 	# Dict with gi as key and set of gff entries
 	gffGeneListDict = {}
 	# Loop through the dictionary with sets of genes as the value and GIs as key
-	for sbMarkerGI, sbGeneSet in sbGeneSetDict.iteritems():
+	for sbMarkerGI, sbGeneSet in sbGeneSetDict.items():
 		# Loop through the gene set for the current gi
 		for sbGene in sbGeneSet:
 			# Loop through the GFF table
@@ -203,7 +203,7 @@ def generateKronaPlot(outResultList, prefix):
 def getGFFInfo (resultList, gffGeneListDict, outGFFList, outCoordsList, idList):
 	(vfclass, vf, vfGene, generaRepresented, vfNumber, resultGI, vfdbInfo, newGeneAccession, genomeSource, taxid,
 	 ncbiComment, resultScore) = resultList
-	for gi, gffEntryList in gffGeneListDict.iteritems():
+	for gi, gffEntryList in gffGeneListDict.items():
 		if gi == resultGI:
 			for gffEntry in gffEntryList:
 				(gffSeqName, gffSource, gffFeature, gffStart, gffStop, gffScore, gffStrand, gffFrame, gffAttributes) = gffEntry
@@ -326,7 +326,7 @@ def main (args):
 	knownClassDict = generateKnownClassDict(mysqlResult)
 	print("Done preprocessing results")
 
-	print{"Processing results")
+	print("Processing results")
 	for resultList in mysqlResult:
 		# Appending score to the result
 		resultGI = str(resultList[5])
@@ -337,8 +337,8 @@ def main (args):
 		# print resultList
 		isNotDuplicate = True
 		if vfclass == "Unknown":
-			for knownClass, knownVFDict in knownClassDict.iteritems():
-				for knownVF, knownVFNumberSet in knownVFDict.iteritems():
+			for knownClass, knownVFDict in knownClassDict.items():
+				for knownVF, knownVFNumberSet in knownVFDict.items():
 					if vfNumber in knownVFNumberSet:
 						isNotDuplicate = False
 					if knownClass in vf:

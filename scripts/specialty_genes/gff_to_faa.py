@@ -32,4 +32,4 @@ for line in inGFFFile:
             fastaname += gffattr + ";"
         if "vfclass=" in gffattr:
             fastaname += gffattr + ";"
-    print(">%s\n%s") %(fastaname,record_dict[pid].seq)
+    print(">%s\n%s" %(fastaname,record_dict[pid].seq))
