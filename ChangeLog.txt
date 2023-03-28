@@ -1,9 +1,13 @@
 # EDGE-COVID19
 
-## build 202302
+## build 202303
 * update SPAdes to v3.15.5
 * Add SPAdes new algorithm for Biosynthetic, coronavirus, metaviral, metaplasmid and RNAviral
 * update Unicycler to v0.5.0
+* check unproper pair and short amplicon for align trim
+* check variant num before mix Infecition analysis
+* fix bug on unique region with --count_primer flag for amplicon coverage
+* fix bug on finding cloese primer of align_trim
 
 
 ## build 20230131
