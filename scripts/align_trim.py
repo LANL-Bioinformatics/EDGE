@@ -149,7 +149,7 @@ def find_primer(bed, pos, direction, refID):
    if direction == '+':
        closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
    else:
-       closest = min([(abs(p['end'] - pos), p['end'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
+       closest = min([(abs(p['start'] - pos), p['start'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])] + [(abs(p['end'] - pos), p['end'] - pos, p) for p in bed if p['direction'] == direction and search_term.search(p['Reference'])], key=itemgetter(0))
    return closest
 
 
@@ -195,7 +195,7 @@ def go(args):
 
         
         ## if the alignment starts before the end of the primer, trim to that position
-        #if 'A00284:333:H755FDSX3:1:1147:28890:22842' in s.query_name:
+        #if 'A01262:147:HF2FKDRX2:2:2140:18231:36072' in s.query_name:
             #print(f'{s.query_name} {s.cigarstring} {s.is_paired} {s.is_reverse} {amplicon_len} {qlen} {s.reference_start}  {s.reference_end} {p1} {p2}\n' , file=sys.stderr)
             #print(list(p1), file=sys.stderr)
             #print(list(p2), file=sys.stderr)
