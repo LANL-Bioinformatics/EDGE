@@ -2558,9 +2558,9 @@ else
    install_pangolin
 fi
 
-if [ -x "$anaconda3bin/kallisto" ]
+if ( checkLocalInstallation kallisto )
 then
-  kallisto_VER=`$anaconda3bin/kallisto version | perl -nle 'print $1 if m{(\d\.\d+\.\d+)}'`;
+  kallisto_VER=`kallisto version | perl -nle 'print $1 if m{(\d\.\d+\.\d+)}'`;
   if [ $(versionStr $kallisto_VER) -ge $(versionStr "0.46.0") ]
   then
     echo "kallisto $kallisto_VER is found"
