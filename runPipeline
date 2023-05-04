@@ -16,6 +16,9 @@ use lib "$RealBin/lib";
 #use File::Tee qw(tee);
 require "$RealBin/edge_ui/metadata_scripts/metadata_api.pl";
 my $workingDir = Cwd::getcwd();
+my $py38_env = "$RealBin/thirdParty/Mambaforge/envs/py38";
+my $py38_env_activate_cmd="source $RealBin/thirdParty/Mambaforge/bin/activate $py38_env 1>/dev/null";
+my $env_deactivate_cmd="source deactivate 2>/dev/null || true";
 $ENV{PATH} = "$RealBin:$RealBin/bin/:$RealBin/scripts/:$RealBin/thirdParty/Mambaforge/bin/:$ENV{PATH}:/usr/sbin:/opt/apps/bin";
 $ENV{PERL5LIB} = ($ENV{PERL5LIB})? "$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi:$ENV{PERL5LIB}":"$RealBin/lib:$RealBin/lib/perl5:$RealBin/lib/perl5/x86_64-linux-thread-multi";
 $ENV{PERL5SHELL} = "bash";
@@ -3463,11 +3466,11 @@ sub runReadsToGenome
         # ampilcon coverage plot
 	my $bed_file_flag = ($correct_bed_file =~ /bedpe/ )? "--bedpe $correct_bed_file":"--bed $correct_bed_file";
         my @cov_files = glob("$outputDir/AlignTrimMapping/*coverage");
-        foreach my $cov_f (@cov_files){ 
+        foreach my $cov_f (@cov_files){
                my $refID = ($cov_f =~ /readsToRef_(\S+).coverage/) ? "--refID $1": "";
                my $gff = (-e "$outDir/Reference/reference.gff")? "--gff $outDir/Reference/reference.gff" : "";
 	       my $mincov = ( $configuration->{r2g_consensus_min_cov} )?  $configuration->{r2g_consensus_min_cov} : 5;
-	       $command = "$RealBin/scripts/amplicon_coverage.py --mincov $mincov --count_primer --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag";
+               $command = "$py38_env_activate_cmd; $RealBin/scripts/amplicon_coverage.py --mincov $mincov --count_primer --outdir $outputDir --cov $cov_f $gff $refID $bed_file_flag; $env_deactivate_cmd";
 
                &executeCommand($command);
         }
@@ -3573,7 +3576,8 @@ sub getAlignTrimReads{
 	&lprint ("  ## Align Trimmed Ref: $AlignTrim_ref \n");
 	&lprint ("  ## Get Align Trimmed Reads \n");
 	$cmd .= " 1>$log 2>\&1";
-	&executeCommand($cmd);
+	my $exe_cmd = "$py38_env_activate_cmd; $cmd; $env_deactivate_cmd";
+	&executeCommand($exe_cmd);
 	my @align_trim_bam_file = glob("$outputDir/AlignTrimMapping/*bam");
 	my $extract_reads_cmd = "perl $RealBin/scripts/bam_to_fastq.pl -remove_softclip -prefix $outputDir/AlignTrimMapping/AlignTrimmedReads $align_trim_bam_file[0]";
 	&executeCommand($extract_reads_cmd);
