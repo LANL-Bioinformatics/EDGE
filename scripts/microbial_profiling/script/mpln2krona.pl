@@ -37,7 +37,19 @@ open MPLN, $mplnfile || die "Can't open $mplnfile: $!\n";
 while(<MPLN>){
 	chomp;
 	next if /LEVEL/;
-	my ($phylo,$count) = $_ =~ /^(\S+)\t(\S+)$/;
+	next if (/^#/);
+        my @result = split /\t/, $_;
+        my ($phylo,$count);
+        if ( scalar(@result) > 2 ){
+                $phylo=$result[0];
+                $count=$result[2];
+
+        }else{
+                $phylo=$result[0];
+                $count=$result[1];
+        }
+
+	#my ($phylo,$count) = $_ =~ /^(\S+)\t(\S+)$/;
 	my ($lvl,$name) = $phylo =~ /(\w)__([^\|]+)$/;
 
 	if( $name =~ s/_unclassified// ){

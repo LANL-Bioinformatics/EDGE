@@ -23,7 +23,7 @@ assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
 alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
-taxonomy_tools=( kraken2 metaphlan2 kronatools gottcha gottcha2 centrifuge miccr pangia )
+taxonomy_tools=( kraken2 metaphlan kronatools gottcha gottcha2 centrifuge miccr pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
 python_packages=( Mambaforge )
@@ -846,17 +846,18 @@ echo "
 }
 
 
-install_metaphlan2()
+install_metaphlan()
 {
-local VER=2.7.7
+local VER=4.0.6
 echo "------------------------------------------------------------------------------
                            Installing metaphlan-$VER
 ------------------------------------------------------------------------------
 "
 tar xvzf metaphlan-$VER.tgz
 cd metaphlan-$VER
-cp -fR metaphlan2.py $rootdir/bin/.
-cp -fR utils/read_fastx.py $rootdir/bin/.
+$mambaforgebin/pip install .
+ln -fs $mambaforgebin/metaphlan $rootdir/bin
+cp -fR metaphlan/utils/read_fastx.py $rootdir/bin/.
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -2420,18 +2421,18 @@ else
   install_pangia
 fi
 
-if ( checkLocalInstallation metaphlan2.py  )
+if ( checkLocalInstallation metaphlan  )
 then
-  metaphlan_VER=`metaphlan2.py -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
-  if ( echo $metaphlan_VER | awk '{if($1>="2.7.7") exit 0; else exit 1}' )
+  metaphlan_VER=`metaphlan -v 2>&1 |perl -nle 'print $& if m{\d\.\d\.\d}'`;
+  if [ $(versionStr $metaphlan_VER) -ge $(versionStr "4.0.0") ]
   then
-    echo "metaphlan2  is found"
+    echo "metaphlan $metaphlan_VER is found"
   else
-    install_metaphlan2
+    install_metaphlan
   fi
 else
-  echo "metaphlan2 is not found"
-  install_metaphlan2
+  echo "metaphlan is not found"
+  install_metaphlan
 fi
 
 if ( checkLocalInstallation primer3_core  )

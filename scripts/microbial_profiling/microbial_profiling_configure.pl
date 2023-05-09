@@ -45,7 +45,7 @@ $opt{'tools'}           ||= $ARGV[1];
 $opt{'bwaScoreCut'}     ||= 30;
 $opt{'splitrim-minq'}   ||= 20;
 $opt{'bwa-db'}          ||= "$EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna";
-$opt{"metaphlan-db"}    ||= "$EDGE_HOME/database/metaphlan2";
+$opt{"metaphlan-db"}    ||= "$EDGE_HOME/database/metaphlan4";
 $opt{"kraken-db"}       ||= "$EDGE_HOME/database/kraken2/taxo.k2d";
 $opt{"gottcha-v-speDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species";
 $opt{"gottcha-b-speDB"} ||= "$EDGE_HOME/database/GOTTCHA/GOTTCHA_BACTERIA_c4937_k24_u30_xHUMAN3x.species";
@@ -131,7 +131,7 @@ $0 [template.tmpl] [tools] > microbial_profiling_configure.settings.ini
     -tools              comma separated tools: bwa,kraken-mini, ...
     -bwaScoreCut        minimum score to output for BWA [30]
     -bwa-db             $EDGE_HOME/database/bwa_index/NCBI-Bacteria-Virus.fna
-    -metaphlan-db       $EDGE_HOME/database/metaphlan/mpa
+    -metaphlan-db       $EDGE_HOME/database/metaphlan4
     -kraken-db          $EDGE_HOME/database/kraken2
     -centrifuge-db      $EDGE_HOME/database//Centrifuge/hpv.1.cf
     -gottcha-v-speDB    $EDGE_HOME/database/GOTTCHA/GOTTCHA_VIRUSES_c5900_k24_u30_xHUMAN3x.species

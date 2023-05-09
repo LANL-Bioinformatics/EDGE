@@ -159,6 +159,12 @@ COMMAND=uge-metaphlan2.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d
 OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
 </TMPL_IF>
 
+<TMPL_IF NAME="metaphlan4">
+[metaphlan4]
+COMMAND=uge-metaphlan4.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -d <TMPL_VAR NAME=metaphlan-db>
+OUTPUT_DIR=%OUTDIR%/%SERIAL%_%PREFIX%/%TOOL%
+</TMPL_IF>
+
 <TMPL_IF NAME="bwa">
 [bwa]
 COMMAND=uge-bwa.sh -i %FASTQ% -p %PREFIX% -o %OUTPUT_DIR% -t %THREADS% -b <TMPL_VAR NAME=bwaScoreCut DEFAULT=30> <TMPL_VAR NAME=bwa-opts> -d <TMPL_VAR NAME=bwa-db>
