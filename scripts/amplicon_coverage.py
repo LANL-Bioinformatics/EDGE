@@ -49,7 +49,7 @@ def setup_argparse():
     
     parser.add_argument('--depth_lines', default=[5,10,20,50], type=int, nargs='+', help='Add option to display lines at these depths (provide depths as a list of integers) [default:5 10 20 50]')
     parser.add_argument('--gff', metavar='[FILE]', type=str, help='gff file for data hover info annotation')
-    parser.add_argument('--version', action='version', version='%(prog)s 0.3.2')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.3')
     args_parsed = parser.parse_args()
     if not args_parsed.outdir:
         args_parsed.outdir = os.getcwd()
@@ -106,7 +106,7 @@ def convert_bed_to_amplicon_dict(input,cov_array,RefID="",unique=False, count_pr
         unique_region_set = set(np.where(cov_zero_array == 1)[0]) if count_primer else set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, id, rstart, rend = outs[i].decode().rstrip().split("\t")
-            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
+            unique_region = sorted(unique_region_set.intersection(set(range(int(fend),int(rstart)))))
             if unique_region:
                 amplicon[id] = range(list(unique_region)[0],list(unique_region)[-1]+1)
             else:
@@ -144,7 +144,7 @@ def convert_bedpe_to_amplicon_dict(input,cov_array,RefID="",unique=False, count_
         unique_region_set = set(np.where(cov_zero_array == 1)[0]) if count_primer else set(np.where(cov_zero_array == 1)[0]) - set(primers_pos)
         for i in range(len(outs)):
             fstart, fend, rstart, rend, id = outs[i].decode().rstrip().split("\t")
-            unique_region = sorted(unique_region_set.intersection(set(range(int(fstart),int(rend)))))
+            unique_region = sorted(unique_region_set.intersection(set(range(int(fend),int(rstart)))))
             if unique_region:
                 amplicon[id] = range(list(unique_region)[0],list(unique_region)[-1]+1)
             else:
@@ -167,10 +167,10 @@ def parse_gff_file(input,RefID):
                     continue
                 annotations = dict(x.split("=") for x in gffline[8].split(";"))
                 for i in range(int(gffline[3]),int(gffline[4])+1):
-                    anno_dict[i]['name']= annotations['Name'] if 'Name' in annotations else None
-                    anno_dict[i]['locus_tag']= annotations['locus_tag'] if 'locus_tag' in annotations else None
-                    anno_dict[i]['product']= annotations['product'] if 'product' in annotations else None
-                    anno_dict[i]['protein_id']= annotations['protein_id'] if 'protein_id' in annotations else None
+                    anno_dict[i]['name']= annotations['Name'] if 'Name' in annotations else ''
+                    anno_dict[i]['locus_tag']= annotations['locus_tag'] if 'locus_tag' in annotations else ''
+                    anno_dict[i]['product']= annotations['product'] if 'product' in annotations else ''
+                    anno_dict[i]['protein_id']= annotations['protein_id'] if 'protein_id' in annotations else ''
     f.close()
     return anno_dict
 
@@ -228,6 +228,7 @@ def calculate_mean_cov_per_amplicon(cov_np_array,amplicon_d, anno_d):
             end = amplicon_d[key][-1]
             #print(key,start,end)
             mean_dict[key]['cov'] = 0 if start > cov_np_array.size else cov_np_array[start:end+1].mean()
+            mean_dict[key]['range'] = f"{start + 1} - {end + 1}"
             if anno_d:
                 for i in range(start, end + 1):
                     if anno_d[i]:
@@ -293,6 +294,8 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
             anno_list[i] += "protein_id: " +  mean_dict[k]['protein_id'] + "<br>"
         if 'locus_tag' in mean_dict[k]:
             anno_list[i] += "locus_tag: " +  mean_dict[k]['locus_tag'] + "<br>"
+        if 'range' in mean_dict[k]:
+            anno_list[i] += "range: " +  mean_dict[k]['range'] + "<br>"
     uniq_x=list(uniq_mean_d.keys())
     uniq_y=[ uniq_mean_d[k]['cov'] for k in uniq_x ]
     uniq_anno_list=list(uniq_mean_d.keys())
@@ -306,6 +309,8 @@ def barplot(mean_dict,uniq_mean_d,ambiguity_d,uniq_ambiguity_d,input_bed,overall
             uniq_anno_list[i] += "protein_id: " +  uniq_mean_d[k]['protein_id'] + "<br>"
         if 'locus_tag' in uniq_mean_d[k]:
             uniq_anno_list[i] += "locus_tag: " +  uniq_mean_d[k]['locus_tag'] + "<br>"
+        if 'range' in uniq_mean_d[k]:
+            uniq_anno_list[i] += "range: " +  uniq_mean_d[k]['range'] + "<br>"
     barcolor1 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in y]
     barcolor2 = ['lightsalmon' if i >= 20 else 'blue' if i >5 else 'black' for i in uniq_y]
     fig = make_subplots(specs=[[{"secondary_y": True}]])
