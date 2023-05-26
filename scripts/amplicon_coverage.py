@@ -167,10 +167,10 @@ def parse_gff_file(input,RefID):
                     continue
                 annotations = dict(x.split("=") for x in gffline[8].split(";"))
                 for i in range(int(gffline[3]),int(gffline[4])+1):
-                    anno_dict[i]['name']= annotations['Name'] if 'Name' in annotations else None
-                    anno_dict[i]['locus_tag']= annotations['locus_tag'] if 'locus_tag' in annotations else None
-                    anno_dict[i]['product']= annotations['product'] if 'product' in annotations else None
-                    anno_dict[i]['protein_id']= annotations['protein_id'] if 'protein_id' in annotations else None
+                    anno_dict[i]['name']= annotations['Name'] if 'Name' in annotations else ''
+                    anno_dict[i]['locus_tag']= annotations['locus_tag'] if 'locus_tag' in annotations else ''
+                    anno_dict[i]['product']= annotations['product'] if 'product' in annotations else ''
+                    anno_dict[i]['protein_id']= annotations['protein_id'] if 'protein_id' in annotations else ''
     f.close()
     return anno_dict
 
