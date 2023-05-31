@@ -2779,7 +2779,7 @@ $( document ).ready(function()
 						return;
 					}
 				}
-				if ( localStorage.fnname != "Guest" && localStorage.lnname != "EDGE" ){
+				if ( localStorage.fnname === "Guest" && localStorage.lnname === "EDGE" ){
                                         $('#UpdateProfileBtn').hide();
                                 }
 
