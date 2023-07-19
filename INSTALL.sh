@@ -1522,7 +1522,7 @@ echo "
 
 install_qiime2()
 {
-local VER=2022.2
+local VER=2023.5
 echo "------------------------------------------------------------------------------
                         Installing QIIME2 $VER
 ------------------------------------------------------------------------------
@@ -1532,7 +1532,7 @@ then
   rm -rf $rootdir/thirdParty/Mambaforge/envs/qiime2
 fi
 
-$mambaforgebin/conda env create -n qiime2 --file qiime2-2022.2-py38-linux-conda.yml
+$mambaforgebin/conda env create -n qiime2 --file qiime2-2023.5-py38-linux-conda.yml
 echo "
 ------------------------------------------------------------------------------
                          QIIME2 $VER Installed
@@ -2506,7 +2506,7 @@ fi
 if [ -x "$mambaforgebin/../envs/qiime2/bin/qiime" ]
 then
   qiime2_VER=`$mambaforgebin/../envs/qiime2/bin/qiime --version | perl -nle 'print $& if m{\d+\.\d+}'`;
-  if [ $(versionStr $qiime2_VER) -ge $(versionStr "2021.8") ]
+  if [ $(versionStr $qiime2_VER) -ge $(versionStr "2022.2") ]
   then
     echo "QIIME2 $qiime2_VER is found"
   else

@@ -741,7 +741,7 @@ if __name__ == '__main__':
                 qiime_export_html('QCandFT/deblur-stats.qzv','QCandFT/deblur-stats')
             # OTU clustering
             elif argvs.qcMethod.lower() == 'otus':
-                reference_seqs = target_path + '/gg-13-8-99.qza'
+                reference_seqs = target_path + '/gg_2022_10.qza'
                 if (argvs.target.lower() == 'silva'):
                     reference_seqs = target_path + '/silva-138-99.qza'
                 elif (argvs.target.lower() == 'silva-v3-v4'):
@@ -879,7 +879,7 @@ if __name__ == '__main__':
         qiime_export_html('DiversityAnalysis/alpha-rarefaction.qzv','DiversityAnalysis/alpha-rarefaction')
 
     # Taxonomic analysis
-    nb_classifier = target_path + '/gg-13-8-99-nb-classifier.qza'
+    nb_classifier = target_path + '/gg_2022_10_backbone_full_length.nb.qza'
     if (argvs.target.lower() == 'silva'):
         nb_classifier = target_path + '/silva-138-99-nb-classifier.qza'
     elif (argvs.target.lower() == 'silva-v3-v4'):

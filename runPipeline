@@ -2863,7 +2863,7 @@ sub runQC
             &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
         }
-	if ( -s "$outputDir/QC.unpaired.porechop.fastq"){
+	if ( -s "$outputDir/QC.unpaired.porechop.fastq" || -s "$outputDir/QC.unpaired.trimmed.fastq"){
             $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
 	    &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
