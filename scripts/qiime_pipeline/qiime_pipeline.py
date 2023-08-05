@@ -687,13 +687,13 @@ if __name__ == '__main__':
         elif argvs.qcMethod.lower() == 'deblur' or  argvs.qcMethod.lower() == 'otus':
             file_for_check_truncate_len = 'demux/quality-plot.html'
             if argvs.paired or read_type == 'pe':
-                join_cmd = ('qiime vsearch join-pairs --i-demultiplexed-seqs demux/demux.qza --o-joined-sequences demux/demux-joined.qza')
+                join_cmd = ('qiime vsearch merge-pairs --i-demultiplexed-seqs demux/demux.qza --o-merged-sequences demux/demux-joined.qza')
                 if not os.path.isfile('demux/demux-joined.qza'):
-                    process_cmd(join_cmd,"Vsearch join-pairs")
+                    process_cmd(join_cmd,"Vsearch merge-pairs")
                 
                 demux_sum_cmd = ('qiime demux summarize --i-data demux/demux-joined.qza --o-visualization demux/demux-joined.qzv')
                 if not os.path.isfile('demux-joined/index.html'):
-                    process_cmd(demux_sum_cmd,"Vsearch join-pairs summary")
+                    process_cmd(demux_sum_cmd,"Vsearch merge-pairs summary")
                     qiime_export_html('demux/demux-joined.qzv','demux-joined')
 
                 file_for_check_truncate_len = 'demux-joined/quality-plot.html'
