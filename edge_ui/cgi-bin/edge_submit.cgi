@@ -391,6 +391,7 @@ sub createConfig {
 			$opt_orig->{"edge-proj-name"} = $real_names[$i];
 			$opt_orig->{"edge-ref-file"} = $projlist->{$pname}->{"reference"};
 			$opt_orig->{"edge-sra-acc"} = $projlist->{$pname}->{"sra"};
+			$opt_orig->{"edge-input-contig-file"} = $projlist->{$pname}->{"contigs"};
         }
 		#backup config first
 		move ("$config_out", "$config_out.bak") if( -e $config_out );
@@ -462,6 +463,11 @@ sub createConfig {
 				$opt{"edge-proj-name"} = $projlist->{$pname}->{"REALNAME"}||$pname  ;
 				$opt{"edge-ref-file"} = $projlist->{$pname}->{"reference"} if ($projlist->{$pname}->{"reference"});
 				$opt{"edge-ref-sw"} = 1 if ($projlist->{$pname}->{"reference"});
+				if ($projlist->{$pname}->{"contigs"}){
+					$opt{"edge-input-contig-file"} = $projlist->{$pname}->{"contigs"};
+					$opt{'edge-inputS-sw'} = "fasta";
+					$opt{"edge-qc-sw"} = 0;
+				}
 				if ($projlist->{$pname}->{"platform"} =~ /nanopore|minion/i ){
 					$opt{"edge-fastq-source"} = "nanopore";
 				} elsif ($projlist->{$pname}->{"platform"} =~ /pacbio/i){
@@ -880,6 +886,7 @@ sub checkParams {
 				&addMessage("PARAMS","edge-batch-input-excel","Paired end data need both q1 and q2 of $pname.") ;
 			}
 			$projlist->{$pname}->{"reference"} = "$input_dir/$projlist->{$pname}->{'reference'}" if ($projlist->{$pname}->{"reference"} =~ /^\w/ && $projlist->{$pname}->{"reference"} !~ /^http|ftp/i);
+			$projlist->{$pname}->{"contigs"} = "$input_dir/$projlist->{$pname}->{'contigs'}" if ($projlist->{$pname}->{"contigs"} =~ /^\w/ && $projlist->{$pname}->{"contigs"} !~ /^http|ftp/i);
 			my @single_files = split(/,/,$projlist->{$pname}->{"s"});
 			foreach my $i (0..$#single_files){
 				my $sf = $single_files[$i];
@@ -897,6 +904,7 @@ sub checkParams {
 			my $pe2=$projlist->{$pname}->{"q2"};
 			my $se=$projlist->{$pname}->{"s"};
 			my $ref=$projlist->{$pname}->{"reference"};
+			my $input_contigs=$projlist->{$pname}->{"contigs"}; 
 			my @sra_accs = split(/,/,$projlist->{$pname}->{"sra"}); 
 
 			if ($namesUsed{$pname}){
@@ -915,8 +923,10 @@ sub checkParams {
 			&addMessage("PARAMS",$field_id,"Input error. Please check the q2 file path of $pname") if ($pe2 && $pe2 !~ /^http|ftp/i && ! -e $pe2);
 			&addMessage("PARAMS",$field_id,"Input error. Please check the reference file path of $pname") if ($ref && $ref !~ /^http|ftp/i && ! -e $ref);
 			&addMessage("PARAMS",$field_id,"Invalid input. Fasta or Genbank format required of $pname") if ( -e $ref && ! is_fasta($ref) && ! is_genbank($ref));
+			&addMessage("PARAMS",$field_id,"Input error. Please check the input contigs file path of $pname") if ($input_contigs && $input_contigs !~ /^http|ftp/i && ! -e $input_contigs);
+			&addMessage("PARAMS",$field_id,"Invalid contigs input. Fasta format required of $pname") if ( -e $input_contigs && ! is_fasta($input_contigs));
 			&addMessage("PARAMS",$field_id,"Input error. q1 and q2 are identical of $pname.") if ( -f $pe1 && $pe1 eq $pe2);
-			&addMessage("PARAMS",$field_id,"Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2 && !@sra_accs);
+			&addMessage("PARAMS",$field_id,"Input error. Please check the input file of $pname.") if (! $se && ! $pe1 && ! $pe2 && !@sra_accs && !$input_contigs);
 			foreach my $sra_id (@sra_accs){
 				&addMessage("PARAMS",$field_id,"Input error. Please check the SRA accession of $pname") if ( $sra_id =~ /[^a-zA-Z0-9\-_\.]\,/);
 				( my $return,$sra_info)=&getSRAmetaData($sra_id,$pname, $sra_info);
