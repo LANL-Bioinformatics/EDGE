@@ -2869,7 +2869,14 @@ sub runQC
     }
     unlink "$outputDir/runQC.finished";
     my $parameters;
-    $parameters .= " -p $pairedFile " if ($pairedFile);
+    if ($pairedFile){
+        if ($pacbio_flag or $ont_flag){
+            $parameters .= " -p $pairedFile ";
+        }else{
+            my ($fr_reads, $re_reads) =split /\s+/,$pairedFile;
+            $parameters .= " -1 $fr_reads -2 $re_reads ";
+        }
+    }
     $parameters .= " -u $unpairedFile " if ( -s $unpairedFile);
     $parameters .= " -q $quality_cutoff --min_L $min_length --avg_q $avg_quality -n $num_N --lc $low_complexity --5end $cut_5_end --3end $cut_3_end";
     $parameters .= " --split_size $split_size -d $outputDir -t $numCPU";
