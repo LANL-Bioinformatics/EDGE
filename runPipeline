@@ -2871,7 +2871,10 @@ sub runQC
             &executeCommand($cmd);
         }
 	if ( -s "$outputDir/QC.unpaired.porechop.fastq" || -s "$outputDir/QC.unpaired.trimmed.fastq"){
-            $cmd = "NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null";
+            my $nanoplot_env= "$RealBin/thirdParty/Mambaforge/envs/py38";
+            my $nanoplot_env_activate = "source $RealBin/thirdParty/Mambaforge/bin/activate $nanoplot_env 1>/dev/null"; 
+            my $deactivate_cmd = "source deactivate 2>/dev/null || true";
+            $cmd = "$nanoplot_env_activate; NanoPlot --fastq $unpairedFile_output --N50 --loglength -t $numCPU -f pdf --outdir $outputDir 2>/dev/null; $deactivate_cmd";
 	    &lprint ("  Running \n  $cmd \n");
             &executeCommand($cmd);
 	}
