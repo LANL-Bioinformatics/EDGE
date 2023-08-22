@@ -1465,6 +1465,7 @@ $anaconda3bin/conda config --add channels bioconda
 $anaconda3bin/conda config --add channels conda-forge
 $anaconda3bin/conda config --set solver libmamba
 $anaconda3bin/conda create -y -n py38 python=3.8
+$anaconda3bin/conda install -n base sed
 
 matplotlibrc=`$anaconda3bin/python -c 'import matplotlib as m; print(m.matplotlib_fname())' 2>&1`
 perl -i.orig -nle 's/(backend\s+:\s+\w+)/\#${1}\nbackend : Agg/; s/^#backend\s+:\s+Agg/backend : Agg/; print;' $matplotlibrc

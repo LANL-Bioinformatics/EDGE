@@ -72,7 +72,7 @@ my $disableBAQ;
 my $align_trim_strand;
 
 
-$ENV{PATH} = "$Bin:$Bin/../bin/:$ENV{PATH}";
+$ENV{PATH} = "$ENV{PATH}:$Bin:$Bin/../bin/";
  
 GetOptions( 
             'aligner=s' => \$aligner,
