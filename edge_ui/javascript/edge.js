@@ -859,6 +859,9 @@ $( document ).ready(function()
 	$("#edge-qiime-barcode-fq-file-tooltip").tooltipster(
 		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
+	$("#edge-qiime-at-tooltip").tooltipster(
+		'content', $('<span> Greengenes full-length: 2022_10 99% OTU </br> SILVA full-length : 138 99% OTU </br> SILVA-V3-V4: 138 99% OTU </br>ITS version 9.0 fungal dyanmic ref: trained using scikit-learn 0.24.1 Version 16.10.202 </br> Please check <a href="https://docs.qiime2.org/2023.5/data-resources" target="_blank">data resources</a> for detail.</span>')
+	);
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
  		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy. <a href="https://github.com/fenderglass/Flye" target="_blank">Flye</a> is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. metaFlye is a special mode of Flye for metagenome assembly. </span>')
  	);
@@ -2061,6 +2064,16 @@ $( document ).ready(function()
 				$('#edge-r2c-aligner3').click().checkboxradio("refresh");
 			}
 		});
+		$(":radio[name='edge-lrasm-algorithm']").on("change", function(){
+                        if($('#edge-lrasm-algorithm3').is(':checked') || $('#edge-lrasm-algorithm4').is(':checked')){
+                                $('#edge-lrasm-preset2').closest('div').show();
+                                $('#edge-lrasm-preset4').closest('div').show();
+                        }
+                        if($('#edge-lrasm-algorithm1').is(':checked') || $('#edge-lrasm-algorithm2').is(':checked')){
+                                $('#edge-lrasm-preset2').closest('div').hide();
+                                $('#edge-lrasm-preset4').closest('div').hide();
+                        }
+                });
 		$(":radio[name='edge-binning-checkM-sw']").on("change", function(){
                         if($('#edge-binning-checkM-sw1').is(':checked')){
                                 $('#edge-binning-sw1').click().checkboxradio("refresh");

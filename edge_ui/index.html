@@ -225,7 +225,7 @@
 				</div>
 				<div data="runQiime" class="app-info">
 					<div class="app-name-version">
-						<div class="app-version">2019.10</div>
+						<div class="app-version">2023.5</div>
 						<div class="app-name">Run QIIME2</div>
 					</div>
 					<div class="app-summary">Amplicon Data Analysis, 16s, 18s, and Fungal ITS</div>
@@ -440,7 +440,7 @@ A complete version of EDGE is available as a variety of packages that can fit in
 					
 					<div class="ui-field-contain edge-qiime-pipeline-input">
 						<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-						<legend>Amplicon Type</legend>
+						<legend>Amplicon Type<a href="#" class="tooltip ui-btn ui-nodisc-icon ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" id="edge-qiime-at-tooltip"></a></legend>
 							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw1" value="GreenGenes" checked="checked">
 							<label for="edge-qiime-at-sw1">16s (GreenGenes)</label>
 							<input type="radio" data-mini="true" name="edge-qiime-at-sw" id="edge-qiime-at-sw2" value="SILVA">
@@ -1112,10 +1112,14 @@ A complete version of EDGE is available as a variety of packages that can fit in
 				<div class="ui-field-contain">
 				<fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
 					<legend>Preset</legend>
-					<input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset1" value="ont" checked="checked">
-					<label for="edge-lrasm-preset1">Nanopore</label>
-					<input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset2" value="pb">
-					<label for="edge-lrasm-preset2">Pacbio</label>
+                                        <input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset1" value="ont" checked="checked">
+                                        <label for="edge-lrasm-preset1" title="ONT regular reads, pre-Guppy5 (<20% error)">Nanopore</label>
+                                        <input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset2" value="ont-hq">
+                                        <label for="edge-lrasm-preset2" title="ONT high-quality reads: Guppy5+ SUP or Q20 (<5% error)" >Nanopore HQ</label>
+                                        <input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset3" value="pb">
+                                        <label for="edge-lrasm-preset3" title="PacBio regular CLR reads (<20% error)">Pacbio</label>
+                                        <input type="radio" name="edge-lrasm-preset" id="edge-lrasm-preset4" value="pb-hifi">
+                                        <label for="edge-lrasm-preset4" title="PacBio HiFi reads (<1% error)">Pacbio HiFi</label>
 				</fieldset>
 				</div>
 				<div class="ui-field-contain"><label for="edge-lrasm-num-consensus">Num of Iteration of Consensus </label><input type="number" data-mini="true" data-clear-btn="true" name="edge-lrasm-num-consensus" id="edge-lrasm-num-consensus" max="10" value="3"></div>
