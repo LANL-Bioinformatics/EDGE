@@ -125,6 +125,7 @@ $( document ).ready(function()
 		pipeline="piret";
 		setRunPipeline(pipeline,true);
 	});
+
 	$( "a[href=#edge-job-queue]" ).on( "click", function(){
 		updateJobsPage();
 	});
@@ -841,8 +842,8 @@ $( document ).ready(function()
 		'content', $('<span><table border="1"><tr><th>Presets</th><th>Targeting applications</th></tr><tr><td>meta</td><td>General metagenome assembly, such as guts</td></tr><tr><td>meta-sensitive</td><td>More sensitive metagenome assembly, but slower</td></tr><tr><td>meta-large</td><td>Large and complex metagenome assembly, such as soil</td></tr></table></span>')
 	);
 	$('#edge-spades-algorithm-l').tooltipster(
-                'content', $('<span><table border="1"><tr><th>Algorithm</th><th>Targeting applications</th></tr><tr><td>Default</td><td>General genome assembly</td></tr><tr><td>Single-cell</td><td>MDA (single-cell) data</td></tr><tr><td>Metagenome</td><td>Complex metagenome assembly</td></tr><tr><td>Plasmids</td><td>plasmidSPAdes pipeline for plasmid detection</td></tr><tr><td>RNAseq</td><td>Transcriptome assembly</td></tr><tr><td>Biosynthetic</td><td>non-ribosomal and polyketide gene clusters assembly</td></tr><tr><td>Corona</td><td>coronavirus assembly</td></tr><tr><td>Metaviral</td><td>extracting extrachromosomal elements from metagenomic assemblies</td></tr><tr><td>Metaplasmid</td><td>plasmid detection in metagenomic datasets</td></tr><tr><td>RNA viral</td><td>virus assembly module from RNA-Seq data</td></tr></table></span>')
-        );
+		'content', $('<span><table border="1"><tr><th>Algorithm</th><th>Targeting applications</th></tr><tr><td>Default</td><td>General genome assembly</td></tr><tr><td>Single-cell</td><td>MDA (single-cell) data</td></tr><tr><td>Metagenome</td><td>Complex metagenome assembly</td></tr><tr><td>Plasmids</td><td>plasmidSPAdes pipeline for plasmid detection</td></tr><tr><td>RNAseq</td><td>Transcriptome assembly</td></tr><tr><td>Biosynthetic</td><td>non-ribosomal and polyketide gene clusters assembly</td></tr><tr><td>Corona</td><td>coronavirus assembly</td></tr><tr><td>Metaviral</td><td>extracting extrachromosomal elements from metagenomic assemblies</td></tr><tr><td>Metaplasmid</td><td>plasmid detection in metagenomic datasets</td></tr><tr><td>RNA viral</td><td>virus assembly module from RNA-Seq data</td></tr></table></span>')
+	);
 	$('#edge-piret-method-l').tooltipster(
 		'content', $('<span>For detecting differentially expressed genes, all of which are R packages. This option provides users with multiple tools to use which can be spcified using following keywords:<table border="1"><tr><th>Methods</th><th>Descriptions</th></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/edgeR.html" target="_blank">edgeR</a></td><td>Uses edgeR.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/DESeq2.html" target="_blank">DESeq2</a></td><td>Uses DESeq2.</td></tr><tr><td><a href="http://bioconductor.org/packages/release/bioc/html/ballgown.html" target="_blank">ballgown</a></td><td>Uses ballgown. Appropriate for eukaryotes.</td></tr><td>DEedge</td><td>Uses both edgeR and DESeq2.</td></tr><tr><td>DEgown</td><td>Uses DESeq2 and ballgown.</td></tr><tr><td>balledgeR</td><td>Uses ballgown and edgeR.</td></tr><tr><td>all</td><td>Uses all of the above methods.</td></tr></table></span>')
 	);
@@ -860,8 +861,8 @@ $( document ).ready(function()
 		'content', $('<span>If the barcode has been removed from reads fastq file, please provide corresponding fastq file containing the barcode reads for each amplicon sequence for demultiplex process. <a href="http://qiime.org/tutorials/processing_illumina_data.html" target="_blank">Click here</a> for detail.</span>')
 	);
 	$("#edge-qiime-at-tooltip").tooltipster(
-		'content', $('<span> Greengenes full-length: 2022_10 99% OTU </br> SILVA full-length : 138 99% OTU </br> SILVA-V3-V4: 138 99% OTU </br>ITS version 9.0 fungal dyanmic ref: trained using scikit-learn 0.24.1 Version 16.10.202 </br> Please check <a href="https://docs.qiime2.org/2023.5/data-resources" target="_blank">data resources</a> for detail.</span>')
-	);
+                'content', $('<span> Greengenes full-length: 2022_10 99% OTU </br> SILVA full-length : 138 99% OTU </br> SILVA-V3-V4: 138 99% OTU </br>ITS version 9.0 fungal dyanmic ref: trained using scikit-learn 0.24.1 Version 16.10.202 </br> Please check <a href="https://docs.qiime2.org/2023.5/data-resources" target="_blank">data resources</a> for detail.</span>')
+        ); 
 	$("#edge-lrasm-algorithm-tooltip").tooltipster(
  		'content',$('<span><a href="https://www.ncbi.nlm.nih.gov/pubmed/27153593" target="_blank">miniasm</a> is a fast OLC-based de novo assembler for noisy long reads. It takes all-vs-all read self-mappings (<a href="https://github.com/lh3/minimap2" target="_blank">minimap2</a>) as input and outputs an assembly graph in the GFA format. <a href="https://github.com/ruanjue/wtdbg2" target="_blank">wtdbg2</a> uses fuzzy Bruijn graph approach to do long noisy reads assembly. It is able to assemble large/deep/complex genome at a speed tens of times faster than OLC-based assembler with comparable base accuracy. <a href="https://github.com/fenderglass/Flye" target="_blank">Flye</a> is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. metaFlye is a special mode of Flye for metagenome assembly. </span>')
  	);
@@ -1832,7 +1833,7 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-qc-sw']").on("change", function(){
-			if ( $(this).val() == 0 ){
+			if ( $(this).val() == 0 && ! $('#edge-fastq-source-sw3').is(':checked') ){
 				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-hostrm-sw']:checked").val()==0 && $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
 					showWarning("At least one function needs to be turned on!");
 					$( "#edge-qc-sw1" ).click().checkboxradio("refresh");
@@ -2065,15 +2066,15 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-lrasm-algorithm']").on("change", function(){
-                        if($('#edge-lrasm-algorithm3').is(':checked') || $('#edge-lrasm-algorithm4').is(':checked')){
-                                $('#edge-lrasm-preset2').closest('div').show();
-                                $('#edge-lrasm-preset4').closest('div').show();
-                        }
+			if($('#edge-lrasm-algorithm3').is(':checked') || $('#edge-lrasm-algorithm4').is(':checked')){
+				$('#edge-lrasm-preset2').closest('div').show();
+				$('#edge-lrasm-preset4').closest('div').show();
+			}
                         if($('#edge-lrasm-algorithm1').is(':checked') || $('#edge-lrasm-algorithm2').is(':checked')){
-                                $('#edge-lrasm-preset2').closest('div').hide();
-                                $('#edge-lrasm-preset4').closest('div').hide();
-                        }
-                });
+				$('#edge-lrasm-preset2').closest('div').hide();
+				$('#edge-lrasm-preset4').closest('div').hide();
+			}
+		});
 		$(":radio[name='edge-binning-checkM-sw']").on("change", function(){
                         if($('#edge-binning-checkM-sw1').is(':checked')){
                                 $('#edge-binning-sw1').click().checkboxradio("refresh");
@@ -2161,7 +2162,7 @@ $( document ).ready(function()
 			}
 		});
 		$(":radio[name='edge-porechop-sw']").on("change", function(){
-			if($('#edge-fastq-source-sw1').is(':checked')){
+			if($('#edge-fastq-source-sw1, #edge-fastq-source-sw3').is(':checked')){
 				if( ! $('#edge-r2g-align-trim-bed-file').val()){
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
 				}else{
@@ -2198,8 +2199,8 @@ $( document ).ready(function()
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
 					//$('#edge-r2g-con-disableBAQ-sw1').prop('disabled',false).click().checkboxradio("refresh");
-					//$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
-					//$('#edge-r2g-con-strandbiase-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-con-strandbiase-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
 				}
 			}
 			if($('#edge-fastq-source-sw2').is(':checked')){
@@ -2222,8 +2223,34 @@ $( document ).ready(function()
 					$('#splitrim-minq').prop('disabled',false).val('20');
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.5').slider("refresh");
 					//$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).click().checkboxradio("refresh");
-					//$('#edge-r2g-con-homopolymer-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
-					//$('#edge-r2g-con-strandbiase-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-con-strandbiase-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
+				}
+			}
+			if($('#edge-fastq-source-sw3').is(':checked')){
+                                $('#btnAdd-edge-input-pe').hide();
+                                $('.edge-input-pe-block').hide();
+                                $('#edge-fastq-input-block > .edge-center').hide();
+                                $('.edge-notnanopore-options').hide();
+                                $('.edge-nanopore-options').show();
+                                $( "a[data-id=edge-joinpe-parameters]").addClass('ui-disabled');
+                                $('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').addClass('ui-disabled');
+                                $('#edge-r2c-aligner1, #edge-r2g-aligner1').addClass('ui-disabled');
+                                if ($('#edge-r2g-align-trim-bed-file').val().length > 1){
+                                        $('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
+                                }
+                                if (type != "reconfig"){
+					$( "#edge-qc-sw2").prop('disabled',false).click().checkboxradio("refresh");
+                                        $( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
+                                        $( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
+                                        $( "#edge-lrasm-preset3").prop('disabled',false).click().checkboxradio("refresh");
+                                        $('#edge-qc-minl').prop('disabled',false).val('350');
+                                        $('#edge-r2g-max-clip').prop('disabled',false).val('150');
+                                        $('#edge-qc-q').prop('disabled',false).val('7');
+                                        $('#splitrim-minq').prop('disabled',false).val('7');
+                                        $( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
+                                        $('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
 				}
 			}
 		});
@@ -2281,6 +2308,63 @@ $( document ).ready(function()
 		$("#edge-project-page-li").data( "mode", "user" );
 		updateProjectsPage('user');
 	});
+
+
+	function updateJobsPage() {
+		$.ajax({
+			url: "./cgi-bin/edge_jobspage.cgi",
+			type: "POST",
+			dataType: "json",
+			cache: false,
+			data: {'umSystem':umSystemStatus,'view':'admin','protocol': location.protocol, 'sid':localStorage.sid, 'forceupdate':true},
+			beforeSend: function(){
+				$.mobile.loading( "show", {
+					text: "Load Jobs List...",
+					textVisible: 1,
+					html: ""
+				});
+			},
+			complete: function() {
+				$.mobile.loading( "hide" );
+			},
+			success: function(data){
+				allMainPage.hide();
+				$( "#edge-job-page" ).html(data.html);
+				$( "#edge-job-page" ).show();
+				$(".tooltip").tooltipster({
+					theme:'tooltipster-light',
+					maxWidth: '480',
+					interactive: true,
+					multiple:true
+				});
+
+				$( "#edge-job-page" ).enhanceWithin();
+
+				var jobTableData = data.data;
+				var jobDataTable = $('#edge-job-page-table').DataTable({
+					"data" : jobTableData,
+					"order": [],
+					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+					"pageLength": 25,
+					"deferRender": true,
+					"responsive": true,
+					"initComplete": function() {
+						$(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete','off').css('overflow','hidden').css('margin','auto');
+					},
+					"drawCallback" : function(settings){
+					},
+					"rowCallback": function( nRow, aData, iDisplayIndex ) {
+					}
+				});
+			},
+			error: function(data){
+				$.mobile.loading( "hide" );
+				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the jobs. Please REFRESH the page and try again.");
+				$( "#edge_integrity_dialog" ).popup('open');
+			}
+		});
+	};
+
 	function updateProjectsPage(view, force) {
 		//if (loadNum === undefined){
 		//	loadNum = 100;
@@ -2479,61 +2563,6 @@ $( document ).ready(function()
 			error: function(data){
 				$.mobile.loading( "hide" );
 				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the report. Please REFRESH the page and try again.");
-				$( "#edge_integrity_dialog" ).popup('open');
-			}
-		});
-	};
-
-	function updateJobsPage() {
-		$.ajax({
-			url: "./cgi-bin/edge_jobspage.cgi",
-			type: "POST",
-			dataType: "json",
-			cache: false,
-			data: {'umSystem':umSystemStatus,'view':'admin','protocol': location.protocol, 'sid':localStorage.sid, 'forceupdate':true},
-			beforeSend: function(){
-				$.mobile.loading( "show", {
-					text: "Load Jobs List...",
-					textVisible: 1,
-					html: ""
-				});
-			},
-			complete: function() {
-				$.mobile.loading( "hide" );
-			},
-			success: function(data){
-				allMainPage.hide();
-				$( "#edge-job-page" ).html(data.html);
-				$( "#edge-job-page" ).show();
-				$(".tooltip").tooltipster({
-					theme:'tooltipster-light',
-					maxWidth: '480',
-					interactive: true,
-					multiple:true
-				});
-
-				$( "#edge-job-page" ).enhanceWithin();
-
-				var jobTableData = data.data;
-				var jobDataTable = $('#edge-job-page-table').DataTable({
-					"data" : jobTableData,
-					"order": [],
-					"lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-					"pageLength": 25,
-					"deferRender": true,
-					"responsive": true,
-					"initComplete": function() {
-						$(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete','off').css('overflow','hidden').css('margin','auto');
-					},
-					"drawCallback" : function(settings){
-					},
-					"rowCallback": function( nRow, aData, iDisplayIndex ) {
-					}
-				});
-			},
-			error: function(data){
-				$.mobile.loading( "hide" );
-				$( "#edge_integrity_dialog_content" ).text("Failed to retrieve the jobs. Please REFRESH the page and try again.");
 				$( "#edge_integrity_dialog" ).popup('open');
 			}
 		});
@@ -2793,8 +2822,8 @@ $( document ).ready(function()
 					}
 				}
 				if ( localStorage.fnname === "Guest" && localStorage.lnname === "EDGE" ){
-                                        $('#UpdateProfileBtn').hide();
-                                }
+					$('#UpdateProfileBtn').hide();
+				}
 
 				//resource usage bar
 				$("#cpu-usage-bar").val(obj.INFO.CPUU).slider("refresh");
@@ -4343,7 +4372,7 @@ $( document ).ready(function()
 							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else if(obj.PLATFORM && /pacbio/.test(obj.PLATFORM.toString().toLowerCase())){
-                                                        $('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+                                                        $('#edge-fastq-source-sw3').click().checkboxradio("refresh");
                                                         $("#edge-pp-sw").val(0).slider("refresh");
                                                         $("#edge-qc-sw2").click().checkboxradio("refresh");
                                                         //$('#edge-r2c-aligner-options').val("-x map-pb")
