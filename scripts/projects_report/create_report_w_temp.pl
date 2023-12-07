@@ -1038,7 +1038,7 @@ sub pull_reports {
 											$ref->{LS_REF_SNPS} = $14;
 											$ref->{LS_REF_INDELS} = $15;
 											$ref->{LS_REF_MAPPEDREADS} =~ s/<a href.*>(.*)<\/a>/${1}/;
-										} elsif($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
+										} elsif($str =~ /<td title=.*><a href='(.*)'>(.*)<\/a><\/td><td.*>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td><td>(.*)<\/td>/) {
 											$ref->{LS_REF_LINK} = $1;
 											$ref->{LS_REF} = $2;
 											$ref->{LS_REF_NAME} = $3;
@@ -1085,6 +1085,7 @@ sub pull_reports {
 							### get images
 							if(/<img class="preview_img" data-src="(.*\.png)" alt="Coverage">/) {
 								undef $img;
+								$img->{RUNHOST} = $proj->{RUNHOST};
 								$img->{PROJNAME} = $proj->{PROJNAME};
 								$img->{PROJ} = $proj->{PROJ};
 								$img->{PROPROJURL} = $vars->{PROJURL};
