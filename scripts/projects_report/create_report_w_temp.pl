@@ -2390,7 +2390,6 @@ sub create_trimmed_reads_csv {
 
 		($celltext = $reports_map{$project}{'preprocess-trimmed-paired-bases-percent'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\"".",";
-		$content .= "\"$celltext\"".",";
 
 		($celltext = $reports_map{$project}{'preprocess-trimmed-unpaired-reads'}) =~ s/,|\s+|bp//g;
 		$content .= "\"$celltext\"".",";
