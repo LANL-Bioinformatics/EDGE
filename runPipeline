@@ -1065,6 +1065,7 @@ sub runQiimeAnalysis{
     my $truncLen=($configuration->{qiime_truncLen})? $configuration->{qiime_truncLen}: '0';
     my $sampling_depth_cutoff=$configuration->{qiime_sampling_depth} || 1000;
     my $autoDepth=$configuration->{qiime_autoDepth}; 
+    my $mergeStagger=$configuration->{qiime_mergeStagger}; 
     my $phred_offset=$configuration->{qiime_phred_offset} || 33;
     my $barcode_files=$configuration->{qiime_barcode_file};
     my $mapping_files=$configuration->{qiime_mapping_file};
@@ -1088,6 +1089,7 @@ sub runQiimeAnalysis{
     }
     $cmd .= " -m $mapping_files --samplingDepth $sampling_depth_cutoff ";
     $cmd .= " --autoDepth " if ($autoDepth);
+    $cmd .= " --mergeStagger " if ($mergeStagger);
     $cmd .= " -b $barcode_files " if ($barcode_files && is_fastq($barcode_files));
     $cmd .= " --phred_offset $phred_offset ";
     if ($qc_method =~ /dada/i){
