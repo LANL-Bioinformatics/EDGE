@@ -153,11 +153,11 @@ $( document ).ready(function()
 			url: json_table_file,
 			dataType:"json",
 			beforeSend: function(){
-				$('#edge-output-datatable-spinner').addClass("edge-sp edge-sp-circle");;
 				if ($.fn.DataTable.isDataTable("#edge-output-datatable")) {
-                                        $('#edge-output-datatable').DataTable().clear().destroy();
-                                        $('#edge-output-datatable').empty();
-                                }
+					$('#edge-output-datatable').DataTable().clear().destroy();
+					$('#edge-output-datatable').empty();
+				}
+				$('#edge-output-datatable-spinner').addClass("edge-sp edge-sp-circle");;
 			},
 			complete: function(){
 			},
@@ -193,8 +193,8 @@ $( document ).ready(function()
 				}
 				$('#edge-output-datatables-dialog').popup("reposition",{positionTo: 'window'});
     				$('#edge-output-datatables-dialog').on("popupafterclose", function( event, ui ) {
-				//			datatable.destroy();
-				//			$('#edge-output-datatable').empty();
+							//datatable.destroy();
+							//$('#edge-output-datatable').empty();
 				});
 			},
 			error:function(x,t,m){
@@ -558,12 +558,16 @@ $( document ).ready(function()
 	});
 
 	var table_row_limit = 10;
+	get_c2g_contig_r2g_reads();
 	if ($('.edge-get-r2g-reads').length > table_row_limit ){
 		$('.edge-get-r2g-reads').closest('table').DataTable({
 			"order": [],
 			"pageLength": table_row_limit,
 			"deferRender": true,
 			"responsive": true,
+			"drawCallback": function(settings) {
+				get_c2g_contig_r2g_reads();
+			}
 		});
 	}
 	if ($('.edge-get-c2g-contigs').length > table_row_limit){
@@ -572,67 +576,72 @@ $( document ).ready(function()
 			"pageLength": table_row_limit,
 			"deferRender": true,
 			"responsive": true,
+			"drawCallback": function(settings) {
+				get_c2g_contig_r2g_reads();
+			}
 		});
 	}
-	$('.edge-get-c2g-contigs, .edge-get-r2g-reads').on('click',function(){
-		var ReferenceID = $(this).closest('tr').find('td:eq(0)').text();
-		var ReferenceFile = $(this).closest('tr').find('td:eq(0)').attr("data-reffile");
-		var type, action;
-		if ($(this).hasClass("edge-get-c2g-contigs")){
-			type='contigs';
-			action='getcontigbyref';
-		}
-		else if ($(this).hasClass("edge-get-r2g-reads")){
-			type='reads';
-			action='getreadsbyref';
-		}
-		var actionContent = "Do you want to extract mapped to " + ReferenceID + " " + type + " ?<br/>";
-		$("#edge_confirm_dialog_content").html(actionContent);
-		$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
-		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
-			var w = window.open("","new","width=360,height=200");
-			w.document.body.innerHTML = '';
-			w.document.write( newWindowHeader + "Extracting Contigs/Reads Mapped to " + ReferenceID + ". Please wait..." + newWindowFooter);	
-			$.ajax({
-				url: "./cgi-bin/edge_action.cgi",
-				type: "POST",
-				dataType: "json",
-				cache: false,
-				data: { "proj" : focusProjName, "action": action, "reffile":ReferenceFile,"refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
-				beforeSend: function(){
-					$.mobile.loading( "show", {
-						text: "Extract Contigs/Reads Fasta/Fastq...",
-						textVisible: 1,
-						html: ""
-					});
-				},
-				complete: function() {
-				},
-				success: function(data){
-					if( data.STATUS == "SUCCESS" ){
-						data.w = w;
-						if ( data.PID ){ 
-							checkpidInterval = setInterval(function(){check_process(data)},3000); 
+	function get_c2g_contig_r2g_reads() {
+		$('.edge-get-c2g-contigs, .edge-get-r2g-reads').on('click',function(){
+			var ReferenceID = $(this).closest('tr').find('td:eq(0)').text();
+			var ReferenceFile = $(this).closest('tr').find('td:eq(0)').attr("data-reffile");
+			var type, action;
+			if ($(this).hasClass("edge-get-c2g-contigs")){
+				type='contigs';
+				action='getcontigbyref';
+			}
+			else if ($(this).hasClass("edge-get-r2g-reads")){
+				type='reads';
+				action='getreadsbyref';
+			}
+			var actionContent = "Do you want to extract mapped to " + ReferenceID + " " + type + " ?<br/>";
+			$("#edge_confirm_dialog_content").html(actionContent);
+			$( "#edge_confirm_dialog" ).enhanceWithin().popup('open').css('width','360px');
+			$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+				var w = window.open("","new","width=360,height=200");
+				w.document.body.innerHTML = '';
+				w.document.write( newWindowHeader + "Extracting Contigs/Reads Mapped to " + ReferenceID + ". Please wait..." + newWindowFooter);	
+				$.ajax({
+					url: "./cgi-bin/edge_action.cgi",
+					type: "POST",
+					dataType: "json",
+					cache: false,
+					data: { "proj" : focusProjName, "action": action, "reffile":ReferenceFile,"refID":ReferenceID,"userType":localStorage.userType,'protocol': location.protocol, 'sid':localStorage.sid},
+					beforeSend: function(){
+						$.mobile.loading( "show", {
+							text: "Extract Contigs/Reads Fasta/Fastq...",
+							textVisible: 1,
+							html: ""
+						});
+					},
+					complete: function() {
+					},
+					success: function(data){
+						if( data.STATUS == "SUCCESS" ){
+							data.w = w;
+							if ( data.PID ){ 
+								checkpidInterval = setInterval(function(){check_process(data)},3000); 
+							}else{
+								$.mobile.loading( "hide");
+                                        			//console.log(edge_path,data.PATH);
+								w.opener.location = edge_path + data.PATH;
+								setTimeout(function(){ w.close(); },100);
+							}
 						}else{
 							$.mobile.loading( "hide");
-                                        		//console.log(edge_path,data.PATH);
-							w.opener.location = edge_path + data.PATH;
-							setTimeout(function(){ w.close(); },100);
+							w.close();
+							showMSG(data.INFO);
 						}
-					}else{
+					},
+					error: function(data){
 						$.mobile.loading( "hide");
-						w.close();
-						showMSG(data.INFO);
+						setTimeout(function(){ w.close(); },100);
+						showMSG("ACTION FAILED: Please try again or contact your system administrator.");
 					}
-				},
-				error: function(data){
-					$.mobile.loading( "hide");
-					setTimeout(function(){ w.close(); },100);
-					showMSG("ACTION FAILED: Please try again or contact your system administrator.");
-				}
+				});
 			});
 		});
-	});
+	}
 	$('#edge-get-contigs-by-taxa').on('change',function(){
 		var taxa = $(this).val();
 		if(taxa == "0" ){
