@@ -2150,7 +2150,7 @@ sub runCheckM{
     my $MaxBin_summary = "$MaxBin_dir/${project_name}_bin.summary";
     my $time=time();
     my $outputDir = "$outDir/AssemblyBasedAnalysis/Binning/CheckM";
-    my $log = "$outputDir/AssemblyBasedAnalysis/Binning/CheckM_log.txt";
+    my $log = "$outputDir/CheckM_log.txt";
     my $CheckM_summary = "$outputDir/CheckM.txt";
     my $checkm_PATH="$RealBin/thirdParty/Mambaforge/envs/py38/bin";
     my $evalue = '1e-10';  # -e
