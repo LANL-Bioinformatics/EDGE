@@ -249,7 +249,7 @@
 
             if (opts.palette) {
                 palette = opts.palette.slice(0);
-                paletteArray = $.isArray(palette[0]) ? palette : [palette];
+                paletteArray = Array.isArray(palette[0]) ? palette : [palette];
                 paletteLookup = {};
                 for (var i = 0; i < paletteArray.length; i++) {
                     for (var j = 0; j < paletteArray[i].length; j++) {
@@ -304,7 +304,7 @@
 
             updateSelectionPaletteFromStorage();
 
-            offsetElement.bind("click.spectrum touchstart.spectrum", function (e) {
+            offsetElement.on("click.spectrum touchstart.spectrum", function (e) {
                 if (!disabled) {
                     toggle();
                 }
@@ -321,17 +321,17 @@
             }
 
             // Prevent clicks from bubbling up to document.  This would cause it to be hidden.
-            container.click(stopPropagation);
+            container.on("click",stopPropagation);
 
             // Handle user typed input
-            textInput.change(setFromTextInput);
-            textInput.bind("paste", function () {
+            textInput.on("change",setFromTextInput);
+            textInput.on("paste", function () {
                 setTimeout(setFromTextInput, 1);
             });
-            textInput.keydown(function (e) { if (e.keyCode == 13) { setFromTextInput(); } });
+            textInput.on("keydown",function (e) { if (e.keyCode == 13) { setFromTextInput(); } });
 
             cancelButton.text(opts.cancelText);
-            cancelButton.bind("click.spectrum", function (e) {
+            cancelButton.on("click.spectrum", function (e) {
                 e.stopPropagation();
                 e.preventDefault();
                 revert();
@@ -339,7 +339,7 @@
             });
 
             clearButton.attr("title", opts.clearText);
-            clearButton.bind("click.spectrum", function (e) {
+            clearButton.on("click.spectrum", function (e) {
                 e.stopPropagation();
                 e.preventDefault();
                 isEmpty = true;
@@ -352,7 +352,7 @@
             });
 
             chooseButton.text(opts.chooseText);
-            chooseButton.bind("click.spectrum", function (e) {
+            chooseButton.on("click.spectrum", function (e) {
                 e.stopPropagation();
                 e.preventDefault();
 
@@ -367,7 +367,7 @@
             });
 
             toggleButton.text(opts.showPaletteOnly ? opts.togglePaletteMoreText : opts.togglePaletteLessText);
-            toggleButton.bind("click.spectrum", function (e) {
+            toggleButton.on("click.spectrum", function (e) {
                 e.stopPropagation();
                 e.preventDefault();
 
@@ -472,8 +472,8 @@
             }
 
             var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum touchstart.spectrum";
-            paletteContainer.delegate(".sp-thumb-el", paletteEvent, paletteElementClick);
-            initialColorContainer.delegate(".sp-thumb-el:nth-child(1)", paletteEvent, { ignore: true }, paletteElementClick);
+            paletteContainer.on(paletteEvent, ".sp-thumb-el", paletteElementClick);
+            initialColorContainer.on(paletteEvent, ".sp-thumb-el:nth-child(1)", { ignore: true }, paletteElementClick);
         }
 
         function updateSelectionPaletteFromStorage() {
@@ -1115,7 +1115,7 @@
             dragging = false;
         }
 
-        $(element).bind("touchstart mousedown", start);
+        $(element).on("touchstart mousedown", start);
     }
 
     function throttle(func, wait, debounce) {

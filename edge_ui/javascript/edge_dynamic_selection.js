@@ -133,13 +133,13 @@ $.mobile.document
 			 });
          }
         // select all or none 
-         $("#"+id+"-none").click(function() {
+         $("#"+id+"-none").on("click",function() {
    	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
    	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
    	     	$select_menu.find("option:not([disabled])").removeAttr("selected");
    	     	$select_menu.selectmenu('refresh');
    	 });
-   	 $("#"+id+"-all").click(function() {
+   	 $("#"+id+"-all").on("click",function() {
    	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
    	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
    	     	$select_menu.find("option:not([disabled])").attr("selected",'selected');

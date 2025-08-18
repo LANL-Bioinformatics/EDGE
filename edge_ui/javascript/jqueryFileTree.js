@@ -60,7 +60,7 @@ if(jQuery) (function($){
 				}
 				
 				function bindTree(t) {
-					$(t).find('LI A').bind(o.folderEvent, function(e) {
+					$(t).find('LI A').on(o.folderEvent, function(e) {
 						if( $(this).parent().hasClass('directory') ) {
 							if( $(this).parent().hasClass('collapsed') ) {
 								// Expand
@@ -86,8 +86,8 @@ if(jQuery) (function($){
 						return false;
 					});
 					// Prevent A from triggering the # on non-click events
-					if( o.folderEvent.toLowerCase != 'click' ) $(t).find('LI A').bind('click', function() { return false; });
-					$(t).find('LI A').bind('dblclick', function() { 
+					if( o.folderEvent.toLowerCase != 'click' ) $(t).find('LI A').on('click', function() { return false; });
+					$(t).find('LI A').on('dblclick', function() { 
 						if( $(this).parent().hasClass('directory') ) {
 							dire($(this).attr('rel'));
 						}else{

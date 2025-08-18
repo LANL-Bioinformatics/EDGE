@@ -36,6 +36,11 @@ $( document ).ready(function()
 
 	var page = $( this );
 	var allMainPage = $(".edge-main-page");
+	$(document).on("popupafterclose", "[data-role='popup']", function () {
+  $(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+  $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden");                       // reset container
+  $.mobile.popup.active = undefined;                                         // release mutex
+});
 	if (typeof localStorage === 'object') {
 	try {
 		localStorage.setItem('localStorage', 1);
@@ -96,14 +101,14 @@ $( document ).ready(function()
 	//$( "#edge-content-home" ).fadeIn();
 	$( "#edge-apps-home" ).fadeIn();
 	
-	$( "a[href=#edge-app-home]" ).on( "click", function(){
+	$( "a[href='#edge-app-home']" ).on( "click", function(){
 		allMainPage.hide();
 		$( "#edge-apps-home" ).fadeIn();
 		//$( "#edge-content-intro" ).fadeIn();
 		foldLeftPanel();
 		page.find( ".edge-navmenu-panel:not(.edge-panel-page-nav)" ).panel( "close" );
 	});
-	$( "a[href=#edge-content-pipeline]" ).on( "click", function(){
+	$( "a[href='#edge-content-pipeline']" ).on( "click", function(){
 		pipeline="EDGE";
 		$.get("edgesite.installation.done", function() {
 			setRunPipeline(pipeline,true);
@@ -113,24 +118,24 @@ $( document ).ready(function()
 		});
 	});
 
-	$( "a[href=#edge-qiime-pipeline]" ).on( "click", function(){
+	$( "a[href='#edge-qiime-pipeline']" ).on( "click", function(){
 		pipeline="qiime";
 		setRunPipeline(pipeline,true);
 	});
-	$( "a[href=#edge-targetedngs-pipeline]" ).on( "click", function(){
+	$( "a[href='#edge-targetedngs-pipeline']" ).on( "click", function(){
 		pipeline="targetedngs";
 		setRunPipeline(pipeline,true);
 	});
-	$( "a[href=#edge-piret-pipeline]" ).on( "click", function(){
+	$( "a[href='#edge-piret-pipeline']" ).on( "click", function(){
 		pipeline="piret";
 		setRunPipeline(pipeline,true);
 	});
 
-	$( "a[href=#edge-job-queue]" ).on( "click", function(){
+	$( "a[href='#edge-job-queue']" ).on( "click", function(){
 		updateJobsPage();
 	});
 
-	$( "a[href=#edge-content-uploadfile]" ).on( "click", function(){
+	$( "a[href='#edge-content-uploadfile']" ).on( "click", function(){
 		allMainPage.hide();
 		var maxFileSize = localStorage.maxFileSize || '100mb';
 		$( "#edge-upload-maxFileSize" ).html(maxFileSize);
@@ -152,7 +157,7 @@ $( document ).ready(function()
     });
 
 	
-	$('#chck-rememberme').click(function() {
+	$('#chck-rememberme').on("click", function() {
 		if ($('#chck-rememberme').is(':checked')) {
              // save username and password	
             		localStorage.usrname = $('#signIn-email').val().replace(/ /g, '');
@@ -194,9 +199,9 @@ $( document ).ready(function()
 					$('#edge-projet-list-li').hide();
 					$("#edge-user-btn").hide();
 					$("#edge-user-btn-signup").hide();
-					$( "a[href=#edge-content-pipeline]" ).hide();
-					$( "a[href=#edge-content-uploadfile]" ).hide();
-					$( "a[href=#edge-qiime-pipeline]" ).hide();
+					$( "a[href='#edge-content-pipeline']" ).hide();
+					$( "a[href='#edge-content-uploadfile']" ).hide();
+					$( "a[href='#edge-qiime-pipeline']" ).hide();
 					$('#edge-apps-home').prepend("<h2 class='error'>Failed to check user management system. Please check server error log for detail or contact system administrator</h2>");
          			console.log("ERROR");
         		}, // error 
@@ -211,11 +216,11 @@ $( document ).ready(function()
 							$('#edge-projet-list-li').hide();
 							$("#edge-user-btn").hide();
 							$("#edge-user-btn-signup").hide();
-							$( "a[href=#edge-content-pipeline]" ).hide();
-							$( "a[href=#edge-content-uploadfile]" ).hide();
-							$( "a[href=#edge-qiime-pipeline]" ).hide();
-							$( "a[href=#edge-targetedngs-pipeline]" ).hide();
-							$( "a[href=#edge-piret-pipeline]" ).hide();
+							$( "a[href='#edge-content-pipeline']" ).hide();
+							$( "a[href='#edge-content-uploadfile']" ).hide();
+							$( "a[href='#edge-qiime-pipeline']" ).hide();
+							$( "a[href='#edge-targetedngs-pipeline']" ).hide();
+							$( "a[href='#edge-piret-pipeline']" ).hide();
 							$('#edge-apps-home').prepend("<h2 class='error'>"+data.error+"</h2>")
 						}else{
 							// no configuration to use User management
@@ -277,7 +282,7 @@ $( document ).ready(function()
 			//$('#edge-user-btn').removeClass("ui-btn-icon-notext").addClass("ui-btn-icon-left edge-user-btn-login");
 			$('#edge-user-btn').html(localStorage.fnname);
 			$('#edge-project-page-li').text('My Project List');
-			$('#edge-user-btn').unbind("click").on("click",function(){
+			$('#edge-user-btn').off("click").on("click",function(){
 				$('#popupUser').popup('open');
 			});
 			if (localStorage.background){
@@ -297,10 +302,10 @@ $( document ).ready(function()
 				$('#chck-rememberme').prop('checked',true);
 				$('#signIn-email').val(localStorage.usrname);
 				$('#signIn-password').empty();
-				$('#signIn-password').focus();
+				$('#signIn-password').trigger("focus");
 			} else {
 				$('#chck-rememberme').prop('checked',false);
-				$('#signIn-email').focus();
+				$('#signIn-email').trigger("focus");
 			}
 		}},
 		{positionTo:'window'},
@@ -308,10 +313,10 @@ $( document ).ready(function()
 	);
 	$('#popupUser').popup({positionTo:'#edge-user-btn'},{transition:'slidedown'});
 
-	$('#signInForm').keypress(function (e) {
+	$('#signInForm').on("keypress",function (e) {
 		var key = e.which;
 		if(key == 13){  // the enter key code
-    			$('#signIn-submit-btn').click();
+    			$('#signIn-submit-btn').trigger("click");
     			return false;  
   		}
 	});
@@ -397,7 +402,7 @@ $( document ).ready(function()
 			data: $.param(response) + '&' + $.param({"action": "sociallogin",'protocol': location.protocol, 'sid': localStorage.sid}),
 			success: function(data){
 				if (data.social_acc){
-					$('#signUpBtn').click();
+					$('#signUpBtn').trigger("click");
 					$('#signUpForm iframe').contents().find("#register-form input[name='firstname']").val(data.social_fn);
 					$('#signUpForm iframe').contents().find("#register-form input[name='lastname']").val(data.social_ln);
 					$('#signUpForm iframe').contents().find("#register-form input[name='email']").val(data.social_acc);
@@ -467,7 +472,7 @@ $( document ).ready(function()
 					$('#edge-project-page-li').text('My Project List');
 					$('#edge-apps-home').find(".error").remove();
 					$('#popupUser').removeClass('highlight');
-					$('#edge-user-btn').unbind("click").bind("click",function(){
+					$('#edge-user-btn').off("click").on("click",function(){
 						$('#popupUser').popup('open');
 					});
 					updateProject(focusProjName);
@@ -486,7 +491,7 @@ $( document ).ready(function()
 						$('#UpdateProfileBtn').show();
 						if (  LoginMsg && cleanData ){
 							showWarning("The intermediate bam/sam/fastq/gz files in the projects directory will be deleted if they are older than "+ data.CleanData  + " days. <br/><p><input type='checkbox' data-role='none' id='chk-close-warning'>Don't show this again.</p>");
-							$('#chk-close-warning').click(function(){
+							$('#chk-close-warning').on("click",function(){
 								if ($('#chk-close-warning').is(':checked')) {
 									localStorage.LoginMsg = false;
 								}else{
@@ -778,7 +783,7 @@ $( document ).ready(function()
 				$( "#edge_integrity_dialog_header" ).text("Message");
 				$( "#edge_integrity_dialog_content" ).text(success_msg);
 				setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
-				$('#edge-user-btn').unbind("click").on("click",function(){
+				$('#edge-user-btn').off("click").on("click",function(){
 					$('#signInForm').popup('open');
 				});
 				$('#edge-project-title').html("");
@@ -814,13 +819,12 @@ $( document ).ready(function()
 		interactive: true,
 	});
 	$('.my-tooltip-btn').not(".ui-alt-icon").hide();
-	$('.my-tooltip-btn').not(".ui-alt-icon").parent('label,legend').hover(function(){
-		$(this).find(".tooltip").addClass("ui-alt-icon");
-		$(this).find(".tooltip").show();
-		},function(){
-		$(this).find(".tooltip").removeClass("ui-alt-icon");
-		$(this).find(".tooltip").hide();
-	});
+	$('.my-tooltip-btn').not('.ui-alt-icon').parent('label,legend').on('mouseenter', function () {
+ 		$(this).find('.tooltip').addClass('ui-alt-icon').show();
+	}).on('mouseleave', function () {
+		$(this).find('.tooltip').removeClass('ui-alt-icon').hide();
+	});	
+
 	// update qc tooltip content
 	$('#qc-q-tooltip').tooltipster(
 		'content', $('<span>Trim both end with the Phred quality. In brief, it will find the position in the read where trimming will end (argmax) based on the following equation: <img src="images/FaQCs.png"/> <br/> where l is the read length and Qu is the user-defined quality threshold, and trimming ends after the summation of Qu - Qi becomes negative.</span>')
@@ -935,7 +939,7 @@ $( document ).ready(function()
 			$( '#edge-input-contig-file').val('');
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( ".edge-fastq-options").show();
-			$( "a[data-id=edge-assembly-parameters]" ).click();
+			$( "a[data-id=edge-assembly-parameters]" ).trigger("click");
 			$( '#edge-fastq-source-block').show();
 		}
 		if ( $(obj).val() == "fastq"){
@@ -947,7 +951,7 @@ $( document ).ready(function()
 			$( "#edge-sample-metadata" ).show();
 			$( '#edge-input-contig-file').val('');
 			$( ".edge-fastq-options").show();
-			$( "a[data-id=edge-assembly-parameters]" ).click();
+			$( "a[data-id=edge-assembly-parameters]" ).trigger("click");
 			$( '#edge-fastq-source-block').show();
 		}
 		if ( $(obj).val() == "fasta"){
@@ -960,7 +964,7 @@ $( document ).ready(function()
 			$( '#edge-fastq-input-block').find('input').val('');
 			$( '#edge-assembled-contig-file').val('');
 			$( ".edge-fastq-options").hide();
-			$( "a[data-id=edge-annotation-parameters]" ).click();
+			$( "a[data-id=edge-annotation-parameters]" ).trigger("click");
 		}
 		$('#btnAdd-edge-qiime-mapping-file').hide();
 		if ( $(obj).val() == "pe"){
@@ -1072,16 +1076,16 @@ $( document ).ready(function()
 			afterclose: function( event, ui ) {
 				if ( $('#'+inputFileID).val().length > 0 ) {
 					if ( /edge-primer-valid-file/.test(inputFileID) ){
-						$('#edge-primer-valid-sw1').click().checkboxradio('refresh');
+						$('#edge-primer-valid-sw1').trigger("click").checkboxradio('refresh');
 					}
 					if ( /edge-hostrm-file/.test(inputFileID)  ){
-						$('#edge-hostrm-sw1').click().checkboxradio('refresh');
+						$('#edge-hostrm-sw1').trigger("click").checkboxradio('refresh');
 					}
 					if ( /edge-r2g-align-trim-bed-file/.test(inputFileID)  ){
 						if ($(":radio[name='edge-fastq-source']:checked").val() == "nanopore" || $(":radio[name='edge-fastq-source']:checked").val() == "pacbio"){
 							$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
 						}
-						$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).click().checkboxradio("refresh");
+						$("#edge-r2g-con-pcrdedup-sw2").prop('disabled',false).trigger("click").checkboxradio("refresh");
 					}
 				}
 			}
@@ -1095,7 +1099,7 @@ $( document ).ready(function()
 	});
 
 	//button for adding input fileds
-    	$('#btnAdd-edge-input-se, #btnAdd-edge-qiime-mapping-file').click( function(e) {
+    	$('#btnAdd-edge-input-se, #btnAdd-edge-qiime-mapping-file').on("click", function(e) {
 		e.preventDefault();
 		var blockClass, blockIDprefix, label, inputID;
 		var btnID = this.id;
@@ -1139,7 +1143,7 @@ $( document ).ready(function()
         	}                        
     	});
     
-   	$('#btnAdd-edge-input-pe').click( function(e) {
+   	$('#btnAdd-edge-input-pe').on("click", function(e) {
         	 
         	e.preventDefault();
         	// how many "duplicatable" input fields we currently have
@@ -1174,7 +1178,7 @@ $( document ).ready(function()
     	});
 	$("#edge-taxa-custom-db-tool").after($(".btnAdd-edge-taxa-custom-db"));
 	$(".btnAdd-edge-taxa-custom-db").parent().css("display","inline-flex");
-  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file, .btnAdd-edge-taxa-custom-db').click( function(e) {
+  	$('.btnAdd-edge-phylo-ref-file, .btnAdd-edge-qiime-barcode-fq-file, .btnAdd-edge-ref-file, .btnAdd-edge-taxa-custom-db').on("click", function(e) {
 		e.preventDefault();
 		var blockClass, blockIDprefix, inputID, label, selectClass, toolname;
 		var limit=10;
@@ -1341,7 +1345,7 @@ $( document ).ready(function()
 		}
 		
 
-		$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+		$("#edge_confirm_dialog a:contains('Confirm')").off('click').on("click",function(){
 			actionConfirm(action,focusProjName);
 		});
 	});
@@ -1652,7 +1656,7 @@ $( document ).ready(function()
 							$( "#edge-content-report iframe" ).each(function(){
                 	                			var kf = this;
                 	                			var h = $("div[title='Help']", $(kf).contents());
-                	                			if ( $(h).size() ) {
+                	                			if ( $(h).length ) {
                 	                        			$(h).parent().hide();
                 	                			}
                 	        			});
@@ -1764,7 +1768,7 @@ $( document ).ready(function()
 						toggle_input_fields( "reconfig" );
 						var dom = "<li data-icon='info' class='list-info'><a href='#'>The project has been reconfigured successfully. Click to see open progress panel.</a></li>";
 						$(dom).on( "click", function(){page.find( ".edge-action-panel" ).panel( "open" );}).appendTo( "#edge-submit-info");
-						$('#action-rerun-btn').click();
+						$('#action-rerun-btn').trigger("click");
 					}
 					else{
 						var dom = "<li data-icon='info' class='list-info'><a href='#'>The project has been submitted successfully. Click to see open progress panel.</a></li>";
@@ -1791,7 +1795,7 @@ $( document ).ready(function()
 					}
 				}
 				
-				if( $(".list-info, .list-info-delete").size() ){
+				if( $(".list-info, .list-info-delete").length ){
 					var h = $( "#edge-submit-info" ).outerHeight();
 					var h1 = parseInt(h)+100;
 					$('html, body').animate({ scrollTop: "+="+h1+"px" }, 500);
@@ -1836,7 +1840,7 @@ $( document ).ready(function()
 			if ( $(this).val() == 0 && ! $('#edge-fastq-source-sw3').is(':checked') ){
 				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-hostrm-sw']:checked").val()==0 && $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
 					showWarning("At least one function needs to be turned on!");
-					$( "#edge-qc-sw1" ).click().checkboxradio("refresh");
+					$( "#edge-qc-sw1" ).trigger("click").checkboxradio("refresh");
 				}
 			}
 		});
@@ -1844,7 +1848,7 @@ $( document ).ready(function()
 			if ( $(this).val() == 0 ){
 				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-qc-sw']:checked").val()==0 && (":radio[name='edge-joinpe-sw']:checked").val()==0){
 					showWarning("At least one function needs to be turned on!");
-					$( "#edge-hostrm-sw1" ).click().checkboxradio("refresh");
+					$( "#edge-hostrm-sw1" ).trigger("click").checkboxradio("refresh");
 				}
 			}
 		});
@@ -1852,7 +1856,7 @@ $( document ).ready(function()
 			if ( $(this).val() == 0 ){
 				if ( $("#edge-pp-sw").val() == 1 && $(":radio[name='edge-qc-sw']:checked").val()==0 && (":radio[name='edge-hostrm-sw']:checked").val()==0){
 					showWarning("At least one function needs to be turned on!");
-					$( "#edge-joinpe-sw1" ).click().checkboxradio("refresh");
+					$( "#edge-joinpe-sw1" ).trigger("click").checkboxradio("refresh");
 				}
 			}
 		});
@@ -1860,7 +1864,7 @@ $( document ).ready(function()
 			if ( $(this).val() == 1 ){
 				if ( $(":radio[name='edge-joinpe-sw']:checked").val()==0 ){
 					showWarning("Please turn on Run Stitch PE Reads");
-					$("#edge-joinpe-usejoined-only2").click().checkboxradio("refresh");
+					$("#edge-joinpe-usejoined-only2").trigger("click").checkboxradio("refresh");
 				}
 			}
 		});
@@ -1885,7 +1889,7 @@ $( document ).ready(function()
 			$('input[id^="edge-input-"]').prop("disabled", true);
 			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", true);
 			$('#edge-qiime-reads-dir-input').prop("disabled", true);
-			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").addClass("ui-disabled");
+			$('#edge-input-sequence').find("a[href='#edge_file_dialog']").addClass("ui-disabled");
 		}
 		else{
 			$('#edge-proj-name').prop("disabled", false);
@@ -1897,7 +1901,7 @@ $( document ).ready(function()
 			$('input[id^="edge-input-"]').prop("disabled", false);
 			$('input[id^=edge-qiime-mapping-file-input]').prop("disabled", false);
 			$('#edge-qiime-reads-dir-input').prop("disabled", false);
-			$('#edge-input-sequence').find("a[href=#edge_file_dialog]").removeClass('ui-disabled');
+			$('#edge-input-sequence').find("a[href='#edge_file_dialog']").removeClass('ui-disabled');
 		}
 	}
 
@@ -2030,7 +2034,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-idba-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').trigger("click").checkboxradio("refresh");
 			}
 			if($('#edge-assembler2').is(':checked')){
 				$('#edge-megahit-parameters').hide();
@@ -2038,7 +2042,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-spades-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').trigger("click").checkboxradio("refresh");
 			}
 			if($('#edge-assembler3').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -2046,7 +2050,7 @@ $( document ).ready(function()
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-megahit-parameters').show();
 				$('#edge-lrasm-parameters').hide();
-				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').trigger("click").checkboxradio("refresh");
 			}
 			if($('#edge-assembler4').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -2054,7 +2058,7 @@ $( document ).ready(function()
 				$('#edge-megahit-parameters').hide();
 				$('#edge-lrasm-parameters').hide();
 				$('#edge-unicycler-parameters').show();
-				$('#edge-r2c-aligner2').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner2').trigger("click").checkboxradio("refresh");
 			}
 			if($('#edge-assembler5').is(':checked')){
 				$('#edge-spades-parameters').hide();
@@ -2062,7 +2066,7 @@ $( document ).ready(function()
 				$('#edge-megahit-parameters').hide();
 				$('#edge-unicycler-parameters').hide();
 				$('#edge-lrasm-parameters').show();
-				$('#edge-r2c-aligner3').click().checkboxradio("refresh");
+				$('#edge-r2c-aligner3').trigger("click").checkboxradio("refresh");
 			}
 		});
 		$(":radio[name='edge-lrasm-algorithm']").on("change", function(){
@@ -2077,7 +2081,7 @@ $( document ).ready(function()
 		});
 		$(":radio[name='edge-binning-checkM-sw']").on("change", function(){
                         if($('#edge-binning-checkM-sw1').is(':checked')){
-                                $('#edge-binning-sw1').click().checkboxradio("refresh");
+                                $('#edge-binning-sw1').trigger("click").checkboxradio("refresh");
                         }
                 });
 		$('#edge-assembled-conti-file-div').hide();
@@ -2091,9 +2095,9 @@ $( document ).ready(function()
 				$('#edge-assembler-sw').show();
 				$('#edge-assembled-conti-file-div').hide();
 				if (type != "reconfig"){
-					$('#edge-assembler1').click().checkboxradio("refresh");
+					$('#edge-assembler1').trigger("click").checkboxradio("refresh");
 				}
-				$(":radio[name='edge-assembler']").change();
+				$(":radio[name='edge-assembler']").trigger("change");
 			}
 		});
 
@@ -2167,7 +2171,7 @@ $( document ).ready(function()
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
 				}else{
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
-					//$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
+					//$( "#edge-r2g-variantcall-sw1").prop('disabled',false).trigger("click").checkboxradio("refresh");
 				}
 			}
 		});
@@ -2188,19 +2192,21 @@ $( document ).ready(function()
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
 				}
 				if (type != "reconfig"){
-					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
-					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).click().checkboxradio("refresh");
-					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
-					$( "#edge-lrasm-preset1").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-qc-sw1").prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$( "#edge-r2g-variantcall-sw2").prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$( "#edge-lrasm-preset1").prop('disabled',false).trigger("click").checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('1000');
 					$('#edge-r2g-max-clip').prop('disabled',false).val('150');
 					$('#edge-qc-q').prop('disabled',false).val('7');
 					$('#splitrim-minq').prop('disabled',false).val('7');
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
-					//$('#edge-r2g-con-disableBAQ-sw1').prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-r2g-con-strandbiase-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
+					//$('#edge-r2g-con-disableBAQ-sw1').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-r2g-con-strandbiase-filter-sw1').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-taxa-enabled-tools option[value="metaphlan4"]').prop("selected",false);
+					$('#edge-taxa-enabled-tools').selectmenu( "refresh" );
 				}
 			}
 			if($('#edge-fastq-source-sw2').is(':checked')){
@@ -2213,18 +2219,20 @@ $( document ).ready(function()
 				$('label[for=\"edge-r2c-aligner1\"], label[for=\"edge-r2g-aligner1\"]').removeClass('ui-disabled');
 				$('#edge-r2c-aligner1, #edge-r2g-aligner1').removeClass('ui-disabled');
 				if (type != "reconfig"){
-					$( "#edge-qc-sw1").prop('disabled',false).click().checkboxradio("refresh");
-					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-qc-sw1").prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$( "#edge-r2g-variantcall-sw1").prop('disabled',false).trigger("click").checkboxradio("refresh");
 					$( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(20);
-					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-r2g-aligner2, #edge-r2c-aligner2, #edge-assembler1" ).prop('disabled',false).trigger("click").checkboxradio("refresh");
 					$('#edge-qc-minl').prop('disabled',false).val('50');
 					$('#edge-r2g-max-clip').prop('disabled',false).val('50');
 					$('#edge-qc-q').prop('disabled',false).val('20');
 					$('#splitrim-minq').prop('disabled',false).val('20');
 					$('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.5').slider("refresh");
-					//$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-r2g-con-homopolymer-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
-					$('#edge-r2g-con-strandbiase-filter-sw2').prop('disabled',false).click().checkboxradio("refresh");
+					//$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-r2g-con-strandbiase-filter-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					$('#edge-taxa-enabled-tools option[value="metaphlan4"]').attr("selected",'selected');
+					$('#edge-taxa-enabled-tools').selectmenu( "refresh" );
 				}
 			}
 			if($('#edge-fastq-source-sw3').is(':checked')){
@@ -2240,17 +2248,23 @@ $( document ).ready(function()
                                         $('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.6').slider("refresh");
                                 }
                                 if (type != "reconfig"){
-					$( "#edge-qc-sw2").prop('disabled',false).click().checkboxradio("refresh");
-                                        $( "#edge-r2g-variantcall-sw1").prop('disabled',false).click().checkboxradio("refresh");
-                                        $( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).click().checkboxradio("refresh");
-                                        $( "#edge-lrasm-preset3").prop('disabled',false).click().checkboxradio("refresh");
+					$( "#edge-qc-sw2").prop('disabled',false).trigger("click").checkboxradio("refresh");
+                                        $( "#edge-r2g-variantcall-sw1").prop('disabled',false).trigger("click").checkboxradio("refresh");
+                                        $( "#edge-r2g-aligner3, #edge-r2c-aligner3, #edge-assembler5" ).prop('disabled',false).trigger("click").checkboxradio("refresh");
+                                        $( "#edge-lrasm-preset3").prop('disabled',false).trigger("click").checkboxradio("refresh");
                                         $('#edge-qc-minl').prop('disabled',false).val('350');
                                         $('#edge-r2g-max-clip').prop('disabled',false).val('150');
                                         $('#edge-qc-q').prop('disabled',false).val('7');
                                         $('#splitrim-minq').prop('disabled',false).val('7');
                                         $( '#edge-r2g-con-min-baseQ').prop('disabled',false).val(5);
                                         $('#edge-r2g-con-altIndel-prop').prop('disabled',false).val('0.8').slider("refresh");
-					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).click().checkboxradio("refresh");
+					$('#edge-r2g-con-homopolymer-filter-sw1').prop('disabled',false).trigger("click").checkboxradio("refresh");
+					// unselect Metaphlan4 for Pacbio data
+					//$('#edge-taxa-enabled-tools-menu').children("li[data-option-index='10']").attr('aria-selected',false);
+					//$('#edge-taxa-enabled-tools-menu').children("li[data-option-index='10']").children("a").removeClass("ui-checkbox-on");
+					//$('#edge-taxa-enabled-tools-menu').children("li[data-option-index='10']").children("a").addClass("ui-checkbox-off");
+					$('#edge-taxa-enabled-tools option[value="metaphlan4"]').prop("selected",false);
+					$('#edge-taxa-enabled-tools').selectmenu( "refresh" );
 				}
 			}
 		});
@@ -2262,7 +2276,7 @@ $( document ).ready(function()
 			$("#edge-r2g-con-min-mapQ").val('42');
 			$("#edge-r2g-min-mapQ").val('42');
 		});
-		$("label[for=edge-qc-adapter]").parent().hide();
+		$("label[for=edge-r2g-align-trim-bed-file]").parent().hide();
 		$(":radio[name='edge-r2g-align-trim-sw']").on("change", function(){
 			if (type != "reconfig"){
 				$('#edge-qc-adapter').val('');
@@ -2400,10 +2414,10 @@ $( document ).ready(function()
 					//var loadprojNum =  $("#edge-projpage-loadnum").val();
 					//updateProjectsPage(view,loadprojNum);
 				});
-				$('#edge-projpage-loadnum').keypress(function (e) {
+				$('#edge-projpage-loadnum').on("keypress",function (e) {
 					var key = e.which;
 					if(key == 13){  // the enter key code
-						$('#edge-projpage-loadnum-submit').click();
+						$('#edge-projpage-loadnum-submit').trigger("click");
 						return false;
 					}
 				});
@@ -2452,7 +2466,7 @@ $( document ).ready(function()
 						if ( action === "share" ){
 							setUserList(action,focusProjCodes);
 						}
-						$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+						$("#edge_confirm_dialog a:contains('Confirm')").off('click').on("click",function(){
 							var actionRequest=[];
 							if ( action === "compare" || action === 'metadata-export'){
 								actionConfirm(action,focusProjCodes);
@@ -2530,7 +2544,7 @@ $( document ).ready(function()
 						$(this.api().table().container()).find('input[type="search"]').parent().wrap('<form>').parent().attr('autocomplete','off').css('overflow','hidden').css('margin','auto');
 					},
 					"drawCallback" : function(settings){
-						$( ".edge-project-page-link").unbind('click').on('click', function(e){
+						$( ".edge-project-page-link").off('click').on('click', function(e){
 							e.preventDefault();
 							var pname = $(this).attr("data-pid");
 							if (e.altKey){
@@ -2633,9 +2647,9 @@ $( document ).ready(function()
 					$("#edge-primer-sw").val(0).slider("refresh");
 					$("#edge-primer-sw").closest('div[data-role="collapsible"]').hide();
 				}
-				(  obj.INFO.MQIIME == "true")?$( "a[href=#edge-qiime-pipeline]" ).show():$( "a[href=#edge-qiime-pipeline]" ).hide();
-				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href=#edge-targetedngs-pipeline]" ).show():$( "a[href=#edge-targetedngs-pipeline]" ).hide();
-				(  obj.INFO.MPIRET == "true")?$( "a[href=#edge-piret-pipeline]" ).show():$( "a[href=#edge-piret-pipeline]" ).hide();
+				(  obj.INFO.MQIIME == "true")?$( "a[href='#edge-qiime-pipeline']" ).show():$( "a[href='#edge-qiime-pipeline']" ).hide();
+				(  obj.INFO.MTARGETEDNGS == "true")?$( "a[href='#edge-targetedngs-pipeline']" ).show():$( "a[href='#edge-targetedngs-pipeline']" ).hide();
+				(  obj.INFO.MPIRET == "true")?$( "a[href='#edge-piret-pipeline']" ).show():$( "a[href='#edge-piret-pipeline']" ).hide();
 				if( obj.INFO.MAINTENANCE == "true"){
 					$('#SysProp-maintenance-sw').val(1).slider("refresh");
 					showWarning("System is under MAINTENANCE. EDGE will be limited to view project only. Thanks for your patience.");
@@ -2714,7 +2728,7 @@ $( document ).ready(function()
 			if (data == 'projectsReport'){
 				$(this).parent('div').on('click',function(){
 					foldRightPanel();
-					$( "a[href=#edge-report-pipeline]" ).click();
+					$( "a[href='#edge-report-pipeline']" ).trigger("click");
 				})
 			}
 			if (data == 'nanoEDGE'){
@@ -2722,7 +2736,7 @@ $( document ).ready(function()
 					foldRightPanel();
 					pipeline="EDGE";
 					setRunPipeline(pipeline,true);
-					$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+					$('#edge-fastq-source-sw1').trigger("click").checkboxradio("refresh");
 				})
 			}
 			if (data == 'contigEDGE'){
@@ -2730,7 +2744,7 @@ $( document ).ready(function()
 					foldRightPanel();
 					pipeline="EDGE";
 					setRunPipeline(pipeline,true);
-					$('#edge-inputS-sw2').click().checkboxradio("refresh");
+					$('#edge-inputS-sw2').trigger("click").checkboxradio("refresh");
 					//$(":radio[name='edge-fastq-source']").trigger('change');
 				})
 			}
@@ -2739,7 +2753,7 @@ $( document ).ready(function()
 					foldRightPanel();
 					pipeline="EDGE";
 					setRunPipeline(pipeline,true);
-					$('#edge-inputS-sw3').click().checkboxradio("refresh");
+					$('#edge-inputS-sw3').trigger("click").checkboxradio("refresh");
 					//$(":radio[name='edge-fastq-source']").trigger('change');
 				})
 			}
@@ -2752,7 +2766,7 @@ $( document ).ready(function()
 			if (data == 'dataupload'){
 				$(this).parent('div').on('click',function(){
 					foldRightPanel();
-					$( "a[href=#edge-content-uploadfile]" ).click();
+					$( "a[href='#edge-content-uploadfile']" ).trigger("click");
 				})
 			}
 			if (data == 'runPhaME'){
@@ -2954,7 +2968,7 @@ $( document ).ready(function()
 				}else{
 					$( "#edge-project-list-ul .edge-proj-list-li" ).remove();
 				}
-				if( $( ".edge-proj-list-li" ).size() == 0 ){
+				if( $( ".edge-proj-list-li" ).length == 0 ){
 					var dom = "<li class='edge-proj-list-li ui-disabled'><a href='#' class='edge-project-list ui-btn ui-btn-icon-right ui-icon-check'>No project found</a></li>";
 					$( "#edge-project-list-ul" ).append(dom);
 				}
@@ -3183,7 +3197,7 @@ $( document ).ready(function()
     };
 
         // Handle the case when form was submitted before uploading has finished
-        $('#edge-uploadfile-form').submit(function(e) {
+        $('#edge-uploadfile-form').on("submit",function(e) {
 
                 if (umSystemStatus && localStorage.sid == ""){
                         showWarning("Please login to upload files.");
@@ -3206,7 +3220,7 @@ $( document ).ready(function()
         });
 
 	// scroll top
-	$(window).scroll(function() {
+	$(window).on("scroll",function() {
 		if ($(this).scrollTop()>600) {
 			$('#scroll-up-btn:hidden').stop(true, true).fadeIn();
 		} else {
@@ -3242,7 +3256,7 @@ $( document ).ready(function()
 		$("#edge-submit-info" ).children().remove();
 		$("#edge-input-sequence").collapsible( "option", "collapsed", false );
 		if (resetflag){
-			$('#edge-form-reset').click();
+			$('#edge-form-reset').trigger("click");
 		}
 		if (pipeline === 'EDGE'){
 			$("#edge-fastq-input-block").children().show();
@@ -3381,8 +3395,8 @@ $( document ).ready(function()
 						id=i+1;
 						if( $('#'+key+"-"+id).length == 0 ){
 							btnID = key.slice(0,-1)
-							$('#btnAdd-'+btnID).click();
-							$('.btnAdd-'+key).click();
+							$('#btnAdd-'+btnID).trigger("click");
+							$('.btnAdd-'+key).trigger("click");
 						}
 						$('#'+key+"-"+id).val(val);
 					});
@@ -3408,7 +3422,7 @@ $( document ).ready(function()
 					$.each( arr, function(i, val) {
 						id=i+1
 						if( $('#'+key+"-"+id).length == 0 ){
-							$('.btnAdd-'+key).click()
+							$('.btnAdd-'+key).trigger("click")
 						}
 						$('#'+key+"-"+id).val(val)
 					});
@@ -3623,12 +3637,12 @@ $( document ).ready(function()
 		$('#study-title-div').css('display', 'none');
 	});
 
-	$("#metadata-study-title").focus(function(){
+	$("#metadata-study-title").on("focus",function(){
 		setStudyList();
 		$('#study-title-div').css('display', 'inline');
 	});
 
-	$("#metadata-study-title").focusout(function(){
+	$("#metadata-study-title").on("focusout",function(){
 		if ($("#metadata-study-title-list li:hover").length == 0) {
 			$("#metadata-study-title-list li" ).addClass('ui-screen-hidden');
 			$('#study-title-div').css('display', 'none');
@@ -3642,12 +3656,12 @@ $( document ).ready(function()
 		$('#study-type-div').css('display', 'none');
 	});
 
-	$("#metadata-study-type").focus(function(){
+	$("#metadata-study-type").on("focus",function(){
 		setStudyTypeList();
 		$('#study-type-div').css('display', 'inline');
 	});
 
-	$("#metadata-study-type").focusout(function(){
+	$("#metadata-study-type").on("focusout",function(){
 		if ($("#metadata-study-type-list li:hover").length == 0) {
 			$("#metadata-study-type-list li" ).addClass('ui-screen-hidden');
 			$('#study-type-div').css('display', 'none');
@@ -3661,12 +3675,12 @@ $( document ).ready(function()
 		$('#host-list-div').css('display', 'none');
 	});
 
-	$("#metadata-host").focus(function(){
+	$("#metadata-host").on("focus",function(){
 		setPgHostList();
 		$('#host-list-div').css('display', 'inline');
 	});
 
-	$("#metadata-host").focusout(function(){
+	$("#metadata-host").on("focusout",function(){
 		if ($("#metadata-host-list li:hover").length == 0) {
 			$("#metadata-host-list li" ).addClass('ui-screen-hidden');
 			$('#host-list-div').css('display', 'none');
@@ -3680,12 +3694,12 @@ $( document ).ready(function()
 		$('#isolation-source-list-div').css('display', 'none');	
 	});
 
-	$("#metadata-isolation-source").focus(function(){
+	$("#metadata-isolation-source").on("focus",function(){
 		setIsolationSourceList($('input[name= metadata-sample-type]:checked').val());
 		$('#isolation-source-list-div').css('display', 'inline');		
 	});
 
-	$("#metadata-isolation-source").focusout(function(){
+	$("#metadata-isolation-source").on("focusout",function(){
 		if ($("#metadata-isolation-source-list li:hover").length == 0) {
 			$("#metadata-isolation-source-list li" ).addClass('ui-screen-hidden');
 			$('#isolation-source-list-div').css('display', 'none');	
@@ -3699,12 +3713,12 @@ $( document ).ready(function()
 		$('#seq-center-list-div').css('display', 'none');
 	});
 
-	$( "#metadata-seq-center" ).focus(function(){
+	$( "#metadata-seq-center" ).on("focus",function(){
 		setSeqCenterList();
 		$('#seq-center-list-div').css('display', 'inline');
 	});
 
-	$( "#metadata-seq-center" ).focusout(function(){
+	$( "#metadata-seq-center" ).on("focusout",function(){
 		if ($("#edge-seq-center-list li:hover").length == 0) {
 			$("#edge-seq-center-list li" ).addClass('ui-screen-hidden');
 			$('#seq-center-list-div').css('display', 'none');
@@ -3718,12 +3732,12 @@ $( document ).ready(function()
 		$('#sequencer-list-div').css('display', 'none');
 	});
 
-	$( "#metadata-sequencer" ).focus(function(){
+	$( "#metadata-sequencer" ).on("focus",function(){
 		setSequencerList();
 		$('#sequencer-list-div').css('display', 'inline');
 	});
 
-	$( "#metadata-sequencer" ).focusout(function(){
+	$( "#metadata-sequencer" ).on("focusout",function(){
 		if ($("#edge-sequencer-list li:hover").length == 0) {
 			$("#edge-sequencer-list li" ).addClass('ui-screen-hidden');
 			$('#sequencer-list-div').css('display', 'none');
@@ -3787,7 +3801,7 @@ $( document ).ready(function()
 				setTimeout( function() { $( "#edge_integrity_dialog" ).popup('open'); }, 300 );
 
 				if( data.SUBMISSION_STATUS == "success" ){
-					$( "a[href=#edge-content-pipeline]" ).focus();
+					$( "a[href='#edge-content-pipeline']" ).trigger("focus");
 					setRunPipeline("EDGE");
 				}
 				else{
@@ -4075,7 +4089,7 @@ $( document ).ready(function()
 //END EDGE tabs
 
 //EDGE REPORTS
-	$( "a[href=#edge-report-pipeline]" ).on( "click", function(){
+	$( "a[href='#edge-report-pipeline']" ).on( "click", function(){
 		if (umSystemStatus && localStorage.sid == ""){
 			showWarning("Please login to create a new report.");
 			return;
@@ -4125,7 +4139,7 @@ $( document ).ready(function()
 				    $(this).toggleClass('selected');
 				    $(this).find('input[type=checkbox]').prop("checked", $(this).hasClass("selected"));
 				} );
-				$( ".edge-report-form-link").unbind('click').on('click', function(e){
+				$( ".edge-report-form-link").off('click').on('click', function(e){
 					e.preventDefault();
 					var pname = $(this).attr("data-pid");
 					if (e.altKey){
@@ -4243,7 +4257,7 @@ $( document ).ready(function()
 					if ( action === "share" || action === "unshare"){
 						setUserList("report-"+action,focusReportCodes);
 					}
-					$("#edge_confirm_dialog a:contains('Confirm')").unbind('click').on("click",function(){
+					$("#edge_confirm_dialog a:contains('Confirm')").off('click').on("click",function(){
 						reportActionErrors = '';
 						var actionRequest=[];
 						for (var i = 0; i < reportids.length; i++) { 
@@ -4356,8 +4370,8 @@ $( document ).ready(function()
 			}
 		});
 	};
-	$('#edge-sra-acc').focusout(function() {
-		var sra_acc = $.trim($(this).val());
+	$('#edge-sra-acc').on("focusout",function() {
+		var sra_acc = String($(this).val()).trim();
 		if ( sra_acc ){
 			$.ajax({
 				url: "./cgi-bin/edge_action.cgi",
@@ -4368,20 +4382,20 @@ $( document ).ready(function()
 				success: function(obj){
 					if( obj.STATUS == "SUCCESS" ){
 						if ( obj.PLATFORM && /nanopore|minion/.test(obj.PLATFORM.toString().toLowerCase()) ){
-							$('#edge-fastq-source-sw1').click().checkboxradio("refresh");
+							$('#edge-fastq-source-sw1').trigger("click").checkboxradio("refresh");
 							var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode.";
 							showWarning(msg);
 						}else if(obj.PLATFORM && /pacbio/.test(obj.PLATFORM.toString().toLowerCase())){
-                                                        $('#edge-fastq-source-sw3').click().checkboxradio("refresh");
+                                                        $('#edge-fastq-source-sw3').trigger("click").checkboxradio("refresh");
                                                         $("#edge-pp-sw").val(0).slider("refresh");
-                                                        $("#edge-qc-sw2").click().checkboxradio("refresh");
+                                                        $("#edge-qc-sw2").trigger("click").checkboxradio("refresh");
                                                         //$('#edge-r2c-aligner-options').val("-x map-pb")
                                                         //$('#edge-r2g-aligner-options').val("-x map-pb")
                                                         var msg = obj.INFO + " EDGE will turn on Nanopore Reads Mode and Quality Trim and Filter Off.";
                                                         showWarning(msg);
                                                 }
 						else{
-							$('#edge-fastq-source-sw2').click().checkboxradio("refresh");
+							$('#edge-fastq-source-sw2').trigger("click").checkboxradio("refresh");
 						}
 					}else{
 						showWarning(obj.INFO);

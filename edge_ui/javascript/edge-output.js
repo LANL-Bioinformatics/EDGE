@@ -62,7 +62,11 @@ $( document ).ready(function()
 	var dir;
 	var loc = window.location.pathname.replace("//","/");
 	var edge_path = loc.substring(0,loc.lastIndexOf('/'));
+	$(function() {
+  $(window).off("beforenavigate._compat")
+           .one("beforenavigate._compat", function() { return false; });
 	$('#edge-outputfile-dialog').popup({ positionTo: "window"});
+	});
 	$('.edge-outputfile-tree').on('click',function(){
 		dir=$(this).attr('dir-src');
 		$('#edge-outputfile-tree').fileTree({
@@ -796,7 +800,7 @@ $( document ).ready(function()
 		$( "#edge_integrity_dialog" ).popup('open');
 	}
 	// scroll top
-	$(window).scroll(function() {
+	$(window).on("scroll",function() {
                 if ($(this).scrollTop()>600) {
                         $('#scroll-up-btn:hidden').stop(true, true).fadeIn();
                 } else {
@@ -812,7 +816,7 @@ $( document ).ready(function()
 	// Take Notes actions
 	var NotesLenLimit = 500,
 		NotesLen; // Maximum word length
-	$('#edge-takenotes-content').keydown(function(event) {	
+	$('#edge-takenotes-content').on("keydown",function(event) {	
 		NotesLen = $('#edge-takenotes-content').val().split(/[\s]+/);
 		if (NotesLen.length >= NotesLenLimit) { 
 			if ( event.keyCode == 46 || event.keyCode == 8 ) {// Allow backspace and delete buttons
@@ -886,6 +890,6 @@ $( document ).ready(function()
 		});
 	});
 
-	$('.showTax').first().click();
+	$('.showTax').first().trigger("click");
 });
 //# sourceURL=edge-output.js
