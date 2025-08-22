@@ -63,9 +63,9 @@ $( document ).ready(function()
 	var loc = window.location.pathname.replace("//","/");
 	var edge_path = loc.substring(0,loc.lastIndexOf('/'));
 	$(function() {
-  $(window).off("beforenavigate._compat")
-           .one("beforenavigate._compat", function() { return false; });
-	$('#edge-outputfile-dialog').popup({ positionTo: "window"});
+  		$(window).off("beforenavigate._compat")
+           	.one("beforenavigate._compat", function() { return false; });
+		$('#edge-outputfile-dialog').popup({ positionTo: "window"});
 	});
 	$('.edge-outputfile-tree').on('click',function(){
 		dir=$(this).attr('dir-src');
@@ -646,6 +646,11 @@ $( document ).ready(function()
 			});
 		});
 	}
+	$(".ui-popup-screen.ui-overlay-inherit.out").on("click",function(e){
+                $(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+                $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+                $.mobile.popup.active = undefined;                                         // release mutex
+         });
 	$('#edge-get-contigs-by-taxa').on('change',function(){
 		var taxa = $(this).val();
 		if(taxa == "0" ){
@@ -882,6 +887,52 @@ $( document ).ready(function()
 		$('#'+ firstTaxToolResultTag).show();
 		$("#showTaxSelect").parent().hide();
 	}
+	$('.ui-popup').popup({
+		afterclose: function(){
+			$(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+                	$(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+                	$.mobile.popup.active = undefined;        
+		}
+		});
+	//$('#edge-get-contigs-by-taxa-menu').children('li').not(".ui-screen-hidden").children("a").on("click",function(e){
+	$('ul[id^="edge-get-"][id$="-menu"]').children('li').not(".ui-screen-hidden").children("a").on("click",function(e){
+		var ulId = $(this).closest('ul').attr('id');
+		var $visibleListItems = $('#'+ulId).children('li').not(".ui-screen-hidden");
+                var clickedIndex = $visibleListItems.children("a").index(this) + 1;
+		var $select_menu = $('#'+ulId.replace("-menu",""));
+		var tax_val = $select_menu.find("option:not([disabled])").eq(clickedIndex).val();
+                $(this).parent().attr("aria-selected",true);
+                $select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', true);
+		$select_menu.trigger("change");
+                $(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+                $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+                $.mobile.popup.active = undefined;                                         // release mutex
+	});
+	$('#showTaxSelect-menu').children('li').not(".ui-screen-hidden").children("a").on("click",function(e){
+		var $visibleListItems = $('#showTaxSelect-menu').children('li').not(".ui-screen-hidden");
+                var clickedIndex = $visibleListItems.children("a").index(this) + 1;
+		var $select_menu = $('#showTaxSelect');
+		var tax_tag = $select_menu.find("option:not([disabled])").eq(clickedIndex).val();
+		 if ($(this).hasClass('ui-checkbox-on')){
+                        $(this).parent().attr("aria-selected",false);
+                        $(this).removeClass("ui-checkbox-on").addClass("ui-checkbox-off");
+                        $select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', false);
+			$('#'+ tax_tag).hide();
+                }
+                else{ 
+                        $(this).parent().attr("aria-selected",true);
+                        $(this).removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
+                        $select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', true);
+			$('#'+ tax_tag).show();
+                }
+                $select_menu.selectmenu('refresh');
+	});
+	$('div[id$="-listbox"]').find('.ui-icon-delete').first().on("click", function(e){
+                $(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+                $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+                $.mobile.popup.active = undefined;                                         // release mutex
+         })
+
 	$('#showTaxSelect').on('change',function(){
 		$(".rtaxToolresult").hide();
 		$('#showTaxSelect option:selected').each(function(){

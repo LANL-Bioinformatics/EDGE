@@ -132,20 +132,42 @@ $.mobile.document
 				}
 			 });
          }
+	 list.children().not(".ui-screen-hidden").children("a").on("click",function(e){
+		var $visibleListItems = list.children().not(".ui-screen-hidden");
+		var clickedIndex = $visibleListItems.children("a").index(this);
+		if ($(this).hasClass('ui-checkbox-on')){
+			$(this).parent().attr("aria-selected",false);
+                	$(this).removeClass("ui-checkbox-on").addClass("ui-checkbox-off");
+			$select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', false);;
+		}
+		else{ 
+			$(this).removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
+			$(this).parent().attr("aria-selected",true);
+			//console.log($select_menu.find("option:not([disabled])").eq(clickedIndex))
+			$select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', true);
+		}
+   	     	$select_menu.selectmenu('refresh');
+		
+	 });
         // select all or none 
          $("#"+id+"-none").on("click",function() {
    	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-on");
    	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-off");
-   	     	$select_menu.find("option:not([disabled])").removeAttr("selected");
+   	     	$select_menu.find("option:not([disabled])").prop('selected', false);;
+		list.children().not(".ui-screen-hidden").attr("aria-selected",false);
    	     	$select_menu.selectmenu('refresh');
    	 });
    	 $("#"+id+"-all").on("click",function() {
-   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off");	
-   	     	list.children().not(".ui-screen-hidden").children("a").addClass("ui-checkbox-on");
-   	     	$select_menu.find("option:not([disabled])").attr("selected",'selected');
 		list.children().not(".ui-screen-hidden").attr("aria-selected",true);
+   	     	list.children().not(".ui-screen-hidden").children("a").removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
+   	     	$select_menu.find("option:not([disabled])").prop("selected",true);
    	     	$select_menu.selectmenu('refresh');
    	 });
+	 $('#'+id+"-listbox").find('.ui-icon-delete').first().on("click", function(e){
+		$(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+        	$(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+        	$.mobile.popup.active = undefined;                                         // release mutex
+	 })
     })
     // The custom select list may show up as either a popup or a dialog, depending on how much
     // vertical room there is on the screen. If it shows up as a dialog, then the form containing
@@ -197,6 +219,7 @@ $.mobile.document
         	listview.before( form );
 	})
 	AddSelectRefList();
+
 	$('#'+id).enhanceWithin();
     });
 
@@ -207,17 +230,18 @@ $( document ).ready(function(){
 	});
 	$('#edge-hostrm-file-fromlist-listbox').on( "popupafterclose", function(){
 		var $selected = $("#edge-hostrm-file-fromlist option:selected");
-		if ($selected.size() > 0){
-			$('#edge-hostrm-sw1').click().checkboxradio("refresh");
+		if ($selected.length > 0){
+			$('#edge-hostrm-sw1').trigger("click").checkboxradio("refresh");
 		}
 	});
+	
 	
 });
 
 function AddSelectRefList() {
 	var selectedList = "<option value=0 selected='selected'>Random</option>";
 	$selected = $("#edge-phylo-ref-select option:selected");
-	if ($selected.size() > 0){
+	if ($selected.length > 0){
 		$("#edge-phylo-ref-select-ref-div").show();  	
 		$selected.each( function( key, val ) {
 			var value = $(this).html();

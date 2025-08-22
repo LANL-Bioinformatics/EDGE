@@ -1263,7 +1263,7 @@ $( document ).ready(function()
 		sync_input();
 		collapsible_select_sync();
 	});
-
+	$( " #edge-runEDGE-jbrowse" ).collapsible();
 	$( " #edge-runEDGE-jbrowse" ).collapsible("disable");
 	$( ".edge-collapsible-options div.ui-slider-switch" ).on( "mouseover", function() {
 		$(this).parents('div[data-role="collapsible"]').collapsible("disable");
@@ -1912,15 +1912,16 @@ $( document ).ready(function()
 			$(inputOpt).find(".input-type-file select").prop("disabled", false);
 			$(inputOpt).find(".input-type-file div").css("pointer-events", 'auto');
 			$(inputOpt).find('input[data-type="range"]').slider("enable").slider("refresh");
+			$(inputOpt).find("input:radio").checkboxradio( "refresh" );
 			
 			if( $(this).val()==0 ){
 				//$(inputOpt).find( "input:radio[value=1]" ).not("[name='edge-taxa-allreads']").prop("checked",false).checkboxradio( "refresh" );
 				//$(inputOpt).find( "input:radio[value=0]" ).not("[name='edge-taxa-allreads']").prop("checked",true).checkboxradio( "refresh" );
-				$(inputOpt).find("input:radio").checkboxradio( "refresh" );
 				$(inputOpt).find("input").prop("disabled", true);
 				$(inputOpt).find(".input-type-file select").prop("disabled", true);
 				$(inputOpt).find(".input-type-file div").css("pointer-events", 'none');
 				$(inputOpt).find('input[data-type="range"]').slider("disable").slider("refresh");
+				$(inputOpt).find("input:radio").checkboxradio( "refresh" );
 			}
 		});
 		
@@ -2231,7 +2232,7 @@ $( document ).ready(function()
 					//$('#edge-r2g-con-disableBAQ-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
 					$('#edge-r2g-con-homopolymer-filter-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
 					$('#edge-r2g-con-strandbiase-filter-sw2').prop('disabled',false).trigger("click").checkboxradio("refresh");
-					$('#edge-taxa-enabled-tools option[value="metaphlan4"]').attr("selected",'selected');
+					$('#edge-taxa-enabled-tools option[value="metaphlan4"]').prop("selected",true);
 					$('#edge-taxa-enabled-tools').selectmenu( "refresh" );
 				}
 			}
