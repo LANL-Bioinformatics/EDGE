@@ -72,7 +72,6 @@ def setup_argparse():
     
     optGrp.add_argument('--trimLen', metavar='<INT>', default=20, type=int, help = 'This is for Dada2 QC on single end reads. This is the number of bases to trim from the reads to e.g. remove PCR primer sequences.[default: 20]')    
     optGrp.add_argument('--truncLen', metavar='<INT>', default=0, type=str, help='This works for Dada2 and Deblur on single end reads to truncate sequences at position [default: 0] no truncate')
-    optGrp.add_argument('--mergeStagger',action='store_true',help='This is for Deblur and OTUs QC. Allow merging of staggered read pairs.')
     optGrp.add_argument('--minQuality',metavar='<INT>',default=4, type=int,help='This is for Deblur and OTUs QC. The minimum acceptable PHRED score. All PHRED scores less that this value are considered to be low PHRED scores. [default: 4]' )
     optGrp.add_argument('--minLengthFraction',metavar='<FLOAT>',default=0.75,type=float, help='This is for Deblur and OTUs QC. The minimum length that a sequence read can be following truncation and still be retained. This length should be provided as a fraction of the input sequence length. [default: 0.75]')
     optGrp.add_argument('--maxAmbiguous',metavar='<INT>',type=int,default=0,help='This is for Deblur and OTUs QC. The maximum number of ambiguous (i.e., N) base calls. This is applied after trimming sequences based on `min_length_fraction. [default: 0]')
@@ -153,6 +152,7 @@ def auto_determine_sampling_depth(file,fixedDepth):
     for line in f:
         if not line.strip():continue
         sid, num =line.split(',')
+        if not sid:continue
         depth_list.append(float(num))
     f.close
     
@@ -539,7 +539,6 @@ if __name__ == '__main__':
         print("    Num bases trim         : %s" % (argvs.trimLen if argvs.trimLen > 0 and not argvs.truncLenForward  else 'False'))    
     
     if argvs.qcMethod.lower() == 'deblur' or argvs.qcMethod.lower() == 'otus':
-        print("    Allow Merge Stagger    : %s" % argvs.mergeStagger)
         print("    Minimum Quality:       : %s" % argvs.minQuality)
         print("    Minimum Len Fraction   : %s" % argvs.minLengthFraction)
         print("    Maximum # Ambiguous    : %s" % argvs.maxAmbiguous)
@@ -690,8 +689,6 @@ if __name__ == '__main__':
             file_for_check_truncate_len = 'demux/quality-plot.html'
             if argvs.paired or read_type == 'pe':
                 join_cmd = ('qiime vsearch merge-pairs --i-demultiplexed-seqs demux/demux.qza --o-merged-sequences demux/demux-joined.qza')
-                if argvs.mergeStagger:
-                    join_cmd = join_cmd + " --p-allowmergestagger" 
                 if not os.path.isfile('demux/demux-joined.qza'):
                     process_cmd(join_cmd,"Vsearch merge-pairs")
                 
