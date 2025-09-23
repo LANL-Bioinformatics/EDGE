@@ -22,7 +22,7 @@ mambaforgebin=$rootdir/thirdParty/Mambaforge/bin
 assembly_tools=( idba spades megahit lrasm racon unicycler )
 annotation_tools=( prokka RATT tRNAscan barrnap BLAST+ blastall phageFinder glimmer aragorn prodigal tbl2asn ShortBRED antismash rgi )
 utility_tools=( FaQCs bedtools R GNU_parallel tabix JBrowse bokeh primer3 samtools bcftools sratoolkit ea-utils omics-pathway-viewer NanoPlot Porechop seqtk Rpackages Chromium )
-alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 )
+alignments_tools=( hmmer infernal bowtie2 bwa mummer diamond minimap2 rapsearch2 mmseqs2 )
 taxonomy_tools=( kraken2 metaphlan kronatools gottcha gottcha2 centrifuge miccr pangia )
 phylogeny_tools=( FastTree RAxML )
 perl_modules=( perl_parallel_forkmanager perl_excel_writer perl_archive_zip perl_string_approx perl_pdf_api2 perl_html_template perl_html_parser perl_JSON perl_bio_phylo perl_xml_twig perl_cgi_session perl_email_valid perl_mailtools )
@@ -174,6 +174,7 @@ then
   rm -rf $rootdir/thirdParty/Mambaforge/envs/piret
 fi
 ./installer.sh piret
+ln -sf $rootdir/thirdParty/PyPiReT piret
 ln -sf $rootdir/thirdParty/PyPiReT $rootdir/bin/piret
 export PATH=$Org_PATH
 cd $rootdir/thirdParty
@@ -200,6 +201,7 @@ make >/dev/null || make
 make install
 cp bin/idba_ud $rootdir/bin/.
 cp bin/fq2fa $rootdir/bin/.
+cp bin/print_graph $rootdir/bin/.
 cd $rootdir/thirdParty
 if [[ "$OSTYPE" == "darwin"* ]]
 then
@@ -241,6 +243,9 @@ echo "--------------------------------------------------------------------------
 tar xvzf megahit-$VER.tar.gz 
 cd megahit-$VER
 cp -f bin/megahit* $rootdir/bin/
+cd $rootdir/scripts/fastg2gfa
+make fastg2gfa
+cp -f fastg2gfa $rootdir/bin/
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -853,11 +858,7 @@ echo "--------------------------------------------------------------------------
                            Installing metaphlan-$VER
 ------------------------------------------------------------------------------
 "
-tar xvzf metaphlan-$VER.tgz
-cd metaphlan-$VER
-$mambaforgebin/pip install .
-ln -fs $mambaforgebin/metaphlan $rootdir/bin
-cp -fR metaphlan/utils/read_fastx.py $rootdir/bin/.
+$mambaforgebin/mamba create -n metaphlan metaphlan=$VER
 cd $rootdir/thirdParty
 echo "
 ------------------------------------------------------------------------------
@@ -1006,7 +1007,7 @@ echo "
 
 install_minimap2()
 {
-local VER=2.24
+local VER=2.28
 echo "------------------------------------------------------------------------------
                            Compiling minimap2 $VER
 ------------------------------------------------------------------------------
@@ -1507,7 +1508,7 @@ echo "--------------------------------------------------------------------------
                         Installing checkM $VER
 ------------------------------------------------------------------------------
 "
-$mambaforgebin/mamba install -n py38 -y checkm-genome
+$mambaforgebin/mamba install -n py38 -y checkm-genome binspreader
 $mambaforgebin/../envs/py38/bin/checkm data setRoot "$rootdir/database/checkM"
 tar -xvzf  pplacer-Linux-v1.1.alpha19.tgz 
 cp  pplacer-Linux-v1.1.alpha19/pplacer $rootdir/bin
@@ -1572,6 +1573,20 @@ $mambaforgebin/pip install jinja2==3.0 bokeh==$VER
 echo "
 ------------------------------------------------------------------------------
                          bokeh $VER Installed
+------------------------------------------------------------------------------
+"
+}
+
+install_mmseq2()
+{
+echo "------------------------------------------------------------------------------
+                 	Installing mmseq2
+------------------------------------------------------------------------------
+"
+$mambaforgebin/mamba install -n py38 -y mmseqs2
+echo "
+------------------------------------------------------------------------------
+                         mmseq Installed
 ------------------------------------------------------------------------------
 "
 }
@@ -2108,6 +2123,14 @@ else
   install_ShortBRED
 fi
 
+
+if ( checkSystemInstallation mmseqs )
+then
+  echo "mmseqs is found"
+else
+  echo "mmseqs is not found"
+  install_mmseqs2
+fi
 
 if ( checkLocalInstallation kraken2 )
 then
