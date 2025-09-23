@@ -16,7 +16,7 @@ function addHostList(){
 
 
 
-var target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa";
+var target_menu = "#edge-ref-file-fromlist-menu,#edge-phylo-ref-select-menu,#edge-hostrm-file-fromlist-menu,#edge-get-contigs-by-taxa-meun,.edge-get-reads-by-taxa,#edge-taxa-enabled-tools-menu";
 var target_dialog = ["edge-ref-file-fromlist-dialog","edge-phylo-ref-select-dialog","edge-hostrm-file-fromlist-dialog","edge-get-contigs-by-taxa-dialog"];
 
 
@@ -135,6 +135,9 @@ $.mobile.document
 	 list.children().not(".ui-screen-hidden").children("a").on("click",function(e){
 		var $visibleListItems = list.children().not(".ui-screen-hidden");
 		var clickedIndex = $visibleListItems.children("a").index(this);
+		if (id.indexOf('taxa-enabled')>0){
+			clickedIndex = clickedIndex + 1;
+		}
 		if ($(this).hasClass('ui-checkbox-on')){
 			$(this).parent().attr("aria-selected",false);
                 	$(this).removeClass("ui-checkbox-on").addClass("ui-checkbox-off");
