@@ -41,6 +41,19 @@ $( document ).ready(function()
   $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden");                       // reset container
   $.mobile.popup.active = undefined;                                         // release mutex
 });
+$('ul[id$="-menu"]').children('li').not(".ui-screen-hidden").children("a").on("click",function(e){
+                var ulId = $(this).closest('ul').attr('id');
+                var $visibleListItems = $('#'+ulId).children('li').not(".ui-screen-hidden");
+                var clickedIndex = $visibleListItems.children("a").index(this) + 1;
+                var $select_menu = $('#'+ulId.replace("-menu",""));
+                var tax_val = $select_menu.find("option:not([disabled])").eq(clickedIndex).val();
+                $(this).parent().attr("aria-selected",true);
+                $select_menu.find("option:not([disabled])").eq(clickedIndex).prop('selected', true);
+                $select_menu.trigger("change");
+                $(".ui-popup-screen").addClass("ui-screen-hidden").removeClass("in out"); // hide overlay
+                $(".ui-popup-container").removeClass("reverse out").addClass("ui-popup-hidden ui-popup-truncate");                       // reset container
+                $.mobile.popup.active = undefined;                                         // release mutex
+});
 	if (typeof localStorage === 'object') {
 	try {
 		localStorage.setItem('localStorage', 1);
