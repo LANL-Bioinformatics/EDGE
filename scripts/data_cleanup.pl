@@ -20,9 +20,20 @@ if ($printonly){
 	find( \&unwanted, @dirs);
 }
 sub unwanted {
-	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache|zip)$/i && 
-	$File::Find::name !~ /JBrowse|public/i &&  
-	unlink $File::Find::name;
+    # Delete if it is:
+    # - a sequencing/compressed file with listed extensions, OR
+    # - a core* file, OR
+    # - the specific Prophage/log.txt file
+    if (
+        (
+            $File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache|zip)$/i
+            || $File::Find::name =~ m{/(?:core\b|core\.\d+)$}i
+            || $File::Find::name =~ m{Prophage/log\.txt$}i
+        )
+        && $File::Find::name !~ /JBrowse|public/i
+    ) {
+        unlink $File::Find::name;
+    }
 }
 
 sub printOldFiles {

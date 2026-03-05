@@ -37,8 +37,10 @@ sub unwanted {
         	return;
 	}
 
-	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
-	($now-(stat $_)[9]) > $keep_secs &&  
+	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i
+        || $File::Find::name =~ m{/(?:core(?:\.\d+)?)}      # core, core.22, core.1234, etc.
+        || $File::Find::name =~ m{(^|/)Prophage/log\.txt$}  # specific Prophage/log.txt
+	&& ($now-(stat $_)[9]) > $keep_secs &&  
 	unlink $File::Find::name;
 }
 
@@ -51,8 +53,10 @@ sub printOldFiles {
         	return;
 	}
 
-	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i && 
-	($now-(stat $_)[9]) > $keep_secs &&  
+	$File::Find::name =~ /\.(sam|bam|fastq|fq|gz|tgz|cache)$/i
+        || $File::Find::name =~ m{/(?:core(?:\.\d+)?)}      # core, core.22, core.1234, etc.
+        || $File::Find::name =~ m{(^|/)Prophage/log\.txt$}  # specific Prophage/log.txt
+	&&($now-(stat $_)[9]) > $keep_secs &&  
 	print $File::Find::name;
 }
 
