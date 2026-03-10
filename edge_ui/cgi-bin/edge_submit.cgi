@@ -284,6 +284,7 @@ sub readBatchInput {
 			my @data = split /\t/, $test;
 			$data[0] =~ s/\W/_/g;
 			for my $i (1..$#header){
+				$data[$i] =~ s/\xC2\xA0$//;
 				$data[$i] =~ s/^\s+|\s+$//g;
 				$data[$i] =~ s/\.\.\///g;
 				my $key = lc($header[$i]);
