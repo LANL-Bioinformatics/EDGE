@@ -581,6 +581,7 @@ for my $file ( @files ) {
 
         # don't like doing this after others; do after each new gene id?
         @to_print= print_held($out, $gffio, \@to_print);
+        @GFF_LINE_FEAT = sort sort_by_feattype @GFF_LINE_FEAT;
 
         gff_validate(@GFF_LINE_FEAT);
 
@@ -692,7 +693,8 @@ sub typeorder {
 
 sub sort_by_feattype {
   my($at,$bt)= ($a->primary_tag, $b->primary_tag);
-  return (typeorder($at) <=> typeorder($bt)) || ($at cmp $bt);
+  my($as,$bs)= ($a->start, $b->start);
+  return ($as <=> $bs) || (typeorder($at) <=> typeorder($bt)) || ($at cmp $bt);
     ## or ($a->name() cmp $b->name());
 }
 
