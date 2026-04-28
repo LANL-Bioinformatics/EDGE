@@ -1,4 +1,43 @@
 #!/usr/bin/env python3
+"""
+## FASTQ Header Examples Detected by Platform
+
+The FASTQ inspector checks read header lines to infer the sequencing platform. The examples below show header formats that are recognized.
+
+#### Illumina
+
+Modern Illumina / CASAVA-style headers:
+
+```text
+@M00176:17:000000000-A3JHG:1:1101:16713:1403 1:N:0:1
+@A016U:114:H7NYMDSX7:1:1101:16853:1322 2:N:0:ATCACG
+@:114:A016U:1:1:16853:1322 1:N:0:1
+```
+
+Older Illumina-style headers with /1 or /2 read markers:
+```text
+@HWUSI-EAS100R:6:73:941:1973#0/1
+@HWI-ST1234:88:1101:1234:5678/2
+```
+
+#### Oxford Nanopore
+Nanopore headers commonly include UUID-style read IDs and metadata such as `runid`, `read`, `ch`, or `start_time`:
+```text
+@b3a6f4f2-89aa-4a4f-8b84-f6fd2c1f74bd runid=1a2b3c4d5e6f read=42 ch=128 start_time=2024-03-21T12:34:56Z
+@e0c10aa1-9b7a-4d2a-9a6f-4e6b3f86d58f runid=abcdef1234567890
+@9f2a1c3b-1111-4222-8333-abcdefabcdef
+```
+
+#### PacBio
+PacBio headers commonly use movie/ZMW/read-coordinate formats:
+```text
+@m64011_190830_220126/14/0_12345
+@m64011_190830_220126/14/ccs
+@m54238_180901_011437/4194312/100_2500
+```
+
+These examples are not exhaustive, but they represent the header shapes currently matched by the FASTQ inspector.
+"""
 
 import argparse
 import gzip
@@ -10,20 +49,20 @@ ILLUMINA_PATTERNS = [
     # Modern Illumina CASAVA 1.8+
     # @MACHINE:RUN:FLOWCELL:LANE:TILE:X:Y READ:FILTER:CONTROL:INDEX
     re.compile(
-        r"^@[^:\s]+:\d+:[^:\s]+:\d+:\d+:\d+:\d+\s+[12]:[YN]:\d+:\S+",
+        r"^@[^:\s]*:\d+:[^:\s]+:\d+:\d+:\d+:\d+\s+[12]:[YN]:\d+:\S+",
         re.IGNORECASE,
     ),
 
     # Older Illumina format
     # @MACHINE:LANE:TILE:X:Y#INDEX/READ
     re.compile(
-        r"^@[^:\s]+:\d+:\d+:\d+:\d+#?[A-Z0-9]*\/[12]",
+        r"^@[^:\s]*:\d+:\d+:\d+:\d+#?[A-Z0-9]*\/[12]",
         re.IGNORECASE,
     ),
 
     # Illumina-like 7 colon-separated fields
     re.compile(
-        r"^@[^:\s]+:\d+:[^:\s]+:\d+:\d+:\d+:\d+",
+        r"^@[^:\s]*:\d+:[^:\s]+:\d+:\d+:\d+:\d+",
         re.IGNORECASE,
     ),
 ]
