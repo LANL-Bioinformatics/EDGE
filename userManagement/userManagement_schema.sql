@@ -20,7 +20,7 @@ CREATE TABLE users (
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(3000),
+    description VARCHAR(3000) NOT NULL DEFAULT '',
     status varchar(255) NOT NULL DEFAULT 'in process',
     published varchar(25) NOT NULL DEFAULT 'no',
     code VARCHAR(255) NOT NULL,
